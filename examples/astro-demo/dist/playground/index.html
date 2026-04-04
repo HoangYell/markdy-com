@@ -1,0 +1,118 @@
+<!DOCTYPE html><html lang="en" data-astro-cid-sckkx6r4> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="A MarkdyScript story animation: two rivals, one heart."><title>Playground — Markdy</title><style>[data-astro-cid-sckkx6r4],[data-astro-cid-sckkx6r4]:before,[data-astro-cid-sckkx6r4]:after{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;background:#f9f9f9;color:#111;line-height:1.6}a[data-astro-cid-sckkx6r4]{color:#06c}
+main[data-astro-cid-5wq3ak55]{max-width:940px;margin:0 auto;padding:1.5rem 1rem 4rem}.breadcrumb[data-astro-cid-5wq3ak55]{margin-bottom:1.5rem;font-size:.875rem}.breadcrumb[data-astro-cid-5wq3ak55] a[data-astro-cid-5wq3ak55]{color:#666;text-decoration:none}.breadcrumb[data-astro-cid-5wq3ak55] a[data-astro-cid-5wq3ak55]:hover{color:#06c}header[data-astro-cid-5wq3ak55]{margin-bottom:1.5rem}h1[data-astro-cid-5wq3ak55]{font-size:2rem;font-weight:700;letter-spacing:-.03em;margin-bottom:.25rem}.subtitle[data-astro-cid-5wq3ak55]{color:#666;font-size:1rem}.stage[data-astro-cid-5wq3ak55]{border:1px solid #e0cce8;border-radius:12px;overflow:hidden;display:inline-block;box-shadow:0 4px 24px #b464c81a;margin-bottom:1.5rem;max-width:100%}.legend[data-astro-cid-5wq3ak55]{margin-bottom:1.5rem}.legend[data-astro-cid-5wq3ak55] h2[data-astro-cid-5wq3ak55]{font-size:1rem;font-weight:600;margin-bottom:.75rem;color:#444;text-transform:uppercase;letter-spacing:.05em;font-size:.8rem}.legend[data-astro-cid-5wq3ak55] ol[data-astro-cid-5wq3ak55]{list-style:none;display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;padding:0}.legend[data-astro-cid-5wq3ak55] li[data-astro-cid-5wq3ak55]{display:flex;align-items:baseline;gap:.4rem;font-size:.875rem;color:#555;min-width:220px}.timestamp[data-astro-cid-5wq3ak55]{font-family:Fira Code,Cascadia Code,monospace;font-size:.78rem;color:#a855f7;min-width:3.5rem;font-weight:600}.source-panel[data-astro-cid-5wq3ak55]{margin-top:.5rem}summary[data-astro-cid-5wq3ak55]{cursor:pointer;font-size:.875rem;color:#06c;user-select:none;margin-bottom:.5rem}pre[data-astro-cid-5wq3ak55]{background:#f9f0ff;border:1px solid #e0cce8;border-radius:8px;padding:1.25rem;overflow-x:auto;font-size:.82rem;line-height:1.6;white-space:pre}code[data-astro-cid-5wq3ak55]{font-family:Fira Code,Cascadia Code,Consolas,monospace}
+</style></head> <body data-astro-cid-sckkx6r4>  <main data-astro-cid-5wq3ak55> <nav class="breadcrumb" data-astro-cid-5wq3ak55> <a href="/" data-astro-cid-5wq3ak55>← Demo home</a> </nav> <header data-astro-cid-5wq3ak55> <h1 data-astro-cid-5wq3ak55>Playground</h1> <p class="subtitle" data-astro-cid-5wq3ak55>
+Two rivals, one heart — a MarkdyScript short story. (~24 seconds)
+</p> </header> <div class="stage" data-astro-cid-5wq3ak55> <div class="markdy-root" data-markdy-code="scene width=900 height=460 fps=30 bg=#fef3ff
+
+asset flower = image(&#34;/memes/flower.png&#34;)
+
+actor guy1 = text(&#34;🧔&#34;) at (760,175) size 70
+actor guy2 = text(&#34;👱&#34;) at (60,175) size 70
+actor girl = text(&#34;👧&#34;) at (400,175) size 70 opacity 0
+
+# -- Introduction --
+@0.0: girl.fade_in(dur=0.6)
+@0.8: guy1.enter(from=right, dur=1.0)
+@1.1: guy2.enter(from=left, dur=1.0)
+
+# -- Both declare love --
+@2.6: guy1.say(&#34;I love you! 😍&#34;, dur=1.4)
+@3.2: guy2.say(&#34;She's mine! 😤&#34;, dur=1.4)
+
+@5.0: girl.say(&#34;Oh my... 😳&#34;, dur=1.2)
+
+# -- Girl steps aside, rivals charge --
+@6.3: girl.move(to=(750,175), dur=0.5, ease=out)
+@6.7: guy1.move(to=(440,175), dur=0.6, ease=in)
+@6.7: guy2.move(to=(330,175), dur=0.6, ease=in)
+
+# -- They fight --
+@7.5: guy1.shake(intensity=14, dur=0.6)
+@7.5: guy2.shake(intensity=14, dur=0.6)
+@8.2: guy1.shake(intensity=10, dur=0.5)
+@8.2: guy2.shake(intensity=7, dur=0.4)
+@8.8: guy2.shake(intensity=4, dur=0.3)
+
+# -- Guy2 loses --
+@9.3: guy2.move(to=(330,320), dur=0.4, ease=in)
+@9.3: guy2.fade_out(dur=0.5)
+@9.3: guy1.say(&#34;I win!! 💪&#34;, dur=1.4)
+
+# -- Guy1 approaches girl with flower --
+@11.0: guy1.move(to=(575,175), dur=0.8, ease=out)
+@12.1: guy1.throw(flower, to=girl, dur=0.9)
+
+# -- Girl rejects --
+@13.2: girl.say(&#34;I don't like you 🙅&#34;, dur=2.0)
+@13.3: girl.shake(intensity=7, dur=0.5)
+@15.5: guy1.say(&#34;But I fought for you! 😢&#34;, dur=1.6)
+@15.7: guy1.move(to=(820,175), dur=1.2, ease=in)
+
+# -- Girl goes to comfort the loser --
+@17.5: guy2.fade_in(dur=0.8)
+@17.8: girl.move(to=(410,175), dur=0.5, ease=out)
+@18.7: girl.move(to=(340,295), dur=1.0, ease=inout)
+@20.0: girl.say(&#34;Are you okay? 💕&#34;, dur=2.0)
+@20.4: guy2.say(&#34;Yeah... thanks 🥺&#34;, dur=1.8)
+
+# -- Guy1 watches from afar --
+@22.5: guy1.say(&#34;...why 😔&#34;, dur=1.5)" data-markdy-assets="{&#34;flower&#34;:&#34;data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'36'%20height%3D'36'%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'16'%20fill%3D'%23ff69b4'%2F%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'6'%20fill%3D'%23ffff00'%2F%3E%3C%2Fsvg%3E&#34;}" data-markdy-autoplay="true" style="width:900px;height:460px;overflow:hidden"> <!--
+    SSR placeholder: keeps layout stable before the island hydrates.
+    Background matches the scene bg prop to avoid a visible flash.
+  --> <div class="markdy-placeholder" aria-label="Markdy animation loading" style="width:900px;height:460px;background:#fef3ff;display:flex;align-items:center;justify-content:center"> <span style="font-family:sans-serif;font-size:12px;color:#bbb;letter-spacing:0.05em" aria-hidden="true">
+▶ markdy
+</span> </div> </div> <script type="module" src="/_astro/Markdy.astro_astro_type_script_index_0_lang.GkaT9kkB.js"></script> </div> <div class="legend" data-astro-cid-5wq3ak55> <h2 data-astro-cid-5wq3ak55>Story acts</h2> <ol data-astro-cid-5wq3ak55> <li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>0s</span> <span class="act-label" data-astro-cid-5wq3ak55>Two rivals enter and spot the girl</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>2.6s</span> <span class="act-label" data-astro-cid-5wq3ak55>Both declare their love</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>6.3s</span> <span class="act-label" data-astro-cid-5wq3ak55>Girl steps back — rivals charge</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>7.5s</span> <span class="act-label" data-astro-cid-5wq3ak55>They fight!</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>9.3s</span> <span class="act-label" data-astro-cid-5wq3ak55>Guy2 is knocked out</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>11s</span> <span class="act-label" data-astro-cid-5wq3ak55>Winner offers a flower…</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>13.2s</span> <span class="act-label" data-astro-cid-5wq3ak55>Girl rejects him</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>17.5s</span> <span class="act-label" data-astro-cid-5wq3ak55>Girl comforts the loser</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>22.5s</span> <span class="act-label" data-astro-cid-5wq3ak55>Winner watches from afar 😔</span> </li> </ol> </div> <details class="source-panel" data-astro-cid-5wq3ak55> <summary data-astro-cid-5wq3ak55>View MarkdyScript source</summary> <pre data-astro-cid-5wq3ak55><code data-astro-cid-5wq3ak55>scene width=900 height=460 fps=30 bg=#fef3ff
+
+asset flower = image(&quot;/memes/flower.png&quot;)
+
+actor guy1 = text(&quot;🧔&quot;) at (760,175) size 70
+actor guy2 = text(&quot;👱&quot;) at (60,175) size 70
+actor girl = text(&quot;👧&quot;) at (400,175) size 70 opacity 0
+
+# -- Introduction --
+@0.0: girl.fade_in(dur=0.6)
+@0.8: guy1.enter(from=right, dur=1.0)
+@1.1: guy2.enter(from=left, dur=1.0)
+
+# -- Both declare love --
+@2.6: guy1.say(&quot;I love you! 😍&quot;, dur=1.4)
+@3.2: guy2.say(&quot;She&#39;s mine! 😤&quot;, dur=1.4)
+
+@5.0: girl.say(&quot;Oh my... 😳&quot;, dur=1.2)
+
+# -- Girl steps aside, rivals charge --
+@6.3: girl.move(to=(750,175), dur=0.5, ease=out)
+@6.7: guy1.move(to=(440,175), dur=0.6, ease=in)
+@6.7: guy2.move(to=(330,175), dur=0.6, ease=in)
+
+# -- They fight --
+@7.5: guy1.shake(intensity=14, dur=0.6)
+@7.5: guy2.shake(intensity=14, dur=0.6)
+@8.2: guy1.shake(intensity=10, dur=0.5)
+@8.2: guy2.shake(intensity=7, dur=0.4)
+@8.8: guy2.shake(intensity=4, dur=0.3)
+
+# -- Guy2 loses --
+@9.3: guy2.move(to=(330,320), dur=0.4, ease=in)
+@9.3: guy2.fade_out(dur=0.5)
+@9.3: guy1.say(&quot;I win!! 💪&quot;, dur=1.4)
+
+# -- Guy1 approaches girl with flower --
+@11.0: guy1.move(to=(575,175), dur=0.8, ease=out)
+@12.1: guy1.throw(flower, to=girl, dur=0.9)
+
+# -- Girl rejects --
+@13.2: girl.say(&quot;I don&#39;t like you 🙅&quot;, dur=2.0)
+@13.3: girl.shake(intensity=7, dur=0.5)
+@15.5: guy1.say(&quot;But I fought for you! 😢&quot;, dur=1.6)
+@15.7: guy1.move(to=(820,175), dur=1.2, ease=in)
+
+# -- Girl goes to comfort the loser --
+@17.5: guy2.fade_in(dur=0.8)
+@17.8: girl.move(to=(410,175), dur=0.5, ease=out)
+@18.7: girl.move(to=(340,295), dur=1.0, ease=inout)
+@20.0: girl.say(&quot;Are you okay? 💕&quot;, dur=2.0)
+@20.4: guy2.say(&quot;Yeah... thanks 🥺&quot;, dur=1.8)
+
+# -- Guy1 watches from afar --
+@22.5: guy1.say(&quot;...why 😔&quot;, dur=1.5)</code></pre> </details> </main>  </body></html> 

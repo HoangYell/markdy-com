@@ -4,6 +4,20 @@
  * Translates a MarkdyScript program into DOM elements and drives the
  * timeline via the Web Animations API (WAAPI).
  * No React, GSAP, or Rough.js dependencies.
+ *
+ * Playback architecture: all WAAPI animations stay permanently paused.
+ * A requestAnimationFrame loop advances `sceneMs` each frame and sets
+ * `anim.currentTime = sceneMs` on every animation.  This avoids two
+ * known pitfalls with WAAPI's startTime-based resumption:
+ *   1. Setting `startTime` on a paused animation does not reliably change
+ *      the play state to "running" across all browsers.
+ *   2. `fill:"both"` causes later-created animations (move, shake …) to
+ *      win the cascade during their before-phase, overriding earlier
+ *      animations' (enter's) off-screen backward fill, so actors appeared
+ *      at their declared positions immediately.
+ * By using `fill:"forwards"` only and pre-initialising actor inline styles,
+ * each actor's before-phase state falls through to the inline style we set,
+ * which gives correct initial positions and opacity values.
  */
 interface PlayerOptions {
     container: HTMLElement;

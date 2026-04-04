@@ -1,0 +1,245 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Markdy } from "@markdy/astro";
+
+// ---------------------------------------------------------------------------
+// Story: 2 guys love 1 girl → they fight → winner offers flower → girl
+//        rejects winner → girl goes to comfort the loser
+// ---------------------------------------------------------------------------
+
+const STORY = `
+scene width=900 height=460 fps=30 bg=#fef3ff
+
+asset flower = image("/memes/flower.png")
+
+actor guy1 = text("🧔") at (760,175) size 70
+actor guy2 = text("👱") at (60,175) size 70
+actor girl = text("👧") at (400,175) size 70 opacity 0
+
+# -- Introduction --
+@0.0: girl.fade_in(dur=0.6)
+@0.8: guy1.enter(from=right, dur=1.0)
+@1.1: guy2.enter(from=left, dur=1.0)
+
+# -- Both declare love --
+@2.6: guy1.say("I love you! 😍", dur=1.4)
+@3.2: guy2.say("She's mine! 😤", dur=1.4)
+
+@5.0: girl.say("Oh my... 😳", dur=1.2)
+
+# -- Girl steps aside, rivals charge --
+@6.3: girl.move(to=(750,175), dur=0.5, ease=out)
+@6.7: guy1.move(to=(440,175), dur=0.6, ease=in)
+@6.7: guy2.move(to=(330,175), dur=0.6, ease=in)
+
+# -- They fight --
+@7.5: guy1.shake(intensity=14, dur=0.6)
+@7.5: guy2.shake(intensity=14, dur=0.6)
+@8.2: guy1.shake(intensity=10, dur=0.5)
+@8.2: guy2.shake(intensity=7, dur=0.4)
+@8.8: guy2.shake(intensity=4, dur=0.3)
+
+# -- Guy2 loses --
+@9.3: guy2.move(to=(330,320), dur=0.4, ease=in)
+@9.3: guy2.fade_out(dur=0.5)
+@9.3: guy1.say("I win!! 💪", dur=1.4)
+
+# -- Guy1 approaches girl with flower --
+@11.0: guy1.move(to=(575,175), dur=0.8, ease=out)
+@12.1: guy1.throw(flower, to=girl, dur=0.9)
+
+# -- Girl rejects --
+@13.2: girl.say("I don't like you 🙅", dur=2.0)
+@13.3: girl.shake(intensity=7, dur=0.5)
+@15.5: guy1.say("But I fought for you! 😢", dur=1.6)
+@15.7: guy1.move(to=(820,175), dur=1.2, ease=in)
+
+# -- Girl goes to comfort the loser --
+@17.5: guy2.fade_in(dur=0.8)
+@17.8: girl.move(to=(410,175), dur=0.5, ease=out)
+@18.7: girl.move(to=(340,295), dur=1.0, ease=inout)
+@20.0: girl.say("Are you okay? 💕", dur=2.0)
+@20.4: guy2.say("Yeah... thanks 🥺", dur=1.8)
+
+# -- Guy1 watches from afar --
+@22.5: guy1.say("...why 😔", dur=1.5)
+`.trim();
+
+// Pre-encoded SVG data URIs (no raw angle-brackets in source to avoid Vite
+// treating them as HTML elements inside the Astro template literal).
+const STORY_ASSETS: Record<string, string> = {
+  // Pink flower (bouquet stand-in)
+  flower:
+    "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'36'%20height%3D'36'%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'16'%20fill%3D'%23ff69b4'%2F%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'6'%20fill%3D'%23ffff00'%2F%3E%3C%2Fsvg%3E",
+};
+
+// Story acts for the legend panel
+const ACTS = [
+  { time: "0s",    label: "Two rivals enter and spot the girl" },
+  { time: "2.6s",  label: "Both declare their love" },
+  { time: "6.3s",  label: "Girl steps back — rivals charge" },
+  { time: "7.5s",  label: "They fight!" },
+  { time: "9.3s",  label: "Guy2 is knocked out" },
+  { time: "11s",   label: "Winner offers a flower…" },
+  { time: "13.2s", label: "Girl rejects him" },
+  { time: "17.5s", label: "Girl comforts the loser" },
+  { time: "22.5s", label: "Winner watches from afar 😔" },
+];
+---
+
+<Layout title="Playground — Markdy" description="A MarkdyScript story animation: two rivals, one heart.">
+  <main>
+    <nav class="breadcrumb">
+      <a href="/">← Demo home</a>
+    </nav>
+
+    <header>
+      <h1>Playground</h1>
+      <p class="subtitle">
+        Two rivals, one heart — a MarkdyScript short story. (~24 seconds)
+      </p>
+    </header>
+
+    <div class="stage">
+      <Markdy
+        code={STORY}
+        assets={STORY_ASSETS}
+        width={900}
+        height={460}
+        bg="#fef3ff"
+        autoplay={true}
+      />
+    </div>
+
+    <div class="legend">
+      <h2>Story acts</h2>
+      <ol>
+        {ACTS.map(({ time, label }) => (
+          <li>
+            <span class="timestamp">{time}</span>
+            <span class="act-label">{label}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <details class="source-panel">
+      <summary>View MarkdyScript source</summary>
+      <pre><code>{STORY}</code></pre>
+    </details>
+  </main>
+</Layout>
+
+<style>
+  main {
+    max-width: 940px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 4rem;
+  }
+
+  .breadcrumb {
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+  }
+
+  .breadcrumb a {
+    color: #666;
+    text-decoration: none;
+  }
+
+  .breadcrumb a:hover {
+    color: #0066cc;
+  }
+
+  header {
+    margin-bottom: 1.5rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.25rem;
+  }
+
+  .subtitle {
+    color: #666;
+    font-size: 1rem;
+  }
+
+  .stage {
+    border: 1px solid #e0cce8;
+    border-radius: 12px;
+    overflow: hidden;
+    display: inline-block;
+    box-shadow: 0 4px 24px rgba(180, 100, 200, 0.1);
+    margin-bottom: 1.5rem;
+    max-width: 100%;
+  }
+
+  .legend {
+    margin-bottom: 1.5rem;
+  }
+
+  .legend h2 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8rem;
+  }
+
+  .legend ol {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+    padding: 0;
+  }
+
+  .legend li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    font-size: 0.875rem;
+    color: #555;
+    min-width: 220px;
+  }
+
+  .timestamp {
+    font-family: "Fira Code", "Cascadia Code", monospace;
+    font-size: 0.78rem;
+    color: #a855f7;
+    min-width: 3.5rem;
+    font-weight: 600;
+  }
+
+  .source-panel {
+    margin-top: 0.5rem;
+  }
+
+  summary {
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: #0066cc;
+    user-select: none;
+    margin-bottom: 0.5rem;
+  }
+
+  pre {
+    background: #f9f0ff;
+    border: 1px solid #e0cce8;
+    border-radius: 8px;
+    padding: 1.25rem;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    white-space: pre;
+  }
+
+  code {
+    font-family: "Fira Code", "Cascadia Code", "Consolas", monospace;
+  }
+</style>

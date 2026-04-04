@@ -4,6 +4,20 @@
  * Translates a MarkdyScript program into DOM elements and drives the
  * timeline via the Web Animations API (WAAPI).
  * No React, GSAP, or Rough.js dependencies.
+ *
+ * Playback architecture: all WAAPI animations stay permanently paused.
+ * A requestAnimationFrame loop advances `sceneMs` each frame and sets
+ * `anim.currentTime = sceneMs` on every animation.  This avoids two
+ * known pitfalls with WAAPI's startTime-based resumption:
+ *   1. Setting `startTime` on a paused animation does not reliably change
+ *      the play state to "running" across all browsers.
+ *   2. `fill:"both"` causes later-created animations (move, shake …) to
+ *      win the cascade during their before-phase, overriding earlier
+ *      animations' (enter's) off-screen backward fill, so actors appeared
+ *      at their declared positions immediately.
+ * By using `fill:"forwards"` only and pre-initialising actor inline styles,
+ * each actor's before-phase state falls through to the inline style we set,
+ * which gives correct initial positions and opacity values.
  */
 
 import { parse } from "@markdy/core";
@@ -22,14 +36,6 @@ const EASE_MAP: Record<string, string> = {
 
 function toEasing(val: unknown): string {
   return EASE_MAP[String(val ?? "")] ?? "linear";
-}
-
-// ---------------------------------------------------------------------------
-// Document timeline helper
-// ---------------------------------------------------------------------------
-
-function docNow(): number {
-  return (document.timeline.currentTime as number | null) ?? performance.now();
 }
 
 // ---------------------------------------------------------------------------
@@ -137,16 +143,10 @@ function createActorEl(
 
 /**
  * Creates one or more Web Animations for each timeline event and returns
- * them all. Every animation is created paused; the caller drives playback.
- *
- * Design notes:
- * - All animations use `fill: "both"` so WAAPI fills the "before" phase with
- *   the first keyframe (no manual opacity=0 setup needed for fade_in actors).
- * - Transform keyframes always encode the full transform string so that
- *   animated and non-animated components stay stable.
- * - Animations are appended in time order so later animations win cascade
- *   priority (WAAPI younger-sort rule), allowing seamless chaining without
- *   explicit cancel-and-restart.
+ * them all. Every animation is created with fill:"forwards" only (no
+ * backward fill) so that later-created animations do not override earlier
+ * ones' intended before-phase state.  Initial inline styles are
+ * pre-computed here; the rAF loop then drives currentTime manually.
  */
 function buildAnimations(
   ast: SceneAST,
@@ -165,6 +165,45 @@ function buildAnimations(
   // Sort events by time for correct sequential state tracking.
   const events = [...ast.events].sort((a, b) => a.time - b.time);
 
+  // ── Pre-process initial inline styles ─────────────────────────────────────
+  //
+  // With fill:"forwards" (no backward fill), each actor's before-phase
+  // shows its inline style.  We need that inline style to match what the
+  // scene should look like at t=0:
+  //
+  //   • Actors whose first action is `enter` must start off-screen.
+  //   • Actors whose first action is `fade_in` and declared opacity > 0
+  //     must start invisible.
+  //
+  const firstEventByActor = new Map<string, typeof events[number]>();
+  for (const ev of events) {
+    if (!firstEventByActor.has(ev.actor)) firstEventByActor.set(ev.actor, ev);
+  }
+
+  for (const [name, def] of Object.entries(ast.actors)) {
+    const el = actorEls.get(name);
+    const s = states.get(name);
+    if (!el || !s) continue;
+
+    const firstEv = firstEventByActor.get(name);
+
+    if (firstEv?.action === "enter") {
+      const from = String(firstEv.params.from ?? "left");
+      const offscreen: ActorState = { ...s };
+      switch (from) {
+        case "left":   offscreen.x = -ast.meta.width * 1.1; break;
+        case "right":  offscreen.x =  ast.meta.width * 2.1; break;
+        case "top":    offscreen.y = -ast.meta.height * 1.1; break;
+        case "bottom": offscreen.y =  ast.meta.height * 2.1; break;
+      }
+      el.style.transform = tx(offscreen);
+    }
+
+    if (firstEv?.action === "fade_in" && (def.opacity === undefined || def.opacity > 0)) {
+      el.style.opacity = "0";
+    }
+  }
+
   for (const ev of events) {
     const el = actorEls.get(ev.actor);
     const s = states.get(ev.actor);
@@ -177,10 +216,12 @@ function buildAnimations(
     );
     const easing = toEasing(ev.params.ease);
 
+    // fill:"forwards" only — no backward fill so before-phase falls through
+    // to the inline style we set above.
     const baseOpts: KeyframeAnimationOptions = {
       delay: delayMs,
       duration: durMs,
-      fill: "both",
+      fill: "forwards",
       easing,
     };
 
@@ -315,6 +356,9 @@ function buildAnimations(
 
         const bubble = document.createElement("div");
         bubble.textContent = text;
+        // Start invisible — fill:"forwards" has no backward fill, so the
+        // bubble's inline opacity:0 shows until the fade-in animation fires.
+        bubble.style.opacity = "0";
         Object.assign(bubble.style, {
           position: "absolute",
           bottom: "calc(100% + 8px)",
@@ -357,12 +401,12 @@ function buildAnimations(
           bubble.animate([{ opacity: 0 }, { opacity: 1 }], {
             delay: delayMs,
             duration: fadeDur,
-            fill: "both",
+            fill: "forwards",
           }),
           bubble.animate([{ opacity: 1 }, { opacity: 0 }], {
             delay: delayMs + durMs - fadeDur,
             duration: fadeDur,
-            fill: "both",
+            fill: "forwards",
           }),
         );
         break;
@@ -402,6 +446,8 @@ function buildAnimations(
           top: "0",
           pointerEvents: "none",
           zIndex: "9",
+          // Hidden until throw animation activates (no backward fill).
+          opacity: "0",
         });
 
         scene.appendChild(projectile);
@@ -409,7 +455,7 @@ function buildAnimations(
         const throwAnim = projectile.animate(
           [
             { transform: tx(s), opacity: 1 },
-            { transform: tx(targetState), opacity: 0.2 },
+            { transform: tx(targetState), opacity: 0 },
           ],
           { ...baseOpts, easing: "ease-in" },
         );
@@ -474,7 +520,13 @@ export function createPlayer(opts: PlayerOptions): Player {
     actorEls.set(name, el);
   }
 
-  // ── Build all animations, initially paused at scene time 0 ────────────────
+  // ── Build all animations, keep them permanently paused ────────────────────
+  //
+  // We never call anim.play().  Instead, the rAF loop sets
+  // anim.currentTime = sceneMs every frame, which makes WAAPI compute the
+  // correct interpolated value (including fill:"forwards" after each
+  // animation ends).  This is reliable across all browsers and avoids the
+  // quirk where setting startTime on a paused animation does not resume it.
   const allAnims = buildAnimations(ast, actorEls, scene, assetOverrides);
   for (const anim of allAnims) {
     anim.pause();
@@ -482,41 +534,35 @@ export function createPlayer(opts: PlayerOptions): Player {
   }
 
   // ── Playback state ─────────────────────────────────────────────────────────
-  //
-  // All animations share a single `docStart` anchor:
-  //   animation.startTime = docStart
-  //   ⟹ animation.currentTime = docNow() - docStart = sceneMs
-  //
-  // This keeps every animation perfectly in sync.
 
-  let sceneMs = 0; // current playhead position (milliseconds)
-  let docStart = 0; // document-timeline anchor corresponding to sceneMs=0
+  let sceneMs = 0;        // current playhead in milliseconds
+  let lastRafTs: number | null = null; // previous rAF timestamp
   let isPlaying = false;
   let rafId: number | null = null;
 
-  function syncAnimations(): void {
-    docStart = docNow() - sceneMs;
+  function applyCurrentTime(): void {
     for (const anim of allAnims) {
-      anim.startTime = docStart;
+      anim.currentTime = sceneMs;
     }
   }
 
-  function rafTick(): void {
-    sceneMs = docNow() - docStart;
+  function rafTick(timestamp: number): void {
+    if (lastRafTs !== null) {
+      sceneMs += timestamp - lastRafTs;
+    }
+    lastRafTs = timestamp;
 
     const totalMs = (ast.meta.duration ?? 0) * 1000;
     if (totalMs > 0 && sceneMs >= totalMs) {
-      // Auto-stop at the declared/computed scene duration.
       sceneMs = totalMs;
+      applyCurrentTime();
       isPlaying = false;
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
-      }
-      for (const anim of allAnims) anim.pause();
+      lastRafTs = null;
+      rafId = null;
       return;
     }
 
+    applyCurrentTime();
     rafId = requestAnimationFrame(rafTick);
   }
 
@@ -524,33 +570,23 @@ export function createPlayer(opts: PlayerOptions): Player {
     play() {
       if (isPlaying) return;
       isPlaying = true;
-      syncAnimations();
+      lastRafTs = null;
       rafId = requestAnimationFrame(rafTick);
     },
 
     pause() {
       if (!isPlaying) return;
       isPlaying = false;
-      // Capture exact playhead position before stopping animations.
-      sceneMs = docNow() - docStart;
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
         rafId = null;
       }
-      for (const anim of allAnims) anim.pause();
+      lastRafTs = null;
     },
 
     seek(seconds: number) {
       sceneMs = seconds * 1000;
-      if (isPlaying) {
-        // Resync running animations to the new playhead.
-        syncAnimations();
-      } else {
-        // Move the paused playhead without resuming.
-        for (const anim of allAnims) {
-          anim.currentTime = sceneMs;
-        }
-      }
+      applyCurrentTime();
     },
 
     destroy() {

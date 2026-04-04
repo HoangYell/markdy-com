@@ -9,9 +9,6 @@ var EASE_MAP = {
 function toEasing(val) {
   return EASE_MAP[String(val ?? "")] ?? "linear";
 }
-function docNow() {
-  return document.timeline.currentTime ?? performance.now();
-}
 function stateFrom(def) {
   return {
     x: def.x,
@@ -85,6 +82,38 @@ function buildAnimations(ast, actorEls, scene, assetOverrides) {
     states.set(name, stateFrom(def));
   }
   const events = [...ast.events].sort((a, b) => a.time - b.time);
+  const firstEventByActor = /* @__PURE__ */ new Map();
+  for (const ev of events) {
+    if (!firstEventByActor.has(ev.actor)) firstEventByActor.set(ev.actor, ev);
+  }
+  for (const [name, def] of Object.entries(ast.actors)) {
+    const el = actorEls.get(name);
+    const s = states.get(name);
+    if (!el || !s) continue;
+    const firstEv = firstEventByActor.get(name);
+    if (firstEv?.action === "enter") {
+      const from = String(firstEv.params.from ?? "left");
+      const offscreen = { ...s };
+      switch (from) {
+        case "left":
+          offscreen.x = -ast.meta.width * 1.1;
+          break;
+        case "right":
+          offscreen.x = ast.meta.width * 2.1;
+          break;
+        case "top":
+          offscreen.y = -ast.meta.height * 1.1;
+          break;
+        case "bottom":
+          offscreen.y = ast.meta.height * 2.1;
+          break;
+      }
+      el.style.transform = tx(offscreen);
+    }
+    if (firstEv?.action === "fade_in" && (def.opacity === void 0 || def.opacity > 0)) {
+      el.style.opacity = "0";
+    }
+  }
   for (const ev of events) {
     const el = actorEls.get(ev.actor);
     const s = states.get(ev.actor);
@@ -98,7 +127,7 @@ function buildAnimations(ast, actorEls, scene, assetOverrides) {
     const baseOpts = {
       delay: delayMs,
       duration: durMs,
-      fill: "both",
+      fill: "forwards",
       easing
     };
     switch (ev.action) {
@@ -211,6 +240,7 @@ function buildAnimations(ast, actorEls, scene, assetOverrides) {
         const inverseScale = 1 / (s.scale || 1);
         const bubble = document.createElement("div");
         bubble.textContent = text;
+        bubble.style.opacity = "0";
         Object.assign(bubble.style, {
           position: "absolute",
           bottom: "calc(100% + 8px)",
@@ -248,12 +278,12 @@ function buildAnimations(ast, actorEls, scene, assetOverrides) {
           bubble.animate([{ opacity: 0 }, { opacity: 1 }], {
             delay: delayMs,
             duration: fadeDur,
-            fill: "both"
+            fill: "forwards"
           }),
           bubble.animate([{ opacity: 1 }, { opacity: 0 }], {
             delay: delayMs + durMs - fadeDur,
             duration: fadeDur,
-            fill: "both"
+            fill: "forwards"
           })
         );
         break;
@@ -287,13 +317,15 @@ function buildAnimations(ast, actorEls, scene, assetOverrides) {
           left: "0",
           top: "0",
           pointerEvents: "none",
-          zIndex: "9"
+          zIndex: "9",
+          // Hidden until throw animation activates (no backward fill).
+          opacity: "0"
         });
         scene.appendChild(projectile);
         const throwAnim = projectile.animate(
           [
             { transform: tx(s), opacity: 1 },
-            { transform: tx(targetState), opacity: 0.2 }
+            { transform: tx(targetState), opacity: 0 }
           ],
           { ...baseOpts, easing: "ease-in" }
         );
@@ -334,56 +366,50 @@ function createPlayer(opts) {
     anim.currentTime = 0;
   }
   let sceneMs = 0;
-  let docStart = 0;
+  let lastRafTs = null;
   let isPlaying = false;
   let rafId = null;
-  function syncAnimations() {
-    docStart = docNow() - sceneMs;
+  function applyCurrentTime() {
     for (const anim of allAnims) {
-      anim.startTime = docStart;
+      anim.currentTime = sceneMs;
     }
   }
-  function rafTick() {
-    sceneMs = docNow() - docStart;
+  function rafTick(timestamp) {
+    if (lastRafTs !== null) {
+      sceneMs += timestamp - lastRafTs;
+    }
+    lastRafTs = timestamp;
     const totalMs = (ast.meta.duration ?? 0) * 1e3;
     if (totalMs > 0 && sceneMs >= totalMs) {
       sceneMs = totalMs;
+      applyCurrentTime();
       isPlaying = false;
-      if (rafId !== null) {
-        cancelAnimationFrame(rafId);
-        rafId = null;
-      }
-      for (const anim of allAnims) anim.pause();
+      lastRafTs = null;
+      rafId = null;
       return;
     }
+    applyCurrentTime();
     rafId = requestAnimationFrame(rafTick);
   }
   const player = {
     play() {
       if (isPlaying) return;
       isPlaying = true;
-      syncAnimations();
+      lastRafTs = null;
       rafId = requestAnimationFrame(rafTick);
     },
     pause() {
       if (!isPlaying) return;
       isPlaying = false;
-      sceneMs = docNow() - docStart;
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
         rafId = null;
       }
-      for (const anim of allAnims) anim.pause();
+      lastRafTs = null;
     },
     seek(seconds) {
       sceneMs = seconds * 1e3;
-      if (isPlaying) {
-        syncAnimations();
-      } else {
-        for (const anim of allAnims) {
-          anim.currentTime = sceneMs;
-        }
-      }
+      applyCurrentTime();
     },
     destroy() {
       player.pause();
