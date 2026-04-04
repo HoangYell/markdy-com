@@ -1,0 +1,280 @@
+import { describe, it, expect } from "vitest";
+import { parse, ParseError } from "../src/parser.js";
+import type { SceneAST } from "../src/ast.js";
+
+// ---------------------------------------------------------------------------
+// Full DSL example (mirrors the spec exactly)
+// ---------------------------------------------------------------------------
+
+const EXAMPLE = `
+scene width=800 height=400 fps=30 bg=white
+
+asset pepe = image("/memes/pepe.webp")
+asset cat  = image("/memes/cat.png")
+asset fire = icon("lucide:flame")
+
+actor p     = sprite(pepe) at (100,250) scale 0.4
+actor c     = sprite(cat)  at (600,250) scale 0.4
+actor title = text("Ship it") at (320,80) size 48
+
+@0.0: p.enter(from=left, dur=0.8)
+@1.0: p.say("bruh", dur=1.0)
+@2.0: p.move(to=(300,250), dur=1.0, ease=inout)
+@3.0: p.throw(fire, to=c, dur=0.8)
+@4.0: c.shake(intensity=3, dur=0.5)
+@4.6: c.fade_out(dur=0.4)
+@5.2: title.fade_in(dur=0.5)
+`;
+
+// ---------------------------------------------------------------------------
+// Scene meta
+// ---------------------------------------------------------------------------
+
+describe("scene meta", () => {
+  it("parses explicit scene properties", () => {
+    const ast = parse("scene width=1024 height=768 fps=60 bg=black");
+    expect(ast.meta).toMatchObject({ width: 1024, height: 768, fps: 60, bg: "black" });
+  });
+
+  it("applies defaults when scene line is absent", () => {
+    // No scene line — defaults apply
+    const ast = parse('asset x = image("/a.png")');
+    expect(ast.meta).toMatchObject({ width: 800, height: 400, fps: 30, bg: "white" });
+  });
+
+  it("accepts an explicit duration", () => {
+    const ast = parse("scene duration=10");
+    expect(ast.meta.duration).toBe(10);
+  });
+
+  it("throws on duplicate scene declaration", () => {
+    expect(() => parse("scene fps=30\nscene fps=60")).toThrow(ParseError);
+  });
+
+  it("throws on unknown scene property", () => {
+    expect(() => parse("scene unknown=99")).toThrow(ParseError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Assets
+// ---------------------------------------------------------------------------
+
+describe("assets", () => {
+  it("parses image and icon assets", () => {
+    const ast = parse(`
+      asset pepe = image("/memes/pepe.webp")
+      asset fire = icon("lucide:flame")
+    `);
+    expect(ast.assets["pepe"]).toEqual({ type: "image", value: "/memes/pepe.webp" });
+    expect(ast.assets["fire"]).toEqual({ type: "icon", value: "lucide:flame" });
+  });
+
+  it("throws on unsupported asset type", () => {
+    expect(() => parse('asset x = video("/clip.mp4")')).toThrow(ParseError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Actors
+// ---------------------------------------------------------------------------
+
+describe("actors", () => {
+  it("parses a sprite actor with scale modifier", () => {
+    const ast = parse("actor p = sprite(pepe) at (100,250) scale 0.4");
+    expect(ast.actors["p"]).toMatchObject({
+      type: "sprite",
+      args: ["pepe"],
+      x: 100,
+      y: 250,
+      scale: 0.4,
+    });
+  });
+
+  it("parses a text actor with size modifier", () => {
+    const ast = parse('actor title = text("Ship it") at (320,80) size 48');
+    expect(ast.actors["title"]).toMatchObject({
+      type: "text",
+      args: ["Ship it"],
+      x: 320,
+      y: 80,
+      size: 48,
+    });
+  });
+
+  it("parses a box actor without modifiers", () => {
+    const ast = parse("actor box1 = box() at (0,0)");
+    expect(ast.actors["box1"]).toMatchObject({ type: "box", x: 0, y: 0 });
+  });
+
+  it("parses multiple modifiers on a single actor", () => {
+    const ast = parse("actor a = sprite(img) at (10,20) scale 0.5 opacity 0.8 rotate 45");
+    expect(ast.actors["a"]).toMatchObject({ scale: 0.5, opacity: 0.8, rotate: 45 });
+  });
+
+  it("throws on invalid actor declaration", () => {
+    expect(() => parse("actor bad = unknown() at (0,0)")).toThrow(ParseError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Events
+// ---------------------------------------------------------------------------
+
+describe("events", () => {
+  function singleEvent(extra: string) {
+    return parse(`actor p = sprite(pepe) at (0,0)\n${extra}`).events[0];
+  }
+
+  it("parses named params", () => {
+    const ev = singleEvent("@0.0: p.enter(from=left, dur=0.8)");
+    expect(ev).toMatchObject({
+      time: 0.0,
+      actor: "p",
+      action: "enter",
+      params: { from: "left", dur: 0.8 },
+    });
+  });
+
+  it("parses tuple param to=(x,y)", () => {
+    const ev = singleEvent("@2.0: p.move(to=(300,250), dur=1.0, ease=inout)");
+    expect(ev.params).toEqual({ to: [300, 250], dur: 1.0, ease: "inout" });
+  });
+
+  it("maps the first positional string arg for say", () => {
+    const ev = singleEvent('@1.0: p.say("bruh", dur=1.0)');
+    expect(ev.params).toEqual({ text: "bruh", dur: 1.0 });
+  });
+
+  it("maps the first positional identifier arg for throw", () => {
+    const ast = parse([
+      "actor p = sprite(pepe) at (0,0)",
+      "actor c = sprite(cat) at (600,250)",
+      "@3.0: p.throw(fire, to=c, dur=0.8)",
+    ].join("\n"));
+    expect(ast.events[0].params).toEqual({ asset: "fire", to: "c", dur: 0.8 });
+  });
+
+  it("parses underscore-separated action names (fade_out, fade_in)", () => {
+    const ev = singleEvent("@4.6: p.fade_out(dur=0.4)");
+    expect(ev.action).toBe("fade_out");
+    expect(ev.params).toEqual({ dur: 0.4 });
+  });
+
+  it("records the source line number", () => {
+    const ast = parse([
+      "",
+      "actor p = sprite(pepe) at (0,0)",
+      "@0.5: p.fade_in(dur=0.5)",
+    ].join("\n"));
+    expect(ast.events[0].line).toBe(3);
+  });
+
+  it("throws on event referencing an unknown actor", () => {
+    expect(() => parse("@0.0: ghost.enter(dur=0.5)")).toThrow(ParseError);
+  });
+
+  it("throws on a malformed event line", () => {
+    expect(() =>
+      parse("actor p = sprite(pepe) at (0,0)\n@bad: p.enter(dur=0.5)"),
+    ).toThrow(ParseError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Duration auto-computation
+// ---------------------------------------------------------------------------
+
+describe("duration auto-computation", () => {
+  it("computes duration from last event time + dur", () => {
+    const ast = parse([
+      "actor p = sprite(pepe) at (0,0)",
+      "@5.2: p.fade_in(dur=0.5)",
+    ].join("\n"));
+    expect(ast.meta.duration).toBeCloseTo(5.7);
+  });
+
+  it("leaves duration undefined when there are no events", () => {
+    const ast = parse('asset x = image("/x.png")');
+    expect(ast.meta.duration).toBeUndefined();
+  });
+
+  it("does not override an explicit duration", () => {
+    const ast = parse([
+      "scene duration=20",
+      "actor p = sprite(pepe) at (0,0)",
+      "@5.0: p.fade_in(dur=1.0)",
+    ].join("\n"));
+    expect(ast.meta.duration).toBe(20);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Comments and whitespace
+// ---------------------------------------------------------------------------
+
+describe("comments and whitespace", () => {
+  it("strips full-line comments", () => {
+    const ast = parse("# this is a comment\nscene fps=24");
+    expect(ast.meta.fps).toBe(24);
+  });
+
+  it("strips inline comments", () => {
+    const ast = parse("scene width=1024 height=768 # change later");
+    expect(ast.meta.width).toBe(1024);
+  });
+
+  it("ignores blank lines", () => {
+    const ast = parse("\n\nscene fps=24\n\n");
+    expect(ast.meta.fps).toBe(24);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Unrecognized statements
+// ---------------------------------------------------------------------------
+
+describe("error handling", () => {
+  it("throws ParseError with the correct line number", () => {
+    let err: ParseError | undefined;
+    try {
+      parse("scene fps=30\nactor p = sprite(pepe) at (0,0)\n@0.0: p.enter(dur=0.5)\nbadtoken");
+    } catch (e) {
+      if (e instanceof ParseError) err = e;
+    }
+    expect(err).toBeInstanceOf(ParseError);
+    expect(err?.line).toBe(4);
+  });
+
+  it("throws on unrecognized top-level statement", () => {
+    expect(() => parse("gibberish line here")).toThrow(ParseError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Full example integration
+// ---------------------------------------------------------------------------
+
+describe("full example", () => {
+  it("parses without error", () => {
+    expect(() => parse(EXAMPLE)).not.toThrow();
+  });
+
+  it("produces the correct counts", () => {
+    const ast: SceneAST = parse(EXAMPLE);
+    expect(Object.keys(ast.assets)).toHaveLength(3);
+    expect(Object.keys(ast.actors)).toHaveLength(3);
+    expect(ast.events).toHaveLength(7);
+  });
+
+  it("has correct meta", () => {
+    const ast = parse(EXAMPLE);
+    expect(ast.meta).toMatchObject({ width: 800, height: 400, fps: 30, bg: "white" });
+  });
+
+  it("auto-computes duration from the last event", () => {
+    const ast = parse(EXAMPLE);
+    // Last event: @5.2 + dur=0.5 = 5.7
+    expect(ast.meta.duration).toBeCloseTo(5.7);
+  });
+});

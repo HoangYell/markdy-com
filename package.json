@@ -1,0 +1,11 @@
+{
+  "name": "markdy",
+  "private": true,
+  "scripts": {
+    "build": "pnpm -r run build",
+    "test": "pnpm -r run test"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}
