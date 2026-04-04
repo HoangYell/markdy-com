@@ -1,0 +1,134 @@
+---
+/**
+ * @markdy/astro — <Markdy /> island component
+ *
+ * SSR: renders a correctly-sized placeholder div so layout is stable.
+ * Client: hydrates via IntersectionObserver when the element enters the
+ *         viewport (equivalent to client:visible behaviour).
+ */
+
+export interface Props {
+  /** MarkdyScript source code. */
+  code: string;
+  /**
+   * Placeholder width in pixels (should match the `width` in the scene
+   * declaration). Used only for the SSR placeholder — the renderer reads
+   * the actual value from the parsed AST.
+   */
+  width?: number;
+  /** Placeholder height in pixels. */
+  height?: number;
+  /**
+   * Placeholder background colour. Pass the same value as `bg` in the
+   * scene declaration so there is no flash on hydration.
+   */
+  bg?: string;
+  /**
+   * Asset URL overrides.  Keys are the asset names used in the DSL.
+   * Values are the URLs the renderer should use instead of the parsed path.
+   * Useful for CDN assets or data URIs in demos.
+   */
+  assets?: Record<string, string>;
+  /** Start playing as soon as the scene is hydrated. Defaults to true. */
+  autoplay?: boolean;
+  class?: string;
+}
+
+const {
+  code,
+  width = 800,
+  height = 400,
+  bg = "white",
+  assets = {},
+  autoplay = true,
+  class: className,
+} = Astro.props;
+---
+
+<div
+  class:list={["markdy-root", className]}
+  data-markdy-code={code}
+  data-markdy-assets={JSON.stringify(assets)}
+  data-markdy-autoplay={String(autoplay)}
+  style={`width:${width}px;height:${height}px;overflow:hidden`}
+>
+  <!--
+    SSR placeholder: keeps layout stable before the island hydrates.
+    Background matches the scene bg prop to avoid a visible flash.
+  -->
+  <div
+    class="markdy-placeholder"
+    aria-label="Markdy animation loading"
+    style={`width:${width}px;height:${height}px;background:${bg};display:flex;align-items:center;justify-content:center`}
+  >
+    <span
+      style="font-family:sans-serif;font-size:12px;color:#bbb;letter-spacing:0.05em"
+      aria-hidden="true"
+    >
+      ▶ markdy
+    </span>
+  </div>
+</div>
+
+<script>
+  import { createPlayer } from "@markdy/renderer-dom";
+
+  function hydrate(el: HTMLElement): void {
+    const code = el.dataset.markdyCode;
+    if (!code) return;
+
+    let assets: Record<string, string> = {};
+    try {
+      assets = JSON.parse(el.dataset.markdyAssets ?? "{}") as Record<
+        string,
+        string
+      >;
+    } catch {
+      // Leave assets empty on parse failure — renderer falls back to DSL paths.
+    }
+
+    const autoplay = el.dataset.markdyAutoplay !== "false";
+
+    // Clear the SSR placeholder before mounting the canvas.
+    el.innerHTML = "";
+    el.style.overflow = "visible";
+
+    createPlayer({ container: el, code, assets, autoplay });
+  }
+
+  // Observe every unhydrated .markdy-root element and hydrate it when it
+  // enters the viewport (100 px root margin so the scene is ready before
+  // the user actually sees it).
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          const el = entry.target as HTMLElement;
+          observer.unobserve(el);
+          hydrate(el);
+        }
+      }
+    },
+    { rootMargin: "100px" },
+  );
+
+  function initAll(): void {
+    document
+      .querySelectorAll<HTMLElement>(".markdy-root:not([data-markdy-init])")
+      .forEach((el) => {
+        // Flag the element to prevent double-registration across re-runs.
+        el.dataset.markdyInit = "pending";
+        observer.observe(el);
+      });
+  }
+
+  // Initial page load.
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAll);
+  } else {
+    initAll();
+  }
+
+  // Re-run after Astro View Transitions / client-side navigation.
+  document.addEventListener("astro:page-load", initAll);
+</script>

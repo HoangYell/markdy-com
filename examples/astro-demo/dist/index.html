@@ -1,0 +1,58 @@
+<!DOCTYPE html><html lang="en" data-astro-cid-sckkx6r4> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Markdy — animation DSL for blog posts"><title>Markdy Demo</title><style>[data-astro-cid-sckkx6r4],[data-astro-cid-sckkx6r4]:before,[data-astro-cid-sckkx6r4]:after{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;background:#f9f9f9;color:#111;line-height:1.6}a[data-astro-cid-sckkx6r4]{color:#06c}main[data-astro-cid-j7pv25f6]{max-width:900px;margin:0 auto;padding:2rem 1rem 4rem}header[data-astro-cid-j7pv25f6]{margin-bottom:3rem}h1[data-astro-cid-j7pv25f6]{font-size:2.5rem;font-weight:700;letter-spacing:-.03em;margin-bottom:.5rem}h2[data-astro-cid-j7pv25f6]{font-size:1.4rem;font-weight:600;margin-bottom:.5rem}section[data-astro-cid-j7pv25f6]{margin-bottom:3rem}section[data-astro-cid-j7pv25f6]>p[data-astro-cid-j7pv25f6]{color:#555;margin-bottom:1rem}.scene-wrapper[data-astro-cid-j7pv25f6]{border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;display:inline-block;margin-bottom:.75rem;max-width:100%}details[data-astro-cid-j7pv25f6]{margin-top:.25rem}summary[data-astro-cid-j7pv25f6]{cursor:pointer;font-size:.85rem;color:#06c;user-select:none;margin-bottom:.5rem}pre[data-astro-cid-j7pv25f6]{background:#f4f4f4;border:1px solid #e0e0e0;border-radius:6px;padding:1rem;overflow-x:auto;font-size:.82rem;line-height:1.5;white-space:pre}code[data-astro-cid-j7pv25f6]{font-family:Fira Code,Cascadia Code,Consolas,monospace}
+</style></head> <body data-astro-cid-sckkx6r4>  <main data-astro-cid-j7pv25f6> <header data-astro-cid-j7pv25f6> <h1 data-astro-cid-j7pv25f6>Markdy</h1> <p data-astro-cid-j7pv25f6>An open-source animation DSL engine for blog posts.</p> </header> <section data-astro-cid-j7pv25f6> <h2 data-astro-cid-j7pv25f6>Spec example</h2> <p data-astro-cid-j7pv25f6>The canonical MarkdyScript scene from the spec, running live in the browser.</p> <div class="scene-wrapper" data-astro-cid-j7pv25f6> <div class="markdy-root" data-markdy-code="scene width=800 height=400 fps=30 bg=white
+
+asset pepe = image(&#34;/memes/pepe.webp&#34;)
+asset cat  = image(&#34;/memes/cat.png&#34;)
+asset fire = icon(&#34;lucide:flame&#34;)
+
+actor p     = sprite(pepe) at (100,250) scale 0.4
+actor c     = sprite(cat)  at (600,250) scale 0.4
+actor title = text(&#34;Ship it&#34;) at (320,80) size 48
+
+@0.0: p.enter(from=left, dur=0.8)
+@1.0: p.say(&#34;bruh&#34;, dur=1.0)
+@2.0: p.move(to=(300,250), dur=1.0, ease=inout)
+@3.0: p.throw(fire, to=c, dur=0.8)
+@4.0: c.shake(intensity=3, dur=0.5)
+@4.6: c.fade_out(dur=0.4)
+@5.2: title.fade_in(dur=0.5)" data-markdy-assets="{&#34;pepe&#34;:&#34;data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'80'%20height%3D'80'%3E%3Ccircle%20cx%3D'40'%20cy%3D'40'%20r%3D'40'%20fill%3D'%2390EE90'%2F%3E%3Ccircle%20cx%3D'40'%20cy%3D'34'%20r%3D'14'%20fill%3D'%23555'%2F%3E%3C%2Fsvg%3E&#34;,&#34;cat&#34;:&#34;data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'80'%20height%3D'80'%3E%3Ccircle%20cx%3D'40'%20cy%3D'40'%20r%3D'40'%20fill%3D'%23FFD700'%2F%3E%3Ccircle%20cx%3D'40'%20cy%3D'34'%20r%3D'14'%20fill%3D'%23a0522d'%2F%3E%3C%2Fsvg%3E&#34;,&#34;fire&#34;:&#34;data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'32'%20height%3D'32'%3E%3Crect%20width%3D'32'%20height%3D'32'%20rx%3D'4'%20fill%3D'%23ff4500'%2F%3E%3C%2Fsvg%3E&#34;}" data-markdy-autoplay="true" style="width:800px;height:400px;overflow:hidden"> <!--
+    SSR placeholder: keeps layout stable before the island hydrates.
+    Background matches the scene bg prop to avoid a visible flash.
+  --> <div class="markdy-placeholder" aria-label="Markdy animation loading" style="width:800px;height:400px;background:white;display:flex;align-items:center;justify-content:center"> <span style="font-family:sans-serif;font-size:12px;color:#bbb;letter-spacing:0.05em" aria-hidden="true">
+▶ markdy
+</span> </div> </div> <script type="module" src="/_astro/Markdy.astro_astro_type_script_index_0_lang.GkaT9kkB.js"></script> </div> <details data-astro-cid-j7pv25f6> <summary data-astro-cid-j7pv25f6>View DSL source</summary> <pre data-astro-cid-j7pv25f6><code data-astro-cid-j7pv25f6>scene width=800 height=400 fps=30 bg=white
+
+asset pepe = image(&quot;/memes/pepe.webp&quot;)
+asset cat  = image(&quot;/memes/cat.png&quot;)
+asset fire = icon(&quot;lucide:flame&quot;)
+
+actor p     = sprite(pepe) at (100,250) scale 0.4
+actor c     = sprite(cat)  at (600,250) scale 0.4
+actor title = text(&quot;Ship it&quot;) at (320,80) size 48
+
+@0.0: p.enter(from=left, dur=0.8)
+@1.0: p.say(&quot;bruh&quot;, dur=1.0)
+@2.0: p.move(to=(300,250), dur=1.0, ease=inout)
+@3.0: p.throw(fire, to=c, dur=0.8)
+@4.0: c.shake(intensity=3, dur=0.5)
+@4.6: c.fade_out(dur=0.4)
+@5.2: title.fade_in(dur=0.5)</code></pre> </details> </section> <section data-astro-cid-j7pv25f6> <h2 data-astro-cid-j7pv25f6>Text animation</h2> <p data-astro-cid-j7pv25f6>A minimal entrance sequence using only text actors.</p> <div class="scene-wrapper" data-astro-cid-j7pv25f6> <div class="markdy-root" data-markdy-code="scene width=600 height=200 fps=30 bg=#1a1a2e
+
+actor headline = text(&#34;Hello, MarkdyScript&#34;) at (50,90) size 36 opacity 0
+actor sub      = text(&#34;An animation DSL for the web&#34;) at (50,140) size 18 opacity 0
+
+@0.2: headline.fade_in(dur=0.6)
+@1.0: sub.fade_in(dur=0.5)
+@2.0: headline.move(to=(80,90), dur=1.0, ease=out)" data-markdy-assets="{}" data-markdy-autoplay="true" style="width:600px;height:200px;overflow:hidden"> <!--
+    SSR placeholder: keeps layout stable before the island hydrates.
+    Background matches the scene bg prop to avoid a visible flash.
+  --> <div class="markdy-placeholder" aria-label="Markdy animation loading" style="width:600px;height:200px;background:#1a1a2e;display:flex;align-items:center;justify-content:center"> <span style="font-family:sans-serif;font-size:12px;color:#bbb;letter-spacing:0.05em" aria-hidden="true">
+▶ markdy
+</span> </div> </div>  </div> <details data-astro-cid-j7pv25f6> <summary data-astro-cid-j7pv25f6>View DSL source</summary> <pre data-astro-cid-j7pv25f6><code data-astro-cid-j7pv25f6>scene width=600 height=200 fps=30 bg=#1a1a2e
+
+actor headline = text(&quot;Hello, MarkdyScript&quot;) at (50,90) size 36 opacity 0
+actor sub      = text(&quot;An animation DSL for the web&quot;) at (50,140) size 18 opacity 0
+
+@0.2: headline.fade_in(dur=0.6)
+@1.0: sub.fade_in(dur=0.5)
+@2.0: headline.move(to=(80,90), dur=1.0, ease=out)</code></pre> </details> </section> </main>  </body></html> 

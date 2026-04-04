@@ -1,0 +1,15 @@
+{
+  "name": "astro-demo",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@markdy/astro": "workspace:*",
+    "@markdy/core": "workspace:*",
+    "astro": "^5.0.0"
+  }
+}

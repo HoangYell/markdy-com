@@ -1,0 +1,46 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+export interface Props extends HTMLAttributes<"html"> {
+  title: string;
+  description?: string;
+}
+
+const {
+  title,
+  description = "Markdy — animation DSL for blog posts",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: system-ui, sans-serif;
+        background: #f9f9f9;
+        color: #111;
+        line-height: 1.6;
+      }
+
+      a {
+        color: #0066cc;
+      }
+    </style>
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

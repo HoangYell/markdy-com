@@ -1,0 +1,171 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Markdy } from "@markdy/astro";
+
+// ---------------------------------------------------------------------------
+// DSL source — matches the canonical MarkdyScript spec example exactly.
+// The `assets` prop below overrides the image paths with inline SVG
+// placeholders so the demo works without real image files on disk.
+// ---------------------------------------------------------------------------
+const SPEC_EXAMPLE = `
+scene width=800 height=400 fps=30 bg=white
+
+asset pepe = image("/memes/pepe.webp")
+asset cat  = image("/memes/cat.png")
+asset fire = icon("lucide:flame")
+
+actor p     = sprite(pepe) at (100,250) scale 0.4
+actor c     = sprite(cat)  at (600,250) scale 0.4
+actor title = text("Ship it") at (320,80) size 48
+
+@0.0: p.enter(from=left, dur=0.8)
+@1.0: p.say("bruh", dur=1.0)
+@2.0: p.move(to=(300,250), dur=1.0, ease=inout)
+@3.0: p.throw(fire, to=c, dur=0.8)
+@4.0: c.shake(intensity=3, dur=0.5)
+@4.6: c.fade_out(dur=0.4)
+@5.2: title.fade_in(dur=0.5)
+`.trim();
+
+// Inline SVG data-URI placeholders — replace with real URLs/paths in prod.
+// Pre-encoded to avoid raw angle-brackets in the source (Astro/Vite confuses
+// them with HTML when they appear inside template literals).
+const SPEC_ASSETS: Record<string, string> = {
+  // Green circle (pepe stand-in)
+  pepe: "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'80'%20height%3D'80'%3E%3Ccircle%20cx%3D'40'%20cy%3D'40'%20r%3D'40'%20fill%3D'%2390EE90'%2F%3E%3Ccircle%20cx%3D'40'%20cy%3D'34'%20r%3D'14'%20fill%3D'%23555'%2F%3E%3C%2Fsvg%3E",
+  // Yellow circle (cat stand-in)
+  cat:  "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'80'%20height%3D'80'%3E%3Ccircle%20cx%3D'40'%20cy%3D'40'%20r%3D'40'%20fill%3D'%23FFD700'%2F%3E%3Ccircle%20cx%3D'40'%20cy%3D'34'%20r%3D'14'%20fill%3D'%23a0522d'%2F%3E%3C%2Fsvg%3E",
+  // Orange-red small square (fire stand-in)
+  fire: "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'32'%20height%3D'32'%3E%3Crect%20width%3D'32'%20height%3D'32'%20rx%3D'4'%20fill%3D'%23ff4500'%2F%3E%3C%2Fsvg%3E",
+};
+
+// ---------------------------------------------------------------------------
+// A minimal second example — plain text entrance & fade.
+// ---------------------------------------------------------------------------
+const SIMPLE_EXAMPLE = `
+scene width=600 height=200 fps=30 bg=#1a1a2e
+
+actor headline = text("Hello, MarkdyScript") at (50,90) size 36 opacity 0
+actor sub      = text("An animation DSL for the web") at (50,140) size 18 opacity 0
+
+@0.2: headline.fade_in(dur=0.6)
+@1.0: sub.fade_in(dur=0.5)
+@2.0: headline.move(to=(80,90), dur=1.0, ease=out)
+`.trim();
+---
+
+<Layout title="Markdy Demo">
+  <main>
+    <header>
+      <h1>Markdy</h1>
+      <p>An open-source animation DSL engine for blog posts.</p>
+    </header>
+
+    <section>
+      <h2>Spec example</h2>
+      <p>The canonical MarkdyScript scene from the spec, running live in the browser.</p>
+      <div class="scene-wrapper">
+        <Markdy
+          code={SPEC_EXAMPLE}
+          assets={SPEC_ASSETS}
+          width={800}
+          height={400}
+          bg="white"
+          autoplay={true}
+        />
+      </div>
+      <details>
+        <summary>View DSL source</summary>
+        <pre><code>{SPEC_EXAMPLE}</code></pre>
+      </details>
+    </section>
+
+    <section>
+      <h2>Text animation</h2>
+      <p>A minimal entrance sequence using only text actors.</p>
+      <div class="scene-wrapper">
+        <Markdy
+          code={SIMPLE_EXAMPLE}
+          width={600}
+          height={200}
+          bg="#1a1a2e"
+          autoplay={true}
+        />
+      </div>
+      <details>
+        <summary>View DSL source</summary>
+        <pre><code>{SIMPLE_EXAMPLE}</code></pre>
+      </details>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+  }
+
+  header {
+    margin-bottom: 3rem;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.5rem;
+  }
+
+  h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  section {
+    margin-bottom: 3rem;
+  }
+
+  section > p {
+    color: #555;
+    margin-bottom: 1rem;
+  }
+
+  .scene-wrapper {
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    display: inline-block;
+    margin-bottom: 0.75rem;
+    max-width: 100%;
+  }
+
+  details {
+    margin-top: 0.25rem;
+  }
+
+  summary {
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #0066cc;
+    user-select: none;
+    margin-bottom: 0.5rem;
+  }
+
+  pre {
+    background: #f4f4f4;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    padding: 1rem;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.5;
+    white-space: pre;
+  }
+
+  code {
+    font-family: "Fira Code", "Cascadia Code", "Consolas", monospace;
+  }
+</style>
