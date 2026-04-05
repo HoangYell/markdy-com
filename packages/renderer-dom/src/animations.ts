@@ -393,6 +393,7 @@ function buildAction(
         projectile = img;
       } else {
         const span = document.createElement("span");
+        span.className = "iconify";
         span.dataset.icon = assetDef.value;
         span.style.fontSize = "32px";
         span.style.lineHeight = "1";

@@ -22,6 +22,7 @@ export function createActorEl(
 
       if (assetDef?.type === "icon") {
         const span = document.createElement("span");
+        span.className = "iconify";
         span.style.display = "inline-block";
         span.style.fontSize = `${def.size ?? 32}px`;
         span.style.lineHeight = "1";
@@ -33,6 +34,9 @@ export function createActorEl(
         img.src = assetOverrides[assetName] ?? assetDef?.value ?? "";
         img.alt = assetName;
         img.style.display = "block";
+        img.style.maxWidth = "100%";
+        img.style.maxHeight = "200px";
+        img.style.objectFit = "contain";
         img.setAttribute("draggable", "false");
         el = img;
       }

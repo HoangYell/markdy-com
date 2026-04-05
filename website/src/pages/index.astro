@@ -232,12 +232,14 @@ const FLOWER_ASSET: Record<string, string> = {
     <div class="ref-grid">
 
       <div class="ref-card">
-        <h3>1. Scene Declaration</h3>
+        <div class="ref-card-header"><h3>1. Scene Declaration</h3><button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button></div>
+        <div class="ref-code-wrap">
         <pre><code>scene width=800 height=400 fps=30 bg=#fafafa</code></pre>
-        <button class="apply-ref-btn" onclick="window.applyRefCode && window.applyRefCode(this.nextElementSibling.textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"></path></svg> Try in Playground</button><script type="text/plain" class="ref-code-data">
+        <script type="text/plain" class="ref-code-data">
 scene width=800 height=400 fps=30 bg=#fafafa
 actor a = figure(#c68642, m, 😎) at (400, 200) scale 1.5
         </script>
+        </div>
         <p>Configures the main canvas timeline. Must exist at the very top of your <code>.markdy</code> file.</p>
         <table>
           <thead><tr><th>Property</th><th>Default</th><th>Description</th></tr></thead>
@@ -252,19 +254,20 @@ actor a = figure(#c68642, m, 😎) at (400, 200) scale 1.5
       </div>
 
       <div class="ref-card">
-        <h3>2. Asset Declarations (Images & Icons)</h3>
+        <div class="ref-card-header"><h3>2. Asset Declarations (Images & Icons)</h3><button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button></div>
         <p>Before you can show a meme or a UI icon, you must declare it as an <code>asset</code>. Once declared, you can render it on screen using a <code>sprite()</code> actor.</p>
+        <div class="ref-code-wrap">
         <pre><code># 1. Declare your meme images and icons
-asset doge_meme = image("https://media1.tenor.com/m/4n4cErvEq_sAAAAd/yapapa-cat.gif")
+asset cool_cat = image("https://media1.tenor.com/m/4n4cErvEq_sAAAAd/yapapa-cat.gif")
 asset fire_icon = icon("lucide:flame")
 
 # 2. Render them on the canvas using 'sprite'
-actor my_meme = sprite(doge_meme) at (400, 200) scale 1.5
-actor flames = sprite(fire_icon) at (100, 100)
+actor my_meme = sprite(cool_cat) at (400, 200)
+actor flames = sprite(fire_icon) at (100, 100) scale 2.0
 
 # 3. Use them in actions (like throwing an icon!)
-@1.0: my_meme.throw(fire_icon, to=(100,100), dur=0.5)</code></pre>
-        <button class="apply-ref-btn" onclick="window.applyRefCode && window.applyRefCode(this.nextElementSibling.textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"></path></svg> Try in Playground</button><script type="text/plain" class="ref-code-data">
+@1.0: my_meme.throw(fire_icon, to=flames, dur=0.5)</code></pre>
+        <script type="text/plain" class="ref-code-data">
 scene width=800 height=400 bg=#ffffff
 asset cool_cat = image("https://media1.tenor.com/m/4n4cErvEq_sAAAAd/yapapa-cat.gif")
 asset fire_icon = icon("lucide:flame")
@@ -272,8 +275,9 @@ asset fire_icon = icon("lucide:flame")
 actor my_meme = sprite(cool_cat) at (600, 200) scale 0.5
 actor flames = sprite(fire_icon) at (200, 200) scale 2.0
 
-@1.0: my_meme.throw(fire_icon, to=(200,200), dur=0.5)
+@1.0: my_meme.throw(fire_icon, to=flames, dur=0.5)
         </script>
+        </div>
         <table>
           <tbody>
             <tr><td><code>image("url")</code></td><td>Loads a local file (e.g. <code>/memes/doge.webp</code>) or a full web URL. Best for memes, photos, backgrounds, and PNGs.</td></tr>
@@ -283,11 +287,12 @@ actor flames = sprite(fire_icon) at (200, 200) scale 2.0
       </div>
 
       <div class="ref-card">
-        <h3>3. Defining Actors</h3>
+        <div class="ref-card-header"><h3>3. Defining Actors</h3><button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button></div>
+        <div class="ref-code-wrap">
         <pre><code>actor a = figure(#c68642, m, 😎) at (100, 200) scale 1.2
 actor b = text("Hello World") at (50, 50) size 24
 actor c = sprite(pepe) at (300, 200) scale 0.5 opacity 0</code></pre>
-        <button class="apply-ref-btn" onclick="window.applyRefCode && window.applyRefCode(this.nextElementSibling.textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"></path></svg> Try in Playground</button><script type="text/plain" class="ref-code-data">
+        <script type="text/plain" class="ref-code-data">
 scene width=800 height=400
 asset cool_cat = image("https://media1.tenor.com/m/4n4cErvEq_sAAAAd/yapapa-cat.gif")
 
@@ -296,6 +301,7 @@ actor b = text("Hello World") at (400, 100) size 24
 actor c = sprite(cool_cat) at (600, 200) opacity 0.5
 actor d = box() at (400, 300)
         </script>
+        </div>
         <p>Objects visible in the scene. Defined by <code>at (x,y)</code> along with optional space-separated modifiers.</p>
         <table>
           <thead><tr><th>Type</th><th>Arguments</th><th>Description</th></tr></thead>
@@ -310,11 +316,12 @@ actor d = box() at (400, 300)
       </div>
 
       <div class="ref-card">
-        <h3>4. DOM-based <code>@time</code> Actions</h3>
+        <div class="ref-card-header"><h3>4. DOM-based <code>@time</code> Actions</h3><button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button></div>
+        <div class="ref-code-wrap">
         <pre><code>@0.5: c.enter(from=left, dur=0.8, ease=out)
 @1.5: c.move(to=(150, 200), dur=1.0)
 @3.0: c.fade_in(dur=0.5)</code></pre>
-        <button class="apply-ref-btn" onclick="window.applyRefCode && window.applyRefCode(this.nextElementSibling.textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"></path></svg> Try in Playground</button><script type="text/plain" class="ref-code-data">
+        <script type="text/plain" class="ref-code-data">
 scene width=800 height=400
 actor c = figure(#000000, m, 😐) at (400,200)
 
@@ -324,6 +331,7 @@ actor c = figure(#000000, m, 😐) at (400,200)
 @4.0: c.say("Nice!", dur=2.0)
 @4.5: c.shake(intensity=5, dur=0.5)
         </script>
+        </div>
         <p>Schedule framework-agnostic layout updates via the <code>@time: target.action()</code> pattern in decimal seconds.</p>
         <table>
           <thead><tr><th>Action</th><th>Parameters</th><th>Function</th></tr></thead>
@@ -341,12 +349,13 @@ actor c = figure(#000000, m, 😐) at (400,200)
       </div>
 
       <div class="ref-card">
-        <h3>5. Figure Specific Limbs</h3>
+        <div class="ref-card-header"><h3>5. Figure Specific Limbs</h3><button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button></div>
+        <div class="ref-code-wrap">
         <pre><code>@2.0: a.face("😵")
 @2.5: a.rotate_part(part=arm_right, to=90, dur=0.4)
 @3.0: a.punch(side=right, dur=0.2)
 @3.5: a.kick(side=left, dur=0.3)</code></pre>
-        <button class="apply-ref-btn" onclick="window.applyRefCode && window.applyRefCode(this.nextElementSibling.textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"></path></svg> Try in Playground</button><script type="text/plain" class="ref-code-data">
+        <script type="text/plain" class="ref-code-data">
 scene width=800 height=400
 actor a = figure(#c68642, m, 😐) at (400,200) scale 1.5
 
@@ -355,6 +364,7 @@ actor a = figure(#c68642, m, 😐) at (400,200) scale 1.5
 @2.0: a.punch(side=right, dur=0.2)
 @2.5: a.kick(side=left, dur=0.3)
         </script>
+        </div>
         <p>Actors exclusively of type <code>figure</code> have articulated limbs that accept specific methods.</p>
         <table>
           <thead><tr><th>Action</th><th>Properties</th></tr></thead>
@@ -368,7 +378,8 @@ actor a = figure(#c68642, m, 😐) at (400,200) scale 1.5
       </div>
 
       <div class="ref-card">
-        <h3>6. Variables & Templates</h3>
+        <div class="ref-card-header"><h3>6. Variables & Templates</h3><button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button></div>
+        <div class="ref-code-wrap">
         <pre><code>var accent_skin = #fad4c0
 
 def char(skin, face) {'{'}
@@ -376,7 +387,7 @@ def char(skin, face) {'{'}
 {'}'}
 
 actor lily = char(${'${accent_skin}'}, 😊) at (100, 200)</code></pre>
-        <button class="apply-ref-btn" onclick="window.applyRefCode && window.applyRefCode(this.nextElementSibling.textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"></path></svg> Try in Playground</button><script type="text/plain" class="ref-code-data">
+        <script type="text/plain" class="ref-code-data">
 scene width=800 height=400
 var accent_skin = #fad4c0
 
@@ -387,19 +398,21 @@ def char(skin, face) {
 actor lily = char(${accent_skin}, 😊) at (200, 200) scale 1.5
 actor rose = char(#e5a285, 👩) at (600, 200) scale 1.5
         </script>
+        </div>
         <p>Streamline scripts dynamically via substitution macros.</p>
         <p>- <code>var</code> ignores trailing comments, robust for <code>#hex</code> injection.<br/>- <code>def</code> injects an inline definition of any actor type, generating custom component variations inherently without JS intervention.</p>
       </div>
 
       <div class="ref-card">
-        <h3>7. Timeline Sequences</h3>
+        <div class="ref-card-header"><h3>7. Timeline Sequences</h3><button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button></div>
+        <div class="ref-code-wrap">
         <pre><code>seq wave(arm, angle) {'{'}
   @+0.0: $.rotate_part(part=${'${arm}'}, to=${'${angle}'}, dur=0.3)
   @+0.3: $.rotate_part(part=${'${arm}'}, to=25, dur=0.3)
 {'}'}
 
 @2.0: lily.play(wave, arm=arm_left, angle=-80)</code></pre>
-        <button class="apply-ref-btn" onclick="window.applyRefCode && window.applyRefCode(this.nextElementSibling.textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"></path></svg> Try in Playground</button><script type="text/plain" class="ref-code-data">
+        <script type="text/plain" class="ref-code-data">
 scene width=800 height=400
 actor lily = figure(#fad4c0, f, 😊) at (400, 200) scale 1.5
 
@@ -411,6 +424,7 @@ seq wave(arm, angle) {
 @1.0: lily.play(wave, arm=arm_left, angle=-80)
 @2.0: lily.play(wave, arm=arm_right, angle=80)
         </script>
+        </div>
         <p>Record and reproduce timed-action blocks. <code>seq</code> instances run relative offsets for the binding target.</p>
         <p>- <code>$</code> acts as the active binding reference during interpretation.<br/>- Statements specified with <code>@+time</code> resolve relative elapsed progression.</p>
       </div>
@@ -894,25 +908,36 @@ seq wave(arm, angle) {
     box-shadow: 0 1px 4px var(--accent-light);
   }
 
+  .ref-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+  .ref-card-header h3 {
+    margin: 0;
+  }
+
   .apply-ref-btn {
+    flex-shrink: 0;
     display: inline-flex;
     align-items: center;
-    margin-top: 10px;
-    margin-bottom: 20px;
-    padding: 6px 14px;
-    font-size: 0.8rem;
-    font-family: inherit;
-    font-weight: 500;
-    color: #fff;
-    background: var(--accent);
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    color: var(--accent);
+    background: var(--accent-light);
     border: none;
     border-radius: 6px;
     cursor: pointer;
-    transition: opacity 0.2s ease, transform 0.1s ease;
+    transition: background 0.15s ease, transform 0.1s ease;
   }
-  .apply-ref-btn:hover { opacity: 0.9; }
-  .apply-ref-btn:active { transform: scale(0.97); }
-  .apply-ref-btn svg { margin-right: 6px; }
+  .apply-ref-btn:hover {
+    background: rgba(63, 185, 80, 0.3);
+  }
+  .apply-ref-btn:active { transform: scale(0.92); }
 
   /* ── Editor layout ───────────────────────────────────────────────────── */
   .editor-layout {
@@ -1075,16 +1100,18 @@ seq wave(arm, angle) {
   .ref-card h3 {
     font-size: 0.9rem;
     font-weight: 700;
-    margin-bottom: 0.65rem;
+    margin-bottom: 0;
     color: var(--text-primary);
   }
 
   .ref-card pre {
+    position: relative;
     background: var(--ref-code-bg);
     color: var(--ref-code-text);
     border: none;
     border-radius: 8px;
     padding: 0.7rem 0.85rem;
+    overflow: clip;
     overflow-x: auto;
     font-size: 0.74rem;
     line-height: 1.6;
