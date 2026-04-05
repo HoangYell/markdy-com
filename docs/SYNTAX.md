@@ -60,11 +60,42 @@ Actors are the objects visible in the scene. They must be declared before any ev
 
 ### Actor types
 
-| Type     | Args                    | Description                             |
-|----------|-------------------------|-----------------------------------------|
-| `sprite` | asset name              | Renders the named image or icon asset   |
-| `text`   | `"quoted string"`       | Renders a text label                    |
-| `box`    | *(none)*                | Renders a 100x100 px solid grey box     |
+| Type     | Args                           | Description                             |
+|----------|--------------------------------|-----------------------------------------|
+| `sprite` | asset name                     | Renders the named image or icon asset   |
+| `text`   | `"quoted string"`              | Renders a text label                    |
+| `box`    | *(none)*                       | Renders a 100×100 px solid grey box     |
+| `figure` | `skinColor [, gender [, face]]` | Emoji stick figure with articulatable limbs |
+
+### The `figure` actor type
+
+Figures are emoji-based stick figures with named body parts that can be individually animated.
+
+```markdy
+actor guy  = figure(#c68642)           at (100, 200)    # male, default face 😶
+actor gal  = figure(#fad4c0, f)        at (300, 200)    # female variant, default face 🙂
+actor hero = figure(#c68642, m, 😎)   at (500, 200)    # custom starting face
+```
+
+**Arguments** (positional, inside the parentheses):
+
+| Position | Name | Default | Description |
+|---|---|---|---|
+| 1 | `skinColor` | `#ffdbac` | CSS colour for skin (neck, arm sticks) |
+| 2 | `gender` | `m` | `m` = male (👕🤜👟), `f` = female (👗💅👠) |
+| 3 | `face` | `😶` (m) / `🙂` (f) | Starting emoji expression |
+
+**Named body parts** (used by `rotate_part`, `punch`, `kick`):
+
+| Part name | Data attribute | Description |
+|---|---|---|
+| `head` | `data-fig-head` | The emoji face span |
+| `face` | `data-fig-face` | Same element (alias) |
+| `body` | `data-fig-body` | Torso emoji (👕 or 👗) |
+| `arm_left` | `data-fig-arm-l` | Left arm (pivot: shoulder) |
+| `arm_right` | `data-fig-arm-r` | Right arm (pivot: shoulder) |
+| `leg_left` | `data-fig-leg-l` | Left leg (pivot: hip) |
+| `leg_right` | `data-fig-leg-r` | Right leg (pivot: hip) |
 
 ### Position
 
@@ -248,6 +279,71 @@ The asset name is the first positional argument.
 | `assetName` | identifier  | Asset to use as the projectile      |
 | `to`        | actor name  | Target actor                        |
 | `dur`       | seconds     |                                     |
+
+---
+
+### `punch`
+
+Swings one arm out and snaps it back. **Figure actors only.**
+
+```markdy
+@5.0: hero.punch(side=right, dur=0.3)
+```
+
+| Parameter | Values          | Default  |
+|-----------|-----------------|----------|
+| `side`    | `left`, `right` | `right`  |
+| `dur`     | seconds         | `0.5`    |
+
+---
+
+### `kick`
+
+Swings one leg out and snaps it back. **Figure actors only.**
+
+```markdy
+@5.5: hero.kick(side=left, dur=0.36)
+```
+
+| Parameter | Values          | Default  |
+|-----------|-----------------|----------|
+| `side`    | `left`, `right` | `right`  |
+| `dur`     | seconds         | `0.5`    |
+
+---
+
+### `rotate_part`
+
+Rotates any named body part of a figure to a target angle. **Figure actors only.**
+
+```markdy
+@1.0: hero.rotate_part(part=arm_right, to=90, dur=0.4)
+@2.0: hero.rotate_part(part=leg_left, to=-60, dur=0.35)
+@3.0: hero.rotate_part(part=head, to=20, dur=0.3)
+```
+
+| Parameter | Type    | Description                                       |
+|-----------|---------|---------------------------------------------------|
+| `part`    | string  | Body part name (see figure actor docs above)     |
+| `to`      | number  | Target angle in degrees                           |
+| `dur`     | seconds | Animation duration                                |
+
+Valid part names: `head`, `face`, `body`, `arm_left`, `arm_right`, `leg_left`, `leg_right`.
+
+---
+
+### `face`
+
+Instantly swaps the emoji face of a figure actor. Seek-safe — works correctly with both forward playback and `seek()` backwards. **Figure actors only.**
+
+```markdy
+@5.0: hero.face("😡")
+@9.5: hero.face("😵")
+```
+
+| Argument  | Type   | Description           |
+|-----------|--------|-----------------------|
+| `"emoji"` | string | New emoji expression  |
 
 ---
 

@@ -1,146 +1,112 @@
-# Markdy
+<p align="center">
+  <strong>Markdy</strong><br>
+  An open-source animation DSL engine.<br>
+  Write MarkdyScript → get animated scenes in the browser.
+</p>
 
-An open-source animation DSL engine for blog posts. Write MarkdyScript, get an animated scene in the browser. Similar in spirit to Mermaid, but for motion.
-
-- **Zero-dependency core.** `@markdy/core` is a pure TypeScript parser with no DOM or runtime deps.
-- **Web-native renderer.** `@markdy/renderer-dom` uses the Web Animations API and CSS transforms -- no GSAP, no Canvas, no React.
-- **Astro-ready.** `@markdy/astro` ships a `<Markdy />` island that hydrates on viewport entry (equivalent to `client:visible`).
-- **Embeddable in Markdown/MDX.** Use a `\`\`\`markdy` code fence or import the component directly.
-- **Deterministic and strict.** The parser provides line-number errors for every malformed statement.
-
----
-
-## Repository layout
-
-```
-markdy/
-  packages/
-    core/            @markdy/core        -- AST types, parser, zero DOM deps
-    renderer-dom/    @markdy/renderer-dom -- Web Animations API renderer
-    astro/           @markdy/astro        -- <Markdy /> Astro island
-  examples/
-    astro-demo/      Runnable demo site
-  docs/
-    SYNTAX.md        Full DSL reference
-  package.json       pnpm workspace root
-  pnpm-workspace.yaml
-  tsconfig.base.json
-```
+<p align="center">
+  <a href="https://github.com/markdy-com/markdy/actions/workflows/ci.yml"><img src="https://github.com/markdy-com/markdy/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/npm/v/@markdy/core?color=blue&label=%40markdy%2Fcore" alt="npm" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/markdy-com/markdy" alt="MIT License" /></a>
+</p>
 
 ---
 
-## Quick start
+## What is Markdy?
 
-### Prerequisites
+**Markdy is like [Mermaid](https://mermaid.js.org/) but for motion.** Define actors, timelines, and interactions in a simple DSL — the engine handles rendering with the Web Animations API. No Canvas, no GSAP, no React.
 
-- Node.js 18+
-- pnpm 8+
+```markdy
+scene width=600 height=300 bg=white
 
-### Install
+actor label = text("Hello World") at (50, 130) size 40 opacity 0
+
+@0.3: label.fade_in(dur=0.6)
+@1.2: label.move(to=(200, 130), dur=0.8, ease=out)
+```
+
+### Key Features
+
+| Feature | Detail |
+|---|---|
+| **Zero-dep parser** | `@markdy/core` is pure TypeScript — no DOM, no runtime deps |
+| **Web-native renderer** | Web Animations API + CSS transforms. No Canvas, no GSAP |
+| **Stick-figure actors** | Emoji-based `figure` type with articulatable limbs, face expressions |
+| **Language-first design** | `var`, `def`, `seq` let users build character systems and choreographies without engine changes |
+| **Astro-ready** | `<Markdy />` island that hydrates on viewport entry |
+| **Strict parser** | Line-number errors for every malformed statement |
+| **AI-agent friendly** | Structured DSL that LLMs can generate, validate, and iterate on ([Agent Guide](docs/AGENT.md)) |
+
+---
+
+## Packages
+
+| Package | Description | Size |
+|---|---|---|
+| [`@markdy/core`](packages/core) | Parser + AST types (zero runtime deps) | ~12 KB |
+| [`@markdy/renderer-dom`](packages/renderer-dom) | Web Animations API renderer | ~22 KB |
+| [`@markdy/astro`](packages/astro) | Astro island component | ~2 KB |
+
+---
+
+## Quick Start
+
+### Vanilla JS / TypeScript
 
 ```sh
 pnpm add @markdy/core @markdy/renderer-dom
 ```
 
-For Astro projects:
+```ts
+import { createPlayer } from "@markdy/renderer-dom";
+
+const player = createPlayer({
+  container: document.getElementById("scene")!,
+  code: `
+    scene width=600 height=300 bg=white
+    actor label = text("Hello") at (50, 130) size 40 opacity 0
+    @0.3: label.fade_in(dur=0.6)
+  `,
+  autoplay: true,
+});
+
+// Control playback
+player.pause();
+player.seek(1.5);   // jump to 1.5 s
+player.play();
+player.destroy();    // clean up
+```
+
+### Astro / MDX
 
 ```sh
 pnpm add @markdy/astro
 ```
 
----
-
-## Usage
-
-### In plain HTML / vanilla JS
-
-```html
-<div id="scene"></div>
-<script type="module">
-  import { createPlayer } from "@markdy/renderer-dom";
-
-  const code = `
-scene width=600 height=300 bg=white
-
-actor label = text("Hello") at (50,130) size 40 opacity 0
-
-@0.3: label.fade_in(dur=0.6)
-@1.2: label.move(to=(200,130), dur=0.8, ease=out)
-  `.trim();
-
-  const player = createPlayer({
-    container: document.getElementById("scene"),
-    code,
-    autoplay: true,
-  });
-</script>
-```
-
-### In Astro / MDX
-
 ```astro
 ---
 import { Markdy } from "@markdy/astro";
 
-const CODE = `
-scene width=800 height=400 bg=white
-
-asset pepe = image("/memes/pepe.webp")
-actor p = sprite(pepe) at (100,250) scale 0.4
-
-@0.0: p.enter(from=left, dur=0.8)
-`.trim();
+const code = `
+  scene width=800 height=400 bg=#fff5f9
+  actor hero = figure(#c68642, m, 😎) at (300, 200)
+  @0.5: hero.enter(from=left, dur=0.8)
+  @1.5: hero.say("Hello!", dur=1.0)
+`;
 ---
 
-<Markdy code={CODE} width={800} height={400} autoplay />
+<Markdy code={code} width={800} height={400} bg="#fff5f9" autoplay />
 ```
 
-The `<Markdy />` component renders a sized SSR placeholder and hydrates once the element nears the viewport.
-
-### `assets` override
-
-Use the `assets` prop to map DSL asset names to runtime URLs (useful for CDN paths, data URIs, or test fixtures):
-
-```astro
-<Markdy
-  code={CODE}
-  assets={{ pepe: "https://cdn.example.com/pepe.webp" }}
-  width={800}
-  height={400}
-/>
-```
-
----
-
-## Renderer API
-
-```ts
-import { createPlayer } from "@markdy/renderer-dom";
-
-const player = createPlayer({
-  container: document.getElementById("scene"), // HTMLElement to mount into
-  code: "...",                                  // MarkdyScript source
-  assets: { fire: "/icons/fire.svg" },         // optional URL overrides
-  autoplay: false,                              // default: false
-});
-
-player.play();
-player.pause();
-player.seek(2.5);  // jump to 2.5 seconds
-player.destroy();  // removes DOM nodes and cancels all animations
-```
-
----
-
-## Parser API
+### Parser Only (Node.js / Edge)
 
 ```ts
 import { parse, ParseError } from "@markdy/core";
-import type { SceneAST } from "@markdy/core";
 
 try {
-  const ast: SceneAST = parse(source);
-  console.log(ast.meta, ast.actors, ast.events);
+  const ast = parse(source);
+  console.log(ast.actors);  // { hero: { type: "figure", ... } }
+  console.log(ast.events);  // [{ time: 0.5, actor: "hero", action: "enter", ... }]
 } catch (e) {
   if (e instanceof ParseError) {
     console.error(`Line ${e.line}: ${e.message}`);
@@ -148,122 +114,199 @@ try {
 }
 ```
 
-### `SceneAST` shape
-
-```ts
-type SceneAST = {
-  meta: {
-    width: number;
-    height: number;
-    fps: number;
-    bg: string;
-    duration?: number;   // auto-computed when not explicit
-  };
-  assets: Record<string, { type: "image" | "icon"; value: string }>;
-  actors: Record<string, {
-    type: "sprite" | "text" | "box";
-    args: string[];
-    x: number;
-    y: number;
-    scale?: number;
-    rotate?: number;
-    opacity?: number;
-    size?: number;
-  }>;
-  events: Array<{
-    time: number;
-    actor: string;
-    action: string;
-    params: Record<string, unknown>;
-    line: number;
-  }>;
-};
-```
-
 ---
 
-## DSL overview
+## DSL at a Glance
 
-Full reference: [docs/SYNTAX.md](docs/SYNTAX.md)
+Full reference: **[docs/SYNTAX.md](docs/SYNTAX.md)** · Step-by-step tutorial: **[docs/TUTORIAL.md](docs/TUTORIAL.md)** · AI agent guide: **[docs/AGENT.md](docs/AGENT.md)**
+
+### Scene + Actors + Timeline
 
 ```markdy
-scene width=800 height=400 fps=30 bg=white
+scene width=800 height=400 bg=white
 
-asset pepe = image("/memes/pepe.webp")
-asset cat  = image("/memes/cat.png")
-asset fire = icon("lucide:flame")
+asset flower = image("/flower.svg")
 
-actor p     = sprite(pepe) at (100,250) scale 0.4
-actor c     = sprite(cat)  at (600,250) scale 0.4
-actor title = text("Ship it") at (320,80) size 48
+actor hero  = figure(#c68642, m, 😎) at (100, 200)
+actor label = text("Watch this") at (400, 50) size 32 opacity 0
 
-@0.0: p.enter(from=left, dur=0.8)
-@1.0: p.say("bruh", dur=1.0)
-@2.0: p.move(to=(300,250), dur=1.0, ease=inout)
-@3.0: p.throw(fire, to=c, dur=0.8)
-@4.0: c.shake(intensity=3, dur=0.5)
-@4.6: c.fade_out(dur=0.4)
-@5.2: title.fade_in(dur=0.5)
+@0.0: hero.enter(from=left, dur=0.8)
+@1.0: hero.say("Hi!", dur=1.2)
+@2.5: hero.face("😄")
+@3.0: label.fade_in(dur=0.5)
 ```
 
-### Supported actions
+### Variables + Templates + Sequences
 
-| Action       | Description                                         |
-|--------------|-----------------------------------------------------|
-| `enter`      | Slide in from `left`, `right`, `top`, or `bottom`   |
-| `move`       | Translate to `to=(x,y)`                             |
-| `fade_in`    | Opacity 0 to 1                                      |
-| `fade_out`   | Opacity to 0                                        |
-| `scale`      | Animate scale to `to=<val>`                         |
-| `rotate`     | Animate rotation to `to=<deg>`                      |
-| `shake`      | Horizontal oscillation                              |
-| `say`        | Speech bubble for `dur` seconds                     |
-| `throw`      | Projectile from actor to target actor               |
+```markdy
+var skin = #c68642
+
+def fighter(skin, face) {
+  figure(${skin}, m, ${face})
+}
+
+seq punch_combo(side) {
+  @+0.0: $.punch(side=${side}, dur=0.3)
+  @+0.3: $.shake(intensity=5, dur=0.2)
+}
+
+actor bruno = fighter(${skin}, 😏) at (200, 200)
+
+@0.5: bruno.enter(from=left, dur=0.8)
+@2.0: bruno.play(punch_combo, side=right)
+```
+
+### Actions Reference
+
+| Action | Description | Key Parameters |
+|---|---|---|
+| `enter` | Slide in from offscreen | `from`, `dur`, `ease` |
+| `move` | Translate to position | `to=(x,y)`, `dur`, `ease` |
+| `fade_in` / `fade_out` | Opacity transitions | `dur` |
+| `scale` | Animate scale | `to`, `dur`, `ease` |
+| `rotate` | Animate rotation | `to` (degrees), `dur` |
+| `shake` | Horizontal oscillation | `intensity`, `dur` |
+| `say` | Speech bubble | `"text"`, `dur` |
+| `throw` | Projectile to target | `asset`, `to`, `dur` |
+| `punch` / `kick` | Limb strike (figure only) | `side` |
+| `rotate_part` | Rotate body part (figure only) | `part`, `to`, `dur` |
+| `face` | Swap emoji expression (figure only) | `"emoji"` |
 
 Easing values: `linear` (default), `in`, `out`, `inout`.
 
 ---
 
-## Running the demo
+## API Reference
 
-```sh
-git clone https://github.com/your-org/markdy-com.git
-cd markdy-com
-pnpm install
-pnpm --filter @markdy/core run build
-pnpm --filter @markdy/renderer-dom run build
-pnpm --filter astro-demo run dev
+### `parse(source: string): SceneAST`
+
+Parses MarkdyScript source into a typed AST. Throws `ParseError` with line numbers on invalid input. Pure function with no side effects — runs in Node.js, Deno, edge runtimes, or the browser.
+
+### `createPlayer(options: PlayerOptions): Player`
+
+Creates a DOM-based animation player.
+
+```ts
+interface PlayerOptions {
+  container: HTMLElement;    // Mount point
+  code: string;             // MarkdyScript source
+  assets?: Record<string, string>;  // Asset URL overrides
+  autoplay?: boolean;       // Start immediately (default: false)
+}
+
+interface Player {
+  play(): void;             // Start / resume
+  pause(): void;            // Pause at current position
+  seek(seconds: number): void;  // Jump to time
+  destroy(): void;          // Remove DOM + cancel animations
+}
 ```
 
-Open `http://localhost:4321`.
+### `<Markdy />` (Astro Component)
+
+| Prop | Type | Default | Description |
+|---|---|---|---|
+| `code` | `string` | *(required)* | MarkdyScript source |
+| `width` | `number` | `800` | Placeholder width (px) |
+| `height` | `number` | `400` | Placeholder height (px) |
+| `bg` | `string` | `"white"` | Placeholder background colour |
+| `assets` | `Record<string, string>` | `{}` | Asset URL overrides |
+| `autoplay` | `boolean` | `true` | Auto-play on hydration |
+| `class` | `string` | — | CSS class for outer wrapper |
+
+---
+
+## Architecture
+
+See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for technical details.
+
+```
+  MarkdyScript source
+        │
+        ▼
+  ┌─────────────┐
+  │ @markdy/core │  parse() → SceneAST
+  │  (parser)    │  Pure TS, zero deps
+  └──────┬──────┘
+         │ SceneAST
+         ▼
+  ┌──────────────────┐
+  │ @markdy/renderer  │  createPlayer() → Player
+  │  -dom             │  WAAPI + rAF loop
+  └──────┬───────────┘
+         │ Player
+         ▼
+  ┌──────────────────┐
+  │ @markdy/astro     │  <Markdy /> island
+  │  (optional)       │  SSR placeholder + IntersectionObserver
+  └──────────────────┘
+```
+
+All WAAPI animations are permanently paused. A `requestAnimationFrame` loop manually sets `anim.currentTime = sceneMs` each frame. This avoids browser-specific quirks with `startTime`-based resumption and enables reliable `seek()`.
 
 ---
 
 ## Development
 
 ```sh
-# Build all packages
+git clone https://github.com/markdy-com/markdy.git
+cd markdy
+pnpm install
 pnpm build
-
-# Run parser tests
 pnpm test
-
-# Watch mode for core
-pnpm --filter @markdy/core exec vitest
 ```
+
+### Project Structure
+
+```
+packages/
+  core/              @markdy/core         — Parser + AST types (zero deps)
+  renderer-dom/      @markdy/renderer-dom — WAAPI renderer
+    src/
+      types.ts       — ActorState, FaceSwap, easing utilities
+      figure.ts      — Stick-figure DOM factory
+      actors.ts      — Actor element factory (sprite/text/figure/box)
+      animations.ts  — Timeline → WAAPI Animation objects
+      player.ts      — Public API, rAF loop, face-swap logic
+  astro/             @markdy/astro        — Astro island component
+examples/
+  astro-demo/        Live demo site with playground
+docs/
+  SYNTAX.md          Full DSL reference
+  TUTORIAL.md        Step-by-step human tutorial
+  AGENT.md           Guide for AI agents / LLMs
+  ARCHITECTURE.md    Technical deep dive
+```
+
+### Scripts
+
+| Command | Description |
+|---|---|
+| `pnpm build` | Build all packages (tsup) |
+| `pnpm test` | Run all tests (vitest) |
+| `pnpm typecheck` | Type-check all packages |
+| `pnpm clean` | Remove all `dist/` directories |
 
 ---
 
-## Packages
+## Documentation
 
-| Package                 | Version | Description                            |
-|-------------------------|---------|----------------------------------------|
-| `@markdy/core`          | 0.1.0   | AST types and parser                   |
-| `@markdy/renderer-dom`  | 0.1.0   | Web Animations API renderer            |
-| `@markdy/astro`         | 0.1.0   | Astro island integration               |
+| Document | Audience | Description |
+|---|---|---|
+| **[SYNTAX.md](docs/SYNTAX.md)** | All users | Complete DSL language reference |
+| **[TUTORIAL.md](docs/TUTORIAL.md)** | Humans | Step-by-step guide from zero to animated scenes |
+| **[AGENT.md](docs/AGENT.md)** | AI agents / LLMs | Structured prompt-ready reference for code generation |
+| **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** | Contributors | Technical design, renderer internals, AST shape |
+| **[CONTRIBUTING.md](CONTRIBUTING.md)** | Contributors | Dev setup, code style, PR guidelines |
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 
 ---
 
 ## License
 
-MIT
+[MIT](LICENSE) © Markdy Contributors

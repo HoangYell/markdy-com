@@ -1,9 +1,28 @@
 {
   "name": "@markdy/astro",
   "version": "0.1.0",
+  "description": "Astro island component for MarkdyScript animations.",
+  "license": "MIT",
   "type": "module",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
   "exports": {
     ".": "./src/index.ts"
+  },
+  "keywords": [
+    "markdy",
+    "astro",
+    "animation",
+    "island",
+    "component"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/markdy-com/markdy.git",
+    "directory": "packages/astro"
   },
   "dependencies": {
     "@markdy/renderer-dom": "workspace:*"

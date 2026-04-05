@@ -1,18 +1,41 @@
 {
   "name": "@markdy/core",
   "version": "0.1.0",
+  "description": "MarkdyScript parser and AST types — zero runtime dependencies.",
+  "license": "MIT",
   "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     }
+  },
+  "keywords": [
+    "markdy",
+    "markdyscript",
+    "animation",
+    "dsl",
+    "parser",
+    "ast"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/markdy-com/markdy.git",
+    "directory": "packages/core"
   },
   "scripts": {
     "build": "tsup",
-    "test": "vitest run"
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit"
   },
   "devDependencies": {
     "tsup": "^8.3.0",

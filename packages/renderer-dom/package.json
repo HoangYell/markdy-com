@@ -1,17 +1,39 @@
 {
   "name": "@markdy/renderer-dom",
   "version": "0.1.0",
+  "description": "Web Animations API renderer for MarkdyScript scenes.",
+  "license": "MIT",
   "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
     }
   },
+  "keywords": [
+    "markdy",
+    "animation",
+    "web-animations-api",
+    "renderer",
+    "dom"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/markdy-com/markdy.git",
+    "directory": "packages/renderer-dom"
+  },
   "scripts": {
-    "build": "tsup"
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@markdy/core": "workspace:*"

@@ -1,9 +1,27 @@
 {
   "name": "markdy",
   "private": true,
+  "description": "An open-source animation DSL engine. Write MarkdyScript, get animated scenes in the browser.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/markdy-com/markdy.git"
+  },
+  "homepage": "https://github.com/markdy-com/markdy#readme",
+  "bugs": {
+    "url": "https://github.com/markdy-com/markdy/issues"
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8"
+  },
+  "packageManager": "pnpm@9.15.4",
   "scripts": {
     "build": "pnpm -r run build",
-    "test": "pnpm -r run test"
+    "test": "pnpm -r run test",
+    "lint": "pnpm -r run lint",
+    "typecheck": "pnpm -r run typecheck",
+    "clean": "pnpm -r exec rm -rf dist"
   },
   "devDependencies": {
     "typescript": "^5.4.0"

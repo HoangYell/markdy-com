@@ -316,17 +316,6 @@ export function parse(source: string): SceneAST {
       continue;
     }
 
-    // ── var ─────────────────────────────────────────────────────────────────
-    if (raw.startsWith("var ")) {
-      const vm = VAR_RE.exec(raw);
-      if (!vm) {
-        throw new ParseError(`Invalid var declaration: ${raw}`, lineNum);
-      }
-      const [, name, value] = vm;
-      ast.vars[name] = value.trim();
-      continue;
-    }
-
     // ── def ─────────────────────────────────────────────────────────────────
     if (raw.startsWith("def ")) {
       const dm = DEF_HEADER_RE.exec(raw);

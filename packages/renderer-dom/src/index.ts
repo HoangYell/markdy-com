@@ -1,2 +1,2 @@
-export type { PlayerOptions, Player } from "./renderer.js";
-export { createPlayer } from "./renderer.js";
+export type { PlayerOptions, Player } from "./player.js";
+export { createPlayer } from "./player.js";

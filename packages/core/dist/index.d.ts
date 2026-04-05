@@ -78,4 +78,4 @@ declare class ParseError extends Error {
 }
 declare function parse(source: string): SceneAST;
 
-export { type ActorDef, type AssetDef, ParseError, type SceneAST, type SceneMeta, type TimelineEvent, parse };
+export { type ActorDef, type AssetDef, ParseError, type SceneAST, type SceneMeta, type SequenceDef, type TemplateDef, type TimelineEvent, parse };
