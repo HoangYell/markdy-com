@@ -226,7 +226,7 @@ createPlayer({ container: el, code, assets, autoplay })
 ### Build Order
 
 ```
-@markdy/core  →  @markdy/renderer-dom  →  @markdy/astro  →  astro-demo
+@markdy/core  →  @markdy/renderer-dom  →  @markdy/astro  →  @markdy/website
 ```
 
 `@markdy/core` must build first — `@markdy/renderer-dom` imports from it.

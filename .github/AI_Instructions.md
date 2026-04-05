@@ -71,10 +71,9 @@ markdy/
       package.json  
       tsconfig.json
 
-  examples/  
-    astro-demo/  
-      src/  
-      public/memes/
+  website/  
+    src/  
+    public/memes/
 
   package.json (root)  
   pnpm-workspace.yaml  
@@ -126,7 +125,7 @@ To avoid token limits, you must generate this project in strict stages.
 
 * **STAGE 1:** Output the root config files (pnpm-workspace.yaml, package.json, tsconfig.base.json) AND the complete @markdy/core package (AST, parser, and Vitest test file).  
 * **STAGE 2:** Output the complete @markdy/renderer-dom package.  
-* **STAGE 3:** Output the @markdy/astro integration and the examples/astro-demo application.  
+* **STAGE 3:** Output the @markdy/astro integration and the website application.  
 * **STAGE 4:** Output docs/SYNTAX.md and the root README.md.
 
 Please acknowledge these instructions and execute **STAGE 1** now.

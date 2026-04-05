@@ -270,7 +270,7 @@ packages/
       player.ts      — Public API, rAF loop, face-swap logic
   astro/             @markdy/astro        — Astro island component
 examples/
-  astro-demo/        Live demo site with playground
+website/               Official markdy.com website
 docs/
   SYNTAX.md          Full DSL reference
   TUTORIAL.md        Step-by-step human tutorial

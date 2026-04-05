@@ -25,7 +25,7 @@ packages/
   renderer-dom/    @markdy/renderer-dom — Web Animations API renderer
   astro/           @markdy/astro        — <Markdy /> Astro island
 examples/
-  astro-demo/      Live demo site
+website/             Official markdy.com website
 docs/
   SYNTAX.md        Full DSL reference
 ```

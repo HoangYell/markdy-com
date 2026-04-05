@@ -318,20 +318,24 @@ function buildAction(
       bubble.style.opacity = "0";
       Object.assign(bubble.style, {
         position: "absolute",
-        bottom: "calc(100% + 8px)",
+        bottom: "calc(100% + 10px)",
         left: "50%",
         transform: `translateX(-50%) scale(${inverseScale})`,
         transformOrigin: "center bottom",
         background: "white",
         border: "2px solid #222",
-        borderRadius: "10px",
-        padding: "4px 10px",
-        fontFamily: "sans-serif",
-        fontSize: "14px",
+        borderRadius: "12px",
+        padding: "6px 14px",
+        fontFamily: "system-ui, sans-serif",
+        fontSize: "15px",
+        lineHeight: "1.3",
         whiteSpace: "nowrap",
+        maxWidth: "220px",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
         pointerEvents: "none",
         zIndex: "10",
-        boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+        boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
       });
 
       const tail = document.createElement("span");
@@ -342,8 +346,8 @@ function buildAction(
         transform: "translateX(-50%)",
         width: "0",
         height: "0",
-        borderLeft: "6px solid transparent",
-        borderRight: "6px solid transparent",
+        borderLeft: "7px solid transparent",
+        borderRight: "7px solid transparent",
         borderTop: "10px solid #222",
       });
       bubble.appendChild(tail);

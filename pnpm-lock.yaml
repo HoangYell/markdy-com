@@ -12,25 +12,6 @@ importers:
         specifier: ^5.4.0
         version: 5.9.3
 
-  examples/astro-demo:
-    dependencies:
-      '@markdy/astro':
-        specifier: workspace:*
-        version: link:../../packages/astro
-      '@markdy/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@markdy/renderer-dom':
-        specifier: workspace:*
-        version: link:../../packages/renderer-dom
-      astro:
-        specifier: ^5.0.0
-        version: 5.18.1(rollup@4.60.1)(typescript@5.9.3)
-    devDependencies:
-      wrangler:
-        specifier: ^4.0.0
-        version: 4.80.0
-
   packages/astro:
     dependencies:
       '@markdy/renderer-dom':
@@ -68,6 +49,25 @@ importers:
       typescript:
         specifier: ^5.4.0
         version: 5.9.3
+
+  website:
+    dependencies:
+      '@markdy/astro':
+        specifier: workspace:*
+        version: link:../packages/astro
+      '@markdy/core':
+        specifier: workspace:*
+        version: link:../packages/core
+      '@markdy/renderer-dom':
+        specifier: workspace:*
+        version: link:../packages/renderer-dom
+      astro:
+        specifier: ^5.0.0
+        version: 5.18.1(rollup@4.60.1)(typescript@5.9.3)
+    devDependencies:
+      wrangler:
+        specifier: ^4.0.0
+        version: 4.80.0
 
 packages:
 
