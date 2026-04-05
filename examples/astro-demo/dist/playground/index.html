@@ -4,191 +4,301 @@ main[data-astro-cid-5wq3ak55]{max-width:960px;margin:0 auto;padding:1.5rem 1rem 
 Stick figures with body parts — punch, kick, rotate any limb. (~25 s)
 </p> </header> <div class="stage" data-astro-cid-5wq3ak55> <div class="markdy-root" data-markdy-code="scene width=920 height=460 fps=30 bg=#fff5f9
 
+# ── Variables ─────────────────────────────────────────────────────────────
+var skin_bruno = #c68642
+var skin_alex  = #8d5524
+var skin_lily  = #fad4c0
+var fight_y    = 200
+
+# ── Templates ─────────────────────────────────────────────────────────────
+def fighter(skin, face) {
+  figure(${skin}, m, ${face})
+}
+
+def heroine(skin, face) {
+  figure(${skin}, f, ${face})
+}
+
+# ── Sequences ─────────────────────────────────────────────────────────────
+seq entrance(side) {
+  @+0.0: $.enter(from=${side}, dur=1.0)
+}
+
+seq wave_arm(arm, angle) {
+  @+0.0: $.rotate_part(part=${arm}, to=${angle}, dur=0.3)
+  @+0.3: $.rotate_part(part=${arm}, to=25, dur=0.3)
+}
+
+seq head_shake {
+  @+0.0: $.rotate_part(part=head, to=10, dur=0.25)
+  @+0.3: $.rotate_part(part=head, to=-10, dur=0.25)
+  @+0.6: $.rotate_part(part=head, to=0, dur=0.2)
+}
+
+seq punch_hit(side, intensity) {
+  @+0.0: $.punch(side=${side}, dur=0.32)
+  @+0.05: $.shake(intensity=${intensity}, dur=0.3)
+}
+
+seq body_clash(angle) {
+  @+0.0: $.rotate_part(part=body, to=${angle}, dur=0.2)
+  @+0.2: $.rotate_part(part=body, to=0, dur=0.2)
+}
+
+seq celebrate {
+  @+0.0: $.rotate_part(part=arm_right, to=-130, dur=0.3)
+  @+0.4: $.rotate_part(part=arm_right, to=-25, dur=0.4)
+}
+
+# ── Assets ────────────────────────────────────────────────────────────────
 asset flower = image(&#34;/memes/flower.png&#34;)
 
-# Bruno = right-side guy  (#c68642 skin, default male)
-# Alex  = left-side guy   (#8d5524 darker skin)
-# Lily  = girl            (#fad4c0 light skin, &#34;f&#34; = female variant)
-actor bruno = figure(#c68642)    at (740, 200)
-actor alex  = figure(#8d5524)    at (120, 200)
-actor lily  = figure(#fad4c0, f) at (430, 200) opacity 0
+# ── Actors (using templates!) ─────────────────────────────────────────────
+actor bruno = fighter(${skin_bruno}, 😏) at (740, ${fight_y})
+actor alex  = fighter(${skin_alex}, 😤)  at (120, ${fight_y})
+actor lily  = heroine(${skin_lily}, 😊)  at (430, ${fight_y}) opacity 0
 
 # ── Act 1: entrances ─────────────────────────────────────────────────────
 @0.0: lily.fade_in(dur=0.7)
-@0.8: bruno.enter(from=right, dur=1.0)
-@1.1: alex.enter(from=left,  dur=1.0)
+@0.8: bruno.play(entrance, side=right)
+@1.1: alex.play(entrance, side=left)
 
-# Idle wave — show off arm rotation
-@2.2: bruno.rotate_part(part=arm_left,  to=-80, dur=0.3)
-@2.2: alex.rotate_part(part=arm_right,  to=80,  dur=0.3)
-@2.6: bruno.rotate_part(part=arm_left,  to=25,  dur=0.3)
-@2.6: alex.rotate_part(part=arm_right,  to=-25, dur=0.3)
+# Idle wave — using the wave_arm sequence
+@2.2: bruno.play(wave_arm, arm=arm_left, angle=-80)
+@2.2: alex.play(wave_arm, arm=arm_right, angle=80)
 
 # ── Act 2: declarations ───────────────────────────────────────────────────
+@3.0: bruno.face(&#34;😍&#34;)
+@3.0: alex.face(&#34;😍&#34;)
 @3.1: bruno.say(&#34;I love you! 😍&#34;, dur=1.4)
 @3.6: alex.say(&#34;She is mine! 😤&#34;,  dur=1.4)
+@3.7: alex.face(&#34;😤&#34;)
+@5.2: lily.face(&#34;😳&#34;)
 @5.2: lily.say(&#34;Oh my... 😳&#34;,      dur=1.1)
-@5.2: lily.rotate_part(part=head,  to=10,  dur=0.25)
-@5.6: lily.rotate_part(part=head,  to=-10, dur=0.25)
-@6.0: lily.rotate_part(part=head,  to=0,   dur=0.2)
+@5.2: lily.play(head_shake)
 
 # ── Act 3: rivals charge ──────────────────────────────────────────────────
-@6.5: lily.move(to=(810, 200), dur=0.5, ease=out)
-@7.0: bruno.move(to=(455, 200), dur=0.65, ease=in)
-@7.0: alex.move(to=(370, 200),  dur=0.65, ease=in)
+@6.5: lily.face(&#34;😬&#34;)
+@6.5: lily.move(to=(810, ${fight_y}), dur=0.5, ease=out)
+@6.9: bruno.face(&#34;😠&#34;)
+@6.9: alex.face(&#34;😠&#34;)
+@7.0: bruno.move(to=(455, ${fight_y}), dur=0.65, ease=in)
+@7.0: alex.move(to=(370, ${fight_y}),  dur=0.65, ease=in)
 
-# ── Act 4: fight! ─────────────────────────────────────────────────────────
-# Exchange 1 — simultaneous punches
-@7.8:  bruno.punch(side=left,  dur=0.32)
-@7.8:  alex.punch(side=right,  dur=0.32)
-@7.85: bruno.shake(intensity=7, dur=0.3)
-@7.85: alex.shake(intensity=7,  dur=0.3)
+# ── Act 4: fight! (using punch_hit + body_clash sequences) ───────────────
+@7.8:  bruno.play(punch_hit, side=left, intensity=7)
+@7.8:  alex.play(punch_hit, side=right, intensity=7)
+@7.85: bruno.face(&#34;😵&#34;)
+@7.85: alex.face(&#34;😵&#34;)
 
-# Exchange 2 — alex kicks, bruno punches back
 @8.3:  alex.kick(side=right,   dur=0.36)
+@8.3:  alex.face(&#34;😡&#34;)
 @8.4:  bruno.shake(intensity=9, dur=0.32)
-@8.5:  bruno.punch(side=left,  dur=0.28)
-@8.55: alex.shake(intensity=8,  dur=0.28)
+@8.4:  bruno.face(&#34;😬&#34;)
+@8.5:  bruno.play(punch_hit, side=left, intensity=8)
+@8.5:  bruno.face(&#34;😡&#34;)
+@8.55: alex.face(&#34;😵&#34;)
 
-# Exchange 3 — body movement
-@8.95: alex.rotate_part(part=body,  to=15,  dur=0.2)
-@8.95: bruno.rotate_part(part=body, to=-10, dur=0.2)
-@9.15: alex.rotate_part(part=body,  to=0,   dur=0.2)
-@9.15: bruno.rotate_part(part=body, to=0,   dur=0.2)
+@8.95: alex.play(body_clash, angle=15)
+@8.95: bruno.play(body_clash, angle=-10)
 
-# Finishing blow — head snap on alex
+# Finishing blow
 @9.4:  bruno.punch(side=left, dur=0.25)
 @9.45: alex.rotate_part(part=head, to=35, dur=0.2)
 @9.5:  alex.shake(intensity=12, dur=0.45)
+@9.5:  alex.face(&#34;😵‍💫&#34;)
 
 # ── Act 5: knockout ───────────────────────────────────────────────────────
 @10.1: alex.rotate(to=90, dur=0.4)
+@10.1: alex.face(&#34;😶&#34;)
 @10.2: alex.move(to=(370, 310), dur=0.4, ease=in)
 @10.4: alex.fade_out(dur=0.45)
+@10.1: bruno.face(&#34;😁&#34;)
 @10.1: bruno.say(&#34;I win! 💪&#34;,   dur=1.5)
-@10.1: bruno.rotate_part(part=arm_right, to=-130, dur=0.3)
-@10.5: bruno.rotate_part(part=arm_right, to=-25,  dur=0.4)
+@10.1: bruno.play(celebrate)
 
 # ── Act 6: approaches with flower ─────────────────────────────────────────
-@11.8: bruno.move(to=(580, 200), dur=0.9, ease=out)
+@11.8: bruno.face(&#34;🥰&#34;)
+@11.8: bruno.move(to=(580, ${fight_y}), dur=0.9, ease=out)
 @11.8: bruno.rotate_part(part=arm_left, to=-90, dur=0.5)
 @13.0: bruno.throw(flower, to=lily, dur=0.8)
 
 # ── Act 7: rejection ──────────────────────────────────────────────────────
+@14.0: lily.face(&#34;🙅&#34;)
 @14.0: lily.say(&#34;No thank you. 🙅&#34;, dur=2.0)
 @14.1: lily.shake(intensity=5, dur=0.4)
 @14.1: lily.rotate_part(part=arm_right, to=80, dur=0.3)
 @14.5: lily.rotate_part(part=arm_right, to=8,  dur=0.3)
+@16.0: bruno.face(&#34;😢&#34;)
 @16.2: bruno.say(&#34;But I fought! 😢&#34;, dur=1.4)
 @16.2: bruno.rotate_part(part=head, to=10, dur=0.3)
-@16.7: bruno.move(to=(860, 200), dur=1.2, ease=in)
+@16.7: bruno.move(to=(860, ${fight_y}), dur=1.2, ease=in)
 
 # ── Act 8: girl comforts loser ────────────────────────────────────────────
 @18.0: alex.fade_in(dur=0.7)
-@18.5: lily.move(to=(450, 200), dur=0.5, ease=out)
+@18.0: lily.face(&#34;🥺&#34;)
+@18.5: lily.move(to=(450, ${fight_y}), dur=0.5, ease=out)
 @19.3: lily.move(to=(375, 305), dur=0.9, ease=inout)
 @20.3: lily.rotate_part(part=arm_right, to=-70, dur=0.35)
+@20.6: lily.face(&#34;🤗&#34;)
 @20.6: lily.say(&#34;Hey, you okay? 💕&#34;, dur=2.1)
+@20.8: alex.face(&#34;🥺&#34;)
 @20.8: alex.say(&#34;You came... 🥺&#34;,    dur=1.9)
 @21.0: alex.rotate_part(part=arm_left, to=-60, dur=0.4)
 
 # ── Act 9: curtain ────────────────────────────────────────────────────────
+@23.0: bruno.face(&#34;😔&#34;)
 @23.0: bruno.say(&#34;...why 😔&#34;, dur=2.0)
 @23.0: bruno.rotate_part(part=head, to=-15, dur=0.5)" data-markdy-assets="{&#34;flower&#34;:&#34;data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'36'%20height%3D'36'%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'16'%20fill%3D'%23ff69b4'%2F%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'6'%20fill%3D'%23ffff00'%2F%3E%3C%2Fsvg%3E&#34;}" data-markdy-autoplay="true" style="width:920px;height:460px;overflow:hidden"> <!--
     SSR placeholder: keeps layout stable before the island hydrates.
     Background matches the scene bg prop to avoid a visible flash.
   --> <div class="markdy-placeholder" aria-label="Markdy animation loading" style="width:920px;height:460px;background:#fff5f9;display:flex;align-items:center;justify-content:center"> <span style="font-family:sans-serif;font-size:12px;color:#bbb;letter-spacing:0.05em" aria-hidden="true">
 ▶ markdy
-</span> </div> </div> <script type="module" src="/_astro/Markdy.astro_astro_type_script_index_0_lang.Bz_AWHvj.js"></script> </div> <div class="legend" data-astro-cid-5wq3ak55> <h2 data-astro-cid-5wq3ak55>Story acts</h2> <ol data-astro-cid-5wq3ak55> <li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>0s</span> <span class="act-label" data-astro-cid-5wq3ak55>Lily appears; Bruno &amp; Alex enter from opposite sides</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>2.2s</span> <span class="act-label" data-astro-cid-5wq3ak55>Idle wave — arm_left / arm_right rotate_part</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>3.1s</span> <span class="act-label" data-astro-cid-5wq3ak55>Declarations of love; Lily&#39;s head tilts (head rotate_part)</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>7.0s</span> <span class="act-label" data-astro-cid-5wq3ak55>Lily steps aside — rivals charge</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>7.8s</span> <span class="act-label" data-astro-cid-5wq3ak55>Fight: punches, kicks, body/head rotations</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>10.1s</span> <span class="act-label" data-astro-cid-5wq3ak55>Alex is knocked out — fist pump (arm_right rotate_part)</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>11.8s</span> <span class="act-label" data-astro-cid-5wq3ak55>Bruno approaches holding flower</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>14.0s</span> <span class="act-label" data-astro-cid-5wq3ak55>Lily rejects — arm wave, head shake</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>18.0s</span> <span class="act-label" data-astro-cid-5wq3ak55>Lily kneels to comfort Alex</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>23.0s</span> <span class="act-label" data-astro-cid-5wq3ak55>Bruno alone, head drooping 😔</span> </li> </ol> </div> <details class="source-panel" data-astro-cid-5wq3ak55> <summary data-astro-cid-5wq3ak55>View MarkdyScript source</summary> <pre data-astro-cid-5wq3ak55><code data-astro-cid-5wq3ak55>scene width=920 height=460 fps=30 bg=#fff5f9
+</span> </div> </div> <script type="module" src="/_astro/Markdy.astro_astro_type_script_index_0_lang.BjvW6uJO.js"></script> </div> <div class="legend" data-astro-cid-5wq3ak55> <h2 data-astro-cid-5wq3ak55>Story acts</h2> <ol data-astro-cid-5wq3ak55> <li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>0s</span> <span class="act-label" data-astro-cid-5wq3ak55>Lily appears; Bruno &amp; Alex enter from opposite sides</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>2.2s</span> <span class="act-label" data-astro-cid-5wq3ak55>Idle wave — arm_left / arm_right rotate_part</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>3.1s</span> <span class="act-label" data-astro-cid-5wq3ak55>Declarations of love; Lily&#39;s head tilts (head rotate_part)</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>7.0s</span> <span class="act-label" data-astro-cid-5wq3ak55>Lily steps aside — rivals charge</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>7.8s</span> <span class="act-label" data-astro-cid-5wq3ak55>Fight: punches, kicks, body/head rotations</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>10.1s</span> <span class="act-label" data-astro-cid-5wq3ak55>Alex is knocked out — fist pump (arm_right rotate_part)</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>11.8s</span> <span class="act-label" data-astro-cid-5wq3ak55>Bruno approaches holding flower</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>14.0s</span> <span class="act-label" data-astro-cid-5wq3ak55>Lily rejects — arm wave, head shake</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>18.0s</span> <span class="act-label" data-astro-cid-5wq3ak55>Lily kneels to comfort Alex</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>23.0s</span> <span class="act-label" data-astro-cid-5wq3ak55>Bruno alone, head drooping 😔</span> </li> </ol> </div> <details class="source-panel" data-astro-cid-5wq3ak55> <summary data-astro-cid-5wq3ak55>View MarkdyScript source</summary> <pre data-astro-cid-5wq3ak55><code data-astro-cid-5wq3ak55>scene width=920 height=460 fps=30 bg=#fff5f9
 
+# ── Variables ─────────────────────────────────────────────────────────────
+var skin_bruno = #c68642
+var skin_alex  = #8d5524
+var skin_lily  = #fad4c0
+var fight_y    = 200
+
+# ── Templates ─────────────────────────────────────────────────────────────
+def fighter(skin, face) {
+  figure(${skin}, m, ${face})
+}
+
+def heroine(skin, face) {
+  figure(${skin}, f, ${face})
+}
+
+# ── Sequences ─────────────────────────────────────────────────────────────
+seq entrance(side) {
+  @+0.0: $.enter(from=${side}, dur=1.0)
+}
+
+seq wave_arm(arm, angle) {
+  @+0.0: $.rotate_part(part=${arm}, to=${angle}, dur=0.3)
+  @+0.3: $.rotate_part(part=${arm}, to=25, dur=0.3)
+}
+
+seq head_shake {
+  @+0.0: $.rotate_part(part=head, to=10, dur=0.25)
+  @+0.3: $.rotate_part(part=head, to=-10, dur=0.25)
+  @+0.6: $.rotate_part(part=head, to=0, dur=0.2)
+}
+
+seq punch_hit(side, intensity) {
+  @+0.0: $.punch(side=${side}, dur=0.32)
+  @+0.05: $.shake(intensity=${intensity}, dur=0.3)
+}
+
+seq body_clash(angle) {
+  @+0.0: $.rotate_part(part=body, to=${angle}, dur=0.2)
+  @+0.2: $.rotate_part(part=body, to=0, dur=0.2)
+}
+
+seq celebrate {
+  @+0.0: $.rotate_part(part=arm_right, to=-130, dur=0.3)
+  @+0.4: $.rotate_part(part=arm_right, to=-25, dur=0.4)
+}
+
+# ── Assets ────────────────────────────────────────────────────────────────
 asset flower = image(&quot;/memes/flower.png&quot;)
 
-# Bruno = right-side guy  (#c68642 skin, default male)
-# Alex  = left-side guy   (#8d5524 darker skin)
-# Lily  = girl            (#fad4c0 light skin, &quot;f&quot; = female variant)
-actor bruno = figure(#c68642)    at (740, 200)
-actor alex  = figure(#8d5524)    at (120, 200)
-actor lily  = figure(#fad4c0, f) at (430, 200) opacity 0
+# ── Actors (using templates!) ─────────────────────────────────────────────
+actor bruno = fighter(${skin_bruno}, 😏) at (740, ${fight_y})
+actor alex  = fighter(${skin_alex}, 😤)  at (120, ${fight_y})
+actor lily  = heroine(${skin_lily}, 😊)  at (430, ${fight_y}) opacity 0
 
 # ── Act 1: entrances ─────────────────────────────────────────────────────
 @0.0: lily.fade_in(dur=0.7)
-@0.8: bruno.enter(from=right, dur=1.0)
-@1.1: alex.enter(from=left,  dur=1.0)
+@0.8: bruno.play(entrance, side=right)
+@1.1: alex.play(entrance, side=left)
 
-# Idle wave — show off arm rotation
-@2.2: bruno.rotate_part(part=arm_left,  to=-80, dur=0.3)
-@2.2: alex.rotate_part(part=arm_right,  to=80,  dur=0.3)
-@2.6: bruno.rotate_part(part=arm_left,  to=25,  dur=0.3)
-@2.6: alex.rotate_part(part=arm_right,  to=-25, dur=0.3)
+# Idle wave — using the wave_arm sequence
+@2.2: bruno.play(wave_arm, arm=arm_left, angle=-80)
+@2.2: alex.play(wave_arm, arm=arm_right, angle=80)
 
 # ── Act 2: declarations ───────────────────────────────────────────────────
+@3.0: bruno.face(&quot;😍&quot;)
+@3.0: alex.face(&quot;😍&quot;)
 @3.1: bruno.say(&quot;I love you! 😍&quot;, dur=1.4)
 @3.6: alex.say(&quot;She is mine! 😤&quot;,  dur=1.4)
+@3.7: alex.face(&quot;😤&quot;)
+@5.2: lily.face(&quot;😳&quot;)
 @5.2: lily.say(&quot;Oh my... 😳&quot;,      dur=1.1)
-@5.2: lily.rotate_part(part=head,  to=10,  dur=0.25)
-@5.6: lily.rotate_part(part=head,  to=-10, dur=0.25)
-@6.0: lily.rotate_part(part=head,  to=0,   dur=0.2)
+@5.2: lily.play(head_shake)
 
 # ── Act 3: rivals charge ──────────────────────────────────────────────────
-@6.5: lily.move(to=(810, 200), dur=0.5, ease=out)
-@7.0: bruno.move(to=(455, 200), dur=0.65, ease=in)
-@7.0: alex.move(to=(370, 200),  dur=0.65, ease=in)
+@6.5: lily.face(&quot;😬&quot;)
+@6.5: lily.move(to=(810, ${fight_y}), dur=0.5, ease=out)
+@6.9: bruno.face(&quot;😠&quot;)
+@6.9: alex.face(&quot;😠&quot;)
+@7.0: bruno.move(to=(455, ${fight_y}), dur=0.65, ease=in)
+@7.0: alex.move(to=(370, ${fight_y}),  dur=0.65, ease=in)
 
-# ── Act 4: fight! ─────────────────────────────────────────────────────────
-# Exchange 1 — simultaneous punches
-@7.8:  bruno.punch(side=left,  dur=0.32)
-@7.8:  alex.punch(side=right,  dur=0.32)
-@7.85: bruno.shake(intensity=7, dur=0.3)
-@7.85: alex.shake(intensity=7,  dur=0.3)
+# ── Act 4: fight! (using punch_hit + body_clash sequences) ───────────────
+@7.8:  bruno.play(punch_hit, side=left, intensity=7)
+@7.8:  alex.play(punch_hit, side=right, intensity=7)
+@7.85: bruno.face(&quot;😵&quot;)
+@7.85: alex.face(&quot;😵&quot;)
 
-# Exchange 2 — alex kicks, bruno punches back
 @8.3:  alex.kick(side=right,   dur=0.36)
+@8.3:  alex.face(&quot;😡&quot;)
 @8.4:  bruno.shake(intensity=9, dur=0.32)
-@8.5:  bruno.punch(side=left,  dur=0.28)
-@8.55: alex.shake(intensity=8,  dur=0.28)
+@8.4:  bruno.face(&quot;😬&quot;)
+@8.5:  bruno.play(punch_hit, side=left, intensity=8)
+@8.5:  bruno.face(&quot;😡&quot;)
+@8.55: alex.face(&quot;😵&quot;)
 
-# Exchange 3 — body movement
-@8.95: alex.rotate_part(part=body,  to=15,  dur=0.2)
-@8.95: bruno.rotate_part(part=body, to=-10, dur=0.2)
-@9.15: alex.rotate_part(part=body,  to=0,   dur=0.2)
-@9.15: bruno.rotate_part(part=body, to=0,   dur=0.2)
+@8.95: alex.play(body_clash, angle=15)
+@8.95: bruno.play(body_clash, angle=-10)
 
-# Finishing blow — head snap on alex
+# Finishing blow
 @9.4:  bruno.punch(side=left, dur=0.25)
 @9.45: alex.rotate_part(part=head, to=35, dur=0.2)
 @9.5:  alex.shake(intensity=12, dur=0.45)
+@9.5:  alex.face(&quot;😵‍💫&quot;)
 
 # ── Act 5: knockout ───────────────────────────────────────────────────────
 @10.1: alex.rotate(to=90, dur=0.4)
+@10.1: alex.face(&quot;😶&quot;)
 @10.2: alex.move(to=(370, 310), dur=0.4, ease=in)
 @10.4: alex.fade_out(dur=0.45)
+@10.1: bruno.face(&quot;😁&quot;)
 @10.1: bruno.say(&quot;I win! 💪&quot;,   dur=1.5)
-@10.1: bruno.rotate_part(part=arm_right, to=-130, dur=0.3)
-@10.5: bruno.rotate_part(part=arm_right, to=-25,  dur=0.4)
+@10.1: bruno.play(celebrate)
 
 # ── Act 6: approaches with flower ─────────────────────────────────────────
-@11.8: bruno.move(to=(580, 200), dur=0.9, ease=out)
+@11.8: bruno.face(&quot;🥰&quot;)
+@11.8: bruno.move(to=(580, ${fight_y}), dur=0.9, ease=out)
 @11.8: bruno.rotate_part(part=arm_left, to=-90, dur=0.5)
 @13.0: bruno.throw(flower, to=lily, dur=0.8)
 
 # ── Act 7: rejection ──────────────────────────────────────────────────────
+@14.0: lily.face(&quot;🙅&quot;)
 @14.0: lily.say(&quot;No thank you. 🙅&quot;, dur=2.0)
 @14.1: lily.shake(intensity=5, dur=0.4)
 @14.1: lily.rotate_part(part=arm_right, to=80, dur=0.3)
 @14.5: lily.rotate_part(part=arm_right, to=8,  dur=0.3)
+@16.0: bruno.face(&quot;😢&quot;)
 @16.2: bruno.say(&quot;But I fought! 😢&quot;, dur=1.4)
 @16.2: bruno.rotate_part(part=head, to=10, dur=0.3)
-@16.7: bruno.move(to=(860, 200), dur=1.2, ease=in)
+@16.7: bruno.move(to=(860, ${fight_y}), dur=1.2, ease=in)
 
 # ── Act 8: girl comforts loser ────────────────────────────────────────────
 @18.0: alex.fade_in(dur=0.7)
-@18.5: lily.move(to=(450, 200), dur=0.5, ease=out)
+@18.0: lily.face(&quot;🥺&quot;)
+@18.5: lily.move(to=(450, ${fight_y}), dur=0.5, ease=out)
 @19.3: lily.move(to=(375, 305), dur=0.9, ease=inout)
 @20.3: lily.rotate_part(part=arm_right, to=-70, dur=0.35)
+@20.6: lily.face(&quot;🤗&quot;)
 @20.6: lily.say(&quot;Hey, you okay? 💕&quot;, dur=2.1)
+@20.8: alex.face(&quot;🥺&quot;)
 @20.8: alex.say(&quot;You came... 🥺&quot;,    dur=1.9)
 @21.0: alex.rotate_part(part=arm_left, to=-60, dur=0.4)
 
 # ── Act 9: curtain ────────────────────────────────────────────────────────
+@23.0: bruno.face(&quot;😔&quot;)
 @23.0: bruno.say(&quot;...why 😔&quot;, dur=2.0)
 @23.0: bruno.rotate_part(part=head, to=-15, dur=0.5)</code></pre> </details> </main>  </body></html> 

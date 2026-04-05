@@ -4,40 +4,81 @@ import { Markdy } from "@markdy/astro";
 
 // ---------------------------------------------------------------------------
 // Story: 2 stick-figure guys (Bruno & Alex) love Lily
-//        → they fight using punches, kicks, and rotate_part limb control
-//        → winner offers flower → Lily rejects → Lily comforts the loser
+//        → they fight → winner offers flower → Lily rejects → comforts loser
 //
-// New DSL features shown here:
-//   figure(skinColor [, "f"])  — stick figure actor
-//   punch(side=left|right)     — swing arm out & back
-//   kick(side=left|right)      — swing leg out & back
-//   rotate_part(part=..., to=deg, dur=sec) — rotate any named body part:
-//     head, body, arm_left, arm_right, leg_left, leg_right
+// Showcases the full DSL feature set:
+//   var   — reusable constants (skin colours, positions)
+//   def   — user-defined actor templates (fighter, heroine)
+//   seq   — reusable animation sequences (wave, entrance, punch_combo, …)
+//   play  — invoke sequences on any actor with params
+//   face  — runtime emoji expression swap
 // ---------------------------------------------------------------------------
 
 const STORY = `
 scene width=920 height=460 fps=30 bg=#fff5f9
 
+# ── Variables ─────────────────────────────────────────────────────────────
+var skin_bruno = #c68642
+var skin_alex  = #8d5524
+var skin_lily  = #fad4c0
+var fight_y    = 200
+
+# ── Templates ─────────────────────────────────────────────────────────────
+def fighter(skin, face) {
+  figure(\${skin}, m, \${face})
+}
+
+def heroine(skin, face) {
+  figure(\${skin}, f, \${face})
+}
+
+# ── Sequences ─────────────────────────────────────────────────────────────
+seq entrance(side) {
+  @+0.0: $.enter(from=\${side}, dur=1.0)
+}
+
+seq wave_arm(arm, angle) {
+  @+0.0: $.rotate_part(part=\${arm}, to=\${angle}, dur=0.3)
+  @+0.3: $.rotate_part(part=\${arm}, to=25, dur=0.3)
+}
+
+seq head_shake {
+  @+0.0: $.rotate_part(part=head, to=10, dur=0.25)
+  @+0.3: $.rotate_part(part=head, to=-10, dur=0.25)
+  @+0.6: $.rotate_part(part=head, to=0, dur=0.2)
+}
+
+seq punch_hit(side, intensity) {
+  @+0.0: $.punch(side=\${side}, dur=0.32)
+  @+0.05: $.shake(intensity=\${intensity}, dur=0.3)
+}
+
+seq body_clash(angle) {
+  @+0.0: $.rotate_part(part=body, to=\${angle}, dur=0.2)
+  @+0.2: $.rotate_part(part=body, to=0, dur=0.2)
+}
+
+seq celebrate {
+  @+0.0: $.rotate_part(part=arm_right, to=-130, dur=0.3)
+  @+0.4: $.rotate_part(part=arm_right, to=-25, dur=0.4)
+}
+
+# ── Assets ────────────────────────────────────────────────────────────────
 asset flower = image("/memes/flower.png")
 
-# args: figure(skinColor [, gender, startFace])
-# Bruno = confident guy on the right
-# Alex  = gutsy guy on the left
-# Lily  = girl in the center
-actor bruno = figure(#c68642, m, 😏) at (740, 200)
-actor alex  = figure(#8d5524, m, 😤) at (120, 200)
-actor lily  = figure(#fad4c0, f, 😊) at (430, 200) opacity 0
+# ── Actors (using templates!) ─────────────────────────────────────────────
+actor bruno = fighter(\${skin_bruno}, 😏) at (740, \${fight_y})
+actor alex  = fighter(\${skin_alex}, 😤)  at (120, \${fight_y})
+actor lily  = heroine(\${skin_lily}, 😊)  at (430, \${fight_y}) opacity 0
 
 # ── Act 1: entrances ─────────────────────────────────────────────────────
 @0.0: lily.fade_in(dur=0.7)
-@0.8: bruno.enter(from=right, dur=1.0)
-@1.1: alex.enter(from=left,  dur=1.0)
+@0.8: bruno.play(entrance, side=right)
+@1.1: alex.play(entrance, side=left)
 
-# Idle wave — show off arm rotation
-@2.2: bruno.rotate_part(part=arm_left,  to=-80, dur=0.3)
-@2.2: alex.rotate_part(part=arm_right,  to=80,  dur=0.3)
-@2.6: bruno.rotate_part(part=arm_left,  to=25,  dur=0.3)
-@2.6: alex.rotate_part(part=arm_right,  to=-25, dur=0.3)
+# Idle wave — using the wave_arm sequence
+@2.2: bruno.play(wave_arm, arm=arm_left, angle=-80)
+@2.2: alex.play(wave_arm, arm=arm_right, angle=80)
 
 # ── Act 2: declarations ───────────────────────────────────────────────────
 @3.0: bruno.face("😍")
@@ -47,23 +88,19 @@ actor lily  = figure(#fad4c0, f, 😊) at (430, 200) opacity 0
 @3.7: alex.face("😤")
 @5.2: lily.face("😳")
 @5.2: lily.say("Oh my... 😳",      dur=1.1)
-@5.2: lily.rotate_part(part=head,  to=10,  dur=0.25)
-@5.6: lily.rotate_part(part=head,  to=-10, dur=0.25)
-@6.0: lily.rotate_part(part=head,  to=0,   dur=0.2)
+@5.2: lily.play(head_shake)
 
 # ── Act 3: rivals charge ──────────────────────────────────────────────────
 @6.5: lily.face("😬")
-@6.5: lily.move(to=(810, 200), dur=0.5, ease=out)
+@6.5: lily.move(to=(810, \${fight_y}), dur=0.5, ease=out)
 @6.9: bruno.face("😠")
 @6.9: alex.face("😠")
-@7.0: bruno.move(to=(455, 200), dur=0.65, ease=in)
-@7.0: alex.move(to=(370, 200),  dur=0.65, ease=in)
+@7.0: bruno.move(to=(455, \${fight_y}), dur=0.65, ease=in)
+@7.0: alex.move(to=(370, \${fight_y}),  dur=0.65, ease=in)
 
-# ── Act 4: fight! ─────────────────────────────────────────────────────────
-@7.8:  bruno.punch(side=left,  dur=0.32)
-@7.8:  alex.punch(side=right,  dur=0.32)
-@7.85: bruno.shake(intensity=7, dur=0.3)
-@7.85: alex.shake(intensity=7,  dur=0.3)
+# ── Act 4: fight! (using punch_hit + body_clash sequences) ───────────────
+@7.8:  bruno.play(punch_hit, side=left, intensity=7)
+@7.8:  alex.play(punch_hit, side=right, intensity=7)
 @7.85: bruno.face("😵")
 @7.85: alex.face("😵")
 
@@ -71,15 +108,12 @@ actor lily  = figure(#fad4c0, f, 😊) at (430, 200) opacity 0
 @8.3:  alex.face("😡")
 @8.4:  bruno.shake(intensity=9, dur=0.32)
 @8.4:  bruno.face("😬")
-@8.5:  bruno.punch(side=left,  dur=0.28)
+@8.5:  bruno.play(punch_hit, side=left, intensity=8)
 @8.5:  bruno.face("😡")
-@8.55: alex.shake(intensity=8,  dur=0.28)
 @8.55: alex.face("😵")
 
-@8.95: alex.rotate_part(part=body,  to=15,  dur=0.2)
-@8.95: bruno.rotate_part(part=body, to=-10, dur=0.2)
-@9.15: alex.rotate_part(part=body,  to=0,   dur=0.2)
-@9.15: bruno.rotate_part(part=body, to=0,   dur=0.2)
+@8.95: alex.play(body_clash, angle=15)
+@8.95: bruno.play(body_clash, angle=-10)
 
 # Finishing blow
 @9.4:  bruno.punch(side=left, dur=0.25)
@@ -94,12 +128,11 @@ actor lily  = figure(#fad4c0, f, 😊) at (430, 200) opacity 0
 @10.4: alex.fade_out(dur=0.45)
 @10.1: bruno.face("😁")
 @10.1: bruno.say("I win! 💪",   dur=1.5)
-@10.1: bruno.rotate_part(part=arm_right, to=-130, dur=0.3)
-@10.5: bruno.rotate_part(part=arm_right, to=-25,  dur=0.4)
+@10.1: bruno.play(celebrate)
 
 # ── Act 6: approaches with flower ─────────────────────────────────────────
 @11.8: bruno.face("🥰")
-@11.8: bruno.move(to=(580, 200), dur=0.9, ease=out)
+@11.8: bruno.move(to=(580, \${fight_y}), dur=0.9, ease=out)
 @11.8: bruno.rotate_part(part=arm_left, to=-90, dur=0.5)
 @13.0: bruno.throw(flower, to=lily, dur=0.8)
 
@@ -112,12 +145,12 @@ actor lily  = figure(#fad4c0, f, 😊) at (430, 200) opacity 0
 @16.0: bruno.face("😢")
 @16.2: bruno.say("But I fought! 😢", dur=1.4)
 @16.2: bruno.rotate_part(part=head, to=10, dur=0.3)
-@16.7: bruno.move(to=(860, 200), dur=1.2, ease=in)
+@16.7: bruno.move(to=(860, \${fight_y}), dur=1.2, ease=in)
 
 # ── Act 8: girl comforts loser ────────────────────────────────────────────
 @18.0: alex.fade_in(dur=0.7)
 @18.0: lily.face("🥺")
-@18.5: lily.move(to=(450, 200), dur=0.5, ease=out)
+@18.5: lily.move(to=(450, \${fight_y}), dur=0.5, ease=out)
 @19.3: lily.move(to=(375, 305), dur=0.9, ease=inout)
 @20.3: lily.rotate_part(part=arm_right, to=-70, dur=0.35)
 @20.6: lily.face("🤗")

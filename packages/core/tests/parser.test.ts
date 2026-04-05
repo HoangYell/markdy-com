@@ -278,3 +278,191 @@ describe("full example", () => {
     expect(ast.meta.duration).toBeCloseTo(5.7);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Variables (var)
+// ---------------------------------------------------------------------------
+
+describe("var declarations", () => {
+  it("substitutes var in actor args", () => {
+    const ast = parse([
+      "var skin = #c68642",
+      "actor h = figure(${skin}) at (0,0)",
+    ].join("\n"));
+    expect(ast.actors["h"].args).toEqual(["#c68642"]);
+    expect(ast.vars["skin"]).toBe("#c68642");
+  });
+
+  it("substitutes var in position", () => {
+    const ast = parse([
+      "var px = 300",
+      "var py = 200",
+      "actor h = sprite(img) at (${px},${py})",
+    ].join("\n"));
+    expect(ast.actors["h"]).toMatchObject({ x: 300, y: 200 });
+  });
+
+  it("substitutes var in event params", () => {
+    const ast = parse([
+      "var speed = 0.8",
+      "actor p = sprite(pepe) at (0,0)",
+      "@1.0: p.enter(from=left, dur=${speed})",
+    ].join("\n"));
+    expect(ast.events[0].params.dur).toBe(0.8);
+  });
+
+  it("supports chained var references", () => {
+    const ast = parse([
+      "var base = 100",
+      "var offset = ${base}",
+      'actor p = sprite(x) at (${offset},0)',
+    ].join("\n"));
+    expect(ast.actors["p"].x).toBe(100);
+  });
+
+  it("stores vars in AST", () => {
+    const ast = parse("var bg_color = #fff5f9\nscene bg=${bg_color}");
+    expect(ast.vars["bg_color"]).toBe("#fff5f9");
+    expect(ast.meta.bg).toBe("#fff5f9");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Def (user-defined actor templates)
+// ---------------------------------------------------------------------------
+
+describe("def declarations", () => {
+  it("defines and uses a template", () => {
+    const ast = parse([
+      "def fighter(skin, face) {",
+      "  figure(${skin}, m, ${face})",
+      "}",
+      "actor b = fighter(#c68642, 😏) at (300, 200)",
+    ].join("\n"));
+    expect(ast.actors["b"]).toMatchObject({
+      type: "figure",
+      args: ["#c68642", "m", "😏"],
+      x: 300,
+      y: 200,
+    });
+  });
+
+  it("stores template in AST defs", () => {
+    const ast = parse([
+      "def hero(skin) {",
+      "  figure(${skin}, m)",
+      "}",
+    ].join("\n"));
+    expect(ast.defs["hero"]).toMatchObject({
+      params: ["skin"],
+      actorType: "figure",
+      bodyArgs: ["${skin}", "m"],
+    });
+  });
+
+  it("allows modifiers on template-based actors", () => {
+    const ast = parse([
+      "def npc(skin) {",
+      "  figure(${skin})",
+      "}",
+      "actor a = npc(#ffdbac) at (0,0) scale 0.5 opacity 0.8",
+    ].join("\n"));
+    expect(ast.actors["a"]).toMatchObject({ scale: 0.5, opacity: 0.8 });
+  });
+
+  it("throws on unclosed def block", () => {
+    expect(() => parse("def bad() {\n  figure()")).toThrow(ParseError);
+  });
+
+  it("throws on empty def body", () => {
+    expect(() => parse("def bad() {\n}")).toThrow(ParseError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Seq (reusable animation sequences)
+// ---------------------------------------------------------------------------
+
+describe("seq declarations", () => {
+  it("defines and plays a basic sequence", () => {
+    const ast = parse([
+      "actor p = sprite(img) at (0,0)",
+      "seq wave {",
+      "  @+0.0: $.rotate_part(part=arm_right, to=-80, dur=0.3)",
+      "  @+0.3: $.rotate_part(part=arm_right, to=-25, dur=0.3)",
+      "}",
+      "@2.0: p.play(wave)",
+    ].join("\n"));
+    expect(ast.events).toHaveLength(2);
+    expect(ast.events[0]).toMatchObject({
+      time: 2.0,
+      actor: "p",
+      action: "rotate_part",
+      params: { part: "arm_right", to: -80, dur: 0.3 },
+    });
+    expect(ast.events[1]).toMatchObject({
+      time: 2.3,
+      actor: "p",
+      action: "rotate_part",
+      params: { part: "arm_right", to: -25, dur: 0.3 },
+    });
+  });
+
+  it("plays a parameterized sequence", () => {
+    const ast = parse([
+      "actor p = sprite(img) at (0,0)",
+      "seq hit(side) {",
+      "  @+0.0: $.punch(side=${side}, dur=0.3)",
+      "}",
+      "@5.0: p.play(hit, side=left)",
+    ].join("\n"));
+    expect(ast.events[0].params).toMatchObject({ side: "left", dur: 0.3 });
+  });
+
+  it("stores sequence in AST seqs", () => {
+    const ast = parse([
+      "seq wobble {",
+      "  @+0.0: $.shake(intensity=5, dur=0.2)",
+      "}",
+    ].join("\n"));
+    expect(ast.seqs["wobble"]).toMatchObject({
+      params: [],
+      events: [{ offset: 0, action: "shake" }],
+    });
+  });
+
+  it("throws on unclosed seq block", () => {
+    expect(() => parse("seq bad {\n  @+0.0: $.enter(dur=0.5)")).toThrow(ParseError);
+  });
+
+  it("throws on unknown sequence in play", () => {
+    expect(() => parse([
+      "actor p = sprite(img) at (0,0)",
+      "@0.0: p.play(nonexistent)",
+    ].join("\n"))).toThrow(ParseError);
+  });
+
+  it("combines var + def + seq together", () => {
+    const ast = parse([
+      "var skin = #c68642",
+      "def fighter(s, face) {",
+      "  figure(${s}, m, ${face})",
+      "}",
+      "seq greeting {",
+      '  @+0.0: $.say("hello", dur=1.0)',
+      "}",
+      "actor b = fighter(${skin}, 😎) at (300, 200)",
+      "@1.0: b.play(greeting)",
+    ].join("\n"));
+    expect(ast.actors["b"]).toMatchObject({
+      type: "figure",
+      args: ["#c68642", "m", "😎"],
+    });
+    expect(ast.events[0]).toMatchObject({
+      time: 1.0,
+      actor: "b",
+      action: "say",
+      params: { text: "hello", dur: 1.0 },
+    });
+  });
+});

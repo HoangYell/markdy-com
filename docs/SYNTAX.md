@@ -299,8 +299,166 @@ QUOTED      = '"' [^"]* '"'
 KEY         = NAME
 VALUE       = QUOTED | NUMBER | identifier
 ASSET_TYPE  = "image" | "icon"
-ACTOR_TYPE  = "sprite" | "text" | "box"
+ACTOR_TYPE  = "sprite" | "text" | "box" | "figure" | DEF_NAME
 ACTION      = NAME  -- underscore allowed: fade_in, fade_out
+VAR_REF     = "${" NAME "}"
+```
+
+---
+
+## Variables (`var`)
+
+Variables let you define reusable constants that are substituted everywhere via `${name}`.
+
+```markdy
+var <name> = <value>
+```
+
+The value extends to the end of the line. Values may contain `#` (e.g. hex colours) since comment stripping is skipped for `var` lines.
+
+```markdy
+var skin_tone = #c68642
+var start_y = 200
+var bg = #fff5f9
+
+scene bg=${bg}
+actor hero = figure(${skin_tone}, m, 😎) at (300, ${start_y})
+@1.0: hero.enter(from=left, dur=0.8)
+```
+
+Variables can reference earlier variables:
+
+```markdy
+var base_x = 100
+var offset = ${base_x}
+```
+
+---
+
+## Templates (`def`)
+
+Templates let you define reusable actor types that expand to built-in types at parse time. The renderer never sees them — they compile down to standard actors.
+
+```markdy
+def <name>(<param1>, <param2>, ...) {
+  <actorType>(<args using ${param}>)
+}
+```
+
+The body is exactly one line containing a built-in actor type and its arguments. Template parameters are substituted using `${param}`.
+
+```markdy
+def fighter(skin, gender, face) {
+  figure(${skin}, ${gender}, ${face})
+}
+
+def label(content) {
+  text(${content})
+}
+
+# Usage — works exactly like a built-in type:
+actor bruno = fighter(#c68642, m, 😏) at (740, 200)
+actor alex  = fighter(#8d5524, m, 😤) at (120, 200) scale 1.2
+actor title = label("Round 1") at (400, 50) size 32
+```
+
+---
+
+## Sequences (`seq`)
+
+Sequences let you define reusable animation blocks that can be played on any actor. They eliminate copy-paste for repeated animation patterns.
+
+```markdy
+seq <name> {
+  @+<offset>: $.<action>(<params>)
+  @+<offset>: $.<action>(<params>)
+}
+```
+
+```markdy
+seq <name>(<param1>, <param2>) {
+  @+<offset>: $.<action>(key=${param}, ...)
+}
+```
+
+Inside a seq:
+- `$` refers to whichever actor the sequence is played on
+- `@+offset` is relative time from when `play` is called (not absolute scene time)
+- `${param}` references sequence parameters
+
+### Playing a sequence
+
+```markdy
+@<time>: <actor>.play(<seqName>)
+@<time>: <actor>.play(<seqName>, <key>=<value>, ...)
+```
+
+The `play` action expands the sequence inline at parse time — each `@+offset` event becomes an absolute event at `time + offset`.
+
+### Examples
+
+```markdy
+# A simple wave animation — reuse on any actor
+seq wave {
+  @+0.0: $.rotate_part(part=arm_right, to=-80, dur=0.3)
+  @+0.3: $.rotate_part(part=arm_right, to=-25, dur=0.3)
+}
+
+@2.0: bruno.play(wave)
+@3.0: alex.play(wave)
+
+# A parameterized punch combo
+seq punch_combo(side) {
+  @+0.0: $.punch(side=${side}, dur=0.3)
+  @+0.3: $.shake(intensity=5, dur=0.2)
+}
+
+@5.0: bruno.play(punch_combo, side=left)
+@6.0: alex.play(punch_combo, side=right)
+```
+
+---
+
+## Composability
+
+`var`, `def`, and `seq` compose together — users can build entire character systems and choreographies without changing the engine:
+
+```markdy
+# ── Variables ──────────────────────
+var skin_a = #c68642
+var skin_b = #8d5524
+
+# ── Templates ──────────────────────
+def fighter(skin, face) {
+  figure(${skin}, m, ${face})
+}
+
+def heroine(skin, face) {
+  figure(${skin}, f, ${face})
+}
+
+# ── Sequences ──────────────────────
+seq entrance(side) {
+  @+0.0: $.enter(from=${side}, dur=1.0)
+}
+
+seq celebrate {
+  @+0.0: $.rotate_part(part=arm_right, to=-130, dur=0.3)
+  @+0.3: $.rotate_part(part=arm_right, to=-25, dur=0.4)
+  @+0.0: $.say("🎉", dur=1.5)
+}
+
+# ── Scene ──────────────────────────
+scene width=920 height=460 bg=#fff5f9
+
+actor bruno = fighter(${skin_a}, 😏) at (740, 200)
+actor alex  = fighter(${skin_b}, 😤) at (120, 200)
+actor lily  = heroine(#fad4c0, 😊) at (430, 200) opacity 0
+
+@0.0: lily.fade_in(dur=0.7)
+@0.8: bruno.play(entrance, side=right)
+@1.1: alex.play(entrance, side=left)
+@10.1: bruno.play(celebrate)
 ```
 
 ---
@@ -314,4 +472,8 @@ The parser throws a `ParseError` with the offending line number for:
 - Unrecognised asset type
 - Invalid actor or event syntax
 - Event referencing an undeclared actor
+- Unknown actor type or template name
+- Unclosed `def` or `seq` block
+- Empty `def` body
+- Unknown sequence name in `play`
 - Unrecognised top-level statement

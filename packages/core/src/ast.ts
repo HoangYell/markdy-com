@@ -38,9 +38,43 @@ export type SceneMeta = {
   duration?: number;
 };
 
+/**
+ * A user-defined actor template (`def`).
+ * Expands to an actor type + args at parse time — the renderer never sees it.
+ */
+export type TemplateDef = {
+  /** Parameter names declared on the def line. */
+  params: string[];
+  /** The actor type this def expands to (e.g. "figure", "sprite"). */
+  actorType: ActorDef["type"];
+  /** Raw constructor arg tokens (may contain `${param}` references). */
+  bodyArgs: string[];
+};
+
+/**
+ * A user-defined reusable animation sequence (`seq`).
+ * Expanded inline wherever `actor.play(seqName)` appears.
+ */
+export type SequenceDef = {
+  /** Parameter names (excluding the implicit `$` target actor). */
+  params: string[];
+  /** Raw event lines with `@+offset` and `$` actor placeholder. */
+  events: Array<{
+    offset: number;
+    action: string;
+    paramsRaw: string;
+  }>;
+};
+
 export type SceneAST = {
   meta: SceneMeta;
   assets: Record<string, AssetDef>;
   actors: Record<string, ActorDef>;
   events: TimelineEvent[];
+  /** User-defined actor templates — kept in AST for tooling/inspection. */
+  defs: Record<string, TemplateDef>;
+  /** User-defined sequences — kept in AST for tooling/inspection. */
+  seqs: Record<string, SequenceDef>;
+  /** User-defined variables — kept in AST for tooling/inspection. */
+  vars: Record<string, string>;
 };

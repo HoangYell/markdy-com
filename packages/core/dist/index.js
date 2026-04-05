@@ -103,8 +103,17 @@ function parseModifiers(raw) {
   return result;
 }
 var ASSET_RE = /^asset\s+(\w+)\s*=\s*(image|icon)\("([^"]+)"\)$/;
-var ACTOR_RE = /^actor\s+(\w+)\s*=\s*(sprite|text|box|figure)\(([^)]*)\)\s+at\s+\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)(.*)$/;
+var BUILTIN_ACTOR_TYPES = /* @__PURE__ */ new Set(["sprite", "text", "box", "figure"]);
+var ACTOR_RE = /^actor\s+(\w+)\s*=\s*(\w+)\(([^)]*)\)\s+at\s+\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)(.*)$/;
 var EVENT_RE = /^@([\d.]+):\s+(\w+)\.(\w+)\((.*)\)$/;
+var VAR_RE = /^var\s+(\w+)\s*=\s*(.+)$/;
+var DEF_HEADER_RE = /^def\s+(\w+)\(([^)]*)\)\s*\{$/;
+var DEF_BODY_RE = /^\s*(sprite|text|box|figure)\(([^)]*)\)\s*$/;
+var SEQ_HEADER_RE = /^seq\s+(\w+)(?:\(([^)]*)\))?\s*\{$/;
+var SEQ_EVENT_RE = /^@\+([\d.]+):\s+\$\.(\w+)\((.*)\)$/;
+function interpolate(s, vars) {
+  return s.replace(/\$\{(\w+)\}/g, (_, name) => vars[name] ?? `\${${name}}`);
+}
 var DEFAULTS = {
   width: 800,
   height: 400,
@@ -116,14 +125,106 @@ function parse(source) {
     meta: { ...DEFAULTS },
     assets: {},
     actors: {},
-    events: []
+    events: [],
+    defs: {},
+    seqs: {},
+    vars: {}
   };
   let sceneFound = false;
   const lines = source.split(/\r?\n/);
+  let inDef = null;
+  let defNeedsClose = false;
+  let inSeq = null;
   for (let i = 0; i < lines.length; i++) {
     const lineNum = i + 1;
-    const raw = stripComment(lines[i]).trim();
+    const rawUntouched = lines[i].trim();
+    if (!inDef && !defNeedsClose && !inSeq && rawUntouched.startsWith("var ")) {
+      const varLine = interpolate(rawUntouched, ast.vars);
+      const vm = VAR_RE.exec(varLine);
+      if (!vm) {
+        throw new ParseError(`Invalid var declaration: ${varLine}`, lineNum);
+      }
+      const [, name, value] = vm;
+      ast.vars[name] = value.trim();
+      continue;
+    }
+    let raw = stripComment(lines[i]).trim();
     if (!raw) continue;
+    raw = interpolate(raw, ast.vars);
+    if (raw === "}") {
+      if (defNeedsClose) {
+        defNeedsClose = false;
+        continue;
+      }
+      if (inDef) {
+        throw new ParseError(`Empty def body for "${inDef.name}"`, lineNum);
+      }
+      if (inSeq) {
+        ast.seqs[inSeq.name] = { params: inSeq.params, events: inSeq.events };
+        inSeq = null;
+        continue;
+      }
+      throw new ParseError("Unexpected '}'", lineNum);
+    }
+    if (inDef) {
+      const bm = DEF_BODY_RE.exec(raw);
+      if (!bm) {
+        throw new ParseError(`Invalid def body (expected "type(args)"): ${raw}`, lineNum);
+      }
+      const [, actorType, bodyArgsRaw] = bm;
+      const bodyArgs = bodyArgsRaw.trim() ? splitByComma(bodyArgsRaw).map((a) => a.trim()) : [];
+      ast.defs[inDef.name] = {
+        params: inDef.params,
+        actorType,
+        bodyArgs
+      };
+      inDef = null;
+      defNeedsClose = true;
+      continue;
+    }
+    if (inSeq) {
+      const interpolatedSeq = interpolate(raw, ast.vars);
+      const sm = SEQ_EVENT_RE.exec(interpolatedSeq);
+      if (!sm) {
+        throw new ParseError(`Invalid seq event (expected "@+offset: $.action(params)"): ${raw}`, lineNum);
+      }
+      const [, offsetStr, action, paramsRaw] = sm;
+      inSeq.events.push({
+        offset: Number(offsetStr),
+        action,
+        paramsRaw
+      });
+      continue;
+    }
+    if (raw.startsWith("var ")) {
+      const vm = VAR_RE.exec(raw);
+      if (!vm) {
+        throw new ParseError(`Invalid var declaration: ${raw}`, lineNum);
+      }
+      const [, name, value] = vm;
+      ast.vars[name] = value.trim();
+      continue;
+    }
+    if (raw.startsWith("def ")) {
+      const dm = DEF_HEADER_RE.exec(raw);
+      if (!dm) {
+        throw new ParseError(`Invalid def declaration: ${raw}`, lineNum);
+      }
+      const [, name, paramsRaw] = dm;
+      const params = paramsRaw.split(",").map((p) => p.trim()).filter(Boolean);
+      inDef = { name, params, startLine: lineNum };
+      continue;
+    }
+    if (raw.startsWith("seq ")) {
+      const sm = SEQ_HEADER_RE.exec(raw);
+      if (!sm) {
+        throw new ParseError(`Invalid seq declaration: ${raw}`, lineNum);
+      }
+      const [, name, paramsRaw] = sm;
+      const params = paramsRaw ? paramsRaw.split(",").map((p) => p.trim()).filter(Boolean) : [];
+      inSeq = { name, params, events: [], startLine: lineNum };
+      continue;
+    }
     if (/^scene(\s|$)/.test(raw)) {
       if (sceneFound) {
         throw new ParseError("Duplicate scene declaration", lineNum);
@@ -166,15 +267,34 @@ function parse(source) {
       if (!m) {
         throw new ParseError(`Invalid actor declaration: ${raw}`, lineNum);
       }
-      const [, name, type, argsRaw, xStr, yStr, modifiersRaw] = m;
-      const args = argsRaw.trim() ? splitByComma(argsRaw).map((a) => {
-        const t = a.trim();
-        return t.startsWith('"') && t.endsWith('"') ? t.slice(1, -1) : t;
-      }) : [];
+      const [, name, typeName, argsRaw, xStr, yStr, modifiersRaw] = m;
+      let resolvedType;
+      let resolvedArgs;
+      if (BUILTIN_ACTOR_TYPES.has(typeName)) {
+        resolvedType = typeName;
+        resolvedArgs = argsRaw.trim() ? splitByComma(argsRaw).map((a) => {
+          const t = a.trim();
+          return t.startsWith('"') && t.endsWith('"') ? t.slice(1, -1) : t;
+        }) : [];
+      } else if (ast.defs[typeName]) {
+        const tmpl = ast.defs[typeName];
+        const callArgs = argsRaw.trim() ? splitByComma(argsRaw).map((a) => {
+          const t = a.trim();
+          return t.startsWith('"') && t.endsWith('"') ? t.slice(1, -1) : t;
+        }) : [];
+        const localVars = {};
+        for (let pi = 0; pi < tmpl.params.length; pi++) {
+          localVars[tmpl.params[pi]] = callArgs[pi] ?? "";
+        }
+        resolvedType = tmpl.actorType;
+        resolvedArgs = tmpl.bodyArgs.map((a) => interpolate(a, localVars));
+      } else {
+        throw new ParseError(`Unknown actor type or template: "${typeName}"`, lineNum);
+      }
       const modifiers = parseModifiers(modifiersRaw);
       ast.actors[name] = {
-        type,
-        args,
+        type: resolvedType,
+        args: resolvedArgs,
         x: Number(xStr),
         y: Number(yStr),
         ...modifiers
@@ -194,11 +314,57 @@ function parse(source) {
       if (!ast.actors[actor]) {
         throw new ParseError(`Unknown actor: "${actor}"`, lineNum);
       }
+      if (action === "play") {
+        const playParts = splitByComma(paramsRaw);
+        const seqName = playParts[0]?.trim();
+        if (!seqName || !ast.seqs[seqName]) {
+          throw new ParseError(`Unknown sequence: "${seqName}"`, lineNum);
+        }
+        const seq = ast.seqs[seqName];
+        const playVars = {};
+        for (let pi = 1; pi < playParts.length; pi++) {
+          const eqIdx = playParts[pi].indexOf("=");
+          if (eqIdx !== -1) {
+            const k = playParts[pi].slice(0, eqIdx).trim();
+            const v = playParts[pi].slice(eqIdx + 1).trim();
+            playVars[k] = v;
+          }
+        }
+        let posIdx = 0;
+        for (let pi = 1; pi < playParts.length; pi++) {
+          if (!playParts[pi].includes("=") && posIdx < seq.params.length) {
+            playVars[seq.params[posIdx]] = playParts[pi].trim();
+            posIdx++;
+          }
+        }
+        for (const sev of seq.events) {
+          const expandedParams = interpolate(sev.paramsRaw, playVars);
+          const absTime = Math.round((time + sev.offset) * 1e3) / 1e3;
+          const params2 = parseActionParams(sev.action, expandedParams);
+          ast.events.push({
+            time: absTime,
+            actor,
+            action: sev.action,
+            params: params2,
+            line: lineNum
+          });
+        }
+        continue;
+      }
       const params = parseActionParams(action, paramsRaw);
       ast.events.push({ time, actor, action, params, line: lineNum });
       continue;
     }
     throw new ParseError(`Unrecognized statement: ${raw}`, lineNum);
+  }
+  if (inDef) {
+    throw new ParseError(`Unclosed def block "${inDef.name}"`, inDef.startLine);
+  }
+  if (defNeedsClose) {
+    throw new ParseError("Unclosed def block (missing '}')", lines.length);
+  }
+  if (inSeq) {
+    throw new ParseError(`Unclosed seq block "${inSeq.name}"`, inSeq.startLine);
   }
   if (ast.meta.duration === void 0) {
     let maxEnd = 0;
