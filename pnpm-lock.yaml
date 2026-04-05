@@ -20,6 +20,9 @@ importers:
       '@markdy/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@markdy/renderer-dom':
+        specifier: workspace:*
+        version: link:../../packages/renderer-dom
       astro:
         specifier: ^5.0.0
         version: 5.18.1(rollup@4.60.1)(typescript@5.9.3)

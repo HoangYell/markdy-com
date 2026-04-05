@@ -20,23 +20,27 @@ export class ParseError extends Error {
 
 /**
  * Strips a trailing comment from a source line while ignoring `#` characters
- * that appear inside parentheses (e.g. CSS hex colours like `#c68642`) or
- * inside double-quoted strings.
+ * that appear inside parentheses (e.g. CSS hex colours like `#c68642`),
+ * inside double-quoted strings, or immediately after `=` (bare hex values
+ * like `bg=#0f0f1a` in scene declarations).
  *
  * Rules:
- *   - `#` at depth 0, outside a string → start of comment
+ *   - `#` at depth 0, outside a string, not preceded by `=` → start of comment
  *   - `#` inside `(...)` or inside `"..."` → literal character
+ *   - `#` immediately after `=` (last non-space char) → hex value literal
  */
 function stripComment(line: string): string {
   let depth = 0;
   let inString = false;
+  let lastNonSpace = "";
   for (let i = 0; i < line.length; i++) {
     const ch = line[i];
-    if (ch === '"') { inString = !inString; continue; }
+    if (ch === '"') { inString = !inString; lastNonSpace = ch; continue; }
     if (inString) continue;
-    if (ch === '(') { depth++; continue; }
-    if (ch === ')') { depth--; continue; }
-    if (ch === '#' && depth === 0) return line.slice(0, i);
+    if (ch === '(') { depth++; lastNonSpace = ch; continue; }
+    if (ch === ')') { depth--; lastNonSpace = ch; continue; }
+    if (ch === '#' && depth === 0 && lastNonSpace !== '=') return line.slice(0, i);
+    if (ch !== ' ' && ch !== '\t') lastNonSpace = ch;
   }
   return line;
 }

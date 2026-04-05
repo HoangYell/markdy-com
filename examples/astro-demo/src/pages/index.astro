@@ -1,174 +1,361 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { Markdy } from "@markdy/astro";
 
-// ---------------------------------------------------------------------------
-// DSL source — matches the canonical MarkdyScript spec example exactly.
-// The `assets` prop below overrides the image paths with inline SVG
-// placeholders so the demo works without real image files on disk.
-// ---------------------------------------------------------------------------
-const SPEC_EXAMPLE = `
-scene width=800 height=400 fps=30 bg=white
+const DEFAULT_CODE = `scene width=640 height=320 fps=30 bg=#0f0f1a
 
-asset pepe = image("/memes/pepe.webp")
-asset cat  = image("/memes/cat.png")
-asset fire = icon("lucide:flame")
+actor coder = figure(#6ee7b7, m, 😎) at (160, 180)
+actor bug   = figure(#f87171, m, 😈) at (480, 180)
+actor label = text("markdy") at (280, 50) size 32 opacity 0
 
-actor p     = sprite(pepe) at (100,250) scale 0.4
-actor c     = sprite(cat)  at (600,250) scale 0.4
-actor title = text("Ship it") at (320,80) size 48
+@0.0: label.fade_in(dur=0.8)
+@0.5: coder.enter(from=left, dur=0.8)
+@1.0: bug.enter(from=right, dur=0.8)
 
-@0.0: p.enter(from=left, dur=0.8)
-@1.0: p.say("bruh", dur=1.0)
-@2.0: p.move(to=(300,250), dur=1.0, ease=inout)
-@3.0: p.throw(fire, to=c, dur=0.8)
-@4.0: c.shake(intensity=3, dur=0.5)
-@4.6: c.fade_out(dur=0.4)
-@5.2: title.fade_in(dur=0.5)
-`.trim();
+@2.0: coder.say("I'll fix you! 💪", dur=1.5)
+@2.5: bug.say("Good luck! 😈", dur=1.5)
 
-// Inline SVG data-URI placeholders — replace with real URLs/paths in prod.
-// Pre-encoded to avoid raw angle-brackets in the source (Astro/Vite confuses
-// them with HTML when they appear inside template literals).
-const SPEC_ASSETS: Record<string, string> = {
-  // Green circle (pepe stand-in)
-  pepe: "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'80'%20height%3D'80'%3E%3Ccircle%20cx%3D'40'%20cy%3D'40'%20r%3D'40'%20fill%3D'%2390EE90'%2F%3E%3Ccircle%20cx%3D'40'%20cy%3D'34'%20r%3D'14'%20fill%3D'%23555'%2F%3E%3C%2Fsvg%3E",
-  // Yellow circle (cat stand-in)
-  cat:  "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'80'%20height%3D'80'%3E%3Ccircle%20cx%3D'40'%20cy%3D'40'%20r%3D'40'%20fill%3D'%23FFD700'%2F%3E%3Ccircle%20cx%3D'40'%20cy%3D'34'%20r%3D'14'%20fill%3D'%23a0522d'%2F%3E%3C%2Fsvg%3E",
-  // Orange-red small square (fire stand-in)
-  fire: "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'32'%20height%3D'32'%3E%3Crect%20width%3D'32'%20height%3D'32'%20rx%3D'4'%20fill%3D'%23ff4500'%2F%3E%3C%2Fsvg%3E",
-};
+@4.0: coder.move(to=(300, 180), dur=0.7, ease=in)
+@4.0: bug.move(to=(360, 180),   dur=0.7, ease=in)
 
-// ---------------------------------------------------------------------------
-// A minimal second example — plain text entrance & fade.
-// ---------------------------------------------------------------------------
-const SIMPLE_EXAMPLE = `
-scene width=600 height=200 fps=30 bg=#1a1a2e
+@4.8: coder.punch(side=right, dur=0.3)
+@4.9: bug.shake(intensity=8, dur=0.4)
+@4.9: bug.face("😵")
 
-actor headline = text("Hello, MarkdyScript") at (50,90) size 36 opacity 0
-actor sub      = text("An animation DSL for the web") at (50,140) size 18 opacity 0
-
-@0.2: headline.fade_in(dur=0.6)
-@1.0: sub.fade_in(dur=0.5)
-@2.0: headline.move(to=(80,90), dur=1.0, ease=out)
-`.trim();
+@5.5: coder.kick(side=right, dur=0.35)
+@5.8: bug.rotate(to=90, dur=0.3)
+@6.0: bug.fade_out(dur=0.5)
+@6.0: coder.face("😄")
+@6.2: coder.say("Bug squashed! ✅", dur=2.0)`;
 ---
 
-<Layout title="Markdy Demo">
-  <main>
-    <header>
-      <h1>Markdy</h1>
-      <p>An open-source animation DSL engine for blog posts.</p>
-      <p style="margin-top:0.5rem">
-        <a href="/playground">→ Playground: Two rivals, one heart</a>
-      </p>
+<Layout
+  title="Markdy — animation DSL for the web"
+  description="Write stick-figure animations in a readable DSL. Like Mermaid, but for motion."
+>
+  <div class="page">
+
+    <!-- ─── Nav ─────────────────────────────────────────────────────────── -->
+    <header class="nav">
+      <span class="nav-logo">markdy</span>
+      <nav class="nav-links">
+        <a href="/playground">Playground</a>
+        <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener noreferrer">npm</a>
+      </nav>
     </header>
 
-    <section>
-      <h2>Spec example</h2>
-      <p>The canonical MarkdyScript scene from the spec, running live in the browser.</p>
-      <div class="scene-wrapper">
-        <Markdy
-          code={SPEC_EXAMPLE}
-          assets={SPEC_ASSETS}
-          width={800}
-          height={400}
-          bg="white"
-          autoplay={true}
-        />
+    <!-- ─── Hero ─────────────────────────────────────────────────────────── -->
+    <section class="hero">
+      <h1>Like <em>Mermaid</em>, but for motion.</h1>
+      <p>Write stick-figure animations in a readable DSL.<br />No keyframes. No drag-and-drop. Just text.</p>
+      <div class="hero-badges">
+        <a href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener noreferrer">
+          <img src="https://img.shields.io/npm/v/@markdy/core?style=flat-square&color=a855f7" alt="npm version" height="20" />
+        </a>
+        <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">
+          <img src="https://img.shields.io/github/stars/HoangYell/markdy-com?style=flat-square&color=fbbf24" alt="GitHub stars" height="20" />
+        </a>
       </div>
-      <details>
-        <summary>View DSL source</summary>
-        <pre><code>{SPEC_EXAMPLE}</code></pre>
-      </details>
     </section>
 
-    <section>
-      <h2>Text animation</h2>
-      <p>A minimal entrance sequence using only text actors.</p>
-      <div class="scene-wrapper">
-        <Markdy
-          code={SIMPLE_EXAMPLE}
-          width={600}
-          height={200}
-          bg="#1a1a2e"
-          autoplay={true}
-        />
+    <!-- ─── Split Editor ─────────────────────────────────────────────────── -->
+    <section class="editor-section">
+
+      <div class="editor-pane">
+        <div class="pane-bar">
+          <span class="pane-title">MarkdyScript</span>
+          <button id="run-btn" class="run-btn">&#9654; Run</button>
+        </div>
+        <textarea
+          id="code-input"
+          class="code-input"
+          spellcheck="false"
+          autocorrect="off"
+          autocapitalize="off"
+        >{DEFAULT_CODE}</textarea>
       </div>
-      <details>
-        <summary>View DSL source</summary>
-        <pre><code>{SIMPLE_EXAMPLE}</code></pre>
-      </details>
+
+      <div class="preview-pane">
+        <div class="pane-bar">
+          <span class="pane-title">Preview</span>
+          <span id="status-dot" class="status-dot status-ok" title="ready"></span>
+        </div>
+        <div id="stage-wrapper" class="stage-wrapper">
+          <div id="stage"></div>
+        </div>
+      </div>
+
     </section>
-  </main>
+
+    <!-- ─── Footer ───────────────────────────────────────────────────────── -->
+    <footer class="footer">
+      <span>Built by <a href="https://hoangyell.com" target="_blank" rel="noopener noreferrer">Hoang Yell</a></span>
+      <span class="sep">·</span>
+      <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <span class="sep">·</span>
+      <a href="/playground">Full story demo →</a>
+    </footer>
+
+  </div>
 </Layout>
 
+<script>
+  import { createPlayer } from "@markdy/renderer-dom";
+  import type { Player } from "@markdy/renderer-dom";
+
+  const textarea   = document.getElementById("code-input")  as HTMLTextAreaElement;
+  const stage      = document.getElementById("stage")        as HTMLDivElement;
+  const runBtn     = document.getElementById("run-btn")      as HTMLButtonElement;
+  const statusDot  = document.getElementById("status-dot")   as HTMLSpanElement;
+
+  let player:  Player | null = null;
+  let debounce: ReturnType<typeof setTimeout> | null = null;
+
+  function setStatus(ok: boolean) {
+    statusDot.className = `status-dot ${ok ? "status-ok" : "status-err"}`;
+    statusDot.title = ok ? "ready" : "parse error — check syntax";
+  }
+
+  function render(code: string) {
+    if (player) { player.destroy(); player = null; }
+    stage.innerHTML = "";
+    try {
+      player = createPlayer({ container: stage, code, autoplay: true });
+      setStatus(true);
+    } catch (e) {
+      const msg = (e as Error).message ?? String(e);
+      stage.innerHTML = `<p class="parse-error">${msg}</p>`;
+      setStatus(false);
+    }
+  }
+
+  render(textarea.value);
+
+  textarea.addEventListener("input", () => {
+    if (debounce) clearTimeout(debounce);
+    debounce = setTimeout(() => render(textarea.value), 600);
+  });
+
+  runBtn.addEventListener("click", () => render(textarea.value));
+</script>
+
+<style is:global>
+  body { background: #09090f; }
+</style>
+
 <style>
-  main {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 2rem 1rem 4rem;
+  /* ── Page shell ───────────────────────────────────────────────────────── */
+  .page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: #09090f;
+    color: #e2e8f0;
   }
 
-  header {
-    margin-bottom: 3rem;
+  /* ── Nav ─────────────────────────────────────────────────────────────── */
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.875rem 2rem;
+    border-bottom: 1px solid #1e1e2e;
+    flex-shrink: 0;
   }
 
-  h1 {
-    font-size: 2.5rem;
+  .nav-logo {
+    font-size: 1.1rem;
     font-weight: 700;
     letter-spacing: -0.03em;
-    margin-bottom: 0.5rem;
+    color: #a78bfa;
+    font-family: "Fira Code", "Cascadia Code", monospace;
   }
 
-  h2 {
-    font-size: 1.4rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
+  .nav-links {
+    display: flex;
+    gap: 1.5rem;
   }
 
-  section {
-    margin-bottom: 3rem;
+  .nav-links a {
+    color: #94a3b8;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.15s;
   }
 
-  section > p {
-    color: #555;
+  .nav-links a:hover { color: #e2e8f0; }
+
+  /* ── Hero ─────────────────────────────────────────────────────────────── */
+  .hero {
+    text-align: center;
+    padding: 2.5rem 2rem 2rem;
+    flex-shrink: 0;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    margin-bottom: 0.6rem;
+    line-height: 1.15;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: #a78bfa;
+  }
+
+  .hero p {
+    color: #94a3b8;
+    font-size: clamp(0.9rem, 2vw, 1.05rem);
+    line-height: 1.6;
     margin-bottom: 1rem;
   }
 
-  .scene-wrapper {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    overflow: hidden;
-    display: inline-block;
-    margin-bottom: 0.75rem;
-    max-width: 100%;
+  .hero-badges {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    line-height: 0;
   }
 
-  details {
-    margin-top: 0.25rem;
+  /* ── Editor section ───────────────────────────────────────────────────── */
+  .editor-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    flex: 1;
+    min-height: 520px;
+    border-top: 1px solid #1e1e2e;
   }
 
-  summary {
+  .editor-pane,
+  .preview-pane {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .editor-pane { border-right: 1px solid #1e1e2e; }
+
+  /* ── Pane bars ───────────────────────────────────────────────────────── */
+  .pane-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.45rem 1rem;
+    background: #0f0f18;
+    border-bottom: 1px solid #1e1e2e;
+    flex-shrink: 0;
+  }
+
+  .pane-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #64748b;
+  }
+
+  .run-btn {
+    background: #a78bfa22;
+    border: 1px solid #a78bfa55;
+    color: #a78bfa;
+    padding: 0.22rem 0.65rem;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 600;
     cursor: pointer;
-    font-size: 0.85rem;
-    color: #0066cc;
-    user-select: none;
-    margin-bottom: 0.5rem;
+    transition: background 0.15s;
+    font-family: inherit;
   }
 
-  pre {
-    background: #f4f4f4;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    padding: 1rem;
-    overflow-x: auto;
-    font-size: 0.82rem;
-    line-height: 1.5;
-    white-space: pre;
+  .run-btn:hover { background: #a78bfa44; }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
   }
 
-  code {
+  .status-ok  { background: #34d399; }
+  .status-err { background: #f87171; }
+
+  /* ── Code textarea ───────────────────────────────────────────────────── */
+  .code-input {
+    flex: 1;
+    width: 100%;
+    padding: 1.25rem;
+    background: #0d0d16;
+    color: #e2e8f0;
+    border: none;
+    outline: none;
+    resize: none;
     font-family: "Fira Code", "Cascadia Code", "Consolas", monospace;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    tab-size: 2;
+    caret-color: #a78bfa;
+  }
+
+  /* ── Preview stage ───────────────────────────────────────────────────── */
+  .stage-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0d0d16;
+    overflow: auto;
+    padding: 1.25rem;
+  }
+
+  #stage { line-height: 0; }
+
+  .parse-error {
+    font-family: "Fira Code", "Cascadia Code", monospace;
+    font-size: 0.8rem;
+    color: #f87171;
+    background: #f8717110;
+    border: 1px solid #f8717130;
+    border-radius: 6px;
+    padding: 0.875rem 1rem;
+    max-width: 380px;
+    white-space: pre-wrap;
+    margin: 0;
+  }
+
+  /* ── Footer ───────────────────────────────────────────────────────────── */
+  .footer {
+    padding: 0.75rem 2rem;
+    border-top: 1px solid #1e1e2e;
+    font-size: 0.78rem;
+    color: #64748b;
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .footer a { color: #94a3b8; text-decoration: none; }
+  .footer a:hover { color: #e2e8f0; }
+  .sep { color: #2a2a3a; }
+
+  /* ── Responsive ───────────────────────────────────────────────────────── */
+  @media (max-width: 800px) {
+    .editor-section {
+      grid-template-columns: 1fr;
+      min-height: unset;
+    }
+
+    .editor-pane {
+      border-right: none;
+      border-bottom: 1px solid #1e1e2e;
+    }
+
+    .code-input { min-height: 260px; }
+
+    .stage-wrapper { min-height: 320px; }
   }
 </style>
