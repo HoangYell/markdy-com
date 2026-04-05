@@ -22,15 +22,27 @@ function tx(s) {
   return `translate(${s.x}px, ${s.y}px) scale(${s.scale}) rotate(${s.rotate}deg)`;
 }
 function createFigureEl(def) {
-  const _skin = def.args[0] || "#ffdbac";
+  const skinColor = def.args[0] || "#ffdbac";
   const isFemale = def.args[1] === "f";
   const startFace = def.args[2] || (isFemale ? "\u{1F642}" : "\u{1F636}");
   const ink = "#2a2a2a";
+  const WRAP_W = 80;
+  const FACE_FS = 40;
+  const SHIRT_FS = isFemale ? 48 : 44;
+  const vShirtW = SHIRT_FS * 0.9;
+  const shLx = (WRAP_W - vShirtW) / 2 + vShirtW * 0.18;
+  const shRx = WRAP_W - shLx;
+  const shY = Math.round(SHIRT_FS * 0.28);
+  const ARM_W = 36, ARM_H = 22;
+  const LEG_H = 54, LEG_STICK_H = 34;
   const wrap = document.createElement("div");
   Object.assign(wrap.style, {
     position: "relative",
-    width: "80px",
-    height: "160px",
+    // allows children of shirtRow to use absolute pos
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    width: `${WRAP_W}px`,
     overflow: "visible"
   });
   const faceEl = document.createElement("span");
@@ -38,177 +50,170 @@ function createFigureEl(def) {
   faceEl.dataset.figHead = "";
   faceEl.textContent = startFace;
   Object.assign(faceEl.style, {
-    position: "absolute",
-    fontSize: "44px",
+    fontSize: `${FACE_FS}px`,
     lineHeight: "1",
-    left: "50%",
-    top: "0",
-    transform: "translateX(-50%)",
+    flexShrink: "0",
     userSelect: "none",
     pointerEvents: "none",
-    zIndex: "3"
+    zIndex: "5"
   });
-  const clothesEl = document.createElement("span");
-  clothesEl.dataset.figBody = "";
-  clothesEl.textContent = isFemale ? "\u{1F457}" : "\u{1F455}";
-  Object.assign(clothesEl.style, {
-    position: "absolute",
-    fontSize: "34px",
+  const neck = document.createElement("div");
+  Object.assign(neck.style, {
+    width: "8px",
+    height: "8px",
+    background: skinColor,
+    borderRadius: "3px",
+    flexShrink: "0",
+    marginTop: "-2px",
+    marginBottom: "-2px",
+    zIndex: "4"
+  });
+  const shirtRow = document.createElement("div");
+  Object.assign(shirtRow.style, {
+    position: "relative",
+    // arms use absolute inside this
+    width: `${WRAP_W}px`,
+    height: `${SHIRT_FS}px`,
+    textAlign: "center",
+    flexShrink: "0",
+    zIndex: "2",
+    overflow: "visible"
+  });
+  const torso = document.createElement("span");
+  torso.dataset.figBody = "";
+  torso.textContent = isFemale ? "\u{1F457}" : "\u{1F455}";
+  Object.assign(torso.style, {
+    fontSize: `${SHIRT_FS}px`,
     lineHeight: "1",
-    left: "50%",
-    top: "42px",
-    transform: "translateX(-50%)",
     userSelect: "none",
-    pointerEvents: "none",
-    zIndex: "2"
+    pointerEvents: "none"
   });
+  shirtRow.appendChild(torso);
   const armL = document.createElement("div");
   armL.dataset.figArmL = "";
   Object.assign(armL.style, {
     position: "absolute",
-    width: "38px",
-    height: "20px",
-    right: "40px",
-    top: "56px",
+    width: `${ARM_W}px`,
+    height: `${ARM_H}px`,
+    right: `${WRAP_W - shLx}px`,
+    // right edge at shLx
+    top: `${shY - ARM_H / 2}px`,
     transformOrigin: "right center",
-    transform: "rotate(25deg)",
-    zIndex: "2",
-    overflow: "visible",
-    boxSizing: "border-box"
+    transform: "rotate(20deg)",
+    zIndex: "4",
+    overflow: "visible"
   });
   const armLStick = document.createElement("div");
   Object.assign(armLStick.style, {
     position: "absolute",
-    width: "24px",
+    right: "5px",
+    top: `${ARM_H / 2 - 2}px`,
+    width: "18px",
     height: "3px",
-    background: ink,
-    borderRadius: "2px",
-    right: "12px",
-    top: "8px"
+    background: skinColor,
+    borderRadius: "2px"
   });
-  const armLHand = document.createElement("span");
-  armLHand.textContent = "\u{1F91C}";
-  Object.assign(armLHand.style, {
+  const armLFist = document.createElement("span");
+  armLFist.textContent = "\u{1F91C}";
+  Object.assign(armLFist.style, {
     position: "absolute",
-    fontSize: "15px",
+    fontSize: "17px",
     lineHeight: "1",
     left: "0",
-    top: "2px",
+    top: `${ARM_H / 2 - 10}px`,
     transform: "scaleX(-1)",
     userSelect: "none",
     pointerEvents: "none"
   });
-  armL.append(armLStick, armLHand);
+  armL.append(armLStick, armLFist);
+  shirtRow.appendChild(armL);
   const armR = document.createElement("div");
   armR.dataset.figArmR = "";
   Object.assign(armR.style, {
     position: "absolute",
-    width: "38px",
-    height: "20px",
-    left: "40px",
-    top: "56px",
+    width: `${ARM_W}px`,
+    height: `${ARM_H}px`,
+    left: `${shRx}px`,
+    top: `${shY - ARM_H / 2}px`,
     transformOrigin: "left center",
-    transform: "rotate(-25deg)",
-    zIndex: "2",
-    overflow: "visible",
-    boxSizing: "border-box"
+    transform: "rotate(-20deg)",
+    zIndex: "4",
+    overflow: "visible"
   });
   const armRStick = document.createElement("div");
   Object.assign(armRStick.style, {
     position: "absolute",
-    width: "24px",
+    left: "5px",
+    top: `${ARM_H / 2 - 2}px`,
+    width: "18px",
     height: "3px",
-    background: ink,
-    borderRadius: "2px",
-    left: "12px",
-    top: "8px"
+    background: skinColor,
+    borderRadius: "2px"
   });
-  const armRHand = document.createElement("span");
-  armRHand.textContent = "\u{1F91B}";
-  Object.assign(armRHand.style, {
+  const armRFist = document.createElement("span");
+  armRFist.textContent = "\u{1F91B}";
+  Object.assign(armRFist.style, {
     position: "absolute",
-    fontSize: "15px",
+    fontSize: "17px",
     lineHeight: "1",
     right: "0",
-    top: "2px",
+    top: `${ARM_H / 2 - 10}px`,
     userSelect: "none",
     pointerEvents: "none"
   });
-  armR.append(armRStick, armRHand);
-  const legL = document.createElement("div");
-  legL.dataset.figLegL = "";
-  Object.assign(legL.style, {
-    position: "absolute",
-    width: "22px",
-    height: "52px",
-    left: "23px",
-    top: "76px",
-    transformOrigin: "top center",
-    transform: "rotate(0deg)",
-    zIndex: "1",
-    overflow: "visible",
-    boxSizing: "border-box"
+  armR.append(armRStick, armRFist);
+  shirtRow.appendChild(armR);
+  const legsRow = document.createElement("div");
+  Object.assign(legsRow.style, {
+    display: "flex",
+    justifyContent: "center",
+    gap: "10px",
+    flexShrink: "0",
+    overflow: "visible"
   });
-  const legLStick = document.createElement("div");
-  Object.assign(legLStick.style, {
-    position: "absolute",
-    width: "3px",
-    height: "34px",
-    background: ink,
-    borderRadius: "1px",
-    left: "9px",
-    top: "0"
-  });
-  const legLShoe = document.createElement("span");
-  legLShoe.textContent = isFemale ? "\u{1F460}" : "\u{1F45F}";
-  Object.assign(legLShoe.style, {
-    position: "absolute",
-    fontSize: "15px",
-    lineHeight: "1",
-    bottom: "0",
-    left: "0",
-    transform: "scaleX(-1)",
-    userSelect: "none",
-    pointerEvents: "none"
-  });
-  legL.append(legLStick, legLShoe);
-  const legR = document.createElement("div");
-  legR.dataset.figLegR = "";
-  Object.assign(legR.style, {
-    position: "absolute",
-    width: "22px",
-    height: "52px",
-    right: "19px",
-    top: "76px",
-    transformOrigin: "top center",
-    transform: "rotate(0deg)",
-    zIndex: "1",
-    overflow: "visible",
-    boxSizing: "border-box"
-  });
-  const legRStick = document.createElement("div");
-  Object.assign(legRStick.style, {
-    position: "absolute",
-    width: "3px",
-    height: "34px",
-    background: ink,
-    borderRadius: "1px",
-    left: "9px",
-    top: "0"
-  });
-  const legRShoe = document.createElement("span");
-  legRShoe.textContent = isFemale ? "\u{1F460}" : "\u{1F45F}";
-  Object.assign(legRShoe.style, {
-    position: "absolute",
-    fontSize: "15px",
-    lineHeight: "1",
-    bottom: "0",
-    right: "0",
-    userSelect: "none",
-    pointerEvents: "none"
-  });
-  legR.append(legRStick, legRShoe);
-  wrap.append(faceEl, clothesEl, armL, armR, legL, legR);
+  const makeLeg = (isLeft) => {
+    const leg = document.createElement("div");
+    leg.dataset[isLeft ? "figLegL" : "figLegR"] = "";
+    Object.assign(leg.style, {
+      position: "relative",
+      width: "20px",
+      height: `${LEG_H}px`,
+      transformOrigin: "top center",
+      transform: "rotate(0deg)",
+      overflow: "visible"
+    });
+    const stick = document.createElement("div");
+    Object.assign(stick.style, {
+      position: "absolute",
+      width: "3px",
+      height: `${LEG_STICK_H}px`,
+      background: ink,
+      borderRadius: "1px",
+      left: "50%",
+      top: "0",
+      transform: "translateX(-50%)"
+    });
+    const shoe = document.createElement("span");
+    shoe.textContent = isFemale ? "\u{1F460}" : "\u{1F45F}";
+    Object.assign(shoe.style, {
+      position: "absolute",
+      fontSize: "17px",
+      lineHeight: "1",
+      bottom: "0",
+      userSelect: "none",
+      pointerEvents: "none"
+    });
+    if (isLeft) {
+      shoe.style.left = "0";
+      shoe.style.transform = "scaleX(-1)";
+    } else {
+      shoe.style.right = "0";
+    }
+    leg.append(stick, shoe);
+    return leg;
+  };
+  legsRow.append(makeLeg(true), makeLeg(false));
+  wrap.append(faceEl, neck, shirtRow, legsRow);
   return wrap;
 }
 var PART_SEL = {
