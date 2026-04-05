@@ -114,14 +114,15 @@ function createFigureEl(def) {
     borderRadius: "2px"
   });
   const armLFist = document.createElement("span");
-  armLFist.textContent = "\u{1F91C}";
+  const armHandEmoji = isFemale ? "\u{1F485}" : "\u{1F91C}";
+  armLFist.textContent = armHandEmoji;
   Object.assign(armLFist.style, {
     position: "absolute",
     fontSize: "17px",
     lineHeight: "1",
     left: "0",
     top: `${ARM_H / 2 - 10}px`,
-    transform: "scaleX(-1)",
+    transform: isFemale ? "none" : "scaleX(-1)",
     userSelect: "none",
     pointerEvents: "none"
   });
@@ -151,7 +152,7 @@ function createFigureEl(def) {
     borderRadius: "2px"
   });
   const armRFist = document.createElement("span");
-  armRFist.textContent = "\u{1F91B}";
+  armRFist.textContent = armHandEmoji;
   Object.assign(armRFist.style, {
     position: "absolute",
     fontSize: "17px",

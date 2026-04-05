@@ -195,14 +195,15 @@ function createFigureEl(def: ActorDef): HTMLElement {
     borderRadius: "2px",
   });
   const armLFist = document.createElement("span");
-  armLFist.textContent = "🤜";
+  const armHandEmoji = isFemale ? "💅" : "🤜";
+  armLFist.textContent = armHandEmoji;
   Object.assign(armLFist.style, {
     position:      "absolute",
     fontSize:      "17px",
     lineHeight:    "1",
     left:          "0",
     top:           `${ARM_H / 2 - 10}px`,
-    transform:     "scaleX(-1)",
+    transform:     isFemale ? "none" : "scaleX(-1)",
     userSelect:    "none",
     pointerEvents: "none",
   });
@@ -234,7 +235,7 @@ function createFigureEl(def: ActorDef): HTMLElement {
     borderRadius: "2px",
   });
   const armRFist = document.createElement("span");
-  armRFist.textContent = "🤛";
+  armRFist.textContent = armHandEmoji;
   Object.assign(armRFist.style, {
     position:      "absolute",
     fontSize:      "17px",
