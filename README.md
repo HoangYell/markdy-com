@@ -262,15 +262,8 @@ pnpm test
 packages/
   core/              @markdy/core         — Parser + AST types (zero deps)
   renderer-dom/      @markdy/renderer-dom — WAAPI renderer
-    src/
-      types.ts       — ActorState, FaceSwap, easing utilities
-      figure.ts      — Stick-figure DOM factory
-      actors.ts      — Actor element factory (sprite/text/figure/box)
-      animations.ts  — Timeline → WAAPI Animation objects
-      player.ts      — Public API, rAF loop, face-swap logic
   astro/             @markdy/astro        — Astro island component
-examples/
-website/               Official markdy.com website
+website/               Official markdy.com playground & website (Astro)
 docs/
   SYNTAX.md          Full DSL reference
   TUTORIAL.md        Step-by-step human tutorial
@@ -282,10 +275,18 @@ docs/
 
 | Command | Description |
 |---|---|
-| `pnpm build` | Build all packages (tsup) |
+| `pnpm build` | Build all packages and website |
 | `pnpm test` | Run all tests (vitest) |
 | `pnpm typecheck` | Type-check all packages |
 | `pnpm clean` | Remove all `dist/` directories |
+
+### Deployment (Cloudflare)
+
+The project is deployed via Cloudflare Pages (Workers Assets).
+- **Project Name:** `markdy-com`
+- **Build command:** `pnpm build`
+- **Deploy command:** `cd website && npx wrangler deploy`
+- **Path:** `/` (repo root)
 
 ---
 
