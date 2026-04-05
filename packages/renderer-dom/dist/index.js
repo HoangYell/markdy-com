@@ -21,6 +21,172 @@ function stateFrom(def) {
 function tx(s) {
   return `translate(${s.x}px, ${s.y}px) scale(${s.scale}) rotate(${s.rotate}deg)`;
 }
+function createFigureEl(def) {
+  const skinColor = def.args[0] ?? "#ffdbac";
+  const gender = def.args[1] === "f" ? "f" : "m";
+  const ink = "#222";
+  const wrap = document.createElement("div");
+  wrap.style.width = "60px";
+  wrap.style.height = "110px";
+  wrap.style.overflow = "visible";
+  const head = document.createElement("div");
+  Object.assign(head.style, {
+    position: "absolute",
+    left: "15px",
+    top: "0",
+    width: "30px",
+    height: "30px",
+    borderRadius: "50%",
+    background: skinColor,
+    border: `2.5px solid ${ink}`,
+    boxSizing: "border-box",
+    zIndex: "2"
+  });
+  [-7, 7].forEach((ox) => {
+    const eye = document.createElement("div");
+    Object.assign(eye.style, {
+      position: "absolute",
+      width: "3.5px",
+      height: "3.5px",
+      background: ink,
+      borderRadius: "50%",
+      left: `${12 + ox}px`,
+      top: "9px"
+    });
+    head.appendChild(eye);
+  });
+  const mouth = document.createElement("div");
+  Object.assign(mouth.style, {
+    position: "absolute",
+    width: "12px",
+    height: "6px",
+    left: "7px",
+    top: "16px",
+    borderBottom: `2px solid ${ink}`,
+    borderLeft: `1.5px solid ${ink}`,
+    borderRight: `1.5px solid ${ink}`,
+    borderRadius: "0 0 8px 8px",
+    boxSizing: "border-box"
+  });
+  head.appendChild(mouth);
+  const body = document.createElement("div");
+  Object.assign(body.style, {
+    position: "absolute",
+    width: "3px",
+    height: "36px",
+    left: "28.5px",
+    top: "32px",
+    background: ink,
+    borderRadius: "1px"
+  });
+  const armL = document.createElement("div");
+  armL.dataset.figArmL = "";
+  Object.assign(armL.style, {
+    position: "absolute",
+    width: "26px",
+    height: "3px",
+    right: "32px",
+    top: "41px",
+    background: ink,
+    transformOrigin: "right center",
+    transform: "rotate(25deg)",
+    borderRadius: "1px 3px 3px 1px"
+  });
+  const armR = document.createElement("div");
+  armR.dataset.figArmR = "";
+  Object.assign(armR.style, {
+    position: "absolute",
+    width: "26px",
+    height: "3px",
+    left: "32px",
+    top: "41px",
+    background: ink,
+    transformOrigin: "left center",
+    transform: "rotate(-25deg)",
+    borderRadius: "3px 1px 1px 3px"
+  });
+  if (gender === "f") {
+    const bun = document.createElement("div");
+    Object.assign(bun.style, {
+      position: "absolute",
+      left: "14px",
+      top: "-9px",
+      width: "32px",
+      height: "19px",
+      background: "#7B3F00",
+      borderRadius: "50% 50% 30% 30%",
+      border: `2px solid ${ink}`,
+      boxSizing: "border-box",
+      zIndex: "1"
+    });
+    const skirt = document.createElement("div");
+    Object.assign(skirt.style, {
+      position: "absolute",
+      left: "8px",
+      top: "67px",
+      width: "44px",
+      height: "24px",
+      background: "#e87fba",
+      clipPath: "polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%)"
+    });
+    const legL = document.createElement("div");
+    legL.dataset.figLegL = "";
+    Object.assign(legL.style, {
+      position: "absolute",
+      width: "3px",
+      height: "22px",
+      left: "20px",
+      top: "89px",
+      background: ink,
+      transformOrigin: "top center",
+      transform: "rotate(-10deg)",
+      borderRadius: "1px"
+    });
+    const legR = document.createElement("div");
+    legR.dataset.figLegR = "";
+    Object.assign(legR.style, {
+      position: "absolute",
+      width: "3px",
+      height: "22px",
+      left: "37px",
+      top: "89px",
+      background: ink,
+      transformOrigin: "top center",
+      transform: "rotate(10deg)",
+      borderRadius: "1px"
+    });
+    wrap.append(bun, head, body, armL, armR, skirt, legL, legR);
+  } else {
+    const legL = document.createElement("div");
+    legL.dataset.figLegL = "";
+    Object.assign(legL.style, {
+      position: "absolute",
+      width: "3px",
+      height: "36px",
+      left: "24px",
+      top: "67px",
+      background: ink,
+      transformOrigin: "top center",
+      transform: "rotate(-18deg)",
+      borderRadius: "1px"
+    });
+    const legR = document.createElement("div");
+    legR.dataset.figLegR = "";
+    Object.assign(legR.style, {
+      position: "absolute",
+      width: "3px",
+      height: "36px",
+      left: "33px",
+      top: "67px",
+      background: ink,
+      transformOrigin: "top center",
+      transform: "rotate(18deg)",
+      borderRadius: "1px"
+    });
+    wrap.append(head, body, armL, armR, legL, legR);
+  }
+  return wrap;
+}
 function createActorEl(name, def, assetDefs, assetOverrides) {
   let el;
   switch (def.type) {
@@ -54,6 +220,10 @@ function createActorEl(name, def, assetDefs, assetOverrides) {
       div.style.userSelect = "none";
       div.style.pointerEvents = "none";
       el = div;
+      break;
+    }
+    case "figure": {
+      el = createFigureEl(def);
       break;
     }
     default: {
@@ -230,6 +400,51 @@ function buildAnimations(ast, actorEls, scene, assetOverrides) {
               { transform: tx(s), offset: 1 }
             ],
             { ...baseOpts, easing: "linear" }
+          )
+        );
+        break;
+      }
+      // ── punch ─────────────────────────────────────────────────────────────
+      // Swings one arm outward and back. Targets figure actors only;
+      // silently ignored for other actor types.
+      case "punch": {
+        const punchSide = String(ev.params.side ?? "right");
+        const armSel = punchSide === "left" ? "[data-fig-arm-l]" : "[data-fig-arm-r]";
+        const armEl = el.querySelector(armSel);
+        if (!armEl) break;
+        const restMatch = /rotate\((-?[\d.]+)deg\)/.exec(armEl.style.transform ?? "");
+        const restAngle = restMatch ? Number(restMatch[1]) : punchSide === "left" ? 25 : -25;
+        const punchAngle = punchSide === "left" ? -70 : 70;
+        anims.push(
+          armEl.animate(
+            [
+              { transform: `rotate(${restAngle}deg)` },
+              { transform: `rotate(${punchAngle}deg)`, offset: 0.35 },
+              { transform: `rotate(${restAngle}deg)` }
+            ],
+            { ...baseOpts, easing: "ease-in-out", fill: "forwards" }
+          )
+        );
+        break;
+      }
+      // ── kick ──────────────────────────────────────────────────────────────
+      // Swings one leg outward and back. Targets figure actors only.
+      case "kick": {
+        const kickSide = String(ev.params.side ?? "right");
+        const legSel = kickSide === "left" ? "[data-fig-leg-l]" : "[data-fig-leg-r]";
+        const legEl = el.querySelector(legSel);
+        if (!legEl) break;
+        const legRestMatch = /rotate\((-?[\d.]+)deg\)/.exec(legEl.style.transform ?? "");
+        const legRestAngle = legRestMatch ? Number(legRestMatch[1]) : kickSide === "left" ? -18 : 18;
+        const kickAngle = kickSide === "left" ? -100 : 100;
+        anims.push(
+          legEl.animate(
+            [
+              { transform: `rotate(${legRestAngle}deg)` },
+              { transform: `rotate(${kickAngle}deg)`, offset: 0.38 },
+              { transform: `rotate(${legRestAngle}deg)` }
+            ],
+            { ...baseOpts, easing: "ease-in-out", fill: "forwards" }
           )
         );
         break;

@@ -81,7 +81,7 @@ function parseModifiers(raw) {
   return result;
 }
 var ASSET_RE = /^asset\s+(\w+)\s*=\s*(image|icon)\("([^"]+)"\)$/;
-var ACTOR_RE = /^actor\s+(\w+)\s*=\s*(sprite|text|box)\(([^)]*)\)\s+at\s+\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)(.*)$/;
+var ACTOR_RE = /^actor\s+(\w+)\s*=\s*(sprite|text|box|figure)\(([^)]*)\)\s+at\s+\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)(.*)$/;
 var EVENT_RE = /^@([\d.]+):\s+(\w+)\.(\w+)\((.*)\)$/;
 var DEFAULTS = {
   width: 800,
