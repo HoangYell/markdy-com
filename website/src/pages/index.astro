@@ -503,6 +503,37 @@ seq wave(arm, angle) {
     statusEl.className = `status ${ok ? "ok" : "err"}`;
   }
 
+  const stageWrap = document.getElementById("stage-wrap") as HTMLDivElement;
+
+  function resizeStage() {
+    if (!stageWrap || !stage.firstElementChild) return;
+    const sceneEl = stage.firstElementChild as HTMLElement;
+    
+    // Don't scale error messages
+    if (sceneEl.classList.contains("parse-error")) {
+      sceneEl.style.transform = "";
+      return;
+    }
+
+    const sceneWidth = parseFloat(sceneEl.style.width) || 800;
+    const sceneHeight = parseFloat(sceneEl.style.height) || 400;
+
+    const wrapRect = stageWrap.getBoundingClientRect();
+    const padding = 20; // 10px breathing room on all sides
+    const availableWidth = wrapRect.width - padding;
+    const availableHeight = wrapRect.height - padding;
+
+    const scaleX = availableWidth / sceneWidth;
+    const scaleY = availableHeight / sceneHeight;
+    const scale = Math.min(1.0, Math.min(scaleX, scaleY));
+
+    sceneEl.style.transform = `scale(${scale})`;
+    sceneEl.style.transformOrigin = "center center";
+  }
+
+  const ro = new ResizeObserver(() => resizeStage());
+  ro.observe(stageWrap);
+
   function render(code: string) {
     if (player) { player.destroy(); player = null; }
     stage.innerHTML = "";
@@ -512,6 +543,7 @@ seq wave(arm, angle) {
       if ((window as any).Iconify) {
         (window as any).Iconify.scan(stage);
       }
+      resizeStage();
     } catch (e) {
       const msg = (e as Error).message ?? String(e);
       stage.innerHTML = `<p class="parse-error">${msg}</p>`;
@@ -973,7 +1005,7 @@ seq wave(arm, angle) {
     align-items: center;
     justify-content: center;
     background: var(--bg-tertiary);
-    overflow: auto;
+    overflow: hidden;
     padding: 1rem;
     transition: background 0.3s ease;
   }
