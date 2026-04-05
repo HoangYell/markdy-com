@@ -4,60 +4,6 @@ import Layout from "../layouts/Layout.astro";
 /* ── Example snippets for the sidebar ─────────────────────────────────── */
 const EXAMPLES = [
   {
-    label: "Hello World",
-    code: `scene width=600 height=260 fps=30 bg=#fafafa
-
-actor hi = text("Hello, Markdy!") at (180, 60) size 28 opacity 0
-actor a  = figure(#c68642, m, 😎) at (280, 160)
-
-@0.2: hi.fade_in(dur=0.6)
-@0.6: a.enter(from=left, dur=0.8)
-@1.5: a.say("Let's go! 🚀", dur=1.5)
-@2.5: a.move(to=(350, 160), dur=0.8, ease=out)`,
-  },
-  {
-    label: "Fight Scene",
-    code: `scene width=640 height=300 fps=30 bg=#fafafa
-
-actor hero    = figure(#6ee7b7, m, 😎) at (160, 170)
-actor villain = figure(#f87171, m, 😈) at (480, 170)
-
-@0.3: hero.enter(from=left, dur=0.7)
-@0.5: villain.enter(from=right, dur=0.7)
-@1.5: hero.say("Bring it on! 💪", dur=1.2)
-@2.0: villain.say("Haha! 😈", dur=1.2)
-@3.5: hero.move(to=(300, 170), dur=0.5, ease=in)
-@3.5: villain.move(to=(340, 170), dur=0.5, ease=in)
-@4.2: hero.punch(side=right, dur=0.3)
-@4.3: villain.shake(intensity=8, dur=0.4)
-@4.3: villain.face("😵")
-@5.0: hero.kick(side=right, dur=0.35)
-@5.3: villain.rotate(to=90, dur=0.3)
-@5.5: villain.fade_out(dur=0.5)
-@5.5: hero.face("😄")
-@5.7: hero.say("Done! ✅", dur=1.5)`,
-  },
-  {
-    label: "Love Story",
-    code: `scene width=640 height=300 fps=30 bg=#fafafa
-
-actor boy  = figure(#c68642, m, 😊) at (150, 170)
-actor girl = figure(#fad4c0, f, 😊) at (490, 170)
-
-@0.3: boy.enter(from=left, dur=0.8)
-@0.5: girl.enter(from=right, dur=0.8)
-@1.5: boy.face("😍")
-@1.5: boy.say("Hi there! 😍", dur=1.5)
-@2.5: girl.face("😊")
-@2.5: girl.say("Hey! 👋", dur=1.2)
-@4.0: boy.move(to=(280, 170), dur=0.8, ease=out)
-@4.0: girl.move(to=(360, 170), dur=0.8, ease=out)
-@5.0: boy.rotate_part(part=arm_right, to=-70, dur=0.4)
-@5.0: girl.rotate_part(part=arm_left, to=70, dur=0.4)
-@5.5: boy.face("🥰")
-@5.5: girl.face("🥰")`,
-  },
-  {
     label: "Full Story (25s)",
     code: `scene width=800 height=400 fps=30 bg=#fafafa
 
@@ -135,6 +81,60 @@ actor lily  = girl(\${skin_g}, 😊)    at (370, 180) opacity 0
 @20.0: alex.say("You came... 🥺", dur=1.8)
 @22.0: bruno.face("😔")
 @22.0: bruno.say("...why 😔", dur=2.0)`,
+  },
+  {
+    label: "Hello World",
+    code: `scene width=600 height=260 fps=30 bg=#fafafa
+
+actor hi = text("Hello, Markdy!") at (180, 60) size 28 opacity 0
+actor a  = figure(#c68642, m, 😎) at (280, 160)
+
+@0.2: hi.fade_in(dur=0.6)
+@0.6: a.enter(from=left, dur=0.8)
+@1.5: a.say("Let's go! 🚀", dur=1.5)
+@2.5: a.move(to=(350, 160), dur=0.8, ease=out)`,
+  },
+  {
+    label: "Fight Scene",
+    code: `scene width=640 height=300 fps=30 bg=#fafafa
+
+actor hero    = figure(#6ee7b7, m, 😎) at (160, 170)
+actor villain = figure(#f87171, m, 😈) at (480, 170)
+
+@0.3: hero.enter(from=left, dur=0.7)
+@0.5: villain.enter(from=right, dur=0.7)
+@1.5: hero.say("Bring it on! 💪", dur=1.2)
+@2.0: villain.say("Haha! 😈", dur=1.2)
+@3.5: hero.move(to=(300, 170), dur=0.5, ease=in)
+@3.5: villain.move(to=(340, 170), dur=0.5, ease=in)
+@4.2: hero.punch(side=right, dur=0.3)
+@4.3: villain.shake(intensity=8, dur=0.4)
+@4.3: villain.face("😵")
+@5.0: hero.kick(side=right, dur=0.35)
+@5.3: villain.rotate(to=90, dur=0.3)
+@5.5: villain.fade_out(dur=0.5)
+@5.5: hero.face("😄")
+@5.7: hero.say("Done! ✅", dur=1.5)`,
+  },
+  {
+    label: "Love Story",
+    code: `scene width=640 height=300 fps=30 bg=#fafafa
+
+actor boy  = figure(#c68642, m, 😊) at (150, 170)
+actor girl = figure(#fad4c0, f, 😊) at (490, 170)
+
+@0.3: boy.enter(from=left, dur=0.8)
+@0.5: girl.enter(from=right, dur=0.8)
+@1.5: boy.face("😍")
+@1.5: boy.say("Hi there! 😍", dur=1.5)
+@2.5: girl.face("😊")
+@2.5: girl.say("Hey! 👋", dur=1.2)
+@4.0: boy.move(to=(280, 170), dur=0.8, ease=out)
+@4.0: girl.move(to=(360, 170), dur=0.8, ease=out)
+@5.0: boy.rotate_part(part=arm_right, to=-70, dur=0.4)
+@5.0: girl.rotate_part(part=arm_left, to=70, dur=0.4)
+@5.5: boy.face("🥰")
+@5.5: girl.face("🥰")`,
   },
 ];
 
@@ -1079,12 +1079,13 @@ seq wave(arm, angle) {
   }
 
   .ref-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1rem;
+    columns: 320px;
+    column-gap: 1rem;
   }
 
   .ref-card {
+    break-inside: avoid;
+    margin-bottom: 1rem;
     border: 1px solid var(--border);
     border-radius: 12px;
     padding: 1.25rem;
