@@ -232,82 +232,114 @@ const FLOWER_ASSET: Record<string, string> = {
     <div class="ref-grid">
 
       <div class="ref-card">
-        <h3>Scene</h3>
+        <h3>1. Scene Declaration</h3>
         <pre><code>scene width=800 height=400 fps=30 bg=#fafafa</code></pre>
-        <p>Set canvas size, frame rate, and background. Must appear first.</p>
-      </div>
-
-      <div class="ref-card">
-        <h3>Actors</h3>
-        <pre><code>actor a = figure(#c68642, m, 😎) at (100, 200)
-actor b = text("Hello") at (50, 50) size 24
-actor c = sprite(myImg) at (300, 200) scale 0.5</code></pre>
+        <p>Configures the main canvas timeline. Must exist at the very top of your <code>.markdy</code> file.</p>
         <table>
-          <thead><tr><th>Type</th><th>Args</th><th>Description</th></tr></thead>
+          <thead><tr><th>Property</th><th>Default</th><th>Description</th></tr></thead>
           <tbody>
-            <tr><td><code>figure</code></td><td>skin [, gender, face]</td><td>Stick figure with limbs</td></tr>
-            <tr><td><code>text</code></td><td>"string"</td><td>Text label</td></tr>
-            <tr><td><code>sprite</code></td><td>asset name</td><td>Image/icon</td></tr>
-            <tr><td><code>box</code></td><td>—</td><td>100x100 grey box</td></tr>
+            <tr><td><code>width</code></td><td><code>800</code></td><td>Canvas width in pixels</td></tr>
+            <tr><td><code>height</code></td><td><code>400</code></td><td>Canvas height in pixels</td></tr>
+            <tr><td><code>fps</code></td><td><code>30</code></td><td>Frame rate. Informational for rendering engine.</td></tr>
+            <tr><td><code>bg</code></td><td><code>white</code></td><td>Any valid CSS background color (e.g. <code>#000</code>).</td></tr>
+            <tr><td><code>duration</code></td><td><i>auto</i></td><td>Override total length in seconds. Re-calculated from last event end-time if missing.</td></tr>
           </tbody>
         </table>
-        <p><strong>Modifiers:</strong> <code>scale</code>, <code>opacity</code>, <code>size</code> (text only)</p>
       </div>
 
       <div class="ref-card">
-        <h3>Events &amp; Actions</h3>
-        <pre><code>@1.0: actor.action(param=value, dur=0.5)</code></pre>
+        <h3>2. Asset Declarations</h3>
+        <pre><code>asset pepe = image("/memes/pepe.webp")
+asset fire = icon("lucide:flame")</code></pre>
+        <p>Define images or icons before usage. The name identifier can be used in <code>sprite()</code> and <code>throw()</code> events.</p>
         <table>
-          <thead><tr><th>Action</th><th>Params</th></tr></thead>
           <tbody>
-            <tr><td><code>enter</code></td><td>from=left|right|top|bottom, dur</td></tr>
-            <tr><td><code>move</code></td><td>to=(x,y), dur, ease</td></tr>
-            <tr><td><code>fade_in</code> / <code>fade_out</code></td><td>dur</td></tr>
-            <tr><td><code>rotate</code></td><td>to=degrees, dur</td></tr>
-            <tr><td><code>shake</code></td><td>intensity, dur</td></tr>
-            <tr><td><code>say</code></td><td>"text", dur</td></tr>
-            <tr><td><code>face</code></td><td>"emoji"</td></tr>
-            <tr><td><code>punch</code></td><td>side=left|right, dur</td></tr>
-            <tr><td><code>kick</code></td><td>side=left|right, dur</td></tr>
-            <tr><td><code>rotate_part</code></td><td>part=head|body|arm_left|..., to, dur</td></tr>
-            <tr><td><code>throw</code></td><td>asset, to=actor, dur</td></tr>
+            <tr><td><code>image()</code></td><td>URL path referencing a local or remote <code>.png</code>, <code>.webp</code>, <code>.svg</code>, etc.</td></tr>
+            <tr><td><code>icon()</code></td><td>Iconify-compatible format (e.g., <code>set:name</code>). Loaded natively.</td></tr>
           </tbody>
         </table>
-        <p><strong>Easing:</strong> <code>in</code>, <code>out</code>, <code>inout</code> (default: linear)</p>
       </div>
 
       <div class="ref-card">
-        <h3>Variables &amp; Templates</h3>
-        <pre><code>var skin = #c68642
-var y = 200
+        <h3>3. Defining Actors</h3>
+        <pre><code>actor a = figure(#c68642, m, 😎) at (100, 200) scale 1.2
+actor b = text("Hello World") at (50, 50) size 24
+actor c = sprite(pepe) at (300, 200) scale 0.5 opacity 0</code></pre>
+        <p>Objects visible in the scene. Defined by <code>at (x,y)</code> along with optional space-separated modifiers.</p>
+        <table>
+          <thead><tr><th>Type</th><th>Arguments</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>figure</code></td><td>skinColor, gender, face</td><td>Articulatable stick figure. E.g: <code>#c68642, f, 😡</code></td></tr>
+            <tr><td><code>text</code></td><td>"quoted string"</td><td>Plain text label. Modifiable via <code>size px</code>.</td></tr>
+            <tr><td><code>sprite</code></td><td>asset identifier</td><td>Renders image/icon. Requires an <code>asset</code> beforehand.</td></tr>
+            <tr><td><code>box</code></td><td>—</td><td>Standard 100x100 solid box.</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Modifiers:</strong> <code>opacity</code> (0-1), <code>scale</code>, <code>rotate</code>, <code>size</code> (text only).</p>
+      </div>
 
-def fighter(skin, face) {'{'}
-  figure(${'${skin}'}, m, ${'${face}'})
+      <div class="ref-card">
+        <h3>4. DOM-based <code>@time</code> Actions</h3>
+        <pre><code>@0.5: c.enter(from=left, dur=0.8, ease=out)
+@1.5: c.move(to=(150, 200), dur=1.0)
+@3.0: c.fade_in(dur=0.5)</code></pre>
+        <p>Schedule framework-agnostic layout updates via the <code>@time: target.action()</code> pattern in decimal seconds.</p>
+        <table>
+          <thead><tr><th>Action</th><th>Parameters</th><th>Function</th></tr></thead>
+          <tbody>
+            <tr><td><code>enter</code></td><td>from (left|right|top|bottom), dur</td><td>Slides object from canvas boundary.</td></tr>
+            <tr><td><code>move</code></td><td>to (x,y), dur, ease</td><td>Translates to target coordinates smoothly.</td></tr>
+            <tr><td><code>fade_in</code> / <code>_out</code></td><td>dur</td><td>Resolves opacity transitions.</td></tr>
+            <tr><td><code>scale</code> / <code>rotate</code></td><td>to, dur</td><td>Updates CSS transform values.</td></tr>
+            <tr><td><code>say</code></td><td>"text", dur</td><td>Displays an anchored comic speech bubble.</td></tr>
+            <tr><td><code>shake</code></td><td>intensity, dur</td><td>Oscillates intensely on the X axis.</td></tr>
+            <tr><td><code>throw</code></td><td>asset, to (target actor), dur</td><td>Spawns projectile moving between actors.</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Easing functions:</strong> <code>linear</code>, <code>in</code>, <code>out</code>, <code>inout</code>.</p>
+      </div>
+
+      <div class="ref-card">
+        <h3>5. Figure Specific Limbs</h3>
+        <pre><code>@2.0: a.face("😵")
+@2.5: a.rotate_part(part=arm_right, to=90, dur=0.4)
+@3.0: a.punch(side=right, dur=0.2)
+@3.5: a.kick(side=left, dur=0.3)</code></pre>
+        <p>Actors exclusively of type <code>figure</code> have articulated limbs that accept specific methods.</p>
+        <table>
+          <thead><tr><th>Action</th><th>Properties</th></tr></thead>
+          <tbody>
+            <tr><td><code>face</code></td><td>"emoji". Instant replacement, seek-safe swap.</td></tr>
+            <tr><td><code>rotate_part</code></td><td>part (name), to (deg), dur. Articulates isolated axis.</td></tr>
+            <tr><td><code>punch</code>/<code>kick</code></td><td>side (left|right), dur. Pre-composed limb swing macro.</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Available Limbs (part=x):</strong> <code>head</code>, <code>face</code>, <code>body</code>, <code>arm_left</code>, <code>arm_right</code>, <code>leg_left</code>, <code>leg_right</code>.</p>
+      </div>
+
+      <div class="ref-card">
+        <h3>6. Variables & Templates</h3>
+        <pre><code>var accent_skin = #fad4c0
+
+def char(skin, face) {'{'}
+  figure(${'${skin}'}, f, ${'${face}'})
 {'}'}
 
-actor a = fighter(${'${skin}'}, 😎) at (100, ${'${y}'})</code></pre>
-        <p>Variables are simple text substitutions. Templates create reusable actor types.</p>
+actor lily = char(${'${accent_skin}'}, 😊) at (100, 200)</code></pre>
+        <p>Streamline scripts dynamically via substitution macros.</p>
+        <p>- <code>var</code> ignores trailing comments, robust for <code>#hex</code> injection.<br/>- <code>def</code> injects an inline definition of any actor type, generating custom component variations inherently without JS intervention.</p>
       </div>
 
       <div class="ref-card">
-        <h3>Sequences</h3>
+        <h3>7. Timeline Sequences</h3>
         <pre><code>seq wave(arm, angle) {'{'}
   @+0.0: $.rotate_part(part=${'${arm}'}, to=${'${angle}'}, dur=0.3)
   @+0.3: $.rotate_part(part=${'${arm}'}, to=25, dur=0.3)
 {'}'}
 
-@2.0: actor.play(wave, arm=arm_left, angle=-80)</code></pre>
-        <p>Reusable animation blocks. <code>$</code> refers to the calling actor. <code>@+</code> is relative time.</p>
-      </div>
-
-      <div class="ref-card">
-        <h3>Assets</h3>
-        <pre><code>asset pepe = image("/memes/pepe.webp")
-asset fire = icon("lucide:flame")
-
-actor p = sprite(pepe) at (100, 200)
-@3.0: p.throw(fire, to=enemy, dur=0.8)</code></pre>
-        <p>Named references to images or icons.</p>
+@2.0: lily.play(wave, arm=arm_left, angle=-80)</code></pre>
+        <p>Record and reproduce timed-action blocks. <code>seq</code> instances run relative offsets for the binding target.</p>
+        <p>- <code>$</code> acts as the active binding reference during interpretation.<br/>- Statements specified with <code>@+time</code> resolve relative elapsed progression.</p>
       </div>
 
     </div>
