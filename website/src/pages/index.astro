@@ -248,14 +248,22 @@ const FLOWER_ASSET: Record<string, string> = {
       </div>
 
       <div class="ref-card">
-        <h3>2. Asset Declarations</h3>
-        <pre><code>asset pepe = image("/memes/pepe.webp")
-asset fire = icon("lucide:flame")</code></pre>
-        <p>Define images or icons before usage. The name identifier can be used in <code>sprite()</code> and <code>throw()</code> events.</p>
+        <h3>2. Asset Declarations (Images & Icons)</h3>
+        <p>Before you can show a meme or a UI icon, you must declare it as an <code>asset</code>. Once declared, you can render it on screen using a <code>sprite()</code> actor.</p>
+        <pre><code># 1. Declare your meme images and icons
+asset doge_meme = image("https://example.com/doge.webp")
+asset fire_icon = icon("lucide:flame")
+
+# 2. Render them on the canvas using 'sprite'
+actor my_meme = sprite(doge_meme) at (400, 200) scale 1.5
+actor flames = sprite(fire_icon) at (100, 100)
+
+# 3. Use them in actions (like throwing an icon!)
+@1.0: my_meme.throw(fire_icon, to=(100,100), dur=0.5)</code></pre>
         <table>
           <tbody>
-            <tr><td><code>image()</code></td><td>URL path referencing a local or remote <code>.png</code>, <code>.webp</code>, <code>.svg</code>, etc.</td></tr>
-            <tr><td><code>icon()</code></td><td>Iconify-compatible format (e.g., <code>set:name</code>). Loaded natively.</td></tr>
+            <tr><td><code>image("url")</code></td><td>Loads a local file (e.g. <code>/memes/doge.webp</code>) or a full web URL. Best for memes, photos, backgrounds, and PNGs.</td></tr>
+            <tr><td><code>icon("name")</code></td><td>Loads a vector icon from Iconify (e.g., <code>lucide:sword</code>, <code>logos:aws</code>). SVG quality, never blurs when scaled!</td></tr>
           </tbody>
         </table>
       </div>
