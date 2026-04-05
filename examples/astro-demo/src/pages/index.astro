@@ -1,126 +1,343 @@
 ---
 import Layout from "../layouts/Layout.astro";
 
-const DEFAULT_CODE = `scene width=640 height=320 fps=30 bg=#0f0f1a
+/* ── Example snippets for the sidebar ─────────────────────────────────── */
+const EXAMPLES = [
+  {
+    label: "Hello World",
+    code: `scene width=600 height=260 fps=30 bg=#fafafa
 
-actor coder = figure(#6ee7b7, m, 😎) at (160, 180)
-actor bug   = figure(#f87171, m, 😈) at (480, 180)
-actor label = text("markdy") at (280, 50) size 32 opacity 0
+actor hi = text("Hello, Markdy!") at (180, 60) size 28 opacity 0
+actor a  = figure(#c68642, m, 😎) at (280, 160)
 
-@0.0: label.fade_in(dur=0.8)
-@0.5: coder.enter(from=left, dur=0.8)
-@1.0: bug.enter(from=right, dur=0.8)
+@0.2: hi.fade_in(dur=0.6)
+@0.6: a.enter(from=left, dur=0.8)
+@1.5: a.say("Let's go! 🚀", dur=1.5)
+@2.5: a.move(to=(350, 160), dur=0.8, ease=out)`,
+  },
+  {
+    label: "Fight Scene",
+    code: `scene width=640 height=300 fps=30 bg=#fafafa
 
-@2.0: coder.say("I'll fix you! 💪", dur=1.5)
-@2.5: bug.say("Good luck! 😈", dur=1.5)
+actor hero    = figure(#6ee7b7, m, 😎) at (160, 170)
+actor villain = figure(#f87171, m, 😈) at (480, 170)
 
-@4.0: coder.move(to=(300, 180), dur=0.7, ease=in)
-@4.0: bug.move(to=(360, 180),   dur=0.7, ease=in)
+@0.3: hero.enter(from=left, dur=0.7)
+@0.5: villain.enter(from=right, dur=0.7)
+@1.5: hero.say("Bring it on! 💪", dur=1.2)
+@2.0: villain.say("Haha! 😈", dur=1.2)
+@3.5: hero.move(to=(300, 170), dur=0.5, ease=in)
+@3.5: villain.move(to=(340, 170), dur=0.5, ease=in)
+@4.2: hero.punch(side=right, dur=0.3)
+@4.3: villain.shake(intensity=8, dur=0.4)
+@4.3: villain.face("😵")
+@5.0: hero.kick(side=right, dur=0.35)
+@5.3: villain.rotate(to=90, dur=0.3)
+@5.5: villain.fade_out(dur=0.5)
+@5.5: hero.face("😄")
+@5.7: hero.say("Done! ✅", dur=1.5)`,
+  },
+  {
+    label: "Love Story",
+    code: `scene width=640 height=300 fps=30 bg=#fafafa
 
-@4.8: coder.punch(side=right, dur=0.3)
-@4.9: bug.shake(intensity=8, dur=0.4)
-@4.9: bug.face("😵")
+actor boy  = figure(#c68642, m, 😊) at (150, 170)
+actor girl = figure(#fad4c0, f, 😊) at (490, 170)
 
-@5.5: coder.kick(side=right, dur=0.35)
-@5.8: bug.rotate(to=90, dur=0.3)
-@6.0: bug.fade_out(dur=0.5)
-@6.0: coder.face("😄")
-@6.2: coder.say("Bug squashed! ✅", dur=2.0)`;
+@0.3: boy.enter(from=left, dur=0.8)
+@0.5: girl.enter(from=right, dur=0.8)
+@1.5: boy.face("😍")
+@1.5: boy.say("Hi there! 😍", dur=1.5)
+@2.5: girl.face("😊")
+@2.5: girl.say("Hey! 👋", dur=1.2)
+@4.0: boy.move(to=(280, 170), dur=0.8, ease=out)
+@4.0: girl.move(to=(360, 170), dur=0.8, ease=out)
+@5.0: boy.rotate_part(part=arm_right, to=-70, dur=0.4)
+@5.0: girl.rotate_part(part=arm_left, to=70, dur=0.4)
+@5.5: boy.face("🥰")
+@5.5: girl.face("🥰")`,
+  },
+  {
+    label: "Full Story (25s)",
+    code: `scene width=800 height=400 fps=30 bg=#fafafa
+
+var skin_a = #c68642
+var skin_b = #8d5524
+var skin_g = #fad4c0
+
+def fighter(skin, face) {
+  figure(\${skin}, m, \${face})
+}
+
+def girl(skin, face) {
+  figure(\${skin}, f, \${face})
+}
+
+seq wave(arm, angle) {
+  @+0.0: $.rotate_part(part=\${arm}, to=\${angle}, dur=0.3)
+  @+0.3: $.rotate_part(part=\${arm}, to=25, dur=0.3)
+}
+
+seq hit(side, power) {
+  @+0.0: $.punch(side=\${side}, dur=0.3)
+  @+0.05: $.shake(intensity=\${power}, dur=0.3)
+}
+
+asset flower = image("/memes/flower.png")
+
+actor bruno = fighter(\${skin_a}, 😏) at (640, 180)
+actor alex  = fighter(\${skin_b}, 😤) at (100, 180)
+actor lily  = girl(\${skin_g}, 😊)    at (370, 180) opacity 0
+
+@0.0: lily.fade_in(dur=0.7)
+@0.8: bruno.enter(from=right, dur=0.8)
+@1.0: alex.enter(from=left, dur=0.8)
+@2.0: bruno.play(wave, arm=arm_left, angle=-80)
+@2.0: alex.play(wave, arm=arm_right, angle=80)
+@3.0: bruno.face("😍")
+@3.0: alex.face("😍")
+@3.1: bruno.say("I love you! 😍", dur=1.4)
+@3.5: alex.say("She is mine! 😤", dur=1.4)
+@5.0: lily.face("😳")
+@5.0: lily.say("Oh my... 😳", dur=1.1)
+@6.5: lily.move(to=(700, 180), dur=0.5, ease=out)
+@7.0: bruno.face("😠")
+@7.0: alex.face("😠")
+@7.0: bruno.move(to=(400, 180), dur=0.6, ease=in)
+@7.0: alex.move(to=(320, 180), dur=0.6, ease=in)
+@7.8: bruno.play(hit, side=left, power=7)
+@7.8: alex.play(hit, side=right, power=7)
+@8.3: alex.kick(side=right, dur=0.35)
+@8.4: bruno.shake(intensity=9, dur=0.3)
+@8.6: bruno.play(hit, side=left, power=9)
+@9.4: bruno.punch(side=left, dur=0.25)
+@9.5: alex.shake(intensity=12, dur=0.4)
+@9.5: alex.face("😵")
+@10.0: alex.rotate(to=90, dur=0.4)
+@10.2: alex.fade_out(dur=0.4)
+@10.0: bruno.face("😁")
+@10.0: bruno.say("I win! 💪", dur=1.5)
+@11.5: bruno.face("🥰")
+@11.5: bruno.move(to=(520, 180), dur=0.8, ease=out)
+@13.0: bruno.throw(flower, to=lily, dur=0.8)
+@14.0: lily.face("🙅")
+@14.0: lily.say("No thanks. 🙅", dur=2.0)
+@14.1: lily.shake(intensity=5, dur=0.4)
+@16.0: bruno.face("😢")
+@16.2: bruno.say("But I fought! 😢", dur=1.4)
+@17.0: bruno.move(to=(750, 180), dur=1.0, ease=in)
+@18.0: alex.fade_in(dur=0.7)
+@18.5: lily.face("🥺")
+@18.5: lily.move(to=(380, 280), dur=0.8, ease=out)
+@19.5: lily.face("🤗")
+@19.5: lily.say("Hey, you okay? 💕", dur=2.0)
+@20.0: alex.face("🥺")
+@20.0: alex.say("You came... 🥺", dur=1.8)
+@22.0: bruno.face("😔")
+@22.0: bruno.say("...why 😔", dur=2.0)`,
+  },
+];
+
+const FLOWER_ASSET: Record<string, string> = {
+  flower: "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'36'%20height%3D'36'%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'16'%20fill%3D'%23ff69b4'%2F%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'6'%20fill%3D'%23ffff00'%2F%3E%3C%2Fsvg%3E",
+};
 ---
 
-<Layout
-  title="Markdy — animation DSL for the web"
-  description="Write stick-figure animations in a readable DSL. Like Mermaid, but for motion."
->
-  <div class="page">
+<Layout title="Markdy — like Mermaid, but for motion">
 
-    <!-- ─── Nav ─────────────────────────────────────────────────────────── -->
-    <header class="nav">
-      <span class="nav-logo">markdy</span>
-      <nav class="nav-links">
-        <a href="/playground">Playground</a>
-        <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">GitHub</a>
-        <a href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener noreferrer">npm</a>
-      </nav>
-    </header>
+  <!-- ─── Nav ──────────────────────────────────────────────────────────── -->
+  <nav class="nav">
+    <a href="/" class="nav-brand">markdy</a>
+    <div class="nav-links">
+      <a href="#playground">Playground</a>
+      <a href="#syntax">Syntax</a>
+      <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener">npm</a>
+    </div>
+  </nav>
 
-    <!-- ─── Hero ─────────────────────────────────────────────────────────── -->
-    <section class="hero">
-      <h1>Like <em>Mermaid</em>, but for motion.</h1>
-      <p>Write stick-figure animations in a readable DSL.<br />No keyframes. No drag-and-drop. Just text.</p>
-      <div class="hero-badges">
-        <a href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener noreferrer">
-          <img src="https://img.shields.io/npm/v/@markdy/core?style=flat-square&color=a855f7" alt="npm version" height="20" />
-        </a>
-        <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">
-          <img src="https://img.shields.io/github/stars/HoangYell/markdy-com?style=flat-square&color=fbbf24" alt="GitHub stars" height="20" />
-        </a>
-      </div>
-    </section>
+  <!-- ─── Hero ─────────────────────────────────────────────────────────── -->
+  <header class="hero">
+    <h1>Like Mermaid, but for motion.</h1>
+    <p class="hero-sub">Write stick-figure animations in a simple text DSL. No keyframes, no drag-and-drop.</p>
+    <div class="hero-install">
+      <code>npm i @markdy/core @markdy/renderer-dom</code>
+    </div>
+  </header>
 
-    <!-- ─── Split Editor ─────────────────────────────────────────────────── -->
-    <section class="editor-section">
+  <!-- ─── Playground ───────────────────────────────────────────────────── -->
+  <section id="playground" class="playground">
+    <div class="section-header">
+      <h2>Playground</h2>
+      <p>Edit the code and watch it animate. Pick an example or write your own.</p>
+    </div>
 
-      <div class="editor-pane">
-        <div class="pane-bar">
-          <span class="pane-title">MarkdyScript</span>
-          <button id="run-btn" class="run-btn">&#9654; Run</button>
+    <div class="examples-bar">
+      {EXAMPLES.map((ex, i) => (
+        <button class="example-btn" data-index={i}>{ex.label}</button>
+      ))}
+    </div>
+
+    <div class="editor-layout">
+      <div class="editor-col">
+        <div class="panel-label">
+          <span>Editor</span>
+          <button id="run-btn" class="btn-run" title="Run (or just type — auto-runs)">Run ▶</button>
         </div>
         <textarea
           id="code-input"
-          class="code-input"
+          class="code-editor"
           spellcheck="false"
           autocorrect="off"
           autocapitalize="off"
-        >{DEFAULT_CODE}</textarea>
+        >{EXAMPLES[0].code}</textarea>
       </div>
 
-      <div class="preview-pane">
-        <div class="pane-bar">
-          <span class="pane-title">Preview</span>
-          <span id="status-dot" class="status-dot status-ok" title="ready"></span>
+      <div class="preview-col">
+        <div class="panel-label">
+          <span>Preview</span>
+          <span id="status" class="status ok"></span>
         </div>
-        <div id="stage-wrapper" class="stage-wrapper">
+        <div id="stage-wrap" class="stage-wrap">
           <div id="stage"></div>
         </div>
       </div>
+    </div>
+  </section>
 
-    </section>
+  <!-- ─── Syntax Reference ─────────────────────────────────────────────── -->
+  <section id="syntax" class="syntax-ref">
+    <div class="section-header">
+      <h2>Syntax Reference</h2>
+      <p>Everything you need to write MarkdyScript.</p>
+    </div>
 
-    <!-- ─── Footer ───────────────────────────────────────────────────────── -->
-    <footer class="footer">
-      <span>Built by <a href="https://hoangyell.com" target="_blank" rel="noopener noreferrer">Hoang Yell</a></span>
-      <span class="sep">·</span>
-      <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">GitHub</a>
-      <span class="sep">·</span>
-      <a href="/playground">Full story demo →</a>
-    </footer>
+    <div class="ref-grid">
 
-  </div>
+      <div class="ref-card">
+        <h3>Scene</h3>
+        <pre><code>scene width=800 height=400 fps=30 bg=#fafafa</code></pre>
+        <p>Set canvas size, frame rate, and background. Must appear first.</p>
+      </div>
+
+      <div class="ref-card">
+        <h3>Actors</h3>
+        <pre><code>actor a = figure(#c68642, m, 😎) at (100, 200)
+actor b = text("Hello") at (50, 50) size 24
+actor c = sprite(myImg) at (300, 200) scale 0.5</code></pre>
+        <table>
+          <thead><tr><th>Type</th><th>Args</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>figure</code></td><td>skin [, gender, face]</td><td>Stick figure with limbs</td></tr>
+            <tr><td><code>text</code></td><td>"string"</td><td>Text label</td></tr>
+            <tr><td><code>sprite</code></td><td>asset name</td><td>Image/icon</td></tr>
+            <tr><td><code>box</code></td><td>—</td><td>100x100 grey box</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Modifiers:</strong> <code>scale</code>, <code>opacity</code>, <code>size</code> (text only)</p>
+      </div>
+
+      <div class="ref-card">
+        <h3>Events &amp; Actions</h3>
+        <pre><code>@1.0: actor.action(param=value, dur=0.5)</code></pre>
+        <table>
+          <thead><tr><th>Action</th><th>Params</th></tr></thead>
+          <tbody>
+            <tr><td><code>enter</code></td><td>from=left|right|top|bottom, dur</td></tr>
+            <tr><td><code>move</code></td><td>to=(x,y), dur, ease</td></tr>
+            <tr><td><code>fade_in</code> / <code>fade_out</code></td><td>dur</td></tr>
+            <tr><td><code>rotate</code></td><td>to=degrees, dur</td></tr>
+            <tr><td><code>shake</code></td><td>intensity, dur</td></tr>
+            <tr><td><code>say</code></td><td>"text", dur</td></tr>
+            <tr><td><code>face</code></td><td>"emoji"</td></tr>
+            <tr><td><code>punch</code></td><td>side=left|right, dur</td></tr>
+            <tr><td><code>kick</code></td><td>side=left|right, dur</td></tr>
+            <tr><td><code>rotate_part</code></td><td>part=head|body|arm_left|..., to, dur</td></tr>
+            <tr><td><code>throw</code></td><td>asset, to=actor, dur</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Easing:</strong> <code>in</code>, <code>out</code>, <code>inout</code> (default: linear)</p>
+      </div>
+
+      <div class="ref-card">
+        <h3>Variables &amp; Templates</h3>
+        <pre><code>var skin = #c68642
+var y = 200
+
+def fighter(skin, face) {'{'}
+  figure(${'${skin}'}, m, ${'${face}'})
+{'}'}
+
+actor a = fighter(${'${skin}'}, 😎) at (100, ${'${y}'})</code></pre>
+        <p>Variables are simple text substitutions. Templates create reusable actor types.</p>
+      </div>
+
+      <div class="ref-card">
+        <h3>Sequences</h3>
+        <pre><code>seq wave(arm, angle) {'{'}
+  @+0.0: $.rotate_part(part=${'${arm}'}, to=${'${angle}'}, dur=0.3)
+  @+0.3: $.rotate_part(part=${'${arm}'}, to=25, dur=0.3)
+{'}'}
+
+@2.0: actor.play(wave, arm=arm_left, angle=-80)</code></pre>
+        <p>Reusable animation blocks. <code>$</code> refers to the calling actor. <code>@+</code> is relative time.</p>
+      </div>
+
+      <div class="ref-card">
+        <h3>Assets</h3>
+        <pre><code>asset pepe = image("/memes/pepe.webp")
+asset fire = icon("lucide:flame")
+
+actor p = sprite(pepe) at (100, 200)
+@3.0: p.throw(fire, to=enemy, dur=0.8)</code></pre>
+        <p>Named references to images or icons.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ─── Footer ───────────────────────────────────────────────────────── -->
+  <footer class="footer">
+    <span>Built by <a href="https://hoangyell.com" target="_blank" rel="noopener">Hoang Yell</a></span>
+    <span class="dot">·</span>
+    <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener">GitHub</a>
+    <span class="dot">·</span>
+    <a href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener">npm</a>
+  </footer>
+
 </Layout>
+
+<!-- ─── Client-side: editor + examples ──────────────────────────────── -->
+<script define:vars={{ examples: EXAMPLES.map(e => e.code), flowerAsset: FLOWER_ASSET }}>
+  window.__MARKDY_EXAMPLES = examples;
+  window.__MARKDY_ASSETS = flowerAsset;
+</script>
 
 <script>
   import { createPlayer } from "@markdy/renderer-dom";
   import type { Player } from "@markdy/renderer-dom";
 
-  const textarea   = document.getElementById("code-input")  as HTMLTextAreaElement;
-  const stage      = document.getElementById("stage")        as HTMLDivElement;
-  const runBtn     = document.getElementById("run-btn")      as HTMLButtonElement;
-  const statusDot  = document.getElementById("status-dot")   as HTMLSpanElement;
+  const examples: string[]  = (window as any).__MARKDY_EXAMPLES;
+  const assets: Record<string, string> = (window as any).__MARKDY_ASSETS;
 
-  let player:  Player | null = null;
+  const textarea  = document.getElementById("code-input") as HTMLTextAreaElement;
+  const stage     = document.getElementById("stage")      as HTMLDivElement;
+  const runBtn    = document.getElementById("run-btn")    as HTMLButtonElement;
+  const statusEl  = document.getElementById("status")     as HTMLSpanElement;
+  const exBtns    = document.querySelectorAll<HTMLButtonElement>(".example-btn");
+
+  let player: Player | null = null;
   let debounce: ReturnType<typeof setTimeout> | null = null;
 
   function setStatus(ok: boolean) {
-    statusDot.className = `status-dot ${ok ? "status-ok" : "status-err"}`;
-    statusDot.title = ok ? "ready" : "parse error — check syntax";
+    statusEl.className = `status ${ok ? "ok" : "err"}`;
   }
 
   function render(code: string) {
     if (player) { player.destroy(); player = null; }
     stage.innerHTML = "";
     try {
-      player = createPlayer({ container: stage, code, autoplay: true });
+      player = createPlayer({ container: stage, code, assets, autoplay: true });
       setStatus(true);
     } catch (e) {
       const msg = (e as Error).message ?? String(e);
@@ -129,9 +346,27 @@ actor label = text("markdy") at (280, 50) size 32 opacity 0
     }
   }
 
-  render(textarea.value);
+  function setActiveBtn(index: number) {
+    exBtns.forEach((b, i) => b.classList.toggle("active", i === index));
+  }
 
+  // Initial render
+  render(textarea.value);
+  setActiveBtn(0);
+
+  // Example buttons
+  exBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const idx = Number(btn.dataset.index);
+      textarea.value = examples[idx];
+      setActiveBtn(idx);
+      render(examples[idx]);
+    });
+  });
+
+  // Auto-run on typing
   textarea.addEventListener("input", () => {
+    exBtns.forEach(b => b.classList.remove("active"));
     if (debounce) clearTimeout(debounce);
     debounce = setTimeout(() => render(textarea.value), 600);
   });
@@ -139,223 +374,332 @@ actor label = text("markdy") at (280, 50) size 32 opacity 0
   runBtn.addEventListener("click", () => render(textarea.value));
 </script>
 
-<style is:global>
-  body { background: #09090f; }
-</style>
-
 <style>
-  /* ── Page shell ───────────────────────────────────────────────────────── */
-  .page {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: #09090f;
-    color: #e2e8f0;
-  }
-
-  /* ── Nav ─────────────────────────────────────────────────────────────── */
+  /* ── Nav ──────────────────────────────────────────────────────────────── */
   .nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.875rem 2rem;
-    border-bottom: 1px solid #1e1e2e;
-    flex-shrink: 0;
+    padding: 0.75rem 1.5rem;
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 10;
   }
 
-  .nav-logo {
-    font-size: 1.1rem;
+  .nav-brand {
     font-weight: 700;
-    letter-spacing: -0.03em;
-    color: #a78bfa;
-    font-family: "Fira Code", "Cascadia Code", monospace;
+    font-size: 1rem;
+    text-decoration: none;
+    letter-spacing: -0.02em;
   }
 
   .nav-links {
     display: flex;
-    gap: 1.5rem;
+    gap: 1.25rem;
   }
 
   .nav-links a {
-    color: #94a3b8;
     text-decoration: none;
-    font-size: 0.875rem;
-    transition: color 0.15s;
+    font-size: 0.85rem;
+    color: #666;
   }
 
-  .nav-links a:hover { color: #e2e8f0; }
+  .nav-links a:hover { color: #1a1a1a; }
 
   /* ── Hero ─────────────────────────────────────────────────────────────── */
   .hero {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 3.5rem 1.5rem 2.5rem;
     text-align: center;
-    padding: 2.5rem 2rem 2rem;
-    flex-shrink: 0;
   }
 
   .hero h1 {
-    font-size: clamp(1.75rem, 4vw, 2.75rem);
-    font-weight: 800;
-    letter-spacing: -0.04em;
+    font-size: 2.25rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
     margin-bottom: 0.6rem;
-    line-height: 1.15;
   }
 
-  .hero h1 em {
-    font-style: normal;
-    color: #a78bfa;
+  .hero-sub {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 1.25rem;
   }
 
-  .hero p {
-    color: #94a3b8;
-    font-size: clamp(0.9rem, 2vw, 1.05rem);
-    line-height: 1.6;
-    margin-bottom: 1rem;
+  .hero-install code {
+    display: inline-block;
+    background: #f5f5f5;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.82rem;
+    color: #333;
+    user-select: all;
   }
 
-  .hero-badges {
+  /* ── Section headers ─────────────────────────────────────────────────── */
+  .section-header {
+    max-width: 640px;
+    margin: 0 auto 1.5rem;
+    text-align: center;
+  }
+
+  .section-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.3rem;
+  }
+
+  .section-header p {
+    color: #666;
+    font-size: 0.9rem;
+  }
+
+  /* ── Playground ──────────────────────────────────────────────────────── */
+  .playground {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 3rem;
+  }
+
+  .examples-bar {
     display: flex;
     gap: 0.5rem;
-    justify-content: center;
+    margin-bottom: 1rem;
     flex-wrap: wrap;
-    line-height: 0;
   }
 
-  /* ── Editor section ───────────────────────────────────────────────────── */
-  .editor-section {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    flex: 1;
-    min-height: 520px;
-    border-top: 1px solid #1e1e2e;
-  }
-
-  .editor-pane,
-  .preview-pane {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-  }
-
-  .editor-pane { border-right: 1px solid #1e1e2e; }
-
-  /* ── Pane bars ───────────────────────────────────────────────────────── */
-  .pane-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.45rem 1rem;
-    background: #0f0f18;
-    border-bottom: 1px solid #1e1e2e;
-    flex-shrink: 0;
-  }
-
-  .pane-title {
-    font-size: 0.72rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: #64748b;
-  }
-
-  .run-btn {
-    background: #a78bfa22;
-    border: 1px solid #a78bfa55;
-    color: #a78bfa;
-    padding: 0.22rem 0.65rem;
-    border-radius: 4px;
-    font-size: 0.72rem;
-    font-weight: 600;
+  .example-btn {
+    padding: 0.35rem 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 0.8rem;
     cursor: pointer;
-    transition: background 0.15s;
+    color: #555;
+    transition: all 0.15s;
     font-family: inherit;
   }
 
-  .run-btn:hover { background: #a78bfa44; }
-
-  .status-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    display: inline-block;
-    flex-shrink: 0;
+  .example-btn:hover {
+    border-color: #bbb;
+    color: #1a1a1a;
   }
 
-  .status-ok  { background: #34d399; }
-  .status-err { background: #f87171; }
+  .example-btn.active {
+    background: #1a1a1a;
+    color: #fff;
+    border-color: #1a1a1a;
+  }
 
-  /* ── Code textarea ───────────────────────────────────────────────────── */
-  .code-input {
+  /* ── Editor layout ───────────────────────────────────────────────────── */
+  .editor-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    overflow: hidden;
+    min-height: 420px;
+  }
+
+  .editor-col {
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid #e5e5e5;
+  }
+
+  .preview-col {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .panel-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.4rem 0.75rem;
+    background: #fafafa;
+    border-bottom: 1px solid #e5e5e5;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .btn-run {
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    color: #555;
+  }
+
+  .btn-run:hover { border-color: #999; color: #1a1a1a; }
+
+  .status {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  .status.ok  { background: #22c55e; }
+  .status.err { background: #ef4444; }
+
+  .code-editor {
     flex: 1;
     width: 100%;
-    padding: 1.25rem;
-    background: #0d0d16;
-    color: #e2e8f0;
+    padding: 1rem;
     border: none;
     outline: none;
     resize: none;
-    font-family: "Fira Code", "Cascadia Code", "Consolas", monospace;
-    font-size: 0.82rem;
+    background: #fff;
+    color: #1a1a1a;
+    font-family: "SF Mono", "Fira Code", "Cascadia Code", "Consolas", monospace;
+    font-size: 0.8rem;
     line-height: 1.65;
     tab-size: 2;
-    caret-color: #a78bfa;
   }
 
-  /* ── Preview stage ───────────────────────────────────────────────────── */
-  .stage-wrapper {
+  .stage-wrap {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #0d0d16;
+    background: #fafafa;
     overflow: auto;
-    padding: 1.25rem;
+    padding: 1rem;
   }
 
   #stage { line-height: 0; }
 
   .parse-error {
-    font-family: "Fira Code", "Cascadia Code", monospace;
-    font-size: 0.8rem;
-    color: #f87171;
-    background: #f8717110;
-    border: 1px solid #f8717130;
+    font-family: "SF Mono", "Fira Code", monospace;
+    font-size: 0.78rem;
+    color: #dc2626;
+    background: #fef2f2;
+    border: 1px solid #fecaca;
     border-radius: 6px;
-    padding: 0.875rem 1rem;
-    max-width: 380px;
+    padding: 0.75rem 1rem;
+    max-width: 340px;
     white-space: pre-wrap;
     margin: 0;
   }
 
-  /* ── Footer ───────────────────────────────────────────────────────────── */
-  .footer {
-    padding: 0.75rem 2rem;
-    border-top: 1px solid #1e1e2e;
-    font-size: 0.78rem;
-    color: #64748b;
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    flex-shrink: 0;
+  /* ── Syntax Reference ────────────────────────────────────────────────── */
+  .syntax-ref {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 3rem;
+    border-top: 1px solid #eee;
   }
 
-  .footer a { color: #94a3b8; text-decoration: none; }
-  .footer a:hover { color: #e2e8f0; }
-  .sep { color: #2a2a3a; }
+  .ref-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+  }
 
-  /* ── Responsive ───────────────────────────────────────────────────────── */
-  @media (max-width: 800px) {
-    .editor-section {
+  .ref-card {
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 1.25rem;
+    background: #fff;
+  }
+
+  .ref-card h3 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+  }
+
+  .ref-card pre {
+    background: #f7f7f7;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    padding: 0.65rem 0.75rem;
+    overflow-x: auto;
+    font-size: 0.75rem;
+    line-height: 1.55;
+    margin-bottom: 0.65rem;
+  }
+
+  .ref-card p {
+    font-size: 0.82rem;
+    color: #555;
+    line-height: 1.5;
+  }
+
+  .ref-card table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0.6rem;
+    font-size: 0.78rem;
+  }
+
+  .ref-card th {
+    text-align: left;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem 0.25rem 0;
+    border-bottom: 1px solid #e5e5e5;
+    color: #1a1a1a;
+  }
+
+  .ref-card td {
+    padding: 0.25rem 0.5rem 0.25rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    color: #555;
+  }
+
+  .ref-card td code {
+    font-size: 0.75rem;
+    background: #f5f5f5;
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+  }
+
+  /* ── Footer ──────────────────────────────────────────────────────────── */
+  .footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #eee;
+    font-size: 0.78rem;
+    color: #999;
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+  }
+
+  .footer a { color: #666; text-decoration: none; }
+  .footer a:hover { color: #1a1a1a; }
+  .dot { color: #ddd; }
+
+  /* ── Responsive ──────────────────────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 1.75rem; }
+
+    .editor-layout {
       grid-template-columns: 1fr;
-      min-height: unset;
     }
 
-    .editor-pane {
+    .editor-col {
       border-right: none;
-      border-bottom: 1px solid #1e1e2e;
+      border-bottom: 1px solid #e5e5e5;
     }
 
-    .code-input { min-height: 260px; }
+    .code-editor { min-height: 220px; }
+    .stage-wrap  { min-height: 280px; }
 
-    .stage-wrapper { min-height: 320px; }
+    .ref-grid { grid-template-columns: 1fr; }
   }
 </style>
+

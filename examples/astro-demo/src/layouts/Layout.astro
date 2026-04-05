@@ -8,7 +8,7 @@ export interface Props extends HTMLAttributes<"html"> {
 
 const {
   title,
-  description = "Markdy — animation DSL for blog posts",
+  description = "Markdy — animation DSL engine. Like Mermaid, but for motion.",
 } = Astro.props;
 ---
 
@@ -19,33 +19,31 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <title>{title}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>" />
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-THREG65JS6"></script>
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-THREG65JS6');
     </script>
-    <style>
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
+    <style is:global>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
       body {
-        font-family: system-ui, sans-serif;
-        background: #f9f9f9;
-        color: #111;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background: #fff;
+        color: #1a1a1a;
         line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
       }
 
-      a {
-        color: #0066cc;
+      a { color: #1a1a1a; }
+      a:hover { color: #555; }
+
+      code, pre {
+        font-family: "SF Mono", "Fira Code", "Cascadia Code", "Consolas", monospace;
       }
     </style>
   </head>
