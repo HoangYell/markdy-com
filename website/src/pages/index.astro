@@ -518,16 +518,23 @@ seq wave(arm, angle) {
     const sceneWidth = parseFloat(sceneEl.style.width) || 800;
     const sceneHeight = parseFloat(sceneEl.style.height) || 400;
 
-    const wrapRect = stageWrap.getBoundingClientRect();
-    const padding = 20; // 10px breathing room on all sides
-    const availableWidth = wrapRect.width - padding;
-    const availableHeight = wrapRect.height - padding;
+    const wrapW = stageWrap.clientWidth;
+    const wrapH = stageWrap.clientHeight;
+    if (wrapW === 0 || wrapH === 0) return;
 
-    const scaleX = availableWidth / sceneWidth;
-    const scaleY = availableHeight / sceneHeight;
+    const padding = 20;
+    const availW = wrapW - padding;
+    const availH = wrapH - padding;
+
+    const scaleX = availW / sceneWidth;
+    const scaleY = availH / sceneHeight;
     const scale = Math.min(1.0, Math.min(scaleX, scaleY));
 
-    sceneEl.style.transform = `scale(${scale})`;
+    // Override renderer's absolute position cleanly to center it visually
+    sceneEl.style.position = "absolute";
+    sceneEl.style.left = "50%";
+    sceneEl.style.top = "50%";
+    sceneEl.style.transform = `translate(-50%, -50%) scale(${scale})`;
     sceneEl.style.transformOrigin = "center center";
   }
 
@@ -924,12 +931,16 @@ seq wave(arm, angle) {
   .editor-col {
     display: flex;
     flex-direction: column;
+    min-height: 0;
+    min-width: 0;
     border-right: 1px solid var(--border);
   }
 
   .preview-col {
     display: flex;
     flex-direction: column;
+    min-height: 0;
+    min-width: 0;
   }
 
   .panel-label {
@@ -1001,16 +1012,19 @@ seq wave(arm, angle) {
 
   .stage-wrap {
     flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    position: relative;
     background: var(--bg-tertiary);
     overflow: hidden;
-    padding: 1rem;
+    padding: 0;
     transition: background 0.3s ease;
   }
 
-  #stage { line-height: 0; }
+  #stage { 
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    line-height: 0; 
+  }
 
   .parse-error {
     font-family: "SF Mono", "Fira Code", monospace;

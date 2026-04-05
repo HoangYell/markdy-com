@@ -1,4 +1,4 @@
-import type { ActorDef, AssetDef, SceneAST, SequenceDef, TemplateDef } from "./ast.js";
+import type { ActorDef, AssetDef, SceneAST, SceneMeta, SequenceDef, TemplateDef } from "./ast.js";
 
 // ---------------------------------------------------------------------------
 // Error
@@ -220,6 +220,29 @@ const DEFAULTS = {
 } as const;
 
 // ---------------------------------------------------------------------------
+// Move-target bounds check
+// ---------------------------------------------------------------------------
+
+function validateMoveTarget(
+  action: string,
+  params: Record<string, unknown>,
+  meta: SceneMeta,
+  actor: string,
+  line: number,
+): void {
+  if (action !== "move") return;
+  const to = params.to;
+  if (!Array.isArray(to) || to.length < 2) return;
+  const [x, y] = to as [number, number];
+  if (x < 0 || x > meta.width || y < 0 || y > meta.height) {
+    throw new ParseError(
+      `Actor "${actor}" move target (${x}, ${y}) is outside scene bounds (0–${meta.width}, 0–${meta.height})`,
+      line,
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Public parser
 // ---------------------------------------------------------------------------
 
@@ -422,11 +445,21 @@ export function parse(source: string): SceneAST {
 
       const modifiers = parseModifiers(modifiersRaw);
 
+      const x = Number(xStr);
+      const y = Number(yStr);
+
+      if (x < 0 || x > ast.meta.width || y < 0 || y > ast.meta.height) {
+        throw new ParseError(
+          `Actor "${name}" position (${x}, ${y}) is outside scene bounds (0–${ast.meta.width}, 0–${ast.meta.height})`,
+          lineNum,
+        );
+      }
+
       ast.actors[name] = {
         type: resolvedType,
         args: resolvedArgs,
-        x: Number(xStr),
-        y: Number(yStr),
+        x,
+        y,
         ...modifiers,
       };
       continue;
@@ -481,6 +514,7 @@ export function parse(source: string): SceneAST {
           const expandedParams = interpolate(sev.paramsRaw, playVars);
           const absTime = Math.round((time + sev.offset) * 1000) / 1000;
           const params = parseActionParams(sev.action, expandedParams);
+          validateMoveTarget(sev.action, params, ast.meta, actor, lineNum);
           ast.events.push({
             time: absTime,
             actor,
@@ -493,6 +527,7 @@ export function parse(source: string): SceneAST {
       }
 
       const params = parseActionParams(action, paramsRaw);
+      validateMoveTarget(action, params, ast.meta, actor, lineNum);
       ast.events.push({ time, actor, action, params, line: lineNum });
       continue;
     }

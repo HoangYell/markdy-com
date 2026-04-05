@@ -466,3 +466,70 @@ describe("seq declarations", () => {
     });
   });
 });
+
+// ---------------------------------------------------------------------------
+// Bounds validation
+// ---------------------------------------------------------------------------
+
+describe("Bounds validation", () => {
+  it("accepts actor at scene boundary", () => {
+    const ast = parse([
+      "scene width=400 height=300",
+      'actor a = text("hi") at (400, 300)',
+    ].join("\n"));
+    expect(ast.actors["a"]).toMatchObject({ x: 400, y: 300 });
+  });
+
+  it("accepts actor at origin", () => {
+    const ast = parse([
+      "scene width=400 height=300",
+      'actor a = text("hi") at (0, 0)',
+    ].join("\n"));
+    expect(ast.actors["a"]).toMatchObject({ x: 0, y: 0 });
+  });
+
+  it("rejects actor x exceeding scene width", () => {
+    expect(() => parse([
+      "scene width=400 height=300",
+      'actor a = text("hi") at (401, 100)',
+    ].join("\n"))).toThrow(/outside scene bounds/);
+  });
+
+  it("rejects actor y exceeding scene height", () => {
+    expect(() => parse([
+      "scene width=400 height=300",
+      'actor a = text("hi") at (100, 301)',
+    ].join("\n"))).toThrow(/outside scene bounds/);
+  });
+
+  it("rejects negative actor position", () => {
+    expect(() => parse([
+      "scene width=400 height=300",
+      'actor a = text("hi") at (-1, 100)',
+    ].join("\n"))).toThrow(/outside scene bounds/);
+  });
+
+  it("rejects move target outside scene bounds", () => {
+    expect(() => parse([
+      "scene width=400 height=300",
+      'actor a = text("hi") at (100, 100)',
+      "@1.0: a.move(to=(500, 100), dur=0.5)",
+    ].join("\n"))).toThrow(/outside scene bounds/);
+  });
+
+  it("accepts move target within scene bounds", () => {
+    const ast = parse([
+      "scene width=400 height=300",
+      'actor a = text("hi") at (100, 100)',
+      "@1.0: a.move(to=(200, 150), dur=0.5)",
+    ].join("\n"));
+    expect(ast.events[0].params.to).toEqual([200, 150]);
+  });
+
+  it("includes actor name in error message", () => {
+    expect(() => parse([
+      "scene width=400 height=300",
+      'actor hero = text("hi") at (500, 100)',
+    ].join("\n"))).toThrow(/Actor "hero"/);
+  });
+});
