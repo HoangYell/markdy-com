@@ -12,6 +12,14 @@
     "wrangler": "^4.0.0"
   },
   "dependencies": {
+    "@codemirror/autocomplete": "^6.20.1",
+    "@codemirror/commands": "^6.10.3",
+    "@codemirror/language": "^6.12.3",
+    "@codemirror/search": "^6.6.0",
+    "@codemirror/state": "^6.6.0",
+    "@codemirror/view": "^6.41.0",
+    "@lezer/highlight": "^1.2.3",
+    "@lezer/lr": "^1.4.8",
     "@markdy/astro": "workspace:*",
     "@markdy/core": "workspace:*",
     "@markdy/renderer-dom": "workspace:*",

@@ -31,6 +31,14 @@ const {
       gtag('js', new Date());
       gtag('config', 'G-THREG65JS6');
     </script>
+    <!-- Prevent FOUC: set theme before render -->
+    <script is:inline>
+      (function() {
+        var t = localStorage.getItem('markdy-theme');
+        if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
     <style is:global>
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -38,22 +46,23 @@ const {
 
       body {
         font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-        background: #fafafa;
-        color: #0f172a;
+        background: var(--bg-primary, #fafafa);
+        color: var(--text-primary, #0f172a);
         line-height: 1.6;
         -webkit-font-smoothing: antialiased;
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
 
-      a { color: #0f172a; text-decoration: none; }
-      a:hover { color: #475569; }
+      a { color: var(--text-primary, #0f172a); text-decoration: none; }
+      a:hover { color: var(--text-secondary, #475569); }
 
       code, pre {
         font-family: "SF Mono", "Fira Code", "Cascadia Code", "Consolas", monospace;
       }
 
       ::selection {
-        background: #d1fae5;
-        color: #064e3b;
+        background: var(--selection-bg, #d1fae5);
+        color: var(--selection-text, #064e3b);
       }
     </style>
   </head>
