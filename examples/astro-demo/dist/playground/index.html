@@ -1,134 +1,194 @@
 <!DOCTYPE html><html lang="en" data-astro-cid-sckkx6r4> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="A MarkdyScript story animation: two rivals, one heart."><title>Playground — Markdy</title><style>[data-astro-cid-sckkx6r4],[data-astro-cid-sckkx6r4]:before,[data-astro-cid-sckkx6r4]:after{box-sizing:border-box;margin:0;padding:0}body{font-family:system-ui,sans-serif;background:#f9f9f9;color:#111;line-height:1.6}a[data-astro-cid-sckkx6r4]{color:#06c}
-main[data-astro-cid-5wq3ak55]{max-width:940px;margin:0 auto;padding:1.5rem 1rem 4rem}.breadcrumb[data-astro-cid-5wq3ak55]{margin-bottom:1.5rem;font-size:.875rem}.breadcrumb[data-astro-cid-5wq3ak55] a[data-astro-cid-5wq3ak55]{color:#666;text-decoration:none}.breadcrumb[data-astro-cid-5wq3ak55] a[data-astro-cid-5wq3ak55]:hover{color:#06c}header[data-astro-cid-5wq3ak55]{margin-bottom:1.5rem}h1[data-astro-cid-5wq3ak55]{font-size:2rem;font-weight:700;letter-spacing:-.03em;margin-bottom:.25rem}.subtitle[data-astro-cid-5wq3ak55]{color:#666;font-size:1rem}.stage[data-astro-cid-5wq3ak55]{border:1px solid #e0cce8;border-radius:12px;overflow:hidden;display:inline-block;box-shadow:0 4px 24px #b464c81a;margin-bottom:1.5rem;max-width:100%}.legend[data-astro-cid-5wq3ak55]{margin-bottom:1.5rem}.legend[data-astro-cid-5wq3ak55] h2[data-astro-cid-5wq3ak55]{font-size:1rem;font-weight:600;margin-bottom:.75rem;color:#444;text-transform:uppercase;letter-spacing:.05em;font-size:.8rem}.legend[data-astro-cid-5wq3ak55] ol[data-astro-cid-5wq3ak55]{list-style:none;display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;padding:0}.legend[data-astro-cid-5wq3ak55] li[data-astro-cid-5wq3ak55]{display:flex;align-items:baseline;gap:.4rem;font-size:.875rem;color:#555;min-width:220px}.timestamp[data-astro-cid-5wq3ak55]{font-family:Fira Code,Cascadia Code,monospace;font-size:.78rem;color:#a855f7;min-width:3.5rem;font-weight:600}.source-panel[data-astro-cid-5wq3ak55]{margin-top:.5rem}summary[data-astro-cid-5wq3ak55]{cursor:pointer;font-size:.875rem;color:#06c;user-select:none;margin-bottom:.5rem}pre[data-astro-cid-5wq3ak55]{background:#f9f0ff;border:1px solid #e0cce8;border-radius:8px;padding:1.25rem;overflow-x:auto;font-size:.82rem;line-height:1.6;white-space:pre}code[data-astro-cid-5wq3ak55]{font-family:Fira Code,Cascadia Code,Consolas,monospace}
+main[data-astro-cid-5wq3ak55]{max-width:960px;margin:0 auto;padding:1.5rem 1rem 4rem}.breadcrumb[data-astro-cid-5wq3ak55]{margin-bottom:1.5rem;font-size:.875rem}.breadcrumb[data-astro-cid-5wq3ak55] a[data-astro-cid-5wq3ak55]{color:#666;text-decoration:none}.breadcrumb[data-astro-cid-5wq3ak55] a[data-astro-cid-5wq3ak55]:hover{color:#06c}header[data-astro-cid-5wq3ak55]{margin-bottom:1.5rem}h1[data-astro-cid-5wq3ak55]{font-size:2rem;font-weight:700;letter-spacing:-.03em;margin-bottom:.25rem}.subtitle[data-astro-cid-5wq3ak55]{color:#666;font-size:1rem}.stage[data-astro-cid-5wq3ak55]{border:1px solid #e0cce8;border-radius:12px;overflow:hidden;display:inline-block;box-shadow:0 4px 24px #b464c81a;margin-bottom:1.5rem;max-width:100%}.legend[data-astro-cid-5wq3ak55]{margin-bottom:1.5rem}.legend[data-astro-cid-5wq3ak55] h2[data-astro-cid-5wq3ak55]{font-size:1rem;font-weight:600;margin-bottom:.75rem;color:#444;text-transform:uppercase;letter-spacing:.05em;font-size:.8rem}.legend[data-astro-cid-5wq3ak55] ol[data-astro-cid-5wq3ak55]{list-style:none;display:flex;flex-wrap:wrap;gap:.5rem 1.5rem;padding:0}.legend[data-astro-cid-5wq3ak55] li[data-astro-cid-5wq3ak55]{display:flex;align-items:baseline;gap:.4rem;font-size:.875rem;color:#555;min-width:220px}.timestamp[data-astro-cid-5wq3ak55]{font-family:Fira Code,Cascadia Code,monospace;font-size:.78rem;color:#a855f7;min-width:3.5rem;font-weight:600}.source-panel[data-astro-cid-5wq3ak55]{margin-top:.5rem}summary[data-astro-cid-5wq3ak55]{cursor:pointer;font-size:.875rem;color:#06c;user-select:none;margin-bottom:.5rem}pre[data-astro-cid-5wq3ak55]{background:#f9f0ff;border:1px solid #e0cce8;border-radius:8px;padding:1.25rem;overflow-x:auto;font-size:.82rem;line-height:1.6;white-space:pre}code[data-astro-cid-5wq3ak55]{font-family:Fira Code,Cascadia Code,Consolas,monospace}
 </style></head> <body data-astro-cid-sckkx6r4>  <main data-astro-cid-5wq3ak55> <nav class="breadcrumb" data-astro-cid-5wq3ak55> <a href="/" data-astro-cid-5wq3ak55>← Demo home</a> </nav> <header data-astro-cid-5wq3ak55> <h1 data-astro-cid-5wq3ak55>Playground</h1> <p class="subtitle" data-astro-cid-5wq3ak55>
-Stick figures, one heart — a MarkdyScript short story. (~24 seconds)
-</p> </header> <div class="stage" data-astro-cid-5wq3ak55> <div class="markdy-root" data-markdy-code="scene width=900 height=440 fps=30 bg=#fff5f9
+Stick figures with body parts — punch, kick, rotate any limb. (~25 s)
+</p> </header> <div class="stage" data-astro-cid-5wq3ak55> <div class="markdy-root" data-markdy-code="scene width=920 height=460 fps=30 bg=#fff5f9
 
 asset flower = image(&#34;/memes/flower.png&#34;)
 
-# guy1 = Bruno (medium brown skin, right side)
-# guy2 = Alex  (darker skin, left side)
-# girl = Lily  (light skin, skirt variant)
-actor guy1 = figure(#c68642)      at (720, 160)
-actor guy2 = figure(#8d5524)      at (120, 160)
-actor girl = figure(#fad4c0, f)   at (415, 160) opacity 0
+# Bruno = right-side guy  (#c68642 skin, default male)
+# Alex  = left-side guy   (#8d5524 darker skin)
+# Lily  = girl            (#fad4c0 light skin, &#34;f&#34; = female variant)
+actor bruno = figure(#c68642)    at (740, 200)
+actor alex  = figure(#8d5524)    at (120, 200)
+actor lily  = figure(#fad4c0, f) at (430, 200) opacity 0
 
-# -- Introduction --
-@0.0:  girl.fade_in(dur=0.7)
-@0.8:  guy1.enter(from=right, dur=1.0)
-@1.1:  guy2.enter(from=left,  dur=1.0)
+# ── Act 1: entrances ─────────────────────────────────────────────────────
+@0.0: lily.fade_in(dur=0.7)
+@0.8: bruno.enter(from=right, dur=1.0)
+@1.1: alex.enter(from=left,  dur=1.0)
 
-# -- They spot her and declare love --
-@2.8:  guy1.say(&#34;I love you! 😍&#34;, dur=1.3)
-@3.3:  guy2.say(&#34;She's mine! 😤&#34;, dur=1.3)
-@5.0:  girl.say(&#34;Oh my... 😳&#34;,   dur=1.2)
+# Idle wave — show off arm rotation
+@2.2: bruno.rotate_part(part=arm_left,  to=-80, dur=0.3)
+@2.2: alex.rotate_part(part=arm_right,  to=80,  dur=0.3)
+@2.6: bruno.rotate_part(part=arm_left,  to=25,  dur=0.3)
+@2.6: alex.rotate_part(part=arm_right,  to=-25, dur=0.3)
 
-# -- Girl steps aside; rivals charge at each other --
-@6.3:  girl.move(to=(800,160), dur=0.5, ease=out)
-@6.8:  guy1.move(to=(435,160), dur=0.65, ease=in)
-@6.8:  guy2.move(to=(360,160), dur=0.65, ease=in)
+# ── Act 2: declarations ───────────────────────────────────────────────────
+@3.1: bruno.say(&#34;I love you! 😍&#34;, dur=1.4)
+@3.6: alex.say(&#34;She is mine! 😤&#34;,  dur=1.4)
+@5.2: lily.say(&#34;Oh my... 😳&#34;,      dur=1.1)
+@5.2: lily.rotate_part(part=head,  to=10,  dur=0.25)
+@5.6: lily.rotate_part(part=head,  to=-10, dur=0.25)
+@6.0: lily.rotate_part(part=head,  to=0,   dur=0.2)
 
-# -- Fight! Punch and kick --
-@7.6:  guy1.punch(side=left,  dur=0.33)
-@7.6:  guy2.punch(side=right, dur=0.33)
-@7.7:  guy1.shake(intensity=9,  dur=0.38)
-@7.7:  guy2.shake(intensity=9,  dur=0.38)
+# ── Act 3: rivals charge ──────────────────────────────────────────────────
+@6.5: lily.move(to=(810, 200), dur=0.5, ease=out)
+@7.0: bruno.move(to=(455, 200), dur=0.65, ease=in)
+@7.0: alex.move(to=(370, 200),  dur=0.65, ease=in)
 
-@8.3:  guy2.kick(side=right,  dur=0.38)
-@8.3:  guy1.shake(intensity=7, dur=0.35)
+# ── Act 4: fight! ─────────────────────────────────────────────────────────
+# Exchange 1 — simultaneous punches
+@7.8:  bruno.punch(side=left,  dur=0.32)
+@7.8:  alex.punch(side=right,  dur=0.32)
+@7.85: bruno.shake(intensity=7, dur=0.3)
+@7.85: alex.shake(intensity=7,  dur=0.3)
 
-@8.8:  guy1.punch(side=left,  dur=0.3)
-@8.9:  guy2.shake(intensity=11, dur=0.4)
+# Exchange 2 — alex kicks, bruno punches back
+@8.3:  alex.kick(side=right,   dur=0.36)
+@8.4:  bruno.shake(intensity=9, dur=0.32)
+@8.5:  bruno.punch(side=left,  dur=0.28)
+@8.55: alex.shake(intensity=8,  dur=0.28)
 
-# -- Guy2 is knocked out (falls sideways) --
-@9.5:  guy2.rotate(to=88, dur=0.4)
-@9.6:  guy2.move(to=(360,290), dur=0.4, ease=in)
-@9.8:  guy2.fade_out(dur=0.45)
-@9.5:  guy1.say(&#34;I win! 💪&#34;, dur=1.5)
+# Exchange 3 — body movement
+@8.95: alex.rotate_part(part=body,  to=15,  dur=0.2)
+@8.95: bruno.rotate_part(part=body, to=-10, dur=0.2)
+@9.15: alex.rotate_part(part=body,  to=0,   dur=0.2)
+@9.15: bruno.rotate_part(part=body, to=0,   dur=0.2)
 
-# -- Winner approaches girl --
-@11.2: guy1.move(to=(570,160), dur=0.9, ease=out)
-@12.4: guy1.throw(flower, to=girl, dur=0.8)
+# Finishing blow — head snap on alex
+@9.4:  bruno.punch(side=left, dur=0.25)
+@9.45: alex.rotate_part(part=head, to=35, dur=0.2)
+@9.5:  alex.shake(intensity=12, dur=0.45)
 
-# -- Girl rejects --
-@13.4: girl.say(&#34;No thank you. 🙅&#34;,    dur=1.9)
-@13.5: girl.shake(intensity=6,         dur=0.45)
-@15.6: guy1.say(&#34;But I fought! 😢&#34;,   dur=1.3)
-@16.1: guy1.move(to=(830,160), dur=1.2, ease=in)
+# ── Act 5: knockout ───────────────────────────────────────────────────────
+@10.1: alex.rotate(to=90, dur=0.4)
+@10.2: alex.move(to=(370, 310), dur=0.4, ease=in)
+@10.4: alex.fade_out(dur=0.45)
+@10.1: bruno.say(&#34;I win! 💪&#34;,   dur=1.5)
+@10.1: bruno.rotate_part(part=arm_right, to=-130, dur=0.3)
+@10.5: bruno.rotate_part(part=arm_right, to=-25,  dur=0.4)
 
-# -- Girl goes to comfort the fallen loser --
-@17.4: guy2.fade_in(dur=0.8)
-@18.0: girl.move(to=(430,160), dur=0.55, ease=out)
-@18.8: girl.move(to=(348,272), dur=0.9,  ease=inout)
-@20.0: girl.say(&#34;Are you okay? 💕&#34;,   dur=2.0)
-@20.5: guy2.say(&#34;You came... 🥺&#34;,     dur=1.8)
+# ── Act 6: approaches with flower ─────────────────────────────────────────
+@11.8: bruno.move(to=(580, 200), dur=0.9, ease=out)
+@11.8: bruno.rotate_part(part=arm_left, to=-90, dur=0.5)
+@13.0: bruno.throw(flower, to=lily, dur=0.8)
 
-# -- Heartbroken winner watches from far right --
-@22.4: guy1.say(&#34;...why her 😔&#34;, dur=1.8)" data-markdy-assets="{&#34;flower&#34;:&#34;data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'36'%20height%3D'36'%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'16'%20fill%3D'%23ff69b4'%2F%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'6'%20fill%3D'%23ffff00'%2F%3E%3C%2Fsvg%3E&#34;}" data-markdy-autoplay="true" style="width:900px;height:440px;overflow:hidden"> <!--
+# ── Act 7: rejection ──────────────────────────────────────────────────────
+@14.0: lily.say(&#34;No thank you. 🙅&#34;, dur=2.0)
+@14.1: lily.shake(intensity=5, dur=0.4)
+@14.1: lily.rotate_part(part=arm_right, to=80, dur=0.3)
+@14.5: lily.rotate_part(part=arm_right, to=8,  dur=0.3)
+@16.2: bruno.say(&#34;But I fought! 😢&#34;, dur=1.4)
+@16.2: bruno.rotate_part(part=head, to=10, dur=0.3)
+@16.7: bruno.move(to=(860, 200), dur=1.2, ease=in)
+
+# ── Act 8: girl comforts loser ────────────────────────────────────────────
+@18.0: alex.fade_in(dur=0.7)
+@18.5: lily.move(to=(450, 200), dur=0.5, ease=out)
+@19.3: lily.move(to=(375, 305), dur=0.9, ease=inout)
+@20.3: lily.rotate_part(part=arm_right, to=-70, dur=0.35)
+@20.6: lily.say(&#34;Hey, you okay? 💕&#34;, dur=2.1)
+@20.8: alex.say(&#34;You came... 🥺&#34;,    dur=1.9)
+@21.0: alex.rotate_part(part=arm_left, to=-60, dur=0.4)
+
+# ── Act 9: curtain ────────────────────────────────────────────────────────
+@23.0: bruno.say(&#34;...why 😔&#34;, dur=2.0)
+@23.0: bruno.rotate_part(part=head, to=-15, dur=0.5)" data-markdy-assets="{&#34;flower&#34;:&#34;data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'36'%20height%3D'36'%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'16'%20fill%3D'%23ff69b4'%2F%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'6'%20fill%3D'%23ffff00'%2F%3E%3C%2Fsvg%3E&#34;}" data-markdy-autoplay="true" style="width:920px;height:460px;overflow:hidden"> <!--
     SSR placeholder: keeps layout stable before the island hydrates.
     Background matches the scene bg prop to avoid a visible flash.
-  --> <div class="markdy-placeholder" aria-label="Markdy animation loading" style="width:900px;height:440px;background:#fff5f9;display:flex;align-items:center;justify-content:center"> <span style="font-family:sans-serif;font-size:12px;color:#bbb;letter-spacing:0.05em" aria-hidden="true">
+  --> <div class="markdy-placeholder" aria-label="Markdy animation loading" style="width:920px;height:460px;background:#fff5f9;display:flex;align-items:center;justify-content:center"> <span style="font-family:sans-serif;font-size:12px;color:#bbb;letter-spacing:0.05em" aria-hidden="true">
 ▶ markdy
-</span> </div> </div> <script type="module" src="/_astro/Markdy.astro_astro_type_script_index_0_lang.CrXeNhLs.js"></script> </div> <div class="legend" data-astro-cid-5wq3ak55> <h2 data-astro-cid-5wq3ak55>Story acts</h2> <ol data-astro-cid-5wq3ak55> <li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>0s</span> <span class="act-label" data-astro-cid-5wq3ak55>Lily appears; Bruno &amp; Alex storm in from opposite sides</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>2.8s</span> <span class="act-label" data-astro-cid-5wq3ak55>Both declare their love</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>6.3s</span> <span class="act-label" data-astro-cid-5wq3ak55>Lily steps back — rivals charge</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>7.6s</span> <span class="act-label" data-astro-cid-5wq3ak55>Fight! Punches and kicks fly</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>9.5s</span> <span class="act-label" data-astro-cid-5wq3ak55>Alex is knocked out (falls sideways)</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>11.2s</span> <span class="act-label" data-astro-cid-5wq3ak55>Bruno approaches with a flower…</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>13.4s</span> <span class="act-label" data-astro-cid-5wq3ak55>Lily rejects him</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>17.4s</span> <span class="act-label" data-astro-cid-5wq3ak55>Lily walks over to comfort Alex</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>22.4s</span> <span class="act-label" data-astro-cid-5wq3ak55>Bruno watches alone from afar 😔</span> </li> </ol> </div> <details class="source-panel" data-astro-cid-5wq3ak55> <summary data-astro-cid-5wq3ak55>View MarkdyScript source</summary> <pre data-astro-cid-5wq3ak55><code data-astro-cid-5wq3ak55>scene width=900 height=440 fps=30 bg=#fff5f9
+</span> </div> </div> <script type="module" src="/_astro/Markdy.astro_astro_type_script_index_0_lang.Bz_AWHvj.js"></script> </div> <div class="legend" data-astro-cid-5wq3ak55> <h2 data-astro-cid-5wq3ak55>Story acts</h2> <ol data-astro-cid-5wq3ak55> <li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>0s</span> <span class="act-label" data-astro-cid-5wq3ak55>Lily appears; Bruno &amp; Alex enter from opposite sides</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>2.2s</span> <span class="act-label" data-astro-cid-5wq3ak55>Idle wave — arm_left / arm_right rotate_part</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>3.1s</span> <span class="act-label" data-astro-cid-5wq3ak55>Declarations of love; Lily&#39;s head tilts (head rotate_part)</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>7.0s</span> <span class="act-label" data-astro-cid-5wq3ak55>Lily steps aside — rivals charge</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>7.8s</span> <span class="act-label" data-astro-cid-5wq3ak55>Fight: punches, kicks, body/head rotations</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>10.1s</span> <span class="act-label" data-astro-cid-5wq3ak55>Alex is knocked out — fist pump (arm_right rotate_part)</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>11.8s</span> <span class="act-label" data-astro-cid-5wq3ak55>Bruno approaches holding flower</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>14.0s</span> <span class="act-label" data-astro-cid-5wq3ak55>Lily rejects — arm wave, head shake</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>18.0s</span> <span class="act-label" data-astro-cid-5wq3ak55>Lily kneels to comfort Alex</span> </li><li data-astro-cid-5wq3ak55> <span class="timestamp" data-astro-cid-5wq3ak55>23.0s</span> <span class="act-label" data-astro-cid-5wq3ak55>Bruno alone, head drooping 😔</span> </li> </ol> </div> <details class="source-panel" data-astro-cid-5wq3ak55> <summary data-astro-cid-5wq3ak55>View MarkdyScript source</summary> <pre data-astro-cid-5wq3ak55><code data-astro-cid-5wq3ak55>scene width=920 height=460 fps=30 bg=#fff5f9
 
 asset flower = image(&quot;/memes/flower.png&quot;)
 
-# guy1 = Bruno (medium brown skin, right side)
-# guy2 = Alex  (darker skin, left side)
-# girl = Lily  (light skin, skirt variant)
-actor guy1 = figure(#c68642)      at (720, 160)
-actor guy2 = figure(#8d5524)      at (120, 160)
-actor girl = figure(#fad4c0, f)   at (415, 160) opacity 0
+# Bruno = right-side guy  (#c68642 skin, default male)
+# Alex  = left-side guy   (#8d5524 darker skin)
+# Lily  = girl            (#fad4c0 light skin, &quot;f&quot; = female variant)
+actor bruno = figure(#c68642)    at (740, 200)
+actor alex  = figure(#8d5524)    at (120, 200)
+actor lily  = figure(#fad4c0, f) at (430, 200) opacity 0
 
-# -- Introduction --
-@0.0:  girl.fade_in(dur=0.7)
-@0.8:  guy1.enter(from=right, dur=1.0)
-@1.1:  guy2.enter(from=left,  dur=1.0)
+# ── Act 1: entrances ─────────────────────────────────────────────────────
+@0.0: lily.fade_in(dur=0.7)
+@0.8: bruno.enter(from=right, dur=1.0)
+@1.1: alex.enter(from=left,  dur=1.0)
 
-# -- They spot her and declare love --
-@2.8:  guy1.say(&quot;I love you! 😍&quot;, dur=1.3)
-@3.3:  guy2.say(&quot;She&#39;s mine! 😤&quot;, dur=1.3)
-@5.0:  girl.say(&quot;Oh my... 😳&quot;,   dur=1.2)
+# Idle wave — show off arm rotation
+@2.2: bruno.rotate_part(part=arm_left,  to=-80, dur=0.3)
+@2.2: alex.rotate_part(part=arm_right,  to=80,  dur=0.3)
+@2.6: bruno.rotate_part(part=arm_left,  to=25,  dur=0.3)
+@2.6: alex.rotate_part(part=arm_right,  to=-25, dur=0.3)
 
-# -- Girl steps aside; rivals charge at each other --
-@6.3:  girl.move(to=(800,160), dur=0.5, ease=out)
-@6.8:  guy1.move(to=(435,160), dur=0.65, ease=in)
-@6.8:  guy2.move(to=(360,160), dur=0.65, ease=in)
+# ── Act 2: declarations ───────────────────────────────────────────────────
+@3.1: bruno.say(&quot;I love you! 😍&quot;, dur=1.4)
+@3.6: alex.say(&quot;She is mine! 😤&quot;,  dur=1.4)
+@5.2: lily.say(&quot;Oh my... 😳&quot;,      dur=1.1)
+@5.2: lily.rotate_part(part=head,  to=10,  dur=0.25)
+@5.6: lily.rotate_part(part=head,  to=-10, dur=0.25)
+@6.0: lily.rotate_part(part=head,  to=0,   dur=0.2)
 
-# -- Fight! Punch and kick --
-@7.6:  guy1.punch(side=left,  dur=0.33)
-@7.6:  guy2.punch(side=right, dur=0.33)
-@7.7:  guy1.shake(intensity=9,  dur=0.38)
-@7.7:  guy2.shake(intensity=9,  dur=0.38)
+# ── Act 3: rivals charge ──────────────────────────────────────────────────
+@6.5: lily.move(to=(810, 200), dur=0.5, ease=out)
+@7.0: bruno.move(to=(455, 200), dur=0.65, ease=in)
+@7.0: alex.move(to=(370, 200),  dur=0.65, ease=in)
 
-@8.3:  guy2.kick(side=right,  dur=0.38)
-@8.3:  guy1.shake(intensity=7, dur=0.35)
+# ── Act 4: fight! ─────────────────────────────────────────────────────────
+# Exchange 1 — simultaneous punches
+@7.8:  bruno.punch(side=left,  dur=0.32)
+@7.8:  alex.punch(side=right,  dur=0.32)
+@7.85: bruno.shake(intensity=7, dur=0.3)
+@7.85: alex.shake(intensity=7,  dur=0.3)
 
-@8.8:  guy1.punch(side=left,  dur=0.3)
-@8.9:  guy2.shake(intensity=11, dur=0.4)
+# Exchange 2 — alex kicks, bruno punches back
+@8.3:  alex.kick(side=right,   dur=0.36)
+@8.4:  bruno.shake(intensity=9, dur=0.32)
+@8.5:  bruno.punch(side=left,  dur=0.28)
+@8.55: alex.shake(intensity=8,  dur=0.28)
 
-# -- Guy2 is knocked out (falls sideways) --
-@9.5:  guy2.rotate(to=88, dur=0.4)
-@9.6:  guy2.move(to=(360,290), dur=0.4, ease=in)
-@9.8:  guy2.fade_out(dur=0.45)
-@9.5:  guy1.say(&quot;I win! 💪&quot;, dur=1.5)
+# Exchange 3 — body movement
+@8.95: alex.rotate_part(part=body,  to=15,  dur=0.2)
+@8.95: bruno.rotate_part(part=body, to=-10, dur=0.2)
+@9.15: alex.rotate_part(part=body,  to=0,   dur=0.2)
+@9.15: bruno.rotate_part(part=body, to=0,   dur=0.2)
 
-# -- Winner approaches girl --
-@11.2: guy1.move(to=(570,160), dur=0.9, ease=out)
-@12.4: guy1.throw(flower, to=girl, dur=0.8)
+# Finishing blow — head snap on alex
+@9.4:  bruno.punch(side=left, dur=0.25)
+@9.45: alex.rotate_part(part=head, to=35, dur=0.2)
+@9.5:  alex.shake(intensity=12, dur=0.45)
 
-# -- Girl rejects --
-@13.4: girl.say(&quot;No thank you. 🙅&quot;,    dur=1.9)
-@13.5: girl.shake(intensity=6,         dur=0.45)
-@15.6: guy1.say(&quot;But I fought! 😢&quot;,   dur=1.3)
-@16.1: guy1.move(to=(830,160), dur=1.2, ease=in)
+# ── Act 5: knockout ───────────────────────────────────────────────────────
+@10.1: alex.rotate(to=90, dur=0.4)
+@10.2: alex.move(to=(370, 310), dur=0.4, ease=in)
+@10.4: alex.fade_out(dur=0.45)
+@10.1: bruno.say(&quot;I win! 💪&quot;,   dur=1.5)
+@10.1: bruno.rotate_part(part=arm_right, to=-130, dur=0.3)
+@10.5: bruno.rotate_part(part=arm_right, to=-25,  dur=0.4)
 
-# -- Girl goes to comfort the fallen loser --
-@17.4: guy2.fade_in(dur=0.8)
-@18.0: girl.move(to=(430,160), dur=0.55, ease=out)
-@18.8: girl.move(to=(348,272), dur=0.9,  ease=inout)
-@20.0: girl.say(&quot;Are you okay? 💕&quot;,   dur=2.0)
-@20.5: guy2.say(&quot;You came... 🥺&quot;,     dur=1.8)
+# ── Act 6: approaches with flower ─────────────────────────────────────────
+@11.8: bruno.move(to=(580, 200), dur=0.9, ease=out)
+@11.8: bruno.rotate_part(part=arm_left, to=-90, dur=0.5)
+@13.0: bruno.throw(flower, to=lily, dur=0.8)
 
-# -- Heartbroken winner watches from far right --
-@22.4: guy1.say(&quot;...why her 😔&quot;, dur=1.8)</code></pre> </details> </main>  </body></html> 
+# ── Act 7: rejection ──────────────────────────────────────────────────────
+@14.0: lily.say(&quot;No thank you. 🙅&quot;, dur=2.0)
+@14.1: lily.shake(intensity=5, dur=0.4)
+@14.1: lily.rotate_part(part=arm_right, to=80, dur=0.3)
+@14.5: lily.rotate_part(part=arm_right, to=8,  dur=0.3)
+@16.2: bruno.say(&quot;But I fought! 😢&quot;, dur=1.4)
+@16.2: bruno.rotate_part(part=head, to=10, dur=0.3)
+@16.7: bruno.move(to=(860, 200), dur=1.2, ease=in)
+
+# ── Act 8: girl comforts loser ────────────────────────────────────────────
+@18.0: alex.fade_in(dur=0.7)
+@18.5: lily.move(to=(450, 200), dur=0.5, ease=out)
+@19.3: lily.move(to=(375, 305), dur=0.9, ease=inout)
+@20.3: lily.rotate_part(part=arm_right, to=-70, dur=0.35)
+@20.6: lily.say(&quot;Hey, you okay? 💕&quot;, dur=2.1)
+@20.8: alex.say(&quot;You came... 🥺&quot;,    dur=1.9)
+@21.0: alex.rotate_part(part=arm_left, to=-60, dur=0.4)
+
+# ── Act 9: curtain ────────────────────────────────────────────────────────
+@23.0: bruno.say(&quot;...why 😔&quot;, dur=2.0)
+@23.0: bruno.rotate_part(part=head, to=-15, dur=0.5)</code></pre> </details> </main>  </body></html> 

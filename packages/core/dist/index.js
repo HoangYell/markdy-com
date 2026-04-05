@@ -7,6 +7,28 @@ var ParseError = class extends Error {
   }
   line;
 };
+function stripComment(line) {
+  let depth = 0;
+  let inString = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+    if (ch === "(") {
+      depth++;
+      continue;
+    }
+    if (ch === ")") {
+      depth--;
+      continue;
+    }
+    if (ch === "#" && depth === 0) return line.slice(0, i);
+  }
+  return line;
+}
 function splitByComma(s) {
   const parts = [];
   let depth = 0;
@@ -100,7 +122,7 @@ function parse(source) {
   const lines = source.split(/\r?\n/);
   for (let i = 0; i < lines.length; i++) {
     const lineNum = i + 1;
-    const raw = lines[i].replace(/#.*$/, "").trim();
+    const raw = stripComment(lines[i]).trim();
     if (!raw) continue;
     if (/^scene(\s|$)/.test(raw)) {
       if (sceneFound) {

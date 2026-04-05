@@ -22,170 +22,207 @@ function tx(s) {
   return `translate(${s.x}px, ${s.y}px) scale(${s.scale}) rotate(${s.rotate}deg)`;
 }
 function createFigureEl(def) {
-  const skinColor = def.args[0] ?? "#ffdbac";
-  const gender = def.args[1] === "f" ? "f" : "m";
-  const ink = "#222";
+  const _skin = def.args[0] || "#ffdbac";
+  const isFemale = def.args[1] === "f";
+  const startFace = def.args[2] || (isFemale ? "\u{1F642}" : "\u{1F636}");
+  const ink = "#2a2a2a";
   const wrap = document.createElement("div");
-  wrap.style.width = "60px";
-  wrap.style.height = "110px";
-  wrap.style.overflow = "visible";
-  const head = document.createElement("div");
-  Object.assign(head.style, {
+  Object.assign(wrap.style, {
+    position: "relative",
+    width: "80px",
+    height: "160px",
+    overflow: "visible"
+  });
+  const faceEl = document.createElement("span");
+  faceEl.dataset.figFace = "";
+  faceEl.dataset.figHead = "";
+  faceEl.textContent = startFace;
+  Object.assign(faceEl.style, {
     position: "absolute",
-    left: "15px",
+    fontSize: "44px",
+    lineHeight: "1",
+    left: "50%",
     top: "0",
-    width: "30px",
-    height: "30px",
-    borderRadius: "50%",
-    background: skinColor,
-    border: `2.5px solid ${ink}`,
-    boxSizing: "border-box",
+    transform: "translateX(-50%)",
+    userSelect: "none",
+    pointerEvents: "none",
+    zIndex: "3"
+  });
+  const clothesEl = document.createElement("span");
+  clothesEl.dataset.figBody = "";
+  clothesEl.textContent = isFemale ? "\u{1F457}" : "\u{1F455}";
+  Object.assign(clothesEl.style, {
+    position: "absolute",
+    fontSize: "34px",
+    lineHeight: "1",
+    left: "50%",
+    top: "42px",
+    transform: "translateX(-50%)",
+    userSelect: "none",
+    pointerEvents: "none",
     zIndex: "2"
-  });
-  [-7, 7].forEach((ox) => {
-    const eye = document.createElement("div");
-    Object.assign(eye.style, {
-      position: "absolute",
-      width: "3.5px",
-      height: "3.5px",
-      background: ink,
-      borderRadius: "50%",
-      left: `${12 + ox}px`,
-      top: "9px"
-    });
-    head.appendChild(eye);
-  });
-  const mouth = document.createElement("div");
-  Object.assign(mouth.style, {
-    position: "absolute",
-    width: "12px",
-    height: "6px",
-    left: "7px",
-    top: "16px",
-    borderBottom: `2px solid ${ink}`,
-    borderLeft: `1.5px solid ${ink}`,
-    borderRight: `1.5px solid ${ink}`,
-    borderRadius: "0 0 8px 8px",
-    boxSizing: "border-box"
-  });
-  head.appendChild(mouth);
-  const body = document.createElement("div");
-  Object.assign(body.style, {
-    position: "absolute",
-    width: "3px",
-    height: "36px",
-    left: "28.5px",
-    top: "32px",
-    background: ink,
-    borderRadius: "1px"
   });
   const armL = document.createElement("div");
   armL.dataset.figArmL = "";
   Object.assign(armL.style, {
     position: "absolute",
-    width: "26px",
-    height: "3px",
-    right: "32px",
-    top: "41px",
-    background: ink,
+    width: "38px",
+    height: "20px",
+    right: "40px",
+    top: "56px",
     transformOrigin: "right center",
     transform: "rotate(25deg)",
-    borderRadius: "1px 3px 3px 1px"
+    zIndex: "2",
+    overflow: "visible",
+    boxSizing: "border-box"
   });
+  const armLStick = document.createElement("div");
+  Object.assign(armLStick.style, {
+    position: "absolute",
+    width: "24px",
+    height: "3px",
+    background: ink,
+    borderRadius: "2px",
+    right: "12px",
+    top: "8px"
+  });
+  const armLHand = document.createElement("span");
+  armLHand.textContent = "\u{1F91C}";
+  Object.assign(armLHand.style, {
+    position: "absolute",
+    fontSize: "15px",
+    lineHeight: "1",
+    left: "0",
+    top: "2px",
+    transform: "scaleX(-1)",
+    userSelect: "none",
+    pointerEvents: "none"
+  });
+  armL.append(armLStick, armLHand);
   const armR = document.createElement("div");
   armR.dataset.figArmR = "";
   Object.assign(armR.style, {
     position: "absolute",
-    width: "26px",
-    height: "3px",
-    left: "32px",
-    top: "41px",
-    background: ink,
+    width: "38px",
+    height: "20px",
+    left: "40px",
+    top: "56px",
     transformOrigin: "left center",
     transform: "rotate(-25deg)",
-    borderRadius: "3px 1px 1px 3px"
+    zIndex: "2",
+    overflow: "visible",
+    boxSizing: "border-box"
   });
-  if (gender === "f") {
-    const bun = document.createElement("div");
-    Object.assign(bun.style, {
-      position: "absolute",
-      left: "14px",
-      top: "-9px",
-      width: "32px",
-      height: "19px",
-      background: "#7B3F00",
-      borderRadius: "50% 50% 30% 30%",
-      border: `2px solid ${ink}`,
-      boxSizing: "border-box",
-      zIndex: "1"
-    });
-    const skirt = document.createElement("div");
-    Object.assign(skirt.style, {
-      position: "absolute",
-      left: "8px",
-      top: "67px",
-      width: "44px",
-      height: "24px",
-      background: "#e87fba",
-      clipPath: "polygon(25% 0%, 75% 0%, 100% 100%, 0% 100%)"
-    });
-    const legL = document.createElement("div");
-    legL.dataset.figLegL = "";
-    Object.assign(legL.style, {
-      position: "absolute",
-      width: "3px",
-      height: "22px",
-      left: "20px",
-      top: "89px",
-      background: ink,
-      transformOrigin: "top center",
-      transform: "rotate(-10deg)",
-      borderRadius: "1px"
-    });
-    const legR = document.createElement("div");
-    legR.dataset.figLegR = "";
-    Object.assign(legR.style, {
-      position: "absolute",
-      width: "3px",
-      height: "22px",
-      left: "37px",
-      top: "89px",
-      background: ink,
-      transformOrigin: "top center",
-      transform: "rotate(10deg)",
-      borderRadius: "1px"
-    });
-    wrap.append(bun, head, body, armL, armR, skirt, legL, legR);
-  } else {
-    const legL = document.createElement("div");
-    legL.dataset.figLegL = "";
-    Object.assign(legL.style, {
-      position: "absolute",
-      width: "3px",
-      height: "36px",
-      left: "24px",
-      top: "67px",
-      background: ink,
-      transformOrigin: "top center",
-      transform: "rotate(-18deg)",
-      borderRadius: "1px"
-    });
-    const legR = document.createElement("div");
-    legR.dataset.figLegR = "";
-    Object.assign(legR.style, {
-      position: "absolute",
-      width: "3px",
-      height: "36px",
-      left: "33px",
-      top: "67px",
-      background: ink,
-      transformOrigin: "top center",
-      transform: "rotate(18deg)",
-      borderRadius: "1px"
-    });
-    wrap.append(head, body, armL, armR, legL, legR);
-  }
+  const armRStick = document.createElement("div");
+  Object.assign(armRStick.style, {
+    position: "absolute",
+    width: "24px",
+    height: "3px",
+    background: ink,
+    borderRadius: "2px",
+    left: "12px",
+    top: "8px"
+  });
+  const armRHand = document.createElement("span");
+  armRHand.textContent = "\u{1F91B}";
+  Object.assign(armRHand.style, {
+    position: "absolute",
+    fontSize: "15px",
+    lineHeight: "1",
+    right: "0",
+    top: "2px",
+    userSelect: "none",
+    pointerEvents: "none"
+  });
+  armR.append(armRStick, armRHand);
+  const legL = document.createElement("div");
+  legL.dataset.figLegL = "";
+  Object.assign(legL.style, {
+    position: "absolute",
+    width: "22px",
+    height: "52px",
+    left: "23px",
+    top: "76px",
+    transformOrigin: "top center",
+    transform: "rotate(0deg)",
+    zIndex: "1",
+    overflow: "visible",
+    boxSizing: "border-box"
+  });
+  const legLStick = document.createElement("div");
+  Object.assign(legLStick.style, {
+    position: "absolute",
+    width: "3px",
+    height: "34px",
+    background: ink,
+    borderRadius: "1px",
+    left: "9px",
+    top: "0"
+  });
+  const legLShoe = document.createElement("span");
+  legLShoe.textContent = isFemale ? "\u{1F460}" : "\u{1F45F}";
+  Object.assign(legLShoe.style, {
+    position: "absolute",
+    fontSize: "15px",
+    lineHeight: "1",
+    bottom: "0",
+    left: "0",
+    transform: "scaleX(-1)",
+    userSelect: "none",
+    pointerEvents: "none"
+  });
+  legL.append(legLStick, legLShoe);
+  const legR = document.createElement("div");
+  legR.dataset.figLegR = "";
+  Object.assign(legR.style, {
+    position: "absolute",
+    width: "22px",
+    height: "52px",
+    right: "19px",
+    top: "76px",
+    transformOrigin: "top center",
+    transform: "rotate(0deg)",
+    zIndex: "1",
+    overflow: "visible",
+    boxSizing: "border-box"
+  });
+  const legRStick = document.createElement("div");
+  Object.assign(legRStick.style, {
+    position: "absolute",
+    width: "3px",
+    height: "34px",
+    background: ink,
+    borderRadius: "1px",
+    left: "9px",
+    top: "0"
+  });
+  const legRShoe = document.createElement("span");
+  legRShoe.textContent = isFemale ? "\u{1F460}" : "\u{1F45F}";
+  Object.assign(legRShoe.style, {
+    position: "absolute",
+    fontSize: "15px",
+    lineHeight: "1",
+    bottom: "0",
+    right: "0",
+    userSelect: "none",
+    pointerEvents: "none"
+  });
+  legR.append(legRStick, legRShoe);
+  wrap.append(faceEl, clothesEl, armL, armR, legL, legR);
   return wrap;
+}
+var PART_SEL = {
+  head: "[data-fig-head]",
+  face: "[data-fig-face]",
+  body: "[data-fig-body]",
+  arm_left: "[data-fig-arm-l]",
+  arm_right: "[data-fig-arm-r]",
+  leg_left: "[data-fig-leg-l]",
+  leg_right: "[data-fig-leg-r]"
+};
+function readRotation(el) {
+  const m = /rotate\((-?[\d.]+)deg\)/.exec(el.style.transform ?? "");
+  return m ? Number(m[1]) : 0;
 }
 function createActorEl(name, def, assetDefs, assetOverrides) {
   let el;
@@ -245,7 +282,7 @@ function createActorEl(name, def, assetDefs, assetOverrides) {
   el.style.opacity = String(def.opacity ?? 1);
   return el;
 }
-function buildAnimations(ast, actorEls, scene, assetOverrides) {
+function buildAnimations(ast, actorEls, scene, assetOverrides, faceSwaps) {
   const anims = [];
   const states = /* @__PURE__ */ new Map();
   for (const [name, def] of Object.entries(ast.actors)) {
@@ -405,22 +442,22 @@ function buildAnimations(ast, actorEls, scene, assetOverrides) {
         break;
       }
       // ── punch ─────────────────────────────────────────────────────────────
-      // Swings one arm outward and back. Targets figure actors only;
-      // silently ignored for other actor types.
+      // Swings one arm out and snaps it back. Works on figure actors only.
+      //   side = "left" | "right"  (default "right")
       case "punch": {
-        const punchSide = String(ev.params.side ?? "right");
-        const armSel = punchSide === "left" ? "[data-fig-arm-l]" : "[data-fig-arm-r]";
-        const armEl = el.querySelector(armSel);
-        if (!armEl) break;
-        const restMatch = /rotate\((-?[\d.]+)deg\)/.exec(armEl.style.transform ?? "");
-        const restAngle = restMatch ? Number(restMatch[1]) : punchSide === "left" ? 25 : -25;
-        const punchAngle = punchSide === "left" ? -70 : 70;
+        const pSide = String(ev.params.side ?? "right");
+        const pArmEl = el.querySelector(
+          pSide === "left" ? "[data-fig-arm-l]" : "[data-fig-arm-r]"
+        );
+        if (!pArmEl) break;
+        const pRest = readRotation(pArmEl);
+        const pExtend = pSide === "left" ? -75 : 75;
         anims.push(
-          armEl.animate(
+          pArmEl.animate(
             [
-              { transform: `rotate(${restAngle}deg)` },
-              { transform: `rotate(${punchAngle}deg)`, offset: 0.35 },
-              { transform: `rotate(${restAngle}deg)` }
+              { transform: `rotate(${pRest}deg)` },
+              { transform: `rotate(${pExtend}deg)`, offset: 0.35 },
+              { transform: `rotate(${pRest}deg)` }
             ],
             { ...baseOpts, easing: "ease-in-out", fill: "forwards" }
           )
@@ -428,25 +465,71 @@ function buildAnimations(ast, actorEls, scene, assetOverrides) {
         break;
       }
       // ── kick ──────────────────────────────────────────────────────────────
-      // Swings one leg outward and back. Targets figure actors only.
+      // Swings one leg out and snaps it back. Works on figure actors only.
+      //   side = "left" | "right"  (default "right")
       case "kick": {
-        const kickSide = String(ev.params.side ?? "right");
-        const legSel = kickSide === "left" ? "[data-fig-leg-l]" : "[data-fig-leg-r]";
-        const legEl = el.querySelector(legSel);
-        if (!legEl) break;
-        const legRestMatch = /rotate\((-?[\d.]+)deg\)/.exec(legEl.style.transform ?? "");
-        const legRestAngle = legRestMatch ? Number(legRestMatch[1]) : kickSide === "left" ? -18 : 18;
-        const kickAngle = kickSide === "left" ? -100 : 100;
+        const kSide = String(ev.params.side ?? "right");
+        const kLegEl = el.querySelector(
+          kSide === "left" ? "[data-fig-leg-l]" : "[data-fig-leg-r]"
+        );
+        if (!kLegEl) break;
+        const kRest = readRotation(kLegEl);
+        const kExtend = kSide === "left" ? -100 : 100;
         anims.push(
-          legEl.animate(
+          kLegEl.animate(
             [
-              { transform: `rotate(${legRestAngle}deg)` },
-              { transform: `rotate(${kickAngle}deg)`, offset: 0.38 },
-              { transform: `rotate(${legRestAngle}deg)` }
+              { transform: `rotate(${kRest}deg)` },
+              { transform: `rotate(${kExtend}deg)`, offset: 0.38 },
+              { transform: `rotate(${kRest}deg)` }
             ],
             { ...baseOpts, easing: "ease-in-out", fill: "forwards" }
           )
         );
+        break;
+      }
+      // ── rotate_part ───────────────────────────────────────────────────────
+      // Rotates any named body part of a figure actor to a target angle.
+      // Named parts: head, body, arm_left, arm_right, leg_left, leg_right
+      //
+      //   @1.0: guy.rotate_part(part=arm_right, to=90, dur=0.4)
+      //   @2.0: guy.rotate_part(part=leg_left,  to=-60, dur=0.35)
+      //   @3.0: guy.rotate_part(part=head,      to=20,  dur=0.3)
+      case "rotate_part": {
+        const rpName = String(ev.params.part ?? "");
+        const rpSel = PART_SEL[rpName];
+        if (!rpSel) break;
+        const rpEl = el.querySelector(rpSel);
+        if (!rpEl) break;
+        const rpFrom = readRotation(rpEl);
+        const rpTo = typeof ev.params.to === "number" ? ev.params.to : rpFrom;
+        anims.push(
+          rpEl.animate(
+            [
+              { transform: `rotate(${rpFrom}deg)` },
+              { transform: `rotate(${rpTo}deg)` }
+            ],
+            { ...baseOpts, fill: "forwards" }
+          )
+        );
+        rpEl.style.transform = rpEl.style.transform.replace(
+          /rotate\([^)]*\)/,
+          `rotate(${rpTo}deg)`
+        );
+        break;
+      }
+      // ── face ──────────────────────────────────────────────────────────────
+      // Instantly swaps the emoji face of a figure actor.
+      // Seek-safe: recorded in faceSwaps[]; the rAF loop applies the latest
+      // swap whose timeMs <= sceneMs every frame, so it works correctly for
+      // both forward playback and seek-backwards.
+      //
+      //   @5.0: bruno.face("😡")
+      //   @9.5: alex.face("😵")
+      case "face": {
+        const fEl = el.querySelector("[data-fig-face]");
+        if (!fEl) break;
+        const emoji = String(ev.params.text ?? ev.params._0 ?? "");
+        if (emoji) faceSwaps.push({ timeMs: ev.time * 1e3, el: fEl, emoji });
         break;
       }
       // ── say ───────────────────────────────────────────────────────────────
@@ -575,7 +658,9 @@ function createPlayer(opts) {
     scene.appendChild(el);
     actorEls.set(name, el);
   }
-  const allAnims = buildAnimations(ast, actorEls, scene, assetOverrides);
+  const faceSwaps = [];
+  const allAnims = buildAnimations(ast, actorEls, scene, assetOverrides, faceSwaps);
+  faceSwaps.sort((a, b) => a.timeMs - b.timeMs);
   for (const anim of allAnims) {
     anim.pause();
     anim.currentTime = 0;
@@ -587,6 +672,30 @@ function createPlayer(opts) {
   function applyCurrentTime() {
     for (const anim of allAnims) {
       anim.currentTime = sceneMs;
+    }
+    if (faceSwaps.length > 0) {
+      const elEmoji = /* @__PURE__ */ new Map();
+      for (const { timeMs, el, emoji } of faceSwaps) {
+        if (timeMs <= sceneMs) elEmoji.set(el, emoji);
+      }
+      for (const [el, emoji] of elEmoji) {
+        if (el.textContent !== emoji) el.textContent = emoji;
+      }
+      const elFirst = /* @__PURE__ */ new Map();
+      for (const { el, emoji } of faceSwaps) {
+        if (!elFirst.has(el)) elFirst.set(el, emoji);
+      }
+      for (const [el, firstEmoji] of elFirst) {
+        if (!elEmoji.has(el)) {
+          const initial = el.dataset["figFaceInitial"] ?? firstEmoji;
+          if (el.textContent !== initial) el.textContent = initial;
+        }
+      }
+    }
+  }
+  for (const { el } of faceSwaps) {
+    if (!el.dataset["figFaceInitial"]) {
+      el.dataset["figFaceInitial"] = el.textContent ?? "";
     }
   }
   function rafTick(timestamp) {

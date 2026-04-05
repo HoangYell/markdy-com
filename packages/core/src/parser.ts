@@ -19,6 +19,29 @@ export class ParseError extends Error {
 // ---------------------------------------------------------------------------
 
 /**
+ * Strips a trailing comment from a source line while ignoring `#` characters
+ * that appear inside parentheses (e.g. CSS hex colours like `#c68642`) or
+ * inside double-quoted strings.
+ *
+ * Rules:
+ *   - `#` at depth 0, outside a string → start of comment
+ *   - `#` inside `(...)` or inside `"..."` → literal character
+ */
+function stripComment(line: string): string {
+  let depth = 0;
+  let inString = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (ch === '(') { depth++; continue; }
+    if (ch === ')') { depth--; continue; }
+    if (ch === '#' && depth === 0) return line.slice(0, i);
+  }
+  return line;
+}
+
+/**
  * Splits a comma-delimited string while respecting parentheses depth.
  * "to=(300,250), dur=1.0" → ["to=(300,250)", " dur=1.0"]
  */
@@ -148,7 +171,7 @@ const ASSET_RE = /^asset\s+(\w+)\s*=\s*(image|icon)\("([^"]+)"\)$/;
 // [^)]* in argsRaw is intentional: actor constructor args in the MVP spec
 // never contain a bare ')' (quoted strings are the only multi-char arg type).
 const ACTOR_RE =
-  /^actor\s+(\w+)\s*=\s*(sprite|text|box)\(([^)]*)\)\s+at\s+\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)(.*)$/;
+  /^actor\s+(\w+)\s*=\s*(sprite|text|box|figure)\(([^)]*)\)\s+at\s+\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)(.*)$/;
 
 // (.*)  is greedy and backtracks to let \)$ match the outermost closing paren,
 // which correctly handles nested tuples like to=(300,250) in the param list.
@@ -182,8 +205,8 @@ export function parse(source: string): SceneAST {
 
   for (let i = 0; i < lines.length; i++) {
     const lineNum = i + 1;
-    // Strip line comments and surrounding whitespace.
-    const raw = lines[i].replace(/#.*$/, "").trim();
+    // Strip inline comments (context-aware: ignores # inside parens/strings).
+    const raw = stripComment(lines[i]).trim();
     if (!raw) continue;
 
     // ── scene ───────────────────────────────────────────────────────────────

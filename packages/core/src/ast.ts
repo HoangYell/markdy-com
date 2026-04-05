@@ -9,7 +9,7 @@ export type AssetDef = {
 };
 
 export type ActorDef = {
-  type: "sprite" | "text" | "box";
+  type: "sprite" | "text" | "box" | "figure";
   /** Constructor arguments: asset name for sprite, display text for text actors. */
   args: string[];
   x: number;

@@ -66,6 +66,227 @@ function tx(s: ActorState): string {
 }
 
 // ---------------------------------------------------------------------------
+// Stick-figure DOM factory
+// ---------------------------------------------------------------------------
+//
+// Each limb element carries a data-fig-* attribute so the renderer can
+// query it for per-part animations.  Named parts:
+//
+//   data-fig-head     — circle head
+//   data-fig-face     — emoji face span (inside head)
+//   data-fig-body     — torso bar
+//   data-fig-arm-l    — left arm  (pivot: shoulder / right end)
+//   data-fig-arm-r    — right arm (pivot: shoulder / left end)
+//   data-fig-leg-l    — left leg  (pivot: hip / top end)
+//   data-fig-leg-r    — right leg (pivot: hip / top end)
+//
+// DSL syntax:
+//   actor a = figure(#c68642)           at (x,y)   — male, default face 😶
+//   actor b = figure(#fad4c0, f)        at (x,y)   — female (skirt + bun), default face 🙂
+//   actor c = figure(#c68642, m, 😎)   at (x,y)   — custom starting face
+//
+// Actions:
+//   face("😡")              — instantly swap the emoji face expression
+//   punch(side=left|right)  — swing arm out & back
+//   kick(side=left|right)   — swing leg out & back
+//   rotate_part(part=..., to=deg, dur=sec)
+
+function createFigureEl(def: ActorDef): HTMLElement {
+  const _skin    = def.args[0] || "#ffdbac"; // kept for DSL compat
+  const isFemale = def.args[1] === "f";
+  const startFace = def.args[2] || (isFemale ? "🙂" : "😶");
+  const ink = "#2a2a2a";
+
+  const wrap = document.createElement("div");
+  Object.assign(wrap.style, {
+    position: "relative",
+    width:  "80px",
+    height: "160px",
+    overflow: "visible",
+  });
+
+  // ── Face — floating emoji, NO background circle ───────────────────────────
+  const faceEl = document.createElement("span");
+  // both selectors resolve to this single element
+  (faceEl.dataset as Record<string, string>).figFace = "";
+  (faceEl.dataset as Record<string, string>).figHead = "";
+  faceEl.textContent = startFace;
+  Object.assign(faceEl.style, {
+    position: "absolute",
+    fontSize: "44px",
+    lineHeight: "1",
+    left: "50%",
+    top: "0",
+    transform: "translateX(-50%)",
+    userSelect: "none",
+    pointerEvents: "none",
+    zIndex: "3",
+  });
+
+  // ── Clothes — emoji torso (👕 / 👗) ──────────────────────────────────────
+  const clothesEl = document.createElement("span");
+  (clothesEl.dataset as Record<string, string>).figBody = "";
+  clothesEl.textContent = isFemale ? "👗" : "👕";
+  Object.assign(clothesEl.style, {
+    position: "absolute",
+    fontSize: "34px",
+    lineHeight: "1",
+    left: "50%",
+    top: "42px",
+    transform: "translateX(-50%)",
+    userSelect: "none",
+    pointerEvents: "none",
+    zIndex: "2",
+  });
+
+  // ── Left arm (extends left; pivot = right / shoulder end) ─────────────────
+  const armL = document.createElement("div");
+  (armL.dataset as Record<string, string>).figArmL = "";
+  Object.assign(armL.style, {
+    position: "absolute",
+    width: "38px", height: "20px",
+    right: "40px", top: "56px",
+    transformOrigin: "right center",
+    transform: "rotate(25deg)",
+    zIndex: "2",
+    overflow: "visible",
+    boxSizing: "border-box",
+  });
+  const armLStick = document.createElement("div");
+  Object.assign(armLStick.style, {
+    position: "absolute",
+    width: "24px", height: "3px",
+    background: ink, borderRadius: "2px",
+    right: "12px", top: "8px",
+  });
+  const armLHand = document.createElement("span");
+  armLHand.textContent = "🤜";
+  Object.assign(armLHand.style, {
+    position: "absolute",
+    fontSize: "15px", lineHeight: "1",
+    left: "0", top: "2px",
+    transform: "scaleX(-1)",
+    userSelect: "none", pointerEvents: "none",
+  });
+  armL.append(armLStick, armLHand);
+
+  // ── Right arm (extends right; pivot = left / shoulder end) ────────────────
+  const armR = document.createElement("div");
+  (armR.dataset as Record<string, string>).figArmR = "";
+  Object.assign(armR.style, {
+    position: "absolute",
+    width: "38px", height: "20px",
+    left: "40px", top: "56px",
+    transformOrigin: "left center",
+    transform: "rotate(-25deg)",
+    zIndex: "2",
+    overflow: "visible",
+    boxSizing: "border-box",
+  });
+  const armRStick = document.createElement("div");
+  Object.assign(armRStick.style, {
+    position: "absolute",
+    width: "24px", height: "3px",
+    background: ink, borderRadius: "2px",
+    left: "12px", top: "8px",
+  });
+  const armRHand = document.createElement("span");
+  armRHand.textContent = "🤛";
+  Object.assign(armRHand.style, {
+    position: "absolute",
+    fontSize: "15px", lineHeight: "1",
+    right: "0", top: "2px",
+    userSelect: "none", pointerEvents: "none",
+  });
+  armR.append(armRStick, armRHand);
+
+  // ── Left leg — vertical (0°), sneaker at bottom ───────────────────────────
+  const legL = document.createElement("div");
+  (legL.dataset as Record<string, string>).figLegL = "";
+  Object.assign(legL.style, {
+    position: "absolute",
+    width: "22px", height: "52px",
+    left: "23px", top: "76px",
+    transformOrigin: "top center",
+    transform: "rotate(0deg)",
+    zIndex: "1",
+    overflow: "visible",
+    boxSizing: "border-box",
+  });
+  const legLStick = document.createElement("div");
+  Object.assign(legLStick.style, {
+    position: "absolute",
+    width: "3px", height: "34px",
+    background: ink, borderRadius: "1px",
+    left: "9px", top: "0",
+  });
+  const legLShoe = document.createElement("span");
+  legLShoe.textContent = isFemale ? "👠" : "👟";
+  Object.assign(legLShoe.style, {
+    position: "absolute",
+    fontSize: "15px", lineHeight: "1",
+    bottom: "0", left: "0",
+    transform: "scaleX(-1)",
+    userSelect: "none", pointerEvents: "none",
+  });
+  legL.append(legLStick, legLShoe);
+
+  // ── Right leg — vertical (0°), sneaker at bottom ──────────────────────────
+  const legR = document.createElement("div");
+  (legR.dataset as Record<string, string>).figLegR = "";
+  Object.assign(legR.style, {
+    position: "absolute",
+    width: "22px", height: "52px",
+    right: "19px", top: "76px",
+    transformOrigin: "top center",
+    transform: "rotate(0deg)",
+    zIndex: "1",
+    overflow: "visible",
+    boxSizing: "border-box",
+  });
+  const legRStick = document.createElement("div");
+  Object.assign(legRStick.style, {
+    position: "absolute",
+    width: "3px", height: "34px",
+    background: ink, borderRadius: "1px",
+    left: "9px", top: "0",
+  });
+  const legRShoe = document.createElement("span");
+  legRShoe.textContent = isFemale ? "👠" : "👟";
+  Object.assign(legRShoe.style, {
+    position: "absolute",
+    fontSize: "15px", lineHeight: "1",
+    bottom: "0", right: "0",
+    userSelect: "none", pointerEvents: "none",
+  });
+  legR.append(legRStick, legRShoe);
+
+  wrap.append(faceEl, clothesEl, armL, armR, legL, legR);
+
+  return wrap;
+}
+
+// ---------------------------------------------------------------------------
+// Part selector map (for rotate_part / scale_part)
+// ---------------------------------------------------------------------------
+
+const PART_SEL: Record<string, string> = {
+  head:      "[data-fig-head]",
+  face:      "[data-fig-face]",
+  body:      "[data-fig-body]",
+  arm_left:  "[data-fig-arm-l]",
+  arm_right: "[data-fig-arm-r]",
+  leg_left:  "[data-fig-leg-l]",
+  leg_right: "[data-fig-leg-r]",
+};
+
+/** Read the current rotate(Xdeg) value from an element's inline transform. */
+function readRotation(el: HTMLElement): number {
+  const m = /rotate\((-?[\d.]+)deg\)/.exec(el.style.transform ?? "");
+  return m ? Number(m[1]) : 0;
+}
+
+// ---------------------------------------------------------------------------
 // Actor element factory
 // ---------------------------------------------------------------------------
 
@@ -114,13 +335,18 @@ function createActorEl(
       break;
     }
 
+    case "figure": {
+      el = createFigureEl(def);
+      break;
+    }
+
     default: {
       // box
       const div = document.createElement("div");
-      div.style.width = "100px";
+      div.style.width  = "100px";
       div.style.height = "100px";
       div.style.background = "#999";
-      div.style.boxSizing = "border-box";
+      div.style.boxSizing  = "border-box";
       el = div;
       break;
     }
@@ -148,11 +374,15 @@ function createActorEl(
  * ones' intended before-phase state.  Initial inline styles are
  * pre-computed here; the rAF loop then drives currentTime manually.
  */
+
+interface FaceSwap { timeMs: number; el: HTMLElement; emoji: string; }
+
 function buildAnimations(
   ast: SceneAST,
   actorEls: Map<string, HTMLElement>,
   scene: HTMLElement,
   assetOverrides: Record<string, string>,
+  faceSwaps: FaceSwap[],
 ): Animation[] {
   const anims: Animation[] = [];
 
@@ -346,6 +576,105 @@ function buildAnimations(
         break;
       }
 
+      // ── punch ─────────────────────────────────────────────────────────────
+      // Swings one arm out and snaps it back. Works on figure actors only.
+      //   side = "left" | "right"  (default "right")
+      case "punch": {
+        const pSide = String(ev.params.side ?? "right");
+        const pArmEl = el.querySelector<HTMLElement>(
+          pSide === "left" ? "[data-fig-arm-l]" : "[data-fig-arm-r]",
+        );
+        if (!pArmEl) break;
+        const pRest = readRotation(pArmEl);
+        const pExtend = pSide === "left" ? -75 : 75;
+        anims.push(
+          pArmEl.animate(
+            [
+              { transform: `rotate(${pRest}deg)` },
+              { transform: `rotate(${pExtend}deg)`, offset: 0.35 },
+              { transform: `rotate(${pRest}deg)` },
+            ],
+            { ...baseOpts, easing: "ease-in-out", fill: "forwards" },
+          ),
+        );
+        break;
+      }
+
+      // ── kick ──────────────────────────────────────────────────────────────
+      // Swings one leg out and snaps it back. Works on figure actors only.
+      //   side = "left" | "right"  (default "right")
+      case "kick": {
+        const kSide = String(ev.params.side ?? "right");
+        const kLegEl = el.querySelector<HTMLElement>(
+          kSide === "left" ? "[data-fig-leg-l]" : "[data-fig-leg-r]",
+        );
+        if (!kLegEl) break;
+        const kRest = readRotation(kLegEl);
+        const kExtend = kSide === "left" ? -100 : 100;
+        anims.push(
+          kLegEl.animate(
+            [
+              { transform: `rotate(${kRest}deg)` },
+              { transform: `rotate(${kExtend}deg)`, offset: 0.38 },
+              { transform: `rotate(${kRest}deg)` },
+            ],
+            { ...baseOpts, easing: "ease-in-out", fill: "forwards" },
+          ),
+        );
+        break;
+      }
+
+      // ── rotate_part ───────────────────────────────────────────────────────
+      // Rotates any named body part of a figure actor to a target angle.
+      // Named parts: head, body, arm_left, arm_right, leg_left, leg_right
+      //
+      //   @1.0: guy.rotate_part(part=arm_right, to=90, dur=0.4)
+      //   @2.0: guy.rotate_part(part=leg_left,  to=-60, dur=0.35)
+      //   @3.0: guy.rotate_part(part=head,      to=20,  dur=0.3)
+      case "rotate_part": {
+        const rpName = String(ev.params.part ?? "");
+        const rpSel  = PART_SEL[rpName];
+        if (!rpSel) break;
+        const rpEl = el.querySelector<HTMLElement>(rpSel);
+        if (!rpEl) break;
+
+        const rpFrom = readRotation(rpEl);
+        const rpTo   = typeof ev.params.to === "number" ? ev.params.to : rpFrom;
+
+        anims.push(
+          rpEl.animate(
+            [
+              { transform: `rotate(${rpFrom}deg)` },
+              { transform: `rotate(${rpTo}deg)` },
+            ],
+            { ...baseOpts, fill: "forwards" },
+          ),
+        );
+        // Update inline style so the next rotate_part on the same part reads
+        // the correct rest angle.
+        rpEl.style.transform = rpEl.style.transform.replace(
+          /rotate\([^)]*\)/,
+          `rotate(${rpTo}deg)`,
+        );
+        break;
+      }
+
+      // ── face ──────────────────────────────────────────────────────────────
+      // Instantly swaps the emoji face of a figure actor.
+      // Seek-safe: recorded in faceSwaps[]; the rAF loop applies the latest
+      // swap whose timeMs <= sceneMs every frame, so it works correctly for
+      // both forward playback and seek-backwards.
+      //
+      //   @5.0: bruno.face("😡")
+      //   @9.5: alex.face("😵")
+      case "face": {
+        const fEl = el.querySelector<HTMLElement>("[data-fig-face]");
+        if (!fEl) break;
+        const emoji = String(ev.params.text ?? ev.params._0 ?? "");
+        if (emoji) faceSwaps.push({ timeMs: ev.time * 1000, el: fEl, emoji });
+        break;
+      }
+
       // ── say ───────────────────────────────────────────────────────────────
       case "say": {
         const text = String(ev.params.text ?? "");
@@ -527,7 +856,11 @@ export function createPlayer(opts: PlayerOptions): Player {
   // correct interpolated value (including fill:"forwards" after each
   // animation ends).  This is reliable across all browsers and avoids the
   // quirk where setting startTime on a paused animation does not resume it.
-  const allAnims = buildAnimations(ast, actorEls, scene, assetOverrides);
+  const faceSwaps: FaceSwap[] = [];
+  const allAnims = buildAnimations(ast, actorEls, scene, assetOverrides, faceSwaps);
+  // faceSwaps is sorted by timeMs ascending for efficient scanning.
+  faceSwaps.sort((a, b) => a.timeMs - b.timeMs);
+
   for (const anim of allAnims) {
     anim.pause();
     anim.currentTime = 0;
@@ -543,6 +876,40 @@ export function createPlayer(opts: PlayerOptions): Player {
   function applyCurrentTime(): void {
     for (const anim of allAnims) {
       anim.currentTime = sceneMs;
+    }
+    // Apply face swaps: for each face element, find the last swap at or before
+    // sceneMs and set its emoji.  This is O(swaps) per frame but swap counts
+    // are tiny (< 20 in any realistic scene).
+    if (faceSwaps.length > 0) {
+      // Group by element; last-wins within each group.
+      const elEmoji = new Map<HTMLElement, string>();
+      for (const { timeMs, el, emoji } of faceSwaps) {
+        if (timeMs <= sceneMs) elEmoji.set(el, emoji);
+      }
+      for (const [el, emoji] of elEmoji) {
+        if (el.textContent !== emoji) el.textContent = emoji;
+      }
+      // Restore initial face for elements whose first swap hasn't fired yet.
+      // Track which elements we need to reset.
+      const elFirst = new Map<HTMLElement, string>();
+      for (const { el, emoji } of faceSwaps) {
+        if (!elFirst.has(el)) elFirst.set(el, emoji);
+      }
+      for (const [el, firstEmoji] of elFirst) {
+        if (!elEmoji.has(el)) {
+          // No swap has fired yet — restore to the initial face stored in
+          // data-fig-face-initial (set below at build time).
+          const initial = (el.dataset as Record<string, string>)["figFaceInitial"] ?? firstEmoji;
+          if (el.textContent !== initial) el.textContent = initial;
+        }
+      }
+    }
+  }
+
+  // Store initial face text on each swappable element so seek-back works.
+  for (const { el } of faceSwaps) {
+    if (!(el.dataset as Record<string, string>)["figFaceInitial"]) {
+      (el.dataset as Record<string, string>)["figFaceInitial"] = el.textContent ?? "";
     }
   }
 
