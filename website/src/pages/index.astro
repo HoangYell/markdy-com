@@ -266,10 +266,10 @@ actor flames = sprite(fire_icon) at (100, 100)
 @1.0: my_meme.throw(fire_icon, to=(100,100), dur=0.5)</code></pre>
         <button class="apply-ref-btn" onclick="window.applyRefCode && window.applyRefCode(this.nextElementSibling.textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"></path></svg> Try in Playground</button><script type="text/plain" class="ref-code-data">
 scene width=800 height=400 bg=#ffffff
-asset doge_meme = image("https://upload.wikimedia.org/wikipedia/en/5/5f/Original_Doge_meme.jpg")
+asset cool_cat = image("https://placecats.com/300/300")
 asset fire_icon = icon("lucide:flame")
 
-actor my_meme = sprite(doge_meme) at (600, 200) scale 0.5
+actor my_meme = sprite(cool_cat) at (600, 200) scale 0.5
 actor flames = sprite(fire_icon) at (200, 200) scale 2.0
 
 @1.0: my_meme.throw(fire_icon, to=(200,200), dur=0.5)
@@ -289,11 +289,11 @@ actor b = text("Hello World") at (50, 50) size 24
 actor c = sprite(pepe) at (300, 200) scale 0.5 opacity 0</code></pre>
         <button class="apply-ref-btn" onclick="window.applyRefCode && window.applyRefCode(this.nextElementSibling.textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"></path></svg> Try in Playground</button><script type="text/plain" class="ref-code-data">
 scene width=800 height=400
-asset doge_meme = image("https://upload.wikimedia.org/wikipedia/en/5/5f/Original_Doge_meme.jpg")
+asset cool_cat = image("https://placecats.com/300/300")
 
 actor a = figure(#c68642, m, 😎) at (200, 200) scale 1.2
 actor b = text("Hello World") at (400, 100) size 24
-actor c = sprite(doge_meme) at (600, 200) scale 0.3 opacity 0.5
+actor c = sprite(cool_cat) at (600, 200) opacity 0.5
 actor d = box() at (400, 300)
         </script>
         <p>Objects visible in the scene. Defined by <code>at (x,y)</code> along with optional space-separated modifiers.</p>
@@ -509,6 +509,9 @@ seq wave(arm, angle) {
     try {
       player = createPlayer({ container: stage, code, assets, autoplay: true });
       setStatus(true);
+      if ((window as any).Iconify) {
+        (window as any).Iconify.scan(stage);
+      }
     } catch (e) {
       const msg = (e as Error).message ?? String(e);
       stage.innerHTML = `<p class="parse-error">${msg}</p>`;
