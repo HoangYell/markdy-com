@@ -25,10 +25,18 @@
     "renderer",
     "dom"
   ],
+  "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
+  "homepage": "https://markdy.com",
   "repository": {
     "type": "git",
-    "url": "https://github.com/markdy-com/markdy.git",
+    "url": "https://github.com/HoangYell/markdy-com.git",
     "directory": "packages/renderer-dom"
+  },
+  "bugs": {
+    "url": "https://github.com/HoangYell/markdy-com/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "build": "tsup",

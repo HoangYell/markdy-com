@@ -5,9 +5,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/markdy-com/markdy/actions/workflows/ci.yml"><img src="https://github.com/markdy-com/markdy/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml"><img src="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
   <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/npm/v/@markdy/core?color=blue&label=%40markdy%2Fcore" alt="npm" /></a>
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/markdy-com/markdy" alt="MIT License" /></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/HoangYell/markdy-com" alt="MIT License" /></a>
 </p>
 
 ---
@@ -249,7 +249,7 @@ All WAAPI animations are permanently paused. A `requestAnimationFrame` loop manu
 ## Development
 
 ```sh
-git clone https://github.com/markdy-com/markdy.git
+git clone https://github.com/HoangYell/markdy-com.git
 cd markdy
 pnpm install
 pnpm build
@@ -309,4 +309,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 
 ## License
 
-[MIT](LICENSE) © Markdy Contributors
+[MIT](LICENSE) © [Hoang Yell](https://hoangyell.com)

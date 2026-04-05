@@ -5,7 +5,7 @@ Thank you for your interest in contributing! This guide will help you get starte
 ## Development Setup
 
 ```sh
-git clone https://github.com/markdy-com/markdy.git
+git clone https://github.com/HoangYell/markdy-com.git
 cd markdy
 pnpm install
 pnpm build

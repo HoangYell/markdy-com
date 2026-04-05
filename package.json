@@ -3,13 +3,14 @@
   "private": true,
   "description": "An open-source animation DSL engine. Write MarkdyScript, get animated scenes in the browser.",
   "license": "MIT",
+  "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/markdy-com/markdy.git"
+    "url": "https://github.com/HoangYell/markdy-com.git"
   },
-  "homepage": "https://github.com/markdy-com/markdy#readme",
+  "homepage": "https://markdy.com",
   "bugs": {
-    "url": "https://github.com/markdy-com/markdy/issues"
+    "url": "https://github.com/HoangYell/markdy-com/issues"
   },
   "engines": {
     "node": ">=18",
