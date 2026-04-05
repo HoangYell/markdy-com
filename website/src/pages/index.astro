@@ -234,6 +234,10 @@ const FLOWER_ASSET: Record<string, string> = {
       <div class="ref-card">
         <h3>1. Scene Declaration</h3>
         <pre><code>scene width=800 height=400 fps=30 bg=#fafafa</code></pre>
+        <button class="apply-ref-btn" onclick="window.applyRefCode && window.applyRefCode(this.nextElementSibling.textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"></path></svg> Try in Playground</button><script type="text/plain" class="ref-code-data">
+scene width=800 height=400 fps=30 bg=#fafafa
+actor a = figure(#c68642, m, 😎) at (400, 200) scale 1.5
+        </script>
         <p>Configures the main canvas timeline. Must exist at the very top of your <code>.markdy</code> file.</p>
         <table>
           <thead><tr><th>Property</th><th>Default</th><th>Description</th></tr></thead>
@@ -260,6 +264,16 @@ actor flames = sprite(fire_icon) at (100, 100)
 
 # 3. Use them in actions (like throwing an icon!)
 @1.0: my_meme.throw(fire_icon, to=(100,100), dur=0.5)</code></pre>
+        <button class="apply-ref-btn" onclick="window.applyRefCode && window.applyRefCode(this.nextElementSibling.textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"></path></svg> Try in Playground</button><script type="text/plain" class="ref-code-data">
+scene width=800 height=400 bg=#ffffff
+asset doge_meme = image("https://upload.wikimedia.org/wikipedia/en/5/5f/Original_Doge_meme.jpg")
+asset fire_icon = icon("lucide:flame")
+
+actor my_meme = sprite(doge_meme) at (600, 200) scale 0.5
+actor flames = sprite(fire_icon) at (200, 200) scale 2.0
+
+@1.0: my_meme.throw(fire_icon, to=(200,200), dur=0.5)
+        </script>
         <table>
           <tbody>
             <tr><td><code>image("url")</code></td><td>Loads a local file (e.g. <code>/memes/doge.webp</code>) or a full web URL. Best for memes, photos, backgrounds, and PNGs.</td></tr>
@@ -273,6 +287,15 @@ actor flames = sprite(fire_icon) at (100, 100)
         <pre><code>actor a = figure(#c68642, m, 😎) at (100, 200) scale 1.2
 actor b = text("Hello World") at (50, 50) size 24
 actor c = sprite(pepe) at (300, 200) scale 0.5 opacity 0</code></pre>
+        <button class="apply-ref-btn" onclick="window.applyRefCode && window.applyRefCode(this.nextElementSibling.textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"></path></svg> Try in Playground</button><script type="text/plain" class="ref-code-data">
+scene width=800 height=400
+asset doge_meme = image("https://upload.wikimedia.org/wikipedia/en/5/5f/Original_Doge_meme.jpg")
+
+actor a = figure(#c68642, m, 😎) at (200, 200) scale 1.2
+actor b = text("Hello World") at (400, 100) size 24
+actor c = sprite(doge_meme) at (600, 200) scale 0.3 opacity 0.5
+actor d = box() at (400, 300)
+        </script>
         <p>Objects visible in the scene. Defined by <code>at (x,y)</code> along with optional space-separated modifiers.</p>
         <table>
           <thead><tr><th>Type</th><th>Arguments</th><th>Description</th></tr></thead>
@@ -291,6 +314,16 @@ actor c = sprite(pepe) at (300, 200) scale 0.5 opacity 0</code></pre>
         <pre><code>@0.5: c.enter(from=left, dur=0.8, ease=out)
 @1.5: c.move(to=(150, 200), dur=1.0)
 @3.0: c.fade_in(dur=0.5)</code></pre>
+        <button class="apply-ref-btn" onclick="window.applyRefCode && window.applyRefCode(this.nextElementSibling.textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"></path></svg> Try in Playground</button><script type="text/plain" class="ref-code-data">
+scene width=800 height=400
+actor c = figure(#000000, m, 😐) at (400,200)
+
+@0.5: c.enter(from=left, dur=0.8, ease=out)
+@1.5: c.move(to=(150, 200), dur=1.0)
+@3.0: c.fade_in(dur=0.5)
+@4.0: c.say("Nice!", dur=2.0)
+@4.5: c.shake(intensity=5, dur=0.5)
+        </script>
         <p>Schedule framework-agnostic layout updates via the <code>@time: target.action()</code> pattern in decimal seconds.</p>
         <table>
           <thead><tr><th>Action</th><th>Parameters</th><th>Function</th></tr></thead>
@@ -313,6 +346,15 @@ actor c = sprite(pepe) at (300, 200) scale 0.5 opacity 0</code></pre>
 @2.5: a.rotate_part(part=arm_right, to=90, dur=0.4)
 @3.0: a.punch(side=right, dur=0.2)
 @3.5: a.kick(side=left, dur=0.3)</code></pre>
+        <button class="apply-ref-btn" onclick="window.applyRefCode && window.applyRefCode(this.nextElementSibling.textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"></path></svg> Try in Playground</button><script type="text/plain" class="ref-code-data">
+scene width=800 height=400
+actor a = figure(#c68642, m, 😐) at (400,200) scale 1.5
+
+@1.0: a.face("😵")
+@1.5: a.rotate_part(part=arm_right, to=130, dur=0.4)
+@2.0: a.punch(side=right, dur=0.2)
+@2.5: a.kick(side=left, dur=0.3)
+        </script>
         <p>Actors exclusively of type <code>figure</code> have articulated limbs that accept specific methods.</p>
         <table>
           <thead><tr><th>Action</th><th>Properties</th></tr></thead>
@@ -334,6 +376,17 @@ def char(skin, face) {'{'}
 {'}'}
 
 actor lily = char(${'${accent_skin}'}, 😊) at (100, 200)</code></pre>
+        <button class="apply-ref-btn" onclick="window.applyRefCode && window.applyRefCode(this.nextElementSibling.textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"></path></svg> Try in Playground</button><script type="text/plain" class="ref-code-data">
+scene width=800 height=400
+var accent_skin = #fad4c0
+
+def char(skin, face) {
+  figure(${skin}, f, ${face})
+}
+
+actor lily = char(${accent_skin}, 😊) at (200, 200) scale 1.5
+actor rose = char(#e5a285, 👩) at (600, 200) scale 1.5
+        </script>
         <p>Streamline scripts dynamically via substitution macros.</p>
         <p>- <code>var</code> ignores trailing comments, robust for <code>#hex</code> injection.<br/>- <code>def</code> injects an inline definition of any actor type, generating custom component variations inherently without JS intervention.</p>
       </div>
@@ -346,6 +399,18 @@ actor lily = char(${'${accent_skin}'}, 😊) at (100, 200)</code></pre>
 {'}'}
 
 @2.0: lily.play(wave, arm=arm_left, angle=-80)</code></pre>
+        <button class="apply-ref-btn" onclick="window.applyRefCode && window.applyRefCode(this.nextElementSibling.textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 9-14 9V3z"></path></svg> Try in Playground</button><script type="text/plain" class="ref-code-data">
+scene width=800 height=400
+actor lily = figure(#fad4c0, f, 😊) at (400, 200) scale 1.5
+
+seq wave(arm, angle) {
+  @+0.0: $.rotate_part(part=${arm}, to=${angle}, dur=0.3)
+  @+0.3: $.rotate_part(part=${arm}, to=25, dur=0.3)
+}
+
+@1.0: lily.play(wave, arm=arm_left, angle=-80)
+@2.0: lily.play(wave, arm=arm_right, angle=80)
+        </script>
         <p>Record and reproduce timed-action blocks. <code>seq</code> instances run relative offsets for the binding target.</p>
         <p>- <code>$</code> acts as the active binding reference during interpretation.<br/>- Statements specified with <code>@+time</code> resolve relative elapsed progression.</p>
       </div>
@@ -531,6 +596,14 @@ actor lily = char(${'${accent_skin}'}, 😊) at (100, 200)</code></pre>
 
   // Run button
   runBtn.addEventListener("click", () => render(getEditorCode()));
+
+  // Setup global Apply function for Syntax Reference examples
+  (window as any).applyRefCode = (code: string) => {
+    createEditor(code);
+    render(code);
+    setActiveBtn(-1); // Remove active state
+    document.getElementById("playground")?.scrollIntoView({ behavior: "smooth" });
+  };
 </script>
 
 <style>
@@ -778,6 +851,26 @@ actor lily = char(${'${accent_skin}'}, 😊) at (100, 200)</code></pre>
     border-color: var(--accent);
     box-shadow: 0 1px 4px var(--accent-light);
   }
+
+  .apply-ref-btn {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    font-family: inherit;
+    font-weight: 500;
+    color: #fff;
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.1s ease;
+  }
+  .apply-ref-btn:hover { opacity: 0.9; }
+  .apply-ref-btn:active { transform: scale(0.97); }
+  .apply-ref-btn svg { margin-right: 6px; }
 
   /* ── Editor layout ───────────────────────────────────────────────────── */
   .editor-layout {
