@@ -1,9 +1,0 @@
-# Place your image assets here.
-#
-# The spec example references:
-#   /memes/pepe.webp
-#   /memes/cat.png
-#
-# The astro-demo overrides these with inline SVG data URIs via the `assets`
-# prop on <Markdy />, so this directory is not strictly required to run the
-# demo.  Replace the data URIs with real image files here when you have them.

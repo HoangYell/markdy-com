@@ -5,6 +5,9 @@ node_modules/
 dist/
 .astro/
 
+# Temporary / generated files
+.npmrc-temp
+
 # Environment
 .env
 .env.*
