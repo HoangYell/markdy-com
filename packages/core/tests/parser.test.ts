@@ -9,7 +9,7 @@ import type { SceneAST } from "../src/ast.js";
 const EXAMPLE = `
 scene width=800 height=400 fps=30 bg=white
 
-asset pepe = image("/memes/pepe.webp")
+asset pepe = image("https://media1.tenor.com/m/4n4cErvEq_sAAAAd/yapapa-cat.gif")
 asset cat  = image("/memes/cat.png")
 asset fire = icon("lucide:flame")
 
@@ -63,10 +63,10 @@ describe("scene meta", () => {
 describe("assets", () => {
   it("parses image and icon assets", () => {
     const ast = parse(`
-      asset pepe = image("/memes/pepe.webp")
+      asset pepe = image("https://media1.tenor.com/m/4n4cErvEq_sAAAAd/yapapa-cat.gif")
       asset fire = icon("lucide:flame")
     `);
-    expect(ast.assets["pepe"]).toEqual({ type: "image", value: "/memes/pepe.webp" });
+    expect(ast.assets["pepe"]).toEqual({ type: "image", value: "https://media1.tenor.com/m/4n4cErvEq_sAAAAd/yapapa-cat.gif" });
     expect(ast.assets["fire"]).toEqual({ type: "icon", value: "lucide:flame" });
   });
 

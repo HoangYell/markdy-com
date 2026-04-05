@@ -44,7 +44,7 @@ Assets are named references to external resources. The name is used later by act
 | `icon`  | `set:name`    | Stored in `data-icon`; compatible with Iconify  |
 
 ```markdy
-asset pepe = image("/memes/pepe.webp")
+asset pepe = image("https://media1.tenor.com/m/4n4cErvEq_sAAAAd/yapapa-cat.gif")
 asset fire = icon("lucide:flame")
 ```
 
@@ -352,7 +352,7 @@ Instantly swaps the emoji face of a figure actor. Seek-safe — works correctly 
 ```markdy
 scene width=800 height=400 fps=30 bg=white
 
-asset pepe = image("/memes/pepe.webp")
+asset pepe = image("https://media1.tenor.com/m/4n4cErvEq_sAAAAd/yapapa-cat.gif")
 asset cat  = image("/memes/cat.png")
 asset fire = icon("lucide:flame")
 

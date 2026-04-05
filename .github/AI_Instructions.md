@@ -20,7 +20,7 @@ MarkdyScript allows users to write:
 
 scene width=800 height=400 fps=30 bg=white
 
-asset pepe \= image("/memes/pepe.webp")  
+asset pepe \= image("https://media1.tenor.com/m/4n4cErvEq_sAAAAd/yapapa-cat.gif")  
 asset cat  \= image("/memes/cat.png")  
 asset fire \= icon("lucide:flame")
 
