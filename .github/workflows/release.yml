@@ -55,31 +55,6 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      # ── GitHub Packages (requires a GitHub Org named 'markdy' to exist) ──
-      # Once you create the org at https://github.com/organizations/plan
-      # and transfer this repo to it, uncomment the steps below:
-      #
-      # - uses: actions/setup-node@v4
-      #   with:
-      #     node-version: 22
-      #     registry-url: "https://npm.pkg.github.com"
-      #     scope: "@markdy"
-      # - name: Publish @markdy/core → GitHub Packages
-      #   working-directory: packages/core
-      #   run: pnpm publish --no-git-checks --access public
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # - name: Publish @markdy/renderer-dom → GitHub Packages
-      #   working-directory: packages/renderer-dom
-      #   run: pnpm publish --no-git-checks --access public
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # - name: Publish @markdy/astro → GitHub Packages
-      #   working-directory: packages/astro
-      #   run: pnpm publish --no-git-checks --access public
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
