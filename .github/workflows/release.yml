@@ -8,10 +8,11 @@ on:
 
 permissions:
   contents: write   # needed to create GitHub Releases
+  packages: write   # needed to publish to GitHub Packages
 
 jobs:
   release:
-    name: Publish to npm & Create GitHub Release
+    name: Publish to npm & GitHub Packages, Create Release
     runs-on: ubuntu-latest
 
     steps:
@@ -21,6 +22,7 @@ jobs:
 
       - uses: pnpm/action-setup@v4
 
+      # ── Step 1: Publish to npmjs.com ─────────────────────────────────────
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -36,24 +38,50 @@ jobs:
       - name: Run tests
         run: pnpm --filter @markdy/core run test
 
-      - name: Publish @markdy/core
+      - name: Publish @markdy/core → npmjs.com
         working-directory: packages/core
         run: pnpm publish --no-git-checks --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish @markdy/renderer-dom
+      - name: Publish @markdy/renderer-dom → npmjs.com
         working-directory: packages/renderer-dom
         run: pnpm publish --no-git-checks --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish @markdy/astro
+      - name: Publish @markdy/astro → npmjs.com
         working-directory: packages/astro
         run: pnpm publish --no-git-checks --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      # ── Step 2: Publish to GitHub Packages ───────────────────────────────
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@markdy"
+
+      - name: Publish @markdy/core → GitHub Packages
+        working-directory: packages/core
+        run: pnpm publish --no-git-checks --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish @markdy/renderer-dom → GitHub Packages
+        working-directory: packages/renderer-dom
+        run: pnpm publish --no-git-checks --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish @markdy/astro → GitHub Packages
+        working-directory: packages/astro
+        run: pnpm publish --no-git-checks --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── Step 3: Create GitHub Release ────────────────────────────────────
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -64,12 +92,13 @@ jobs:
 
             **Animation DSL engine — Like Mermaid, but for motion.**
 
-            ### Packages published to npm
-            | Package | Version |
-            |---|---|
-            | [`@markdy/core`](https://www.npmjs.com/package/@markdy/core) | `${{ github.ref_name }}` |
-            | [`@markdy/renderer-dom`](https://www.npmjs.com/package/@markdy/renderer-dom) | `${{ github.ref_name }}` |
-            | [`@markdy/astro`](https://www.npmjs.com/package/@markdy/astro) | `${{ github.ref_name }}` |
+            ### Packages
+
+            | Package | npm | GitHub Packages |
+            |---|---|---|
+            | `@markdy/core` | [![npm](https://img.shields.io/npm/v/@markdy/core)](https://www.npmjs.com/package/@markdy/core) | [GitHub](https://github.com/HoangYell/markdy-com/packages) |
+            | `@markdy/renderer-dom` | [![npm](https://img.shields.io/npm/v/@markdy/renderer-dom)](https://www.npmjs.com/package/@markdy/renderer-dom) | [GitHub](https://github.com/HoangYell/markdy-com/packages) |
+            | `@markdy/astro` | [![npm](https://img.shields.io/npm/v/@markdy/astro)](https://www.npmjs.com/package/@markdy/astro) | [GitHub](https://github.com/HoangYell/markdy-com/packages) |
 
             ### Quick Start
             ```sh
