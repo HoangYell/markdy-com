@@ -637,7 +637,7 @@ seq wave(arm, angle) {
         <ol class="ai-steps">
           <li>
             <strong>Point your AI to the docs</strong>
-            <p>Share the <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md" target="_blank" rel="noopener noreferrer">Agent Guide</a>, <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/SYNTAX.md" target="_blank" rel="noopener noreferrer">Syntax Reference</a>, and <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/TUTORIAL.md" target="_blank" rel="noopener noreferrer">Tutorial</a> as context.</p>
+            <p>Share the <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md" target="_blank" rel="noopener noreferrer">AGENT.md</a> — a single all-in-one reference with grammar, actions, patterns and examples.</p>
           </li>
           <li>
             <strong>Describe your scene in plain English</strong>
@@ -657,7 +657,7 @@ seq wave(arm, angle) {
             <span class="ai-prompt-label">You → Claude / ChatGPT / Copilot</span>
           </div>
           <blockquote class="ai-prompt-text">
-            Use <code>https://github.com/HoangYell/markdy-com/blob/main/docs</code> to learn MarkdyScript syntax, then write a Markdy scene:
+            Use <code>https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md</code> as a complete reference (grammar, actions, patterns, examples), then write a Markdy scene:
             <br /><br />
             <em>"A guy holding a coffee cup walks in, trips on a rock, and loses his coffee cup. The cup flies and smashes. He looks sad."</em>
           </blockquote>
@@ -1799,6 +1799,11 @@ seq wave(arm, angle) {
     margin-bottom: 0.75rem;
   }
 
+  .ref-code-wrap {
+    overflow-x: auto;
+    margin-bottom: 0.7rem;
+  }
+
   .ref-card pre {
     position: relative;
     background: var(--ref-code-bg);
@@ -1806,11 +1811,21 @@ seq wave(arm, angle) {
     border: none;
     border-radius: 8px;
     padding: 0.7rem 0.85rem;
-    overflow: clip;
     overflow-x: auto;
     font-size: 0.74rem;
     line-height: 1.6;
-    margin-bottom: 0.7rem;
+    margin-bottom: 0;
+  }
+
+  .ref-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 0.6rem;
+  }
+
+  .ref-table-wrap table {
+    min-width: 0;
+    margin-bottom: 0;
   }
 
   .ref-card p {
@@ -2176,6 +2191,8 @@ seq wave(arm, angle) {
 
     .ref-grid { grid-template-columns: 1fr; }
     .ai-grid { grid-template-columns: 1fr; }
+    .ref-card { overflow: hidden; }
+    .ref-card pre { white-space: pre; }
 
     .footer-top { grid-template-columns: 1fr; }
     .footer-cols { grid-template-columns: repeat(3, 1fr); }
@@ -2188,5 +2205,19 @@ seq wave(arm, angle) {
     .footer-cols { grid-template-columns: 1fr; }
     .hero-actions { flex-direction: column; }
     .usage-section { margin-top: 1.5rem; }
+
+    .syntax-ref { padding: 2rem 0.75rem 2.5rem; }
+    .ref-card { padding: 1rem; }
+    .ref-card pre { font-size: 0.7rem; }
+    .ref-card table {
+      display: block;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      font-size: 0.72rem;
+      white-space: nowrap;
+    }
+    .ref-card td, .ref-card th { white-space: normal; min-width: 80px; }
+    .ref-card td:last-child, .ref-card th:last-child { white-space: normal; }
+    .ai-prompt-text code { word-break: break-all; font-size: 0.68rem; }
   }
 </style>
