@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Ask a question
+    url: https://github.com/HoangYell/markdy-com/discussions
+    about: Need help using Markdy? Please ask in our Discussions tab.
+  - name: 🐞 Markdy Playground
+    url: https://markdy.com
+    about: Test out animations visually before reporting syntax vs engine errors

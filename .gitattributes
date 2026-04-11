@@ -1,0 +1,24 @@
+# Enforce LF line endings for all text files (critical for Windows vs OSX/Linux contributors)
+* text=auto eol=lf
+
+# Explicitly declare text files you want to always be normalized
+*.js text
+*.ts text
+*.astro text
+*.md text
+*.json text
+*.jsonc text
+*.yml text
+*.yaml text
+*.css text
+
+# Exclude compiled output and binary files from linguist statistics
+dist/** linguist-generated
+node_modules/** linguist-generated
+pnpm-lock.yaml linguist-generated
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary

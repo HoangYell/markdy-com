@@ -181,7 +181,11 @@ const USAGE_MDX = `<span class="u-kw">import</span> { Markdy } <span class="u-kw
 &lt;<span class="u-fn">Markdy</span> {code} width={600} height={300} autoplay /&gt;`;
 ---
 
-<Layout title="Markdy — Open-Source Animation DSL Engine">
+<Layout 
+  title="Markdy — Open-Source Animation DSL Engine"
+  description="Markdy is a framework-agnostic Animation DSL. Write animations like Markdown. It is like Mermaid but for motion. No Canvas, no GSAP, no bloated dependencies."
+  keywords="open-source animation dsl, declarative animation, mermaid alternative, framer motion alternative, gsap alternative, markdown animation, web animations api, stick figure animation"
+>
 
   <!-- ─── Nav ──────────────────────────────────────────────────────────── -->
   <nav class="nav" role="navigation" aria-label="Main navigation">
@@ -346,7 +350,13 @@ const USAGE_MDX = `<span class="u-kw">import</span> { Markdy } <span class="u-kw
       <div class="preview-col">
         <div class="panel-label">
           <span>Preview</span>
-          <span id="status" class="status ok"></span>
+          <div style="display:flex;align-items:center;gap:0.5rem;">
+            <span id="status" class="status ok"></span>
+            <button id="share-btn" class="btn-share" title="Copy shareable link to clipboard" aria-label="Share">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              Share
+            </button>
+          </div>
         </div>
         <div id="stage-wrap" class="stage-wrap">
           <div id="stage"></div>
@@ -717,6 +727,8 @@ seq wave(arm, angle) {
       <div class="footer-bottom">
         <span>MIT License</span>
         <span class="dot">&middot;</span>
+        <a href="/privacy">Privacy Policy</a>
+        <span class="dot">&middot;</span>
         <span>Built by <a href="https://hoangyell.com" target="_blank" rel="noopener noreferrer">Hoang Yell</a></span>
       </div>
     </div>
@@ -972,15 +984,52 @@ seq wave(arm, angle) {
   }
 
 
+  // ── URL hash share state ────────────────────────────────────────────
+  function getCodeFromHash(): string | null {
+    try {
+      const hash = window.location.hash.slice(1);
+      if (!hash) return null;
+      const params = new URLSearchParams(hash);
+      const encoded = params.get("code");
+      if (!encoded) return null;
+      return decodeURIComponent(atob(encoded));
+    } catch {
+      return null;
+    }
+  }
+
+  function setShareURL(code: string) {
+    const encoded = btoa(encodeURIComponent(code));
+    const url = `${window.location.origin}${window.location.pathname}#code=${encoded}`;
+    return url;
+  }
+
+  const shareBtn = document.getElementById("share-btn") as HTMLButtonElement;
+  shareBtn?.addEventListener("click", () => {
+    const code = getEditorCode();
+    const url = setShareURL(code);
+    navigator.clipboard.writeText(url).then(() => {
+      const prev = shareBtn.textContent!.trim();
+      shareBtn.textContent = "✓ Copied!";
+      shareBtn.style.color = "var(--accent, #ea4c89)";
+      setTimeout(() => {
+        shareBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share`;
+        shareBtn.style.color = "";
+      }, 2000);
+    });
+  });
+
   // Lazy initialization on interaction to guarantee 100/100 Lighthouse performance
   let isPlaygroundInit = false;
   const lazyInit = () => {
     if (isPlaygroundInit) return;
     isPlaygroundInit = true;
-    const initialCode = examples[0];
+    // Load from URL hash if present, else use default example
+    const sharedCode = getCodeFromHash();
+    const initialCode = sharedCode ?? examples[0];
     createEditor(initialCode);
     render(initialCode);
-    setActiveBtn(0);
+    if (!sharedCode) setActiveBtn(0);
   };
 
   ['mousemove', 'scroll', 'keydown', 'click', 'touchstart'].forEach((event) => {
@@ -1678,6 +1727,24 @@ seq wave(arm, angle) {
   }
 
   .btn-run:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-share {
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 0.2rem 0.55rem;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--bg-secondary);
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .btn-share:hover { border-color: var(--accent); color: var(--accent); }
 
   .status {
     width: 7px;

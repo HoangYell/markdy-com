@@ -1,0 +1,34 @@
+---
+import { Markdy } from "@markdy/astro";
+
+const code = `
+scene width=800 height=400 bg=#1e1e2e
+
+actor hero = figure(#c68642, m, 😎) at (200, 200) scale 1.5
+actor subtitle = text("Declarative Animations in Astro.") at (400, 50) size 30 opacity 0 color white
+
+@0.5: hero.enter(from=left, dur=1.0, ease=out)
+@1.5: hero.say("Look, no GSAP!", dur=2.0)
+@2.0: subtitle.fade_in(dur=1.0)
+@3.5: hero.face("🤯")
+`;
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Markdy + Astro</title>
+    <style>
+      body { margin: 0; padding: 2rem; background: #0f0f13; color: white; font-family: system-ui; display: flex; flex-direction: column; align-items: center; }
+      .container { border-radius: 12px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin-top: 2rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Markdy + Astro Sandbox</h1>
+    <p>Wait for the component to hydrate and see the animation run globally!</p>
+    <div class="container">
+      <Markdy code={code} width={800} height={400} bg="#1e1e2e" autoplay />
+    </div>
+  </body>
+</html>

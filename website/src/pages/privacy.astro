@@ -1,0 +1,112 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Privacy Policy — Markdy" description="Privacy policy and tracking disclosures for Markdy.com" canonicalURL="https://markdy.com/privacy">
+  <div class="legal-container">
+    <div class="legal-content">
+      <a href="/" class="back-link">← Back to Markdy</a>
+      <h1>Privacy Policy</h1>
+      <p class="last-updated">Last Updated: April 2026</p>
+
+      <section>
+        <h2>1. Overview</h2>
+        <p>Markdy is an open-source project. This privacy policy applies to the documentation and playground website hosted at <code>markdy.com</code>. Your privacy is important to us, and we are committed to being transparent about the data we collect.</p>
+      </section>
+
+      <section>
+        <h2>2. Data Collection and Google Analytics</h2>
+        <p>We use <strong>Google Analytics</strong> to measure traffic, understand how developers interact with the documentation, and improve the project. Google Analytics may set cookies on your browser or read cookies that are already there. We only collect aggregated, non-personally identifiable information, such as:</p>
+        <ul>
+          <li>Browser type and operating system</li>
+          <li>Pages visited and time spent on the site</li>
+          <li>General location (Country/City level)</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>3. Local Storage</h2>
+        <p>This website uses your browser's local storage to save your preference for the <strong>Light/Dark theme</strong>. This data never leaves your device and is not transmitted to our servers.</p>
+      </section>
+
+      <section>
+        <h2>4. Open Source and Code Submissions</h2>
+        <p>Any code you type into the interactive playground is executed entirely in your browser. We do not transmit or save the code snippets you write locally.</p>
+      </section>
+
+      <section>
+        <h2>5. Your Rights</h2>
+        <p>You can opt out of Google Analytics tracking at any time by installing the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener noreferrer">Google Analytics Opt-out Browser Add-on</a>.</p>
+      </section>
+
+      <section>
+        <h2>6. Contact</h2>
+        <p>If you have any questions about this Privacy Policy, please open an issue in the Markdy repository on GitHub or reach out to the maintainer privately.</p>
+      </section>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .legal-container {
+    padding: 6rem 1rem;
+    max-width: 800px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+  .legal-content {
+    background: var(--bg-secondary, #ffffff);
+    padding: 3rem;
+    border-radius: 16px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  }
+  .back-link {
+    display: inline-block;
+    margin-bottom: 2rem;
+    color: var(--accent, #ea4c89);
+    font-weight: 500;
+  }
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.05em;
+  }
+  .last-updated {
+    color: var(--text-secondary, #64748b);
+    margin-bottom: 2.5rem;
+    font-size: 0.9rem;
+  }
+  section {
+    margin-bottom: 2rem;
+  }
+  h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary, #0f172a);
+    border-bottom: 1px solid var(--border-color, #f1f5f9);
+    padding-bottom: 0.5rem;
+  }
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-secondary, #475569);
+    line-height: 1.7;
+  }
+  ul {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary, #475569);
+  }
+  li {
+    margin-bottom: 0.5rem;
+  }
+  a {
+    color: var(--accent, #ea4c89);
+    text-decoration: underline;
+  }
+  
+  [data-theme="dark"] .legal-content {
+    background: var(--bg-secondary, #1e293b);
+    border-color: var(--border-color, #334155);
+  }
+</style>

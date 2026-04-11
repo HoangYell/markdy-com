@@ -1,0 +1,51 @@
+name: "🐛 Bug Report"
+description: "File a bug/issue for the Markdy parser, renderer, or Astro component"
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this! Please check if this issue has already been reported.
+  - type: input
+    id: playground_link
+    attributes:
+      label: "Playground Link (Optional but helpful)"
+      description: "If applicable, reproduce in [markdy.com](https://markdy.com) and paste the URL here."
+      placeholder: "https://markdy.com/?code=..."
+    validations:
+      required: false
+  - type: textarea
+    id: current_behavior
+    attributes:
+      label: "Current Behavior"
+      description: "A concise description of what you're experiencing."
+    validations:
+      required: true
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: "Expected Behavior"
+      description: "A clear and concise description of what you expected to happen."
+    validations:
+      required: true
+  - type: textarea
+    id: code_snippet
+    attributes:
+      label: "MarkdyScript snippet"
+      description: "Provide the shortest possible Markdy code that reproduces the issue."
+      render: markdyscript
+    validations:
+      required: true
+  - type: dropdown
+    id: environment
+    attributes:
+      label: "Environment"
+      description: "Where does this happen?"
+      multiple: true
+      options:
+        - "Markdy Playground (Browser)"
+        - "@markdy/core (Node / API)"
+        - "@markdy/renderer-dom (Vanilla JS)"
+        - "@markdy/astro (Astro Component)"
+    validations:
+      required: true
