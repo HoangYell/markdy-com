@@ -6,7 +6,7 @@ Thank you for your interest in contributing! This guide will help you get starte
 
 ```sh
 git clone https://github.com/HoangYell/markdy-com.git
-cd markdy
+cd markdy-com
 pnpm install
 pnpm build
 pnpm test

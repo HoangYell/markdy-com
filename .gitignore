@@ -31,5 +31,6 @@ Thumbs.db
 npm-debug.log*
 pnpm-debug.log*
 
-# Temp
-.npmrc-temp
+# Dev scratch scripts
+run-preview.js
+test-parse.js

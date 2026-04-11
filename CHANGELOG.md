@@ -7,12 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-04-11
+
+### Changed
+- Bump `actions/checkout`, `actions/setup-node`, and `pnpm/action-setup` from v4 to v6.
+- Remove leftover `packages: write` permission from release workflow (GitHub Packages support was removed in v0.1.3).
+
+### Fixed
+- Add missing `LICENSE` files to each published package directory (required by `package.json` `files` field).
+- Remove dev-only scratch scripts (`run-preview.js`, `test-parse.js`) from the repository.
+- Fix `cd markdy` → `cd markdy-com` in README Development section.
+
+## [0.1.3] — 2026-04-11
+
+### Fixed
+- Remove GitHub Packages publishing steps from release workflow until a `markdy` GitHub org is created. npm and GitHub Releases remain active.
+- Clean up release workflow — remove orphaned GitHub Packages job configuration.
+
+## [0.1.2] — 2026-04-11
+
+### Added
+- GitHub Packages publishing alongside npm in the release workflow (later reverted in v0.1.3).
+
 ## [0.1.1] — 2026-04-11
+
 ### Fixed
 - CI and Release workflows now use Node.js 22 (required by Astro 6).
 - Release workflow builds only publishable packages (not website) to reduce build time.
 
 ## [0.1.0] — 2026-04-11
+
 ### Added
 - Core AST parser with support for `scene`, `actor`, and timeline animations (`@markdy/core`).
 - Browser-native Web Animations API (WAAPI) DOM renderer with timeline scrubbing (`@markdy/renderer-dom`).

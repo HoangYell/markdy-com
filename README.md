@@ -258,7 +258,7 @@ All WAAPI animations are permanently paused. A `requestAnimationFrame` loop manu
 
 ```sh
 git clone https://github.com/HoangYell/markdy-com.git
-cd markdy
+cd markdy-com
 pnpm install
 pnpm build
 pnpm test
