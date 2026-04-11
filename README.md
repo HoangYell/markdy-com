@@ -5,8 +5,13 @@
 </p>
 
 <p align="center">
+  <a href="https://markdy.com"><b>✨ Try the Interactive Playground</b></a>
+</p>
+
+<p align="center">
   <a href="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml"><img src="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
-  <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/npm/v/@markdy/core?color=blue&label=%40markdy%2Fcore" alt="npm" /></a>
+  <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/npm/v/@markdy/core?color=blue&label=%40markdy%2Fcore" alt="npm version" /></a>
+  <a href="https://bundlephobia.com/package/@markdy/core"><img src="https://img.shields.io/bundlephobia/minzip/@markdy/core?label=size" alt="Bundle Size" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/HoangYell/markdy-com" alt="MIT License" /></a>
 </p>
 
@@ -14,7 +19,9 @@
 
 ## What is Markdy?
 
-**Markdy is like [Mermaid](https://mermaid.js.org/) but for motion.** Define actors, timelines, and interactions in a simple DSL — the engine handles rendering with the Web Animations API. No Canvas, no GSAP, no React.
+**Markdy is a framework-agnostic Animation DSL.** Write animations like Markdown.
+
+It is like [Mermaid](https://mermaid.js.org/) but for motion. Define actors, timelines, and interactions in a simple, readable DSL — the engine handles rendering with the Web Animations API. No Canvas, no GSAP, no bloated dependencies.
 
 ```markdy
 scene width=600 height=300 bg=white

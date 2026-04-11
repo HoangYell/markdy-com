@@ -16,6 +16,18 @@
     "node": ">=18",
     "pnpm": ">=8"
   },
+  "keywords": [
+    "animation",
+    "dsl",
+    "markdy",
+    "markdyscript",
+    "mermaid-alternative",
+    "framer-motion-alternative",
+    "markdown-animation",
+    "declarative-animation",
+    "astro-animation",
+    "web-animations-api"
+  ],
   "packageManager": "pnpm@9.15.4",
   "scripts": {
     "build": "pnpm -r run build",

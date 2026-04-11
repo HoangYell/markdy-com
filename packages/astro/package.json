@@ -18,7 +18,10 @@
     "astro",
     "animation",
     "island",
-    "component"
+    "component",
+    "astro-animation",
+    "astro-component",
+    "declarative"
   ],
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
   "homepage": "https://markdy.com",

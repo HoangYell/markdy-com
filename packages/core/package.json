@@ -24,7 +24,10 @@
     "animation",
     "dsl",
     "parser",
-    "ast"
+    "ast",
+    "declarative-animation",
+    "mermaid-alternative",
+    "markdown-animation"
   ],
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
   "homepage": "https://markdy.com",

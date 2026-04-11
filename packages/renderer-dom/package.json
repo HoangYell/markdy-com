@@ -23,7 +23,11 @@
     "animation",
     "web-animations-api",
     "renderer",
-    "dom"
+    "dom",
+    "declarative-animation",
+    "motion",
+    "framer-motion-alternative",
+    "gsap-alternative"
   ],
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
   "homepage": "https://markdy.com",
