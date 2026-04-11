@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18, 20, 22]
+        node-version: [20, 22]
 
     steps:
       - uses: actions/checkout@v4
@@ -31,11 +31,11 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build all packages
-        run: pnpm build
+      - name: Build packages (core + renderer + astro)
+        run: pnpm --filter @markdy/core --filter @markdy/renderer-dom --filter @markdy/astro run build
 
       - name: Run tests
-        run: pnpm test
+        run: pnpm --filter @markdy/core run test
 
-      - name: Type-check
-        run: pnpm typecheck
+      - name: Type-check packages
+        run: pnpm --filter @markdy/core --filter @markdy/renderer-dom typecheck

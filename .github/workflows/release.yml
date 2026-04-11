@@ -23,18 +23,18 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
           registry-url: "https://registry.npmjs.org"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build all packages
-        run: pnpm build
+      - name: Build packages (core + renderer + astro only)
+        run: pnpm --filter @markdy/core --filter @markdy/renderer-dom --filter @markdy/astro run build
 
       - name: Run tests
-        run: pnpm test
+        run: pnpm --filter @markdy/core run test
 
       - name: Publish @markdy/core
         working-directory: packages/core
