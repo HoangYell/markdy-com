@@ -1,21 +1,23 @@
 name: Release
 
-# Triggers when you push a version tag: git tag v0.2.0 && git push --tags
+# Triggers when you push a version tag: git tag v0.1.0 && git push --tags
 on:
   push:
     tags:
       - "v*"
 
 permissions:
-  contents: read
+  contents: write   # needed to create GitHub Releases
 
 jobs:
   release:
-    name: Publish to npm
+    name: Publish to npm & Create GitHub Release
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # full history needed for release notes
 
       - uses: pnpm/action-setup@v4
 
@@ -36,18 +38,43 @@ jobs:
 
       - name: Publish @markdy/core
         working-directory: packages/core
-        run: pnpm publish --no-git-checks
+        run: pnpm publish --no-git-checks --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish @markdy/renderer-dom
         working-directory: packages/renderer-dom
-        run: pnpm publish --no-git-checks
+        run: pnpm publish --no-git-checks --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish @markdy/astro
         working-directory: packages/astro
-        run: pnpm publish --no-git-checks
+        run: pnpm publish --no-git-checks --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          make_latest: true
+          body: |
+            ## 🎬 Markdy ${{ github.ref_name }}
+
+            **Animation DSL engine — Like Mermaid, but for motion.**
+
+            ### Packages published to npm
+            | Package | Version |
+            |---|---|
+            | [`@markdy/core`](https://www.npmjs.com/package/@markdy/core) | `${{ github.ref_name }}` |
+            | [`@markdy/renderer-dom`](https://www.npmjs.com/package/@markdy/renderer-dom) | `${{ github.ref_name }}` |
+            | [`@markdy/astro`](https://www.npmjs.com/package/@markdy/astro) | `${{ github.ref_name }}` |
+
+            ### Quick Start
+            ```sh
+            pnpm add @markdy/core @markdy/renderer-dom
+            ```
+
+            ### Interactive Playground
+            👉 **[markdy.com](https://markdy.com)**
