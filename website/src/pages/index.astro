@@ -29,8 +29,6 @@ seq hit(side, power) {
   @+0.05: $.shake(intensity=\${power}, dur=0.3)
 }
 
-asset flower = image("/memes/flower.png")
-
 actor bruno = fighter(\${skin_a}, 😏) at (640, 180)
 actor alex  = fighter(\${skin_b}, 😤) at (100, 180)
 actor lily  = girl(\${skin_g}, 😊)    at (370, 180) opacity 0
@@ -65,7 +63,6 @@ actor lily  = girl(\${skin_g}, 😊)    at (370, 180) opacity 0
 @10.0: bruno.say("I win! 💪", dur=1.5)
 @11.5: bruno.face("🥰")
 @11.5: bruno.move(to=(520, 180), dur=0.8, ease=out)
-@13.0: bruno.throw(flower, to=lily, dur=0.8)
 @14.0: lily.face("🙅")
 @14.0: lily.say("No thanks. 🙅", dur=2.0)
 @14.1: lily.shake(intensity=5, dur=0.4)

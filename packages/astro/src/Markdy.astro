@@ -3,8 +3,13 @@
  * @markdy/astro — <Markdy /> island component
  *
  * SSR: renders a correctly-sized placeholder div so layout is stable.
+ *      Exposes `title` / `description` for SEO and a `<noscript>` block
+ *      so search-engine crawlers that do not execute JavaScript still
+ *      index meaningful text.
  * Client: hydrates via IntersectionObserver when the element enters the
- *         viewport (equivalent to client:visible behaviour).
+ *         viewport. The renderer is dynamically imported so it is fully
+ *         code-split from the host-page bundle and never blocks the
+ *         critical rendering path.
  */
 
 export interface Props {
@@ -32,6 +37,17 @@ export interface Props {
   /** Start playing as soon as the scene is hydrated. Defaults to true. */
   autoplay?: boolean;
   class?: string;
+  /**
+   * Short human-readable title for the animation.
+   * Used as the accessible name (`aria-label`) and treated like `alt` on
+   * an image for SEO purposes.
+   */
+  title?: string;
+  /**
+   * Longer description rendered inside `<noscript>` so crawlers that do
+   * not run JavaScript still index meaningful content.
+   */
+  description?: string;
 }
 
 const {
@@ -42,6 +58,8 @@ const {
   assets = {},
   autoplay = true,
   class: className,
+  title = "Markdy animation",
+  description,
 } = Astro.props;
 ---
 
@@ -50,30 +68,54 @@ const {
   data-markdy-code={code}
   data-markdy-assets={JSON.stringify(assets)}
   data-markdy-autoplay={String(autoplay)}
+  role="img"
+  aria-label={title}
+  aria-busy="true"
   style={`width:${width}px;height:${height}px;overflow:hidden`}
 >
   <!--
     SSR placeholder: keeps layout stable before the island hydrates.
     Background matches the scene bg prop to avoid a visible flash.
+    aria-hidden because the parent role="img" aria-label carries the
+    accessible name — this inner text is decorative.
   -->
   <div
     class="markdy-placeholder"
-    aria-label="Markdy animation loading"
+    aria-hidden="true"
     style={`width:${width}px;height:${height}px;background:${bg};display:flex;align-items:center;justify-content:center`}
   >
     <span
       style="font-family:sans-serif;font-size:12px;color:#bbb;letter-spacing:0.05em"
-      aria-hidden="true"
     >
       ▶ markdy
     </span>
   </div>
+
+  <!--
+    noscript fallback: rendered for crawlers / users that do not run JS.
+    Provides indexable text content so the animation does not become an
+    opaque block in search results.
+  -->
+  <noscript>
+    <div
+      style={`width:${width}px;height:${height}px;background:${bg};display:flex;align-items:center;justify-content:center`}
+    >
+      <p
+        style="font-family:sans-serif;font-size:14px;color:#888;text-align:center;padding:1rem;margin:0"
+      >
+        {description ?? title}
+      </p>
+    </div>
+  </noscript>
 </div>
 
 <script>
-  import { createPlayer } from "@markdy/renderer-dom";
+  // ── Hydration ────────────────────────────────────────────────────────────
+  // The renderer is dynamically imported so it is code-split from the
+  // host-page bundle.  The browser only downloads it when an element is
+  // about to enter the viewport, keeping Time-to-Interactive low.
 
-  function hydrate(el: HTMLElement): void {
+  async function hydrate(el: HTMLElement): Promise<void> {
     const code = el.dataset.markdyCode;
     if (!code) return;
 
@@ -89,23 +131,63 @@ const {
 
     const autoplay = el.dataset.markdyAutoplay !== "false";
 
-    // Clear the SSR placeholder before mounting the canvas.
+    // Code-split: renderer-dom is NOT part of the initial page bundle.
+    const { createPlayer } = await import("@markdy/renderer-dom");
+
+    // Clear the SSR placeholder and mount the canvas atomically after the
+    // async import resolves, so there is no flash of empty content.
     el.innerHTML = "";
     el.style.overflow = "visible";
 
     createPlayer({ container: el, code, assets, autoplay });
+
+    el.dataset.markdyInit = "done";
+    el.removeAttribute("aria-busy");
   }
 
+  // ── Task scheduling ──────────────────────────────────────────────────────
+  // Yield a macro-task slot before running heavy work so we never block
+  // user input or the frame pipeline.
+  //   1. Prioritized Task Scheduling API  — Chrome 94+, Safari 17+
+  //   2. requestIdleCallback              — broad support
+  //   3. setTimeout(0)                    — universal fallback
+
+  type SchedulerLike = {
+    postTask: (fn: () => void, opts: { priority: string }) => void;
+  };
+
+  function scheduleHydration(fn: () => void): void {
+    const sched = (globalThis as unknown as { scheduler?: SchedulerLike })
+      .scheduler;
+    if (sched?.postTask) {
+      sched.postTask(fn, { priority: "background" });
+    } else if (typeof requestIdleCallback !== "undefined") {
+      requestIdleCallback(fn, { timeout: 2000 });
+    } else {
+      setTimeout(fn, 0);
+    }
+  }
+
+  // ── Intersection observer ────────────────────────────────────────────────
   // Observe every unhydrated .markdy-root element and hydrate it when it
   // enters the viewport (100 px root margin so the scene is ready before
   // the user actually sees it).
+
   const observer = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
         if (entry.isIntersecting) {
           const el = entry.target as HTMLElement;
           observer.unobserve(el);
-          hydrate(el);
+          // Mark immediately to prevent double-scheduling on re-runs.
+          el.dataset.markdyInit = "hydrating";
+          scheduleHydration(() => {
+            hydrate(el).catch(() => {
+              // On failure keep the placeholder visible — do not crash the page.
+              el.dataset.markdyInit = "error";
+              el.removeAttribute("aria-busy");
+            });
+          });
         }
       }
     },
@@ -116,7 +198,6 @@ const {
     document
       .querySelectorAll<HTMLElement>(".markdy-root:not([data-markdy-init])")
       .forEach((el) => {
-        // Flag the element to prevent double-registration across re-runs.
         el.dataset.markdyInit = "pending";
         observer.observe(el);
       });

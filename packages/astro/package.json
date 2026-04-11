@@ -4,6 +4,7 @@
   "description": "Astro island component for MarkdyScript animations.",
   "license": "MIT",
   "type": "module",
+  "sideEffects": false,
   "files": [
     "src",
     "README.md",
