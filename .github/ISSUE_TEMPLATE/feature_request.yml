@@ -1,0 +1,33 @@
+name: "✨ Feature Request"
+description: "Suggest a new action, syntax change, or engine improvement"
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a feature for Markdy! Open-source design thrives on feedback.
+  - type: textarea
+    id: problem
+    attributes:
+      label: "What problem does this feature solve?"
+      description: "Is your feature request related to a problem? Please describe."
+    validations:
+      required: true
+  - type: textarea
+    id: api_design
+    attributes:
+      label: "Proposed API / Syntax"
+      description: "How would this look in MarkdyScript? Please provide a code example."
+      render: markdyscript
+      placeholder: |
+        scene width=600 height=300
+        @1.0: my_actor.new_action_here(foo=bar)
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives Considered"
+      description: "Describe any alternative solutions or workarounds you've considered."
+    validations:
+      required: false

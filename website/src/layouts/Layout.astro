@@ -6,6 +6,7 @@ export interface Props extends HTMLAttributes<"html"> {
   description?: string;
   canonicalURL?: string;
   ogImage?: string;
+  keywords?: string;
 }
 
 const {
@@ -13,6 +14,7 @@ const {
   description = "Markdy is an open-source animation DSL engine. Write stick-figure animations in a simple text language — no keyframes, no drag-and-drop. Like Mermaid, but for motion.",
   canonicalURL = "https://markdy.com",
   ogImage = "https://markdy.com/og-image.png",
+  keywords = "animation dsl, declarative animation, markdown animation, mermaid alternative, framer motion alternative, gsap alternative, astro animation, web animations api",
 } = Astro.props;
 ---
 
@@ -22,6 +24,7 @@ const {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <meta name="keywords" content={keywords} />
     <meta name="author" content="Hoang Yell" />
     <meta name="robots" content="index, follow" />
     <title>{title}</title>
@@ -53,6 +56,7 @@ const {
       "@type": "SoftwareApplication",
       "name": "Markdy",
       "description": description,
+      "keywords": keywords,
       "url": canonicalURL,
       "applicationCategory": "DeveloperApplication",
       "operatingSystem": "Web",
