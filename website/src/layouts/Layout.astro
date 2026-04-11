@@ -4,11 +4,15 @@ import type { HTMLAttributes } from "astro/types";
 export interface Props extends HTMLAttributes<"html"> {
   title: string;
   description?: string;
+  canonicalURL?: string;
+  ogImage?: string;
 }
 
 const {
   title,
-  description = "Markdy — animation DSL engine. Like Mermaid, but for motion.",
+  description = "Markdy is an open-source animation DSL engine. Write stick-figure animations in a simple text language — no keyframes, no drag-and-drop. Like Mermaid, but for motion.",
+  canonicalURL = "https://markdy.com",
+  ogImage = "https://markdy.com/og-image.png",
 } = Astro.props;
 ---
 
@@ -18,12 +22,44 @@ const {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <meta name="author" content="Hoang Yell" />
+    <meta name="robots" content="index, follow" />
     <title>{title}</title>
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:site_name" content="Markdy" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Markdy",
+      "description": description,
+      "url": canonicalURL,
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Web",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "author": { "@type": "Person", "name": "Hoang Yell", "url": "https://hoangyell.com" }
+    })} />
+
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-THREG65JS6"></script>
     <script is:inline>
@@ -32,6 +68,7 @@ const {
       gtag('js', new Date());
       gtag('config', 'G-THREG65JS6');
     </script>
+
     <!-- Prevent FOUC: set theme before render -->
     <script is:inline>
       (function() {
@@ -46,7 +83,7 @@ const {
       html { scroll-behavior: smooth; }
 
       body {
-        font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         background: var(--bg-primary, #fafafa);
         color: var(--text-primary, #0f172a);
         line-height: 1.6;
@@ -58,7 +95,7 @@ const {
       a:hover { color: var(--text-secondary, #475569); }
 
       code, pre {
-        font-family: "SF Mono", "Fira Code", "Cascadia Code", "Consolas", monospace;
+        font-family: "JetBrains Mono", "SF Mono", "Fira Code", "Cascadia Code", "Consolas", monospace;
       }
 
       ::selection {

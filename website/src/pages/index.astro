@@ -1,8 +1,62 @@
 ---
 import Layout from "../layouts/Layout.astro";
 
-/* ── Example snippets for the sidebar ─────────────────────────────────── */
+/* ── Example snippets for the playground ────────────────────────────── */
 const EXAMPLES = [
+  {
+    label: "Hello World",
+    code: `scene width=600 height=260 fps=30 bg=#fafafa
+
+actor hi = text("Hello, Markdy!") at (180, 60) size 28 opacity 0
+actor a  = figure(#c68642, m, 😎) at (280, 160)
+
+@0.2: hi.fade_in(dur=0.6)
+@0.6: a.enter(from=left, dur=0.8)
+@1.5: a.say("Let's go! 🚀", dur=1.5)
+@2.5: a.move(to=(350, 160), dur=0.8, ease=out)`,
+  },
+  {
+    label: "Fight Scene",
+    code: `scene width=640 height=300 fps=30 bg=#fafafa
+
+actor hero    = figure(#6ee7b7, m, 😎) at (160, 170)
+actor villain = figure(#f87171, m, 😈) at (480, 170)
+
+@0.3: hero.enter(from=left, dur=0.7)
+@0.5: villain.enter(from=right, dur=0.7)
+@1.5: hero.say("Bring it on! 💪", dur=1.2)
+@2.0: villain.say("Haha! 😈", dur=1.2)
+@3.5: hero.move(to=(300, 170), dur=0.5, ease=in)
+@3.5: villain.move(to=(340, 170), dur=0.5, ease=in)
+@4.2: hero.punch(side=right, dur=0.3)
+@4.3: villain.shake(intensity=8, dur=0.4)
+@4.3: villain.face("😵")
+@5.0: hero.kick(side=right, dur=0.35)
+@5.3: villain.rotate(to=90, dur=0.3)
+@5.5: villain.fade_out(dur=0.5)
+@5.5: hero.face("😄")
+@5.7: hero.say("Done! ✅", dur=1.5)`,
+  },
+  {
+    label: "Love Story",
+    code: `scene width=640 height=300 fps=30 bg=#fafafa
+
+actor boy  = figure(#c68642, m, 😊) at (150, 170)
+actor girl = figure(#fad4c0, f, 😊) at (490, 170)
+
+@0.3: boy.enter(from=left, dur=0.8)
+@0.5: girl.enter(from=right, dur=0.8)
+@1.5: boy.face("😍")
+@1.5: boy.say("Hi there! 😍", dur=1.5)
+@2.5: girl.face("😊")
+@2.5: girl.say("Hey! 👋", dur=1.2)
+@4.0: boy.move(to=(280, 170), dur=0.8, ease=out)
+@4.0: girl.move(to=(360, 170), dur=0.8, ease=out)
+@5.0: boy.rotate_part(part=arm_right, to=-70, dur=0.4)
+@5.0: girl.rotate_part(part=arm_left, to=70, dur=0.4)
+@5.5: boy.face("🥰")
+@5.5: girl.face("🥰")`,
+  },
   {
     label: "Full Story (25s)",
     code: `scene width=800 height=400 fps=30 bg=#fafafa
@@ -79,79 +133,35 @@ actor lily  = girl(\${skin_g}, 😊)    at (370, 180) opacity 0
 @22.0: bruno.face("😔")
 @22.0: bruno.say("...why 😔", dur=2.0)`,
   },
-  {
-    label: "Hello World",
-    code: `scene width=600 height=260 fps=30 bg=#fafafa
-
-actor hi = text("Hello, Markdy!") at (180, 60) size 28 opacity 0
-actor a  = figure(#c68642, m, 😎) at (280, 160)
-
-@0.2: hi.fade_in(dur=0.6)
-@0.6: a.enter(from=left, dur=0.8)
-@1.5: a.say("Let's go! 🚀", dur=1.5)
-@2.5: a.move(to=(350, 160), dur=0.8, ease=out)`,
-  },
-  {
-    label: "Fight Scene",
-    code: `scene width=640 height=300 fps=30 bg=#fafafa
-
-actor hero    = figure(#6ee7b7, m, 😎) at (160, 170)
-actor villain = figure(#f87171, m, 😈) at (480, 170)
-
-@0.3: hero.enter(from=left, dur=0.7)
-@0.5: villain.enter(from=right, dur=0.7)
-@1.5: hero.say("Bring it on! 💪", dur=1.2)
-@2.0: villain.say("Haha! 😈", dur=1.2)
-@3.5: hero.move(to=(300, 170), dur=0.5, ease=in)
-@3.5: villain.move(to=(340, 170), dur=0.5, ease=in)
-@4.2: hero.punch(side=right, dur=0.3)
-@4.3: villain.shake(intensity=8, dur=0.4)
-@4.3: villain.face("😵")
-@5.0: hero.kick(side=right, dur=0.35)
-@5.3: villain.rotate(to=90, dur=0.3)
-@5.5: villain.fade_out(dur=0.5)
-@5.5: hero.face("😄")
-@5.7: hero.say("Done! ✅", dur=1.5)`,
-  },
-  {
-    label: "Love Story",
-    code: `scene width=640 height=300 fps=30 bg=#fafafa
-
-actor boy  = figure(#c68642, m, 😊) at (150, 170)
-actor girl = figure(#fad4c0, f, 😊) at (490, 170)
-
-@0.3: boy.enter(from=left, dur=0.8)
-@0.5: girl.enter(from=right, dur=0.8)
-@1.5: boy.face("😍")
-@1.5: boy.say("Hi there! 😍", dur=1.5)
-@2.5: girl.face("😊")
-@2.5: girl.say("Hey! 👋", dur=1.2)
-@4.0: boy.move(to=(280, 170), dur=0.8, ease=out)
-@4.0: girl.move(to=(360, 170), dur=0.8, ease=out)
-@5.0: boy.rotate_part(part=arm_right, to=-70, dur=0.4)
-@5.0: girl.rotate_part(part=arm_left, to=70, dur=0.4)
-@5.5: boy.face("🥰")
-@5.5: girl.face("🥰")`,
-  },
 ];
 
 const FLOWER_ASSET: Record<string, string> = {
   flower: "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'36'%20height%3D'36'%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'16'%20fill%3D'%23ff69b4'%2F%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'6'%20fill%3D'%23ffff00'%2F%3E%3C%2Fsvg%3E",
 };
+
+const FEATURES = [
+  { icon: "📦", title: "Zero Dependencies", desc: "Pure TypeScript parser — no DOM, no runtime deps." },
+  { icon: "🌐", title: "Web-Native Renderer", desc: "Web Animations API + CSS transforms. No Canvas, no GSAP." },
+  { icon: "🤖", title: "AI-Agent Friendly", desc: "Structured DSL that LLMs can generate, validate, and iterate." },
+  { icon: "🧩", title: "Framework Agnostic", desc: "Works anywhere. Astro island component included." },
+];
 ---
 
-<Layout title="Markdy — like Mermaid, but for motion">
+<Layout title="Markdy — Open-Source Animation DSL Engine">
 
   <!-- ─── Nav ──────────────────────────────────────────────────────────── -->
-  <nav class="nav">
-    <a href="/" class="nav-brand">markdy</a>
+  <nav class="nav" role="navigation" aria-label="Main navigation">
+    <a href="/" class="nav-brand" aria-label="Markdy home">
+      <span class="brand-icon">🎬</span>
+      <span class="brand-text">markdy</span>
+    </a>
     <div class="nav-links">
+      <a href="#features">Features</a>
       <a href="#playground">Playground</a>
-      <a href="#syntax">Syntax</a>
-      <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener">GitHub</a>
-      <a href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener">npm</a>
+      <a href="#learn">Learn</a>
+      <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener noreferrer">npm</a>
 
-      <!-- Dark mode toggle -->
       <button id="theme-toggle" class="theme-toggle" title="Toggle dark mode" aria-label="Toggle between dark and light mode">
         <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="5"></circle>
@@ -173,16 +183,40 @@ const FLOWER_ASSET: Record<string, string> = {
 
   <!-- ─── Hero ─────────────────────────────────────────────────────────── -->
   <header class="hero">
-    <h1>Like Mermaid, but for motion.</h1>
-    <p class="hero-sub">Write stick-figure animations in a simple text DSL. No keyframes, no drag-and-drop.</p>
-    <div class="hero-install">
-      <code>npm i @markdy/core @markdy/renderer-dom</code>
+    <div class="hero-badge">Open-Source Animation DSL</div>
+    <h1>Like <span class="gradient-text">Mermaid</span>, but for motion.</h1>
+    <p class="hero-sub">
+      Define actors, timelines, and interactions in a simple text language.
+      The engine handles rendering. No keyframes, no drag-and-drop.
+    </p>
+    <div class="hero-actions">
+      <a href="#playground" class="btn-primary">Try the Playground</a>
+      <div class="hero-install">
+        <code id="install-cmd">npm i @markdy/core @markdy/renderer-dom</code>
+        <button class="copy-btn" id="copy-install" title="Copy to clipboard" aria-label="Copy install command">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        </button>
+      </div>
     </div>
   </header>
 
+  <!-- ─── Features ─────────────────────────────────────────────────────── -->
+  <section id="features" class="features" aria-label="Key features">
+    <div class="features-grid">
+      {FEATURES.map(f => (
+        <div class="feature-card">
+          <span class="feature-icon">{f.icon}</span>
+          <h3>{f.title}</h3>
+          <p>{f.desc}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
   <!-- ─── Playground ───────────────────────────────────────────────────── -->
-  <section id="playground" class="playground">
+  <section id="playground" class="playground" aria-label="Interactive playground">
     <div class="section-header">
+      <span class="section-tag">Interactive</span>
       <h2>Playground</h2>
       <p>Edit the code and watch it animate. Pick an example or write your own.</p>
     </div>
@@ -203,7 +237,6 @@ const FLOWER_ASSET: Record<string, string> = {
           </div>
         </div>
         <div id="code-editor" class="code-editor-wrap"></div>
-        <!-- Hidden textarea for initial value passing -->
         <textarea id="code-input" style="display:none" spellcheck="false">{EXAMPLES[0].code}</textarea>
       </div>
 
@@ -219,17 +252,24 @@ const FLOWER_ASSET: Record<string, string> = {
     </div>
   </section>
 
-  <!-- ─── Syntax Reference ─────────────────────────────────────────────── -->
-  <section id="syntax" class="syntax-ref">
+  <!-- ─── Syntax Reference (Learning Path) ─────────────────────────────── -->
+  <section id="learn" class="syntax-ref" aria-label="Learn MarkdyScript syntax">
     <div class="section-header">
-      <h2>Syntax Reference</h2>
-      <p>Everything you need to write MarkdyScript.</p>
+      <span class="section-tag">Step-by-Step</span>
+      <h2>Learn MarkdyScript</h2>
+      <p>Follow this guide from basics to advanced. Each card builds on the last.</p>
     </div>
 
     <div class="ref-grid">
 
-      <div class="ref-card">
-        <div class="ref-card-header"><h3>1. Scene Declaration</h3><button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button></div>
+      <!-- Step 1: Scene Setup -->
+      <article class="ref-card">
+        <div class="ref-card-header">
+          <div class="step-badge">1</div>
+          <h3>Scene Setup</h3>
+          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+        </div>
+        <p class="ref-intro">Every animation starts by defining the canvas. This must be the first line in your <code>.markdy</code> file.</p>
         <div class="ref-code-wrap">
         <pre><code>scene width=800 height=400 fps=30 bg=#fafafa</code></pre>
         <script type="text/plain" class="ref-code-data">
@@ -237,33 +277,168 @@ scene width=800 height=400 fps=30 bg=#fafafa
 actor a = figure(#c68642, m, 😎) at (400, 200) scale 1.5
         </script>
         </div>
-        <p>Configures the main canvas timeline. Must exist at the very top of your <code>.markdy</code> file.</p>
         <table>
           <thead><tr><th>Property</th><th>Default</th><th>Description</th></tr></thead>
           <tbody>
             <tr><td><code>width</code></td><td><code>800</code></td><td>Canvas width in pixels</td></tr>
             <tr><td><code>height</code></td><td><code>400</code></td><td>Canvas height in pixels</td></tr>
-            <tr><td><code>fps</code></td><td><code>30</code></td><td>Frame rate. Informational for rendering engine.</td></tr>
-            <tr><td><code>bg</code></td><td><code>white</code></td><td>Any valid CSS background color (e.g. <code>#000</code>).</td></tr>
-            <tr><td><code>duration</code></td><td><i>auto</i></td><td>Override total length in seconds. Re-calculated from last event end-time if missing.</td></tr>
+            <tr><td><code>fps</code></td><td><code>30</code></td><td>Frame rate for the rendering engine</td></tr>
+            <tr><td><code>bg</code></td><td><code>white</code></td><td>Any CSS color value (e.g. <code>#1a1a2e</code>)</td></tr>
+            <tr><td><code>duration</code></td><td><i>auto</i></td><td>Override total length in seconds</td></tr>
           </tbody>
         </table>
-      </div>
+      </article>
 
-      <div class="ref-card">
-        <div class="ref-card-header"><h3>2. Asset Declarations (Images & Icons)</h3><button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button></div>
-        <p>Before you can show a meme or a UI icon, you must declare it as an <code>asset</code>. Once declared, you can render it on screen using a <code>sprite()</code> actor.</p>
+      <!-- Step 2: Actors & Positioning -->
+      <article class="ref-card">
+        <div class="ref-card-header">
+          <div class="step-badge">2</div>
+          <h3>Actors & Positioning</h3>
+          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+        </div>
+        <p class="ref-intro">Actors are the objects in your scene. Place them with <code>at (x, y)</code> and add optional modifiers.</p>
         <div class="ref-code-wrap">
-        <pre><code># 1. Declare your meme images and icons
-asset cool_cat = image("https://media1.tenor.com/m/4n4cErvEq_sAAAAd/yapapa-cat.gif")
-asset fire_icon = icon("lucide:flame")
+        <pre><code>actor a = figure(#c68642, m, 😎) at (100, 200) scale 1.2
+actor b = text("Hello World") at (50, 50) size 24
+actor c = box() at (300, 200)</code></pre>
+        <script type="text/plain" class="ref-code-data">
+scene width=800 height=400
 
-# 2. Render them on the canvas using 'sprite'
-actor my_meme = sprite(cool_cat) at (400, 200)
-actor flames = sprite(fire_icon) at (100, 100) scale 2.0
+actor a = figure(#c68642, m, 😎) at (200, 200) scale 1.2
+actor b = text("Hello World") at (400, 80) size 28
+actor c = box() at (600, 200)
+        </script>
+        </div>
+        <table>
+          <thead><tr><th>Type</th><th>Arguments</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>text</code></td><td><code>"quoted string"</code></td><td>Plain text label. Customise with <code>size</code>.</td></tr>
+            <tr><td><code>box</code></td><td>—</td><td>100x100 solid box. Great for prototyping.</td></tr>
+            <tr><td><code>figure</code></td><td>skinColor, gender, face</td><td>Stick figure with articulatable limbs.</td></tr>
+            <tr><td><code>sprite</code></td><td>asset name</td><td>Renders an image or icon asset.</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Modifiers:</strong> <code>opacity</code> (0–1), <code>scale</code>, <code>rotate</code>, <code>size</code> (text only).</p>
+      </article>
 
-# 3. Use them in actions (like throwing an icon!)
-@1.0: my_meme.throw(fire_icon, to=flames, dur=0.5)</code></pre>
+      <!-- Step 3: Timeline & Motion -->
+      <article class="ref-card">
+        <div class="ref-card-header">
+          <div class="step-badge">3</div>
+          <h3>Timeline & Motion</h3>
+          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+        </div>
+        <p class="ref-intro">Schedule actions on a timeline with <code>@time: actor.action()</code>. Time is in decimal seconds.</p>
+        <div class="ref-code-wrap">
+        <pre><code>@0.5: a.enter(from=left, dur=0.8)
+@1.5: a.move(to=(400, 200), dur=1.0, ease=out)
+@3.0: a.fade_out(dur=0.5)</code></pre>
+        <script type="text/plain" class="ref-code-data">
+scene width=800 height=400
+actor a = figure(#c68642, m, 😎) at (400, 200)
+
+@0.3: a.enter(from=left, dur=0.8)
+@1.5: a.move(to=(500, 200), dur=0.8, ease=out)
+@3.0: a.fade_out(dur=0.6)
+@4.0: a.fade_in(dur=0.4)
+        </script>
+        </div>
+        <table>
+          <thead><tr><th>Action</th><th>Parameters</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>enter</code></td><td>from, dur</td><td>Slides in from canvas edge</td></tr>
+            <tr><td><code>move</code></td><td>to, dur, ease</td><td>Translates to target coordinates</td></tr>
+            <tr><td><code>fade_in</code> / <code>fade_out</code></td><td>dur</td><td>Animates opacity</td></tr>
+            <tr><td><code>scale</code> / <code>rotate</code></td><td>to, dur</td><td>Transforms the actor</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Easing:</strong> <code>linear</code>, <code>in</code>, <code>out</code>, <code>inout</code></p>
+      </article>
+
+      <!-- Step 4: Speech & Effects -->
+      <article class="ref-card">
+        <div class="ref-card-header">
+          <div class="step-badge">4</div>
+          <h3>Speech & Effects</h3>
+          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+        </div>
+        <p class="ref-intro">Make actors talk with comic speech bubbles and add dynamic effects like shaking.</p>
+        <div class="ref-code-wrap">
+        <pre><code>@1.0: a.say("Hello! 👋", dur=1.5)
+@2.5: a.shake(intensity=8, dur=0.4)</code></pre>
+        <script type="text/plain" class="ref-code-data">
+scene width=800 height=400
+actor a = figure(#c68642, m, 😎) at (250, 200)
+actor b = figure(#fad4c0, f, 😊) at (550, 200)
+
+@0.5: a.enter(from=left, dur=0.7)
+@0.7: b.enter(from=right, dur=0.7)
+@1.5: a.say("Hello! 👋", dur=1.5)
+@2.5: b.say("Hey there! 😊", dur=1.5)
+@4.0: a.shake(intensity=8, dur=0.4)
+@4.5: a.say("Whoa! 😲", dur=1.2)
+        </script>
+        </div>
+        <table>
+          <thead><tr><th>Action</th><th>Parameters</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>say</code></td><td><code>"text"</code>, dur</td><td>Shows an anchored speech bubble</td></tr>
+            <tr><td><code>shake</code></td><td>intensity, dur</td><td>Oscillates on the X axis</td></tr>
+            <tr><td><code>throw</code></td><td>asset, to, dur</td><td>Launches a projectile between actors</td></tr>
+          </tbody>
+        </table>
+      </article>
+
+      <!-- Step 5: Figure Expressions & Limbs -->
+      <article class="ref-card">
+        <div class="ref-card-header">
+          <div class="step-badge">5</div>
+          <h3>Expressions & Limbs</h3>
+          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+        </div>
+        <p class="ref-intro"><code>figure</code> actors have articulated limbs you can individually control for expressive animations.</p>
+        <div class="ref-code-wrap">
+        <pre><code>@1.0: a.face("😵")
+@1.5: a.rotate_part(part=arm_right, to=130, dur=0.4)
+@2.0: a.punch(side=right, dur=0.2)
+@2.5: a.kick(side=left, dur=0.3)</code></pre>
+        <script type="text/plain" class="ref-code-data">
+scene width=800 height=400
+actor a = figure(#c68642, m, 😐) at (400, 200) scale 1.5
+
+@1.0: a.face("😵")
+@1.5: a.rotate_part(part=arm_right, to=130, dur=0.4)
+@2.0: a.punch(side=right, dur=0.2)
+@2.5: a.kick(side=left, dur=0.3)
+        </script>
+        </div>
+        <table>
+          <thead><tr><th>Action</th><th>Parameters</th></tr></thead>
+          <tbody>
+            <tr><td><code>face</code></td><td><code>"emoji"</code> — instant expression swap</td></tr>
+            <tr><td><code>rotate_part</code></td><td>part, to (degrees), dur</td></tr>
+            <tr><td><code>punch</code> / <code>kick</code></td><td>side (left|right), dur</td></tr>
+          </tbody>
+        </table>
+        <p><strong>Body parts:</strong> <code>head</code>, <code>face</code>, <code>body</code>, <code>arm_left</code>, <code>arm_right</code>, <code>leg_left</code>, <code>leg_right</code></p>
+      </article>
+
+      <!-- Step 6: Assets & Sprites -->
+      <article class="ref-card">
+        <div class="ref-card-header">
+          <div class="step-badge">6</div>
+          <h3>Assets & Sprites</h3>
+          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+        </div>
+        <p class="ref-intro">Load external images and vector icons as assets, then render them as <code>sprite</code> actors.</p>
+        <div class="ref-code-wrap">
+        <pre><code># Declare assets first
+asset cat = image("https://example.com/cat.gif")
+asset fire = icon("lucide:flame")
+
+# Render them as actors
+actor meme = sprite(cat) at (400, 200) scale 0.5
+actor icon = sprite(fire) at (100, 100) scale 2.0</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene width=800 height=400 bg=#ffffff
 asset cool_cat = image("https://media1.tenor.com/m/4n4cErvEq_sAAAAd/yapapa-cat.gif")
@@ -277,105 +452,20 @@ actor flames = sprite(fire_icon) at (200, 200) scale 2.0
         </div>
         <table>
           <tbody>
-            <tr><td><code>image("url")</code></td><td>Loads a local file (e.g. <code>/memes/doge.webp</code>) or a full web URL. Best for memes, photos, backgrounds, and PNGs.</td></tr>
-            <tr><td><code>icon("name")</code></td><td>Loads a vector icon from Iconify (e.g., <code>lucide:sword</code>, <code>logos:aws</code>). SVG quality, never blurs when scaled!</td></tr>
+            <tr><td><code>image("url")</code></td><td>Loads images, GIFs, photos — any URL or local path.</td></tr>
+            <tr><td><code>icon("set:name")</code></td><td>Loads SVG icons from Iconify. Never blurs when scaled.</td></tr>
           </tbody>
         </table>
-      </div>
+      </article>
 
-      <div class="ref-card">
-        <div class="ref-card-header"><h3>3. Defining Actors</h3><button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button></div>
-        <div class="ref-code-wrap">
-        <pre><code>actor a = figure(#c68642, m, 😎) at (100, 200) scale 1.2
-actor b = text("Hello World") at (50, 50) size 24
-actor c = sprite(pepe) at (300, 200) scale 0.5 opacity 0</code></pre>
-        <script type="text/plain" class="ref-code-data">
-scene width=800 height=400
-asset cool_cat = image("https://media1.tenor.com/m/4n4cErvEq_sAAAAd/yapapa-cat.gif")
-
-actor a = figure(#c68642, m, 😎) at (200, 200) scale 1.2
-actor b = text("Hello World") at (400, 100) size 24
-actor c = sprite(cool_cat) at (600, 200) opacity 0.5
-actor d = box() at (400, 300)
-        </script>
+      <!-- Step 7: Variables & Templates -->
+      <article class="ref-card">
+        <div class="ref-card-header">
+          <div class="step-badge">7</div>
+          <h3>Variables & Templates</h3>
+          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p>Objects visible in the scene. Defined by <code>at (x,y)</code> along with optional space-separated modifiers.</p>
-        <table>
-          <thead><tr><th>Type</th><th>Arguments</th><th>Description</th></tr></thead>
-          <tbody>
-            <tr><td><code>figure</code></td><td>skinColor, gender, face</td><td>Articulatable stick figure. E.g: <code>#c68642, f, 😡</code></td></tr>
-            <tr><td><code>text</code></td><td>"quoted string"</td><td>Plain text label. Modifiable via <code>size px</code>.</td></tr>
-            <tr><td><code>sprite</code></td><td>asset identifier</td><td>Renders image/icon. Requires an <code>asset</code> beforehand.</td></tr>
-            <tr><td><code>box</code></td><td>—</td><td>Standard 100x100 solid box.</td></tr>
-          </tbody>
-        </table>
-        <p><strong>Modifiers:</strong> <code>opacity</code> (0-1), <code>scale</code>, <code>rotate</code>, <code>size</code> (text only).</p>
-      </div>
-
-      <div class="ref-card">
-        <div class="ref-card-header"><h3>4. DOM-based <code>@time</code> Actions</h3><button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button></div>
-        <div class="ref-code-wrap">
-        <pre><code>@0.5: c.enter(from=left, dur=0.8, ease=out)
-@1.5: c.move(to=(150, 200), dur=1.0)
-@3.0: c.fade_in(dur=0.5)</code></pre>
-        <script type="text/plain" class="ref-code-data">
-scene width=800 height=400
-actor c = figure(#000000, m, 😐) at (400,200)
-
-@0.5: c.enter(from=left, dur=0.8, ease=out)
-@1.5: c.move(to=(150, 200), dur=1.0)
-@3.0: c.fade_in(dur=0.5)
-@4.0: c.say("Nice!", dur=2.0)
-@4.5: c.shake(intensity=5, dur=0.5)
-        </script>
-        </div>
-        <p>Schedule framework-agnostic layout updates via the <code>@time: target.action()</code> pattern in decimal seconds.</p>
-        <table>
-          <thead><tr><th>Action</th><th>Parameters</th><th>Function</th></tr></thead>
-          <tbody>
-            <tr><td><code>enter</code></td><td>from (left|right|top|bottom), dur</td><td>Slides object from canvas boundary.</td></tr>
-            <tr><td><code>move</code></td><td>to (x,y), dur, ease</td><td>Translates to target coordinates smoothly.</td></tr>
-            <tr><td><code>fade_in</code> / <code>_out</code></td><td>dur</td><td>Resolves opacity transitions.</td></tr>
-            <tr><td><code>scale</code> / <code>rotate</code></td><td>to, dur</td><td>Updates CSS transform values.</td></tr>
-            <tr><td><code>say</code></td><td>"text", dur</td><td>Displays an anchored comic speech bubble.</td></tr>
-            <tr><td><code>shake</code></td><td>intensity, dur</td><td>Oscillates intensely on the X axis.</td></tr>
-            <tr><td><code>throw</code></td><td>asset, to (target actor), dur</td><td>Spawns projectile moving between actors.</td></tr>
-          </tbody>
-        </table>
-        <p><strong>Easing functions:</strong> <code>linear</code>, <code>in</code>, <code>out</code>, <code>inout</code>.</p>
-      </div>
-
-      <div class="ref-card">
-        <div class="ref-card-header"><h3>5. Figure Specific Limbs</h3><button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button></div>
-        <div class="ref-code-wrap">
-        <pre><code>@2.0: a.face("😵")
-@2.5: a.rotate_part(part=arm_right, to=90, dur=0.4)
-@3.0: a.punch(side=right, dur=0.2)
-@3.5: a.kick(side=left, dur=0.3)</code></pre>
-        <script type="text/plain" class="ref-code-data">
-scene width=800 height=400
-actor a = figure(#c68642, m, 😐) at (400,200) scale 1.5
-
-@1.0: a.face("😵")
-@1.5: a.rotate_part(part=arm_right, to=130, dur=0.4)
-@2.0: a.punch(side=right, dur=0.2)
-@2.5: a.kick(side=left, dur=0.3)
-        </script>
-        </div>
-        <p>Actors exclusively of type <code>figure</code> have articulated limbs that accept specific methods.</p>
-        <table>
-          <thead><tr><th>Action</th><th>Properties</th></tr></thead>
-          <tbody>
-            <tr><td><code>face</code></td><td>"emoji". Instant replacement, seek-safe swap.</td></tr>
-            <tr><td><code>rotate_part</code></td><td>part (name), to (deg), dur. Articulates isolated axis.</td></tr>
-            <tr><td><code>punch</code>/<code>kick</code></td><td>side (left|right), dur. Pre-composed limb swing macro.</td></tr>
-          </tbody>
-        </table>
-        <p><strong>Available Limbs (part=x):</strong> <code>head</code>, <code>face</code>, <code>body</code>, <code>arm_left</code>, <code>arm_right</code>, <code>leg_left</code>, <code>leg_right</code>.</p>
-      </div>
-
-      <div class="ref-card">
-        <div class="ref-card-header"><h3>6. Variables & Templates</h3><button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button></div>
+        <p class="ref-intro">Avoid repetition with <code>var</code> for values and <code>def</code> for reusable actor templates.</p>
         <div class="ref-code-wrap">
         <pre><code>var accent_skin = #fad4c0
 
@@ -396,12 +486,17 @@ actor lily = char(${accent_skin}, 😊) at (200, 200) scale 1.5
 actor rose = char(#e5a285, 👩) at (600, 200) scale 1.5
         </script>
         </div>
-        <p>Streamline scripts dynamically via substitution macros.</p>
-        <p>- <code>var</code> ignores trailing comments, robust for <code>#hex</code> injection.<br/>- <code>def</code> injects an inline definition of any actor type, generating custom component variations inherently without JS intervention.</p>
-      </div>
+        <p><code>var</code> substitutes values (robust for <code>#hex</code> colors). <code>def</code> creates actor factory templates — build character systems without any JavaScript.</p>
+      </article>
 
-      <div class="ref-card">
-        <div class="ref-card-header"><h3>7. Timeline Sequences</h3><button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button></div>
+      <!-- Step 8: Sequences -->
+      <article class="ref-card">
+        <div class="ref-card-header">
+          <div class="step-badge">8</div>
+          <h3>Sequences</h3>
+          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+        </div>
+        <p class="ref-intro">Package multi-step choreographies into reusable <code>seq</code> blocks. The ultimate power move.</p>
         <div class="ref-code-wrap">
         <pre><code>seq wave(arm, angle) {'{'}
   @+0.0: $.rotate_part(part=${'${arm}'}, to=${'${angle}'}, dur=0.3)
@@ -422,20 +517,24 @@ seq wave(arm, angle) {
 @2.0: lily.play(wave, arm=arm_right, angle=80)
         </script>
         </div>
-        <p>Record and reproduce timed-action blocks. <code>seq</code> instances run relative offsets for the binding target.</p>
-        <p>- <code>$</code> acts as the active binding reference during interpretation.<br/>- Statements specified with <code>@+time</code> resolve relative elapsed progression.</p>
-      </div>
+        <p><code>$</code> refers to the calling actor. Times with <code>@+</code> are relative offsets from when <code>.play()</code> is triggered.</p>
+      </article>
 
     </div>
   </section>
 
   <!-- ─── Footer ───────────────────────────────────────────────────────── -->
-  <footer class="footer">
-    <span>Built by <a href="https://hoangyell.com" target="_blank" rel="noopener">Hoang Yell</a></span>
-    <span class="dot">·</span>
-    <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener">GitHub</a>
-    <span class="dot">·</span>
-    <a href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener">npm</a>
+  <footer class="footer" role="contentinfo">
+    <div class="footer-inner">
+      <span class="footer-brand">🎬 markdy</span>
+      <nav class="footer-links" aria-label="Footer navigation">
+        <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <span class="dot">&middot;</span>
+        <a href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener noreferrer">npm</a>
+        <span class="dot">&middot;</span>
+        <a href="https://hoangyell.com" target="_blank" rel="noopener noreferrer">Built by Hoang Yell</a>
+      </nav>
+    </div>
   </footer>
 
 </Layout>
@@ -447,6 +546,17 @@ seq wave(arm, angle) {
 </script>
 
 <script>
+  /* ── Copy install command ──────────────────────────────────────────── */
+  const copyBtn = document.getElementById("copy-install");
+  const installCmd = document.getElementById("install-cmd");
+  if (copyBtn && installCmd) {
+    copyBtn.addEventListener("click", () => {
+      navigator.clipboard.writeText(installCmd.textContent?.trim() ?? "");
+      copyBtn.title = "Copied!";
+      setTimeout(() => { copyBtn.title = "Copy to clipboard"; }, 2000);
+    });
+  }
+
   /* ── Theme toggle (must run before CodeMirror to set CSS vars) ──── */
   const STORAGE_KEY = "markdy-theme";
 
@@ -675,13 +785,12 @@ seq wave(arm, angle) {
     --border-subtle: #f1f5f9;
     --accent: #059669;
     --accent-hover: #047857;
-    --accent-light: rgba(5, 150, 105, 0.25);
+    --accent-light: rgba(5, 150, 105, 0.12);
     --shadow-sm: rgba(0, 0, 0, 0.04);
     --shadow-md: rgba(0, 0, 0, 0.06);
     --selection-bg: #d1fae5;
     --selection-text: #064e3b;
 
-    /* CodeMirror theme vars */
     --cm-caret: #0f172a;
     --cm-activeLine: rgba(5, 150, 105, 0.05);
     --cm-selection: #d1fae5;
@@ -691,7 +800,6 @@ seq wave(arm, angle) {
     --cm-tooltipSelected: #059669;
     --cm-tooltipSelectedText: #ffffff;
 
-    /* Ref card code blocks */
     --ref-code-bg: #f6f8fa;
     --ref-code-text: #24292f;
   }
@@ -709,13 +817,12 @@ seq wave(arm, angle) {
     --border-subtle: #21262d;
     --accent: #3fb950;
     --accent-hover: #2ea043;
-    --accent-light: rgba(63, 185, 80, 0.2);
+    --accent-light: rgba(63, 185, 80, 0.15);
     --shadow-sm: rgba(0, 0, 0, 0.2);
     --shadow-md: rgba(0, 0, 0, 0.3);
     --selection-bg: rgba(63, 185, 80, 0.15);
     --selection-text: #c9d1d9;
 
-    /* CodeMirror dark vars */
     --cm-caret: #c9d1d9;
     --cm-activeLine: rgba(63, 185, 80, 0.06);
     --cm-selection: rgba(63, 185, 80, 0.15);
@@ -725,12 +832,11 @@ seq wave(arm, angle) {
     --cm-tooltipSelected: #3fb950;
     --cm-tooltipSelectedText: #0d1117;
 
-    /* Ref card code blocks */
     --ref-code-bg: #161b22;
     --ref-code-text: #c9d1d9;
   }
 
-  /* ── Nav (frosted glass) ─────────────────────────────────────────────── */
+  /* ── Nav ──────────────────────────────────────────────────────────── */
   .nav {
     display: flex;
     align-items: center;
@@ -747,12 +853,17 @@ seq wave(arm, angle) {
   }
 
   .nav-brand {
-    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 800;
     font-size: 1.05rem;
     text-decoration: none;
     letter-spacing: -0.03em;
     color: var(--accent);
   }
+
+  .brand-icon { font-size: 1.2rem; }
 
   .nav-links {
     display: flex;
@@ -761,14 +872,15 @@ seq wave(arm, angle) {
   }
 
   .nav-links a {
-    font-size: 0.85rem;
+    font-size: 0.82rem;
+    font-weight: 500;
     color: var(--text-secondary);
     transition: color 0.2s ease;
   }
 
   .nav-links a:hover { color: var(--text-primary); }
 
-  /* ── Theme toggle ────────────────────────────────────────────────────── */
+  /* ── Theme toggle ────────────────────────────────────────────────── */
   .theme-toggle {
     display: flex;
     align-items: center;
@@ -797,54 +909,180 @@ seq wave(arm, angle) {
     transition: opacity 0.25s ease, transform 0.3s ease;
   }
 
-  /* Light mode: show sun, hide moon */
   .theme-toggle .icon-sun { opacity: 1; transform: rotate(0deg); }
   .theme-toggle .icon-moon { opacity: 0; transform: rotate(-90deg); }
-
-  /* Dark mode: show moon, hide sun */
   .theme-toggle.is-dark .icon-sun { opacity: 0; transform: rotate(90deg); }
   .theme-toggle.is-dark .icon-moon { opacity: 1; transform: rotate(0deg); }
 
-  /* ── Hero ─────────────────────────────────────────────────────────────── */
+  /* ── Hero ─────────────────────────────────────────────────────────── */
   .hero {
-    max-width: 640px;
+    max-width: 720px;
     margin: 0 auto;
-    padding: 4rem 1.5rem 2.5rem;
+    padding: 5rem 1.5rem 3rem;
     text-align: center;
   }
 
+  .hero-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 0.3rem 0.85rem;
+    border-radius: 100px;
+    margin-bottom: 1.25rem;
+  }
+
   .hero h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    letter-spacing: -0.035em;
-    line-height: 1.15;
-    margin-bottom: 0.75rem;
+    font-size: 3rem;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin-bottom: 1rem;
     color: var(--text-primary);
     transition: color 0.3s ease;
   }
 
-  .hero-sub {
-    font-family: "Source Serif 4", Georgia, serif;
-    color: var(--text-secondary);
-    font-size: 1.05rem;
-    line-height: 1.7;
-    margin-bottom: 1.5rem;
+  .gradient-text {
+    background: linear-gradient(135deg, var(--accent), #10b981, #34d399);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
-  .hero-install code {
-    display: inline-block;
+  .hero-sub {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    max-width: 540px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.65rem 1.5rem;
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-hover);
+    color: #fff;
+    box-shadow: 0 4px 14px var(--accent-light);
+    transform: translateY(-1px);
+  }
+
+  .hero-install {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
     background: var(--bg-secondary);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 0.45rem 0.9rem;
-    font-size: 0.82rem;
-    color: var(--text-primary);
-    user-select: all;
+    padding: 0.4rem 0.5rem 0.4rem 0.85rem;
     box-shadow: 0 1px 3px var(--shadow-sm);
     transition: all 0.3s ease;
   }
 
-  /* ── Section headers ─────────────────────────────────────────────────── */
+  .hero-install code {
+    font-size: 0.8rem;
+    color: var(--text-primary);
+    user-select: all;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
+  .copy-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 5px;
+    background: var(--bg-tertiary);
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+  }
+
+  .copy-btn:hover { color: var(--accent); background: var(--accent-light); }
+
+  /* ── Features ────────────────────────────────────────────────────── */
+  .features {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem 3rem;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+
+  .feature-card {
+    text-align: center;
+    padding: 1.25rem 1rem;
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    background: var(--bg-secondary);
+    transition: all 0.2s ease;
+  }
+
+  .feature-card:hover {
+    border-color: var(--border);
+    box-shadow: 0 2px 8px var(--shadow-sm);
+  }
+
+  .feature-icon {
+    font-size: 1.5rem;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .feature-card h3 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+
+  .feature-card p {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* ── Section tags & headers ──────────────────────────────────────── */
+  .section-tag {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
   .section-header {
     max-width: 640px;
     margin: 0 auto 1.5rem;
@@ -852,21 +1090,20 @@ seq wave(arm, angle) {
   }
 
   .section-header h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    margin-bottom: 0.35rem;
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 0.4rem;
     color: var(--text-primary);
     transition: color 0.3s ease;
   }
 
   .section-header p {
-    font-family: "Source Serif 4", Georgia, serif;
     color: var(--text-secondary);
     font-size: 0.95rem;
   }
 
-  /* ── Playground ──────────────────────────────────────────────────────── */
+  /* ── Playground ──────────────────────────────────────────────────── */
   .playground {
     max-width: 1100px;
     margin: 0 auto;
@@ -886,6 +1123,7 @@ seq wave(arm, angle) {
     border-radius: 8px;
     background: var(--bg-secondary);
     font-size: 0.8rem;
+    font-weight: 500;
     cursor: pointer;
     color: var(--text-secondary);
     transition: all 0.2s ease;
@@ -905,38 +1143,7 @@ seq wave(arm, angle) {
     box-shadow: 0 1px 4px var(--accent-light);
   }
 
-  .ref-card-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-  }
-  .ref-card-header h3 {
-    margin: 0;
-  }
-
-  .apply-ref-btn {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    color: var(--accent);
-    background: var(--accent-light);
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.15s ease, transform 0.1s ease;
-  }
-  .apply-ref-btn:hover {
-    background: rgba(63, 185, 80, 0.3);
-  }
-  .apply-ref-btn:active { transform: scale(0.92); }
-
-  /* ── Editor layout ───────────────────────────────────────────────────── */
+  /* ── Editor layout ───────────────────────────────────────────────── */
   .editor-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -946,7 +1153,7 @@ seq wave(arm, angle) {
     overflow: hidden;
     height: 520px;
     background: var(--bg-secondary);
-    box-shadow: 0 4px 16px var(--shadow-sm);
+    box-shadow: 0 4px 24px var(--shadow-sm);
     transition: all 0.3s ease;
   }
 
@@ -1019,7 +1226,6 @@ seq wave(arm, angle) {
   .status.ok  { background: var(--accent); }
   .status.err { background: #ef4444; }
 
-  /* ── CodeMirror editor container ─────────────────────────────────────── */
   .code-editor-wrap {
     flex: 1;
     display: flex;
@@ -1041,15 +1247,15 @@ seq wave(arm, angle) {
     transition: background 0.3s ease;
   }
 
-  #stage { 
+  #stage {
     position: absolute;
     inset: 0;
     overflow: hidden;
-    line-height: 0; 
+    line-height: 0;
   }
 
   .parse-error {
-    font-family: "SF Mono", "Fira Code", monospace;
+    font-family: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
     font-size: 0.78rem;
     color: #dc2626;
     background: #fef2f2;
@@ -1067,39 +1273,87 @@ seq wave(arm, angle) {
     border-color: rgba(220, 38, 38, 0.3);
   }
 
-  /* ── Syntax Reference ────────────────────────────────────────────────── */
+  /* ── Syntax Reference ────────────────────────────────────────────── */
   .syntax-ref {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 2.5rem 1.5rem 3rem;
+    padding: 3rem 1.5rem 3.5rem;
     border-top: 1px solid var(--border-subtle);
   }
 
   .ref-grid {
-    columns: 320px;
-    column-gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
   }
 
   .ref-card {
-    break-inside: avoid;
-    margin-bottom: 1rem;
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 1.25rem;
+    padding: 1.5rem;
     background: var(--bg-secondary);
     box-shadow: 0 1px 4px var(--shadow-sm);
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
   }
 
   .ref-card:hover {
-    box-shadow: 0 4px 12px var(--shadow-md);
+    box-shadow: 0 4px 16px var(--shadow-md);
+    border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
   }
 
-  .ref-card h3 {
-    font-size: 0.9rem;
+  .ref-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .step-badge {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.75rem;
     font-weight: 700;
-    margin-bottom: 0;
+  }
+
+  .ref-card-header h3 {
+    flex: 1;
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin: 0;
     color: var(--text-primary);
+  }
+
+  .apply-ref-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    color: var(--accent);
+    background: var(--accent-light);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+  }
+
+  .apply-ref-btn:hover { background: rgba(63, 185, 80, 0.25); }
+  .apply-ref-btn:active { transform: scale(0.92); }
+
+  .ref-intro {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin-bottom: 0.75rem;
   }
 
   .ref-card pre {
@@ -1117,8 +1371,7 @@ seq wave(arm, angle) {
   }
 
   .ref-card p {
-    font-family: "Source Serif 4", Georgia, serif;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     color: var(--text-secondary);
     line-height: 1.55;
   }
@@ -1152,41 +1405,60 @@ seq wave(arm, angle) {
     color: var(--accent);
   }
 
-  /* ── Footer ──────────────────────────────────────────────────────────── */
+  /* ── Footer ──────────────────────────────────────────────────────── */
   .footer {
-    padding: 1.25rem 1.5rem;
+    padding: 1.5rem;
     border-top: 1px solid var(--border-subtle);
-    font-size: 0.78rem;
-    color: var(--text-muted);
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
     transition: all 0.3s ease;
   }
 
-  .footer a { color: var(--text-secondary); transition: color 0.2s; }
-  .footer a:hover { color: var(--text-primary); }
+  .footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .footer-brand {
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    font-size: 0.78rem;
+  }
+
+  .footer-links a { color: var(--text-secondary); transition: color 0.2s; }
+  .footer-links a:hover { color: var(--text-primary); }
   .dot { color: var(--text-muted); }
 
-  /* ── Responsive ──────────────────────────────────────────────────────── */
+  /* ── Responsive ──────────────────────────────────────────────────── */
   @media (max-width: 768px) {
-    .hero { padding: 3rem 1rem 2rem; }
-    .hero h1 { font-size: 1.85rem; }
+    .hero { padding: 3.5rem 1rem 2rem; }
+    .hero h1 { font-size: 2rem; }
+    .hero-sub { font-size: 0.95rem; }
 
-    .editor-layout {
-      grid-template-columns: 1fr;
-    }
+    .features-grid { grid-template-columns: repeat(2, 1fr); }
 
-    .editor-col {
-      border-right: none;
-      border-bottom: 1px solid var(--border);
-    }
-
+    .editor-layout { grid-template-columns: 1fr; }
+    .editor-col { border-right: none; border-bottom: 1px solid var(--border); }
     .code-editor-wrap { min-height: 220px; }
-    .stage-wrap  { min-height: 280px; }
+    .stage-wrap { min-height: 280px; }
 
     .ref-grid { grid-template-columns: 1fr; }
 
     .editor-hint { display: none; }
+
+    .footer-inner { flex-direction: column; gap: 0.5rem; }
+  }
+
+  @media (max-width: 480px) {
+    .features-grid { grid-template-columns: 1fr; }
+    .nav-links a:not(:last-of-type) { display: none; }
   }
 </style>
