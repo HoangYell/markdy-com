@@ -4,60 +4,6 @@ import Layout from "../layouts/Layout.astro";
 /* ── Example snippets for the playground ────────────────────────────── */
 const EXAMPLES = [
   {
-    label: "Hello World",
-    code: `scene width=600 height=260 fps=30 bg=#fafafa
-
-actor hi = text("Hello, Markdy!") at (180, 60) size 28 opacity 0
-actor a  = figure(#c68642, m, 😎) at (280, 160)
-
-@0.2: hi.fade_in(dur=0.6)
-@0.6: a.enter(from=left, dur=0.8)
-@1.5: a.say("Let's go! 🚀", dur=1.5)
-@2.5: a.move(to=(350, 160), dur=0.8, ease=out)`,
-  },
-  {
-    label: "Fight Scene",
-    code: `scene width=640 height=300 fps=30 bg=#fafafa
-
-actor hero    = figure(#6ee7b7, m, 😎) at (160, 170)
-actor villain = figure(#f87171, m, 😈) at (480, 170)
-
-@0.3: hero.enter(from=left, dur=0.7)
-@0.5: villain.enter(from=right, dur=0.7)
-@1.5: hero.say("Bring it on! 💪", dur=1.2)
-@2.0: villain.say("Haha! 😈", dur=1.2)
-@3.5: hero.move(to=(300, 170), dur=0.5, ease=in)
-@3.5: villain.move(to=(340, 170), dur=0.5, ease=in)
-@4.2: hero.punch(side=right, dur=0.3)
-@4.3: villain.shake(intensity=8, dur=0.4)
-@4.3: villain.face("😵")
-@5.0: hero.kick(side=right, dur=0.35)
-@5.3: villain.rotate(to=90, dur=0.3)
-@5.5: villain.fade_out(dur=0.5)
-@5.5: hero.face("😄")
-@5.7: hero.say("Done! ✅", dur=1.5)`,
-  },
-  {
-    label: "Love Story",
-    code: `scene width=640 height=300 fps=30 bg=#fafafa
-
-actor boy  = figure(#c68642, m, 😊) at (150, 170)
-actor girl = figure(#fad4c0, f, 😊) at (490, 170)
-
-@0.3: boy.enter(from=left, dur=0.8)
-@0.5: girl.enter(from=right, dur=0.8)
-@1.5: boy.face("😍")
-@1.5: boy.say("Hi there! 😍", dur=1.5)
-@2.5: girl.face("😊")
-@2.5: girl.say("Hey! 👋", dur=1.2)
-@4.0: boy.move(to=(280, 170), dur=0.8, ease=out)
-@4.0: girl.move(to=(360, 170), dur=0.8, ease=out)
-@5.0: boy.rotate_part(part=arm_right, to=-70, dur=0.4)
-@5.0: girl.rotate_part(part=arm_left, to=70, dur=0.4)
-@5.5: boy.face("🥰")
-@5.5: girl.face("🥰")`,
-  },
-  {
     label: "Full Story (25s)",
     code: `scene width=800 height=400 fps=30 bg=#fafafa
 
@@ -133,6 +79,60 @@ actor lily  = girl(\${skin_g}, 😊)    at (370, 180) opacity 0
 @22.0: bruno.face("😔")
 @22.0: bruno.say("...why 😔", dur=2.0)`,
   },
+  {
+    label: "Hello World",
+    code: `scene width=600 height=260 fps=30 bg=#fafafa
+
+actor hi = text("Hello, Markdy!") at (180, 60) size 28 opacity 0
+actor a  = figure(#c68642, m, 😎) at (280, 160)
+
+@0.2: hi.fade_in(dur=0.6)
+@0.6: a.enter(from=left, dur=0.8)
+@1.5: a.say("Let's go! 🚀", dur=1.5)
+@2.5: a.move(to=(350, 160), dur=0.8, ease=out)`,
+  },
+  {
+    label: "Fight Scene",
+    code: `scene width=640 height=300 fps=30 bg=#fafafa
+
+actor hero    = figure(#6ee7b7, m, 😎) at (160, 170)
+actor villain = figure(#f87171, m, 😈) at (480, 170)
+
+@0.3: hero.enter(from=left, dur=0.7)
+@0.5: villain.enter(from=right, dur=0.7)
+@1.5: hero.say("Bring it on! 💪", dur=1.2)
+@2.0: villain.say("Haha! 😈", dur=1.2)
+@3.5: hero.move(to=(300, 170), dur=0.5, ease=in)
+@3.5: villain.move(to=(340, 170), dur=0.5, ease=in)
+@4.2: hero.punch(side=right, dur=0.3)
+@4.3: villain.shake(intensity=8, dur=0.4)
+@4.3: villain.face("😵")
+@5.0: hero.kick(side=right, dur=0.35)
+@5.3: villain.rotate(to=90, dur=0.3)
+@5.5: villain.fade_out(dur=0.5)
+@5.5: hero.face("😄")
+@5.7: hero.say("Done! ✅", dur=1.5)`,
+  },
+  {
+    label: "Love Story",
+    code: `scene width=640 height=300 fps=30 bg=#fafafa
+
+actor boy  = figure(#c68642, m, 😊) at (150, 170)
+actor girl = figure(#fad4c0, f, 😊) at (490, 170)
+
+@0.3: boy.enter(from=left, dur=0.8)
+@0.5: girl.enter(from=right, dur=0.8)
+@1.5: boy.face("😍")
+@1.5: boy.say("Hi there! 😍", dur=1.5)
+@2.5: girl.face("😊")
+@2.5: girl.say("Hey! 👋", dur=1.2)
+@4.0: boy.move(to=(280, 170), dur=0.8, ease=out)
+@4.0: girl.move(to=(360, 170), dur=0.8, ease=out)
+@5.0: boy.rotate_part(part=arm_right, to=-70, dur=0.4)
+@5.0: girl.rotate_part(part=arm_left, to=70, dur=0.4)
+@5.5: boy.face("🥰")
+@5.5: girl.face("🥰")`,
+  },
 ];
 
 const FLOWER_ASSET: Record<string, string> = {
@@ -145,6 +145,40 @@ const FEATURES = [
   { icon: "🤖", title: "AI-Agent Friendly", desc: "Structured DSL that LLMs can generate, validate, and iterate." },
   { icon: "🧩", title: "Framework Agnostic", desc: "Works anywhere. Astro island component included." },
 ];
+
+/* ── Usage code snippets (pre-formatted HTML to avoid Astro expression parsing) ── */
+const USAGE_VANILLA = `<span class="u-kw">import</span> { createPlayer } <span class="u-kw">from</span> <span class="u-str">"@markdy/renderer-dom"</span>;
+
+createPlayer({
+  container: <span class="u-fn">document.getElementById</span>(<span class="u-str">"stage"</span>),
+  code: <span class="u-str">\`scene width=600 height=300
+  actor a = figure(#c68642, m, 😎) at (300, 150)
+  @0.3: a.enter(from=left, dur=0.8)\`</span>,
+  autoplay: <span class="u-lit">true</span>,
+});`;
+
+const USAGE_ASTRO = `<span class="u-comment">---</span>
+<span class="u-kw">import</span> { Markdy } <span class="u-kw">from</span> <span class="u-str">"@markdy/astro"</span>;
+
+<span class="u-kw">const</span> code = <span class="u-str">\`
+  scene width=800 height=400 bg=#fff5f9
+  actor hero = figure(#c68642, m, 😎) at (400, 200)
+  @0.0: hero.enter(from=left, dur=0.8)
+  @1.5: hero.say("Hello!", dur=1.2)
+\`</span>;
+<span class="u-comment">---</span>
+
+&lt;<span class="u-fn">Markdy</span> {code} width={800} height={400} bg=<span class="u-str">"#fff5f9"</span> autoplay /&gt;`;
+
+const USAGE_MDX = `<span class="u-kw">import</span> { Markdy } <span class="u-kw">from</span> <span class="u-str">"@markdy/astro"</span>;
+
+<span class="u-kw">export const</span> code = <span class="u-str">\`
+  scene width=600 height=300 bg=white
+  actor label = text("Hello") at (200, 130) size 40 opacity 0
+  @0.3: label.fade_in(dur=0.6)
+\`</span>;
+
+&lt;<span class="u-fn">Markdy</span> {code} width={600} height={300} autoplay /&gt;`;
 ---
 
 <Layout title="Markdy — Open-Source Animation DSL Engine">
@@ -159,6 +193,7 @@ const FEATURES = [
       <a href="#features">Features</a>
       <a href="#playground">Playground</a>
       <a href="#learn">Learn</a>
+      <a href="#ai-gen">AI</a>
       <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">GitHub</a>
       <a href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener noreferrer">npm</a>
 
@@ -191,11 +226,45 @@ const FEATURES = [
     </p>
     <div class="hero-actions">
       <a href="#playground" class="btn-primary">Try the Playground</a>
-      <div class="hero-install">
-        <code id="install-cmd">npm i @markdy/core @markdy/renderer-dom</code>
-        <button class="copy-btn" id="copy-install" title="Copy to clipboard" aria-label="Copy install command">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-        </button>
+      <a href="#learn" class="btn-secondary">Learn the Syntax</a>
+    </div>
+
+    <!-- ─── Usage tabs ──────────────────────────────────────────────── -->
+    <div class="usage-section">
+      <div class="usage-tabs" role="tablist">
+        <button class="usage-tab active" data-tab="vanilla" role="tab" aria-selected="true">Vanilla</button>
+        <button class="usage-tab" data-tab="astro" role="tab" aria-selected="false">Astro</button>
+        <button class="usage-tab" data-tab="mdx" role="tab" aria-selected="false">MDX</button>
+      </div>
+
+      <div class="usage-panel active" data-panel="vanilla">
+        <div class="usage-install">
+          <code class="usage-cmd">npm i @markdy/core @markdy/renderer-dom</code>
+          <button class="copy-btn" title="Copy" aria-label="Copy install command">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          </button>
+        </div>
+        <pre class="usage-code"><code set:html={USAGE_VANILLA} /></pre>
+      </div>
+
+      <div class="usage-panel" data-panel="astro">
+        <div class="usage-install">
+          <code class="usage-cmd">pnpm add @markdy/astro</code>
+          <button class="copy-btn" title="Copy" aria-label="Copy install command">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          </button>
+        </div>
+        <pre class="usage-code"><code set:html={USAGE_ASTRO} /></pre>
+      </div>
+
+      <div class="usage-panel" data-panel="mdx">
+        <div class="usage-install">
+          <code class="usage-cmd">pnpm add @markdy/astro</code>
+          <button class="copy-btn" title="Copy" aria-label="Copy install command">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          </button>
+        </div>
+        <pre class="usage-code"><code set:html={USAGE_MDX} /></pre>
       </div>
     </div>
   </header>
@@ -523,6 +592,61 @@ seq wave(arm, angle) {
     </div>
   </section>
 
+  <!-- ─── AI-Friendly Generation ───────────────────────────────────────── -->
+  <section id="ai-gen" class="ai-section" aria-label="AI-powered generation">
+    <div class="section-header">
+      <span class="section-tag">Vibe Coding</span>
+      <h2>AI-Friendly by Design</h2>
+      <p>MarkdyScript is a structured DSL that AI agents can generate, validate, and iterate on. Just describe what you want.</p>
+    </div>
+
+    <div class="ai-grid">
+      <div class="ai-card ai-card-how">
+        <h3>How it works</h3>
+        <ol class="ai-steps">
+          <li>
+            <strong>Point your AI to the docs</strong>
+            <p>Share the <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md" target="_blank" rel="noopener noreferrer">Agent Guide</a>, <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/SYNTAX.md" target="_blank" rel="noopener noreferrer">Syntax Reference</a>, and <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/TUTORIAL.md" target="_blank" rel="noopener noreferrer">Tutorial</a> as context.</p>
+          </li>
+          <li>
+            <strong>Describe your scene in plain English</strong>
+            <p>Tell the AI what you want to visualize — characters, actions, emotions, timing.</p>
+          </li>
+          <li>
+            <strong>Get valid MarkdyScript back</strong>
+            <p>The AI generates syntactically correct code. Paste it into the playground or your app.</p>
+          </li>
+        </ol>
+      </div>
+
+      <div class="ai-card ai-card-example">
+        <h3>Example prompt</h3>
+        <div class="ai-prompt">
+          <div class="ai-prompt-header">
+            <span class="ai-prompt-label">You → Claude / ChatGPT / Copilot</span>
+          </div>
+          <blockquote class="ai-prompt-text">
+            Use <code>https://github.com/HoangYell/markdy-com/blob/main/docs</code> to learn MarkdyScript syntax, then write a Markdy scene:
+            <br /><br />
+            <em>"A guy holding a coffee cup walks in, trips on a rock, and loses his coffee cup. The cup flies and smashes. He looks sad."</em>
+          </blockquote>
+        </div>
+        <p class="ai-hint">The AI reads the docs, understands the grammar, and outputs a complete <code>.markdy</code> scene with actors, timeline events, and expressions — ready to render.</p>
+      </div>
+    </div>
+
+    <div class="ai-tools">
+      <p class="ai-tools-label">Works with any AI that accepts URL context</p>
+      <div class="ai-tools-list">
+        <span class="ai-tool">Claude</span>
+        <span class="ai-tool">ChatGPT</span>
+        <span class="ai-tool">GitHub Copilot</span>
+        <span class="ai-tool">Cursor</span>
+        <span class="ai-tool">Windsurf</span>
+      </div>
+    </div>
+  </section>
+
   <!-- ─── Footer ───────────────────────────────────────────────────────── -->
   <footer class="footer" role="contentinfo">
     <div class="footer-inner">
@@ -546,16 +670,31 @@ seq wave(arm, angle) {
 </script>
 
 <script>
-  /* ── Copy install command ──────────────────────────────────────────── */
-  const copyBtn = document.getElementById("copy-install");
-  const installCmd = document.getElementById("install-cmd");
-  if (copyBtn && installCmd) {
-    copyBtn.addEventListener("click", () => {
-      navigator.clipboard.writeText(installCmd.textContent?.trim() ?? "");
-      copyBtn.title = "Copied!";
-      setTimeout(() => { copyBtn.title = "Copy to clipboard"; }, 2000);
+  /* ── Usage tabs ────────────────────────────────────────────────────── */
+  const tabs = document.querySelectorAll<HTMLButtonElement>(".usage-tab");
+  const panels = document.querySelectorAll<HTMLDivElement>(".usage-panel");
+
+  tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+      const target = tab.dataset.tab;
+      tabs.forEach(t => { t.classList.remove("active"); t.setAttribute("aria-selected", "false"); });
+      panels.forEach(p => p.classList.remove("active"));
+      tab.classList.add("active");
+      tab.setAttribute("aria-selected", "true");
+      document.querySelector(`.usage-panel[data-panel="${target}"]`)?.classList.add("active");
     });
-  }
+  });
+
+  /* ── Copy install commands ─────────────────────────────────────────── */
+  document.querySelectorAll<HTMLButtonElement>(".copy-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const cmd = btn.closest(".usage-install")?.querySelector(".usage-cmd");
+      if (!cmd) return;
+      navigator.clipboard.writeText(cmd.textContent?.trim() ?? "");
+      btn.title = "Copied!";
+      setTimeout(() => { btn.title = "Copy"; }, 2000);
+    });
+  });
 
   /* ── Theme toggle (must run before CodeMirror to set CSS vars) ──── */
   const STORAGE_KEY = "markdy-theme";
@@ -964,9 +1103,10 @@ seq wave(arm, angle) {
 
   .hero-actions {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
   }
 
   .btn-primary {
@@ -989,28 +1129,87 @@ seq wave(arm, angle) {
     transform: translateY(-1px);
   }
 
-  .hero-install {
+  .btn-secondary {
     display: inline-flex;
+    align-items: center;
+    padding: 0.65rem 1.5rem;
+    background: transparent;
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ── Usage section ───────────────────────────────────────────────── */
+  .usage-section {
+    max-width: 560px;
+    margin: 2rem auto 0;
+    text-align: left;
+  }
+
+  .usage-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0;
+  }
+
+  .usage-tab {
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+  }
+
+  .usage-tab:hover { color: var(--text-secondary); }
+
+  .usage-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .usage-panel {
+    display: none;
+  }
+
+  .usage-panel.active {
+    display: block;
+  }
+
+  .usage-install {
+    display: flex;
     align-items: center;
     gap: 0.5rem;
     background: var(--bg-secondary);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.4rem 0.5rem 0.4rem 0.85rem;
-    box-shadow: 0 1px 3px var(--shadow-sm);
-    transition: all 0.3s ease;
+    border-top: none;
+    border-radius: 0 0 0 0;
+    padding: 0.45rem 0.55rem 0.45rem 0.85rem;
   }
 
-  .hero-install code {
-    font-size: 0.8rem;
+  .usage-cmd {
+    flex: 1;
+    font-size: 0.78rem;
     color: var(--text-primary);
     user-select: all;
-    background: none;
-    border: none;
-    padding: 0;
   }
 
   .copy-btn {
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1025,6 +1224,31 @@ seq wave(arm, angle) {
   }
 
   .copy-btn:hover { color: var(--accent); background: var(--accent-light); }
+
+  .usage-code {
+    background: var(--ref-code-bg);
+    color: var(--ref-code-text);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    padding: 0.85rem 1rem;
+    font-size: 0.76rem;
+    line-height: 1.65;
+    overflow-x: auto;
+    margin: 0;
+  }
+
+  .usage-code .u-kw { color: #cf222e; }
+  .usage-code .u-str { color: #0a3069; }
+  .usage-code .u-fn { color: #8250df; }
+  .usage-code .u-lit { color: #0550ae; }
+  .usage-code .u-comment { color: var(--text-muted); }
+
+  :root[data-theme="dark"] .usage-code .u-kw { color: #ff7b72; }
+  :root[data-theme="dark"] .usage-code .u-str { color: #a5d6ff; }
+  :root[data-theme="dark"] .usage-code .u-fn { color: #d2a8ff; }
+  :root[data-theme="dark"] .usage-code .u-lit { color: #79c0ff; }
+  :root[data-theme="dark"] .usage-code .u-comment { color: var(--text-muted); }
 
   /* ── Features ────────────────────────────────────────────────────── */
   .features {
@@ -1405,6 +1629,183 @@ seq wave(arm, angle) {
     color: var(--accent);
   }
 
+  /* ── AI Section ──────────────────────────────────────────────────── */
+  .ai-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 3.5rem;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .ai-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .ai-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    box-shadow: 0 1px 4px var(--shadow-sm);
+    transition: all 0.25s ease;
+  }
+
+  .ai-card:hover {
+    box-shadow: 0 4px 16px var(--shadow-md);
+  }
+
+  .ai-card h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+  }
+
+  .ai-steps {
+    list-style: none;
+    counter-reset: ai-step;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .ai-steps li {
+    counter-increment: ai-step;
+    position: relative;
+    padding-left: 2.25rem;
+  }
+
+  .ai-steps li::before {
+    content: counter(ai-step);
+    position: absolute;
+    left: 0;
+    top: 0.1rem;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .ai-steps li strong {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.15rem;
+  }
+
+  .ai-steps li p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .ai-steps li a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .ai-steps li a:hover {
+    color: var(--accent-hover);
+  }
+
+  .ai-prompt {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 0.75rem;
+  }
+
+  .ai-prompt-header {
+    padding: 0.4rem 0.85rem;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ai-prompt-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+  }
+
+  .ai-prompt-text {
+    padding: 0.85rem;
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-primary);
+    line-height: 1.6;
+    border: none;
+  }
+
+  .ai-prompt-text code {
+    font-size: 0.74rem;
+    background: var(--bg-tertiary);
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    color: var(--accent);
+    word-break: break-all;
+  }
+
+  .ai-prompt-text em {
+    color: var(--text-secondary);
+  }
+
+  .ai-hint {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .ai-hint code {
+    font-size: 0.74rem;
+    background: var(--bg-tertiary);
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    color: var(--accent);
+  }
+
+  .ai-tools {
+    text-align: center;
+  }
+
+  .ai-tools-label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 0.6rem;
+  }
+
+  .ai-tools-list {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .ai-tool {
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+  }
+
   /* ── Footer ──────────────────────────────────────────────────────── */
   .footer {
     padding: 1.5rem;
@@ -1451,6 +1852,7 @@ seq wave(arm, angle) {
     .stage-wrap { min-height: 280px; }
 
     .ref-grid { grid-template-columns: 1fr; }
+    .ai-grid { grid-template-columns: 1fr; }
 
     .editor-hint { display: none; }
 
