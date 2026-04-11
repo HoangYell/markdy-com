@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] — 2026-04-11
+### Fixed
+- CI and Release workflows now use Node.js 22 (required by Astro 6).
+- Release workflow builds only publishable packages (not website) to reduce build time.
+
 ## [0.1.0] — 2026-04-11
 ### Added
 - Core AST parser with support for `scene`, `actor`, and timeline animations (`@markdy/core`).
