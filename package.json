@@ -34,7 +34,8 @@
     "test": "pnpm -r run test",
     "lint": "pnpm -r run lint",
     "typecheck": "pnpm -r run typecheck",
-    "clean": "pnpm -r exec rm -rf dist"
+    "clean": "pnpm -r exec rm -rf dist",
+    "release": "./scripts/release.sh"
   },
   "devDependencies": {
     "typescript": "^6.0.2"
