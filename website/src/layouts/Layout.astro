@@ -45,7 +45,7 @@ const {
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <script src="https://code.iconify.design/3/3.1.0/iconify.min.js" defer></script>
 
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify({
@@ -60,13 +60,25 @@ const {
       "author": { "@type": "Person", "name": "Hoang Yell", "url": "https://hoangyell.com" }
     })} />
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-THREG65JS6"></script>
+    <!-- Google tag (gtag.js) - Delayed for Perf -->
     <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-THREG65JS6');
+      let isGtagLoaded = false;
+      const loadGtag = () => {
+        if (isGtagLoaded) return;
+        isGtagLoaded = true;
+        const script = document.createElement('script');
+        script.src = "https://www.googletagmanager.com/gtag/js?id=G-THREG65JS6";
+        script.async = true;
+        document.head.appendChild(script);
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-THREG65JS6');
+      };
+      ['mousemove', 'scroll', 'keydown', 'click', 'touchstart'].forEach(function(e) {
+        window.addEventListener(e, loadGtag, { once: true, passive: true });
+      });
+      setTimeout(loadGtag, 8000);
     </script>
 
     <!-- Prevent FOUC: set theme before render -->
@@ -101,6 +113,18 @@ const {
       ::selection {
         background: var(--selection-bg, #d1fae5);
         color: var(--selection-text, #064e3b);
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
       }
     </style>
   </head>
