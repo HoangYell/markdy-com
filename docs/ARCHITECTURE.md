@@ -201,11 +201,11 @@ This ensures correct visual state at `t=0` without needing `fill:"both"`.
 ```
 Server → SSR placeholder <div> (correct size + bg colour)
            ↓ (browser)
-IntersectionObserver (rootMargin: 100px) watches .markdy-root
-           ↓ (element enters viewport)
+IntersectionObserver (threshold: 1.0) watches .markdy-root
+           ↓ (element fully visible in viewport)
 observer.unobserve(el) → hydrate(el)
            ↓
-createPlayer({ container: el, code, assets, autoplay })
+createPlayer({ container: el, code, assets, autoplay, loop })
 ```
 
 - `data-markdy-code` — MarkdyScript source stored on the DOM element

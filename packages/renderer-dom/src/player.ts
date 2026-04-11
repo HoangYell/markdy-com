@@ -34,6 +34,8 @@ export interface PlayerOptions {
   code: string;
   assets?: Record<string, string>;
   autoplay?: boolean;
+  /** Loop the animation when it reaches the end. Defaults to true. */
+  loop?: boolean;
 }
 
 export interface Player {
@@ -44,22 +46,47 @@ export interface Player {
 }
 
 export function createPlayer(opts: PlayerOptions): Player {
-  const { container, code, assets: assetOverrides = {}, autoplay = false } =
+  const { container, code, assets: assetOverrides = {}, autoplay = true, loop = true } =
     opts;
 
   const ast = parse(code);
 
+  // ── Responsive viewport wrapper ────────────────────────────────────────────
+  // The scene uses fixed pixel dimensions from the AST.  We place it inside a
+  // 100%-wide viewport div and scale it with CSS transform so the animation
+  // always fits its container without breaking actor pixel-positions.
+  const viewport = document.createElement("div");
+  Object.assign(viewport.style, {
+    position: "relative",
+    width: "100%",
+    aspectRatio: `${ast.meta.width} / ${ast.meta.height}`,
+    overflow: "hidden",
+  });
+  container.appendChild(viewport);
+
   // ── Scene root ─────────────────────────────────────────────────────────────
   const scene = document.createElement("div");
   Object.assign(scene.style, {
-    position: "relative",
+    position: "absolute",
+    top: "0",
+    left: "0",
     width: `${ast.meta.width}px`,
     height: `${ast.meta.height}px`,
     background: ast.meta.bg,
     overflow: "hidden",
     userSelect: "none",
+    transformOrigin: "0 0",
   });
-  container.appendChild(scene);
+  viewport.appendChild(scene);
+
+  // Scale scene to fill viewport width, maintaining pixel-perfect actor positions.
+  function scaleScene(): void {
+    const s = viewport.clientWidth / ast.meta.width;
+    scene.style.transform = `scale(${s})`;
+  }
+  scaleScene();
+  const resizeObserver = new ResizeObserver(scaleScene);
+  resizeObserver.observe(viewport);
 
   // ── Actor elements ─────────────────────────────────────────────────────────
   const actorEls = new Map<string, HTMLElement>();
@@ -133,12 +160,16 @@ export function createPlayer(opts: PlayerOptions): Player {
 
     const totalMs = (ast.meta.duration ?? 0) * 1000;
     if (totalMs > 0 && sceneMs >= totalMs) {
-      sceneMs = totalMs;
-      applyCurrentTime();
-      isPlaying = false;
-      lastRafTs = null;
-      rafId = null;
-      return;
+      if (loop) {
+        sceneMs = sceneMs % totalMs;
+      } else {
+        sceneMs = totalMs;
+        applyCurrentTime();
+        isPlaying = false;
+        lastRafTs = null;
+        rafId = null;
+        return;
+      }
     }
 
     applyCurrentTime();
@@ -171,7 +202,8 @@ export function createPlayer(opts: PlayerOptions): Player {
     destroy() {
       player.pause();
       for (const anim of allAnims) anim.cancel();
-      if (scene.parentNode === container) container.removeChild(scene);
+      resizeObserver.disconnect();
+      if (viewport.parentNode === container) container.removeChild(viewport);
     },
   };
 

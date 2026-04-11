@@ -5,7 +5,24 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] — 2026-04-11
+
+### Changed
+- Bumped package versions to 0.5.0
+
 ## [Unreleased]
+
+## [0.3.0] — 2026-04-11
+
+### Added
+- Automated release script (`scripts/release.sh`) — bumps versions across all packages, commits, tags, and pushes in a single command.
+- Release workflow documentation in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+### Changed
+- Updated `README.md` with `pnpm run release <version>` in the Scripts table.
+
+### Improved
+- Inlined CSS stylesheets and optimised Google Fonts loading on the website for better Lighthouse performance scores.
 
 ## [0.2.0] — 2026-04-11
 

@@ -62,11 +62,11 @@ docs: update SYNTAX.md with var/def/seq reference
 To cut a new version and publish all packages:
 
 1. Make sure your git working tree is clean on the `main` branch.
-2. Run the automated release script with your target version (e.g., `0.3.0`):
+2. Run the automated release script with your target version (e.g., `0.5.0`):
    ```sh
-   pnpm run release 0.3.0
+   pnpm run release 0.5.0
    ```
-3. The script will automatically update the version in all internal packages, synchronize the lockfile, commit the changes, create a `v0.3.0` git tag, and push everything.
+3. The script will automatically update the version in all internal packages, synchronize the lockfile, commit the changes, create a `v0.5.0` git tag, and push everything.
 4. The GitHub Actions release workflow will take over to build and publish the packages to npm and create the official GitHub release.
 
 ## Reporting Issues

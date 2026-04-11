@@ -3,7 +3,7 @@ set -e
 
 if [ -z "$1" ]; then
   echo "Usage: pnpm run release <version>"
-  echo "Example: pnpm run release 0.3.0"
+  echo "Example: pnpm run release 0.5.0"
   exit 1
 fi
 

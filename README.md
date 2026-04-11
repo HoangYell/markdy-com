@@ -199,7 +199,8 @@ interface PlayerOptions {
   container: HTMLElement;    // Mount point
   code: string;             // MarkdyScript source
   assets?: Record<string, string>;  // Asset URL overrides
-  autoplay?: boolean;       // Start immediately (default: false)
+  autoplay?: boolean;       // Start immediately (default: true)
+  loop?: boolean;           // Loop at end (default: false)
 }
 
 interface Player {
@@ -219,7 +220,8 @@ interface Player {
 | `height` | `number` | `400` | Placeholder height (px) |
 | `bg` | `string` | `"white"` | Placeholder background colour |
 | `assets` | `Record<string, string>` | `{}` | Asset URL overrides |
-| `autoplay` | `boolean` | `true` | Auto-play on hydration |
+| `autoplay` | `boolean` | `true` | Auto-play when fully visible in viewport |
+| `loop` | `boolean` | `false` | Loop the animation when it ends |
 | `class` | `string` | — | CSS class for outer wrapper |
 
 ---
