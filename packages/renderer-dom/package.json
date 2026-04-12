@@ -1,6 +1,6 @@
 {
   "name": "@markdy/renderer-dom",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "description": "Web Animations API renderer for MarkdyScript scenes.",
   "license": "MIT",
   "type": "module",
