@@ -87,11 +87,11 @@ export function createPlayer(opts: PlayerOptions): Player {
 
   function updateProgressBar(pct: number): void {
     if (!progressEl) return;
-    // pct is 0..1; map to 360 degrees starting from top-left (315deg)
+    // pct is 0..1; map to 360 degrees starting from top-left corner (315deg)
     const deg = pct * 360;
     const rainbow = "hsl(0,90%,60%), hsl(45,90%,55%), hsl(90,80%,50%), hsl(180,80%,50%), hsl(270,80%,55%), hsl(330,90%,60%)";
     progressEl.style.background =
-      `conic-gradient(from 225deg, ${rainbow} ${deg}deg, transparent ${deg}deg)`;
+      `conic-gradient(from 315deg, ${rainbow} ${deg}deg, transparent ${deg}deg)`;
     progressEl.style.mask =
       `linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)`;
     progressEl.style.webkitMask = progressEl.style.mask;
