@@ -50,7 +50,10 @@ player.destroy();    // clean up DOM + cancel animations
 | `container` | `HTMLElement` | *(required)* | DOM element to mount the scene into |
 | `code` | `string` | *(required)* | MarkdyScript source code |
 | `assets` | `Record<string, string>` | `{}` | Asset URL overrides (key = asset name) |
-| `autoplay` | `boolean` | `false` | Start playing immediately |
+| `autoplay` | `boolean` | `true` | Start playing immediately |
+| `loop` | `boolean` | `true` | Loop the animation when it reaches the end |
+| `copyright` | `boolean` | `true` | Show a small "Powered by Markdy" badge below the animation |
+| `progressBar` | `boolean` | `true` | Show a rainbow progress bar around the viewport border |
 
 ### `Player`
 

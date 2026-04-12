@@ -200,7 +200,9 @@ interface PlayerOptions {
   code: string;             // MarkdyScript source
   assets?: Record<string, string>;  // Asset URL overrides
   autoplay?: boolean;       // Start immediately (default: true)
-  loop?: boolean;           // Loop at end (default: false)
+  loop?: boolean;           // Loop at end (default: true)
+  copyright?: boolean;      // "Powered by Markdy" badge (default: true)
+  progressBar?: boolean;    // Rainbow border progress bar (default: true)
 }
 
 interface Player {
@@ -221,7 +223,9 @@ interface Player {
 | `bg` | `string` | `"white"` | Placeholder background colour |
 | `assets` | `Record<string, string>` | `{}` | Asset URL overrides |
 | `autoplay` | `boolean` | `true` | Auto-play when fully visible in viewport |
-| `loop` | `boolean` | `false` | Loop the animation when it ends |
+| `loop` | `boolean` | `true` | Loop the animation when it ends |
+| `copyright` | `boolean` | `true` | Show a "Powered by Markdy" badge below the animation |
+| `progressBar` | `boolean` | `true` | Show a rainbow progress bar around the viewport border |
 | `class` | `string` | — | CSS class for outer wrapper |
 
 ---

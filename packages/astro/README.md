@@ -56,6 +56,9 @@ export const code = `
 | `bg` | `string` | `"white"` | Placeholder background colour |
 | `assets` | `Record<string, string>` | `{}` | Asset URL overrides |
 | `autoplay` | `boolean` | `true` | Start playing on hydration |
+| `loop` | `boolean` | `true` | Loop the animation when it ends |
+| `copyright` | `boolean` | `true` | Show a "Powered by Markdy" badge below the animation |
+| `progressBar` | `boolean` | `true` | Show a rainbow progress bar around the viewport border |
 | `class` | `string` | — | CSS class for the outer wrapper |
 
 > **Tip:** Match `width`, `height`, and `bg` props to your `scene` declaration values to avoid a visual flash on hydration.
