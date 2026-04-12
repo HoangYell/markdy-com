@@ -38,6 +38,8 @@ export interface PlayerOptions {
   loop?: boolean;
   /** Show a small "Powered by Markdy" badge below the animation. Defaults to true. */
   copyright?: boolean;
+  /** Show a rainbow progress bar around the viewport border. Defaults to true. */
+  progressBar?: boolean;
 }
 
 export interface Player {
@@ -48,7 +50,7 @@ export interface Player {
 }
 
 export function createPlayer(opts: PlayerOptions): Player {
-  const { container, code, assets: assetOverrides = {}, autoplay = true, loop = true, copyright = true } =
+  const { container, code, assets: assetOverrides = {}, autoplay = true, loop = true, copyright = true, progressBar = true } =
     opts;
 
   const ast = parse(code);
@@ -65,6 +67,38 @@ export function createPlayer(opts: PlayerOptions): Player {
     overflow: "hidden",
   });
   container.appendChild(viewport);
+
+  // ── Rainbow progress bar ───────────────────────────────────────────────────
+  // A conic-gradient overlay that traces top→right→bottom→left as playback
+  // progresses.  Two layers: the rainbow gradient masked to a 2px border,
+  // and an inner transparent fill so the scene shows through.
+  let progressEl: HTMLElement | null = null;
+  if (progressBar) {
+    progressEl = document.createElement("div");
+    Object.assign(progressEl.style, {
+      position: "absolute",
+      inset: "0",
+      zIndex: "9999",
+      pointerEvents: "none",
+      borderRadius: "inherit",
+    });
+    viewport.appendChild(progressEl);
+  }
+
+  function updateProgressBar(pct: number): void {
+    if (!progressEl) return;
+    // pct is 0..1; map to 360 degrees starting from top-left (315deg)
+    const deg = pct * 360;
+    const rainbow = "hsl(0,90%,60%), hsl(45,90%,55%), hsl(90,80%,50%), hsl(180,80%,50%), hsl(270,80%,55%), hsl(330,90%,60%)";
+    progressEl.style.background =
+      `conic-gradient(from 225deg, ${rainbow} ${deg}deg, transparent ${deg}deg)`;
+    progressEl.style.mask =
+      `linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)`;
+    progressEl.style.webkitMask = progressEl.style.mask;
+    progressEl.style.maskComposite = "exclude";
+    (progressEl.style as any).webkitMaskComposite = "xor";
+    progressEl.style.padding = "2px";
+  }
 
   // ── Copyright badge ────────────────────────────────────────────────────────
   let badge: HTMLAnchorElement | null = null;
@@ -199,6 +233,11 @@ export function createPlayer(opts: PlayerOptions): Player {
     }
 
     applyCurrentTime();
+
+    // Update progress bar
+    const totalMsP = (ast.meta.duration ?? 0) * 1000;
+    if (totalMsP > 0) updateProgressBar(sceneMs / totalMsP);
+
     rafId = requestAnimationFrame(rafTick);
   }
 
@@ -223,12 +262,15 @@ export function createPlayer(opts: PlayerOptions): Player {
     seek(seconds: number) {
       sceneMs = seconds * 1000;
       applyCurrentTime();
+      const totalMsS = (ast.meta.duration ?? 0) * 1000;
+      if (totalMsS > 0) updateProgressBar(sceneMs / totalMsS);
     },
 
     destroy() {
       player.pause();
       for (const anim of allAnims) anim.cancel();
       resizeObserver.disconnect();
+      if (progressEl?.parentNode === viewport) viewport.removeChild(progressEl);
       if (badge?.parentNode === container) container.removeChild(badge);
       if (viewport.parentNode === container) container.removeChild(viewport);
     },
