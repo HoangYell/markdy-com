@@ -324,6 +324,7 @@ function buildAction(
         transformOrigin: "center bottom",
         background: "white",
         border: "2px solid #222",
+        color: "#222",
         borderRadius: "12px",
         padding: "6px 14px",
         fontFamily: "system-ui, sans-serif",

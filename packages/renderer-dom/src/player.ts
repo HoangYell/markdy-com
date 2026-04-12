@@ -49,6 +49,27 @@ export interface Player {
   destroy(): void;
 }
 
+/**
+ * Given a CSS background color (hex #rrggbb / #rgb, or common named colors),
+ * return an appropriate contrasting text color.
+ */
+function bgToTextColor(bg: string): string {
+  let hex = bg.trim().replace(/^#/, "");
+  if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+  if (hex.length === 6) {
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    // Perceived luminance (ITU-R BT.601)
+    return (0.299 * r + 0.587 * g + 0.114 * b) > 140 ? "#1a1a1a" : "#f0f0f0";
+  }
+  // Named color fallback
+  const named: Record<string, string> = {
+    white: "#1a1a1a", black: "#f0f0f0", transparent: "#1a1a1a",
+  };
+  return named[bg.toLowerCase()] ?? "#1a1a1a";
+}
+
 export function createPlayer(opts: PlayerOptions): Player {
   const { container, code, assets: assetOverrides = {}, autoplay = true, loop = true, copyright = true, progressBar = true } =
     opts;
@@ -144,6 +165,7 @@ export function createPlayer(opts: PlayerOptions): Player {
     width: `${ast.meta.width}px`,
     height: `${ast.meta.height}px`,
     background: ast.meta.bg,
+    color: bgToTextColor(ast.meta.bg),
     overflow: "hidden",
     userSelect: "none",
     transformOrigin: "0 0",

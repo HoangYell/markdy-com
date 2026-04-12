@@ -51,6 +51,7 @@ export function createActorEl(
       div.style.whiteSpace = "nowrap";
       div.style.userSelect = "none";
       div.style.pointerEvents = "none";
+      // color inherits from scene element which sets a bg-contrasting color
       el = div;
       break;
     }
