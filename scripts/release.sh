@@ -21,6 +21,9 @@ if [ -n "$(git status --porcelain)" ]; then
 fi
 
 echo "📦 Updating package.json versions..."
+# Update root version
+npm version "$VERSION" --no-git-tag-version
+
 # Update versions in packages
 for pkg in packages/*; do
   if [ -f "$pkg/package.json" ]; then
