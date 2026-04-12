@@ -325,6 +325,58 @@ describe("var declarations", () => {
     expect(ast.vars["bg_color"]).toBe("#fff5f9");
     expect(ast.meta.bg).toBe("#fff5f9");
   });
+
+  it("substitutes backslash-escaped var in actor args (String.raw MDX form)", () => {
+    // String.raw`\${skin}` produces the literal string \${skin} with the backslash.
+    // The parser must handle both ${var} and \${var}.
+    const ast = parse([
+      "var skin = #c68642",
+      "actor h = figure(\\${skin}) at (0,0)",
+    ].join("\n"));
+    expect(ast.actors["h"].args).toEqual(["#c68642"]);
+  });
+
+  it("substitutes backslash-escaped var in position (String.raw MDX form)", () => {
+    const ast = parse([
+      "var px = 300",
+      "var py = 200",
+      "actor h = sprite(img) at (\\${px},\\${py})",
+    ].join("\n"));
+    expect(ast.actors["h"]).toMatchObject({ x: 300, y: 200 });
+  });
+
+  it("substitutes backslash-escaped var in event params", () => {
+    const ast = parse([
+      "var speed = 0.8",
+      "actor p = sprite(pepe) at (0,0)",
+      "@1.0: p.enter(from=left, dur=\\${speed})",
+    ].join("\n"));
+    expect(ast.events[0].params.dur).toBe(0.8);
+  });
+
+  it("substitutes backslash-escaped var in scene bg", () => {
+    const ast = parse("var bg_color = #fff5f9\nscene bg=\\${bg_color}");
+    expect(ast.meta.bg).toBe("#fff5f9");
+  });
+
+  it("supports chained backslash-escaped var references", () => {
+    const ast = parse([
+      "var base = 100",
+      "var offset = \\${base}",
+      "actor p = sprite(x) at (\\${offset},0)",
+    ].join("\n"));
+    expect(ast.actors["p"].x).toBe(100);
+  });
+
+  it("handles mixed backslash-escaped and plain vars", () => {
+    const ast = parse([
+      "var skin = #c68642",
+      "var y = 200",
+      "actor h = figure(\\${skin}) at (100,${y})",
+    ].join("\n"));
+    expect(ast.actors["h"].args).toEqual(["#c68642"]);
+    expect(ast.actors["h"]).toMatchObject({ x: 100, y: 200 });
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -376,6 +428,35 @@ describe("def declarations", () => {
 
   it("throws on empty def body", () => {
     expect(() => parse("def bad() {\n}")).toThrow(ParseError);
+  });
+
+  it("handles backslash-escaped params in def body (String.raw MDX form)", () => {
+    const ast = parse([
+      "def guy(skin, face) {",
+      "  figure(\\${skin}, m, \\${face})",
+      "}",
+      "actor b = guy(#c68642, 😎) at (300, 200)",
+    ].join("\n"));
+    expect(ast.actors["b"]).toMatchObject({
+      type: "figure",
+      args: ["#c68642", "m", "😎"],
+      x: 300,
+      y: 200,
+    });
+  });
+
+  it("handles backslash-escaped global var in def caller args", () => {
+    const ast = parse([
+      "var skin = #c68642",
+      "def guy(s) {",
+      "  figure(${s}, m)",
+      "}",
+      "actor b = guy(\\${skin}) at (300, 200)",
+    ].join("\n"));
+    expect(ast.actors["b"]).toMatchObject({
+      type: "figure",
+      args: ["#c68642", "m"],
+    });
   });
 });
 
@@ -463,6 +544,64 @@ describe("seq declarations", () => {
       actor: "b",
       action: "say",
       params: { text: "hello", dur: 1.0 },
+    });
+  });
+
+  it("handles backslash-escaped vars in seq body params", () => {
+    const ast = parse([
+      "actor p = sprite(img) at (0,0)",
+      "seq hit(side) {",
+      "  @+0.0: $.punch(side=\\${side}, dur=0.3)",
+      "}",
+      "@5.0: p.play(hit, side=left)",
+    ].join("\n"));
+    expect(ast.events[0].params).toMatchObject({ side: "left", dur: 0.3 });
+  });
+
+  it("handles full MDX-realistic scene with all backslash-escaped forms", () => {
+    // This simulates what String.raw produces in the actual blog post MDX
+    const ast = parse([
+      "var skin_jr = #c68642",
+      "var skin_sr = #5b4033",
+      "var y = 230",
+      "",
+      "scene width=960 height=460 bg=#0d1117",
+      "",
+      "def guy(skin, face) {",
+      "  figure(\\${skin}, m, \\${face})",
+      "}",
+      "",
+      "seq rage {",
+      "  @+0.0: $.shake(intensity=8, dur=0.35)",
+      "  @+0.35: $.rotate_part(part=arm_right, to=65, dur=0.25)",
+      "  @+0.6: $.rotate_part(part=arm_right, to=-20, dur=0.25)",
+      "}",
+      "",
+      "actor junior = guy(\\${skin_jr}, 😊) at (160, \\${y})",
+      "actor senior = guy(\\${skin_sr}, 😒) at (800, \\${y})",
+      "",
+      "@0.0: junior.enter(from=left, dur=0.8)",
+      "@0.5: senior.enter(from=right, dur=0.8)",
+      "@5.5: senior.play(rage)",
+    ].join("\n"));
+    expect(ast.actors["junior"]).toMatchObject({
+      type: "figure",
+      args: ["#c68642", "m", "😊"],
+      x: 160,
+      y: 230,
+    });
+    expect(ast.actors["senior"]).toMatchObject({
+      type: "figure",
+      args: ["#5b4033", "m", "😒"],
+      x: 800,
+      y: 230,
+    });
+    expect(ast.events).toHaveLength(5); // 2 enters + 3 seq events
+    expect(ast.events[2]).toMatchObject({
+      time: 5.5,
+      actor: "senior",
+      action: "shake",
+      params: { intensity: 8, dur: 0.35 },
     });
   });
 });

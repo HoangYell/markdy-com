@@ -202,10 +202,14 @@ const SEQ_EVENT_RE = /^@\+([\d.]+):\s+\$\.(\w+)\((.*)\)$/;
 
 /**
  * Replaces all `${name}` tokens in a string using the provided vars map.
+ * Also handles the backslash-escaped form `\${name}` produced by
+ * `String.raw` template literals in MDX files (where `\${name}` prevents
+ * JavaScript from treating the braces as a JS template expression, but
+ * `String.raw` preserves the backslash in the resulting string).
  * Unknown vars are left as-is (will cause a parse error later, which is fine).
  */
 function interpolate(s: string, vars: Record<string, string>): string {
-  return s.replace(/\$\{(\w+)\}/g, (_, name) => vars[name] ?? `\${${name}}`);
+  return s.replace(/\\?\$\{(\w+)\}/g, (_, name) => vars[name] ?? `\${${name}}`);
 }
 
 // ---------------------------------------------------------------------------

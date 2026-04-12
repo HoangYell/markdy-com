@@ -5,6 +5,12 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.8] — 2026-04-12
+
+### Fixed
+- **Backslash-escaped variable interpolation** — `\${varname}` (the form produced by `String.raw` template literals in MDX) is now correctly resolved by the parser. Previously, only `${varname}` was matched, causing scenes embedded in MDX via `<Markdy code={String.raw\`...\`} />` to silently fail when using `var`, `def`, or `seq` features. The fix applies to all interpolation paths: var declarations, actor args/positions, event params, scene properties, def body templates, and seq body params.
+- Added 10 new regression tests covering backslash-escaped vars across every parser code path.
+
 ## [0.5.7] — 2026-04-12
 
 ### Fixed
