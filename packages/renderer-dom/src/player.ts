@@ -118,10 +118,17 @@ export function createPlayer(opts: PlayerOptions): Player {
       padding: "3px 6px 0",
       opacity: "0.7",
       transition: "opacity 0.2s",
+      maxWidth: container.style.maxWidth || "100%",
+      width: "100%",
     });
     badge.addEventListener("mouseenter", () => { badge!.style.opacity = "1"; });
     badge.addEventListener("mouseleave", () => { badge!.style.opacity = "0.7"; });
-    container.appendChild(badge);
+    // Insert after (not inside) the container so it's not clipped by overflow:hidden
+    if (container.parentNode) {
+      container.parentNode.insertBefore(badge, container.nextSibling);
+    } else {
+      container.appendChild(badge);
+    }
   }
 
   // ── Scene root ─────────────────────────────────────────────────────────────
@@ -271,7 +278,7 @@ export function createPlayer(opts: PlayerOptions): Player {
       for (const anim of allAnims) anim.cancel();
       resizeObserver.disconnect();
       if (progressEl?.parentNode === viewport) viewport.removeChild(progressEl);
-      if (badge?.parentNode === container) container.removeChild(badge);
+      if (badge?.parentNode) badge.parentNode.removeChild(badge);
       if (viewport.parentNode === container) container.removeChild(viewport);
     },
   };
