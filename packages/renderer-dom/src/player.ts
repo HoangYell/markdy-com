@@ -54,6 +54,7 @@ export function createPlayer(opts: PlayerOptions): Player {
     opts;
 
   const ast = parse(code);
+  const totalDurationMs = (ast.meta.duration ?? 0) * 1000;
 
   // ── Responsive viewport wrapper ────────────────────────────────────────────
   // The scene uses fixed pixel dimensions from the AST.  We place it inside a
@@ -228,12 +229,11 @@ export function createPlayer(opts: PlayerOptions): Player {
     }
     lastRafTs = timestamp;
 
-    const totalMs = (ast.meta.duration ?? 0) * 1000;
-    if (totalMs > 0 && sceneMs >= totalMs) {
+    if (totalDurationMs > 0 && sceneMs >= totalDurationMs) {
       if (loop) {
-        sceneMs = sceneMs % totalMs;
+        sceneMs = sceneMs % totalDurationMs;
       } else {
-        sceneMs = totalMs;
+        sceneMs = totalDurationMs;
         applyCurrentTime();
         isPlaying = false;
         lastRafTs = null;
@@ -245,8 +245,7 @@ export function createPlayer(opts: PlayerOptions): Player {
     applyCurrentTime();
 
     // Update progress bar
-    const totalMsP = (ast.meta.duration ?? 0) * 1000;
-    if (totalMsP > 0) updateProgressBar(sceneMs / totalMsP);
+    if (totalDurationMs > 0) updateProgressBar(sceneMs / totalDurationMs);
 
     rafId = requestAnimationFrame(rafTick);
   }
@@ -272,8 +271,7 @@ export function createPlayer(opts: PlayerOptions): Player {
     seek(seconds: number) {
       sceneMs = seconds * 1000;
       applyCurrentTime();
-      const totalMsS = (ast.meta.duration ?? 0) * 1000;
-      if (totalMsS > 0) updateProgressBar(sceneMs / totalMsS);
+      if (totalDurationMs > 0) updateProgressBar(sceneMs / totalDurationMs);
     },
 
     destroy() {

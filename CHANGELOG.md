@@ -5,6 +5,17 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.6] — 2026-04-12
+
+### Fixed
+- Extracted `totalDurationMs` as a single constant in `createPlayer` — eliminates three redundant `(ast.meta.duration ?? 0) * 1000` recalculations per frame in the rAF tick loop.
+
+### Changed
+- Release script now also bumps the root `package.json` version alongside package versions.
+
+### Website
+- Added `theme-color` meta tags for light (`#fafafa`) and dark (`#0f172a`) color schemes to improve browser chrome theming on mobile.
+
 ## [0.5.5] — 2026-04-12
 
 ### Fixed
@@ -41,8 +52,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Bumped package versions to 0.5.0
-
-## [Unreleased]
 
 ## [0.3.0] — 2026-04-11
 
