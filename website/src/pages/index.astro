@@ -690,6 +690,24 @@ seq wave(arm, angle) {
       </div>
     </div>
   </section>
+
+  <!-- ─── Showcase ─────────────────────────────────────────────────────── -->
+  <section id="showcase" class="showcase-section" aria-label="Built with Markdy">
+    <div class="section-header">
+      <span class="section-tag">Community</span>
+      <h2>Built with Markdy</h2>
+      <p>Real projects using Markdy in production.</p>
+    </div>
+    <div class="showcase-grid">
+      <a class="showcase-card" href="https://repo.hoangyell.com/markdy-the-scene-language-for-astro-docs/" target="_blank" rel="noopener noreferrer">
+        <div class="showcase-card-body">
+          <div class="showcase-card-title">Markdy — The Scene Language for Astro</div>
+          <div class="showcase-card-url">repo.hoangyell.com</div>
+        </div>
+        <svg class="showcase-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+      </a>
+    </div>
+  </section>
   </main>
 
   <!-- ─── Footer ───────────────────────────────────────────────────────── -->
@@ -708,6 +726,7 @@ seq wave(arm, angle) {
             <a href="#learn">Syntax Reference</a>
             <a href="#packages">Packages</a>
             <a href="#ai-gen">AI Generation</a>
+            <a href="#showcase">Showcase</a>
           </div>
           <div class="footer-col">
             <h3>Resources</h3>
@@ -1946,6 +1965,64 @@ seq wave(arm, angle) {
     background: var(--bg-tertiary);
     padding: 0.1rem 0.35rem;
     border-radius: 4px;
+    color: var(--accent);
+  }
+
+  /* ── Showcase Section ─────────────────────────────────────────────── */
+  .showcase-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 3.5rem;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .showcase-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .showcase-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    text-decoration: none;
+    color: inherit;
+    min-width: 280px;
+    flex: 1 1 280px;
+    max-width: 420px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+
+  .showcase-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+  }
+
+  .showcase-card-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .showcase-card-url {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .showcase-card-arrow {
+    flex-shrink: 0;
+    color: var(--muted);
+    transition: color 0.15s;
+  }
+
+  .showcase-card:hover .showcase-card-arrow {
     color: var(--accent);
   }
 
