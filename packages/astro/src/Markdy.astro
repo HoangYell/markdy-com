@@ -38,6 +38,8 @@ export interface Props {
   autoplay?: boolean;
   /** Loop the animation when it ends. Defaults to true. */
   loop?: boolean;
+  /** Show a small "Powered by Markdy" badge below the animation. Defaults to true. */
+  copyright?: boolean;
   class?: string;
   /**
    * Short human-readable title for the animation.
@@ -60,6 +62,7 @@ const {
   assets = {},
   autoplay = true,
   loop = true,
+  copyright = true,
   class: className,
   title = "Markdy animation",
   description,
@@ -72,6 +75,7 @@ const {
   data-markdy-assets={JSON.stringify(assets)}
   data-markdy-autoplay={String(autoplay)}
   data-markdy-loop={String(loop)}
+  data-markdy-copyright={String(copyright)}
   role="img"
   aria-label={title}
   aria-busy="true"
@@ -135,6 +139,7 @@ const {
 
     const autoplay = el.dataset.markdyAutoplay !== "false";
     const loop = el.dataset.markdyLoop !== "false";
+    const copyright = el.dataset.markdyCopyright !== "false";
 
     // Code-split: renderer-dom is NOT part of the initial page bundle.
     const { createPlayer } = await import("@markdy/renderer-dom");
@@ -143,7 +148,7 @@ const {
     // async import resolves, so there is no flash of empty content.
     el.innerHTML = "";
 
-    createPlayer({ container: el, code, assets, autoplay, loop });
+    createPlayer({ container: el, code, assets, autoplay, loop, copyright });
 
     el.dataset.markdyInit = "done";
     el.removeAttribute("aria-busy");

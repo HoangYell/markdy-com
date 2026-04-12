@@ -36,6 +36,8 @@ export interface PlayerOptions {
   autoplay?: boolean;
   /** Loop the animation when it reaches the end. Defaults to true. */
   loop?: boolean;
+  /** Show a small "Powered by Markdy" badge below the animation. Defaults to true. */
+  copyright?: boolean;
 }
 
 export interface Player {
@@ -46,7 +48,7 @@ export interface Player {
 }
 
 export function createPlayer(opts: PlayerOptions): Player {
-  const { container, code, assets: assetOverrides = {}, autoplay = true, loop = true } =
+  const { container, code, assets: assetOverrides = {}, autoplay = true, loop = true, copyright = true } =
     opts;
 
   const ast = parse(code);
@@ -63,6 +65,30 @@ export function createPlayer(opts: PlayerOptions): Player {
     overflow: "hidden",
   });
   container.appendChild(viewport);
+
+  // ── Copyright badge ────────────────────────────────────────────────────────
+  let badge: HTMLAnchorElement | null = null;
+  if (copyright) {
+    badge = document.createElement("a");
+    badge.href = "https://markdy.com";
+    badge.target = "_blank";
+    badge.rel = "noopener noreferrer";
+    badge.textContent = "Powered by Markdy";
+    Object.assign(badge.style, {
+      display: "block",
+      textAlign: "right",
+      fontSize: "10px",
+      fontFamily: "system-ui, -apple-system, sans-serif",
+      color: "#999",
+      textDecoration: "none",
+      padding: "3px 6px 0",
+      opacity: "0.7",
+      transition: "opacity 0.2s",
+    });
+    badge.addEventListener("mouseenter", () => { badge!.style.opacity = "1"; });
+    badge.addEventListener("mouseleave", () => { badge!.style.opacity = "0.7"; });
+    container.appendChild(badge);
+  }
 
   // ── Scene root ─────────────────────────────────────────────────────────────
   const scene = document.createElement("div");
@@ -203,6 +229,7 @@ export function createPlayer(opts: PlayerOptions): Player {
       player.pause();
       for (const anim of allAnims) anim.cancel();
       resizeObserver.disconnect();
+      if (badge?.parentNode === container) container.removeChild(badge);
       if (viewport.parentNode === container) container.removeChild(viewport);
     },
   };

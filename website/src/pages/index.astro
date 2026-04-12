@@ -913,7 +913,7 @@ seq wave(arm, angle) {
     if (player) { player.destroy(); player = null; }
     stage.innerHTML = "";
     try {
-      player = createPlayer({ container: stage, code, assets, autoplay: true });
+      player = createPlayer({ container: stage, code, assets, autoplay: true, copyright: false });
       setStatus(true);
       if ((window as any).Iconify) {
         (window as any).Iconify.scan(stage);
