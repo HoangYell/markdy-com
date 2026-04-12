@@ -5,6 +5,19 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.4] — 2026-04-12
+
+### Added
+- `progressBar` option (`boolean`, default `true`) — renders a rainbow `conic-gradient` border that traces top→right→bottom→left as playback progresses.
+- `copyright` option (`boolean`, default `true`) — renders a small "Powered by Markdy" link below the animation viewport.
+
+### Fixed
+- Compute the progress bar start angle from the scene aspect ratio so it visually starts at the top-left corner for non-square viewports.
+- Place the copyright badge outside the scene container so it is not clipped by `overflow:hidden`.
+
+### Docs
+- Updated API tables and integration examples in README and package READMEs to document `copyright`, `progressBar`, and `loop`.
+
 ## [0.5.3] — 2026-04-12
 
 ### Added
