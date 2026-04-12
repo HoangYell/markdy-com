@@ -415,6 +415,9 @@ const player = createPlayer({
   container: document.getElementById("scene")!,
   code: generatedMarkdyScript,
   autoplay: true,
+  loop: true,         // loop when animation ends (default: true)
+  copyright: true,    // "Powered by Markdy" badge below viewport (default: true)
+  progressBar: true,  // rainbow border progress indicator (default: true)
 });
 ```
 
@@ -425,6 +428,8 @@ const player = createPlayer({
 import { Markdy } from "@markdy/astro";
 ---
 <Markdy code={generatedMarkdyScript} width={800} height={400} autoplay />
+{/* Disable branding if embedding in your own product: */}
+<Markdy code={generatedMarkdyScript} width={800} height={400} autoplay copyright={false} progressBar={false} />
 ```
 
 ### Parse Only (validation)

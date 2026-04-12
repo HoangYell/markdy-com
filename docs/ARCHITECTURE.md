@@ -205,11 +205,15 @@ IntersectionObserver (threshold: 1.0) watches .markdy-root
            ↓ (element fully visible in viewport)
 observer.unobserve(el) → hydrate(el)
            ↓
-createPlayer({ container: el, code, assets, autoplay, loop })
+createPlayer({ container: el, code, assets, autoplay, loop, copyright, progressBar })
 ```
 
 - `data-markdy-code` — MarkdyScript source stored on the DOM element
 - `data-markdy-assets` — JSON-serialised asset overrides
+- `data-markdy-autoplay` — `"true"` / `"false"`
+- `data-markdy-loop` — `"true"` / `"false"`
+- `data-markdy-copyright` — `"true"` / `"false"` (shows "Powered by Markdy" badge)
+- `data-markdy-progress-bar` — `"true"` / `"false"` (shows rainbow border progress bar)
 - `data-markdy-init` — prevents double-registration
 - **View Transitions:** Listens for `astro:page-load` to re-observe new elements
 
