@@ -111,11 +111,13 @@ Modifiers follow the `at (x,y)` clause as space-separated `key value` pairs. All
 | `rotate`  | number | `0`     | Initial rotation in degrees      |
 | `opacity` | number | `1`     | Initial opacity (0–1)            |
 | `size`    | number | —       | Font size in px (text actors); icon size in px (icon sprites) |
+| `z`       | number | —       | Z-index for layering control (higher = in front) |
 
 ```markdy
 actor p     = sprite(pepe) at (100,250) scale 0.4
 actor title = text("Ship it") at (320,80) size 48 opacity 0
 actor box1  = box() at (50,50) rotate 45
+actor hero  = figure(#c68642, m, 😎) at (200, 200) z 5
 ```
 
 ---
@@ -332,6 +334,90 @@ Valid part names: `head`, `face`, `body`, `arm_left`, `arm_right`, `leg_left`, `
 
 ---
 
+### `pose`
+
+Sets multiple body parts to target angles simultaneously in a single action. More ergonomic than chaining multiple `rotate_part` calls. **Figure actors only.**
+
+```markdy
+@1.0: hero.pose(arm_left=45, arm_right=-45, leg_left=10, dur=0.4)
+@2.0: hero.pose(arm_left=0, arm_right=0, head=15, dur=0.3)
+```
+
+| Parameter    | Type   | Description                         |
+|--------------|--------|-------------------------------------|
+| `arm_left`   | number | Target angle for left arm (degrees) |
+| `arm_right`  | number | Target angle for right arm          |
+| `leg_left`   | number | Target angle for left leg           |
+| `leg_right`  | number | Target angle for right leg          |
+| `head`       | number | Target angle for head               |
+| `body`       | number | Target angle for torso              |
+| `dur`        | seconds |                                    |
+
+Only the parts you specify are animated — omitted parts stay at their current angle.
+
+---
+
+### `wave`
+
+Built-in wave gesture — raises an arm, oscillates it back and forth, then returns to rest. **Figure actors only.**
+
+```markdy
+@2.0: hero.wave(side=right, dur=0.8)
+@3.0: gal.wave(side=left, dur=0.6)
+```
+
+| Parameter | Values          | Default  |
+|-----------|-----------------|----------|
+| `side`    | `left`, `right` | `right`  |
+| `dur`     | seconds         | `0.5`    |
+
+---
+
+### `jump`
+
+Jumps the actor upward with a squash-and-stretch effect, then lands back at the original position.
+
+```markdy
+@3.0: hero.jump(height=30, dur=0.5)
+```
+
+| Parameter | Type    | Default | Description                     |
+|-----------|---------|---------|---------------------------------|
+| `height`  | number  | `30`    | Jump height in pixels           |
+| `dur`     | seconds | `0.5`   |                                 |
+
+---
+
+### `nod`
+
+Nods the head down and back up twice — a quick agreement gesture. **Figure actors only.**
+
+```markdy
+@2.0: hero.nod(dur=0.4)
+```
+
+| Parameter | Type    | Default |
+|-----------|---------|---------|
+| `dur`     | seconds | `0.5`   |
+
+---
+
+### `bounce`
+
+Bounces the actor vertically with diminishing amplitude — useful for emphasis or landing effects.
+
+```markdy
+@1.0: hero.bounce(intensity=15, count=3, dur=0.6)
+```
+
+| Parameter   | Type    | Default | Description                      |
+|-------------|---------|---------|----------------------------------|
+| `intensity` | number  | `15`    | Initial bounce height in pixels  |
+| `count`     | number  | `3`     | Number of bounces                |
+| `dur`       | seconds | `0.5`   |                                  |
+
+---
+
 ### `face`
 
 Instantly swaps the emoji face of a figure actor. Seek-safe — works correctly with both forward playback and `seek()` backwards. **Figure actors only.**
@@ -382,7 +468,7 @@ asset       = "asset" NAME "=" ASSET_TYPE "(" QUOTED ")"
 actor       = "actor" NAME "=" ACTOR_TYPE "(" ARGS? ")" "at" COORD modifier*
 event       = "@" NUMBER ":" NAME "." ACTION "(" PARAMS? ")"
 
-modifier    = ("scale" | "rotate" | "opacity" | "size") NUMBER
+modifier    = ("scale" | "rotate" | "opacity" | "size" | "z") NUMBER
 COORD       = "(" NUMBER "," NUMBER ")"
 PARAMS      = PARAM ("," PARAM)*
 PARAM       = (QUOTED | identifier | NUMBER | COORD)   -- positional

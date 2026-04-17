@@ -148,8 +148,8 @@ function parseActionParams(
  */
 function parseModifiers(
   raw: string,
-): Partial<Pick<ActorDef, "scale" | "rotate" | "opacity" | "size">> {
-  const result: Partial<Pick<ActorDef, "scale" | "rotate" | "opacity" | "size">> = {};
+): Partial<Pick<ActorDef, "scale" | "rotate" | "opacity" | "size" | "z">> {
+  const result: Partial<Pick<ActorDef, "scale" | "rotate" | "opacity" | "size" | "z">> = {};
   const tokens = raw.trim().split(/\s+/).filter(Boolean);
 
   for (let i = 0; i + 1 < tokens.length; i += 2) {
@@ -160,6 +160,7 @@ function parseModifiers(
     else if (key === "rotate") result.rotate = val;
     else if (key === "opacity") result.opacity = val;
     else if (key === "size") result.size = val;
+    else if (key === "z") result.z = val;
   }
 
   return result;
