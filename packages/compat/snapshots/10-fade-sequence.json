@@ -1,0 +1,77 @@
+{
+  "actors": {
+    "a": {
+      "args": [
+        "one"
+      ],
+      "opacity": 0,
+      "size": 40,
+      "type": "text",
+      "x": 320,
+      "y": 140
+    },
+    "b": {
+      "args": [
+        "two"
+      ],
+      "opacity": 0,
+      "size": 40,
+      "type": "text",
+      "x": 320,
+      "y": 210
+    },
+    "c": {
+      "args": [
+        "three"
+      ],
+      "opacity": 0,
+      "size": 40,
+      "type": "text",
+      "x": 320,
+      "y": 280
+    }
+  },
+  "assets": {},
+  "chapters": [],
+  "defs": {},
+  "events": [
+    {
+      "action": "fade_in",
+      "actor": "a",
+      "line": 8,
+      "params": {
+        "dur": 0.4
+      },
+      "time": 0
+    },
+    {
+      "action": "fade_in",
+      "actor": "b",
+      "line": 9,
+      "params": {
+        "dur": 0.4
+      },
+      "time": 0.7
+    },
+    {
+      "action": "fade_in",
+      "actor": "c",
+      "line": 10,
+      "params": {
+        "dur": 0.4
+      },
+      "time": 1.4
+    }
+  ],
+  "imports": [],
+  "meta": {
+    "bg": "#0d1117",
+    "duration": 1.8,
+    "fps": 30,
+    "height": 450,
+    "width": 800
+  },
+  "seqs": {},
+  "vars": {},
+  "warnings": []
+}

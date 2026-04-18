@@ -1,0 +1,7 @@
+# Simple text fade-in and slide
+scene width=600 height=300 bg=white
+
+actor title = text("Hello World") at (150, 120) size 48 opacity 0
+
+@0.3: title.fade_in(dur=0.6)
+@1.5: title.move(to=(200, 120), dur=0.8, ease=out)

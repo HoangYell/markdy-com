@@ -1,0 +1,10 @@
+# Backslash-escaped variables (String.raw/MDX form) parse the same
+var skin = #c68642
+var y = 230
+
+scene width=800 height=400 bg=white
+
+actor h = figure(\${skin}, m, 😎) at (400, \${y})
+
+@0.0: h.enter(from=left, dur=\${0.5})
+@1.0: h.say("hi", dur=1.0)

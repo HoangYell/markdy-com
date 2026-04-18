@@ -1,0 +1,74 @@
+{
+  "actors": {
+    "bg": {
+      "args": [],
+      "type": "box",
+      "x": 250,
+      "y": 150,
+      "z": 1
+    },
+    "front": {
+      "args": [
+        "on top"
+      ],
+      "size": 36,
+      "type": "text",
+      "x": 220,
+      "y": 220,
+      "z": 3
+    },
+    "mid": {
+      "args": [
+        "middle"
+      ],
+      "size": 40,
+      "type": "text",
+      "x": 200,
+      "y": 180,
+      "z": 2
+    }
+  },
+  "assets": {},
+  "chapters": [],
+  "defs": {},
+  "events": [
+    {
+      "action": "fade_in",
+      "actor": "bg",
+      "line": 8,
+      "params": {
+        "dur": 0.3
+      },
+      "time": 0
+    },
+    {
+      "action": "fade_in",
+      "actor": "mid",
+      "line": 9,
+      "params": {
+        "dur": 0.3
+      },
+      "time": 0.3
+    },
+    {
+      "action": "fade_in",
+      "actor": "front",
+      "line": 10,
+      "params": {
+        "dur": 0.3
+      },
+      "time": 0.6
+    }
+  ],
+  "imports": [],
+  "meta": {
+    "bg": "white",
+    "duration": 0.9,
+    "fps": 30,
+    "height": 400,
+    "width": 600
+  },
+  "seqs": {},
+  "vars": {},
+  "warnings": []
+}

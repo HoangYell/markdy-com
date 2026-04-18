@@ -1,0 +1,9 @@
+# caption at center — full-screen reveals, intertitles, reaction frames.
+scene width=800 height=450 bg=#0d1117
+
+actor cover = box() at (400, 225) scale 3 opacity 1
+actor line  = caption("and that's v2") at center
+
+@0.0:  cover.fade_out(dur=0.6)
+@+0.0: line.fade_in(dur=0.5)
+@+0.4: camera.zoom(to=1.2, dur=0.5, ease=out)

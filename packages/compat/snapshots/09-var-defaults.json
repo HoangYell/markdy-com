@@ -1,0 +1,54 @@
+{
+  "actors": {
+    "h": {
+      "args": [
+        "#c68642",
+        "m",
+        "🙂"
+      ],
+      "type": "figure",
+      "x": 400,
+      "y": 260
+    }
+  },
+  "assets": {},
+  "chapters": [],
+  "defs": {},
+  "events": [
+    {
+      "action": "enter",
+      "actor": "h",
+      "line": 10,
+      "params": {
+        "dur": 0.6,
+        "from": "bottom"
+      },
+      "time": 0
+    },
+    {
+      "action": "wave",
+      "actor": "h",
+      "line": 11,
+      "params": {
+        "dur": 0.6,
+        "side": "right"
+      },
+      "time": 1
+    }
+  ],
+  "imports": [],
+  "meta": {
+    "bg": "white",
+    "duration": 1.6,
+    "fps": 30,
+    "height": 400,
+    "width": 800
+  },
+  "seqs": {},
+  "vars": {
+    "cx": "400",
+    "skin": "#c68642",
+    "speed": "0.6"
+  },
+  "warnings": []
+}

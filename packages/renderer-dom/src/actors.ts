@@ -1,6 +1,6 @@
 import type { SceneAST, ActorDef } from "@markdy/core";
 import type { ActorState } from "./types.js";
-import { stateFrom, tx } from "./types.js";
+import { stateFrom, tx, txCaption } from "./types.js";
 import { createFigureEl } from "./figure.js";
 
 // ---------------------------------------------------------------------------
@@ -56,6 +56,36 @@ export function createActorEl(
       break;
     }
 
+    case "caption": {
+      // Full-width overlay ribbon. Visually heavier than a plain text actor:
+      // centered horizontally, bold, slightly shadowed. Positioning math
+      // (x = scene width / 2) is done at parse time via the `at top|bottom|center`
+      // anchor; here we just translate(-50%, -50%) to center on that point.
+      const div = document.createElement("div");
+      div.textContent = def.args[0] ?? "";
+      div.dataset.markdyCaption = def.anchor ?? "top";
+      Object.assign(div.style, {
+        fontSize: `${def.size ?? 32}px`,
+        fontFamily: "system-ui, -apple-system, sans-serif",
+        fontWeight: "700",
+        whiteSpace: "nowrap",
+        textAlign: "center",
+        lineHeight: "1.1",
+        padding: "6px 14px",
+        borderRadius: "4px",
+        background: "rgba(0, 0, 0, 0.55)",
+        color: "#fff",
+        textShadow: "0 2px 6px rgba(0, 0, 0, 0.45)",
+        userSelect: "none",
+        pointerEvents: "none",
+        // Center the caption on its (x, y) point (x = sceneWidth/2).
+        // We combine translate-centering with the actor transform in the
+        // dataset below so the player can re-apply on state changes.
+      });
+      el = div;
+      break;
+    }
+
     case "figure": {
       el = createFigureEl(def);
       break;
@@ -78,9 +108,10 @@ export function createActorEl(
   el.style.left = "0";
   el.style.top = "0";
   el.style.transformOrigin = "center center";
-  el.style.transform = tx(stateFrom(def));
+  el.style.transform = def.type === "caption" ? txCaption(stateFrom(def)) : tx(stateFrom(def));
   el.style.opacity = String(def.opacity ?? 1);
   if (def.z !== undefined) el.style.zIndex = String(def.z);
+  else if (def.type === "caption") el.style.zIndex = "100";
 
   return el;
 }

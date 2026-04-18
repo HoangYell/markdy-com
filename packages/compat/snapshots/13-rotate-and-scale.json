@@ -1,0 +1,70 @@
+{
+  "actors": {
+    "token": {
+      "args": [],
+      "scale": 0.6,
+      "type": "box",
+      "x": 250,
+      "y": 150
+    }
+  },
+  "assets": {},
+  "chapters": [],
+  "defs": {},
+  "events": [
+    {
+      "action": "fade_in",
+      "actor": "token",
+      "line": 6,
+      "params": {
+        "dur": 0.3
+      },
+      "time": 0
+    },
+    {
+      "action": "rotate",
+      "actor": "token",
+      "line": 7,
+      "params": {
+        "dur": 0.5,
+        "to": 45
+      },
+      "time": 0.4
+    },
+    {
+      "action": "scale",
+      "actor": "token",
+      "line": 8,
+      "params": {
+        "dur": 0.4,
+        "to": 1.2
+      },
+      "time": 1
+    },
+    {
+      "action": "move",
+      "actor": "token",
+      "line": 9,
+      "params": {
+        "dur": 0.5,
+        "ease": "out",
+        "to": [
+          320,
+          220
+        ]
+      },
+      "time": 1.5
+    }
+  ],
+  "imports": [],
+  "meta": {
+    "bg": "white",
+    "duration": 2,
+    "fps": 30,
+    "height": 400,
+    "width": 600
+  },
+  "seqs": {},
+  "vars": {},
+  "warnings": []
+}

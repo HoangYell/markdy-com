@@ -1,0 +1,14 @@
+# !action prefix — hard-fail on unknown actions.
+# Without the !, unknown actions soft-warn and the renderer no-ops.
+# Add the ! when you'd rather fail the build than ship a silent no-op.
+scene width=800 height=400
+
+actor hero = figure(#c68642, m, 🙂) at (400, 240)
+
+@0.0:  hero.enter(from=left, dur=0.4)
+# Known action with !: no-op, always safe.
+@+0.3: hero.!shake(intensity=6, dur=0.4)
+
+# Uncomment to see the must-understand failure:
+# @+0.3: hero.!breakdance(dur=0.5)
+#   → ParseError: Unknown action "breakdance" — "!" requires the parser to understand it.

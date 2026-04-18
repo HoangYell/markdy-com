@@ -1,0 +1,13 @@
+# A compact full story with multiple actors and actions
+scene width=900 height=420 bg=#0b1020
+
+actor title = text("Ship it") at (360, 60) size 48 opacity 0
+actor hero  = figure(#c68642, m, 😎) at (450, 280)
+actor pal   = figure(#fad4c0, f, 🙂) at (150, 280)
+
+@0.0: title.fade_in(dur=0.5)
+@0.6: pal.enter(from=left, dur=0.6)
+@0.8: hero.enter(from=right, dur=0.6)
+@1.8: hero.jump(height=40, dur=0.6)
+@2.5: hero.say("shipped", dur=1.5)
+@4.2: pal.bounce(intensity=15, count=2, dur=0.6)

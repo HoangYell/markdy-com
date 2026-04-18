@@ -1,0 +1,53 @@
+{
+  "actors": {
+    "title": {
+      "args": [
+        "Hello World"
+      ],
+      "opacity": 0,
+      "size": 48,
+      "type": "text",
+      "x": 150,
+      "y": 120
+    }
+  },
+  "assets": {},
+  "chapters": [],
+  "defs": {},
+  "events": [
+    {
+      "action": "fade_in",
+      "actor": "title",
+      "line": 6,
+      "params": {
+        "dur": 0.6
+      },
+      "time": 0.3
+    },
+    {
+      "action": "move",
+      "actor": "title",
+      "line": 7,
+      "params": {
+        "dur": 0.8,
+        "ease": "out",
+        "to": [
+          200,
+          120
+        ]
+      },
+      "time": 1.5
+    }
+  ],
+  "imports": [],
+  "meta": {
+    "bg": "white",
+    "duration": 2.3,
+    "fps": 30,
+    "height": 300,
+    "width": 600
+  },
+  "seqs": {},
+  "vars": {},
+  "warnings": []
+}

@@ -1,0 +1,16 @@
+# scene "title" { ... } — named chapter blocks
+# @+N inside a chapter is relative to the chapter's own previous event.
+scene width=960 height=540 bg=#0d1117
+
+actor narrator = caption("Act 1: enter the hero") at top
+actor hero     = figure(#c68642, m, 😎) at (480, 360)
+
+scene "setup" {
+  @+0.0: narrator.fade_in(dur=0.4)
+  @+0.5: hero.enter(from=bottom, dur=0.6)
+}
+
+scene "action" {
+  @+0.2: hero.wave(side=right, dur=0.5)
+  @+0.3: hero.bounce(intensity=18, count=2, dur=0.8)
+}

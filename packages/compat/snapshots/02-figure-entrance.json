@@ -1,0 +1,60 @@
+{
+  "actors": {
+    "hero": {
+      "args": [
+        "#c68642",
+        "m",
+        "😎"
+      ],
+      "type": "figure",
+      "x": 400,
+      "y": 260
+    }
+  },
+  "assets": {},
+  "chapters": [],
+  "defs": {},
+  "events": [
+    {
+      "action": "enter",
+      "actor": "hero",
+      "line": 6,
+      "params": {
+        "dur": 0.6,
+        "from": "left"
+      },
+      "time": 0
+    },
+    {
+      "action": "wave",
+      "actor": "hero",
+      "line": 7,
+      "params": {
+        "dur": 0.8,
+        "side": "right"
+      },
+      "time": 0.8
+    },
+    {
+      "action": "say",
+      "actor": "hero",
+      "line": 8,
+      "params": {
+        "dur": 1.5,
+        "text": "hello"
+      },
+      "time": 1.8
+    }
+  ],
+  "imports": [],
+  "meta": {
+    "bg": "#0f1115",
+    "duration": 3.3,
+    "fps": 30,
+    "height": 400,
+    "width": 800
+  },
+  "seqs": {},
+  "vars": {},
+  "warnings": []
+}

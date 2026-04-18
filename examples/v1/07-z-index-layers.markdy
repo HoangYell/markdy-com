@@ -1,0 +1,10 @@
+# z-modifier controls stacking order
+scene width=600 height=400 bg=white
+
+actor bg    = box()                 at (250, 150) z 1
+actor mid   = text("middle")        at (200, 180) size 40 z 2
+actor front = text("on top")        at (220, 220) size 36 z 3
+
+@0.0: bg.fade_in(dur=0.3)
+@0.3: mid.fade_in(dur=0.3)
+@0.6: front.fade_in(dur=0.3)

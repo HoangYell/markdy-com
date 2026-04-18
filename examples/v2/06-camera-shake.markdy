@@ -1,0 +1,11 @@
+# camera.shake(intensity=N) — full-scene shake for impacts.
+scene width=800 height=400 bg=#111
+
+actor lf = figure(#c68642, m, 😤) at (260, 240)
+actor rf = figure(#8d5524, m, 😬) at (540, 240)
+
+@0.0:  lf.enter(from=left, dur=0.4)
+@0.0:  rf.enter(from=right, dur=0.4)
+@+0.2: lf.punch(side=right, dur=0.3)
+@+0.0: camera.shake(intensity=12, dur=0.5)
+@+0.0: rf.shake(intensity=8, dur=0.5)

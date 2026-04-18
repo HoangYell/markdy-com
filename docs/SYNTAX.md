@@ -650,12 +650,161 @@ actor lily  = heroine(#fad4c0, 😊) at (430, 200) opacity 0
 The parser throws a `ParseError` with the offending line number for:
 
 - Duplicate `scene` declaration
-- Unknown `scene` property key
 - Unrecognised asset type
 - Invalid actor or event syntax
 - Event referencing an undeclared actor
 - Unknown actor type or template name
-- Unclosed `def` or `seq` block
+- Unclosed `def`, `seq`, or chapter block
 - Empty `def` body
 - Unknown sequence name in `play`
 - Unrecognised top-level statement
+- Figure-only action (`punch`, `kick`, `wave`, `nod`, `face`, `pose`, `rotate_part`) on a non-figure actor
+- Must-understand (`!action`) call on an unknown action
+
+Unknown scene property keys, unknown actions without `!`, unknown modifier keys, and unresolved imports are *soft warnings* — see the "Soft warnings" section below.
+
+<!-- markdy:regen:syntax-addendum:start -->
+
+## Extended grammar
+
+The following features are part of the base grammar — no pragma, no opt-in. Every feature is additive: existing scripts continue to parse and render identically.
+
+### caption actor
+
+A `caption` is a first-class actor type for overlay text (titles, subtitles, meme-format captions). Unlike `text`, captions are self-centering and position themselves relative to the scene (top ≈ 12% down, bottom ≈ 88%, center = 50%). You can still apply modifiers (`size`, `opacity`, etc.) and animate them with any universal action (`fade_in`, `exit`, `move`, ...).
+
+```markdy
+actor title = caption("The Demo") at top
+```
+
+Full example: [`examples/v2/01-caption-basic.markdy`](../examples/v2/01-caption-basic.markdy)
+
+---
+
+### chapter blocks
+
+A chapter block organizes a run of events under a named heading. Chapters can be listed in UIs (timeline scrubbers, table of contents) and recorded in `ast.chapters`. `@+N:` shorthand inside a chapter is relative to the chapter's own previous event, so chapters compose cleanly.
+
+```markdy
+scene "intro" {
+  @+0.0: hero.enter(from=left, dur=0.4)
+  @+0.2: hero.wave(dur=0.5)
+}
+```
+
+Full example: [`examples/v2/03-chapters.markdy`](../examples/v2/03-chapters.markdy)
+
+---
+
+### @+N: relative time
+
+No more hand-counted absolute timestamps. `@+N:` takes the end-time of the previous event (end = start + dur) and adds N seconds. Scopes are honored: `@+N` at the top level is relative to the previous top-level event, and `@+N` inside a chapter is relative to the previous event in that chapter.
+
+```markdy
+@0.0:  hero.enter(from=left, dur=0.5)
+@+0.2: hero.say("hi", dur=1.0)
+```
+
+Full example: [`examples/v2/02-at-plus-shorthand.markdy`](../examples/v2/02-at-plus-shorthand.markdy)
+
+---
+
+### camera reserved actor
+
+`camera` is a reserved actor name. It has three actions — `pan`, `zoom`, `shake` — that apply their transform to an inner scene-content layer so responsive CSS scaling is preserved. You don't declare camera as an actor; reference it directly. Unknown camera actions soft-warn and no-op.
+
+```markdy
+@0.0: camera.zoom(to=1.4, dur=0.8, ease=out)
+```
+
+Full example: [`examples/v2/05-camera-zoom.markdy`](../examples/v2/05-camera-zoom.markdy)
+
+---
+
+### exit action
+
+`exit` is a universal action — it works on any actor type. Like `enter`, it takes a `to` direction. The animation combines an off-screen translate with an opacity-to-zero fade, so the actor is visually gone at the end.
+
+```markdy
+@2.0: hero.exit(to=right, dur=0.5)
+```
+
+Full example: [`examples/v2/09-exit-action.markdy`](../examples/v2/09-exit-action.markdy)
+
+---
+
+### import statements
+
+Records the import in `ast.imports`. The parser doesn't open files; hosts (playground, CLI) pass a `{ imports: { ns: SceneAST } }` map to `parse()`. Resolved namespaces merge their `vars`, `defs`, and `seqs` into the parent under `ns.<name>`. Unresolved imports produce a soft `import-unresolved` warning.
+
+```markdy
+import "./characters.markdy" as chars
+```
+
+Full example: [`examples/v2/14-import-namespaced.markdy`](../examples/v2/14-import-namespaced.markdy)
+
+---
+
+### preset expansion
+
+Presets are parse-time macros for common scene shapes (meme, explainer, reaction, countdown, ...). The MarkdyScript source is literally replaced with the preset's expansion before actor/event parsing begins. A file whose only content is a `preset <name>` call becomes a complete scene.
+
+```markdy
+preset meme("top line", "bottom line")
+```
+
+Full example: [`examples/presets/meme.markdy`](../examples/presets/meme.markdy)
+
+---
+
+### !action must-understand prefix
+
+By default, unknown actions produce a `ParseWarning` and the renderer no-ops them. This keeps old scripts parseable as the grammar evolves. When you'd rather fail-fast — e.g. in CI, or to guard a critical beat — prefix the action with `!`. A must-understand call to an unknown action throws `ParseError` at parse time.
+
+```markdy
+@1.0: hero.!shake(intensity=6, dur=0.4)
+```
+
+Full example: [`examples/v2/15-must-understand.markdy`](../examples/v2/15-must-understand.markdy)
+
+---
+
+### unified with-modifier form
+
+Two modifier forms are supported; pick whichever reads better: **space-separated** — `actor x = box() at (10,10) scale 1.5 rotate 10` or **unified** — `actor x = box() at (10,10) with scale=1.5, rotate=10`. They can be mixed on the same line (space form first, then `with`). Unknown modifier keys produce a soft warning and are ignored.
+
+```markdy
+actor box1 = box() at (100, 100) with scale=1.2, opacity=0.85, rotate=12
+```
+
+Full example: [`examples/v2/10-unified-modifiers.markdy`](../examples/v2/10-unified-modifiers.markdy)
+
+---
+
+### figure-only type check
+
+The parser now rejects figure-only actions on non-figure actors with a clear error pointing at the actor type. This catches common mistakes early — applying `punch` to a `text` actor used to silently no-op; now it throws `ParseError: action "punch" is figure-only; actor type is "text"`.
+
+```markdy
+# Type check: `text` actors cannot use `punch`
+# @0.0: label.punch(...)   → ParseError
+```
+
+Full example: [`examples/v2/12-figure-type-check.markdy`](../examples/v2/12-figure-type-check.markdy)
+
+---
+
+## Soft warnings
+
+Where the grammar could have hard-errored, it often emits a `ParseWarning` instead. Warnings are attached to `ast.warnings` and surfaced via the renderer's `onWarning` callback. This keeps older scripts parseable as the grammar evolves.
+
+| kind | emitted when |
+|------|---|
+| `unknown-action` | an action name is not in the parser's known set |
+| `unknown-camera-action` | a `camera.*` call uses an unsupported action |
+| `unknown-modifier` | a `with key=val` or space-form key is not a known modifier |
+| `unknown-scene-key` | the `scene` declaration has an unrecognized property |
+| `import-unresolved` | an `import ... as ns` has no matching host-provided namespace |
+
+Prefix an action with `!` to opt into hard-fail behavior instead: `actor.!action(...)` throws `ParseError` on unknown actions.
+<!-- markdy:regen:syntax-addendum:end -->

@@ -1,0 +1,17 @@
+# import "path.markdy" as ns — records the import in ast.imports.
+# The host (playground, CLI, etc.) is responsible for resolving the
+# referenced file; the parser merges the resolved namespace's vars,
+# defs, and seqs under `ns.*`. If the host doesn't provide a resolution,
+# the parser attaches a soft warning (kind: "import-unresolved").
+scene width=800 height=400
+
+import "./characters.markdy" as chars
+import "./sequences.markdy"  as seqs
+
+# Once resolved, this works:
+# actor hero = chars.fighter(😎) at (400, 240)
+# @0.0: hero.play(seqs.combo_strike)
+
+# Without host resolution, the parser emits:
+#   ParseWarning(kind="import-unresolved", message=...)
+# and the renderer no-ops any reference to the namespaced symbol.

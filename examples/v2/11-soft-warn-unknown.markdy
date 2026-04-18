@@ -1,0 +1,13 @@
+# Unknown actions and modifier keys produce soft ParseWarnings.
+# The renderer no-ops them; the parser attaches a warning that tools
+# and hosts can surface (e.g. the playground shows them inline).
+scene width=800 height=400
+
+# unknown-modifier: `fizzbuzz` is not a known modifier key.
+actor hero = figure(#c68642, m, 🙂) at (400, 240) with scale=1.0, fizzbuzz=true
+
+@0.0: hero.enter(from=left, dur=0.5)
+# unknown-action: `breakdance` is not a known action. The renderer no-ops it,
+# but the parser records a warning; no crash, no hard failure.
+@0.8: hero.breakdance(dur=0.5)
+@1.5: hero.wave(side=right, dur=0.5)

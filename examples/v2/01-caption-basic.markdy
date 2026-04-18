@@ -1,0 +1,9 @@
+# caption(...) at top|bottom|center — auto-positioned text overlay
+scene width=800 height=400 bg=#111
+
+actor header = caption("hello, markdy") at top
+actor hero   = figure(#c68642, m, 😎) at (400, 280)
+
+@0.0: header.fade_in(dur=0.4)
+@0.4: hero.enter(from=bottom, dur=0.6)
+@1.2: hero.wave(side=right, dur=0.6)
