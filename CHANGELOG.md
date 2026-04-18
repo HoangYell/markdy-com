@@ -5,7 +5,24 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] — 2026-04-18
+
+### Added
+- **Expressive Character Actions** — Introduced high-level gesture and movement actions for `figure` actors in `@markdy/renderer-dom`. These simplify animation logic by replacing complex part rotation chains:
+    - `jump(height, dur)`: Natural jumping motion with squash and stretch.
+    - `bounce(intensity, count, dur)`: Diminishing vertical bounce effect.
+    - `wave(side, dur)`: Context-aware waving gesture (oscillates specified arm).
+    - `nod(dur)`: Intuitive head-nodding gesture.
+    - `pose({ arms, legs, ... }, dur)`: Set multiple body part rotations simultaneously in a single command.
+- **Layering Support** — Added `z` modifier to actors, allowing explicit control over rendering order (z-index) within a scene.
+- **Theme-Aware Playground** — The website playground now automatically adapts scene background colors when switching between Light and Dark modes.
+
+### Fixed
+- **UI Contrast** — Adjusted `text-muted` color variables on the website for improved accessibility and readability in both themes.
+- Updated documentation and playground examples to showcase new gestures and layering capabilities.
+
 ## [0.5.8] — 2026-04-12
+
 
 ### Fixed
 - **Backslash-escaped variable interpolation** — `\${varname}` (the form produced by `String.raw` template literals in MDX) is now correctly resolved by the parser. Previously, only `${varname}` was matched, causing scenes embedded in MDX via `<Markdy code={String.raw\`...\`} />` to silently fail when using `var`, `def`, or `seq` features. The fix applies to all interpolation paths: var declarations, actor args/positions, event params, scene properties, def body templates, and seq body params.
