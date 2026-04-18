@@ -80,6 +80,7 @@ export function createActorEl(
   el.style.transformOrigin = "center center";
   el.style.transform = tx(stateFrom(def));
   el.style.opacity = String(def.opacity ?? 1);
+  if (def.z !== undefined) el.style.zIndex = String(def.z);
 
   return el;
 }

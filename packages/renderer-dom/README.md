@@ -5,10 +5,12 @@ Web Animations API renderer for [MarkdyScript](../../docs/SYNTAX.md) scenes. Tra
 ## Features
 
 - **Browser-native** — Web Animations API + CSS transforms, no Canvas or GSAP
-- **Emoji stick figures** — `figure` actor type with articulatable limbs (punch, kick, rotate_part)
+- **Emoji stick figures** — `figure` actor type with articulatable limbs, shoulder/hip joints, and body-part rig
+- **Expressive gestures** — built-in `wave`, `nod`, `jump`, `bounce`, and multi-part `pose` actions
 - **Seek-safe** — manual `currentTime` control enables reliable `seek()` in any direction
 - **Face expressions** — instant emoji face swaps that work correctly on seek-back
 - **Speech bubbles** — auto-positioned bubbles with fade-in/fade-out
+- **Z-index layering** — `z` modifier for actor depth ordering
 - **Single dependency** — only `@markdy/core`
 
 ## Installation

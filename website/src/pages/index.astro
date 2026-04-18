@@ -88,15 +88,17 @@ actor a  = figure(#c68642, m, 😎) at (280, 160)
 
 @0.2: hi.fade_in(dur=0.6)
 @0.6: a.enter(from=left, dur=0.8)
+@1.5: a.wave(side=right, dur=0.8)
 @1.5: a.say("Let's go! 🚀", dur=1.5)
-@2.5: a.move(to=(350, 160), dur=0.8, ease=out)`,
+@2.5: a.move(to=(350, 160), dur=0.8, ease=out)
+@3.3: a.nod(dur=0.4)`,
   },
   {
     label: "Fight Scene",
     code: `scene width=640 height=300 fps=30 bg=#fafafa
 
-actor hero    = figure(#6ee7b7, m, 😎) at (160, 170)
-actor villain = figure(#f87171, m, 😈) at (480, 170)
+actor hero    = figure(#6ee7b7, m, 😎) at (160, 170) z 5
+actor villain = figure(#f87171, m, 😈) at (480, 170) z 3
 
 @0.3: hero.enter(from=left, dur=0.7)
 @0.5: villain.enter(from=right, dur=0.7)
@@ -108,9 +110,11 @@ actor villain = figure(#f87171, m, 😈) at (480, 170)
 @4.3: villain.shake(intensity=8, dur=0.4)
 @4.3: villain.face("😵")
 @5.0: hero.kick(side=right, dur=0.35)
+@5.1: villain.bounce(intensity=8, count=2, dur=0.3)
 @5.3: villain.rotate(to=90, dur=0.3)
 @5.5: villain.fade_out(dur=0.5)
 @5.5: hero.face("😄")
+@5.5: hero.jump(height=25, dur=0.5)
 @5.7: hero.say("Done! ✅", dur=1.5)`,
   },
   {
@@ -123,15 +127,61 @@ actor girl = figure(#fad4c0, f, 😊) at (490, 170)
 @0.3: boy.enter(from=left, dur=0.8)
 @0.5: girl.enter(from=right, dur=0.8)
 @1.5: boy.face("😍")
+@1.5: boy.wave(side=right, dur=0.8)
 @1.5: boy.say("Hi there! 😍", dur=1.5)
 @2.5: girl.face("😊")
+@2.5: girl.wave(side=left, dur=0.6)
 @2.5: girl.say("Hey! 👋", dur=1.2)
 @4.0: boy.move(to=(280, 170), dur=0.8, ease=out)
 @4.0: girl.move(to=(360, 170), dur=0.8, ease=out)
-@5.0: boy.rotate_part(part=arm_right, to=-70, dur=0.4)
-@5.0: girl.rotate_part(part=arm_left, to=70, dur=0.4)
+@5.0: boy.pose(arm_right=-70, dur=0.4)
+@5.0: girl.pose(arm_left=70, dur=0.4)
 @5.5: boy.face("🥰")
-@5.5: girl.face("🥰")`,
+@5.5: girl.face("🥰")
+@5.5: boy.nod(dur=0.4)`,
+  },
+  {
+    label: "Dance Party",
+    code: `scene width=720 height=340 fps=30 bg=#fafafa
+
+var skin_a = #c68642
+var skin_b = #fad4c0
+var skin_c = #8d5524
+
+def dancer(skin, face) {
+  figure(\${skin}, m, \${face})
+}
+
+seq celebrate {
+  @+0.0: $.jump(height=25, dur=0.4)
+  @+0.4: $.pose(arm_left=70, arm_right=-70, dur=0.3)
+  @+0.7: $.bounce(intensity=10, count=2, dur=0.4)
+  @+1.1: $.pose(arm_left=0, arm_right=0, dur=0.3)
+}
+
+actor dj    = dancer(\${skin_a}, 😎) at (360, 180) z 5
+actor left  = dancer(\${skin_b}, 😄) at (140, 200)
+actor right = figure(\${skin_c}, f, 💃) at (560, 200)
+actor title = text("Dance Party!") at (240, 30) size 32 opacity 0 z 10
+
+@0.0: title.fade_in(dur=0.5)
+@0.3: dj.enter(from=top, dur=0.6)
+@0.5: left.enter(from=left, dur=0.7)
+@0.7: right.enter(from=right, dur=0.7)
+@1.5: dj.say("Let's dance! 🎵", dur=1.5)
+@1.5: dj.wave(side=right, dur=0.8)
+@2.5: left.play(celebrate)
+@3.0: right.play(celebrate)
+@4.0: dj.jump(height=30, dur=0.5)
+@4.5: dj.pose(arm_left=90, arm_right=-90, dur=0.3)
+@5.0: left.wave(side=right, dur=0.6)
+@5.0: right.wave(side=left, dur=0.6)
+@5.5: dj.nod(dur=0.4)
+@6.0: dj.pose(arm_left=0, arm_right=0, dur=0.3)
+@6.0: dj.face("🤩")
+@6.5: left.bounce(intensity=15, count=3, dur=0.6)
+@6.5: right.bounce(intensity=15, count=3, dur=0.6)
+@7.0: dj.say("Yeah! 🔥", dur=1.5)`,
   },
 ];
 
@@ -431,7 +481,7 @@ actor c = box() at (600, 200)
             <tr><td><code>sprite</code></td><td>asset name</td><td>Renders an image or icon asset.</td></tr>
           </tbody>
         </table>
-        <p><strong>Modifiers:</strong> <code>opacity</code> (0–1), <code>scale</code>, <code>rotate</code>, <code>size</code> (text only).</p>
+        <p><strong>Modifiers:</strong> <code>opacity</code> (0–1), <code>scale</code>, <code>rotate</code>, <code>size</code> (text only), <code>z</code> (layer order).</p>
       </article>
 
       <!-- Step 3: Timeline & Motion -->
@@ -534,6 +584,46 @@ actor a = figure(#c68642, m, 😐) at (400, 200) scale 1.5
           </tbody>
         </table>
         <p><strong>Body parts:</strong> <code>head</code>, <code>face</code>, <code>body</code>, <code>arm_left</code>, <code>arm_right</code>, <code>leg_left</code>, <code>leg_right</code></p>
+      </article>
+
+      <!-- Step 5b: Gestures & Posing -->
+      <article class="ref-card">
+        <div class="ref-card-header">
+          <div class="step-badge">5b</div>
+          <h3>Gestures & Posing</h3>
+          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+        </div>
+        <p class="ref-intro">Built-in gestures save you from chaining <code>rotate_part</code> calls. <code>pose</code> sets multiple parts at once.</p>
+        <div class="ref-code-wrap">
+        <pre><code>@1.0: a.wave(side=right, dur=0.8)
+@2.0: a.nod(dur=0.4)
+@3.0: a.pose(arm_left=70, arm_right=-70, dur=0.4)
+@4.0: a.jump(height=25, dur=0.5)
+@4.5: a.bounce(intensity=12, count=3, dur=0.5)</code></pre>
+        <script type="text/plain" class="ref-code-data">
+scene width=800 height=400
+actor a = figure(#c68642, m, 😎) at (400, 200) scale 1.5
+
+@0.5: a.wave(side=right, dur=0.8)
+@1.5: a.say("Hey!", dur=1.0)
+@1.5: a.nod(dur=0.4)
+@2.5: a.pose(arm_left=70, arm_right=-70, dur=0.4)
+@3.0: a.face("😄")
+@3.0: a.jump(height=25, dur=0.5)
+@3.5: a.bounce(intensity=12, count=3, dur=0.5)
+@4.5: a.pose(arm_left=0, arm_right=0, dur=0.3)
+        </script>
+        </div>
+        <table>
+          <thead><tr><th>Action</th><th>Parameters</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>wave</code></td><td>side, dur</td><td>Wave gesture — arm up, oscillate, return</td></tr>
+            <tr><td><code>nod</code></td><td>dur</td><td>Head nod — down and up twice</td></tr>
+            <tr><td><code>pose</code></td><td>arm_left, arm_right, leg_left, leg_right, head, body, dur</td><td>Set multiple parts at once</td></tr>
+            <tr><td><code>jump</code></td><td>height, dur</td><td>Jump with squash/stretch</td></tr>
+            <tr><td><code>bounce</code></td><td>intensity, count, dur</td><td>Diminishing vertical bounce</td></tr>
+          </tbody>
+        </table>
       </article>
 
       <!-- Step 6: Assets & Sprites -->
@@ -928,11 +1018,31 @@ seq wave(arm, angle) {
   const ro = new ResizeObserver(() => resizeStage());
   ro.observe(stageWrap);
 
+  /** Swap the scene bg to match the current website theme. */
+  function adaptCodeToTheme(code: string): string {
+    const dark = isDarkMode();
+    // Map light-mode defaults to dark-mode equivalents
+    const swaps: [RegExp, string, string][] = [
+      [/bg=#fafafa/g, "bg=#fafafa", "bg=#161b22"],
+      [/bg=white/g,   "bg=white",   "bg=#161b22"],
+      [/bg=#ffffff/gi, "bg=#ffffff", "bg=#161b22"],
+      [/bg=#fff5f9/g, "bg=#fff5f9", "bg=#1c1520"],
+      [/bg=#f5f5ff/g, "bg=#f5f5ff", "bg=#151520"],
+      [/bg=#f0f0f0/g, "bg=#f0f0f0", "bg=#1c2128"],
+      [/bg=#f0f4ff/g, "bg=#f0f4ff", "bg=#131720"],
+    ];
+    if (!dark) return code;
+    for (const [re, , darkVal] of swaps) {
+      code = code.replace(re, darkVal);
+    }
+    return code;
+  }
+
   function render(code: string) {
     if (player) { player.destroy(); player = null; }
     stage.innerHTML = "";
     try {
-      player = createPlayer({ container: stage, code, assets, autoplay: true, copyright: false });
+      player = createPlayer({ container: stage, code: adaptCodeToTheme(code), assets, autoplay: true, copyright: false });
       setStatus(true);
       if ((window as any).Iconify) {
         (window as any).Iconify.scan(stage);
@@ -1058,10 +1168,11 @@ seq wave(arm, angle) {
   // Fallback in case there is no interaction for a bit:
   setTimeout(lazyInit, 8000);
 
-  // Expose theme-change handler
+  // Expose theme-change handler — also re-render the scene with adapted bg
   (window as any).__recreateEditor = () => {
     const currentCode = getEditorCode();
     createEditor(currentCode);
+    render(currentCode);
   };
 
   // Example buttons

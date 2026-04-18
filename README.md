@@ -178,6 +178,11 @@ actor bruno = fighter(${skin}, 😏) at (200, 200)
 | `throw` | Projectile to target | `asset`, `to`, `dur` |
 | `punch` / `kick` | Limb strike (figure only) | `side` |
 | `rotate_part` | Rotate body part (figure only) | `part`, `to`, `dur` |
+| `pose` | Set multiple parts at once (figure only) | `arm_left`, `arm_right`, etc. |
+| `wave` | Wave gesture (figure only) | `side`, `dur` |
+| `nod` | Head nod gesture (figure only) | `dur` |
+| `jump` | Jump with squash/stretch | `height`, `dur` |
+| `bounce` | Diminishing vertical bounce | `intensity`, `count`, `dur` |
 | `face` | Swap emoji expression (figure only) | `"emoji"` |
 
 Easing values: `linear` (default), `in`, `out`, `inout`.

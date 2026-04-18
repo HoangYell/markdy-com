@@ -112,6 +112,16 @@ describe("actors", () => {
     expect(ast.actors["a"]).toMatchObject({ scale: 0.5, opacity: 0.8, rotate: 45 });
   });
 
+  it("parses z modifier for layering control", () => {
+    const ast = parse("actor a = sprite(img) at (10,20) z 5");
+    expect(ast.actors["a"]).toMatchObject({ z: 5 });
+  });
+
+  it("parses z modifier combined with other modifiers", () => {
+    const ast = parse("actor a = sprite(img) at (10,20) scale 0.5 z 10 opacity 0.8");
+    expect(ast.actors["a"]).toMatchObject({ scale: 0.5, z: 10, opacity: 0.8 });
+  });
+
   it("throws on invalid actor declaration", () => {
     expect(() => parse("actor bad = unknown() at (0,0)")).toThrow(ParseError);
   });
