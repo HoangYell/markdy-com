@@ -4,6 +4,25 @@ import { stateFrom, tx, toEasing } from "./types.js";
 import { PART_SEL, readRotation } from "./figure.js";
 
 // ---------------------------------------------------------------------------
+// Scene luminance detection (for adaptive bubble/overlay colors)
+// ---------------------------------------------------------------------------
+
+/** Returns true if the scene background is dark (luminance < 140). */
+function isSceneDark(scene: HTMLElement): boolean {
+  const bg = scene.style.background || "white";
+  let hex = bg.trim().replace(/^#/, "");
+  if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+  if (hex.length === 6) {
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    return (0.299 * r + 0.587 * g + 0.114 * b) <= 140;
+  }
+  const dark: Record<string, boolean> = { black: true, "#000": true, "#000000": true };
+  return dark[bg.toLowerCase()] ?? false;
+}
+
+// ---------------------------------------------------------------------------
 // Animation builder — processes the timeline into WAAPI Animation objects
 // ---------------------------------------------------------------------------
 //
@@ -313,6 +332,13 @@ function buildAction(
       const text = String(ev.params.text ?? "");
       const inverseScale = 1 / (s.scale || 1);
 
+      // Detect scene background luminance to adapt bubble colors
+      const sceneDark = isSceneDark(scene);
+      const bubbleBg     = sceneDark ? "#1e2530" : "white";
+      const bubbleBorder = sceneDark ? "#475569" : "#222";
+      const bubbleText   = sceneDark ? "#e2e8f0" : "#222";
+      const bubbleShadow = sceneDark ? "0 2px 8px rgba(0,0,0,0.35)" : "0 2px 8px rgba(0,0,0,0.12)";
+
       const bubble = document.createElement("div");
       bubble.textContent = text;
       bubble.style.opacity = "0";
@@ -322,9 +348,9 @@ function buildAction(
         left: "50%",
         transform: `translateX(-50%) scale(${inverseScale})`,
         transformOrigin: "center bottom",
-        background: "white",
-        border: "2px solid #222",
-        color: "#222",
+        background: bubbleBg,
+        border: `2px solid ${bubbleBorder}`,
+        color: bubbleText,
         borderRadius: "12px",
         padding: "6px 14px",
         fontFamily: "system-ui, sans-serif",
@@ -336,7 +362,7 @@ function buildAction(
         textOverflow: "ellipsis",
         pointerEvents: "none",
         zIndex: "10",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
+        boxShadow: bubbleShadow,
       });
 
       const tail = document.createElement("span");
@@ -349,7 +375,7 @@ function buildAction(
         height: "0",
         borderLeft: "7px solid transparent",
         borderRight: "7px solid transparent",
-        borderTop: "10px solid #222",
+        borderTop: `10px solid ${bubbleBorder}`,
       });
       bubble.appendChild(tail);
 
@@ -369,6 +395,149 @@ function buildAction(
           duration: fadeDur,
           fill: "forwards",
         }),
+      );
+      break;
+    }
+
+    // ── pose ────────────────────────────────────────────────────────────────
+    // Sets multiple body parts to target angles simultaneously.
+    // Usage: @1.0: hero.pose(arm_left=45, arm_right=-45, leg_left=10, dur=0.4)
+    case "pose": {
+      const poseParts = ["arm_left", "arm_right", "leg_left", "leg_right", "head", "body"];
+      for (const partName of poseParts) {
+        if (typeof ev.params[partName] !== "number") continue;
+        const pSel = PART_SEL[partName];
+        if (!pSel) continue;
+        const pEl = el.querySelector<HTMLElement>(pSel);
+        if (!pEl) continue;
+
+        const fromDeg = readRotation(pEl);
+        const toDeg = ev.params[partName] as number;
+
+        anims.push(
+          pEl.animate(
+            [
+              { transform: `rotate(${fromDeg}deg)` },
+              { transform: `rotate(${toDeg}deg)` },
+            ],
+            { ...baseOpts, fill: "forwards" },
+          ),
+        );
+        pEl.style.transform = pEl.style.transform.replace(
+          /rotate\([^)]*\)/,
+          `rotate(${toDeg}deg)`,
+        );
+      }
+      break;
+    }
+
+    // ── wave ────────────────────────────────────────────────────────────────
+    // Built-in wave gesture: raises arm, oscillates, returns.
+    // Usage: @2.0: hero.wave(side=right, dur=0.8)
+    case "wave": {
+      const wSide = String(ev.params.side ?? "right");
+      const wArmEl = el.querySelector<HTMLElement>(
+        wSide === "left" ? "[data-fig-arm-l]" : "[data-fig-arm-r]",
+      );
+      if (!wArmEl) break;
+      const wRest = readRotation(wArmEl);
+      const wUp = wSide === "left" ? 70 : -70;
+      const wMid1 = wSide === "left" ? 50 : -50;
+      const wMid2 = wSide === "left" ? 70 : -70;
+
+      anims.push(
+        wArmEl.animate(
+          [
+            { transform: `rotate(${wRest}deg)`, offset: 0 },
+            { transform: `rotate(${wUp}deg)`, offset: 0.2 },
+            { transform: `rotate(${wMid1}deg)`, offset: 0.4 },
+            { transform: `rotate(${wMid2}deg)`, offset: 0.55 },
+            { transform: `rotate(${wMid1}deg)`, offset: 0.7 },
+            { transform: `rotate(${wMid2}deg)`, offset: 0.85 },
+            { transform: `rotate(${wRest}deg)`, offset: 1 },
+          ],
+          { ...baseOpts, easing: "ease-in-out", fill: "forwards" },
+        ),
+      );
+      break;
+    }
+
+    // ── jump ────────────────────────────────────────────────────────────────
+    // Jumps the actor up with squash/stretch effect.
+    // Usage: @3.0: hero.jump(height=30, dur=0.5)
+    case "jump": {
+      const jHeight = typeof ev.params.height === "number" ? ev.params.height : 30;
+
+      // Squash before jump, stretch during, squash on land, return
+      anims.push(
+        el.animate(
+          [
+            { transform: tx(s), offset: 0 },
+            { transform: tx({ ...s, scale: s.scale * 0.9 }), offset: 0.1 },
+            { transform: tx({ ...s, y: s.y - jHeight, scale: s.scale * 1.1 }), offset: 0.45 },
+            { transform: tx({ ...s, y: s.y - jHeight * 0.3, scale: s.scale * 1.05 }), offset: 0.7 },
+            { transform: tx({ ...s, scale: s.scale * 0.92 }), offset: 0.88 },
+            { transform: tx(s), offset: 1 },
+          ],
+          { ...baseOpts, easing: "ease-in-out" },
+        ),
+      );
+      break;
+    }
+
+    // ── nod ─────────────────────────────────────────────────────────────────
+    // Nods the head down and back up. Figure actors only.
+    // Usage: @2.0: hero.nod(dur=0.4)
+    case "nod": {
+      const nHeadEl = el.querySelector<HTMLElement>("[data-fig-head]");
+      if (!nHeadEl) break;
+      const nRest = readRotation(nHeadEl);
+      const nDown = 15;
+
+      anims.push(
+        nHeadEl.animate(
+          [
+            { transform: `rotate(${nRest}deg)`, offset: 0 },
+            { transform: `rotate(${nDown}deg)`, offset: 0.35 },
+            { transform: `rotate(${nRest}deg)`, offset: 0.65 },
+            { transform: `rotate(${nDown}deg)`, offset: 0.8 },
+            { transform: `rotate(${nRest}deg)`, offset: 1 },
+          ],
+          { ...baseOpts, easing: "ease-in-out", fill: "forwards" },
+        ),
+      );
+      break;
+    }
+
+    // ── bounce ──────────────────────────────────────────────────────────────
+    // Bounces the actor vertically with diminishing amplitude.
+    // Usage: @1.0: hero.bounce(intensity=15, count=3, dur=0.6)
+    case "bounce": {
+      const bIntensity = typeof ev.params.intensity === "number" ? ev.params.intensity : 15;
+      const bCount = typeof ev.params.count === "number" ? ev.params.count : 3;
+      const keyframes: Keyframe[] = [{ transform: tx(s), offset: 0 }];
+
+      for (let bi = 0; bi < bCount; bi++) {
+        const amp = bIntensity * Math.pow(0.55, bi);
+        const baseOffset = (bi + 0.5) / (bCount + 0.5);
+        const peakOffset = Math.min(baseOffset, 0.98);
+        const valleyOffset = Math.min(baseOffset + 0.25 / (bCount + 0.5), 0.99);
+
+        keyframes.push({
+          transform: tx({ ...s, y: s.y - amp }),
+          offset: peakOffset,
+        });
+        if (bi < bCount - 1) {
+          keyframes.push({
+            transform: tx(s),
+            offset: valleyOffset,
+          });
+        }
+      }
+      keyframes.push({ transform: tx(s), offset: 1 });
+
+      anims.push(
+        el.animate(keyframes, { ...baseOpts, easing: "ease-out" }),
       );
       break;
     }

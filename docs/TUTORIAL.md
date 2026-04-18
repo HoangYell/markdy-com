@@ -166,6 +166,38 @@ Figures have named body parts you can animate individually:
 
 **Part names:** `head`, `face`, `body`, `arm_left`, `arm_right`, `leg_left`, `leg_right`
 
+### Posing Multiple Parts at Once
+
+Instead of chaining multiple `rotate_part` calls, use `pose` to set several body parts simultaneously:
+
+```markdy
+# Arms up celebration
+@2.0: guy.pose(arm_left=70, arm_right=-70, dur=0.4)
+
+# Reset to neutral
+@3.0: guy.pose(arm_left=0, arm_right=0, head=0, dur=0.3)
+```
+
+Only the parts you specify are animated — everything else stays put.
+
+### Built-in Gestures
+
+Common gestures have dedicated actions so you don't have to build them from `rotate_part`:
+
+```markdy
+# Wave hello
+@2.0: guy.wave(side=right, dur=0.8)
+
+# Nod in agreement
+@3.0: gal.nod(dur=0.4)
+
+# Jump with excitement
+@4.0: guy.jump(height=30, dur=0.5)
+
+# Bounce on landing
+@5.0: guy.bounce(intensity=15, count=3, dur=0.6)
+```
+
 ### Face Expressions
 
 Swap the emoji face at any point in the timeline:
@@ -378,6 +410,11 @@ actor alex  = fighter(${skin_b}, 😤) at (120, ${y})
 | `punch(side, dur)` | Figure | Swing arm out and back |
 | `kick(side, dur)` | Figure | Swing leg out and back |
 | `rotate_part(part, to, dur)` | Figure | Rotate named body part |
+| `pose(arm_left, arm_right, ..., dur)` | Figure | Set multiple parts at once |
+| `wave(side, dur)` | Figure | Wave gesture |
+| `nod(dur)` | Figure | Head nod gesture |
+| `jump(height, dur)` | All | Jump with squash/stretch |
+| `bounce(intensity, count, dur)` | All | Diminishing vertical bounce |
 | `face("emoji")` | Figure | Swap emoji face expression |
 
 ### Actor Modifiers
@@ -388,6 +425,7 @@ actor alex  = fighter(${skin_b}, 😤) at (120, ${y})
 | `rotate` | `0` | Rotation in degrees |
 | `opacity` | `1` | Opacity (0–1) |
 | `size` | — | Font/icon size in px |
+| `z` | — | Z-index for layering |
 
 ### Easing Values
 

@@ -41,7 +41,7 @@ seq_block     = "seq" IDENT ("(" PARAM_LIST? ")")? "{" NEWLINE
                 "}"
 seq_event     = "@+" NUM ":" "$." ACTION "(" PARAMS? ")"
 
-MODIFIER      = ("scale" | "rotate" | "opacity" | "size") NUM
+MODIFIER      = ("scale" | "rotate" | "opacity" | "size" | "z") NUM
 PARAMS        = PARAM ("," PARAM)*
 PARAM         = VALUE                           # positional
               | IDENT "=" VALUE                  # named
@@ -126,6 +126,7 @@ actor <name> = <type>(<args>) at (<x>, <y>) [modifiers...]
 | `rotate` | float (degrees) | `0` |
 | `opacity` | float (0–1) | `1` |
 | `size` | int (px) | — |
+| `z` | int | — |
 
 ### `def` — Template Definition
 
@@ -189,7 +190,17 @@ Special action: `play` expands a sequence inline:
 | `punch` | `side=left\|right` (default `right`), `dur` | Swing arm out and back |
 | `kick` | `side=left\|right` (default `right`), `dur` | Swing leg out and back |
 | `rotate_part` | `part=STRING`, `to=NUM` (degrees), `dur` | Rotate named body part |
+| `pose` | `arm_left=NUM`, `arm_right=NUM`, `leg_left=NUM`, `leg_right=NUM`, `head=NUM`, `body=NUM`, `dur` | Set multiple parts at once |
+| `wave` | `side=left\|right` (default `right`), `dur` | Wave gesture (arm up, oscillate, return) |
+| `nod` | `dur` | Head nod gesture (down-up twice) |
 | `face` | `"emoji"` (positional) | Instant emoji face swap (seek-safe) |
+
+### Actions for All Actor Types (new)
+
+| Action | Parameters | Behaviour |
+|---|---|---|
+| `jump` | `height=NUM` (px, default 30), `dur` | Jump with squash-and-stretch, returns to origin |
+| `bounce` | `intensity=NUM` (px, default 15), `count=NUM` (default 3), `dur` | Diminishing vertical bounce |
 
 ### Valid `part` Names for `rotate_part`
 
@@ -328,6 +339,38 @@ actor catcher = figure(#8d5524, m, 😊) at (650, 200)
 @2.3: catcher.face("😵")
 ```
 
+### Pattern 6: Expressive Figure with Pose and Gestures
+
+```markdy
+scene width=800 height=400 bg=#f0f4ff
+
+actor hero = figure(#c68642, m, 😎) at (400, 200)
+
+@0.0: hero.enter(from=left, dur=0.8)
+@1.0: hero.wave(side=right, dur=0.8)
+@1.0: hero.face("😄")
+@2.0: hero.say("Hey there!", dur=1.2)
+@2.0: hero.nod(dur=0.4)
+@3.5: hero.pose(arm_left=70, arm_right=-70, dur=0.4)
+@4.0: hero.jump(height=25, dur=0.5)
+@4.5: hero.bounce(intensity=10, count=2, dur=0.4)
+@5.0: hero.pose(arm_left=0, arm_right=0, dur=0.3)
+@5.0: hero.face("😎")
+```
+
+### Pattern 7: Layered Scene with Z-Index
+
+```markdy
+scene width=800 height=400 bg=white
+
+actor bg_text = text("Background") at (300, 180) size 60 opacity 0.3 z 1
+actor hero    = figure(#c68642, m, 😎) at (400, 200) z 5
+actor overlay = text("Foreground") at (250, 100) size 24 opacity 0 z 10
+
+@0.0: hero.enter(from=left, dur=0.8)
+@1.0: overlay.fade_in(dur=0.5)
+```
+
 ---
 
 ## Common Mistakes to Avoid
@@ -368,6 +411,7 @@ interface SceneAST {
     rotate?: number;
     opacity?: number;
     size?: number;
+    z?: number;
   }>;
   events: Array<{
     time: number;

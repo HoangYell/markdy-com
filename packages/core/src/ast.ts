@@ -19,6 +19,8 @@ export type ActorDef = {
   opacity?: number;
   /** Font size in pixels; applies to text actors (via the `size` modifier). */
   size?: number;
+  /** Z-index for layering control (via the `z` modifier). */
+  z?: number;
 };
 
 export type TimelineEvent = {
