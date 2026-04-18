@@ -68,7 +68,7 @@
     {
       "id": "type-check",
       "name": "figure-only type check",
-      "summary": "Figure-only actions (`punch`, `kick`, `wave`, `nod`, `face`, `pose`, `rotate_part`) error on non-figure targets.",
+      "summary": "Figure-only actions (`punch`, `kick`, `wave`, `nod`, `jump`, `bounce`, `face`, `pose`, `rotate_part`) error on non-figure targets.",
       "example": "# Type check: `text` actors cannot use `punch`\n# @0.0: label.punch(...)   → ParseError",
       "exampleFile": "examples/v2/12-figure-type-check.markdy"
     }
@@ -118,23 +118,23 @@
     "kick",
     "wave",
     "nod",
+    "jump",
+    "bounce",
     "face",
-    "pose",
-    "rotate_part"
+    "rotate_part",
+    "pose"
   ],
   "universalActions": [
-    "move",
     "enter",
     "exit",
+    "move",
     "fade_in",
     "fade_out",
     "scale",
     "rotate",
     "shake",
-    "jump",
-    "bounce",
-    "throw",
     "say",
+    "throw",
     "play"
   ],
   "cameraActions": [

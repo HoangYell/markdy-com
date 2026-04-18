@@ -743,6 +743,19 @@ export function parse(source: string, opts: ParseOptions = {}): SceneAST {
 // Actor line parsing
 // ---------------------------------------------------------------------------
 
+/**
+ * Splits an actor call's argument list and strips surrounding quotes from
+ * each token. Used for both built-in actor types and user-defined `def`
+ * templates; the two paths both want the same "trim + dequote" behaviour.
+ */
+function parseActorCallArgs(argsRaw: string): string[] {
+  if (!argsRaw.trim()) return [];
+  return splitByComma(argsRaw).map((a) => {
+    const t = a.trim();
+    return t.startsWith('"') && t.endsWith('"') ? t.slice(1, -1) : t;
+  });
+}
+
 function parseActorLine(raw: string, lineNum: number, ast: SceneAST): void {
   // Try anchor-position form first; it's distinctive (`at top|bottom|center`).
   const amAnchor = ACTOR_ANCHOR_POS_RE.exec(raw);
@@ -801,28 +814,18 @@ function parseActorLine(raw: string, lineNum: number, ast: SceneAST): void {
   }
 
   // Resolve type: either built-in or a user-defined template (def).
+  const rawArgs = parseActorCallArgs(argsRaw);
   let resolvedType: ActorDef["type"];
   let resolvedArgs: string[];
 
   if (BUILTIN_ACTOR_TYPES.has(typeName)) {
     resolvedType = typeName as ActorDef["type"];
-    resolvedArgs = argsRaw.trim()
-      ? splitByComma(argsRaw).map((a) => {
-          const t = a.trim();
-          return t.startsWith('"') && t.endsWith('"') ? t.slice(1, -1) : t;
-        })
-      : [];
+    resolvedArgs = rawArgs;
   } else if (ast.defs[typeName]) {
     const tmpl = ast.defs[typeName];
-    const callArgs = argsRaw.trim()
-      ? splitByComma(argsRaw).map((a) => {
-          const t = a.trim();
-          return t.startsWith('"') && t.endsWith('"') ? t.slice(1, -1) : t;
-        })
-      : [];
     const localVars: Record<string, string> = {};
     for (let pi = 0; pi < tmpl.params.length; pi++) {
-      localVars[tmpl.params[pi]] = callArgs[pi] ?? "";
+      localVars[tmpl.params[pi]] = rawArgs[pi] ?? "";
     }
     resolvedType = tmpl.actorType;
     resolvedArgs = tmpl.bodyArgs.map((a) => interpolate(a, localVars));
@@ -915,7 +918,7 @@ function parseEventLine(
       });
     }
     const params = parseActionParams(action, paramsRaw);
-    pushEvent(ast, scope, inChapter, {
+    pushEvent(ast, scope, {
       time,
       actor: "camera",
       action,
@@ -966,7 +969,7 @@ function parseEventLine(
       validateActionForActor(sevAction, actorDef, sevMustUnderstand, lineNum, ast.warnings);
       const params = parseActionParams(sevAction, expandedParams);
       validateMoveTarget(sevAction, params, ast.meta, actor, lineNum);
-      pushEvent(ast, scope, inChapter, {
+      pushEvent(ast, scope, {
         time: absTime,
         actor,
         action: sevAction,
@@ -981,7 +984,7 @@ function parseEventLine(
   validateActionForActor(action, actorDef, mustUnderstand, lineNum, ast.warnings);
   const params = parseActionParams(action, paramsRaw);
   validateMoveTarget(action, params, ast.meta, actor, lineNum);
-  pushEvent(ast, scope, inChapter, {
+  pushEvent(ast, scope, {
     time,
     actor,
     action,
@@ -995,22 +998,11 @@ function parseEventLine(
 // Event push + scope time tracking
 // ---------------------------------------------------------------------------
 
-function pushEvent(
-  ast: SceneAST,
-  scope: TimeScope,
-  inChapter: { name: string; scope: TimeScope } | null,
-  ev: TimelineEvent,
-): void {
+function pushEvent(ast: SceneAST, scope: TimeScope, ev: TimelineEvent): void {
   ast.events.push(ev);
   const dur = typeof ev.params.dur === "number" ? ev.params.dur : 0;
   const endTime = round3(ev.time + dur);
   if (endTime > scope.prevEnd) scope.prevEnd = endTime;
-  // Outside-chapter events also advance the top-level scope so a
-  // subsequent `scene "title" { ... }` can pick up the relative time
-  // correctly.
-  if (!inChapter) {
-    // Already the top-level scope.
-  }
 }
 
 // ---------------------------------------------------------------------------

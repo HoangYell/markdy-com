@@ -21,13 +21,13 @@ actor <name> = <type>(<args>) at (x, y) [modifiers]
 - **preset expansion** — `preset <name>(args...)` — expands at parse time to a full scene template.
 - **!action must-understand prefix** — `actor.!action(...)` — hard-fail on unknown actions. Without `!`, unknowns soft-warn.
 - **unified with-modifier form** — `with key=val, key=val` — modifier form alongside the space-separated `scale 1.5 rotate 10` syntax.
-- **figure-only type check** — Figure-only actions (`punch`, `kick`, `wave`, `nod`, `face`, `pose`, `rotate_part`) error on non-figure targets.
+- **figure-only type check** — Figure-only actions (`punch`, `kick`, `wave`, `nod`, `jump`, `bounce`, `face`, `pose`, `rotate_part`) error on non-figure targets.
 
 ## Soft-warning rules
 
 Unknown actions, modifier keys, and scene keys emit `ParseWarning` instead of throwing. Prefix an action with `!` (e.g. `hero.!punch(...)`) to require must-understand semantics.
 
-Figure-only actions (`punch`, `kick`, `wave`, `nod`, `face`, `pose`, `rotate_part`) hard-fail if the target is not a figure actor.
+Figure-only actions (`punch`, `kick`, `wave`, `nod`, `jump`, `bounce`, `face`, `pose`, `rotate_part`) hard-fail if the target is not a figure actor.
 
 ## Authoring defaults
 

@@ -162,7 +162,7 @@ const FEATURES: Feature[] = [
   {
     id: "type-check",
     name: "figure-only type check",
-    summary: "Figure-only actions (`punch`, `kick`, `wave`, `nod`, `face`, `pose`, `rotate_part`) error on non-figure targets.",
+    summary: "Figure-only actions (`punch`, `kick`, `wave`, `nod`, `jump`, `bounce`, `face`, `pose`, `rotate_part`) error on non-figure targets.",
     detail: [
       "The parser now rejects figure-only actions on non-figure actors with a",
       "clear error pointing at the actor type. This catches common mistakes",
@@ -295,8 +295,8 @@ async function writeSystemPromptMd(): Promise<void> {
   );
   lines.push("");
   lines.push(
-    "Figure-only actions (`punch`, `kick`, `wave`, `nod`, `face`, `pose`, `rotate_part`) hard-fail if " +
-      "the target is not a figure actor.",
+    "Figure-only actions (`punch`, `kick`, `wave`, `nod`, `jump`, `bounce`, `face`, `pose`, `rotate_part`) " +
+      "hard-fail if the target is not a figure actor.",
   );
   lines.push("");
   lines.push("## Authoring defaults");
@@ -345,20 +345,29 @@ async function writeSystemPromptJson(): Promise<void> {
     },
     actorTypes: ["sprite", "text", "box", "figure", "caption"],
     reservedActors: ["camera"],
-    figureOnlyActions: ["punch", "kick", "wave", "nod", "face", "pose", "rotate_part"],
+    // Must stay in sync with parser.ts FIGURE_ONLY_ACTIONS / UNIVERSAL_ACTIONS.
+    figureOnlyActions: [
+      "punch",
+      "kick",
+      "wave",
+      "nod",
+      "jump",
+      "bounce",
+      "face",
+      "rotate_part",
+      "pose",
+    ],
     universalActions: [
-      "move",
       "enter",
       "exit",
+      "move",
       "fade_in",
       "fade_out",
       "scale",
       "rotate",
       "shake",
-      "jump",
-      "bounce",
-      "throw",
       "say",
+      "throw",
       "play",
     ],
     cameraActions: ["pan", "zoom", "shake"],

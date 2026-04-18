@@ -103,6 +103,29 @@ export function buildAnimations(
 //   • Actors whose first action is `fade_in` and declared opacity > 0
 //     must start invisible.
 
+/**
+ * Returns an off-screen variant of `s` displaced in the given direction.
+ * Used by both `preInitInlineStyles` (for actors whose first event is an
+ * `enter` — they must start offscreen) and `buildAction.enter` at runtime.
+ * Keeping a single helper prevents the two paths from drifting to
+ * different multipliers.
+ */
+function offscreenState(
+  s: ActorState,
+  direction: string,
+  sceneWidth: number,
+  sceneHeight: number,
+): ActorState {
+  const out: ActorState = { ...s };
+  switch (direction) {
+    case "left":   out.x = -sceneWidth  * 1.1; break;
+    case "right":  out.x =  sceneWidth  * 2.1; break;
+    case "top":    out.y = -sceneHeight * 1.1; break;
+    case "bottom": out.y =  sceneHeight * 2.1; break;
+  }
+  return out;
+}
+
 function preInitInlineStyles(
   ast: SceneAST,
   actorEls: Map<string, HTMLElement>,
@@ -126,13 +149,7 @@ function preInitInlineStyles(
 
     if (firstEv?.action === "enter") {
       const from = String(firstEv.params.from ?? "left");
-      const offscreen: ActorState = { ...s };
-      switch (from) {
-        case "left":   offscreen.x = -ast.meta.width * 1.1; break;
-        case "right":  offscreen.x =  ast.meta.width * 2.1; break;
-        case "top":    offscreen.y = -ast.meta.height * 1.1; break;
-        case "bottom": offscreen.y =  ast.meta.height * 2.1; break;
-      }
+      const offscreen = offscreenState(s, from, ast.meta.width, ast.meta.height);
       el.style.transform = txFn(offscreen);
     }
 
@@ -287,20 +304,12 @@ function buildAction(
     // without needing a separate fade_in.
     case "enter": {
       const from = String(ev.params.from ?? "left");
-      const fromState: ActorState = { ...s };
-      const startOpacity = s.opacity;
-
-      switch (from) {
-        case "left":   fromState.x = -ast.meta.width;     break;
-        case "right":  fromState.x = ast.meta.width * 2;  break;
-        case "top":    fromState.y = -ast.meta.height;     break;
-        case "bottom": fromState.y = ast.meta.height * 2;  break;
-      }
+      const fromState = offscreenState(s, from, ast.meta.width, ast.meta.height);
 
       anims.push(
         el.animate(
           [
-            { transform: txFn(fromState), opacity: startOpacity },
+            { transform: txFn(fromState), opacity: s.opacity },
             { transform: txFn(s),         opacity: 1 },
           ],
           baseOpts,
@@ -317,14 +326,7 @@ function buildAction(
     // actor is conceptually gone after this.
     case "exit": {
       const to = String(ev.params.to ?? "right");
-      const toState: ActorState = { ...s };
-
-      switch (to) {
-        case "left":   toState.x = -ast.meta.width * 1.1; break;
-        case "right":  toState.x =  ast.meta.width * 2.1; break;
-        case "top":    toState.y = -ast.meta.height * 1.1; break;
-        case "bottom": toState.y =  ast.meta.height * 2.1; break;
-      }
+      const toState = offscreenState(s, to, ast.meta.width, ast.meta.height);
 
       anims.push(
         el.animate(
