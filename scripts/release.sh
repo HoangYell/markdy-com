@@ -22,13 +22,13 @@ fi
 
 echo "📦 Updating package.json versions..."
 # Update root version
-npm version "$VERSION" --no-git-tag-version
+pnpm version "$VERSION" --no-git-tag-version
 
 # Update versions in packages
 for pkg in packages/*; do
   if [ -f "$pkg/package.json" ]; then
     echo "  - Bumping $pkg"
-    (cd "$pkg" && npm version "$VERSION" --no-git-tag-version)
+    (cd "$pkg" && pnpm version "$VERSION" --no-git-tag-version)
   fi
 done
 
