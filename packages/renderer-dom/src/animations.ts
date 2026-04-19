@@ -82,7 +82,7 @@ export function buildAnimations(
     };
 
     if (ev.actor === "camera") {
-      buildCameraAction(ev, scene, baseOpts, anims, cameraState);
+      buildCameraAction(ev, scene, ast, baseOpts, anims, cameraState);
       continue;
     }
 
@@ -191,6 +191,7 @@ function cameraTx(s: CameraState): string {
 function buildCameraAction(
   ev: TimelineEvent,
   scene: HTMLElement,
+  ast: SceneAST,
   baseOpts: KeyframeAnimationOptions,
   anims: Animation[],
   cameraState: CameraState,
@@ -201,11 +202,13 @@ function buildCameraAction(
     case "pan": {
       const to = ev.params.to as [number, number] | undefined;
       if (!to) break;
-      // Interpret `to=(cx, cy)` as "center the camera on (cx, cy)". The
-      // parser doesn't know scene dimensions at this point, so we compute
-      // the offset from scene center at render time.
-      const sceneW = scene.clientWidth || Number(scene.style.width.replace("px", "")) || 800;
-      const sceneH = scene.clientHeight || Number(scene.style.height.replace("px", "")) || 400;
+      // Interpret `to=(cx, cy)` as "center the camera on (cx, cy)". Use the
+      // AST's declared scene dimensions — querying `scene.clientWidth` here
+      // is unreliable: under jsdom it's 0, and when the scene uses CSS
+      // `width: 100%` or is wrapped in a responsive scaler the measured
+      // value doesn't match the authoring-space coordinates the user wrote.
+      const sceneW = ast.meta.width;
+      const sceneH = ast.meta.height;
       const targetX = to[0] - sceneW / 2;
       const targetY = to[1] - sceneH / 2;
       const next: CameraState = { ...s, x: targetX, y: targetY };

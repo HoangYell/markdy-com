@@ -102,6 +102,7 @@ export type ParseWarning = {
     | "unknown-modifier"
     | "unknown-scene-key"
     | "unknown-camera-action"
+    | "unknown-preset"
     | "import-unresolved"
     | "preset-mixed";
   message: string;

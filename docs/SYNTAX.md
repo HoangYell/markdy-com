@@ -804,7 +804,9 @@ Where the grammar could have hard-errored, it often emits a `ParseWarning` inste
 | `unknown-camera-action` | a `camera.*` call uses an unsupported action |
 | `unknown-modifier` | a `with key=val` or space-form key is not a known modifier |
 | `unknown-scene-key` | the `scene` declaration has an unrecognized property |
+| `unknown-preset` | `preset <name>` references a preset that doesn't exist; the message lists available names |
 | `import-unresolved` | an `import ... as ns` has no matching host-provided namespace |
+| `preset-mixed` | `preset <name>` appears alongside other statements (presets are whole-file shorthands) |
 
 Prefix an action with `!` to opt into hard-fail behavior instead: `actor.!action(...)` throws `ParseError` on unknown actions.
 <!-- markdy:regen:syntax-addendum:end -->

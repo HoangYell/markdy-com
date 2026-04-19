@@ -179,7 +179,9 @@ const WARNING_KINDS: Array<{ kind: string; emittedWhen: string }> = [
   { kind: "unknown-camera-action", emittedWhen: "a `camera.*` call uses an unsupported action" },
   { kind: "unknown-modifier", emittedWhen: "a `with key=val` or space-form key is not a known modifier" },
   { kind: "unknown-scene-key", emittedWhen: "the `scene` declaration has an unrecognized property" },
+  { kind: "unknown-preset", emittedWhen: "`preset <name>` references a preset that doesn't exist; the message lists available names" },
   { kind: "import-unresolved", emittedWhen: "an `import ... as ns` has no matching host-provided namespace" },
+  { kind: "preset-mixed", emittedWhen: "`preset <name>` appears alongside other statements (presets are whole-file shorthands)" },
 ];
 
 // ---------------------------------------------------------------------------

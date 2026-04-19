@@ -725,13 +725,28 @@ export function parse(source: string, opts: ParseOptions = {}): SceneAST {
       continue;
     }
 
-    // ── preset (mixed use — soft warn and skip) ────────────────────────────
+    // ── preset (mixed use, or unknown name) ────────────────────────────────
+    // By the time we reach this branch, `tryExpandSolePreset` has already
+    // rejected the source as "sole preset expansion". Either another
+    // statement lives in the file (→ `preset-mixed`) or the preset name
+    // is unrecognised (→ `unknown-preset`).
     if (raw.startsWith("preset ")) {
-      ast.warnings.push({
-        kind: "preset-mixed",
-        message: "`preset` is a whole-file shorthand; mid-file presets are ignored",
-        line: lineNum,
-      });
+      const pm = PRESET_RE.exec(raw);
+      const maybeName = pm?.[1];
+      if (maybeName && !PRESETS[maybeName]) {
+        const nameList = Object.keys(PRESETS).sort().join(", ");
+        ast.warnings.push({
+          kind: "unknown-preset",
+          message: `unknown preset "${maybeName}" — available: ${nameList}`,
+          line: lineNum,
+        });
+      } else {
+        ast.warnings.push({
+          kind: "preset-mixed",
+          message: "`preset` is a whole-file shorthand; mid-file presets are ignored",
+          line: lineNum,
+        });
+      }
       continue;
     }
 
@@ -843,14 +858,6 @@ function parseActorLine(raw: string, lineNum: number, ast: SceneAST): void {
     );
   }
 
-  // Anchor syntax is only meaningful for caption actors.
-  if (anchor && typeName !== "caption") {
-    throw new ParseError(
-      `anchor syntax "at ${anchor}" only applies to caption actors; got ${typeName}`,
-      lineNum,
-    );
-  }
-
   // Resolve type: either built-in or a user-defined template (def).
   const rawArgs = parseActorCallArgs(argsRaw);
   let resolvedType: ActorDef["type"];
@@ -872,6 +879,29 @@ function parseActorLine(raw: string, lineNum: number, ast: SceneAST): void {
   }
 
   const modifiers = parseActorTrailer(trailer, lineNum, ast.warnings);
+
+  // Anchor syntax is only meaningful for caption actors. We check against
+  // the *resolved* type so a `def` template whose body is `caption(...)`
+  // can accept anchor syntax just like a direct caption declaration.
+  if (anchor && resolvedType !== "caption") {
+    throw new ParseError(
+      `anchor syntax "at ${anchor}" only applies to caption actors; got ${typeName}`,
+      lineNum,
+    );
+  }
+
+  // Conversely, captions are self-positioning — they require anchor syntax
+  // (`at top | bottom | center`) so the runtime can center them horizontally
+  // and pick a sensible vertical offset regardless of scene dimensions.
+  // Accepting numeric coordinates here would silently give the actor
+  // top-left semantics while the renderer still applies `-50%` self-centering.
+  if (resolvedType === "caption" && !anchor) {
+    throw new ParseError(
+      `Caption actors require anchor syntax (\`at top | bottom | center\`); ` +
+        `got numeric position (${x}, ${y}) for "${name}"`,
+      lineNum,
+    );
+  }
 
   // Captions use the scene anchor; numeric positioning only applies to
   // non-caption actors, where we enforce scene-bounds.

@@ -58,6 +58,49 @@ describe("caption actor with anchor positioning", () => {
       ].join("\n")),
     ).toThrow(ParseError);
   });
+
+  it("rejects numeric positioning on caption actors", () => {
+    // The renderer always applies a `-50%, -50%` self-centering transform
+    // to captions, so `at (x, y)` would give wildly different visual
+    // semantics than for text/box actors. Docs explicitly disallow it.
+    expect(() =>
+      parse(
+        [
+          "scene width=800 height=400",
+          'actor c = caption("hi") at (100, 50)',
+        ].join("\n"),
+      ),
+    ).toThrow(/Caption actors require anchor syntax/);
+  });
+
+  it("also rejects numeric positioning when the caption is created via a `def` template", () => {
+    expect(() =>
+      parse(
+        [
+          "def subtitle(txt) {",
+          '  caption(${txt})',
+          "}",
+          'actor s = subtitle("hi") at (100, 50)',
+        ].join("\n"),
+      ),
+    ).toThrow(/Caption actors require anchor syntax/);
+  });
+
+  it("accepts anchor syntax when the caption is created via a `def` template", () => {
+    // Regression: previously the inverse check ran against the surface
+    // type name (`subtitle`) and spuriously rejected anchor syntax for
+    // templates that expand to caption.
+    const ast = parse(
+      [
+        "def subtitle(txt) {",
+        '  caption(${txt})',
+        "}",
+        'actor s = subtitle("hi") at top',
+      ].join("\n"),
+    );
+    expect(ast.actors["s"].type).toBe("caption");
+    expect(ast.actors["s"].anchor).toBe("top");
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -386,6 +429,42 @@ describe("preset expansion", () => {
     for (const name of PRESET_NAMES) {
       expect(() => parse(`preset ${name}`)).not.toThrow();
     }
+  });
+
+  it("warns `unknown-preset` with the list of valid names on a typo", () => {
+    // Regression: previously any unrecognised preset silently produced an
+    // empty scene with a misleading `preset-mixed` warning. Now it surfaces
+    // the typo directly.
+    const ast = parse("preset meem");
+    expect(ast.warnings).toHaveLength(1);
+    expect(ast.warnings[0].kind).toBe("unknown-preset");
+    expect(ast.warnings[0].message).toContain('"meem"');
+    // The message should enumerate valid names so the author can self-correct.
+    expect(ast.warnings[0].message).toContain("meme");
+  });
+
+  it("still emits `preset-mixed` when a known preset is used alongside other statements", () => {
+    const ast = parse(
+      [
+        "scene width=800 height=400",
+        "preset meme",
+        'actor h = text("x") at (100, 100)',
+      ].join("\n"),
+    );
+    expect(ast.warnings.some((w) => w.kind === "preset-mixed")).toBe(true);
+    expect(ast.warnings.some((w) => w.kind === "unknown-preset")).toBe(false);
+  });
+
+  it("prefers `unknown-preset` over `preset-mixed` when the name is unrecognised in a mixed file", () => {
+    const ast = parse(
+      [
+        "scene width=800 height=400",
+        "preset meem",
+        'actor h = text("x") at (100, 100)',
+      ].join("\n"),
+    );
+    // Either order is acceptable as long as the typo is surfaced.
+    expect(ast.warnings.some((w) => w.kind === "unknown-preset")).toBe(true);
   });
 });
 

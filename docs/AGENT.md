@@ -645,7 +645,9 @@ interface SceneAST {
       | "unknown-camera-action"
       | "unknown-modifier"
       | "unknown-scene-key"
-      | "import-unresolved";
+      | "unknown-preset"
+      | "import-unresolved"
+      | "preset-mixed";
     message: string;
     line: number;
   }>;

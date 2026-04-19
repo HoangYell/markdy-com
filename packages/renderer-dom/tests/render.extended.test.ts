@@ -214,6 +214,24 @@ describe("renderer — camera reserved actor", () => {
     // in ast.warnings (verified by core tests). The renderer must not throw.
     expect(anims.length).toBe(0);
   });
+
+  it("computes pan offsets against the AST scene dimensions (not the DOM)", () => {
+    // Regression: camera.pan previously fell back to a hard-coded 800×400 when
+    // `scene.clientWidth` was 0 (jsdom) or the layer used percentage widths.
+    // For a 1920×1080 scene, panning to the center must translate by (0, 0);
+    // the old code would translate by (-560, -340) instead.
+    const { anims } = mount(
+      [
+        "scene width=1920 height=1080",
+        'actor h = text("x") at (0,0)',
+        "@0.0: camera.pan(to=(960, 540), dur=1.0)",
+      ].join("\n"),
+    );
+    const cam = anims[anims.length - 1] as unknown as { _keyframes: Keyframe[] };
+    const endTransform = String(cam._keyframes[1].transform ?? "");
+    // Pan target is the scene center, so the camera offset must be (0, 0).
+    expect(endTransform).toMatch(/translate\(-?0px,\s*-?0px\)/);
+  });
 });
 
 // ---------------------------------------------------------------------------

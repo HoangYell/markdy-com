@@ -124,13 +124,32 @@ in by using the new tokens.
   was stored via `Symbol` on the scene-content DOM node, persisting when the
   same element was reused. Camera state is now per-`buildAnimations`-call
   and always starts from the identity transform.
+- **`camera.pan(to=(x, y))` uses the AST scene dimensions instead of probing
+  the DOM.** The previous code fell back to a hard-coded 800×400 whenever
+  `sceneContent.clientWidth` was 0 (jsdom, pre-layout) or the layer used
+  percentage widths, causing pan offsets to be wrong for any scene whose
+  dimensions differed from 800×400. The authoring-space coordinates now
+  match the rendered motion.
+- **Typo'd preset names now surface as `unknown-preset` warnings.** Previously
+  any unrecognised preset silently produced an empty scene and a misleading
+  `preset-mixed` warning. The new warning lists every valid preset name so
+  the author can self-correct. `preset-mixed` is still emitted when a *known*
+  preset is used alongside other statements.
+- **Captions now hard-reject numeric positioning.** `actor c = caption("hi")
+  at (100, 50)` previously parsed silently while the renderer still applied
+  `-50%` self-centering, producing confusing placement. It now throws
+  `ParseError` with a message pointing at the anchor syntax. The check runs
+  against the *resolved* actor type, so `def` templates that expand to
+  `caption(...)` are treated identically to direct caption declarations —
+  including, for the first time, accepting `at top | bottom | center` on
+  templated captions.
 
 ### Test coverage
 
-- 40+ new parser tests across caption, chapters, `@+N:`, camera, exit,
+- 50+ new parser tests across caption, chapters, `@+N:`, camera, exit,
   imports, presets, `!action`, unified modifiers, figure-only type
   checking, and soft warnings.
-- Regression tests for each of the four fixed bugs above.
+- Regression tests for every fixed bug above.
 
 ## [0.5.8] — 2026-04-12
 
