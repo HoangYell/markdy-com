@@ -8,9 +8,12 @@ scene width=800 height=400
 import "./characters.markdy" as chars
 import "./sequences.markdy"  as seqs
 
-# Once resolved, this works:
-# actor hero = chars.fighter(😎) at (400, 240)
-# @0.0: hero.play(seqs.combo_strike)
+# Once the host resolves `chars` and `seqs`, these lines work:
+#   actor hero = chars.fighter(😎) at (400, 240)
+#   @0.0: hero.play(seqs.combo_strike)
+# Namespaced templates, vars, and sequences are all supported —
+# dotted type names (chars.fighter), dotted vars (${chars.skin}),
+# and dotted sequence refs in play(...) all resolve at parse time.
 
 # Without host resolution, the parser emits:
 #   ParseWarning(kind="import-unresolved", message=...)

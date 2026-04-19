@@ -89,13 +89,22 @@ actor hero  = figure(#c68642, m, 😎) at (360, 600)
 
   typing: (args) => {
     const text = quote(args[0] ?? "hello world");
+    // Simulates typing visually: the cursor blinks in, the line fades in
+    // underneath it, the cursor rides the text (fade out / fade in cycle),
+    // then lands at the end. Not a true character-stream — which would
+    // require a dedicated `type` primitive — but it reads as "typing".
     return `scene width=800 height=300 bg=#0f1115
 
-actor cursor = text("|") at (120, 150) size 40
+actor cursor = text("|") at (120, 150) size 40 opacity 0
 actor line   = text(${text}) at (140, 150) size 32 opacity 0
 
-@0.0: line.fade_in(dur=0.8)
-@1.2: cursor.fade_out(dur=0.3)
+@0.0:  cursor.fade_in(dur=0.15)
+@+0.1: cursor.fade_out(dur=0.15)
+@+0.0: cursor.fade_in(dur=0.15)
+@+0.1: cursor.fade_out(dur=0.15)
+@+0.0: cursor.fade_in(dur=0.15)
+@+0.0: line.fade_in(dur=0.8)
+@+0.3: cursor.fade_out(dur=0.3)
 `;
   },
 
@@ -129,8 +138,8 @@ actor bob   = figure(#c68642, m, 🙂) at (620, 240)
   },
 
   vs: (args) => {
-    const left = quote(args[0] ?? "v1");
-    const right = quote(args[1] ?? "v2");
+    const left = quote(args[0] ?? "team a");
+    const right = quote(args[1] ?? "team b");
     return `scene width=960 height=540 bg=#111
 
 actor a = caption(${left})  at top
@@ -182,9 +191,11 @@ actor go    = caption(${to}) at center
 
   reveal: (args) => {
     const secret = quote(args[0] ?? "and that's the trick");
+    // Box is 100×100 at top-left. Centered at (350, 175) + scale 10 comfortably
+    // covers the 800×450 viewport (100×10 = 1000 px on each side).
     return `scene width=800 height=450 bg=#0d1117
 
-actor cover  = box() at (350, 175) scale 3 opacity 1
+actor cover  = box() at (350, 175) scale 10 opacity 1
 actor reveal = caption(${secret}) at center
 
 @0.4: cover.fade_out(dur=0.5)

@@ -5,6 +5,133 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+Additive grammar extensions — every existing script continues to parse and
+render bit-identically, enforced by the compat gate over the golden example
+corpus. New features are layered on top of the current syntax; authors opt
+in by using the new tokens.
+
+### Added — Language
+
+- **`caption` actors** — first-class overlay text with anchor positioning:
+  `actor title = caption("Demo") at top | bottom | center`. Auto-centers on
+  `scene.width / 2` and places at ~12% / ~88% / 50% of scene height.
+- **Chapter blocks** — `scene "title" { ... }` groups timeline events under a
+  named heading. Emitted on `ast.chapters[] = { name, startLine, startTime,
+  endTime }`; every event inside carries `ev.chapter = "<name>"`. Chapters
+  chain: each `endTime` becomes the next chapter's `startTime`.
+- **`@+N:` relative-time shorthand** — schedules the event `N` seconds after
+  the previous event's end time in the current scope. Scope-aware: at the top
+  level, relative to the previous top-level event; inside a chapter, relative
+  to the previous event in that chapter.
+- **`camera` reserved actor** — scene-wide `camera.pan(to=(x,y), dur, ease)`,
+  `camera.zoom(to=<scalar>, dur, ease)`, and `camera.shake(intensity, dur)`.
+  Transforms are applied to an inner `sceneContent` layer so responsive CSS
+  scaling on the outer scene is preserved.
+- **`exit` action** — universal mirror of `enter`: slides the actor off-screen
+  in the given direction while fading opacity to zero. Works on any actor
+  type, including captions.
+- **`import "<path>" as <ns>`** — records the declaration on `ast.imports[]`.
+  Hosts pass `{ imports: { <ns>: SceneAST } }` to `parse()` (or now directly
+  to `createPlayer()`) to resolve namespaces. Resolved namespaces merge their
+  `vars`, `defs`, and `seqs` under `ns.<name>`; authors reference them with
+  dotted names (`chars.fighter(...)`, `${chars.skin}`, `hero.play(anim.combo)`).
+- **`preset <name>(<args>)` macros** — parse-time expansion into full scenes.
+  A file whose only top-level content is a `preset ...` call becomes a
+  complete animation. Shipping presets: `meme`, `explainer`, `reaction`,
+  `pov`, `typing`, `terminal`, `chat_bubble`, `vs`, `tutorial_step`,
+  `countdown`, `reveal`, `glitch`, `zoom_punchline`, `before_after`,
+  `tier_list`.
+- **`!action` must-understand prefix** — opt-in hard fail. `hero.!shake(...)`
+  throws `ParseError` if the action is unknown (otherwise unknown actions
+  soft-warn and the renderer no-ops them). Use in CI or to guard critical
+  beats.
+- **Unified `with`-modifier form** — `actor t = box() at (10, 10) with
+  scale=1.5, opacity=0.4, rotate=45`. The space-separated form is still
+  accepted; the two can be mixed on the same line (space-form first, then
+  `with`).
+- **Figure-only type checking** — `punch`, `kick`, `rotate_part`, `pose`,
+  `wave`, `nod`, `face`, `jump`, `bounce` now throw
+  `ParseError: action "X" is figure-only; actor type is "Y"` when applied to
+  non-figure actors (previously silently no-op'd).
+- **Soft parse warnings (`ast.warnings[]`)** — non-fatal `ParseWarning`
+  entries replace hard errors for: unknown actions, unknown camera actions,
+  unknown modifier keys, unknown scene keys, and unresolved imports. Surfaced
+  via `createPlayer({ onWarning })` or by reading `ast.warnings` directly.
+
+### Added — Runtime
+
+- `PlayerOptions.onWarning` — callback invoked once per soft parse warning.
+  Defaults to `console.warn`.
+- `PlayerOptions.imports` — pass host-resolved ASTs directly to the player;
+  internally threaded through `parse()`.
+- `sceneContent` inner layer — camera transforms apply to `sceneContent`
+  while the outer `scene` element carries responsive CSS scaling. The two
+  never fight.
+- Camera state is per-`buildAnimations` call; reusing a DOM element across
+  `createPlayer` lifecycles no longer leaks old pan/zoom/shake state.
+
+### Added — Types
+
+- `SceneAST.actors[].type` widened to include `"caption"`.
+- `SceneAST.actors[].anchor?: "top" | "bottom" | "center"` for caption-
+  positioned actors.
+- `SceneAST.events[].chapter?: string` for events inside a chapter block.
+- `SceneAST.chapters: Chapter[]`
+- `SceneAST.imports: ImportDecl[]`
+- `SceneAST.warnings: ParseWarning[]`
+- New public types: `Chapter`, `ImportDecl`, `ParseWarning`, `ParseOptions`.
+- New exports: `PRESETS`, `PRESET_NAMES`.
+
+### Added — Docs & Tooling
+
+- `docs/SYNTAX.md` — extended-grammar section covering every new feature
+  plus the soft-warning taxonomy.
+- `docs/AGENT.md` — full refresh of the AI-agent reference (grammar, action
+  tables, AST shape, integration examples, new patterns).
+- `README.md` — new feature highlights, chaptered/camera/caption example,
+  namespaced import example, preset one-liner example, updated action
+  table.
+- `scripts/regenerate-all.ts` — single source of truth that regenerates
+  `docs/SYNTAX.md`, `prompts/system-prompt.{md,json}`,
+  `website/public/prompts/*`, and `examples/README.md` from one `FEATURES`
+  array, keeping `FIGURE_ONLY_ACTIONS` / `UNIVERSAL_ACTIONS` in sync with the
+  parser.
+- New example files for each feature, plus `examples/presets/` for every
+  shipped preset.
+- `@markdy/compat` gate — runs all golden examples and asserts zero
+  regressions (0 warnings, 0 chapters, 0 imports on any legacy AST).
+
+### Fixed
+
+- **Scene header inside a chapter block is no longer silently accepted.** A
+  bare `scene width=2000` inside `scene "title" { ... }` used to mutate
+  `ast.meta` when no prior top-level `scene` declaration existed. Now always
+  throws `ParseError` so the typo (usually a missing `"..."` on an intended
+  sub-chapter) surfaces at parse time.
+- **Chapter `startTime` now reports the earliest event time inside the
+  chapter**, not the inherited `openedAt` from top scope. Chapters whose
+  first event uses an absolute timestamp earlier than the inherited
+  start-time no longer misreport timing to downstream timeline UIs. Empty
+  chapters still get a deterministic `startTime` (= `openedAt`).
+- **Namespaced templates and vars from imports now resolve.** `actor hero =
+  chars.fighter(...)` and `${chars.skin}` were previously rejected because
+  the regexes only matched `\w+` for actor type names and `${...}` bodies.
+  Dotted names are now accepted end-to-end; `play(seqs.combo)` works by the
+  same rules.
+- **Camera state is no longer leaked across `createPlayer` sessions.** State
+  was stored via `Symbol` on the scene-content DOM node, persisting when the
+  same element was reused. Camera state is now per-`buildAnimations`-call
+  and always starts from the identity transform.
+
+### Test coverage
+
+- 40+ new parser tests across caption, chapters, `@+N:`, camera, exit,
+  imports, presets, `!action`, unified modifiers, figure-only type
+  checking, and soft warnings.
+- Regression tests for each of the four fixed bugs above.
+
 ## [0.5.8] — 2026-04-12
 
 ### Fixed

@@ -218,8 +218,8 @@ describe("renderer — camera reserved actor", () => {
 
 // ---------------------------------------------------------------------------
 
-describe("renderer — v1 back-compat", () => {
-  it("still renders a plain v1 scene with no new behaviors leaking in", () => {
+describe("renderer — baseline back-compat", () => {
+  it("still renders a plain baseline scene with no new behaviors leaking in", () => {
     const { ast, actorEls, anims } = mount(
       [
         "scene width=800 height=400 bg=white",

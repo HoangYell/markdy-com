@@ -204,12 +204,15 @@ const MODIFIER_KEYS = new Set<ModifierKey>(["scale", "rotate", "opacity", "size"
 type Modifiers = Partial<Pick<ActorDef, ModifierKey>>;
 
 /**
- * Parses space-separated modifier pairs that follow the actor position,
- * the form used in the original v1 grammar.
- *   Example: `scale 0.4 opacity 0.9` → { scale: 0.4, opacity: 0.9 }
+ * Parses space-separated modifier pairs that follow the actor position
+ * (e.g. `scale 0.4 opacity 0.9` → { scale: 0.4, opacity: 0.9 }).
  *
- * Unknown keys are recorded as warnings rather than silently dropped
- * so tooling can surface typos.
+ * This is one of two equivalent modifier forms — the other is the unified
+ * `with key=val, key=val` form. Both can appear on the same line (space
+ * form first, then `with`).
+ *
+ * Unknown keys are recorded as warnings rather than silently dropped so
+ * tooling can surface typos.
  */
 function parseSpaceModifiers(
   raw: string,
@@ -329,10 +332,12 @@ const BUILTIN_ACTOR_TYPES = new Set(["sprite", "text", "box", "figure", "caption
 //   • Caption anchor:   `at top | bottom | center`
 // The anchor form only applies when typeName === "caption"; we still
 // match it here so the caller can report a clear error otherwise.
+// typeName accepts `chars.fighter` style dotted names so templates coming
+// in via `import "..." as chars` resolve.
 const ACTOR_NUM_POS_RE =
-  /^actor\s+(\w+)\s*=\s*(\w+)\(([^)]*)\)\s+at\s+\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)(.*)$/;
+  /^actor\s+(\w+)\s*=\s*([\w.]+)\(([^)]*)\)\s+at\s+\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)(.*)$/;
 const ACTOR_ANCHOR_POS_RE =
-  /^actor\s+(\w+)\s*=\s*(\w+)\(([^)]*)\)\s+at\s+(top|bottom|center)\b(.*)$/;
+  /^actor\s+(\w+)\s*=\s*([\w.]+)\(([^)]*)\)\s+at\s+(top|bottom|center)\b(.*)$/;
 
 // Timeline event. Action may be `!name` (must-understand) or plain `name`.
 // The reserved actor `camera` participates like any other event actor.
@@ -378,7 +383,13 @@ const PRESET_RE = /^preset\s+(\w+)(?:\s*\((.*)\))?\s*$/;
  * Unknown vars are left as-is (will cause a parse error later, which is fine).
  */
 function interpolate(s: string, vars: Record<string, string>): string {
-  return s.replace(/\\?\$\{(\w+)\}/g, (_, name) => vars[name] ?? `\${${name}}`);
+  // Identifier form, optionally dotted (e.g. `chars.skin` after import merge).
+  // Each segment must start with a letter or underscore so things like
+  // `${0.5}` (a literal interpolation with a number-looking "name") stay
+  // intact — notably preserving `\${0.5}` produced by MDX String.raw.
+  return s.replace(/\\?\$\{([A-Za-z_]\w*(?:\.[A-Za-z_]\w*)*)\}/g, (_, name) =>
+    vars[name] ?? `\${${name}}`,
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -486,7 +497,15 @@ export function parse(source: string, opts: ParseOptions = {}): SceneAST {
   let inDef: { name: string; params: string[]; startLine: number } | null = null;
   let defNeedsClose = false; // after body line consumed, waiting for '}'
   let inSeq: { name: string; params: string[]; events: SequenceDef["events"]; startLine: number } | null = null;
-  let inChapter: { name: string; startLine: number; firstTime: number; scope: TimeScope } | null = null;
+  let inChapter: {
+    name: string;
+    startLine: number;
+    /** Initial time the chapter's scope was opened at (inherited from top scope). */
+    openedAt: number;
+    /** Earliest event time seen inside this chapter. `Infinity` until an event fires. */
+    earliestEventTime: number;
+    scope: TimeScope;
+  } | null = null;
 
   const topScope: TimeScope = { name: "", prevEnd: 0 };
 
@@ -526,10 +545,17 @@ export function parse(source: string, opts: ParseOptions = {}): SceneAST {
       }
       if (inChapter) {
         const endTime = inChapter.scope.prevEnd;
+        // `startTime` reports the earliest wall-clock time an event in this
+        // chapter fires. Fall back to `openedAt` for empty chapters so a
+        // timeline UI still has a deterministic anchor to hang them on.
+        const startTime =
+          inChapter.earliestEventTime === Infinity
+            ? inChapter.openedAt
+            : Math.min(inChapter.openedAt, inChapter.earliestEventTime);
         ast.chapters.push({
           name: inChapter.name,
           startLine: inChapter.startLine,
-          startTime: inChapter.firstTime,
+          startTime,
           endTime,
         });
         // Chapters chain: the next chapter (or any top-level @+N event) starts
@@ -646,10 +672,22 @@ export function parse(source: string, opts: ParseOptions = {}): SceneAST {
         inChapter = {
           name: chapterName,
           startLine: lineNum,
-          firstTime: topScope.prevEnd,
+          openedAt: topScope.prevEnd,
+          earliestEventTime: Infinity,
           scope: { name: chapterName, prevEnd: topScope.prevEnd },
         };
         continue;
+      }
+
+      // A scene-header statement (e.g. `scene width=800`) inside a chapter
+      // block is almost certainly a typo — the author probably meant to open
+      // another chapter but forgot the quotes/braces. Reject it so the
+      // mistake surfaces at parse time rather than silently mutating meta.
+      if (inChapter) {
+        throw new ParseError(
+          `scene header inside chapter "${inChapter.name}" is not allowed; close the chapter first or use 'scene "title" { ... }' for a nested section`,
+          lineNum,
+        );
       }
 
       if (sceneFound) {
@@ -862,10 +900,19 @@ function parseEventLine(
   raw: string,
   lineNum: number,
   ast: SceneAST,
-  inChapter: { name: string; scope: TimeScope } | null,
+  inChapter: {
+    name: string;
+    scope: TimeScope;
+    earliestEventTime: number;
+  } | null,
   topScope: TimeScope,
 ): void {
   const scope = inChapter?.scope ?? topScope;
+  const recordEventTime = (t: number): void => {
+    if (inChapter && t < inChapter.earliestEventTime) {
+      inChapter.earliestEventTime = t;
+    }
+  };
 
   const rel = REL_EVENT_RE.exec(raw);
   const abs = rel ? null : EVENT_RE.exec(raw);
@@ -918,6 +965,7 @@ function parseEventLine(
       });
     }
     const params = parseActionParams(action, paramsRaw);
+    recordEventTime(time);
     pushEvent(ast, scope, {
       time,
       actor: "camera",
@@ -969,6 +1017,7 @@ function parseEventLine(
       validateActionForActor(sevAction, actorDef, sevMustUnderstand, lineNum, ast.warnings);
       const params = parseActionParams(sevAction, expandedParams);
       validateMoveTarget(sevAction, params, ast.meta, actor, lineNum);
+      recordEventTime(absTime);
       pushEvent(ast, scope, {
         time: absTime,
         actor,
@@ -984,6 +1033,7 @@ function parseEventLine(
   validateActionForActor(action, actorDef, mustUnderstand, lineNum, ast.warnings);
   const params = parseActionParams(action, paramsRaw);
   validateMoveTarget(action, params, ast.meta, actor, lineNum);
+  recordEventTime(time);
   pushEvent(ast, scope, {
     time,
     actor,

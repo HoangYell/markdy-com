@@ -21,7 +21,7 @@
  */
 
 import { parse } from "@markdy/core";
-import type { ParseWarning } from "@markdy/core";
+import type { ParseWarning, SceneAST } from "@markdy/core";
 import type { FaceSwap } from "./types.js";
 import { createActorEl } from "./actors.js";
 import { buildAnimations } from "./animations.js";
@@ -34,6 +34,13 @@ export interface PlayerOptions {
   container: HTMLElement;
   code: string;
   assets?: Record<string, string>;
+  /**
+   * Host-resolved ASTs for `import "<path>" as <ns>` statements. When
+   * provided, the namespaces' `vars`, `defs`, and `seqs` merge into the
+   * parsed scene under `ns.<name>`. Unresolved namespaces emit a soft
+   * `import-unresolved` warning.
+   */
+  imports?: Record<string, SceneAST>;
   autoplay?: boolean;
   /** Loop the animation when it reaches the end. Defaults to true. */
   loop?: boolean;
@@ -82,6 +89,7 @@ export function createPlayer(opts: PlayerOptions): Player {
     container,
     code,
     assets: assetOverrides = {},
+    imports,
     autoplay = true,
     loop = true,
     copyright = true,
@@ -89,7 +97,7 @@ export function createPlayer(opts: PlayerOptions): Player {
     onWarning = (w) => console.warn(`[markdy] line ${w.line}: ${w.message} (${w.kind})`),
   } = opts;
 
-  const ast = parse(code);
+  const ast = parse(code, imports ? { imports } : undefined);
   const totalDurationMs = (ast.meta.duration ?? 0) * 1000;
 
   // Surface soft parse warnings so hosts can collect them. We never throw on

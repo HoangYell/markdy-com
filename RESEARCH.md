@@ -1,14 +1,15 @@
 # RESEARCH
 
-Prior art, constraints, and design rationale for Markdy v2.
+Prior art, constraints, and design rationale for the current round of
+MarkdyScript enrichment.
 
-## The v1 Mental Model (ground truth)
+## The baseline mental model (ground truth)
 
-MarkdyScript v1 is a line-based, non-Turing-complete DSL that describes 2-D
+MarkdyScript is a line-based, non-Turing-complete DSL that describes 2-D
 animated scenes. Every statement is one line. Everything composes by string
 substitution (`${var}`) and three orthogonal abstractions — `var`, `def`, `seq`.
 Time is a single floating-point axis (`@T: actor.action(...)`). The parser
-returns a flat `SceneAST`; the renderer walks it into `WAAPI` animations.
+returns a flat `SceneAST`; the renderer walks it into WAAPI animations.
 
 The DSL's strongest property is that it has *one way* to do each thing:
 
@@ -18,9 +19,11 @@ The DSL's strongest property is that it has *one way* to do each thing:
 - One way to advance time (`@T:`).
 - One way to target a thing (`actor.action(...)`).
 
-That single-path-per-concept is exactly what makes it LLM-friendly.
+That single-path-per-concept is exactly what makes it LLM-friendly. The
+enrichment below preserves it: every new feature is a new token class, not
+a reinterpretation of an old one.
 
-## Prior art we read before designing v2
+## Prior art we read before designing the enrichment
 
 ### Manim
 
@@ -45,8 +48,8 @@ Strengths:
 
 What we borrow: the ergonomic shorthand for *"N seconds after the previous
 statement"* — Motion Canvas encourages this style, and every authoring
-context (including LLM generations) benefits from it. In v2 we spell it
-`@+N:` inside the main timeline (not just inside `seq` blocks).
+context (including LLM generations) benefits from it. We spell it `@+N:`
+across the main timeline and inside chapters.
 
 What we do **not** borrow: generators / anything code-ish. Keep it line-based.
 
@@ -70,9 +73,9 @@ Strengths:
 - Declarative, exactly the right level of expressivity for most scenes.
 
 What we borrow: the attitude — "a few primitives, composed well." SMIL has
-`begin`, `dur`, `end`, `from`, `to`, `by`. Markdy v1 already mirrors that
-attitude; v2 adds `camera` and `caption` in the same spirit rather than
-adding a Turing-complete expression language.
+`begin`, `dur`, `end`, `from`, `to`, `by`. Markdy already mirrors that
+attitude; this round adds `camera` and `caption` in the same spirit rather
+than adding a Turing-complete expression language.
 
 ### Mermaid
 
@@ -93,49 +96,42 @@ Strengths:
 What we do **not** borrow: state machines. They're the wrong shape for
 the 5-line tweet. The invariant (non-Turing-complete) wins.
 
-## The Four Laws of v2 (why)
+## The three laws of enrichment (why)
 
 1. **Law of Additive Extension.** New features are new tokens, never
    reinterpretations of old tokens. Every existing program's meaning is
    stable forever. The grammar grows; it does not mutate.
 
-2. **Law of Must-Ignore.** Unknown tokens introduced by future versions
-   are skipped by older parsers with a soft warning. This is the Postel's
-   Law / HTML approach — the file is still useful when the parser is
-   behind the spec. The `!` prefix opts a token into hard-fail for cases
-   where semantic correctness is non-negotiable (e.g. an encryption
-   annotation in a hypothetical future).
+2. **Law of Must-Ignore.** Unknown tokens that might appear in future
+   enrichments are skipped by older parsers with a soft warning. This is
+   the Postel's Law / HTML approach — the file is still useful when the
+   parser is behind the spec. The `!` prefix opts a token into hard-fail
+   for cases where semantic correctness is non-negotiable.
 
-3. **Law of Pragma-Gated Breaking Power.** Anything that would change
-   existing semantics (even subtly) is only enabled after `@markdy 2`.
-   Absence of the pragma = strict v1 interpretation. This keeps the
-   100%-compat invariant literal, not interpretive.
-
-4. **Law of Progressive Disclosure.** A user who knows only v1 can write
-   every v1 program in v2 without learning a single new thing. The
-   cognitive load of v2 is additive — you pay for what you use.
+3. **Law of Progressive Disclosure.** A user who knows only the baseline
+   syntax can still write every valid baseline program after the
+   enrichment without learning a single new thing. The cognitive load is
+   additive — you pay for what you use.
 
 ## Why a separate `@markdy/compat`
 
-v1 → v2 compatibility is a standalone product:
+Backwards compatibility is a standalone product:
 
-- It runs in CI on every PR to prove every canonical v1 example still
-  parses *and renders identically* under v2.
-- It powers `npx markdy migrate` (adds `@markdy 2` pragma, modernises
-  `@+N` shorthand).
+- It runs in CI on every PR to prove every canonical baseline fixture
+  still parses *and renders identically* after any parser change.
 - It validates the `system-prompt.md` by fuzzing the LLM prompt against
   the parser and the renderer.
 
 Keeping the compat logic in its own package means it cannot accidentally
-acquire dependencies on v2-only features.
+acquire dependencies on features that postdate a given fixture.
 
 ## Why `camera` is a built-in primitive
 
 A pan/zoom/shake primitive is the single thing most requested when people
 try to write explainer videos. Adding a *camera as an actor* would have
 been tempting — but this would overload `actor` semantics (one actor, no
-position, acts on the global viewport). A top-level keyword `camera` keeps
-the grammar honest: one statement type, one concept.
+position, acts on the global viewport). A reserved actor name `camera`
+keeps the grammar honest: one statement type, one concept.
 
 ## Why `caption` and not "just text"
 
@@ -167,16 +163,19 @@ the author changes the first `dur`, every subsequent `@T:` needs to be
 updated.
 
 `@+0.3: b.enter(...)` means "start 0.3s after the previous top-level
-event." It cuts the arithmetic entirely. v1 already allows this *inside
-seq blocks*; v2 allows it at the top level under `@markdy 2`.
+event." It cuts the arithmetic entirely. The shorthand was already
+available inside `seq` blocks; making it work at the top level and
+inside chapters was the obvious generalization.
 
 ## Why we keep things the same
 
-Everything not in the v2 list stays identical:
+Everything not in the new feature list stays identical:
 
 - `var`, `def`, `seq`, `actor`, `asset`, `scene`, `@T:`, modifiers, all
-  actions and actor types.
-- Strict parser errors with line numbers.
+  existing actions and actor types.
+- Strict parser errors with line numbers (for everything that was
+  already a hard error — the new soft-warning taxonomy only *adds*
+  forgiveness, it never removes strictness).
 - Bounds validation.
 - `figure`'s skin/gender/face args.
 - `face()` being seek-safe.

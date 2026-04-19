@@ -4,7 +4,7 @@
  *
  * A feature matrix ↓ lives in this file and drives every downstream artifact:
  *
- *   • docs/SYNTAX.md       — human-readable grammar reference (v2 addendum)
+ *   • docs/SYNTAX.md       — human-readable grammar reference (extended addendum)
  *   • prompts/system-prompt.md   — compact agent instructions
  *   • prompts/system-prompt.json — machine-readable mirror of the spec
  *   • website/public/prompts/*   — copies served by the website
@@ -35,7 +35,7 @@ interface Feature {
   detail: string;
   /** Canonical minimum example. Must parse without errors. */
   example: string;
-  /** Link to a full demo under examples/v2/. */
+  /** Link to a full demo under examples/. */
   exampleFile?: string;
 }
 
@@ -52,7 +52,7 @@ const FEATURES: Feature[] = [
       "animate them with any universal action (`fade_in`, `exit`, `move`, ...).",
     ].join(" "),
     example: 'actor title = caption("The Demo") at top',
-    exampleFile: "examples/v2/01-caption-basic.markdy",
+    exampleFile: "examples/01-caption-basic.markdy",
   },
   {
     id: "chapters",
@@ -65,7 +65,7 @@ const FEATURES: Feature[] = [
       "chapter's own previous event, so chapters compose cleanly.",
     ].join(" "),
     example: 'scene "intro" {\n  @+0.0: hero.enter(from=left, dur=0.4)\n  @+0.2: hero.wave(dur=0.5)\n}',
-    exampleFile: "examples/v2/03-chapters.markdy",
+    exampleFile: "examples/03-chapters.markdy",
   },
   {
     id: "rel-time",
@@ -78,7 +78,7 @@ const FEATURES: Feature[] = [
       "`@+N` inside a chapter is relative to the previous event in that chapter.",
     ].join(" "),
     example: "@0.0:  hero.enter(from=left, dur=0.5)\n@+0.2: hero.say(\"hi\", dur=1.0)",
-    exampleFile: "examples/v2/02-at-plus-shorthand.markdy",
+    exampleFile: "examples/02-at-plus-shorthand.markdy",
   },
   {
     id: "camera",
@@ -91,7 +91,7 @@ const FEATURES: Feature[] = [
       "reference it directly. Unknown camera actions soft-warn and no-op.",
     ].join(" "),
     example: "@0.0: camera.zoom(to=1.4, dur=0.8, ease=out)",
-    exampleFile: "examples/v2/05-camera-zoom.markdy",
+    exampleFile: "examples/05-camera-zoom.markdy",
   },
   {
     id: "exit",
@@ -103,7 +103,7 @@ const FEATURES: Feature[] = [
       "with an opacity-to-zero fade, so the actor is visually gone at the end.",
     ].join(" "),
     example: "@2.0: hero.exit(to=right, dur=0.5)",
-    exampleFile: "examples/v2/09-exit-action.markdy",
+    exampleFile: "examples/09-exit-action.markdy",
   },
   {
     id: "import",
@@ -116,7 +116,7 @@ const FEATURES: Feature[] = [
       "under `ns.<name>`. Unresolved imports produce a soft `import-unresolved` warning.",
     ].join(" "),
     example: 'import "./characters.markdy" as chars',
-    exampleFile: "examples/v2/14-import-namespaced.markdy",
+    exampleFile: "examples/14-import-namespaced.markdy",
   },
   {
     id: "preset",
@@ -143,7 +143,7 @@ const FEATURES: Feature[] = [
       "throws `ParseError` at parse time.",
     ].join(" "),
     example: "@1.0: hero.!shake(intensity=6, dur=0.4)",
-    exampleFile: "examples/v2/15-must-understand.markdy",
+    exampleFile: "examples/15-must-understand.markdy",
   },
   {
     id: "with-modifiers",
@@ -157,7 +157,7 @@ const FEATURES: Feature[] = [
       "Unknown modifier keys produce a soft warning and are ignored.",
     ].join(" "),
     example: "actor box1 = box() at (100, 100) with scale=1.2, opacity=0.85, rotate=12",
-    exampleFile: "examples/v2/10-unified-modifiers.markdy",
+    exampleFile: "examples/10-unified-modifiers.markdy",
   },
   {
     id: "type-check",
@@ -170,7 +170,7 @@ const FEATURES: Feature[] = [
       "it throws `ParseError: action \"punch\" is figure-only; actor type is \"text\"`.",
     ].join(" "),
     example: "# Type check: `text` actors cannot use `punch`\n# @0.0: label.punch(...)   → ParseError",
-    exampleFile: "examples/v2/12-figure-type-check.markdy",
+    exampleFile: "examples/12-figure-type-check.markdy",
   },
 ];
 
@@ -404,24 +404,24 @@ async function writeExamplesReadme(): Promise<void> {
   lines.push("## Layout");
   lines.push("");
   lines.push(
-    "- `v1/` — baseline grammar snapshot. These files are the compat-gate fixtures; " +
-      "their parsed ASTs are snapshot-tested in `packages/compat/snapshots/`. " +
-      "Every future grammar change must leave these bit-identical (or the snapshots are updated intentionally).",
-  );
-  lines.push(
-    "- `v2/` — one file per extended-grammar feature. Good starting points when you want " +
-      "to learn a specific capability (captions, chapters, camera, etc.).",
+    "- Top-level `.markdy` files — one file per feature. Good starting points when you want " +
+      "to learn a specific capability (captions, chapters, camera, imports, etc.).",
   );
   lines.push(
     "- `presets/` — one-line `preset <name>(...)` calls showcasing the built-in scene templates. " +
       "These are the shortest valid MarkdyScript programs that still produce a complete scene.",
   );
   lines.push("");
+  lines.push(
+    "Compat-gate fixtures (baseline snapshot corpus) live alongside their snapshots in " +
+      "`packages/compat/fixtures/` and are covered by `pnpm run gate`.",
+  );
+  lines.push("");
   lines.push("## Verifying");
   lines.push("");
   lines.push("```bash");
   lines.push("pnpm run verify:examples   # parse every file, assert no regressions");
-  lines.push("pnpm run gate              # compat-gate against v1 snapshots");
+  lines.push("pnpm run gate              # compat-gate against baseline snapshots");
   lines.push("pnpm run ci                # full test + gate + verify pipeline");
   lines.push("```");
   lines.push("");

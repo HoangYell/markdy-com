@@ -390,6 +390,18 @@ describe("var declarations", () => {
     expect(ast.actors["h"].args).toEqual(["#c68642"]);
     expect(ast.actors["h"]).toMatchObject({ x: 100, y: 200 });
   });
+
+  it("leaves \\${non-identifier} literally alone (e.g. \\${0.5} from MDX)", () => {
+    // `${0.5}` is not a valid var reference since `0.5` isn't a valid
+    // identifier. The parser must not eat the backslash or treat this as
+    // an unresolved interpolation — it stays literal so MDX consumers that
+    // emit String.raw`...` templates continue to work byte-identically.
+    const ast = parse([
+      "actor p = sprite(pepe) at (0, 0)",
+      "@1.0: p.enter(from=left, dur=\\${0.5})",
+    ].join("\n"));
+    expect(ast.events[0].params.dur).toBe("\\${0.5}");
+  });
 });
 
 // ---------------------------------------------------------------------------

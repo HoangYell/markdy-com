@@ -62,6 +62,11 @@ export function buildAnimations(
 
   preInitInlineStyles(ast, actorEls, states, events, txFor);
 
+  // Camera state is scoped to this build. Each `buildAnimations` call starts
+  // from the identity transform — rebuilding the player (or re-using the
+  // same DOM element across sessions) never leaks old pan/zoom/shake state.
+  const cameraState = freshCameraState();
+
   for (const ev of events) {
     const delayMs = ev.time * 1000;
     const durMs = Math.max(
@@ -77,7 +82,7 @@ export function buildAnimations(
     };
 
     if (ev.actor === "camera") {
-      buildCameraAction(ev, scene, baseOpts, anims);
+      buildCameraAction(ev, scene, baseOpts, anims, cameraState);
       continue;
     }
 
@@ -173,14 +178,8 @@ interface CameraState {
   zoom: number;  // zoom factor
 }
 
-const cameraStateKey = Symbol("markdy-camera-state");
-
-function getCameraState(scene: HTMLElement): CameraState {
-  const maybe = (scene as unknown as { [k: symbol]: unknown })[cameraStateKey];
-  if (maybe) return maybe as CameraState;
-  const fresh: CameraState = { x: 0, y: 0, zoom: 1 };
-  (scene as unknown as { [k: symbol]: unknown })[cameraStateKey] = fresh;
-  return fresh;
+function freshCameraState(): CameraState {
+  return { x: 0, y: 0, zoom: 1 };
 }
 
 function cameraTx(s: CameraState): string {
@@ -194,8 +193,9 @@ function buildCameraAction(
   scene: HTMLElement,
   baseOpts: KeyframeAnimationOptions,
   anims: Animation[],
+  cameraState: CameraState,
 ): void {
-  const s = getCameraState(scene);
+  const s = cameraState;
 
   switch (ev.action) {
     case "pan": {

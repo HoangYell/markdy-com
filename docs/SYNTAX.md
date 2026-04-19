@@ -677,7 +677,7 @@ A `caption` is a first-class actor type for overlay text (titles, subtitles, mem
 actor title = caption("The Demo") at top
 ```
 
-Full example: [`examples/v2/01-caption-basic.markdy`](../examples/v2/01-caption-basic.markdy)
+Full example: [`examples/01-caption-basic.markdy`](../examples/01-caption-basic.markdy)
 
 ---
 
@@ -692,7 +692,7 @@ scene "intro" {
 }
 ```
 
-Full example: [`examples/v2/03-chapters.markdy`](../examples/v2/03-chapters.markdy)
+Full example: [`examples/03-chapters.markdy`](../examples/03-chapters.markdy)
 
 ---
 
@@ -705,7 +705,7 @@ No more hand-counted absolute timestamps. `@+N:` takes the end-time of the previ
 @+0.2: hero.say("hi", dur=1.0)
 ```
 
-Full example: [`examples/v2/02-at-plus-shorthand.markdy`](../examples/v2/02-at-plus-shorthand.markdy)
+Full example: [`examples/02-at-plus-shorthand.markdy`](../examples/02-at-plus-shorthand.markdy)
 
 ---
 
@@ -717,7 +717,7 @@ Full example: [`examples/v2/02-at-plus-shorthand.markdy`](../examples/v2/02-at-p
 @0.0: camera.zoom(to=1.4, dur=0.8, ease=out)
 ```
 
-Full example: [`examples/v2/05-camera-zoom.markdy`](../examples/v2/05-camera-zoom.markdy)
+Full example: [`examples/05-camera-zoom.markdy`](../examples/05-camera-zoom.markdy)
 
 ---
 
@@ -729,7 +729,7 @@ Full example: [`examples/v2/05-camera-zoom.markdy`](../examples/v2/05-camera-zoo
 @2.0: hero.exit(to=right, dur=0.5)
 ```
 
-Full example: [`examples/v2/09-exit-action.markdy`](../examples/v2/09-exit-action.markdy)
+Full example: [`examples/09-exit-action.markdy`](../examples/09-exit-action.markdy)
 
 ---
 
@@ -741,7 +741,7 @@ Records the import in `ast.imports`. The parser doesn't open files; hosts (playg
 import "./characters.markdy" as chars
 ```
 
-Full example: [`examples/v2/14-import-namespaced.markdy`](../examples/v2/14-import-namespaced.markdy)
+Full example: [`examples/14-import-namespaced.markdy`](../examples/14-import-namespaced.markdy)
 
 ---
 
@@ -765,7 +765,7 @@ By default, unknown actions produce a `ParseWarning` and the renderer no-ops the
 @1.0: hero.!shake(intensity=6, dur=0.4)
 ```
 
-Full example: [`examples/v2/15-must-understand.markdy`](../examples/v2/15-must-understand.markdy)
+Full example: [`examples/15-must-understand.markdy`](../examples/15-must-understand.markdy)
 
 ---
 
@@ -777,7 +777,7 @@ Two modifier forms are supported; pick whichever reads better: **space-separated
 actor box1 = box() at (100, 100) with scale=1.2, opacity=0.85, rotate=12
 ```
 
-Full example: [`examples/v2/10-unified-modifiers.markdy`](../examples/v2/10-unified-modifiers.markdy)
+Full example: [`examples/10-unified-modifiers.markdy`](../examples/10-unified-modifiers.markdy)
 
 ---
 
@@ -790,7 +790,7 @@ The parser now rejects figure-only actions on non-figure actors with a clear err
 # @0.0: label.punch(...)   → ParseError
 ```
 
-Full example: [`examples/v2/12-figure-type-check.markdy`](../examples/v2/12-figure-type-check.markdy)
+Full example: [`examples/12-figure-type-check.markdy`](../examples/12-figure-type-check.markdy)
 
 ---
 

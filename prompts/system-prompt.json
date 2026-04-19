@@ -7,42 +7,42 @@
       "name": "caption actor",
       "summary": "`caption(\"text\") at top|bottom|center` — auto-positioned text overlay centered on the scene.",
       "example": "actor title = caption(\"The Demo\") at top",
-      "exampleFile": "examples/v2/01-caption-basic.markdy"
+      "exampleFile": "examples/01-caption-basic.markdy"
     },
     {
       "id": "chapters",
       "name": "chapter blocks",
       "summary": "`scene \"title\" { ... }` — named blocks group timeline events into chapters.",
       "example": "scene \"intro\" {\n  @+0.0: hero.enter(from=left, dur=0.4)\n  @+0.2: hero.wave(dur=0.5)\n}",
-      "exampleFile": "examples/v2/03-chapters.markdy"
+      "exampleFile": "examples/03-chapters.markdy"
     },
     {
       "id": "rel-time",
       "name": "@+N: relative time",
       "summary": "`@+N:` — schedules an event N seconds after the previous event's end in the same scope.",
       "example": "@0.0:  hero.enter(from=left, dur=0.5)\n@+0.2: hero.say(\"hi\", dur=1.0)",
-      "exampleFile": "examples/v2/02-at-plus-shorthand.markdy"
+      "exampleFile": "examples/02-at-plus-shorthand.markdy"
     },
     {
       "id": "camera",
       "name": "camera reserved actor",
       "summary": "`camera.pan(to=(x,y))`, `camera.zoom(to=N)`, `camera.shake(intensity=N)` — scene-wide viewpoint moves.",
       "example": "@0.0: camera.zoom(to=1.4, dur=0.8, ease=out)",
-      "exampleFile": "examples/v2/05-camera-zoom.markdy"
+      "exampleFile": "examples/05-camera-zoom.markdy"
     },
     {
       "id": "exit",
       "name": "exit action",
       "summary": "`actor.exit(to=left|right|top|bottom)` — mirror of enter: slides off-screen and fades to opacity 0.",
       "example": "@2.0: hero.exit(to=right, dur=0.5)",
-      "exampleFile": "examples/v2/09-exit-action.markdy"
+      "exampleFile": "examples/09-exit-action.markdy"
     },
     {
       "id": "import",
       "name": "import statements",
       "summary": "`import \"path.markdy\" as ns` — host-resolved composition of vars, defs, and seqs.",
       "example": "import \"./characters.markdy\" as chars",
-      "exampleFile": "examples/v2/14-import-namespaced.markdy"
+      "exampleFile": "examples/14-import-namespaced.markdy"
     },
     {
       "id": "preset",
@@ -56,21 +56,21 @@
       "name": "!action must-understand prefix",
       "summary": "`actor.!action(...)` — hard-fail on unknown actions. Without `!`, unknowns soft-warn.",
       "example": "@1.0: hero.!shake(intensity=6, dur=0.4)",
-      "exampleFile": "examples/v2/15-must-understand.markdy"
+      "exampleFile": "examples/15-must-understand.markdy"
     },
     {
       "id": "with-modifiers",
       "name": "unified with-modifier form",
       "summary": "`with key=val, key=val` — modifier form alongside the space-separated `scale 1.5 rotate 10` syntax.",
       "example": "actor box1 = box() at (100, 100) with scale=1.2, opacity=0.85, rotate=12",
-      "exampleFile": "examples/v2/10-unified-modifiers.markdy"
+      "exampleFile": "examples/10-unified-modifiers.markdy"
     },
     {
       "id": "type-check",
       "name": "figure-only type check",
       "summary": "Figure-only actions (`punch`, `kick`, `wave`, `nod`, `jump`, `bounce`, `face`, `pose`, `rotate_part`) error on non-figure targets.",
       "example": "# Type check: `text` actors cannot use `punch`\n# @0.0: label.punch(...)   → ParseError",
-      "exampleFile": "examples/v2/12-figure-type-check.markdy"
+      "exampleFile": "examples/12-figure-type-check.markdy"
     }
   ],
   "warningKinds": [

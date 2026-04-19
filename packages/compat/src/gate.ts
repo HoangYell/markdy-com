@@ -4,27 +4,27 @@
  *
  * What this does
  * --------------
- * For every `.markdy` file under `examples/v1/` (the canonical catalogue of
- * pre-v2 syntactic patterns), the gate:
+ * For every `.markdy` file under `packages/compat/fixtures/` (the canonical
+ * catalogue of baseline syntactic patterns), the gate:
  *
  *   1. Parses the source with the *current* parser.
  *   2. Compares the resulting AST against a snapshot on disk
  *      (`packages/compat/snapshots/<basename>.json`).
  *   3. Also verifies a handful of invariants that must never regress:
- *        • `ast.warnings.length === 0`   (legacy programs must not warn)
+ *        • `ast.warnings.length === 0`   (baseline programs must not warn)
  *        • `ast.chapters.length === 0`   (no implicit chapters)
  *        • `ast.imports.length === 0`    (no implicit imports)
  *
  * Why it matters
  * --------------
- * This is the single guard that keeps the "every v1 file parses
+ * This is the single guard that keeps the "every baseline file parses
  * identically, forever" invariant honest as new syntax lands. Every PR
- * runs it in CI. If a future change would cause even one example to
+ * runs it in CI. If a future change would cause even one fixture to
  * parse differently, the gate fails loud and the merge is blocked.
  *
  * Updating snapshots
  * ------------------
- * When a v1 example is added or legitimately changed, run:
+ * When a fixture is added or legitimately changed, run:
  *     pnpm --filter @markdy/compat run gate:update
  * Review the diff with `git diff packages/compat/snapshots/` and commit.
  */
@@ -36,9 +36,9 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = resolve(__dirname, "..", "..", "..");
-const EXAMPLES_DIR = join(ROOT, "examples", "v1");
-const SNAPSHOT_DIR = join(ROOT, "packages", "compat", "snapshots");
+const PACKAGE_ROOT = resolve(__dirname, "..");
+const FIXTURES_DIR = join(PACKAGE_ROOT, "fixtures");
+const SNAPSHOT_DIR = join(PACKAGE_ROOT, "snapshots");
 
 type GateOptions = { update: boolean; verbose: boolean };
 
@@ -50,29 +50,29 @@ const INVARIANTS: Array<{ name: string; check: (ast: SceneAST) => string | null 
     check: (ast) =>
       ast.warnings.length === 0
         ? null
-        : `legacy programs must not emit warnings; got ${ast.warnings.length}: ${JSON.stringify(ast.warnings)}`,
+        : `baseline programs must not emit warnings; got ${ast.warnings.length}: ${JSON.stringify(ast.warnings)}`,
   },
   {
     name: "no-chapters",
     check: (ast) =>
       ast.chapters.length === 0
         ? null
-        : `legacy programs have no chapters; got ${ast.chapters.length}`,
+        : `baseline programs have no chapters; got ${ast.chapters.length}`,
   },
   {
     name: "no-imports",
     check: (ast) =>
       ast.imports.length === 0
         ? null
-        : `legacy programs have no imports; got ${ast.imports.length}`,
+        : `baseline programs have no imports; got ${ast.imports.length}`,
   },
 ];
 
-async function listExamples(): Promise<string[]> {
-  if (!existsSync(EXAMPLES_DIR)) {
-    throw new Error(`Expected examples dir not found: ${EXAMPLES_DIR}`);
+async function listFixtures(): Promise<string[]> {
+  if (!existsSync(FIXTURES_DIR)) {
+    throw new Error(`Expected fixtures dir not found: ${FIXTURES_DIR}`);
   }
-  const entries = await readdir(EXAMPLES_DIR);
+  const entries = await readdir(FIXTURES_DIR);
   return entries.filter((name) => name.endsWith(".markdy")).sort();
 }
 
@@ -101,7 +101,7 @@ function stableStringify(value: unknown): string {
 }
 
 async function runGate(opts: GateOptions): Promise<number> {
-  const files = await listExamples();
+  const files = await listFixtures();
   const diffs: Diff[] = [];
   let updated = 0;
 
@@ -110,7 +110,7 @@ async function runGate(opts: GateOptions): Promise<number> {
   }
 
   for (const name of files) {
-    const full = join(EXAMPLES_DIR, name);
+    const full = join(FIXTURES_DIR, name);
     const source = await readFile(full, "utf8");
 
     let ast: SceneAST;
@@ -169,7 +169,7 @@ async function runGate(opts: GateOptions): Promise<number> {
   }
 
   if (diffs.length === 0) {
-    console.log(`compat-gate: PASS — ${files.length} v1 examples, 0 regressions.`);
+    console.log(`compat-gate: PASS — ${files.length} fixtures, 0 regressions.`);
     return 0;
   }
 

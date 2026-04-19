@@ -2,13 +2,16 @@
 /**
  * verify-examples — parses every shipped example and reports problems.
  *
- * For each file under `examples/v1/`, `examples/v2/`, and `examples/presets/`:
+ * For each file under `examples/` (top level) and `examples/presets/`:
  *   • The file must parse without throwing.
- *   • v1 examples must produce zero warnings and no chapters/imports.
- *   • v2 examples that intentionally trigger warnings (`11-soft-warn-unknown`)
- *     are allowed to emit them.
+ *   • Feature examples that intentionally trigger warnings
+ *     (`11-soft-warn-unknown`, `14-import-namespaced`) are allowed to emit
+ *     them. All others must parse cleanly.
  *   • preset examples must be either a bare `preset <name>` or
  *     `preset <name>(args...)` call — the parser expands them inline.
+ *
+ * Baseline fixtures live in `packages/compat/fixtures/` and are covered by
+ * the @markdy/compat gate (snapshot-tested), not by this script.
  *
  * This is a fast, CI-friendly sanity check that catches regressions in the
  * shipped examples when the grammar is extended.
@@ -31,8 +34,7 @@ interface Failure {
 type ExpectWarnings = "none" | "allow-intentional" | "any";
 
 const DIRS: Array<{ dir: string; expectWarnings: ExpectWarnings; expectChapters: boolean }> = [
-  { dir: "examples/v1",      expectWarnings: "none", expectChapters: false },
-  { dir: "examples/v2",      expectWarnings: "allow-intentional", expectChapters: true },
+  { dir: "examples",         expectWarnings: "allow-intentional", expectChapters: true },
   { dir: "examples/presets", expectWarnings: "any",  expectChapters: true },
 ];
 

@@ -5,8 +5,8 @@ import { parse, ParseError } from "../src/parser.js";
 // Additive grammar tests — all new features are part of the base grammar.
 // No version pragma, no version gating; `@markdy N` is NOT a thing.
 //
-// Every test in this file drives one of the 10 shipped features against the
-// single parser. Existing v1 files continue to parse identically; see
+// Every test in this file drives one of the shipped features against the
+// single parser. Existing baseline files continue to parse identically; see
 // `packages/compat/snapshots/` for the gate that enforces that.
 // ---------------------------------------------------------------------------
 
@@ -125,6 +125,53 @@ describe("chapters — scene \"title\" { ... }", () => {
     const bEvents = ast.events.filter((e) => e.chapter === "b");
     expect(bEvents[0].time).toBe(1.2);
     expect(bEvents[1].time).toBeCloseTo(1.4, 3);
+  });
+
+  it("rejects a bare `scene` header inside a chapter block", () => {
+    // scene header only has meaning at top level; inside a chapter it's
+    // almost always a typo for another `scene "title" { ... }`.
+    expect(() =>
+      parse(
+        [
+          "scene width=800 height=400",
+          "actor h = box() at (100, 100)",
+          'scene "intro" {',
+          "  scene width=2000",
+          "  @+0.0: h.fade_in(dur=0.4)",
+          "}",
+        ].join("\n"),
+      ),
+    ).toThrow(/scene header inside chapter/);
+  });
+
+  it("reports startTime as the earliest event time, even when events are absolute", () => {
+    // Chapter inherits a high `openedAt` from top scope but then the first
+    // event uses an absolute earlier timestamp. `startTime` should reflect
+    // the actual earliest event so timeline UIs line up.
+    const ast = parse(
+      [
+        "actor h = box() at (100, 100)",
+        "@1.0: h.fade_in(dur=0.4)",
+        'scene "jump" {',
+        "  @0.2: h.fade_in(dur=0.4)",
+        "}",
+      ].join("\n"),
+    );
+    expect(ast.chapters[0].startTime).toBeCloseTo(0.2, 3);
+  });
+
+  it("empty chapter still records a deterministic startTime", () => {
+    const ast = parse(
+      [
+        "actor h = box() at (100, 100)",
+        "@1.0: h.fade_in(dur=0.4)",
+        'scene "quiet" {',
+        "}",
+      ].join("\n"),
+    );
+    // Ends at 1.0 + 0.4 = 1.4 (fade_in end-time).
+    expect(ast.chapters[0].startTime).toBeCloseTo(1.4, 3);
+    expect(ast.chapters[0].endTime).toBeCloseTo(1.4, 3);
   });
 });
 
@@ -268,6 +315,60 @@ describe("import statements", () => {
     expect(ast.vars["chars.skin"]).toBe("#c68642");
     expect(ast.defs["chars.fighter"]).toBeDefined();
   });
+
+  it("lets actors reference dotted (namespaced) defs", () => {
+    const child = parse(
+      [
+        "def fighter(skin, face) {",
+        "  figure(${skin}, m, ${face})",
+        "}",
+      ].join("\n"),
+    );
+    const ast = parse(
+      [
+        'import "./child.markdy" as chars',
+        "scene width=800 height=400",
+        "actor hero = chars.fighter(#c68642, 😎) at (400, 200)",
+      ].join("\n"),
+      { imports: { chars: child } },
+    );
+    expect(ast.actors["hero"].type).toBe("figure");
+    expect(ast.actors["hero"].args).toEqual(["#c68642", "m", "😎"]);
+  });
+
+  it("resolves dotted (namespaced) variable refs via ${ns.name}", () => {
+    const child = parse("var skin = #c68642");
+    const ast = parse(
+      [
+        'import "./child.markdy" as chars',
+        'actor hero = figure(${chars.skin}, m, 😎) at (100, 100)',
+      ].join("\n"),
+      { imports: { chars: child } },
+    );
+    expect(ast.actors["hero"].args).toEqual(["#c68642", "m", "😎"]);
+  });
+
+  it("expands namespaced sequences via play(ns.seqName)", () => {
+    const child = parse(
+      [
+        "seq combo {",
+        "  @+0.0: $.fade_in(dur=0.3)",
+        "  @+0.3: $.fade_out(dur=0.3)",
+        "}",
+      ].join("\n"),
+    );
+    const ast = parse(
+      [
+        'import "./child.markdy" as anim',
+        "actor h = box() at (100, 100)",
+        "@0.0: h.play(anim.combo)",
+      ].join("\n"),
+      { imports: { anim: child } },
+    );
+    expect(ast.events.map((e) => e.action)).toEqual(["fade_in", "fade_out"]);
+    expect(ast.events[0].time).toBe(0);
+    expect(ast.events[1].time).toBeCloseTo(0.3, 3);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -403,7 +504,7 @@ describe("soft warnings on unknown tokens", () => {
 
 // ---------------------------------------------------------------------------
 
-describe("combined end-to-end v2 program", () => {
+describe("combined end-to-end extended program", () => {
   it("parses a scene using chapters + camera + caption + @+N + exit", () => {
     const ast = parse(
       [
