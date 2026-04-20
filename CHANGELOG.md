@@ -5,6 +5,23 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] — 2026-04-20
+
+### Added
+- **Chapters** (`scene "title" { ... }`) — Support for named blocks of events on a unified timeline.
+- **Relative Timing Shorthand** (`@+N:`) — Introduced `@+0.3:` to specify offsets relative to the end of the previous event.
+- **Camera Dynamics** — Added `camera` primitives like `camera.pan()`, `camera.zoom()`, and `camera.shake()` for cinematic control.
+- **Caption Actor** — Added `caption` actor type with `at top/bottom` positioning keywords.
+- **Unified Modifiers** — New comma-separated modifier syntax: `with scale=1.5, rotate=45`.
+- **Mandatory Actions** — Added `!action()` prefix for "must-understand" actions that error on older parsers.
+- **Exit Action** — Added `exit` action to complement `enter`, sliding actors off-screen.
+- **Presets & Expansion** — Support for `preset <name>` expansion at parse-time.
+
+### Improved
+- **Parser Robustness** — Added soft-warnings for unknown tokens instead of hard errors.
+- **Type Checking** — Initial parse-time type checking for figure-specific actions (`jump`, `wave`, `pose`, etc.).
+- **Documentation** — Updated `PLAN.md` and `RESEARCH.md` for v2 foundation.
+
 ## [0.6.0] — 2026-04-18
 
 ### Added
