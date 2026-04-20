@@ -1,0 +1,11 @@
+# exit(to=left|right|top|bottom) — mirror of enter: slides off-screen + fades.
+scene width=800 height=400
+
+actor hero = figure(#c68642, m, 🙂) at (400, 240)
+actor bye  = caption("goodbye!") at top
+
+@0.0:  hero.enter(from=left, dur=0.5)
+@+0.3: hero.wave(side=right, dur=0.5)
+@+0.3: bye.fade_in(dur=0.3)
+@+0.6: bye.exit(to=top, dur=0.4)
+@+0.0: hero.exit(to=right, dur=0.5)

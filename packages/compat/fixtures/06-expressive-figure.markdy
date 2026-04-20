@@ -1,0 +1,11 @@
+# Face changes and body-part animation
+scene width=600 height=400 bg=#0d1117
+
+actor h = figure(#c68642, m, 😐) at (300, 260)
+
+@0.0: h.enter(from=bottom, dur=0.5)
+@0.8: h.face("🤔")
+@1.3: h.face("💡")
+@1.8: h.rotate_part(part=arm_right, to=-60, dur=0.4)
+@2.2: h.rotate_part(part=arm_right, to=-20, dur=0.4)
+@2.8: h.nod(dur=0.6)

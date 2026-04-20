@@ -1,0 +1,11 @@
+# camera.zoom(to=N) — scales the scene-content layer.
+# Useful for punchlines, reveals, and emphatic beats.
+scene width=800 height=450 bg=#0d1117
+
+actor punchline = caption("wait for it") at center
+actor hero      = figure(#c68642, m, 🙂) at (400, 320)
+
+@0.0:  hero.enter(from=bottom, dur=0.5)
+@0.8:  punchline.fade_in(dur=0.4)
+@+0.3: camera.zoom(to=1.4, dur=0.8, ease=out)
+@+0.4: hero.face("😲")

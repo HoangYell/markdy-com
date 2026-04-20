@@ -36,9 +36,15 @@
     "lint": "pnpm -r run lint",
     "typecheck": "pnpm -r run typecheck",
     "clean": "pnpm -r exec rm -rf dist",
+    "gate": "pnpm --filter @markdy/compat run gate",
+    "gate:update": "pnpm --filter @markdy/compat run gate:update",
+    "verify:examples": "tsx scripts/verify-examples.ts",
+    "regen": "tsx scripts/regenerate-all.ts",
+    "ci": "pnpm run test && pnpm run gate && pnpm run verify:examples",
     "release": "./scripts/release.sh"
   },
   "devDependencies": {
+    "tsx": "^4.21.0",
     "typescript": "^6.0.2"
   }
 }

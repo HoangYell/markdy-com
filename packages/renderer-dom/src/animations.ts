@@ -1,6 +1,6 @@
 import type { SceneAST } from "@markdy/core";
 import type { ActorState, FaceSwap } from "./types.js";
-import { stateFrom, tx, toEasing } from "./types.js";
+import { stateFrom, tx, txCaption, toEasing } from "./types.js";
 import { PART_SEL, readRotation } from "./figure.js";
 
 // ---------------------------------------------------------------------------
@@ -46,23 +46,34 @@ export function buildAnimations(
     states.set(name, stateFrom(def));
   }
 
-  // Sort events by time for correct sequential state tracking.
+  // Which actors need the caption-centering transform? Captions anchor their
+  // (x, y) at *center* rather than top-left, so we use `txCaption` for them.
+  const captionActors = new Set<string>();
+  for (const [name, def] of Object.entries(ast.actors)) {
+    if (def.type === "caption") captionActors.add(name);
+  }
+  const txFor = (actorName: string): ((s: ActorState) => string) =>
+    captionActors.has(actorName) ? txCaption : tx;
+
+  // Camera events live outside any actor element — they drive the scene-content
+  // layer passed in as `scene`. Build those separately so actor lookups don't
+  // fail on actor="camera".
   const events = [...ast.events].sort((a, b) => a.time - b.time);
 
-  preInitInlineStyles(ast, actorEls, states, events);
+  preInitInlineStyles(ast, actorEls, states, events, txFor);
+
+  // Camera state is scoped to this build. Each `buildAnimations` call starts
+  // from the identity transform — rebuilding the player (or re-using the
+  // same DOM element across sessions) never leaks old pan/zoom/shake state.
+  const cameraState = freshCameraState();
 
   for (const ev of events) {
-    const el = actorEls.get(ev.actor);
-    const s = states.get(ev.actor);
-    if (!el || !s) continue;
-
     const delayMs = ev.time * 1000;
     const durMs = Math.max(
       1,
       (typeof ev.params.dur === "number" ? ev.params.dur : 0.5) * 1000,
     );
     const easing = toEasing(ev.params.ease);
-
     const baseOpts: KeyframeAnimationOptions = {
       delay: delayMs,
       duration: durMs,
@@ -70,7 +81,16 @@ export function buildAnimations(
       easing,
     };
 
-    buildAction(ev, el, s, baseOpts, delayMs, durMs, ast, states, scene, assetOverrides, faceSwaps, anims);
+    if (ev.actor === "camera") {
+      buildCameraAction(ev, scene, ast, baseOpts, anims, cameraState);
+      continue;
+    }
+
+    const el = actorEls.get(ev.actor);
+    const s = states.get(ev.actor);
+    if (!el || !s) continue;
+
+    buildAction(ev, el, s, baseOpts, delayMs, durMs, ast, states, scene, assetOverrides, faceSwaps, anims, txFor(ev.actor));
   }
 
   return anims;
@@ -88,14 +108,39 @@ export function buildAnimations(
 //   • Actors whose first action is `fade_in` and declared opacity > 0
 //     must start invisible.
 
+/**
+ * Returns an off-screen variant of `s` displaced in the given direction.
+ * Used by both `preInitInlineStyles` (for actors whose first event is an
+ * `enter` — they must start offscreen) and `buildAction.enter` at runtime.
+ * Keeping a single helper prevents the two paths from drifting to
+ * different multipliers.
+ */
+function offscreenState(
+  s: ActorState,
+  direction: string,
+  sceneWidth: number,
+  sceneHeight: number,
+): ActorState {
+  const out: ActorState = { ...s };
+  switch (direction) {
+    case "left":   out.x = -sceneWidth  * 1.1; break;
+    case "right":  out.x =  sceneWidth  * 2.1; break;
+    case "top":    out.y = -sceneHeight * 1.1; break;
+    case "bottom": out.y =  sceneHeight * 2.1; break;
+  }
+  return out;
+}
+
 function preInitInlineStyles(
   ast: SceneAST,
   actorEls: Map<string, HTMLElement>,
   states: Map<string, ActorState>,
   events: SceneAST["events"],
+  txFor: (actorName: string) => (s: ActorState) => string,
 ): void {
   const firstEventByActor = new Map<string, (typeof events)[number]>();
   for (const ev of events) {
+    if (ev.actor === "camera") continue;
     if (!firstEventByActor.has(ev.actor)) firstEventByActor.set(ev.actor, ev);
   }
 
@@ -105,22 +150,113 @@ function preInitInlineStyles(
     if (!el || !s) continue;
 
     const firstEv = firstEventByActor.get(name);
+    const txFn = txFor(name);
 
     if (firstEv?.action === "enter") {
       const from = String(firstEv.params.from ?? "left");
-      const offscreen: ActorState = { ...s };
-      switch (from) {
-        case "left":   offscreen.x = -ast.meta.width * 1.1; break;
-        case "right":  offscreen.x =  ast.meta.width * 2.1; break;
-        case "top":    offscreen.y = -ast.meta.height * 1.1; break;
-        case "bottom": offscreen.y =  ast.meta.height * 2.1; break;
-      }
-      el.style.transform = tx(offscreen);
+      const offscreen = offscreenState(s, from, ast.meta.width, ast.meta.height);
+      el.style.transform = txFn(offscreen);
     }
 
     if (firstEv?.action === "fade_in" && (def.opacity === undefined || def.opacity > 0)) {
       el.style.opacity = "0";
     }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Camera transform tracker
+// ---------------------------------------------------------------------------
+//
+// The `sceneContent` layer (passed in as `scene`) carries a single CSS
+// transform string that is built up from pan, zoom, and shake events. We
+// track a canonical camera state and animate between successive snapshots.
+
+interface CameraState {
+  x: number;  // pan: translate x (px in scene space)
+  y: number;  // pan: translate y
+  zoom: number;  // zoom factor
+}
+
+function freshCameraState(): CameraState {
+  return { x: 0, y: 0, zoom: 1 };
+}
+
+function cameraTx(s: CameraState): string {
+  // Camera moves the scene *content* in the opposite direction of the pan
+  // target so that `camera.pan(to=(400,200))` visually means "center on (400,200)".
+  return `translate(${-s.x}px, ${-s.y}px) scale(${s.zoom})`;
+}
+
+function buildCameraAction(
+  ev: TimelineEvent,
+  scene: HTMLElement,
+  ast: SceneAST,
+  baseOpts: KeyframeAnimationOptions,
+  anims: Animation[],
+  cameraState: CameraState,
+): void {
+  const s = cameraState;
+
+  switch (ev.action) {
+    case "pan": {
+      const to = ev.params.to as [number, number] | undefined;
+      if (!to) break;
+      // Interpret `to=(cx, cy)` as "center the camera on (cx, cy)". Use the
+      // AST's declared scene dimensions — querying `scene.clientWidth` here
+      // is unreliable: under jsdom it's 0, and when the scene uses CSS
+      // `width: 100%` or is wrapped in a responsive scaler the measured
+      // value doesn't match the authoring-space coordinates the user wrote.
+      const sceneW = ast.meta.width;
+      const sceneH = ast.meta.height;
+      const targetX = to[0] - sceneW / 2;
+      const targetY = to[1] - sceneH / 2;
+      const next: CameraState = { ...s, x: targetX, y: targetY };
+      anims.push(
+        scene.animate(
+          [{ transform: cameraTx(s) }, { transform: cameraTx(next) }],
+          baseOpts,
+        ),
+      );
+      s.x = next.x;
+      s.y = next.y;
+      break;
+    }
+
+    case "zoom": {
+      const to = typeof ev.params.to === "number" ? ev.params.to : s.zoom;
+      const next: CameraState = { ...s, zoom: to };
+      anims.push(
+        scene.animate(
+          [{ transform: cameraTx(s) }, { transform: cameraTx(next) }],
+          baseOpts,
+        ),
+      );
+      s.zoom = next.zoom;
+      break;
+    }
+
+    case "shake": {
+      const mag = typeof ev.params.intensity === "number" ? ev.params.intensity : 8;
+      anims.push(
+        scene.animate(
+          [
+            { transform: cameraTx(s), offset: 0 },
+            { transform: cameraTx({ ...s, x: s.x - mag, y: s.y - mag * 0.4 }), offset: 0.15 },
+            { transform: cameraTx({ ...s, x: s.x + mag, y: s.y + mag * 0.4 }), offset: 0.35 },
+            { transform: cameraTx({ ...s, x: s.x - mag * 0.6, y: s.y + mag * 0.3 }), offset: 0.55 },
+            { transform: cameraTx({ ...s, x: s.x + mag * 0.5, y: s.y - mag * 0.3 }), offset: 0.75 },
+            { transform: cameraTx(s), offset: 1 },
+          ],
+          { ...baseOpts, easing: "linear" },
+        ),
+      );
+      break;
+    }
+
+    default:
+      // Unknown camera actions (already warned by the parser) — no-op.
+      break;
   }
 }
 
@@ -143,6 +279,7 @@ function buildAction(
   assetOverrides: Record<string, string>,
   faceSwaps: FaceSwap[],
   anims: Animation[],
+  txFn: (s: ActorState) => string,
 ): void {
   switch (ev.action) {
     // ── move ────────────────────────────────────────────────────────────────
@@ -153,7 +290,7 @@ function buildAction(
 
       anims.push(
         el.animate(
-          [{ transform: tx(s) }, { transform: tx({ ...s, x: toX, y: toY }) }],
+          [{ transform: txFn(s) }, { transform: txFn({ ...s, x: toX, y: toY }) }],
           baseOpts,
         ),
       );
@@ -164,23 +301,48 @@ function buildAction(
     }
 
     // ── enter ───────────────────────────────────────────────────────────────
+    // Slides the actor from the given screen edge into its current (s)
+    // position while also restoring opacity to 1. The opacity restore makes
+    // `enter` symmetric with `exit` so actors can re-enter after exiting
+    // without needing a separate fade_in.
     case "enter": {
       const from = String(ev.params.from ?? "left");
-      const fromState: ActorState = { ...s };
-
-      switch (from) {
-        case "left":   fromState.x = -ast.meta.width;     break;
-        case "right":  fromState.x = ast.meta.width * 2;  break;
-        case "top":    fromState.y = -ast.meta.height;     break;
-        case "bottom": fromState.y = ast.meta.height * 2;  break;
-      }
+      const fromState = offscreenState(s, from, ast.meta.width, ast.meta.height);
 
       anims.push(
         el.animate(
-          [{ transform: tx(fromState) }, { transform: tx(s) }],
+          [
+            { transform: txFn(fromState), opacity: s.opacity },
+            { transform: txFn(s),         opacity: 1 },
+          ],
           baseOpts,
         ),
       );
+      s.opacity = 1;
+      break;
+    }
+
+    // ── exit ────────────────────────────────────────────────────────────────
+    // Mirror of enter: slides off-screen in the given direction while also
+    // fading opacity to 0. Universal — works on any actor type (caption, text,
+    // figure, box, sprite). Leaves `s` at the off-screen state since the
+    // actor is conceptually gone after this.
+    case "exit": {
+      const to = String(ev.params.to ?? "right");
+      const toState = offscreenState(s, to, ast.meta.width, ast.meta.height);
+
+      anims.push(
+        el.animate(
+          [
+            { transform: txFn(s), opacity: s.opacity },
+            { transform: txFn(toState), opacity: 0 },
+          ],
+          baseOpts,
+        ),
+      );
+      s.x = toState.x;
+      s.y = toState.y;
+      s.opacity = 0;
       break;
     }
 
@@ -205,7 +367,7 @@ function buildAction(
       const toScale = typeof ev.params.to === "number" ? ev.params.to : s.scale;
       anims.push(
         el.animate(
-          [{ transform: tx(s) }, { transform: tx({ ...s, scale: toScale }) }],
+          [{ transform: txFn(s) }, { transform: txFn({ ...s, scale: toScale }) }],
           baseOpts,
         ),
       );
@@ -218,7 +380,7 @@ function buildAction(
       const toDeg = typeof ev.params.to === "number" ? ev.params.to : s.rotate;
       anims.push(
         el.animate(
-          [{ transform: tx(s) }, { transform: tx({ ...s, rotate: toDeg }) }],
+          [{ transform: txFn(s) }, { transform: txFn({ ...s, rotate: toDeg }) }],
           baseOpts,
         ),
       );
@@ -233,12 +395,12 @@ function buildAction(
       anims.push(
         el.animate(
           [
-            { transform: tx(s), offset: 0 },
-            { transform: tx({ ...s, x: s.x + mag }), offset: 0.2 },
-            { transform: tx({ ...s, x: s.x - mag }), offset: 0.4 },
-            { transform: tx({ ...s, x: s.x + mag }), offset: 0.6 },
-            { transform: tx({ ...s, x: s.x - mag }), offset: 0.8 },
-            { transform: tx(s), offset: 1 },
+            { transform: txFn(s), offset: 0 },
+            { transform: txFn({ ...s, x: s.x + mag }), offset: 0.2 },
+            { transform: txFn({ ...s, x: s.x - mag }), offset: 0.4 },
+            { transform: txFn({ ...s, x: s.x + mag }), offset: 0.6 },
+            { transform: txFn({ ...s, x: s.x - mag }), offset: 0.8 },
+            { transform: txFn(s), offset: 1 },
           ],
           { ...baseOpts, easing: "linear" },
         ),
@@ -472,12 +634,12 @@ function buildAction(
       anims.push(
         el.animate(
           [
-            { transform: tx(s), offset: 0 },
-            { transform: tx({ ...s, scale: s.scale * 0.9 }), offset: 0.1 },
-            { transform: tx({ ...s, y: s.y - jHeight, scale: s.scale * 1.1 }), offset: 0.45 },
-            { transform: tx({ ...s, y: s.y - jHeight * 0.3, scale: s.scale * 1.05 }), offset: 0.7 },
-            { transform: tx({ ...s, scale: s.scale * 0.92 }), offset: 0.88 },
-            { transform: tx(s), offset: 1 },
+            { transform: txFn(s), offset: 0 },
+            { transform: txFn({ ...s, scale: s.scale * 0.9 }), offset: 0.1 },
+            { transform: txFn({ ...s, y: s.y - jHeight, scale: s.scale * 1.1 }), offset: 0.45 },
+            { transform: txFn({ ...s, y: s.y - jHeight * 0.3, scale: s.scale * 1.05 }), offset: 0.7 },
+            { transform: txFn({ ...s, scale: s.scale * 0.92 }), offset: 0.88 },
+            { transform: txFn(s), offset: 1 },
           ],
           { ...baseOpts, easing: "ease-in-out" },
         ),
@@ -515,7 +677,7 @@ function buildAction(
     case "bounce": {
       const bIntensity = typeof ev.params.intensity === "number" ? ev.params.intensity : 15;
       const bCount = typeof ev.params.count === "number" ? ev.params.count : 3;
-      const keyframes: Keyframe[] = [{ transform: tx(s), offset: 0 }];
+      const keyframes: Keyframe[] = [{ transform: txFn(s), offset: 0 }];
 
       for (let bi = 0; bi < bCount; bi++) {
         const amp = bIntensity * Math.pow(0.55, bi);
@@ -524,17 +686,17 @@ function buildAction(
         const valleyOffset = Math.min(baseOffset + 0.25 / (bCount + 0.5), 0.99);
 
         keyframes.push({
-          transform: tx({ ...s, y: s.y - amp }),
+          transform: txFn({ ...s, y: s.y - amp }),
           offset: peakOffset,
         });
         if (bi < bCount - 1) {
           keyframes.push({
-            transform: tx(s),
+            transform: txFn(s),
             offset: valleyOffset,
           });
         }
       }
-      keyframes.push({ transform: tx(s), offset: 1 });
+      keyframes.push({ transform: txFn(s), offset: 1 });
 
       anims.push(
         el.animate(keyframes, { ...baseOpts, easing: "ease-out" }),

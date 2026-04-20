@@ -4,7 +4,7 @@ import Layout from "../layouts/Layout.astro";
 /* ── Example snippets for the playground ────────────────────────────── */
 const EXAMPLES = [
   {
-    label: "Full Story (25s)",
+    label: "Full Story",
     code: `scene width=800 height=400 fps=30 bg=#fafafa
 
 var skin_a = #c68642
@@ -19,126 +19,183 @@ def girl(skin, face) {
   figure(\${skin}, f, \${face})
 }
 
-seq wave(arm, angle) {
-  @+0.0: $.rotate_part(part=\${arm}, to=\${angle}, dur=0.3)
-  @+0.3: $.rotate_part(part=\${arm}, to=25, dur=0.3)
-}
-
 seq hit(side, power) {
   @+0.0: $.punch(side=\${side}, dur=0.3)
   @+0.05: $.shake(intensity=\${power}, dur=0.3)
 }
 
-actor bruno = fighter(\${skin_a}, 😏) at (640, 180)
-actor alex  = fighter(\${skin_b}, 😤) at (100, 180)
-actor lily  = girl(\${skin_g}, 😊)    at (370, 180) opacity 0
+actor act1  = caption("I. Boys See Girl") at top opacity 0
+actor act2  = caption("II. Boys Fight") at top opacity 0
+actor act3  = caption("III. Girl Says No") at top opacity 0
+actor act4  = caption("IV. Girl Picks the Loser") at top opacity 0
 
-@0.0: lily.fade_in(dur=0.7)
-@0.8: bruno.enter(from=right, dur=0.8)
-@1.0: alex.enter(from=left, dur=0.8)
-@2.0: bruno.play(wave, arm=arm_left, angle=-80)
-@2.0: alex.play(wave, arm=arm_right, angle=80)
-@3.0: bruno.face("😍")
-@3.0: alex.face("😍")
-@3.1: bruno.say("I love you! 😍", dur=1.4)
-@3.5: alex.say("She is mine! 😤", dur=1.4)
-@5.0: lily.face("😳")
-@5.0: lily.say("Oh my... 😳", dur=1.1)
-@6.5: lily.move(to=(700, 180), dur=0.5, ease=out)
-@7.0: bruno.face("😠")
-@7.0: alex.face("😠")
-@7.0: bruno.move(to=(400, 180), dur=0.6, ease=in)
-@7.0: alex.move(to=(320, 180), dur=0.6, ease=in)
-@7.8: bruno.play(hit, side=left, power=7)
-@7.8: alex.play(hit, side=right, power=7)
-@8.3: alex.kick(side=right, dur=0.35)
-@8.4: bruno.shake(intensity=9, dur=0.3)
-@8.6: bruno.play(hit, side=left, power=9)
-@9.4: bruno.punch(side=left, dur=0.25)
-@9.5: alex.shake(intensity=12, dur=0.4)
-@9.5: alex.face("😵")
-@10.0: alex.rotate(to=90, dur=0.4)
-@10.2: alex.fade_out(dur=0.4)
-@10.0: bruno.face("😁")
-@10.0: bruno.say("I win! 💪", dur=1.5)
-@11.5: bruno.face("🥰")
-@11.5: bruno.move(to=(520, 180), dur=0.8, ease=out)
-@14.0: lily.face("🙅")
-@14.0: lily.say("No thanks. 🙅", dur=2.0)
-@14.1: lily.shake(intensity=5, dur=0.4)
-@16.0: bruno.face("😢")
-@16.2: bruno.say("But I fought! 😢", dur=1.4)
-@17.0: bruno.move(to=(750, 180), dur=1.0, ease=in)
-@18.0: alex.fade_in(dur=0.7)
-@18.5: lily.face("🥺")
-@18.5: lily.move(to=(380, 280), dur=0.8, ease=out)
-@19.5: lily.face("🤗")
-@19.5: lily.say("Hey, you okay? 💕", dur=2.0)
-@20.0: alex.face("🥺")
-@20.0: alex.say("You came... 🥺", dur=1.8)
-@22.0: bruno.face("😔")
-@22.0: bruno.say("...why 😔", dur=2.0)`,
+actor chad  = fighter(\${skin_a}, 😏) at (640, 180)
+actor kevin = fighter(\${skin_b}, 😤) at (100, 180)
+actor mia   = girl(\${skin_g}, 👧)    at (370, 180) opacity 0
+actor bush  = text("🪨") at (50, 285) size 80 opacity 0
+
+scene "rivals" {
+  @+0.0: act1.fade_in(dur=0.3)
+  @+0.1: mia.fade_in(dur=0.5)
+  @+0.0: chad.enter(from=right, dur=0.6)
+  @+0.0: kevin.enter(from=left, dur=0.6)
+  @+0.2: chad.wave(side=left, dur=0.5)
+  @+0.0: kevin.wave(side=right, dur=0.5)
+  @+0.2: chad.face("😍")
+  @+0.0: kevin.face("😍")
+  @+0.2: chad.say("Hey gorgeous 😘", dur=1.3)
+  @+0.3: kevin.say("Back off, she's mine!", dur=1.3)
+  @+0.6: act1.fade_out(dur=0.3)
+  @+0.1: mia.face("😳")
+  @+0.2: mia.say("…do I get a say?", dur=1.2)
+  @+0.4: mia.move(to=(600, 180), dur=0.5, ease=out)
+}
+
+scene "duel" {
+  @+0.0: act2.fade_in(dur=0.3)
+  @+0.3: chad.face("😠")
+  @+0.0: kevin.face("😠")
+  @+0.1: chad.move(to=(400, 180), dur=0.5, ease=in)
+  @+0.0: kevin.move(to=(320, 180), dur=0.5, ease=in)
+  @+0.3: act2.fade_out(dur=0.3)
+  @+0.2: kevin.say("En garde, bro!", dur=1.0)
+  @+0.3: chad.play(hit, side=left, power=7)
+  @+0.0: camera.shake(intensity=6, dur=0.3)
+  @+0.1: kevin.play(hit, side=right, power=7)
+  @+0.2: kevin.kick(side=right, dur=0.3)
+  @+0.0: chad.shake(intensity=9, dur=0.3)
+  @+0.2: chad.say("Is that all?", dur=0.9)
+  @+0.9: chad.punch(side=left, dur=0.25)
+  @+0.0: camera.shake(intensity=16, dur=0.5)
+  @+0.0: kevin.face("😵")
+  @+0.0: bush.fade_in(dur=0.2)
+  @+0.1: kevin.move(to=(110, 275), dur=0.55, ease=out)
+  @+0.0: kevin.rotate(to=-80, dur=0.55, ease=out)
+  @+0.4: bush.shake(intensity=7, dur=0.4)
+  @+0.0: bush.fade_out(dur=0.3)
+  @+0.0: kevin.face("🤕")
+  @+0.3: chad.face("😎")
+  @+0.2: chad.say("Too easy. She's mine!", dur=1.4)
+}
+
+scene "rejection" {
+  @+0.0: act3.fade_in(dur=0.3)
+  @+0.3: chad.face("🥰")
+  @+0.0: chad.move(to=(520, 180), dur=0.6, ease=out)
+  @+0.5: chad.say("My queen 👑", dur=1.1)
+  @+0.3: mia.face("🙅")
+  @+0.2: mia.say("Hard pass.", dur=1.1)
+  @+0.0: mia.shake(intensity=5, dur=0.4)
+  @+0.4: act3.fade_out(dur=0.3)
+  @+0.1: chad.face("😨")
+  @+0.2: chad.say("But… I WON??", dur=1.3)
+  @+0.4: mia.face("😒")
+  @+0.2: mia.say("That's the problem.", dur=1.4)
+  @+0.6: chad.face("😭")
+  @+0.4: chad.exit(to=right, dur=0.8)
+}
+
+scene "aftermath" {
+  @+0.0: act4.fade_in(dur=0.3)
+  @+0.2: mia.face("🥺")
+  @+0.1: mia.move(to=(230, 210), dur=1.2, ease=out)
+  @+0.0: camera.pan(to=(100, 345), dur=1.2, ease=out)
+  @+0.0: camera.zoom(to=1.3, dur=1.2, ease=out)
+  @+0.6: act4.fade_out(dur=0.3)
+  @+0.3: mia.face("😊")
+  @+0.2: mia.say("You okay down there?", dur=1.6)
+  @+0.2: kevin.face("🥲")
+  @+0.2: kevin.face("🥹")
+  @+0.2: kevin.say("Mission failed…", dur=1.3)
+  @+0.2: kevin.say("…successfully. 💖", dur=1.6)
+  @+0.2: mia.face("😘")
+}`,
   },
   {
     label: "Hello World",
     code: `scene width=600 height=260 fps=30 bg=#fafafa
 
-actor hi = text("Hello, Markdy!") at (180, 60) size 28 opacity 0
-actor a  = figure(#c68642, m, 😎) at (280, 160)
+actor hi = caption("Hello, Markdy!") at top opacity 0
+actor a  = figure(#c68642, m, 😎) at (300, 160)
 
-@0.2: hi.fade_in(dur=0.6)
-@0.6: a.enter(from=left, dur=0.8)
-@1.5: a.wave(side=right, dur=0.8)
-@1.5: a.say("Let's go! 🚀", dur=1.5)
-@2.5: a.move(to=(350, 160), dur=0.8, ease=out)
-@3.3: a.nod(dur=0.4)`,
+@0.0:  hi.fade_in(dur=0.5)
+@+0.2: a.enter(from=left, dur=0.7)
+@+0.3: a.wave(side=right, dur=0.8)
+@+0.0: a.say("Let's go!", dur=1.4)
+@+0.5: a.move(to=(400, 160), dur=0.7, ease=out)
+@+0.2: a.nod(dur=0.4)`,
   },
   {
     label: "Fight Scene",
     code: `scene width=640 height=300 fps=30 bg=#fafafa
 
+actor ko      = caption("K.O.") at center size 64 opacity 0
 actor hero    = figure(#6ee7b7, m, 😎) at (160, 170) z 5
 actor villain = figure(#f87171, m, 😈) at (480, 170) z 3
 
-@0.3: hero.enter(from=left, dur=0.7)
-@0.5: villain.enter(from=right, dur=0.7)
-@1.5: hero.say("Bring it on! 💪", dur=1.2)
-@2.0: villain.say("Haha! 😈", dur=1.2)
-@3.5: hero.move(to=(300, 170), dur=0.5, ease=in)
-@3.5: villain.move(to=(340, 170), dur=0.5, ease=in)
-@4.2: hero.punch(side=right, dur=0.3)
-@4.3: villain.shake(intensity=8, dur=0.4)
-@4.3: villain.face("😵")
-@5.0: hero.kick(side=right, dur=0.35)
-@5.1: villain.bounce(intensity=8, count=2, dur=0.3)
-@5.3: villain.rotate(to=90, dur=0.3)
-@5.5: villain.fade_out(dur=0.5)
-@5.5: hero.face("😄")
-@5.5: hero.jump(height=25, dur=0.5)
-@5.7: hero.say("Done! ✅", dur=1.5)`,
+scene "intro" {
+  @0.0:  hero.enter(from=left, dur=0.7)
+  @+0.0: villain.enter(from=right, dur=0.7)
+  @+0.4: hero.say("Bring it on!", dur=1.2)
+  @+0.5: villain.say("Haha!", dur=1.2)
+}
+
+scene "clash" {
+  @+0.4: hero.move(to=(300, 170), dur=0.5, ease=in)
+  @+0.0: villain.move(to=(340, 170), dur=0.5, ease=in)
+  @+0.2: hero.punch(side=right, dur=0.3)
+  @+0.1: camera.shake(intensity=14, dur=0.4)
+  @+0.0: villain.shake(intensity=8, dur=0.4)
+  @+0.0: villain.face("😵")
+}
+
+scene "finisher" {
+  @+0.6: hero.kick(side=right, dur=0.35)
+  @+0.1: villain.bounce(intensity=10, count=2, dur=0.4)
+  @+0.4: camera.zoom(to=1.25, dur=0.4)
+  @+0.0: ko.fade_in(dur=0.3)
+  @+0.3: villain.exit(to=right, dur=0.6)
+  @+0.0: hero.face("😄")
+  @+0.0: hero.jump(height=25, dur=0.5)
+}`,
   },
   {
     label: "Love Story",
     code: `scene width=640 height=300 fps=30 bg=#fafafa
 
-actor boy  = figure(#c68642, m, 😊) at (150, 170)
-actor girl = figure(#fad4c0, f, 😊) at (490, 170)
+actor title = caption("A Love Story") at top opacity 0
+actor later = caption("…months later") at top opacity 0
+actor boy   = figure(#c68642, m, 😊) at (150, 170)
+actor girl  = figure(#fad4c0, f, 😊) at (490, 170)
 
-@0.3: boy.enter(from=left, dur=0.8)
-@0.5: girl.enter(from=right, dur=0.8)
-@1.5: boy.face("😍")
-@1.5: boy.wave(side=right, dur=0.8)
-@1.5: boy.say("Hi there! 😍", dur=1.5)
-@2.5: girl.face("😊")
-@2.5: girl.wave(side=left, dur=0.6)
-@2.5: girl.say("Hey! 👋", dur=1.2)
-@4.0: boy.move(to=(280, 170), dur=0.8, ease=out)
-@4.0: girl.move(to=(360, 170), dur=0.8, ease=out)
-@5.0: boy.pose(arm_right=-70, dur=0.4)
-@5.0: girl.pose(arm_left=70, dur=0.4)
-@5.5: boy.face("🥰")
-@5.5: girl.face("🥰")
-@5.5: boy.nod(dur=0.4)`,
+scene "meet" {
+  @+0.0: title.fade_in(dur=0.4)
+  @+0.2: boy.enter(from=left, dur=0.7)
+  @+0.0: girl.enter(from=right, dur=0.7)
+  @+0.2: boy.face("😍")
+  @+0.0: boy.wave(side=right, dur=0.6)
+  @+0.0: boy.say("Hi there!", dur=1.1)
+  @+0.2: girl.face("😊")
+  @+0.0: girl.say("Hey!", dur=1.0)
+  @+0.2: title.fade_out(dur=0.4)
+}
+
+scene "approach" {
+  @+0.2: later.fade_in(dur=0.4)
+  @+0.5: later.fade_out(dur=0.4)
+  @+0.1: boy.move(to=(280, 170), dur=0.7, ease=out)
+  @+0.0: girl.move(to=(360, 170), dur=0.7, ease=out)
+  @+0.1: boy.pose(arm_right=-70, dur=0.4)
+  @+0.0: girl.pose(arm_left=70, dur=0.4)
+}
+
+scene "closer" {
+  @+0.1: camera.zoom(to=1.4, dur=0.6, ease=out)
+  @+0.1: boy.face("🥰")
+  @+0.0: girl.face("🥰")
+  @+0.2: boy.nod(dur=0.4)
+  @+0.0: girl.nod(dur=0.4)
+}`,
   },
   {
     label: "Dance Party",
@@ -155,33 +212,46 @@ def dancer(skin, face) {
 seq celebrate {
   @+0.0: $.jump(height=25, dur=0.4)
   @+0.4: $.pose(arm_left=70, arm_right=-70, dur=0.3)
-  @+0.7: $.bounce(intensity=10, count=2, dur=0.4)
-  @+1.1: $.pose(arm_left=0, arm_right=0, dur=0.3)
+  @+0.3: $.bounce(intensity=10, count=2, dur=0.4)
+  @+0.4: $.pose(arm_left=0, arm_right=0, dur=0.3)
 }
 
+actor title = caption("Dance Party") at top opacity 0
+actor drop  = caption("THE DROP") at center size 64 opacity 0
 actor dj    = dancer(\${skin_a}, 😎) at (360, 180) z 5
 actor left  = dancer(\${skin_b}, 😄) at (140, 200)
 actor right = figure(\${skin_c}, f, 💃) at (560, 200)
-actor title = text("Dance Party!") at (240, 30) size 32 opacity 0 z 10
 
-@0.0: title.fade_in(dur=0.5)
-@0.3: dj.enter(from=top, dur=0.6)
-@0.5: left.enter(from=left, dur=0.7)
-@0.7: right.enter(from=right, dur=0.7)
-@1.5: dj.say("Let's dance! 🎵", dur=1.5)
-@1.5: dj.wave(side=right, dur=0.8)
-@2.5: left.play(celebrate)
-@3.0: right.play(celebrate)
-@4.0: dj.jump(height=30, dur=0.5)
-@4.5: dj.pose(arm_left=90, arm_right=-90, dur=0.3)
-@5.0: left.wave(side=right, dur=0.6)
-@5.0: right.wave(side=left, dur=0.6)
-@5.5: dj.nod(dur=0.4)
-@6.0: dj.pose(arm_left=0, arm_right=0, dur=0.3)
-@6.0: dj.face("🤩")
-@6.5: left.bounce(intensity=15, count=3, dur=0.6)
-@6.5: right.bounce(intensity=15, count=3, dur=0.6)
-@7.0: dj.say("Yeah! 🔥", dur=1.5)`,
+scene "warmup" {
+  @+0.0: title.fade_in(dur=0.4)
+  @+0.1: dj.enter(from=top, dur=0.6)
+  @+0.0: left.enter(from=left, dur=0.7)
+  @+0.0: right.enter(from=right, dur=0.7)
+  @+0.2: dj.say("Let's dance!", dur=1.2)
+  @+0.0: dj.wave(side=right, dur=0.6)
+  @+0.2: left.play(celebrate)
+  @+0.1: right.play(celebrate)
+}
+
+scene "thedrop" {
+  @+0.3: drop.fade_in(dur=0.3)
+  @+0.0: camera.zoom(to=1.25, dur=0.4)
+  @+0.0: camera.shake(intensity=10, dur=0.5)
+  @+0.1: dj.jump(height=35, dur=0.5)
+  @+0.0: dj.pose(arm_left=90, arm_right=-90, dur=0.3)
+  @+0.3: drop.fade_out(dur=0.3)
+  @+0.0: camera.zoom(to=1.0, dur=0.4)
+}
+
+scene "finale" {
+  @+0.1: left.wave(side=right, dur=0.5)
+  @+0.0: right.wave(side=left, dur=0.5)
+  @+0.1: dj.nod(dur=0.4)
+  @+0.2: dj.face("🤩")
+  @+0.0: dj.say("Yeah!", dur=1.2)
+  @+0.0: left.bounce(intensity=15, count=3, dur=0.5)
+  @+0.0: right.bounce(intensity=15, count=3, dur=0.5)
+}`,
   },
 ];
 

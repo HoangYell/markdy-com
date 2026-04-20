@@ -1,0 +1,13 @@
+# camera.pan(to=(x,y)) — slides the viewpoint across the scene.
+# The reserved actor `camera` applies its transform to the scene-content
+# layer so responsive scaling is never disturbed.
+scene width=1200 height=400 bg=#0d1117
+
+actor a = caption("left side") at top
+actor lf = figure(#c68642, m, 🙂) at (200, 260)
+actor rf = figure(#8d5524, m, 😎) at (1000, 260)
+
+@0.0:  a.fade_in(dur=0.3)
+@0.3:  lf.enter(from=left, dur=0.5)
+@+0.3: camera.pan(to=(1000, 200), dur=1.2, ease=inout)
+@+0.0: rf.enter(from=right, dur=0.6)

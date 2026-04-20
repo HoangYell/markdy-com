@@ -1,0 +1,12 @@
+# with key=val, key=val — unified modifier form.
+# The space-separated form (`scale 1.5 rotate 10`) still works; both can
+# be mixed on the same actor line.
+scene width=800 height=400
+
+actor a = box() at (160, 180) with scale=1.2, opacity=0.85, rotate=12
+actor b = box() at (480, 180) scale 1.2 with opacity=0.85, rotate=-12
+actor c = box() at (640, 180) scale 1.2 rotate 0 opacity 0.85
+
+@0.0:  a.fade_in(dur=0.3)
+@0.15: b.fade_in(dur=0.3)
+@0.30: c.fade_in(dur=0.3)

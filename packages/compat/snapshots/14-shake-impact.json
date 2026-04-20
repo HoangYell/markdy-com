@@ -1,0 +1,67 @@
+{
+  "actors": {
+    "wall": {
+      "args": [
+        "target"
+      ],
+      "size": 40,
+      "type": "text",
+      "x": 380,
+      "y": 180
+    }
+  },
+  "assets": {},
+  "chapters": [],
+  "defs": {},
+  "events": [
+    {
+      "action": "fade_in",
+      "actor": "wall",
+      "line": 6,
+      "params": {
+        "dur": 0.3
+      },
+      "time": 0
+    },
+    {
+      "action": "shake",
+      "actor": "wall",
+      "line": 7,
+      "params": {
+        "dur": 0.3,
+        "intensity": 4
+      },
+      "time": 0.6
+    },
+    {
+      "action": "shake",
+      "actor": "wall",
+      "line": 8,
+      "params": {
+        "dur": 0.4,
+        "intensity": 8
+      },
+      "time": 1
+    },
+    {
+      "action": "fade_out",
+      "actor": "wall",
+      "line": 9,
+      "params": {
+        "dur": 0.4
+      },
+      "time": 1.6
+    }
+  ],
+  "imports": [],
+  "meta": {
+    "bg": "#0d1117",
+    "duration": 2,
+    "fps": 30,
+    "height": 400,
+    "width": 800
+  },
+  "seqs": {},
+  "vars": {},
+  "warnings": []
+}

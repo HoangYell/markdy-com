@@ -1,0 +1,86 @@
+{
+  "actors": {
+    "c": {
+      "args": [
+        "#fad4c0",
+        "f",
+        "🙂"
+      ],
+      "type": "figure",
+      "x": 650,
+      "y": 260
+    },
+    "p": {
+      "args": [
+        "#c68642",
+        "m",
+        "😎"
+      ],
+      "type": "figure",
+      "x": 100,
+      "y": 260
+    }
+  },
+  "assets": {
+    "fire": {
+      "type": "icon",
+      "value": "lucide:flame"
+    }
+  },
+  "chapters": [],
+  "defs": {},
+  "events": [
+    {
+      "action": "enter",
+      "actor": "p",
+      "line": 9,
+      "params": {
+        "dur": 0.5,
+        "from": "left"
+      },
+      "time": 0
+    },
+    {
+      "action": "enter",
+      "actor": "c",
+      "line": 10,
+      "params": {
+        "dur": 0.5,
+        "from": "right"
+      },
+      "time": 0.2
+    },
+    {
+      "action": "throw",
+      "actor": "p",
+      "line": 11,
+      "params": {
+        "asset": "fire",
+        "dur": 0.7,
+        "to": "c"
+      },
+      "time": 1
+    },
+    {
+      "action": "shake",
+      "actor": "c",
+      "line": 12,
+      "params": {
+        "dur": 0.4,
+        "intensity": 5
+      },
+      "time": 1.8
+    }
+  ],
+  "imports": [],
+  "meta": {
+    "bg": "white",
+    "duration": 2.2,
+    "fps": 30,
+    "height": 400,
+    "width": 800
+  },
+  "seqs": {},
+  "vars": {},
+  "warnings": []
+}

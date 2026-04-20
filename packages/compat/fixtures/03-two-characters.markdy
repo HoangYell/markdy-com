@@ -1,0 +1,10 @@
+# Two figures meet in the middle
+scene width=800 height=400 bg=white
+
+actor alice = figure(#fad4c0, f, 🙂) at (200, 240)
+actor bob   = figure(#c68642, m, 🙂) at (600, 240)
+
+@0.0: alice.enter(from=left, dur=0.5)
+@0.2: bob.enter(from=right, dur=0.5)
+@1.0: alice.say("hi Bob", dur=1.2)
+@2.2: bob.say("hi Alice", dur=1.2)

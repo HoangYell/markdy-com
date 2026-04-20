@@ -1,0 +1,11 @@
+# var declarations feed into positions, colors, and durations
+var skin = #c68642
+var speed = 0.6
+var cx = 400
+
+scene width=800 height=400 bg=white
+
+actor h = figure(${skin}, m, 🙂) at (${cx}, 260)
+
+@0.0: h.enter(from=bottom, dur=${speed})
+@1.0: h.wave(side=right, dur=${speed})

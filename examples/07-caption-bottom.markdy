@@ -1,0 +1,12 @@
+# caption at bottom — common meme-format placement.
+scene width=720 height=720 bg=#111
+
+actor topline = caption("when the compat gate") at top
+actor hero    = figure(#c68642, m, 😎) at (360, 430)
+actor botline = caption("stays green on every PR") at bottom
+
+@0.0: topline.fade_in(dur=0.3)
+@0.2: hero.enter(from=bottom, dur=0.5)
+@0.9: botline.fade_in(dur=0.3)
+@1.4: hero.face("🤌")
+@2.0: hero.bounce(intensity=14, count=2, dur=0.7)

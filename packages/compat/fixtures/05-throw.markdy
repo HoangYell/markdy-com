@@ -1,0 +1,12 @@
+# Throw an asset from one actor to another
+scene width=800 height=400 bg=white
+
+asset fire = icon("lucide:flame")
+
+actor p = figure(#c68642, m, 😎) at (100, 260)
+actor c = figure(#fad4c0, f, 🙂) at (650, 260)
+
+@0.0: p.enter(from=left, dur=0.5)
+@0.2: c.enter(from=right, dur=0.5)
+@1.0: p.throw(fire, to=c, dur=0.7)
+@1.8: c.shake(intensity=5, dur=0.4)

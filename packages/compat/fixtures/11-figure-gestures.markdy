@@ -1,0 +1,10 @@
+# Showcases figure-only gestures on a single actor
+scene width=600 height=400 bg=#111
+
+actor h = figure(#c68642, m, 😎) at (300, 260)
+
+@0.0: h.enter(from=top, dur=0.5)
+@0.8: h.punch(side=right, dur=0.3)
+@1.3: h.kick(side=left, dur=0.4)
+@2.0: h.pose(arm_left=45, arm_right=-45, dur=0.4)
+@2.6: h.pose(arm_left=0, arm_right=0, dur=0.4)
