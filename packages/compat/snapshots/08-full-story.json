@@ -1,0 +1,110 @@
+{
+  "actors": {
+    "hero": {
+      "args": [
+        "#c68642",
+        "m",
+        "😎"
+      ],
+      "type": "figure",
+      "x": 450,
+      "y": 280
+    },
+    "pal": {
+      "args": [
+        "#fad4c0",
+        "f",
+        "🙂"
+      ],
+      "type": "figure",
+      "x": 150,
+      "y": 280
+    },
+    "title": {
+      "args": [
+        "Ship it"
+      ],
+      "opacity": 0,
+      "size": 48,
+      "type": "text",
+      "x": 360,
+      "y": 60
+    }
+  },
+  "assets": {},
+  "chapters": [],
+  "defs": {},
+  "events": [
+    {
+      "action": "fade_in",
+      "actor": "title",
+      "line": 8,
+      "params": {
+        "dur": 0.5
+      },
+      "time": 0
+    },
+    {
+      "action": "enter",
+      "actor": "pal",
+      "line": 9,
+      "params": {
+        "dur": 0.6,
+        "from": "left"
+      },
+      "time": 0.6
+    },
+    {
+      "action": "enter",
+      "actor": "hero",
+      "line": 10,
+      "params": {
+        "dur": 0.6,
+        "from": "right"
+      },
+      "time": 0.8
+    },
+    {
+      "action": "jump",
+      "actor": "hero",
+      "line": 11,
+      "params": {
+        "dur": 0.6,
+        "height": 40
+      },
+      "time": 1.8
+    },
+    {
+      "action": "say",
+      "actor": "hero",
+      "line": 12,
+      "params": {
+        "dur": 1.5,
+        "text": "shipped"
+      },
+      "time": 2.5
+    },
+    {
+      "action": "bounce",
+      "actor": "pal",
+      "line": 13,
+      "params": {
+        "count": 2,
+        "dur": 0.6,
+        "intensity": 15
+      },
+      "time": 4.2
+    }
+  ],
+  "imports": [],
+  "meta": {
+    "bg": "#0b1020",
+    "duration": 4.8,
+    "fps": 30,
+    "height": 420,
+    "width": 900
+  },
+  "seqs": {},
+  "vars": {},
+  "warnings": []
+}

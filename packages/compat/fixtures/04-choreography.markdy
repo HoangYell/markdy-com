@@ -1,0 +1,10 @@
+# A little choreography with move + scale + rotate
+scene width=800 height=400 bg=#111
+
+actor h = figure(#c68642, m, 😎) at (120, 260)
+
+@0.0: h.enter(from=left, dur=0.5)
+@0.8: h.move(to=(400, 260), dur=0.8, ease=inout)
+@1.8: h.scale(to=1.2, dur=0.4)
+@2.4: h.rotate(to=10, dur=0.3)
+@2.9: h.rotate(to=0, dur=0.3)

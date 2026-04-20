@@ -40,9 +40,11 @@ actor label = text("Hello World") at (50, 130) size 40 opacity 0
 | **Zero-dep parser** | `@markdy/core` is pure TypeScript — no DOM, no runtime deps |
 | **Web-native renderer** | Web Animations API + CSS transforms. No Canvas, no GSAP |
 | **Stick-figure actors** | Emoji-based `figure` type with articulatable limbs, face expressions |
+| **Chapters + cameras** | `scene "title" { ... }` blocks, `camera.pan/zoom/shake`, `@+N:` relative time |
+| **Captions, imports, presets** | First-class `caption` actors, `import "..." as ns` composition, parse-time `preset <name>(...)` macros |
+| **Forgiving by default, strict on demand** | Unknown actions soft-warn; prefix with `!` to hard-fail (e.g. `hero.!shake(...)`) |
 | **Language-first design** | `var`, `def`, `seq` let users build character systems and choreographies without engine changes |
 | **Astro-ready** | `<Markdy />` island that hydrates on viewport entry |
-| **Strict parser** | Line-number errors for every malformed statement |
 | **AI-agent friendly** | Structured DSL that LLMs can generate, validate, and iterate on ([Agent Guide](docs/AGENT.md)) |
 
 ---
@@ -164,11 +166,49 @@ actor bruno = fighter(${skin}, 😏) at (200, 200)
 @2.0: bruno.play(punch_combo, side=right)
 ```
 
+### Chapters, Camera, Captions
+
+```markdy
+scene width=900 height=500 bg=#101424
+
+actor title = caption("ROUND 1") at top
+actor hero  = figure(#c68642, m, 😎) at (300, 260)
+
+scene "intro" {
+  @+0.0: title.fade_in(dur=0.3)
+  @+0.3: hero.enter(from=left, dur=0.7)
+}
+
+scene "beat" {
+  @+0.2: camera.zoom(to=1.3, dur=0.5)
+  @+0.1: hero.punch(side=right, dur=0.3)
+  @+0.0: camera.shake(intensity=10, dur=0.3)
+}
+
+@+0.5: hero.exit(to=right, dur=0.5)
+```
+
+### Namespaced Imports + Presets
+
+```markdy
+# One-liner using a shipped preset macro:
+preset meme("when the bug is finally fixed", "it was a typo")
+```
+
+```markdy
+# Compose across files — host resolves "as chars" → ast
+import "./characters.markdy" as chars
+
+actor hero = chars.fighter(${chars.skin_warm}, 😎) at (200, 200)
+@0.0: hero.enter(from=left, dur=0.6)
+```
+
 ### Actions Reference
 
 | Action | Description | Key Parameters |
 |---|---|---|
-| `enter` | Slide in from offscreen | `from`, `dur`, `ease` |
+| `enter` | Slide in from offscreen + fade | `from`, `dur`, `ease` |
+| `exit` | Slide off-screen + fade out | `to`, `dur`, `ease` |
 | `move` | Translate to position | `to=(x,y)`, `dur`, `ease` |
 | `fade_in` / `fade_out` | Opacity transitions | `dur` |
 | `scale` | Animate scale | `to`, `dur`, `ease` |
@@ -181,9 +221,12 @@ actor bruno = fighter(${skin}, 😏) at (200, 200)
 | `pose` | Set multiple parts at once (figure only) | `arm_left`, `arm_right`, etc. |
 | `wave` | Wave gesture (figure only) | `side`, `dur` |
 | `nod` | Head nod gesture (figure only) | `dur` |
-| `jump` | Jump with squash/stretch | `height`, `dur` |
-| `bounce` | Diminishing vertical bounce | `intensity`, `count`, `dur` |
+| `jump` | Jump with squash/stretch (figure only) | `height`, `dur` |
+| `bounce` | Diminishing vertical bounce (figure only) | `intensity`, `count`, `dur` |
 | `face` | Swap emoji expression (figure only) | `"emoji"` |
+| `camera.pan` | Pan scene to center on `(x, y)` | `to=(x,y)`, `dur`, `ease` |
+| `camera.zoom` | Zoom scene content | `to`, `dur` |
+| `camera.shake` | Camera-level shake | `intensity`, `dur` |
 
 Easing values: `linear` (default), `in`, `out`, `inout`.
 
@@ -191,9 +234,20 @@ Easing values: `linear` (default), `in`, `out`, `inout`.
 
 ## API Reference
 
-### `parse(source: string): SceneAST`
+### `parse(source: string, opts?: ParseOptions): SceneAST`
 
-Parses MarkdyScript source into a typed AST. Throws `ParseError` with line numbers on invalid input. Pure function with no side effects — runs in Node.js, Deno, edge runtimes, or the browser.
+Parses MarkdyScript source into a typed AST. Throws `ParseError` with line numbers on structural errors. Pure function with no side effects — runs in Node.js, Deno, edge runtimes, or the browser.
+
+```ts
+interface ParseOptions {
+  // Host-resolved ASTs for `import "..." as ns`. Namespaces whose ASTs are
+  // supplied have their vars/defs/seqs merged under `ns.<name>` and can be
+  // referenced from the parent. Unresolved namespaces emit a soft warning.
+  imports?: Record<string, SceneAST>;
+}
+```
+
+`SceneAST` includes `ast.warnings[]` (soft parse warnings like `unknown-action`, `import-unresolved`), `ast.chapters[]`, and `ast.imports[]`. See [docs/AGENT.md](docs/AGENT.md#ast-shape-for-programmatic-use) for the full shape.
 
 ### `createPlayer(options: PlayerOptions): Player`
 
@@ -204,10 +258,12 @@ interface PlayerOptions {
   container: HTMLElement;    // Mount point
   code: string;             // MarkdyScript source
   assets?: Record<string, string>;  // Asset URL overrides
+  imports?: Record<string, SceneAST>;  // Namespaces for `import "..." as ns`
   autoplay?: boolean;       // Start immediately (default: true)
   loop?: boolean;           // Loop at end (default: true)
   copyright?: boolean;      // "Powered by Markdy" badge (default: true)
   progressBar?: boolean;    // Rainbow border progress bar (default: true)
+  onWarning?: (w: ParseWarning) => void;  // Surface soft parse warnings
 }
 
 interface Player {

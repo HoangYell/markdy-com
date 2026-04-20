@@ -1,0 +1,17 @@
+# Parse-time type check — figure-only actions (punch, kick, wave, nod,
+# face, pose, rotate_part) can only target figure actors. This file
+# demonstrates the correct form; uncomment the last event to see the
+# parser hard-fail with a helpful message.
+scene width=800 height=400
+
+actor fighter = figure(#c68642, m, 😎) at (400, 240)
+actor label   = text("legal") at (360, 80)
+
+@0.0:  fighter.enter(from=left, dur=0.4)
+@+0.2: fighter.punch(side=right, dur=0.3)
+@+0.1: fighter.kick(side=left, dur=0.3)
+@+0.1: fighter.nod(dur=0.3)
+
+# Uncomment to see the type check fire:
+# @+0.1: label.punch(side=right, dur=0.3)
+#   → ParseError: action "punch" is figure-only; actor type is "text"

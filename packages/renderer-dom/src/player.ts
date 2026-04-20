@@ -21,6 +21,7 @@
  */
 
 import { parse } from "@markdy/core";
+import type { ParseWarning, SceneAST } from "@markdy/core";
 import type { FaceSwap } from "./types.js";
 import { createActorEl } from "./actors.js";
 import { buildAnimations } from "./animations.js";
@@ -33,6 +34,13 @@ export interface PlayerOptions {
   container: HTMLElement;
   code: string;
   assets?: Record<string, string>;
+  /**
+   * Host-resolved ASTs for `import "<path>" as <ns>` statements. When
+   * provided, the namespaces' `vars`, `defs`, and `seqs` merge into the
+   * parsed scene under `ns.<name>`. Unresolved namespaces emit a soft
+   * `import-unresolved` warning.
+   */
+  imports?: Record<string, SceneAST>;
   autoplay?: boolean;
   /** Loop the animation when it reaches the end. Defaults to true. */
   loop?: boolean;
@@ -40,6 +48,12 @@ export interface PlayerOptions {
   copyright?: boolean;
   /** Show a rainbow progress bar around the viewport border. Defaults to true. */
   progressBar?: boolean;
+  /**
+   * Invoked once per soft `ParseWarning` emitted by the parser — e.g. unknown
+   * actions, unknown modifier keys, unresolved imports. Defaults to `console.warn`.
+   * Pass a no-op to silence; pass a custom collector to surface warnings in a UI.
+   */
+  onWarning?: (warning: ParseWarning) => void;
 }
 
 export interface Player {
@@ -71,11 +85,25 @@ function bgToTextColor(bg: string): string {
 }
 
 export function createPlayer(opts: PlayerOptions): Player {
-  const { container, code, assets: assetOverrides = {}, autoplay = true, loop = true, copyright = true, progressBar = true } =
-    opts;
+  const {
+    container,
+    code,
+    assets: assetOverrides = {},
+    imports,
+    autoplay = true,
+    loop = true,
+    copyright = true,
+    progressBar = true,
+    onWarning = (w) => console.warn(`[markdy] line ${w.line}: ${w.message} (${w.kind})`),
+  } = opts;
 
-  const ast = parse(code);
+  const ast = parse(code, imports ? { imports } : undefined);
   const totalDurationMs = (ast.meta.duration ?? 0) * 1000;
+
+  // Surface soft parse warnings so hosts can collect them. We never throw on
+  // warnings — the renderer silently no-ops unknown actions, modifiers, and
+  // scene keys.
+  for (const w of ast.warnings) onWarning(w);
 
   // ── Responsive viewport wrapper ────────────────────────────────────────────
   // The scene uses fixed pixel dimensions from the AST.  We place it inside a
@@ -156,7 +184,16 @@ export function createPlayer(opts: PlayerOptions): Player {
     }
   }
 
-  // ── Scene root ─────────────────────────────────────────────────────────────
+  // ── Scene root + camera layer ──────────────────────────────────────────────
+  //
+  // Layering:
+  //   viewport (100% width, responsive aspect-ratio)
+  //     └── scene (fixed AST px dimensions, CSS scale for responsive fit)
+  //           └── sceneContent (camera transforms: pan/zoom/shake)
+  //                 └── actors live here
+  //
+  // This keeps camera transforms (which need to animate translate/scale) on
+  // an inner layer so they don't clobber the outer responsive scale.
   const scene = document.createElement("div");
   Object.assign(scene.style, {
     position: "absolute",
@@ -172,7 +209,18 @@ export function createPlayer(opts: PlayerOptions): Player {
   });
   viewport.appendChild(scene);
 
-  // Scale scene to fill viewport width, maintaining pixel-perfect actor positions.
+  const sceneContent = document.createElement("div");
+  Object.assign(sceneContent.style, {
+    position: "absolute",
+    top: "0",
+    left: "0",
+    width: "100%",
+    height: "100%",
+    transformOrigin: "50% 50%",
+    willChange: "transform",
+  });
+  scene.appendChild(sceneContent);
+
   function scaleScene(): void {
     const s = viewport.clientWidth / ast.meta.width;
     scene.style.transform = `scale(${s})`;
@@ -185,13 +233,13 @@ export function createPlayer(opts: PlayerOptions): Player {
   const actorEls = new Map<string, HTMLElement>();
   for (const [name, def] of Object.entries(ast.actors)) {
     const el = createActorEl(name, def, ast.assets, assetOverrides);
-    scene.appendChild(el);
+    sceneContent.appendChild(el);
     actorEls.set(name, el);
   }
 
   // ── Build all animations, keep them permanently paused ────────────────────
   const faceSwaps: FaceSwap[] = [];
-  const allAnims = buildAnimations(ast, actorEls, scene, assetOverrides, faceSwaps);
+  const allAnims = buildAnimations(ast, actorEls, sceneContent, assetOverrides, faceSwaps);
   faceSwaps.sort((a, b) => a.timeMs - b.timeMs);
 
   for (const anim of allAnims) {

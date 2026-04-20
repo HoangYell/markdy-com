@@ -1,0 +1,8 @@
+# Figure slides in and waves
+scene width=800 height=400 bg=#0f1115
+
+actor hero = figure(#c68642, m, 😎) at (400, 260)
+
+@0.0: hero.enter(from=left, dur=0.6)
+@0.8: hero.wave(side=right, dur=0.8)
+@1.8: hero.say("hello", dur=1.5)

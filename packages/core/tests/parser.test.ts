@@ -51,8 +51,11 @@ describe("scene meta", () => {
     expect(() => parse("scene fps=30\nscene fps=60")).toThrow(ParseError);
   });
 
-  it("throws on unknown scene property", () => {
-    expect(() => parse("scene unknown=99")).toThrow(ParseError);
+  it("soft-warns on unknown scene property", () => {
+    const ast = parse("scene unknown=99");
+    expect(ast.warnings).toHaveLength(1);
+    expect(ast.warnings[0].kind).toBe("unknown-scene-key");
+    expect(ast.warnings[0].message).toContain("unknown");
   });
 });
 
@@ -387,6 +390,18 @@ describe("var declarations", () => {
     expect(ast.actors["h"].args).toEqual(["#c68642"]);
     expect(ast.actors["h"]).toMatchObject({ x: 100, y: 200 });
   });
+
+  it("leaves \\${non-identifier} literally alone (e.g. \\${0.5} from MDX)", () => {
+    // `${0.5}` is not a valid var reference since `0.5` isn't a valid
+    // identifier. The parser must not eat the backslash or treat this as
+    // an unresolved interpolation — it stays literal so MDX consumers that
+    // emit String.raw`...` templates continue to work byte-identically.
+    const ast = parse([
+      "actor p = sprite(pepe) at (0, 0)",
+      "@1.0: p.enter(from=left, dur=\\${0.5})",
+    ].join("\n"));
+    expect(ast.events[0].params.dur).toBe("\\${0.5}");
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -477,7 +492,7 @@ describe("def declarations", () => {
 describe("seq declarations", () => {
   it("defines and plays a basic sequence", () => {
     const ast = parse([
-      "actor p = sprite(img) at (0,0)",
+      "actor p = figure(#c68642, m, 🙂) at (0,0)",
       "seq wave {",
       "  @+0.0: $.rotate_part(part=arm_right, to=-80, dur=0.3)",
       "  @+0.3: $.rotate_part(part=arm_right, to=-25, dur=0.3)",
@@ -501,7 +516,7 @@ describe("seq declarations", () => {
 
   it("plays a parameterized sequence", () => {
     const ast = parse([
-      "actor p = sprite(img) at (0,0)",
+      "actor p = figure(#c68642, m, 🙂) at (0,0)",
       "seq hit(side) {",
       "  @+0.0: $.punch(side=${side}, dur=0.3)",
       "}",
@@ -559,7 +574,7 @@ describe("seq declarations", () => {
 
   it("handles backslash-escaped vars in seq body params", () => {
     const ast = parse([
-      "actor p = sprite(img) at (0,0)",
+      "actor p = figure(#c68642, m, 🙂) at (0,0)",
       "seq hit(side) {",
       "  @+0.0: $.punch(side=\\${side}, dur=0.3)",
       "}",

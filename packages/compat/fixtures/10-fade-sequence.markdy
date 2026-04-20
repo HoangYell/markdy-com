@@ -1,0 +1,10 @@
+# Multiple text lines fading in in sequence
+scene width=800 height=450 bg=#0d1117
+
+actor a = text("one")   at (320, 140) size 40 opacity 0
+actor b = text("two")   at (320, 210) size 40 opacity 0
+actor c = text("three") at (320, 280) size 40 opacity 0
+
+@0.0: a.fade_in(dur=0.4)
+@0.7: b.fade_in(dur=0.4)
+@1.4: c.fade_in(dur=0.4)
