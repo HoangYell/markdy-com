@@ -9,7 +9,7 @@
     "deploy": "wrangler deploy"
   },
   "devDependencies": {
-    "lighthouse": "^13.1.0",
+    "lighthouse": "^13.2.0",
     "typescript": "^5.7.3",
     "wrangler": "^4.81.1"
   },
