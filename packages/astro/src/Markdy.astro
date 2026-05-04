@@ -94,7 +94,7 @@ const {
   <div
     class="markdy-placeholder"
     aria-hidden="true"
-    style={`width:100%;height:100%;background:${bg};display:flex;align-items:center;justify-content:center`}
+    style={`width:100%;height:100%;background:${bg};display:flex;align-items:center;justify-content:center;cursor:pointer`}
   >
     <span
       style="font-family:sans-serif;font-size:12px;color:#bbb;letter-spacing:0.05em"
@@ -183,10 +183,10 @@ const {
   }
 
   // ── Intersection observer ────────────────────────────────────────────────
-  // Observe every unhydrated .markdy-root element.  We use threshold: 1.0
-  // so hydration (and autoplay) only triggers once the element's bottom
-  // edge is fully inside the viewport — the animation is never started
-  // while partially cut off.
+  // threshold: 0.25 — trigger as soon as a quarter of the element is visible.
+  // We intentionally avoid threshold: 1.0 because it is unreliable: on first
+  // navigation (fresh link, no F5) the browser may not fire the callback when
+  // the element is very close to — but not fully inside — the viewport.
 
   const observer = new IntersectionObserver(
     (entries) => {
@@ -206,15 +206,40 @@ const {
         }
       }
     },
-    { threshold: 1.0 },
+    { threshold: 0.25 },
   );
+
+  function doHydrate(el: HTMLElement): void {
+    observer.unobserve(el);
+    el.dataset.markdyInit = "hydrating";
+    scheduleHydration(() => {
+      hydrate(el).catch(() => {
+        el.dataset.markdyInit = "error";
+        el.removeAttribute("aria-busy");
+      });
+    });
+  }
 
   function initAll(): void {
     document
       .querySelectorAll<HTMLElement>(".markdy-root:not([data-markdy-init])")
       .forEach((el) => {
         el.dataset.markdyInit = "pending";
-        observer.observe(el);
+        // Proactively hydrate elements already in the viewport so we never
+        // depend on the observer firing for elements visible at page load.
+        // This fixes autoplay on first navigation from an external site where
+        // IntersectionObserver callbacks may be delayed or skipped.
+        const rect = el.getBoundingClientRect();
+        const inViewport =
+          rect.bottom > 0 &&
+          rect.right > 0 &&
+          rect.top < (window.innerHeight || document.documentElement.clientHeight) &&
+          rect.left < (window.innerWidth || document.documentElement.clientWidth);
+        if (inViewport) {
+          doHydrate(el);
+        } else {
+          observer.observe(el);
+        }
       });
   }
 
@@ -227,4 +252,15 @@ const {
 
   // Re-run after Astro View Transitions / client-side navigation.
   document.addEventListener("astro:page-load", initAll);
+
+  // Click on placeholder to play immediately without waiting for full visibility.
+  document.addEventListener("click", (e) => {
+    const placeholder = (e.target as Element).closest(".markdy-placeholder");
+    if (!placeholder) return;
+    const root = placeholder.closest<HTMLElement>(".markdy-root");
+    if (!root) return;
+    const state = root.dataset.markdyInit;
+    if (state === "done" || state === "hydrating") return;
+    doHydrate(root);
+  });
 </script>
