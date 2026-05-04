@@ -5,6 +5,11 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.3] — 2026-05-04
+
+### Fixed
+- **Rocket Loader commented-out scripts** — Cloudflare Rocket Loader sometimes wraps `<script type="module" src="...">` in an HTML comment (`<!--<script ...></script>-->`) instead of just mangling the `type` attribute. The existing rescue logic only queried the live DOM for `script[type$="-module"][src]`, which is invisible when the tag is inside a comment. The rescue script in `@markdy/astro` now also parses `document.documentElement.innerHTML` as a raw string to find and re-inject commented-out module scripts, fixing both autoplay and click-to-play on sites with Rocket Loader enabled.
+
 ## [0.7.2] — 2026-05-04
 
 ### Fixed
