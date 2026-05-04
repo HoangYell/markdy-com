@@ -123,14 +123,19 @@ const {
 
 <script is:inline>
   // ── Rocket Loader rescue ──────────────────────────────────────────────────
-  // Cloudflare Rocket Loader rewrites <script type="module" src="..."> to a
-  // proprietary type (e.g. "abc123-module") and then fails to execute them,
-  // which silently kills ALL hydration logic in this component.
+  // Cloudflare Rocket Loader rewrites <script type="module" src="..."> in
+  // one of two ways, both of which prevent the hydration logic from running:
+  //
+  //   A) Changes type="module" → type="{uuid}-module"  (keeps tag in DOM)
+  //   B) Wraps the entire tag in an HTML comment:
+  //        <!--<script type="{uuid}-module" src="..."></script>-->
+  //      making it invisible to querySelectorAll.
   //
   // This inline script is NOT touched by Rocket Loader (no src, no type attr).
-  // It detects mangled module scripts by the Rocket Loader type pattern and
-  // re-injects them dynamically — dynamically-created scripts also bypass
-  // Rocket Loader entirely.
+  // It rescues module scripts via two strategies:
+  //   1. Query the DOM for type$="-module" + src (covers case A)
+  //   2. Regex-parse the raw HTML for commented-out script tags (covers case B)
+  // Dynamically-created scripts bypass Rocket Loader entirely.
   (function () {
     if (window.__markdyRescue) return;
     window.__markdyRescue = true;
@@ -139,12 +144,38 @@ const {
     function rescueModuleScripts() {
       if (rescued) return;
       rescued = true;
-      // Rocket Loader mangles type="module" → "{uuid}-module".
-      // Re-inject as real module scripts so the browser executes them.
+
+      var srcs = [];
+
+      // Strategy 1: Rocket Loader kept the tag in DOM but changed the type.
+      // type="module" → type="{uuid}-module"  (still has src attribute)
       document.querySelectorAll('script[type$="-module"][src]').forEach(function (s) {
+        srcs.push(s.src);
+      });
+
+      // Strategy 2: Rocket Loader COMMENTED OUT the script tag entirely:
+      //   <!--<script type="{uuid}-module" src="..."></script>-->
+      // These are invisible to querySelectorAll, so we parse the raw HTML.
+      // We handle both attribute orderings (type-first or src-first).
+      var html = document.documentElement.innerHTML;
+      var reSrcFirst = /<!--<script\s[^>]*src="([^"]+)"[^>]*type="[^"]*-module"[^>]*>\s*<\/script>-->/g;
+      var reTypeFirst = /<!--<script\s[^>]*type="[^"]*-module"[^>]*src="([^"]+)"[^>]*>\s*<\/script>-->/g;
+      var m;
+      while ((m = reSrcFirst.exec(html)) !== null) { srcs.push(m[1]); }
+      while ((m = reTypeFirst.exec(html)) !== null) { srcs.push(m[1]); }
+
+      // Re-inject each found src as a real module script.
+      // Deduplicate first, then inject. Dynamically-created scripts bypass
+      // Rocket Loader entirely. Modules with the same URL are only executed
+      // once by the browser (cached), so re-injecting already-running scripts
+      // is safe.
+      var seen = {};
+      srcs.forEach(function (src) {
+        if (seen[src]) return;
+        seen[src] = true;
         var fix = document.createElement('script');
         fix.type = 'module';
-        fix.src = s.src;
+        fix.src = src;
         document.head.appendChild(fix);
       });
     }
