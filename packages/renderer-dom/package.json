@@ -52,7 +52,7 @@
     "@markdy/core": "workspace:*"
   },
   "devDependencies": {
-    "jsdom": "^26.0.0",
+    "jsdom": "^29.1.1",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "vitest": "^4.1.4"
