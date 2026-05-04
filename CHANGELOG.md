@@ -5,6 +5,12 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2] — 2026-05-04
+
+### Fixed
+- **Play button support** — Explicitly clicking the `▶ markdy` placeholder in `@markdy/astro` will now force the animation to play, overriding an `autoplay=false` dataset value.
+- **Interactive viewport** — Added a click listener to the `viewport` in `@markdy/renderer-dom` to let users easily toggle play/pause on the animation. If the animation has already ended, clicking it will seamlessly restart it from the beginning.
+
 ## [0.7.1] — 2026-05-04
 
 ### Fixed

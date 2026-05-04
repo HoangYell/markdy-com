@@ -472,6 +472,11 @@ const USAGE_MDX = `<span class="u-kw">import</span> { Markdy } <span class="u-kw
           <span>Preview</span>
           <div style="display:flex;align-items:center;gap:0.5rem;">
             <span id="status" class="status ok"></span>
+            <button id="play-btn" class="btn-share" title="Play / Pause" aria-label="Play">
+              <svg id="play-icon" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <svg id="pause-icon" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+              <span id="play-label">Play</span>
+            </button>
             <button id="share-btn" class="btn-share" title="Copy shareable link to clipboard" aria-label="Share">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
               Share
@@ -1036,11 +1041,24 @@ seq wave(arm, angle) {
   const stage     = document.getElementById("stage")      as HTMLDivElement;
   const runBtn    = document.getElementById("run-btn")    as HTMLButtonElement;
   const statusEl  = document.getElementById("status")     as HTMLSpanElement;
+  const playBtn   = document.getElementById("play-btn")   as HTMLButtonElement;
+  const playIcon  = document.getElementById("play-icon")  as SVGElement;
+  const pauseIcon = document.getElementById("pause-icon") as SVGElement;
+  const playLabel = document.getElementById("play-label") as HTMLSpanElement;
   const exBtns    = document.querySelectorAll<HTMLButtonElement>(".example-btn");
 
   let player: Player | null = null;
+  let isAnimPlaying = false;
   let debounce: ReturnType<typeof setTimeout> | null = null;
   let editorView: EditorView | null = null;
+
+  function setPlayState(playing: boolean) {
+    isAnimPlaying = playing;
+    playIcon.style.display  = playing ? "none"   : "";
+    pauseIcon.style.display = playing ? ""       : "none";
+    playLabel.textContent   = playing ? "Pause"  : "Play";
+    playBtn.setAttribute("aria-label", playing ? "Pause" : "Play");
+  }
 
   function isDarkMode(): boolean {
     return document.documentElement.getAttribute("data-theme") === "dark";
@@ -1113,6 +1131,7 @@ seq wave(arm, angle) {
     stage.innerHTML = "";
     try {
       player = createPlayer({ container: stage, code: adaptCodeToTheme(code), assets, autoplay: true, copyright: false });
+      setPlayState(true);
       setStatus(true);
       if ((window as any).Iconify) {
         (window as any).Iconify.scan(stage);
@@ -1122,6 +1141,7 @@ seq wave(arm, angle) {
       const msg = (e as Error).message ?? String(e);
       stage.innerHTML = `<p class="parse-error">${msg}</p>`;
       setStatus(false);
+      setPlayState(false);
     }
   }
 
@@ -1253,6 +1273,18 @@ seq wave(arm, angle) {
       createEditor(examples[idx]);
       render(examples[idx]);
     });
+  });
+
+  // Play / Pause button
+  playBtn.addEventListener("click", () => {
+    if (!player) return;
+    if (isAnimPlaying) {
+      player.pause();
+      setPlayState(false);
+    } else {
+      player.play();
+      setPlayState(true);
+    }
   });
 
   // Run button

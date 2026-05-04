@@ -88,20 +88,20 @@ const {
   <!--
     SSR placeholder: keeps layout stable before the island hydrates.
     Background matches the scene bg prop to avoid a visible flash.
-    aria-hidden because the parent role="img" aria-label carries the
-    accessible name — this inner text is decorative.
+    A <button> so it is keyboard-accessible and semantically interactive.
   -->
-  <div
+  <button
     class="markdy-placeholder"
-    aria-hidden="true"
-    style={`width:100%;height:100%;background:${bg};display:flex;align-items:center;justify-content:center;cursor:pointer`}
+    type="button"
+    aria-label={`Play ${title}`}
+    style={`width:100%;height:100%;background:${bg};display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;padding:0`}
   >
     <span
-      style="font-family:sans-serif;font-size:12px;color:#bbb;letter-spacing:0.05em"
+      style="font-family:sans-serif;font-size:12px;color:#bbb;letter-spacing:0.05em;pointer-events:none"
     >
       ▶ markdy
     </span>
-  </div>
+  </button>
 
   <!--
     noscript fallback: rendered for crawlers / users that do not run JS.
@@ -121,13 +121,59 @@ const {
   </noscript>
 </div>
 
+<script is:inline>
+  // ── Rocket Loader rescue ──────────────────────────────────────────────────
+  // Cloudflare Rocket Loader rewrites <script type="module" src="..."> to a
+  // proprietary type (e.g. "abc123-module") and then fails to execute them,
+  // which silently kills ALL hydration logic in this component.
+  //
+  // This inline script is NOT touched by Rocket Loader (no src, no type attr).
+  // It detects mangled module scripts by the Rocket Loader type pattern and
+  // re-injects them dynamically — dynamically-created scripts also bypass
+  // Rocket Loader entirely.
+  (function () {
+    if (window.__markdyRescue) return;
+    window.__markdyRescue = true;
+
+    var rescued = false;
+    function rescueModuleScripts() {
+      if (rescued) return;
+      rescued = true;
+      // Rocket Loader mangles type="module" → "{uuid}-module".
+      // Re-inject as real module scripts so the browser executes them.
+      document.querySelectorAll('script[type$="-module"][src]').forEach(function (s) {
+        var fix = document.createElement('script');
+        fix.type = 'module';
+        fix.src = s.src;
+        document.head.appendChild(fix);
+      });
+    }
+
+    // Rescue when user clicks the placeholder (fallback if autoplay failed).
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (t && typeof t.closest === 'function' && t.closest('.markdy-placeholder')) {
+        rescueModuleScripts();
+      }
+    });
+
+    // Rescue automatically after a short delay for autoplay.
+    // Only fires if initAll() never ran (no data-markdy-init on any root).
+    setTimeout(function () {
+      if (document.querySelector('.markdy-root:not([data-markdy-init])')) {
+        rescueModuleScripts();
+      }
+    }, 1500);
+  }());
+</script>
+
 <script>
   // ── Hydration ────────────────────────────────────────────────────────────
   // The renderer is dynamically imported so it is code-split from the
   // host-page bundle.  The browser only downloads it when an element is
   // about to enter the viewport, keeping Time-to-Interactive low.
 
-  async function hydrate(el: HTMLElement): Promise<void> {
+  async function hydrate(el: HTMLElement, forcePlay = false): Promise<void> {
     const code = el.dataset.markdyCode;
     if (!code) return;
 
@@ -141,7 +187,7 @@ const {
       // Leave assets empty on parse failure — renderer falls back to DSL paths.
     }
 
-    const autoplay = el.dataset.markdyAutoplay !== "false";
+    const autoplay = forcePlay || el.dataset.markdyAutoplay !== "false";
     const loop = el.dataset.markdyLoop !== "false";
     const copyright = el.dataset.markdyCopyright !== "false";
     const progressBar = el.dataset.markdyProgressBar !== "false";
@@ -209,11 +255,11 @@ const {
     { threshold: 0.25 },
   );
 
-  function doHydrate(el: HTMLElement): void {
+  function doHydrate(el: HTMLElement, forcePlay = false): void {
     observer.unobserve(el);
     el.dataset.markdyInit = "hydrating";
     scheduleHydration(() => {
-      hydrate(el).catch(() => {
+      hydrate(el, forcePlay).catch(() => {
         el.dataset.markdyInit = "error";
         el.removeAttribute("aria-busy");
       });
@@ -261,6 +307,6 @@ const {
     if (!root) return;
     const state = root.dataset.markdyInit;
     if (state === "done" || state === "hydrating") return;
-    doHydrate(root);
+    doHydrate(root, true);
   });
 </script>

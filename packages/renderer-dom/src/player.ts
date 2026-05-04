@@ -354,6 +354,18 @@ export function createPlayer(opts: PlayerOptions): Player {
     },
   };
 
+  viewport.style.cursor = "pointer";
+  viewport.addEventListener("click", () => {
+    if (isPlaying) {
+      player.pause();
+    } else {
+      if (!loop && sceneMs >= totalDurationMs) {
+        sceneMs = 0;
+      }
+      player.play();
+    }
+  });
+
   if (autoplay) player.play();
 
   return player;
