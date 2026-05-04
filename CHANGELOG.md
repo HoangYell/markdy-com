@@ -5,6 +5,12 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] — 2026-05-04
+
+### Fixed
+- **Click-to-play placeholder** — The `▶ markdy` SSR placeholder in `@markdy/astro` is now clickable. Clicking it immediately hydrates and starts the animation without waiting for the `IntersectionObserver` callback. `cursor: pointer` is also set on the placeholder to signal interactivity.
+- **Autoplay on first navigation** — Autoplay no longer requires a full page refresh (F5) when arriving from an external link. `IntersectionObserver` threshold lowered from `1.0` to `0.25`, and `initAll()` now proactively hydrates any `.markdy-root` element that is already inside the viewport at page-load time via `getBoundingClientRect()`, bypassing the observer entirely for those elements.
+
 ## [0.7.0] — 2026-04-20
 
 ### Added
