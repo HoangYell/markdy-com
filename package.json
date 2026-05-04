@@ -1,6 +1,6 @@
 {
   "name": "markdy",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "private": true,
   "description": "An open-source animation DSL engine. Write MarkdyScript, get animated scenes in the browser.",
   "license": "MIT",

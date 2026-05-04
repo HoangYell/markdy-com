@@ -1,6 +1,6 @@
 {
   "name": "@markdy/compat",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "private": true,
   "description": "Backwards-compatibility gate for MarkdyScript. Snapshots every fixture in packages/compat/fixtures with the current parser and diffs ASTs on every CI run.",
   "license": "MIT",
