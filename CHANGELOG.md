@@ -5,6 +5,14 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.5] — 2026-05-16
+
+### Fixed
+- **Rocket Loader autoplay backup trigger** — Added a true belt-and-suspenders rescue path in `@markdy/astro`: an `<img onerror>` inline event handler that re-injects every type-mangled module script as a fresh `type="module"` script with `data-cfasync="false"`. Inline event handlers are never rewritten by Rocket Loader, so this still fires when the primary `<script data-cfasync="false">` rescue gets rewritten and never executes. The handler is intentionally minimal — it only handles the common case (A) where Rocket Loader mangles `type="module"` — but that is enough to bootstrap Markdy hydration even when Cloudflare ignores the cfasync opt-out for the inline rescue script. Fixes the autoplay regression on heavily-Rocket-Loader-processed pages such as `/vi/five-days-five-years-apple-m5-kernel-exploit/`.
+
+### Internal
+- Inline rescue script now builds the comment- and script-tag-closing regex patterns from string parts using `\x3c`/`\x3e` escapes, so the literal HTML tokens `<!--`, `-->`, and `</script>` no longer appear in the source. This prevents Astro's JSX parser and the HTML parser from misinterpreting the regex literals.
+
 ## [0.7.4] — 2026-05-16
 
 ### Fixed
