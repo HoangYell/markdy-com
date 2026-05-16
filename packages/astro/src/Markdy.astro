@@ -121,7 +121,7 @@ const {
   </noscript>
 </div>
 
-<script is:inline>
+<script is:inline data-cfasync="false">
   // ── Rocket Loader rescue ──────────────────────────────────────────────────
   // Cloudflare Rocket Loader rewrites <script type="module" src="..."> in
   // one of two ways, both of which prevent the hydration logic from running:
@@ -131,8 +131,8 @@ const {
   //        <!--<script type="{uuid}-module" src="..."></script>-->
   //      making it invisible to querySelectorAll.
   //
-  // This inline script is NOT touched by Rocket Loader (no src, no type attr).
-  // It rescues module scripts via two strategies:
+  // `data-cfasync="false"` keeps this rescue script executable even when
+  // Rocket Loader is active. It rescues module scripts via two strategies:
   //   1. Query the DOM for type$="-module" + src (covers case A)
   //   2. Regex-parse the raw HTML for commented-out script tags (covers case B)
   // Dynamically-created scripts bypass Rocket Loader entirely.
@@ -176,6 +176,7 @@ const {
         var fix = document.createElement('script');
         fix.type = 'module';
         fix.src = src;
+        fix.setAttribute('data-cfasync', 'false');
         document.head.appendChild(fix);
       });
     }
