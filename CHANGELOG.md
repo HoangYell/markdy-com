@@ -5,6 +5,11 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.4] — 2026-05-16
+
+### Fixed
+- **Cloudflare Rocket Loader autoplay** — The `@markdy/astro` rescue script now opts out of Rocket Loader via `data-cfasync="false"` and re-injects rescued module scripts with the same opt-out. This keeps Markdy hydration executable on Rocket Loader pages where inline rescue scripts were being rewritten to a custom `*-text/javascript` type, fixing autoplay on Vietnamese article pages such as `/vi/five-days-five-years-apple-m5-kernel-exploit/`.
+
 ## [0.7.3] — 2026-05-04
 
 ### Fixed
