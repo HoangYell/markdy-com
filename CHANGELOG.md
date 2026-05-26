@@ -5,6 +5,12 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.6] — 2026-05-26
+
+### Internal
+- **Dependency bundle (May 2026)** — Consolidated 9 stale dependabot PRs into a single bundle (#22) and regenerated the workspace lockfile. No runtime changes to the published packages. Notable bumps: `jsdom` 26.1.0 → 29.1.1 (renderer-dom devDep, 3 major versions, all 14 renderer-dom tests still pass), `vitest` 4.1.4 → 4.1.7, `astro` 6.1.5 → 6.2.1, `@codemirror/view` 6.41.0 → 6.43.0, `@codemirror/search` 6.6.0 → 6.7.0, `@lezer/lr` 1.4.8 → 1.4.10, `wrangler` 4.81.1 → 4.94.0, `lighthouse` 13.1.0 → 13.2.0.
+- **CI** — Updated `softprops/action-gh-release` from v2 to v3 in the release workflow (#8).
+
 ## [0.7.5] — 2026-05-16
 
 ### Fixed
