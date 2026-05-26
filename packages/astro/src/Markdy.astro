@@ -88,20 +88,20 @@ const {
   <!--
     SSR placeholder: keeps layout stable before the island hydrates.
     Background matches the scene bg prop to avoid a visible flash.
-    aria-hidden because the parent role="img" aria-label carries the
-    accessible name — this inner text is decorative.
+    A <button> so it is keyboard-accessible and semantically interactive.
   -->
-  <div
+  <button
     class="markdy-placeholder"
-    aria-hidden="true"
-    style={`width:100%;height:100%;background:${bg};display:flex;align-items:center;justify-content:center`}
+    type="button"
+    aria-label={`Play ${title}`}
+    style={`width:100%;height:100%;background:${bg};display:flex;align-items:center;justify-content:center;cursor:pointer;border:none;padding:0`}
   >
     <span
-      style="font-family:sans-serif;font-size:12px;color:#bbb;letter-spacing:0.05em"
+      style="font-family:sans-serif;font-size:12px;color:#bbb;letter-spacing:0.05em;pointer-events:none"
     >
       ▶ markdy
     </span>
-  </div>
+  </button>
 
   <!--
     noscript fallback: rendered for crawlers / users that do not run JS.
@@ -121,13 +121,111 @@ const {
   </noscript>
 </div>
 
+<!--
+  Rocket Loader rescue. Cloudflare Rocket Loader rewrites module script
+  tags in two ways, both of which prevent hydration:
+   (A) changes type="module" to a uuid-prefixed value while keeping the tag,
+   (B) wraps the whole script tag in an HTML comment, making it invisible to
+       querySelectorAll.
+
+  Two independent triggers run, either of which is sufficient:
+
+    1. The inline script with data-cfasync="false" runs as authored when
+       Cloudflare honours the official cfasync opt-out (the documented
+       escape hatch; works almost always in practice).
+
+    2. The img with an onerror handler is a true belt-and-suspenders
+       backup. Inline event handlers are never rewritten by Rocket Loader,
+       so this still fires when the inline script gets rewritten and never
+       executes. The invalid base64 in the data URL guarantees that the
+       decode fails synchronously without any network round trip. The
+       handler covers case (A) only — it re-injects every rewritten
+       module script — which is enough to bootstrap Markdy hydration even
+       when the main rescue script never runs.
+-->
+<script is:inline data-cfasync="false">
+  (function () {
+    if (window.__markdyRescued) return;
+    window.__markdyRescued = true;
+
+    // Build regexes from string parts so the literal token sequences for
+    // opening/closing HTML comments and the closing script tag never appear
+    // in this file's source. The HTML parser and Astro's JSX parser would
+    // otherwise treat them as special and corrupt the surrounding markup.
+    var OPEN = '\x3c' + '!--';
+    var CLOSE = '--' + '\x3e';
+    var CLOSE_SCRIPT = '\x3c' + '/script' + '\x3e';
+
+    var rescued = false;
+    function rescueModuleScripts() {
+      if (rescued) return;
+      rescued = true;
+
+      var srcs = [];
+
+      // Case (A): Rocket Loader kept the tag in DOM but mangled the type.
+      document.querySelectorAll('script[type$="-module"][src]').forEach(function (s) {
+        srcs.push(s.src);
+      });
+
+      // Case (B): Rocket Loader commented out the entire script tag.
+      // These are invisible to querySelectorAll, so parse the raw HTML.
+      var html = document.documentElement.innerHTML;
+      var reSrcFirst = new RegExp(OPEN + '\x3cscript\\s[^>]*src="([^"]+)"[^>]*type="[^"]*-module"[^>]*>\\s*' + CLOSE_SCRIPT + CLOSE, 'g');
+      var reTypeFirst = new RegExp(OPEN + '\x3cscript\\s[^>]*type="[^"]*-module"[^>]*src="([^"]+)"[^>]*>\\s*' + CLOSE_SCRIPT + CLOSE, 'g');
+      var m;
+      while ((m = reSrcFirst.exec(html)) !== null) { srcs.push(m[1]); }
+      while ((m = reTypeFirst.exec(html)) !== null) { srcs.push(m[1]); }
+
+      // Re-inject each found src as a real module script. Dynamically-created
+      // scripts bypass Rocket Loader entirely; data-cfasync="false" is added
+      // as belt-and-suspenders. Modules with the same URL only execute once,
+      // so re-injecting an already-running script is safe.
+      var seen = {};
+      srcs.forEach(function (src) {
+        if (seen[src]) return;
+        seen[src] = true;
+        var fix = document.createElement('script');
+        fix.type = 'module';
+        fix.src = src;
+        fix.setAttribute('data-cfasync', 'false');
+        document.head.appendChild(fix);
+      });
+    }
+
+    // Rescue when user clicks the placeholder (fallback if autoplay failed).
+    document.addEventListener('click', function (e) {
+      var t = e.target;
+      if (t && typeof t.closest === 'function' && t.closest('.markdy-placeholder')) {
+        rescueModuleScripts();
+      }
+    });
+
+    // Rescue automatically after a short delay for autoplay.
+    // Only fires if initAll() never ran (no data-markdy-init on any root).
+    setTimeout(function () {
+      if (document.querySelector('.markdy-root:not([data-markdy-init])')) {
+        rescueModuleScripts();
+      }
+    }, 1500);
+  }());
+</script>
+
+<img
+  src="data:image/gif;base64,!"
+  alt=""
+  aria-hidden="true"
+  style="display:none"
+  onerror="if(!window.__markdyRescued){window.__markdyRescued=true;document.querySelectorAll('script[type$=&quot;-module&quot;][src]').forEach(function(s){var f=document.createElement('script');f.type='module';f.src=s.src;f.setAttribute('data-cfasync','false');document.head.appendChild(f);});}"
+/>
+
 <script>
   // ── Hydration ────────────────────────────────────────────────────────────
   // The renderer is dynamically imported so it is code-split from the
   // host-page bundle.  The browser only downloads it when an element is
   // about to enter the viewport, keeping Time-to-Interactive low.
 
-  async function hydrate(el: HTMLElement): Promise<void> {
+  async function hydrate(el: HTMLElement, forcePlay = false): Promise<void> {
     const code = el.dataset.markdyCode;
     if (!code) return;
 
@@ -141,7 +239,7 @@ const {
       // Leave assets empty on parse failure — renderer falls back to DSL paths.
     }
 
-    const autoplay = el.dataset.markdyAutoplay !== "false";
+    const autoplay = forcePlay || el.dataset.markdyAutoplay !== "false";
     const loop = el.dataset.markdyLoop !== "false";
     const copyright = el.dataset.markdyCopyright !== "false";
     const progressBar = el.dataset.markdyProgressBar !== "false";
@@ -183,10 +281,10 @@ const {
   }
 
   // ── Intersection observer ────────────────────────────────────────────────
-  // Observe every unhydrated .markdy-root element.  We use threshold: 1.0
-  // so hydration (and autoplay) only triggers once the element's bottom
-  // edge is fully inside the viewport — the animation is never started
-  // while partially cut off.
+  // threshold: 0.25 — trigger as soon as a quarter of the element is visible.
+  // We intentionally avoid threshold: 1.0 because it is unreliable: on first
+  // navigation (fresh link, no F5) the browser may not fire the callback when
+  // the element is very close to — but not fully inside — the viewport.
 
   const observer = new IntersectionObserver(
     (entries) => {
@@ -206,15 +304,40 @@ const {
         }
       }
     },
-    { threshold: 1.0 },
+    { threshold: 0.25 },
   );
+
+  function doHydrate(el: HTMLElement, forcePlay = false): void {
+    observer.unobserve(el);
+    el.dataset.markdyInit = "hydrating";
+    scheduleHydration(() => {
+      hydrate(el, forcePlay).catch(() => {
+        el.dataset.markdyInit = "error";
+        el.removeAttribute("aria-busy");
+      });
+    });
+  }
 
   function initAll(): void {
     document
       .querySelectorAll<HTMLElement>(".markdy-root:not([data-markdy-init])")
       .forEach((el) => {
         el.dataset.markdyInit = "pending";
-        observer.observe(el);
+        // Proactively hydrate elements already in the viewport so we never
+        // depend on the observer firing for elements visible at page load.
+        // This fixes autoplay on first navigation from an external site where
+        // IntersectionObserver callbacks may be delayed or skipped.
+        const rect = el.getBoundingClientRect();
+        const inViewport =
+          rect.bottom > 0 &&
+          rect.right > 0 &&
+          rect.top < (window.innerHeight || document.documentElement.clientHeight) &&
+          rect.left < (window.innerWidth || document.documentElement.clientWidth);
+        if (inViewport) {
+          doHydrate(el);
+        } else {
+          observer.observe(el);
+        }
       });
   }
 
@@ -227,4 +350,15 @@ const {
 
   // Re-run after Astro View Transitions / client-side navigation.
   document.addEventListener("astro:page-load", initAll);
+
+  // Click on placeholder to play immediately without waiting for full visibility.
+  document.addEventListener("click", (e) => {
+    const placeholder = (e.target as Element).closest(".markdy-placeholder");
+    if (!placeholder) return;
+    const root = placeholder.closest<HTMLElement>(".markdy-root");
+    if (!root) return;
+    const state = root.dataset.markdyInit;
+    if (state === "done" || state === "hydrating") return;
+    doHydrate(root, true);
+  });
 </script>

@@ -5,6 +5,36 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.5] — 2026-05-16
+
+### Fixed
+- **Rocket Loader autoplay backup trigger** — Added a true belt-and-suspenders rescue path in `@markdy/astro`: an `<img onerror>` inline event handler that re-injects every type-mangled module script as a fresh `type="module"` script with `data-cfasync="false"`. Inline event handlers are never rewritten by Rocket Loader, so this still fires when the primary `<script data-cfasync="false">` rescue gets rewritten and never executes. The handler is intentionally minimal — it only handles the common case (A) where Rocket Loader mangles `type="module"` — but that is enough to bootstrap Markdy hydration even when Cloudflare ignores the cfasync opt-out for the inline rescue script. Fixes the autoplay regression on heavily-Rocket-Loader-processed pages such as `/vi/five-days-five-years-apple-m5-kernel-exploit/`.
+
+### Internal
+- Inline rescue script now builds the comment- and script-tag-closing regex patterns from string parts using `\x3c`/`\x3e` escapes, so the literal HTML tokens `<!--`, `-->`, and `</script>` no longer appear in the source. This prevents Astro's JSX parser and the HTML parser from misinterpreting the regex literals.
+
+## [0.7.4] — 2026-05-16
+
+### Fixed
+- **Cloudflare Rocket Loader autoplay** — The `@markdy/astro` rescue script now opts out of Rocket Loader via `data-cfasync="false"` and re-injects rescued module scripts with the same opt-out. This keeps Markdy hydration executable on Rocket Loader pages where inline rescue scripts were being rewritten to a custom `*-text/javascript` type, fixing autoplay on Vietnamese article pages such as `/vi/five-days-five-years-apple-m5-kernel-exploit/`.
+
+## [0.7.3] — 2026-05-04
+
+### Fixed
+- **Rocket Loader commented-out scripts** — Cloudflare Rocket Loader sometimes wraps `<script type="module" src="...">` in an HTML comment (`<!--<script ...></script>-->`) instead of just mangling the `type` attribute. The existing rescue logic only queried the live DOM for `script[type$="-module"][src]`, which is invisible when the tag is inside a comment. The rescue script in `@markdy/astro` now also parses `document.documentElement.innerHTML` as a raw string to find and re-inject commented-out module scripts, fixing both autoplay and click-to-play on sites with Rocket Loader enabled.
+
+## [0.7.2] — 2026-05-04
+
+### Fixed
+- **Play button support** — Explicitly clicking the `▶ markdy` placeholder in `@markdy/astro` will now force the animation to play, overriding an `autoplay=false` dataset value.
+- **Interactive viewport** — Added a click listener to the `viewport` in `@markdy/renderer-dom` to let users easily toggle play/pause on the animation. If the animation has already ended, clicking it will seamlessly restart it from the beginning.
+
+## [0.7.1] — 2026-05-04
+
+### Fixed
+- **Click-to-play placeholder** — The `▶ markdy` SSR placeholder in `@markdy/astro` is now clickable. Clicking it immediately hydrates and starts the animation without waiting for the `IntersectionObserver` callback. `cursor: pointer` is also set on the placeholder to signal interactivity.
+- **Autoplay on first navigation** — Autoplay no longer requires a full page refresh (F5) when arriving from an external link. `IntersectionObserver` threshold lowered from `1.0` to `0.25`, and `initAll()` now proactively hydrates any `.markdy-root` element that is already inside the viewport at page-load time via `getBoundingClientRect()`, bypassing the observer entirely for those elements.
+
 ## [0.7.0] — 2026-04-20
 
 ### Added
