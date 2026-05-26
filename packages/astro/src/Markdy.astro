@@ -121,24 +121,40 @@ const {
   </noscript>
 </div>
 
+<!--
+  Rocket Loader rescue. Cloudflare Rocket Loader rewrites module script
+  tags in two ways, both of which prevent hydration:
+   (A) changes type="module" to a uuid-prefixed value while keeping the tag,
+   (B) wraps the whole script tag in an HTML comment, making it invisible to
+       querySelectorAll.
+
+  Two independent triggers run, either of which is sufficient:
+
+    1. The inline script with data-cfasync="false" runs as authored when
+       Cloudflare honours the official cfasync opt-out (the documented
+       escape hatch; works almost always in practice).
+
+    2. The img with an onerror handler is a true belt-and-suspenders
+       backup. Inline event handlers are never rewritten by Rocket Loader,
+       so this still fires when the inline script gets rewritten and never
+       executes. The invalid base64 in the data URL guarantees that the
+       decode fails synchronously without any network round trip. The
+       handler covers case (A) only — it re-injects every rewritten
+       module script — which is enough to bootstrap Markdy hydration even
+       when the main rescue script never runs.
+-->
 <script is:inline data-cfasync="false">
-  // ── Rocket Loader rescue ──────────────────────────────────────────────────
-  // Cloudflare Rocket Loader rewrites <script type="module" src="..."> in
-  // one of two ways, both of which prevent the hydration logic from running:
-  //
-  //   A) Changes type="module" → type="{uuid}-module"  (keeps tag in DOM)
-  //   B) Wraps the entire tag in an HTML comment:
-  //        <!--<script type="{uuid}-module" src="..."></script>-->
-  //      making it invisible to querySelectorAll.
-  //
-  // `data-cfasync="false"` keeps this rescue script executable even when
-  // Rocket Loader is active. It rescues module scripts via two strategies:
-  //   1. Query the DOM for type$="-module" + src (covers case A)
-  //   2. Regex-parse the raw HTML for commented-out script tags (covers case B)
-  // Dynamically-created scripts bypass Rocket Loader entirely.
   (function () {
-    if (window.__markdyRescue) return;
-    window.__markdyRescue = true;
+    if (window.__markdyRescued) return;
+    window.__markdyRescued = true;
+
+    // Build regexes from string parts so the literal token sequences for
+    // opening/closing HTML comments and the closing script tag never appear
+    // in this file's source. The HTML parser and Astro's JSX parser would
+    // otherwise treat them as special and corrupt the surrounding markup.
+    var OPEN = '\x3c' + '!--';
+    var CLOSE = '--' + '\x3e';
+    var CLOSE_SCRIPT = '\x3c' + '/script' + '\x3e';
 
     var rescued = false;
     function rescueModuleScripts() {
@@ -147,28 +163,24 @@ const {
 
       var srcs = [];
 
-      // Strategy 1: Rocket Loader kept the tag in DOM but changed the type.
-      // type="module" → type="{uuid}-module"  (still has src attribute)
+      // Case (A): Rocket Loader kept the tag in DOM but mangled the type.
       document.querySelectorAll('script[type$="-module"][src]').forEach(function (s) {
         srcs.push(s.src);
       });
 
-      // Strategy 2: Rocket Loader COMMENTED OUT the script tag entirely:
-      //   <!--<script type="{uuid}-module" src="..."></script>-->
-      // These are invisible to querySelectorAll, so we parse the raw HTML.
-      // We handle both attribute orderings (type-first or src-first).
+      // Case (B): Rocket Loader commented out the entire script tag.
+      // These are invisible to querySelectorAll, so parse the raw HTML.
       var html = document.documentElement.innerHTML;
-      var reSrcFirst = /<!--<script\s[^>]*src="([^"]+)"[^>]*type="[^"]*-module"[^>]*>\s*<\/script>-->/g;
-      var reTypeFirst = /<!--<script\s[^>]*type="[^"]*-module"[^>]*src="([^"]+)"[^>]*>\s*<\/script>-->/g;
+      var reSrcFirst = new RegExp(OPEN + '\x3cscript\\s[^>]*src="([^"]+)"[^>]*type="[^"]*-module"[^>]*>\\s*' + CLOSE_SCRIPT + CLOSE, 'g');
+      var reTypeFirst = new RegExp(OPEN + '\x3cscript\\s[^>]*type="[^"]*-module"[^>]*src="([^"]+)"[^>]*>\\s*' + CLOSE_SCRIPT + CLOSE, 'g');
       var m;
       while ((m = reSrcFirst.exec(html)) !== null) { srcs.push(m[1]); }
       while ((m = reTypeFirst.exec(html)) !== null) { srcs.push(m[1]); }
 
-      // Re-inject each found src as a real module script.
-      // Deduplicate first, then inject. Dynamically-created scripts bypass
-      // Rocket Loader entirely. Modules with the same URL are only executed
-      // once by the browser (cached), so re-injecting already-running scripts
-      // is safe.
+      // Re-inject each found src as a real module script. Dynamically-created
+      // scripts bypass Rocket Loader entirely; data-cfasync="false" is added
+      // as belt-and-suspenders. Modules with the same URL only execute once,
+      // so re-injecting an already-running script is safe.
       var seen = {};
       srcs.forEach(function (src) {
         if (seen[src]) return;
@@ -198,6 +210,14 @@ const {
     }, 1500);
   }());
 </script>
+
+<img
+  src="data:image/gif;base64,!"
+  alt=""
+  aria-hidden="true"
+  style="display:none"
+  onerror="if(!window.__markdyRescued){window.__markdyRescued=true;document.querySelectorAll('script[type$=&quot;-module&quot;][src]').forEach(function(s){var f=document.createElement('script');f.type='module';f.src=s.src;f.setAttribute('data-cfasync','false');document.head.appendChild(f);});}"
+/>
 
 <script>
   // ── Hydration ────────────────────────────────────────────────────────────
