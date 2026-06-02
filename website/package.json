@@ -25,7 +25,7 @@
     "@markdy/astro": "workspace:*",
     "@markdy/core": "workspace:*",
     "@markdy/renderer-dom": "workspace:*",
-    "@astrojs/sitemap": "^3.1.6",
+    "@astrojs/sitemap": "^3.7.3",
     "astro": "^6.2.1"
   }
 }
