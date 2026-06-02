@@ -43,7 +43,7 @@
     "astro": ">=4.0.0"
   },
   "devDependencies": {
-    "astro": "^6.1.5",
+    "astro": "^6.4.3",
     "typescript": "^5.9.3"
   }
 }
