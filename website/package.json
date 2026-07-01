@@ -14,7 +14,7 @@
     "wrangler": "^4.94.0"
   },
   "dependencies": {
-    "@codemirror/autocomplete": "^6.20.1",
+    "@codemirror/autocomplete": "^6.20.3",
     "@codemirror/commands": "^6.10.3",
     "@codemirror/language": "^6.12.3",
     "@codemirror/search": "^6.7.0",
