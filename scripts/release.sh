@@ -66,8 +66,7 @@ git switch -C "$RELEASE_BRANCH"
 if [ -n "$(git status --porcelain)" ]; then
   echo "🧾 Committing pending code changes before version bump..."
   git add -A
-  git commit -m "chore: prepare release $TAG" \
-    -m "Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+  git commit -m "chore: prepare release $TAG"
 fi
 
 echo "📦 Bumping versions to $VERSION"
@@ -94,8 +93,7 @@ if [ -z "$(git diff --cached --name-only)" ]; then
   echo "❌ No staged changes for release commit."
   exit 1
 fi
-git commit -m "chore: release $TAG" \
-  -m "Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+git commit -m "chore: release $TAG"
 
 echo "☁️ Pushing release branch"
 git push -u origin "$RELEASE_BRANCH"

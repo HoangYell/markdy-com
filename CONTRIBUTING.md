@@ -24,6 +24,8 @@ packages/
   core/            @markdy/core         — Parser, AST types (zero deps)
   renderer-dom/    @markdy/renderer-dom — Web Animations API renderer
   astro/           @markdy/astro        — <Markdy /> Astro island
+  stdlib-systems/  @markdy/stdlib-systems — System actor/action pack
+  markdy-language-server/ markdy-language-server — Shared LSP server
 examples/
 website/             Official markdy.com website
 docs/
