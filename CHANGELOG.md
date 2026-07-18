@@ -5,6 +5,12 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.12] — 2026-07-18
+
+### Improved
+- **System edge routing quality** — Upgraded `request` / `response` / `emit` flow rendering to obstacle-aware orthogonal/elbow routing in `@markdy/renderer-dom`, reducing line overlap with intermediate actors in dense scenes.
+- **Dense-scene coverage** — Added renderer tests for 3-actor, 5-actor, and 10-actor system layouts plus fire-and-forget dashed-edge behavior verification.
+
 ## [0.7.11] — 2026-07-18
 
 ### Added

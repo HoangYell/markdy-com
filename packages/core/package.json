@@ -1,6 +1,6 @@
 {
   "name": "@markdy/core",
-  "version": "0.7.11",
+  "version": "0.7.12",
   "description": "MarkdyScript parser and AST types — zero runtime dependencies.",
   "license": "MIT",
   "type": "module",
