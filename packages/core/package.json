@@ -1,6 +1,6 @@
 {
   "name": "@markdy/core",
-  "version": "0.7.6",
+  "version": "0.7.7",
   "description": "MarkdyScript parser and AST types — zero runtime dependencies.",
   "license": "MIT",
   "type": "module",
@@ -26,7 +26,7 @@
     "parser",
     "ast",
     "declarative-animation",
-    "mermaid-alternative",
+    "text-to-motion",
     "markdown-animation"
   ],
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
