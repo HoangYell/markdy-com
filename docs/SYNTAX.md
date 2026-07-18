@@ -29,6 +29,18 @@ scene width=1024 height=576 fps=60 bg=#1a1a2e
 
 ---
 
+## String literals and escaping
+
+Markdy supports both double-quoted (`"..."`) and single-quoted (`'...'`) string literals.
+
+- Use `\"` or `\'` to include quote characters inside strings.
+- Use `\\` for a literal backslash.
+- `\n`, `\r`, and `\t` are supported.
+- `#` inside quoted strings is treated as text, not a comment.
+- Commas inside quoted strings do not split argument lists.
+
+---
+
 ## Asset declarations
 
 ```markdy

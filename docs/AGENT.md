@@ -30,7 +30,7 @@ statement      = var_decl | scene_decl | asset_decl | actor_decl
 
 var_decl       = "var" IDENT "=" REST_OF_LINE
 scene_decl     = "scene" (IDENT "=" VALUE)*
-asset_decl     = "asset" IDENT "=" ("image" | "icon") "(" QUOTED ")"
+asset_decl     = "asset" IDENT "=" ("image" | "icon") "(" STRING ")"
 actor_decl     = "actor" IDENT "=" TYPE "(" ARGS? ")" POSITION TRAILER?
 position       = "at" "(" NUM "," NUM ")"             # any actor type
                | "at" ANCHOR                          # caption actors only
@@ -53,19 +53,22 @@ seq_block      = "seq" IDENT ("(" PARAM_LIST? ")")? "{" NEWLINE
                  "}"
 seq_event      = "@+" NUM ":" "$." BANG? ACTION "(" PARAMS? ")"
 
-chapter_block  = "scene" QUOTED "{" NEWLINE
+chapter_block  = "scene" STRING "{" NEWLINE
                    (event | blank | comment)*
                  "}"
 
-import_decl    = "import" QUOTED "as" IDENT
+import_decl    = "import" STRING "as" IDENT
 preset_call    = "preset" IDENT "(" ARGS? ")"          # must be sole top-level content
 
 PARAMS         = PARAM ("," PARAM)*
 PARAM          = VALUE                           # positional
                | IDENT "=" VALUE                  # named
-VALUE          = QUOTED | NUM | TUPLE | DOTTED_IDENT
+VALUE          = STRING | NUM | TUPLE | DOTTED_IDENT
 TUPLE          = "(" NUM "," NUM ")"
-QUOTED         = '"' [^"]* '"'
+STRING         = DQUOTE_STRING | SQUOTE_STRING
+DQUOTE_STRING  = '"' ( ESC | [^"\\] )* '"'
+SQUOTE_STRING  = "'" ( ESC | [^'\\] )* "'"
+ESC            = "\\" ( "\"" | "'" | "\\" | "n" | "r" | "t" )
 NUM            = [0-9]+ ("." [0-9]+)?
 IDENT          = [a-zA-Z_][a-zA-Z0-9_]*
 DOTTED_IDENT   = IDENT ("." IDENT)*                    # allows ns-scoped refs
@@ -89,7 +92,15 @@ var <name> = <value>
 
 - Parsed **before** comment stripping (safe for `#hex` colours)
 - Substituted everywhere via `${name}`
+- Also supports MDX `String.raw` form `\${name}`
 - Forward references are invalid — declare before use
+
+### String literals
+
+- Both `"double-quoted"` and `'single-quoted'` strings are valid.
+- Supported escapes: `\"`, `\'`, `\\`, `\n`, `\r`, `\t`.
+- `#` inside a quoted string is literal text, not a comment.
+- Commas inside quoted strings do not split args/params.
 
 ### `scene` — Scene Configuration
 
@@ -146,10 +157,10 @@ actor <name> = caption("<text>") at top | bottom | center
 | Type | Arguments | Notes |
 |---|---|---|
 | `sprite` | `assetName` | References a declared asset |
-| `text` | `"quoted string"` | Renders text label |
+| `text` | string literal | Renders text label |
 | `box` | *(none)* | 100×100 grey box |
 | `figure` | `skinColor [, gender [, face]]` | Emoji stick figure |
-| `caption` | `"quoted string"` | Auto-centered overlay text; see anchor syntax below |
+| `caption` | string literal | Auto-centered overlay text; see anchor syntax below |
 
 The actor name `camera` is **reserved**. Never declare `actor camera = ...` — reference `camera.pan`, `camera.zoom`, `camera.shake` directly in events.
 
@@ -582,7 +593,9 @@ Other ready-to-use preset names: `explainer`, `reaction`, `pov`, `chat_bubble`, 
 | Using `#comment` inside `var` value | `var` lines skip comment stripping — `#hex` is safe |
 | Referencing actor before declaration | Move `actor` line above the `@time` event |
 | Using `punch`/`kick`/`face`/`jump`/`bounce` on non-figure | These only work on `figure` actors |
-| Missing quotes on `say` text | `say("text")` — text must be quoted |
+| Missing quotes on `say` text | `say("text")` or `say('text')` |
+| Quote conflicts inside strings | Escape inner quote: `\"` or `\'` |
+| Windows/file paths lose backslashes | Escape slashes: `"C:\\\\work\\\\scene"` |
 | Forgetting `$` in seq body | Use `$` not the actor name: `@+0.0: $.action(...)` |
 | Using absolute `@time` in seq | Use relative `@+offset` inside seq blocks |
 | Putting multiple statements on one line | One statement per line |
