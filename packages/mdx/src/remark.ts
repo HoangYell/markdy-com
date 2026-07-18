@@ -3,15 +3,10 @@ import { visit } from "unist-util-visit";
 
 type MetaValue = string | number | boolean;
 
-type MdxAttributeValueExpression = {
-  type: "mdxJsxAttributeValueExpression";
-  value: string;
-};
-
 type MdxAttribute = {
   type: "mdxJsxAttribute";
   name: string;
-  value?: string | MdxAttributeValueExpression;
+  value?: string;
 };
 
 type MdxJsxFlowElement = {
@@ -71,10 +66,7 @@ function toAttribute(name: string, value: MetaValue): MdxAttribute {
   return {
     type: "mdxJsxAttribute",
     name,
-    value: {
-      type: "mdxJsxAttributeValueExpression",
-      value: JSON.stringify(value),
-    },
+    value: String(value),
   };
 }
 
@@ -82,10 +74,7 @@ function toCodeAttribute(code: string): MdxAttribute {
   return {
     type: "mdxJsxAttribute",
     name: "code",
-    value: {
-      type: "mdxJsxAttributeValueExpression",
-      value: JSON.stringify(code),
-    },
+    value: code,
   };
 }
 
