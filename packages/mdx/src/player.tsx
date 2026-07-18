@@ -16,14 +16,14 @@ type CreatePlayerInput = {
 
 export type MarkdyPlayerProps = {
   code: string;
-  width?: number;
-  height?: number;
+  width?: number | string;
+  height?: number | string;
   bg?: string;
   assets?: Record<string, string>;
-  autoplay?: boolean;
-  loop?: boolean;
-  copyright?: boolean;
-  progressBar?: boolean;
+  autoplay?: boolean | string;
+  loop?: boolean | string;
+  copyright?: boolean | string;
+  progressBar?: boolean | string;
   className?: string;
   title?: string;
   description?: string;
@@ -44,6 +44,24 @@ function scheduleBackgroundTask(work: () => void): void {
   }
 
   globalThis.setTimeout(work, 0);
+};
+
+function coerceBoolean(value: boolean | string | undefined, fallback: boolean): boolean {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "string") {
+    if (value.toLowerCase() === "true") return true;
+    if (value.toLowerCase() === "false") return false;
+  }
+  return fallback;
+}
+
+function coerceNumber(value: number | string | undefined, fallback: number): number {
+  if (typeof value === "number") return value;
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    if (!Number.isNaN(parsed)) return parsed;
+  }
+  return fallback;
 }
 
 export function MarkdyPlayer({
@@ -60,6 +78,13 @@ export function MarkdyPlayer({
   title = "Markdy animation",
   description,
 }: MarkdyPlayerProps) {
+  const resolvedWidth = coerceNumber(width, 800);
+  const resolvedHeight = coerceNumber(height, 400);
+  const resolvedAutoplay = coerceBoolean(autoplay, false);
+  const resolvedLoop = coerceBoolean(loop, false);
+  const resolvedCopyright = coerceBoolean(copyright, false);
+  const resolvedProgressBar = coerceBoolean(progressBar, false);
+
   const rootRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<PlayerInstance | null>(null);
   const hydratedRef = useRef(false);
@@ -87,10 +112,10 @@ export function MarkdyPlayer({
               container: root,
               code,
               assets,
-              autoplay: forceAutoplay || autoplay,
-              loop,
-              copyright,
-              progressBar,
+              autoplay: forceAutoplay || resolvedAutoplay,
+              loop: resolvedLoop,
+              copyright: resolvedCopyright,
+              progressBar: resolvedProgressBar,
             });
             root.dataset.markdyInit = "done";
             root.removeAttribute("aria-busy");
@@ -135,7 +160,7 @@ export function MarkdyPlayer({
       playerRef.current?.destroy();
       playerRef.current = null;
     };
-  }, [assets, autoplay, code, copyright, loop, progressBar]);
+  }, [assets, code, resolvedAutoplay, resolvedCopyright, resolvedLoop, resolvedProgressBar]);
 
   return (
     <div
@@ -147,7 +172,7 @@ export function MarkdyPlayer({
       style={{
         maxWidth: `${width}px`,
         width: "100%",
-        aspectRatio: `${width}/${height}`,
+        aspectRatio: `${resolvedWidth}/${resolvedHeight}`,
         overflow: "hidden",
       }}
     >
