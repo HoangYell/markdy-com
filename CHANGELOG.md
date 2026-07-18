@@ -5,6 +5,20 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.7] — 2026-07-18
+
+### Changed
+- **Clearer product positioning** — Updated core messaging across the repository and website to describe Markdy as a **text-to-motion animation DSL** and explicitly clarify that it is not a static diagram generator.
+- **Landing page copy refresh** — Updated homepage title, hero, footer tagline, and SEO metadata to reduce Mermaid-style diagram confusion and set expectations earlier.
+- **Package discoverability** — Replaced the `mermaid-alternative` keyword with `text-to-motion` in root and `@markdy/core` package metadata.
+
+### Community
+- **Discussions path fixed** — Enabled GitHub Discussions and updated issue template guidance to route usage questions to Discussions Q&A.
+- **Issue follow-up** — Replied on issue #33 with clarification and the new Discussions link.
+
+### Internal
+- **Release template wording** — Updated GitHub release workflow body copy to match the new text-to-motion positioning.
+
 ## [0.7.6] — 2026-05-26
 
 ### Internal

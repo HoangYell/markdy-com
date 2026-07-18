@@ -62,7 +62,7 @@ jobs:
           body: |
             ## 🎬 Markdy ${{ github.ref_name }}
 
-            **Animation DSL engine — Like Mermaid, but for motion.**
+            **Open-source text-to-motion animation DSL engine.**
 
             ### Packages
 
