@@ -287,6 +287,9 @@ const FLOW_STROKE_BY_ACTION: Record<string, string> = {
   emit: "#f59e0b",
 };
 
+type Point = { x: number; y: number };
+type Rect = { x1: number; y1: number; x2: number; y2: number };
+
 function actorSizeByType(type: string): { width: number; height: number } {
   switch (type) {
     case "service":
@@ -313,6 +316,156 @@ function actorCenter(state: ActorState, actorType: string): { x: number; y: numb
   };
 }
 
+function actorRect(state: ActorState, actorType: string): Rect {
+  const { width, height } = actorSizeByType(actorType);
+  return {
+    x1: state.x,
+    y1: state.y,
+    x2: state.x + width,
+    y2: state.y + height,
+  };
+}
+
+function inflateRect(rect: Rect, pad: number): Rect {
+  return {
+    x1: rect.x1 - pad,
+    y1: rect.y1 - pad,
+    x2: rect.x2 + pad,
+    y2: rect.y2 + pad,
+  };
+}
+
+function segmentIntersectsRect(a: Point, b: Point, rect: Rect): boolean {
+  const minX = Math.min(a.x, b.x);
+  const maxX = Math.max(a.x, b.x);
+  const minY = Math.min(a.y, b.y);
+  const maxY = Math.max(a.y, b.y);
+  const horizontal = Math.abs(a.y - b.y) < 0.001;
+  const vertical = Math.abs(a.x - b.x) < 0.001;
+
+  if (horizontal) {
+    const yHit = a.y > rect.y1 && a.y < rect.y2;
+    const xOverlap = maxX > rect.x1 && minX < rect.x2;
+    return yHit && xOverlap;
+  }
+  if (vertical) {
+    const xHit = a.x > rect.x1 && a.x < rect.x2;
+    const yOverlap = maxY > rect.y1 && minY < rect.y2;
+    return xHit && yOverlap;
+  }
+  return false;
+}
+
+function countPathIntersections(points: Point[], obstacles: Rect[]): number {
+  let hits = 0;
+  for (let i = 0; i < points.length - 1; i++) {
+    for (const obstacle of obstacles) {
+      if (segmentIntersectsRect(points[i], points[i + 1], obstacle)) hits++;
+    }
+  }
+  return hits;
+}
+
+function toPathD(points: Point[]): string {
+  return points
+    .map((p, i) => `${i === 0 ? "M" : "L"} ${round1(p.x)} ${round1(p.y)}`)
+    .join(" ");
+}
+
+function round1(n: number): number {
+  return Math.round(n * 10) / 10;
+}
+
+function polylineLength(points: Point[]): number {
+  let total = 0;
+  for (let i = 0; i < points.length - 1; i++) {
+    total += Math.hypot(points[i + 1].x - points[i].x, points[i + 1].y - points[i].y);
+  }
+  return Math.max(1, total);
+}
+
+function pointAtDistance(points: Point[], dist: number): Point {
+  let remain = dist;
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[i];
+    const b = points[i + 1];
+    const seg = Math.hypot(b.x - a.x, b.y - a.y);
+    if (remain <= seg || i === points.length - 2) {
+      const t = seg <= 0 ? 0 : remain / seg;
+      return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+    }
+    remain -= seg;
+  }
+  return points[0];
+}
+
+function routeFlowPath(
+  sourceName: string,
+  targetName: string,
+  sourceState: ActorState,
+  targetState: ActorState,
+  states: Map<string, ActorState>,
+  ast: SceneAST,
+  lane: number,
+): Point[] {
+  const sourceRect = actorRect(sourceState, ast.actors[sourceName]?.type ?? "box");
+  const targetRect = actorRect(targetState, ast.actors[targetName]?.type ?? "box");
+  const laneShift = lane * 18;
+
+  const sourceCenter = actorCenter(sourceState, ast.actors[sourceName]?.type ?? "box");
+  const targetCenter = actorCenter(targetState, ast.actors[targetName]?.type ?? "box");
+  const horizontalPrimary = Math.abs(targetCenter.x - sourceCenter.x) >= Math.abs(targetCenter.y - sourceCenter.y);
+
+  const source: Point = horizontalPrimary
+    ? { x: targetCenter.x >= sourceCenter.x ? sourceRect.x2 : sourceRect.x1, y: sourceCenter.y }
+    : { x: sourceCenter.x, y: targetCenter.y >= sourceCenter.y ? sourceRect.y2 : sourceRect.y1 };
+
+  const target: Point = horizontalPrimary
+    ? { x: targetCenter.x >= sourceCenter.x ? targetRect.x1 : targetRect.x2, y: targetCenter.y }
+    : { x: targetCenter.x, y: targetCenter.y >= sourceCenter.y ? targetRect.y1 : targetRect.y2 };
+
+  const obstacles: Rect[] = [];
+  for (const [name, state] of states.entries()) {
+    if (name === sourceName || name === targetName) continue;
+    const type = ast.actors[name]?.type ?? "box";
+    obstacles.push(inflateRect(actorRect(state, type), 8));
+  }
+
+  const candidates: Point[][] = [];
+  if (Math.abs(source.y - target.y) < 0.001 || Math.abs(source.x - target.x) < 0.001) {
+    candidates.push([source, target]);
+  }
+
+  const midX = round1((source.x + target.x) / 2 + laneShift);
+  const midY = round1((source.y + target.y) / 2 + laneShift);
+
+  candidates.push(
+    [source, { x: midX, y: source.y }, { x: midX, y: target.y }, target],
+    [source, { x: source.x, y: midY }, { x: target.x, y: midY }, target],
+  );
+
+  const minObstacleY = obstacles.length ? Math.min(...obstacles.map((o) => o.y1)) : Math.min(source.y, target.y);
+  const maxObstacleY = obstacles.length ? Math.max(...obstacles.map((o) => o.y2)) : Math.max(source.y, target.y);
+  const topLane = Math.max(16, minObstacleY - 24 - lane * 12);
+  const bottomLane = Math.min(ast.meta.height - 16, maxObstacleY + 24 + lane * 12);
+  candidates.push(
+    [source, { x: source.x, y: topLane }, { x: target.x, y: topLane }, target],
+    [source, { x: source.x, y: bottomLane }, { x: target.x, y: bottomLane }, target],
+  );
+
+  let best = candidates[0];
+  let bestHits = Number.POSITIVE_INFINITY;
+  for (const candidate of candidates) {
+    const hits = countPathIntersections(candidate, obstacles);
+    if (hits < bestHits) {
+      best = candidate;
+      bestHits = hits;
+      if (hits === 0) break;
+    }
+  }
+  return best;
+}
+
 function ensureEdgeLayer(scene: HTMLElement): SVGSVGElement {
   const existing = scene.querySelector<SVGSVGElement>("svg[data-markdy-edge-layer='1']");
   if (existing) return existing;
@@ -333,10 +486,13 @@ function ensureEdgeLayer(scene: HTMLElement): SVGSVGElement {
 
 function renderFlowEdge(
   ev: TimelineEvent,
+  sourceName: string,
+  targetName: string,
   sourceState: ActorState,
   targetState: ActorState,
-  sourceType: string,
-  targetType: string,
+  states: Map<string, ActorState>,
+  ast: SceneAST,
+  lane: number,
   scene: HTMLElement,
   baseOpts: KeyframeAnimationOptions,
   anims: Animation[],
@@ -344,15 +500,18 @@ function renderFlowEdge(
   const styleToken = String(ev.params.style ?? "");
   const isDashed = styleToken === "dashed" || styleToken === "fire_and_forget" || ev.action === "response";
   const stroke = FLOW_STROKE_BY_ACTION[ev.action] ?? "#38bdf8";
-
-  const source = actorCenter(sourceState, sourceType);
-  const target = actorCenter(targetState, targetType);
-  const dx = target.x - source.x;
-  const dy = target.y - source.y;
-  const length = Math.max(1, Math.hypot(dx, dy));
-  const mx = source.x + dx / 2;
-  const my = source.y + dy / 2;
-  const pathD = `M ${source.x} ${source.y} L ${target.x} ${target.y}`;
+  const points = routeFlowPath(
+    sourceName,
+    targetName,
+    sourceState,
+    targetState,
+    states,
+    ast,
+    lane,
+  );
+  const length = polylineLength(points);
+  const midPoint = pointAtDistance(points, length * 0.5);
+  const pathD = toPathD(points);
 
   const svg = ensureEdgeLayer(scene);
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
@@ -363,6 +522,7 @@ function renderFlowEdge(
   path.setAttribute("fill", "none");
   path.setAttribute("stroke", stroke);
   path.setAttribute("stroke-width", "2.5");
+  path.setAttribute("data-markdy-flow-action", ev.action);
   path.style.strokeDasharray = isDashed ? "8 6" : `${length}`;
   path.style.strokeDashoffset = `${length}`;
   group.appendChild(path);
@@ -379,8 +539,8 @@ function renderFlowEdge(
   if (labelRaw) {
     const label = labelRaw.length > 28 ? `${labelRaw.slice(0, 27)}…` : labelRaw;
     const labelEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    labelEl.setAttribute("x", `${mx}`);
-    labelEl.setAttribute("y", `${my - 8}`);
+    labelEl.setAttribute("x", `${round1(midPoint.x)}`);
+    labelEl.setAttribute("y", `${round1(midPoint.y - 8)}`);
     labelEl.setAttribute("text-anchor", "middle");
     labelEl.setAttribute("font-size", "12");
     labelEl.setAttribute("fill", "#cbd5e1");
@@ -418,7 +578,7 @@ function buildAction(
   durMs: number,
   ast: SceneAST,
   states: Map<string, ActorState>,
-  actorEls: Map<string, HTMLElement>,
+  _actorEls: Map<string, HTMLElement>,
   scene: HTMLElement,
   assetOverrides: Record<string, string>,
   faceSwaps: FaceSwap[],
@@ -433,14 +593,16 @@ function buildAction(
       if (!targetActorName) break;
       const targetState = states.get(targetActorName);
       if (!targetState) break;
-      const sourceType = ast.actors[ev.actor]?.type ?? "box";
-      const targetType = ast.actors[targetActorName]?.type ?? "box";
+      const lane = ((ev.line % 5) - 2);
       renderFlowEdge(
         ev,
+        ev.actor,
+        targetActorName,
         s,
         targetState,
-        sourceType,
-        targetType,
+        states,
+        ast,
+        lane,
         scene,
         baseOpts,
         anims,

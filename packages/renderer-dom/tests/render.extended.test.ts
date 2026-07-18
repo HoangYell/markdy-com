@@ -69,6 +69,12 @@ function mount(code: string) {
   return { ast, scene, sceneContent, actorEls, anims };
 }
 
+function flowPathDs(sceneContent: HTMLElement): string[] {
+  return Array.from(
+    sceneContent.querySelectorAll<SVGPathElement>("path[data-markdy-flow-action]"),
+  ).map((p) => p.getAttribute("d") ?? "");
+}
+
 // ---------------------------------------------------------------------------
 
 describe("renderer — caption actor", () => {
@@ -308,5 +314,71 @@ describe("renderer — system flow actions", () => {
     expect(actorEls.get("client")?.textContent).toContain("Browser");
     expect(actorEls.get("auth")?.textContent).toContain("Auth API");
     expect(anims.length).toBeGreaterThan(0);
+  });
+
+  it("routes around a blocking middle actor in a 3-actor scene", () => {
+    const { sceneContent } = mount(
+      [
+        "scene width=900 height=400 bg=#0f172a",
+        'actor a = client("A") at (80, 160)',
+        'actor b = service("B") at (360, 160)',
+        'actor c = db("C") at (640, 160)',
+        "@0.0: a.request(to=c, label=\"cross\", dur=0.6)",
+      ].join("\n"),
+    );
+
+    const [d] = flowPathDs(sceneContent);
+    expect(d).toBeDefined();
+    // Elbow/orthogonal route should have multiple line segments, not one straight segment.
+    expect((d.match(/L/g) ?? []).length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("keeps multi-edge routing stable for a dense 5-actor scene", () => {
+    const { sceneContent } = mount(
+      [
+        "scene width=980 height=420 bg=#0f172a",
+        'actor a = client("A") at (40, 80)',
+        'actor b = service("B") at (240, 80)',
+        'actor c = service("C") at (440, 80)',
+        'actor d = service("D") at (640, 80)',
+        'actor e = db("E") at (840, 80)',
+        "@0.0: a.request(to=e, label=\"1\", dur=0.6)",
+        "@0.2: e.response(to=a, label=\"2\", dur=0.6)",
+        "@0.4: b.request(to=d, label=\"3\", dur=0.6, style=dashed)",
+      ].join("\n"),
+    );
+
+    const paths = flowPathDs(sceneContent);
+    expect(paths).toHaveLength(3);
+    expect(paths.every((d) => d.startsWith("M "))).toBe(true);
+  });
+
+  it("supports 10-actor routing and fire_and_forget dashed style", () => {
+    const { sceneContent } = mount(
+      [
+        "scene width=1400 height=520 bg=#0f172a",
+        'actor a1 = client("A1") at (40, 70)',
+        'actor a2 = service("A2") at (260, 70)',
+        'actor a3 = service("A3") at (480, 70)',
+        'actor a4 = service("A4") at (700, 70)',
+        'actor a5 = db("A5") at (920, 70)',
+        'actor b1 = client("B1") at (40, 280)',
+        'actor b2 = queue("B2") at (260, 280)',
+        'actor b3 = service("B3") at (480, 280)',
+        'actor b4 = service("B4") at (700, 280)',
+        'actor b5 = db("B5") at (920, 280)',
+        "@0.0: a1.request(to=a5, label=\"frontline\", dur=0.6)",
+        "@0.2: b1.request(to=b5, label=\"backend\", dur=0.6)",
+        "@0.4: a3.emit(to=b3, label=\"event_bus\", dur=0.5, style=fire_and_forget)",
+      ].join("\n"),
+    );
+
+    const flowPaths = Array.from(
+      sceneContent.querySelectorAll<SVGPathElement>("path[data-markdy-flow-action]"),
+    );
+    expect(flowPaths).toHaveLength(3);
+    const emitPath = flowPaths.find((p) => p.getAttribute("data-markdy-flow-action") === "emit");
+    expect(emitPath).toBeDefined();
+    expect(emitPath?.style.strokeDasharray).toBe("8 6");
   });
 });
