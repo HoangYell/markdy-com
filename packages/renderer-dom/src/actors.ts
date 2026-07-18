@@ -91,6 +91,71 @@ export function createActorEl(
       break;
     }
 
+    case "service":
+    case "client":
+    case "db":
+    case "queue": {
+      const card = document.createElement("div");
+      const label = document.createElement("div");
+      label.textContent = def.args[0] ?? "";
+      Object.assign(label.style, {
+        fontFamily: "system-ui, -apple-system, sans-serif",
+        fontSize: `${def.size ?? 16}px`,
+        fontWeight: "600",
+        color: "#e2e8f0",
+        textAlign: "center",
+        lineHeight: "1.2",
+        pointerEvents: "none",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        maxWidth: "100%",
+      });
+
+      Object.assign(card.style, {
+        width: "180px",
+        height: "84px",
+        boxSizing: "border-box",
+        border: "1px solid #475569",
+        background: "#0f172a",
+        display: "grid",
+        placeItems: "center",
+        padding: "10px 12px",
+      });
+
+      if (def.type === "service") {
+        card.style.borderRadius = "12px";
+        card.style.background = "linear-gradient(180deg, #1e293b 0%, #0f172a 100%)";
+      } else if (def.type === "client") {
+        const bar = document.createElement("div");
+        Object.assign(bar.style, {
+          position: "absolute",
+          top: "8px",
+          left: "8px",
+          right: "8px",
+          height: "8px",
+          borderRadius: "6px",
+          background: "#334155",
+        });
+        card.style.position = "relative";
+        card.style.borderRadius = "10px";
+        card.style.paddingTop = "20px";
+        card.appendChild(bar);
+      } else if (def.type === "db") {
+        card.style.borderRadius = "50% / 14%";
+        card.style.background = "linear-gradient(180deg, #334155 0%, #0f172a 70%)";
+        card.style.boxShadow = "inset 0 10px 0 rgba(226, 232, 240, 0.12)";
+      } else if (def.type === "queue") {
+        card.style.borderRadius = "8px";
+        card.style.boxShadow =
+          "-6px -6px 0 rgba(30, 41, 59, 0.9), -12px -12px 0 rgba(15, 23, 42, 0.9)";
+      }
+
+      card.appendChild(label);
+      el = card;
+      break;
+    }
+
     default: {
       // box
       const div = document.createElement("div");

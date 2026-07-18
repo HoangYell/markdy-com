@@ -1,7 +1,7 @@
 {
-  "name": "@markdy/core",
+  "name": "@markdy/stdlib-systems",
   "version": "0.7.11",
-  "description": "MarkdyScript parser and AST types — zero runtime dependencies.",
+  "description": "System diagram actor/action pack for Markdy.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -20,21 +20,17 @@
   },
   "keywords": [
     "markdy",
-    "markdyscript",
+    "system-diagram",
+    "sequence",
     "animation",
-    "dsl",
-    "parser",
-    "ast",
-    "declarative-animation",
-    "text-to-motion",
-    "markdown-animation"
+    "dsl"
   ],
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
   "homepage": "https://markdy.com",
   "repository": {
     "type": "git",
     "url": "https://github.com/HoangYell/markdy-com.git",
-    "directory": "packages/core"
+    "directory": "packages/stdlib-systems"
   },
   "bugs": {
     "url": "https://github.com/HoangYell/markdy-com/issues"
@@ -44,13 +40,15 @@
   },
   "scripts": {
     "build": "tsup",
-    "test": "vitest run",
+    "test": "echo \"No tests yet\"",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit"
   },
+  "dependencies": {
+    "@markdy/core": "workspace:*"
+  },
   "devDependencies": {
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.7"
+    "typescript": "^5.9.3"
   }
 }

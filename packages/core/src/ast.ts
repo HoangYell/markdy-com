@@ -9,7 +9,7 @@ export type AssetDef = {
 };
 
 export type ActorDef = {
-  type: "sprite" | "text" | "box" | "figure" | "caption";
+  type: ActorType;
   /** Constructor arguments: asset name for sprite, display text for text/caption actors. */
   args: string[];
   x: number;
@@ -28,6 +28,9 @@ export type ActorDef = {
    */
   anchor?: "top" | "bottom" | "center";
 };
+
+export type BuiltinActorType = "sprite" | "text" | "box" | "figure" | "caption";
+export type ActorType = BuiltinActorType | (string & {});
 
 export type TimelineEvent = {
   time: number;
@@ -104,7 +107,9 @@ export type ParseWarning = {
     | "unknown-camera-action"
     | "unknown-preset"
     | "import-unresolved"
-    | "preset-mixed";
+    | "preset-mixed"
+    | "actor-count-threshold"
+    | "label-overflow";
   message: string;
   line: number;
 };

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import { parse } from "@markdy/core";
+import { parse, registerActorPack } from "@markdy/core";
 import { createActorEl } from "../src/actors.js";
 import { buildAnimations } from "../src/animations.js";
 import type { FaceSwap } from "../src/types.js";
@@ -31,6 +31,17 @@ beforeAll(() => {
       };
     }
   }
+
+  registerActorPack({
+    name: "systems-test-pack",
+    actors: ["service", "db", "queue", "client"],
+    actions: {
+      service: ["request", "response", "emit"],
+      db: ["request", "response", "emit"],
+      queue: ["request", "response", "emit"],
+      client: ["request", "response", "emit"],
+    },
+  });
 });
 
 /**
@@ -276,6 +287,26 @@ describe("renderer — combined end-to-end scene", () => {
     expect(ast.warnings).toEqual([]);
     expect(ast.chapters.map((c) => c.name)).toEqual(["intro", "outro"]);
     expect(actorEls.size).toBe(2);
+    expect(anims.length).toBeGreaterThan(0);
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe("renderer — system flow actions", () => {
+  it("renders system actor cards and flow-edge animations", () => {
+    const { actorEls, anims } = mount(
+      [
+        "scene width=900 height=400 bg=#0f172a",
+        'actor client = client("Browser") at (100, 200)',
+        'actor auth = service("Auth API") at (400, 100)',
+        "@0.0: client.request(to=auth, label=\"POST /login\", dur=0.8)",
+        "@1.0: auth.response(to=client, label=\"200 OK\", dur=0.6)",
+      ].join("\n"),
+    );
+
+    expect(actorEls.get("client")?.textContent).toContain("Browser");
+    expect(actorEls.get("auth")?.textContent).toContain("Auth API");
     expect(anims.length).toBeGreaterThan(0);
   });
 });
