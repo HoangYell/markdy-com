@@ -341,6 +341,8 @@ packages/
   core/              @markdy/core         — Parser + AST types (zero deps)
   renderer-dom/      @markdy/renderer-dom — WAAPI renderer
   astro/             @markdy/astro        — Astro island component
+  stdlib-systems/    @markdy/stdlib-systems — System-diagram actor/action pack
+  markdy-language-server/ markdy-language-server — Shared LSP server for editors
 website/               Official markdy.com playground & website (Astro)
 docs/
   SYNTAX.md          Full DSL reference

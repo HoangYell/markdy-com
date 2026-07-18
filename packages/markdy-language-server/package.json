@@ -1,0 +1,59 @@
+{
+  "name": "markdy-language-server",
+  "version": "0.7.12",
+  "description": "Language Server Protocol implementation for MarkdyScript.",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "markdy-language-server": "./dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "keywords": [
+    "markdy",
+    "lsp",
+    "language-server",
+    "markdyscript",
+    "editor"
+  ],
+  "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
+  "homepage": "https://markdy.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HoangYell/markdy-com.git",
+    "directory": "packages/markdy-language-server"
+  },
+  "bugs": {
+    "url": "https://github.com/HoangYell/markdy-com/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsup",
+    "test": "echo \"No tests yet\"",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@markdy/core": "workspace:*",
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.12"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}

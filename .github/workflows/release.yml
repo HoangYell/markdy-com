@@ -30,8 +30,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages (core + renderer + astro + stdlib-systems)
-        run: pnpm --filter @markdy/core --filter @markdy/renderer-dom --filter @markdy/astro --filter @markdy/stdlib-systems run build
+      - name: Build packages (core + renderer + astro + stdlib-systems + lsp)
+        run: pnpm --filter @markdy/core --filter @markdy/renderer-dom --filter @markdy/astro --filter @markdy/stdlib-systems --filter markdy-language-server run build
 
       - name: Run tests
         run: pnpm --filter @markdy/core run test
@@ -60,6 +60,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Publish markdy-language-server → npmjs.com
+        working-directory: packages/markdy-language-server
+        run: pnpm publish --no-git-checks --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v3
         with:
@@ -78,6 +84,7 @@ jobs:
             | [`@markdy/renderer-dom`](https://www.npmjs.com/package/@markdy/renderer-dom) | `pnpm add @markdy/renderer-dom` |
             | [`@markdy/astro`](https://www.npmjs.com/package/@markdy/astro) | `pnpm add @markdy/astro` |
             | [`@markdy/stdlib-systems`](https://www.npmjs.com/package/@markdy/stdlib-systems) | `pnpm add @markdy/stdlib-systems` |
+            | [`markdy-language-server`](https://www.npmjs.com/package/markdy-language-server) | `pnpm add -D markdy-language-server` |
 
             ### Quick Start
             ```sh
