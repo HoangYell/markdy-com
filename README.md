@@ -22,7 +22,10 @@
 
 **Markdy is a framework-agnostic Animation DSL.** Write animations like Markdown.
 
-It is like [Mermaid](https://mermaid.js.org/) but for motion. Define actors, timelines, and interactions in a simple, readable DSL — the engine handles rendering with the Web Animations API. No Canvas, no GSAP, no bloated dependencies.
+Define actors, timelines, and interactions in a simple, readable DSL. The engine handles rendering with the Web Animations API. No Canvas, no GSAP, no bloated dependencies.
+
+> Markdy is built for **text-to-motion scenes**.
+> It is **not** a static diagram generator for flowcharts, ERDs, or network graphs.
 
 ```markdy
 scene width=600 height=300 bg=white
