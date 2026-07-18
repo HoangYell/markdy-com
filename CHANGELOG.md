@@ -5,6 +5,19 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.9] — 2026-07-18
+
+### Fixed
+- **Robust string escaping in parser** — Hardened `@markdy/core` parsing for quoted values so scripts embedded in Markdown/MDX/JS strings are less error-prone:
+  - supports both single-quoted and double-quoted string literals
+  - correctly handles escaped quotes (`\"`, `\'`) while parsing comments and comma-delimited params
+  - supports common escapes (`\\`, `\n`, `\r`, `\t`)
+  - preserves unknown escape sequences instead of silently dropping backslashes
+- **Regression coverage** — Added parser tests for escaped quotes, commas/hash inside strings, backslash-heavy paths, single-quoted literals, and unknown-escape preservation.
+
+### Docs
+- Updated [AGENT.md](docs/AGENT.md) and [SYNTAX.md](docs/SYNTAX.md) to reflect the expanded string-literal and escaping behavior.
+
 ## [0.7.8] — 2026-07-18
 
 ### Internal

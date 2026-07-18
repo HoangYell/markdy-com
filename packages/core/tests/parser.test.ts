@@ -404,6 +404,37 @@ describe("var declarations", () => {
   });
 });
 
+describe("string escaping robustness", () => {
+  it("keeps escaped quotes/hash/comma inside quoted params", () => {
+    const ast = parse([
+      "actor h = figure(#c68642, m, 😎) at (0,0)",
+      '@0.0: h.say("He said \\"ship it, #now\\"", dur=0.5)',
+    ].join("\n"));
+    expect(ast.events[0].params.text).toBe('He said "ship it, #now"');
+  });
+
+  it("supports escaped backslashes in quoted actor args", () => {
+    const ast = parse(
+      'actor path = text("C:\\\\work\\\\markdy\\\\scene") at (0,0)',
+    );
+    expect(ast.actors.path.args[0]).toBe("C:\\work\\markdy\\scene");
+  });
+
+  it("accepts single-quoted literals in args and params", () => {
+    const ast = parse([
+      "actor t = text('hello, world') at (0,0)",
+      "@0.0: t.say('done', dur=0.3)",
+    ].join("\n"));
+    expect(ast.actors.t.args[0]).toBe("hello, world");
+    expect(ast.events[0].params.text).toBe("done");
+  });
+
+  it("preserves unknown escapes instead of silently dropping backslashes", () => {
+    const ast = parse('actor t = text("price \\\\$5") at (0,0)');
+    expect(ast.actors.t.args[0]).toBe("price \\$5");
+  });
+});
+
 // ---------------------------------------------------------------------------
 // Def (user-defined actor templates)
 // ---------------------------------------------------------------------------

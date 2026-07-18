@@ -43,12 +43,17 @@ export class ParseError extends Error {
  */
 function stripComment(line: string): string {
   let depth = 0;
-  let inString = false;
+  let stringQuote: '"' | "'" | null = null;
   let lastNonSpace = "";
   for (let i = 0; i < line.length; i++) {
     const ch = line[i];
-    if (ch === '"') { inString = !inString; lastNonSpace = ch; continue; }
-    if (inString) continue;
+    if ((ch === '"' || ch === "'") && !isEscapedChar(line, i)) {
+      if (stringQuote === ch) stringQuote = null;
+      else if (stringQuote === null) stringQuote = ch;
+      lastNonSpace = ch;
+      continue;
+    }
+    if (stringQuote !== null) continue;
     if (ch === '(') { depth++; lastNonSpace = ch; continue; }
     if (ch === ')') { depth--; lastNonSpace = ch; continue; }
     if (ch === '#' && depth === 0 && lastNonSpace !== '=') return line.slice(0, i);
@@ -65,12 +70,16 @@ function stripComment(line: string): string {
 function splitByComma(s: string): string[] {
   const parts: string[] = [];
   let depth = 0;
-  let inString = false;
+  let stringQuote: '"' | "'" | null = null;
   let start = 0;
   for (let i = 0; i < s.length; i++) {
     const ch = s[i];
-    if (ch === '"') { inString = !inString; continue; }
-    if (inString) continue;
+    if ((ch === '"' || ch === "'") && !isEscapedChar(s, i)) {
+      if (stringQuote === ch) stringQuote = null;
+      else if (stringQuote === null) stringQuote = ch;
+      continue;
+    }
+    if (stringQuote !== null) continue;
     if (ch === "(") depth++;
     else if (ch === ")") depth--;
     else if (ch === "," && depth === 0) {
@@ -92,8 +101,9 @@ function splitByComma(s: string): string[] {
 function parseValue(s: string): unknown {
   const t = s.trim();
 
-  if (t.startsWith('"') && t.endsWith('"')) {
-    return t.slice(1, -1);
+  const quoted = parseQuotedLiteral(t);
+  if (quoted !== null) {
+    return quoted;
   }
 
   if (t.startsWith("(") && t.endsWith(")")) {
@@ -109,6 +119,60 @@ function parseValue(s: string): unknown {
   if (!Number.isNaN(n) && t !== "") return n;
 
   return t;
+}
+
+/**
+ * Returns true when the character at `idx` is escaped by an odd number of
+ * immediately preceding backslashes.
+ */
+function isEscapedChar(s: string, idx: number): boolean {
+  let slashCount = 0;
+  for (let i = idx - 1; i >= 0 && s[i] === "\\"; i--) {
+    slashCount++;
+  }
+  return slashCount % 2 === 1;
+}
+
+/**
+ * Parses a wrapped string literal (`"..."` or `'...'`) and unescapes common
+ * escape sequences. Returns null for non-literals.
+ */
+function parseQuotedLiteral(token: string): string | null {
+  if (token.length < 2) return null;
+  const quote = token[0];
+  if ((quote !== '"' && quote !== "'") || token[token.length - 1] !== quote) {
+    return null;
+  }
+  if (isEscapedChar(token, token.length - 1)) {
+    return null;
+  }
+  return unescapeQuotedContent(token.slice(1, -1), quote);
+}
+
+function unescapeQuotedContent(content: string, quote: '"' | "'"): string {
+  let out = "";
+  for (let i = 0; i < content.length; i++) {
+    const ch = content[i];
+    if (ch !== "\\") {
+      out += ch;
+      continue;
+    }
+
+    if (i + 1 >= content.length) {
+      out += "\\";
+      continue;
+    }
+
+    const next = content[++i];
+    if (next === "n") out += "\n";
+    else if (next === "r") out += "\r";
+    else if (next === "t") out += "\t";
+    else if (next === "\\") out += "\\";
+    else if (next === quote) out += quote;
+    else if (next === '"' || next === "'") out += next;
+    else out += `\\${next}`;
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------------------
@@ -805,7 +869,8 @@ function parseActorCallArgs(argsRaw: string): string[] {
   if (!argsRaw.trim()) return [];
   return splitByComma(argsRaw).map((a) => {
     const t = a.trim();
-    return t.startsWith('"') && t.endsWith('"') ? t.slice(1, -1) : t;
+    const q = parseQuotedLiteral(t);
+    return q ?? t;
   });
 }
 
@@ -1148,7 +1213,8 @@ function tryExpandSolePreset(source: string): string | null {
   const args = argsRaw
     ? splitByComma(argsRaw).map((a) => {
         const t = a.trim();
-        return t.startsWith('"') && t.endsWith('"') ? t.slice(1, -1) : t;
+        const q = parseQuotedLiteral(t);
+        return q ?? t;
       })
     : [];
   return fn(args);
