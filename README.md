@@ -59,6 +59,7 @@ actor label = text("Hello World") at (50, 130) size 40 opacity 0
 | [`@markdy/core`](packages/core) | Parser + AST types (zero runtime deps) | ~12 KB |
 | [`@markdy/renderer-dom`](packages/renderer-dom) | Web Animations API renderer | ~22 KB |
 | [`@markdy/astro`](packages/astro) | Astro island component | ~2 KB |
+| [`@markdy/mdx`](packages/mdx) | MDX remark plugin + lazy React player | ~4 KB |
 
 ---
 
@@ -341,6 +342,7 @@ packages/
   core/              @markdy/core         — Parser + AST types (zero deps)
   renderer-dom/      @markdy/renderer-dom — WAAPI renderer
   astro/             @markdy/astro        — Astro island component
+  mdx/               @markdy/mdx          — MDX plugin + React player with viewport hydration
   stdlib-systems/    @markdy/stdlib-systems — System-diagram actor/action pack
   markdy-language-server/ markdy-language-server — Shared LSP server for editors
 website/               Official markdy.com playground & website (Astro)
