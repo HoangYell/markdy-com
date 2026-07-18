@@ -1,6 +1,6 @@
 {
   "name": "@markdy/compat",
-  "version": "0.7.7",
+  "version": "0.7.8",
   "private": true,
   "description": "Backwards-compatibility gate for MarkdyScript. Snapshots every fixture in packages/compat/fixtures with the current parser and diffs ASTs on every CI run.",
   "license": "MIT",
@@ -15,8 +15,8 @@
     "@markdy/core": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^22.10.0",
-    "tsx": "^4.19.2",
+    "@types/node": "^25.9.5",
+    "tsx": "^4.23.1",
     "typescript": "^5.9.3"
   }
 }
