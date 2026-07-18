@@ -1,6 +1,8 @@
 export type {
   AssetDef,
   ActorDef,
+  ActorType,
+  BuiltinActorType,
   TimelineEvent,
   SceneMeta,
   SceneAST,
@@ -16,3 +18,6 @@ export type { ParseOptions } from "./parser.js";
 
 export { PRESETS, PRESET_NAMES } from "./presets.js";
 export type { PresetFn } from "./presets.js";
+
+export { registerActorPack } from "./registry.js";
+export type { ActorPack } from "./registry.js";

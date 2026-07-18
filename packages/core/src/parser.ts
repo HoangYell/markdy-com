@@ -11,6 +11,12 @@ import type {
   TimelineEvent,
 } from "./ast.js";
 import { PRESETS } from "./presets.js";
+import {
+  isCameraAction,
+  isFigureOnlyAction,
+  isKnownAction,
+  isKnownActorType,
+} from "./registry.js";
 
 // ---------------------------------------------------------------------------
 // Error
@@ -219,47 +225,6 @@ function parseActionParams(
 }
 
 // ---------------------------------------------------------------------------
-// Action vocabulary
-// ---------------------------------------------------------------------------
-
-/** Actions available on every actor type. */
-const UNIVERSAL_ACTIONS = new Set<string>([
-  "enter",
-  "exit",
-  "move",
-  "fade_in",
-  "fade_out",
-  "scale",
-  "rotate",
-  "shake",
-  "say",
-  "throw",
-  "play",
-]);
-
-/** Actions that only make sense on a `figure` actor. */
-const FIGURE_ONLY_ACTIONS = new Set<string>([
-  "punch",
-  "kick",
-  "wave",
-  "nod",
-  "jump",
-  "bounce",
-  "face",
-  "rotate_part",
-  "pose",
-]);
-
-/** Actions the reserved `camera` actor supports. */
-const CAMERA_ACTIONS = new Set<string>(["pan", "zoom", "shake"]);
-
-function isKnownAction(actorType: ActorDef["type"] | "camera", action: string): boolean {
-  if (actorType === "camera") return CAMERA_ACTIONS.has(action);
-  if (UNIVERSAL_ACTIONS.has(action)) return true;
-  return FIGURE_ONLY_ACTIONS.has(action);
-}
-
-// ---------------------------------------------------------------------------
 // Actor modifier parsing
 // ---------------------------------------------------------------------------
 
@@ -388,9 +353,6 @@ function parseActorTrailer(
 
 const ASSET_RE = /^asset\s+(\w+)\s*=\s*(image|icon)\("([^"]+)"\)$/;
 
-// Actor types known to the parser. User-defined templates (`def`) are also valid.
-const BUILTIN_ACTOR_TYPES = new Set(["sprite", "text", "box", "figure", "caption"]);
-
 // Captures: name, type, argsRaw, positionKind, xStr|anchor, yStr|'', trailer
 //   • Numeric position: `at (x, y)`
 //   • Caption anchor:   `at top | bottom | center`
@@ -417,7 +379,7 @@ const VAR_RE = /^var\s+(\w+)\s*=\s*(.+)$/;
 const DEF_HEADER_RE = /^def\s+(\w+)\(([^)]*)\)\s*\{$/;
 
 // def body (single line inside braces): <actorType>(<args>)
-const DEF_BODY_RE = /^\s*(sprite|text|box|figure|caption)\(([^)]*)\)\s*$/;
+const DEF_BODY_RE = /^\s*([\w]+)\(([^)]*)\)\s*$/;
 
 // seq header: seq <name> {  or  seq <name>(<params>) {
 const SEQ_HEADER_RE = /^seq\s+(\w+)(?:\(([^)]*)\))?\s*\{$/;
@@ -515,6 +477,19 @@ export interface ParseOptions {
   imports?: Record<string, SceneAST>;
 
   /**
+   * Emit a non-fatal warning when actor count exceeds this threshold.
+   * Set to <= 0 to disable.
+   */
+  actorCountWarningThreshold?: number;
+
+  /**
+   * Emit a non-fatal warning when actor labels exceed this length.
+   * Applies to the first constructor arg when it is a string.
+   * Set to <= 0 to disable.
+   */
+  labelLengthWarningThreshold?: number;
+
+  /**
    * Internal flag — distinguishes a top-level call from a recursive
    * call used to expand a `preset`. Preset expansion bypasses the
    * "mixed preset and other statements" warning because the expanded
@@ -553,6 +528,9 @@ export function parse(source: string, opts: ParseOptions = {}): SceneAST {
     warnings: [],
     imports: [],
   };
+  const actorCountWarningThreshold = opts.actorCountWarningThreshold ?? 10;
+  const labelLengthWarningThreshold = opts.labelLengthWarningThreshold ?? 36;
+  let actorCountWarned = false;
 
   let sceneFound = false;
   const lines = source.split(/\r?\n/);
@@ -639,6 +617,9 @@ export function parse(source: string, opts: ParseOptions = {}): SceneAST {
         throw new ParseError(`Invalid def body (expected "type(args)"): ${raw}`, lineNum);
       }
       const [, actorType, bodyArgsRaw] = bm;
+      if (!isKnownActorType(actorType)) {
+        throw new ParseError(`Unknown actor type in def body: "${actorType}"`, lineNum);
+      }
       const bodyArgs = bodyArgsRaw.trim()
         ? splitByComma(bodyArgsRaw).map((a) => a.trim())
         : [];
@@ -816,7 +797,32 @@ export function parse(source: string, opts: ParseOptions = {}): SceneAST {
 
     // ── actor ────────────────────────────────────────────────────────────────
     if (raw.startsWith("actor ")) {
-      parseActorLine(raw, lineNum, ast);
+      const actorInfo = parseActorLine(raw, lineNum, ast);
+      if (!actorCountWarned && actorCountWarningThreshold > 0) {
+        const actorCount = Object.keys(ast.actors).length;
+        if (actorCount > actorCountWarningThreshold) {
+          actorCountWarned = true;
+          ast.warnings.push({
+            kind: "actor-count-threshold",
+            message:
+              `scene has ${actorCount} actors (threshold ${actorCountWarningThreshold}); ` +
+              `consider splitting into multiple scenes`,
+            line: lineNum,
+          });
+        }
+      }
+      if (labelLengthWarningThreshold > 0 && typeof actorInfo.args[0] === "string") {
+        const label = actorInfo.args[0];
+        if (label.length > labelLengthWarningThreshold) {
+          ast.warnings.push({
+            kind: "label-overflow",
+            message:
+              `actor "${actorInfo.name}" label length ${label.length} exceeds ${labelLengthWarningThreshold}; ` +
+              `consider shortening to reduce overlap`,
+            line: lineNum,
+          });
+        }
+      }
       continue;
     }
 
@@ -874,14 +880,16 @@ function parseActorCallArgs(argsRaw: string): string[] {
   });
 }
 
-function parseActorLine(raw: string, lineNum: number, ast: SceneAST): void {
+function parseActorLine(
+  raw: string,
+  lineNum: number,
+  ast: SceneAST,
+): { name: string; args: string[] } {
   // Try anchor-position form first; it's distinctive (`at top|bottom|center`).
   const amAnchor = ACTOR_ANCHOR_POS_RE.exec(raw);
   const amNum = amAnchor ? null : ACTOR_NUM_POS_RE.exec(raw);
 
-  if (!amAnchor && !amNum) {
-    throw new ParseError(`Invalid actor declaration: ${raw}`, lineNum);
-  }
+  if (!amAnchor && !amNum) throw new ParseError(`Invalid actor declaration: ${raw}`, lineNum);
 
   let name: string;
   let typeName: string;
@@ -928,7 +936,7 @@ function parseActorLine(raw: string, lineNum: number, ast: SceneAST): void {
   let resolvedType: ActorDef["type"];
   let resolvedArgs: string[];
 
-  if (BUILTIN_ACTOR_TYPES.has(typeName)) {
+  if (isKnownActorType(typeName)) {
     resolvedType = typeName as ActorDef["type"];
     resolvedArgs = rawArgs;
   } else if (ast.defs[typeName]) {
@@ -985,6 +993,7 @@ function parseActorLine(raw: string, lineNum: number, ast: SceneAST): void {
     ...modifiers,
     ...(anchor ? { anchor } : {}),
   };
+  return { name, args: resolvedArgs };
 }
 
 // ---------------------------------------------------------------------------
@@ -1049,7 +1058,7 @@ function parseEventLine(
 
   // Camera — reserved actor with its own action set.
   if (actor === "camera") {
-    if (!CAMERA_ACTIONS.has(action)) {
+    if (!isCameraAction(action)) {
       if (mustUnderstand) {
         throw new ParseError(`Unknown camera action "${action}"`, lineNum);
       }
@@ -1161,7 +1170,7 @@ function validateActionForActor(
   lineNum: number,
   warnings: ParseWarning[],
 ): void {
-  if (FIGURE_ONLY_ACTIONS.has(action)) {
+  if (isFigureOnlyAction(action)) {
     if (actorDef.type !== "figure") {
       throw new ParseError(
         `action "${action}" is figure-only; actor type is "${actorDef.type}"`,

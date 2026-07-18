@@ -5,6 +5,20 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.11] — 2026-07-18
+
+### Added
+- **System actor pack foundation** — Introduced optional actor-pack registration in `@markdy/core` via `registerActorPack`, enabling external actor/action vocabularies without adding runtime dependencies to core.
+- **New package: `@markdy/stdlib-systems`** — Added first-party systems pack with actor types `service`, `db`, `queue`, `client` and flow actions `request`, `response`, `emit`.
+- **Flow rendering baseline** — Added DOM renderer support for system actor cards and animated request/response/emit flow edges.
+
+### Improved
+- **Parser diagnostics for larger system scenes** — Added non-fatal warnings for actor-count threshold and long actor-label overflow risk.
+- **Coverage** — Added parser and renderer tests for systems pack registration and flow-action handling.
+
+### Internal
+- Added `@markdy/stdlib-systems` to workspace build/test/lint flow and release publishing pipeline.
+
 ## [0.7.10] — 2026-07-18
 
 ### Internal

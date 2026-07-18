@@ -90,7 +90,22 @@ export function buildAnimations(
     const s = states.get(ev.actor);
     if (!el || !s) continue;
 
-    buildAction(ev, el, s, baseOpts, delayMs, durMs, ast, states, scene, assetOverrides, faceSwaps, anims, txFor(ev.actor));
+    buildAction(
+      ev,
+      el,
+      s,
+      baseOpts,
+      delayMs,
+      durMs,
+      ast,
+      states,
+      actorEls,
+      scene,
+      assetOverrides,
+      faceSwaps,
+      anims,
+      txFor(ev.actor),
+    );
   }
 
   return anims;
@@ -266,6 +281,134 @@ function buildCameraAction(
 
 import type { TimelineEvent } from "@markdy/core";
 
+const FLOW_STROKE_BY_ACTION: Record<string, string> = {
+  request: "#38bdf8",
+  response: "#a78bfa",
+  emit: "#f59e0b",
+};
+
+function actorSizeByType(type: string): { width: number; height: number } {
+  switch (type) {
+    case "service":
+    case "client":
+    case "db":
+    case "queue":
+      return { width: 180, height: 84 };
+    case "box":
+      return { width: 100, height: 100 };
+    case "caption":
+      return { width: 260, height: 56 };
+    case "figure":
+      return { width: 120, height: 170 };
+    default:
+      return { width: 140, height: 42 };
+  }
+}
+
+function actorCenter(state: ActorState, actorType: string): { x: number; y: number } {
+  const { width, height } = actorSizeByType(actorType);
+  return {
+    x: state.x + width / 2,
+    y: state.y + height / 2,
+  };
+}
+
+function ensureEdgeLayer(scene: HTMLElement): SVGSVGElement {
+  const existing = scene.querySelector<SVGSVGElement>("svg[data-markdy-edge-layer='1']");
+  if (existing) return existing;
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("data-markdy-edge-layer", "1");
+  Object.assign(svg.style, {
+    position: "absolute",
+    inset: "0",
+    width: "100%",
+    height: "100%",
+    overflow: "visible",
+    pointerEvents: "none",
+    zIndex: "95",
+  });
+  scene.appendChild(svg);
+  return svg;
+}
+
+function renderFlowEdge(
+  ev: TimelineEvent,
+  sourceState: ActorState,
+  targetState: ActorState,
+  sourceType: string,
+  targetType: string,
+  scene: HTMLElement,
+  baseOpts: KeyframeAnimationOptions,
+  anims: Animation[],
+): void {
+  const styleToken = String(ev.params.style ?? "");
+  const isDashed = styleToken === "dashed" || styleToken === "fire_and_forget" || ev.action === "response";
+  const stroke = FLOW_STROKE_BY_ACTION[ev.action] ?? "#38bdf8";
+
+  const source = actorCenter(sourceState, sourceType);
+  const target = actorCenter(targetState, targetType);
+  const dx = target.x - source.x;
+  const dy = target.y - source.y;
+  const length = Math.max(1, Math.hypot(dx, dy));
+  const mx = source.x + dx / 2;
+  const my = source.y + dy / 2;
+  const pathD = `M ${source.x} ${source.y} L ${target.x} ${target.y}`;
+
+  const svg = ensureEdgeLayer(scene);
+  const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  group.setAttribute("data-markdy-flow-edge", "1");
+
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", pathD);
+  path.setAttribute("fill", "none");
+  path.setAttribute("stroke", stroke);
+  path.setAttribute("stroke-width", "2.5");
+  path.style.strokeDasharray = isDashed ? "8 6" : `${length}`;
+  path.style.strokeDashoffset = `${length}`;
+  group.appendChild(path);
+
+  const marker = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  marker.setAttribute("r", "3");
+  marker.setAttribute("fill", stroke);
+  marker.style.offsetPath = `path('${pathD}')`;
+  marker.style.offsetDistance = "0%";
+  marker.style.opacity = "0";
+  group.appendChild(marker);
+
+  const labelRaw = String(ev.params.label ?? "");
+  if (labelRaw) {
+    const label = labelRaw.length > 28 ? `${labelRaw.slice(0, 27)}…` : labelRaw;
+    const labelEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    labelEl.setAttribute("x", `${mx}`);
+    labelEl.setAttribute("y", `${my - 8}`);
+    labelEl.setAttribute("text-anchor", "middle");
+    labelEl.setAttribute("font-size", "12");
+    labelEl.setAttribute("fill", "#cbd5e1");
+    labelEl.textContent = label;
+    labelEl.setAttribute("data-full-label", labelRaw);
+    group.appendChild(labelEl);
+  }
+
+  svg.appendChild(group);
+
+  anims.push(path.animate([{ strokeDashoffset: length }, { strokeDashoffset: 0 }], baseOpts));
+  anims.push(
+    marker.animate(
+      [{ offsetDistance: "0%", opacity: 1 }, { offsetDistance: "100%", opacity: 1 }],
+      baseOpts,
+    ),
+  );
+
+  const fadeOutDelay = Number(baseOpts.delay ?? 0) + Number(baseOpts.duration ?? 0);
+  anims.push(
+    group.animate([{ opacity: 1 }, { opacity: 0 }], {
+      delay: fadeOutDelay,
+      duration: 140,
+      fill: "forwards",
+    }),
+  );
+}
+
 function buildAction(
   ev: TimelineEvent,
   el: HTMLElement,
@@ -275,6 +418,7 @@ function buildAction(
   durMs: number,
   ast: SceneAST,
   states: Map<string, ActorState>,
+  actorEls: Map<string, HTMLElement>,
   scene: HTMLElement,
   assetOverrides: Record<string, string>,
   faceSwaps: FaceSwap[],
@@ -282,6 +426,28 @@ function buildAction(
   txFn: (s: ActorState) => string,
 ): void {
   switch (ev.action) {
+    case "request":
+    case "response":
+    case "emit": {
+      const targetActorName = String(ev.params.to ?? "");
+      if (!targetActorName) break;
+      const targetState = states.get(targetActorName);
+      if (!targetState) break;
+      const sourceType = ast.actors[ev.actor]?.type ?? "box";
+      const targetType = ast.actors[targetActorName]?.type ?? "box";
+      renderFlowEdge(
+        ev,
+        s,
+        targetState,
+        sourceType,
+        targetType,
+        scene,
+        baseOpts,
+        anims,
+      );
+      break;
+    }
+
     // ── move ────────────────────────────────────────────────────────────────
     case "move": {
       const toArr = ev.params.to as [number, number] | undefined;

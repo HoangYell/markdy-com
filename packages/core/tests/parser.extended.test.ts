@@ -1,5 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeAll } from "vitest";
 import { parse, ParseError } from "../src/parser.js";
+import { registerActorPack } from "../src/registry.js";
 
 // ---------------------------------------------------------------------------
 // Additive grammar tests — all new features are part of the base grammar.
@@ -610,5 +611,72 @@ describe("combined end-to-end extended program", () => {
     expect(outroEvents).toHaveLength(2);
     expect(ast.events.find((e) => e.action === "exit")).toBeDefined();
     expect(ast.events.find((e) => e.actor === "camera" && e.action === "pan")).toBeDefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe("actor packs and system actions", () => {
+  beforeAll(() => {
+    registerActorPack({
+      name: "systems-test-pack",
+      actors: ["service", "db", "queue", "client"],
+      actions: {
+        service: ["request", "response", "emit"],
+        db: ["request", "response", "emit"],
+        queue: ["request", "response", "emit"],
+        client: ["request", "response", "emit"],
+      },
+    });
+  });
+
+  it("parses system actors and request/response/emit actions", () => {
+    const ast = parse(
+      [
+        "scene width=900 height=400 bg=#0f172a",
+        'actor client = client("Browser") at (100, 200)',
+        'actor auth = service("Auth API") at (400, 100)',
+        'actor db = db("Users DB") at (700, 100)',
+        "@0.0: client.request(to=auth, label=\"POST /login\", dur=0.8)",
+        "@1.0: auth.request(to=db, label=\"verify JWT\", dur=0.6, style=dashed)",
+        "@1.8: db.response(to=auth, label=\"200 OK\", dur=0.6)",
+        "@2.6: auth.emit(to=db, label=\"login_event\", dur=0.5, style=fire_and_forget)",
+      ].join("\n"),
+    );
+
+    expect(ast.actors["auth"].type).toBe("service");
+    expect(ast.events.map((e) => e.action)).toEqual(["request", "request", "response", "emit"]);
+    expect(ast.warnings.filter((w) => w.kind === "unknown-action")).toEqual([]);
+  });
+
+  it("warns when actor count exceeds threshold", () => {
+    const ast = parse(
+      [
+        'actor a = service("A") at (0, 0)',
+        'actor b = service("B") at (20, 0)',
+      ].join("\n"),
+      { actorCountWarningThreshold: 1 },
+    );
+    expect(ast.warnings.some((w) => w.kind === "actor-count-threshold")).toBe(true);
+  });
+
+  it("warns when label length exceeds threshold", () => {
+    const ast = parse(
+      'actor s = service("Verify JWT and refresh session token") at (100, 100)',
+      { labelLengthWarningThreshold: 12 },
+    );
+    expect(ast.warnings.some((w) => w.kind === "label-overflow")).toBe(true);
+  });
+
+  it("rejects unknown actor type in def body", () => {
+    expect(() =>
+      parse(
+        [
+          "def thing(lbl) {",
+          "  unknown_node(${lbl})",
+          "}",
+        ].join("\n"),
+      ),
+    ).toThrow(ParseError);
   });
 });
