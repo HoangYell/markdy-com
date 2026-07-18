@@ -9,12 +9,13 @@
     "deploy": "wrangler deploy"
   },
   "devDependencies": {
-    "lighthouse": "^13.2.0",
+    "lighthouse": "^13.4.0",
     "typescript": "^5.7.3",
-    "wrangler": "^4.94.0"
+    "wrangler": "^4.112.0"
   },
   "dependencies": {
-    "@codemirror/autocomplete": "^6.20.1",
+    "@astrojs/sitemap": "^3.7.3",
+    "@codemirror/autocomplete": "^6.20.3",
     "@codemirror/commands": "^6.10.3",
     "@codemirror/language": "^6.12.3",
     "@codemirror/search": "^6.7.0",
@@ -25,7 +26,6 @@
     "@markdy/astro": "workspace:*",
     "@markdy/core": "workspace:*",
     "@markdy/renderer-dom": "workspace:*",
-    "@astrojs/sitemap": "^3.1.6",
-    "astro": "^6.2.1"
+    "astro": "^7.1.1"
   }
 }

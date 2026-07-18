@@ -5,6 +5,20 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.8] — 2026-07-18
+
+### Internal
+- **Dependency refresh (July 2026)** — Consolidated and applied the open Dependabot updates across the monorepo:
+  - `astro` to `^7.1.1` in `website` and `packages/astro` dev dependencies.
+  - `@astrojs/sitemap` to `^3.7.3`.
+  - `@codemirror/autocomplete` to `^6.20.3`.
+  - `wrangler` to `^4.112.0`.
+  - `lighthouse` to `^13.4.0`.
+  - `tsx` to `^4.23.1` (root and `packages/compat`).
+  - `@types/node` to `^25.9.5` in `packages/compat`.
+- **CI maintenance** — Updated `actions/checkout` to `v7` in CI and release workflows.
+- Regenerated `pnpm-lock.yaml` after dependency updates.
+
 ## [0.7.7] — 2026-07-18
 
 ### Changed
