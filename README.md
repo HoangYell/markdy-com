@@ -357,7 +357,7 @@ docs/
 | `pnpm test` | Run all tests (vitest) |
 | `pnpm typecheck` | Type-check all packages |
 | `pnpm clean` | Remove all `dist/` directories |
-| `pnpm run release <version>` | Bump version, commit, tag, and push to trigger CI/CD |
+| `pnpm run release <version>` | Full release train: commit/bump/changelog/validate → release PR → merge → tag → publish |
 
 ### Deployment (Cloudflare)
 
