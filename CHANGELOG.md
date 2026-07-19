@@ -5,6 +5,13 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.18] — 2026-07-19
+
+### Changed
+- **Love Story default refresh** — Replaced the older homepage Love Story with the newer chapter-based `Full Story` variant from recent history so the default demo is once again the best version.
+- **Homepage example curation** — Reduced the playground picker to a tighter showcase of five stronger demos: Love Story, Feature Tour, Fight Beat, @+ Timing, and Modifiers.
+- **Copilot shipping shortcut** — Added repo-level Copilot instructions so short prompts like `ship it` can map to the full commit, PR, merge, release, and tag workflow for this repository.
+
 ## [0.7.17] — 2026-07-19
 
 ### Added
