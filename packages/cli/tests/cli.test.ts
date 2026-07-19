@@ -111,6 +111,9 @@ describe("markdy cli", () => {
     const dir = await tempDir();
     const scenePath = join(dir, "scene.markdy");
     const outPath = join(dir, "scene.html");
+    const pkg = JSON.parse(
+      await readFile(new URL("../package.json", import.meta.url), "utf8"),
+    ) as { version: string };
 
     await writeFile(
       scenePath,
@@ -128,7 +131,7 @@ describe("markdy cli", () => {
 
     expect(result.exitCode).toBe(0);
     const html = await readFile(outPath, "utf8");
-    expect(html).toContain("https://esm.sh/@markdy/core@0.7.14");
+    expect(html).toContain(`https://esm.sh/@markdy/core@${pkg.version}`);
     expect(html).toContain("createPlayer");
   });
 });

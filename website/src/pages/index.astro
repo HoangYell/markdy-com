@@ -1668,7 +1668,7 @@ seq wave(arm, angle) {
 
   .pkg-desc {
     font-size: 0.78rem;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     line-height: 1.45;
     flex: 1;
   }
@@ -1749,7 +1749,7 @@ seq wave(arm, angle) {
     font-size: 0.8rem;
     font-weight: 500;
     cursor: pointer;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     transition: all 0.2s ease;
     font-family: inherit;
     text-align: left;
@@ -1762,7 +1762,7 @@ seq wave(arm, angle) {
 
   .example-btn span {
     font-size: 0.69rem;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     font-family: "JetBrains Mono", monospace;
   }
 
@@ -1777,6 +1777,10 @@ seq wave(arm, angle) {
     color: #fff;
     border-color: var(--accent);
     box-shadow: 0 1px 4px var(--accent-light);
+  }
+
+  .example-btn.active span {
+    color: rgba(255, 255, 255, 0.9);
   }
 
   /* ── Editor layout ───────────────────────────────────────────────── */
@@ -1812,7 +1816,8 @@ seq wave(arm, angle) {
 
   .example-source-link {
     font-size: 0.72rem;
-    color: var(--accent);
+    color: var(--text-primary);
+    font-weight: 600;
     text-decoration: none;
   }
 
@@ -1825,7 +1830,7 @@ seq wave(arm, angle) {
     margin: 0;
     font-size: 0.76rem;
     line-height: 1.5;
-    color: var(--text-secondary);
+    color: var(--text-primary);
   }
 
   .editor-col {
