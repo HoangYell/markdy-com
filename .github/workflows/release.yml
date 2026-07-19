@@ -30,8 +30,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages (core + renderer + astro + stdlib-systems + lsp + mdx)
-        run: pnpm --filter @markdy/core --filter @markdy/renderer-dom --filter @markdy/astro --filter @markdy/stdlib-systems --filter markdy-language-server --filter @markdy/mdx run build
+      - name: Build packages (core + renderer + cli + astro + stdlib-systems + lsp + mdx)
+        run: pnpm --filter @markdy/core --filter @markdy/renderer-dom --filter @markdy/cli --filter @markdy/astro --filter @markdy/stdlib-systems --filter @markdy/language-server --filter @markdy/mdx run build
 
       - name: Run tests
         run: pnpm --filter @markdy/core run test
@@ -48,6 +48,12 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+      - name: Publish @markdy/cli → npmjs.com
+        working-directory: packages/cli
+        run: pnpm publish --no-git-checks --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
       - name: Publish @markdy/astro → npmjs.com
         working-directory: packages/astro
         run: pnpm publish --no-git-checks --access public
@@ -60,7 +66,7 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish markdy-language-server → npmjs.com
+      - name: Publish @markdy/language-server → npmjs.com
         working-directory: packages/markdy-language-server
         run: pnpm publish --no-git-checks --access public
         env:
@@ -88,9 +94,10 @@ jobs:
             |---|---|
             | [`@markdy/core`](https://www.npmjs.com/package/@markdy/core) | `pnpm add @markdy/core` |
             | [`@markdy/renderer-dom`](https://www.npmjs.com/package/@markdy/renderer-dom) | `pnpm add @markdy/renderer-dom` |
+            | [`@markdy/cli`](https://www.npmjs.com/package/@markdy/cli) | `pnpm add -D @markdy/cli` |
             | [`@markdy/astro`](https://www.npmjs.com/package/@markdy/astro) | `pnpm add @markdy/astro` |
             | [`@markdy/stdlib-systems`](https://www.npmjs.com/package/@markdy/stdlib-systems) | `pnpm add @markdy/stdlib-systems` |
-            | [`markdy-language-server`](https://www.npmjs.com/package/markdy-language-server) | `pnpm add -D markdy-language-server` |
+            | [`@markdy/language-server`](https://www.npmjs.com/package/@markdy/language-server) | `pnpm add -D @markdy/language-server` |
             | [`@markdy/mdx`](https://www.npmjs.com/package/@markdy/mdx) | `pnpm add @markdy/mdx` |
 
             ### Quick Start

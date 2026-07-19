@@ -1,4 +1,4 @@
-# markdy-language-server
+# @markdy/language-server
 
 Language Server Protocol (LSP) server for MarkdyScript.
 
@@ -11,5 +11,5 @@ Current capabilities:
 Run on stdio:
 
 ```sh
-npx markdy-language-server
+npx @markdy/language-server
 ```

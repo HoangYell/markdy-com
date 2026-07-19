@@ -1,10 +1,9 @@
 {
-  "name": "@markdy/language-server",
+  "name": "@markdy/cli",
   "version": "0.7.14",
-  "description": "Language Server Protocol implementation for MarkdyScript.",
+  "description": "First-party CLI for MarkdyScript: lint, format, explain, render, and local playground tooling.",
   "license": "MIT",
   "type": "module",
-  "sideEffects": false,
   "files": [
     "dist",
     "README.md",
@@ -13,7 +12,7 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "bin": {
-    "markdy-language-server": "./dist/index.js"
+    "markdy": "./dist/index.js"
   },
   "exports": {
     ".": {
@@ -23,17 +22,17 @@
   },
   "keywords": [
     "markdy",
-    "lsp",
-    "language-server",
-    "markdyscript",
-    "editor"
+    "cli",
+    "animation",
+    "dsl",
+    "text-to-motion"
   ],
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
   "homepage": "https://markdy.com",
   "repository": {
     "type": "git",
     "url": "https://github.com/HoangYell/markdy-com.git",
-    "directory": "packages/markdy-language-server"
+    "directory": "packages/cli"
   },
   "bugs": {
     "url": "https://github.com/HoangYell/markdy-com/issues"
@@ -43,17 +42,18 @@
   },
   "scripts": {
     "build": "tsup",
-    "test": "echo \"No tests yet\"",
+    "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@markdy/core": "workspace:*",
-    "vscode-languageserver": "^9.0.1",
-    "vscode-languageserver-textdocument": "^1.0.12"
+    "@markdy/renderer-dom": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "^25.9.5",
     "tsup": "^8.5.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.7"
   }
 }

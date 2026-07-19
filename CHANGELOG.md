@@ -7,13 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.14] — 2026-07-19
 
-### Changed
-- TODO: summarize release changes.
+### Internal
+- **Follow-up release cut** — Published `0.7.14` as a no-feature-change release to keep the release train moving after `0.7.13`.
+- **No runtime behavior changes** — Parser, renderer, website, MDX integration, and language-server behavior are unchanged from `0.7.13`.
 
 ## [0.7.13] — 2026-07-19
 
+### Added
+- **New package: `@markdy/mdx`** — Added a lightweight MDX integration package with a remark plugin and lazy React player for embedding Markdy scenes in MDX content.
+- **Shared language server package** — Added the Markdy language server package for editor integrations and LSP-powered diagnostics/completion.
+
+### Fixed
+- **MDX prop normalization** — Normalized MDX props for better framework compatibility across downstream MDX runtimes.
+
 ### Changed
-- TODO: summarize release changes.
+- **Release automation** — Expanded `release.sh` into a more complete end-to-end release flow covering validation, release PR creation, merge, tagging, and release monitoring.
+- **Website analytics cleanup** — Removed the delayed Google Analytics tracking snippet from the website.
 
 ## [0.7.12] — 2026-07-18
 
