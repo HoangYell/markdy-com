@@ -5,6 +5,13 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.20] — 2026-07-19
+
+### Changed
+- **Documentation visuals optimized to WebP** — Converted the newly added Markdy visual guide and Love Story result assets from PNG to WebP for smaller image payloads.
+- **Cross-package image links refreshed** — Updated homepage and package README visual embeds to reference the new `.webp` assets consistently.
+- **Website showcase alignment** — Kept the homepage visual guide cards in sync with package-level README visuals for clearer ecosystem storytelling.
+
 ## [0.7.19] — 2026-07-19
 
 ### Changed

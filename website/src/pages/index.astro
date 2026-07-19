@@ -175,6 +175,27 @@ markdy <span class="u-fn">lint</span> trailer.markdy
 markdy <span class="u-fn">fmt</span> trailer.markdy --write
 markdy <span class="u-fn">render</span> trailer.markdy --out dist/trailer.html
 markdy <span class="u-fn">check-all</span> examples`;
+
+const VISUAL_GUIDES = [
+  {
+    title: "Package map",
+    description: "A quick summary of the core packages and how they fit together.",
+    image: "/images/markdy-package-map.webp",
+    alt: "Markdy package map visual showing core, renderer, host, and CLI packages",
+  },
+  {
+    title: "CLI workflow",
+    description: "How to install the CLI, render a scene, and open the generated HTML.",
+    image: "/images/markdy-cli-flow.webp",
+    alt: "Markdy CLI workflow visual showing install, render, and output steps",
+  },
+  {
+    title: "Love Story result",
+    description: "The main scene result shown in the playground and the standalone HTML preview.",
+    image: "/images/markdy-love-story-result.webp",
+    alt: "Love Story main Markdy result showing the rendered scene preview",
+  },
+] as const;
 ---
 
 <Layout 
@@ -291,6 +312,26 @@ markdy <span class="u-fn">check-all</span> examples`;
 
   <!-- ─── Main Content ─────────────────────────────────────────────────── -->
   <main>
+    <!-- ─── Visual guides ───────────────────────────────────────────────── -->
+    <section class="visual-guides" aria-label="Visual guides">
+      <div class="section-header">
+        <span class="section-tag">Visuals</span>
+        <h2>Package and CLI quick guides</h2>
+        <p>Two screenshots make the install story and package split easier to scan at a glance.</p>
+      </div>
+      <div class="visual-grid">
+        {VISUAL_GUIDES.map((guide) => (
+          <figure class="visual-card">
+            <img src={guide.image} alt={guide.alt} class="visual-image" loading="lazy" decoding="async" />
+            <figcaption>
+              <strong>{guide.title}</strong>
+              <span>{guide.description}</span>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+
     <!-- ─── Features ─────────────────────────────────────────────────────── -->
     <section id="features" class="features" aria-label="Key features">
       <h2 class="sr-only">Key Features</h2>
@@ -1738,6 +1779,54 @@ seq wave(arm, angle) {
     line-height: 1.5;
   }
 
+  /* ── Visual guides ───────────────────────────────────────────────── */
+  .visual-guides {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 0.5rem;
+  }
+
+  .visual-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .visual-card {
+    margin: 0;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    background: var(--bg-secondary);
+    box-shadow: 0 2px 10px var(--shadow-sm);
+  }
+
+  .visual-image {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .visual-card figcaption {
+    display: grid;
+    gap: 0.25rem;
+    padding: 1rem 1rem 1.1rem;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .visual-card strong {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .visual-card span {
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+  }
+
   /* ── Packages ────────────────────────────────────────────────────── */
   .packages {
     max-width: 1080px;
@@ -1851,6 +1940,12 @@ seq wave(arm, angle) {
     background: var(--accent-light);
     padding: 0.15rem 0.5rem;
     border-radius: 100px;
+  }
+
+  @media (max-width: 768px) {
+    .visual-guides {
+      padding: 2rem 1rem 0.5rem;
+    }
   }
 
   /* ── Section tags & headers ──────────────────────────────────────── */
