@@ -9,6 +9,12 @@ Every file in this tree parses cleanly on the current grammar. Changes that brea
 
 Compat-gate fixtures (baseline snapshot corpus) live alongside their snapshots in `packages/compat/fixtures/` and are covered by `pnpm run gate`.
 
+## Output preview
+
+<p align="center">
+	<img src="../website/public/images/markdy-output-preview.webp" alt="Markdy output preview" width="1000" />
+</p>
+
 ## Verifying
 
 ```bash

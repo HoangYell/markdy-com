@@ -5,6 +5,13 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.21] — 2026-07-19
+
+### Changed
+- **README output preview unified** — Added a single shared output-preview image embed across root, examples, and package READMEs so users can quickly see real Markdy render output.
+- **Visual docs simplified** — Replaced prior screenshot-heavy visual-guide sections with clearer text-based package-position maps in package docs.
+- **Website visual cleanup** — Removed the homepage image-card visual guide section and deleted the older generated showcase image assets.
+
 ## [0.7.20] — 2026-07-19
 
 ### Changed
