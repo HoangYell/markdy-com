@@ -1,11 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { readFile } from "node:fs/promises";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
+import { join } from "node:path";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const ROOT = join(__dirname, "../../../..");
+const ROOT = join(process.cwd(), "..");
 
 type PlaygroundExample = {
   label: string;
@@ -272,7 +270,7 @@ markdy <span class="u-fn">check-all</span> examples`;
     <div class="section-header">
       <span class="section-tag">Interactive</span>
       <h2>Playground</h2>
-      <p>Edit the code and watch it animate. The sidebar loads directly from the shipped <code>examples/</code> files.</p>
+      <p>Start from a real shipped example, tweak the script, and preview the result instantly.</p>
     </div>
 
     <div class="editor-layout">
@@ -948,9 +946,10 @@ seq wave(arm, angle) {
     const wrapH = stageWrap.clientHeight;
     if (wrapW === 0 || wrapH === 0) return;
 
-    const padding = 20;
-    const availW = wrapW - padding;
-    const availH = wrapH - padding;
+    const paddingX = 32;
+    const paddingY = 48;
+    const availW = wrapW - paddingX;
+    const availH = wrapH - paddingY;
 
     const scaleX = availW / sceneWidth;
     const scaleY = availH / sceneHeight;
@@ -1015,13 +1014,13 @@ seq wave(arm, angle) {
     if (!example) {
       exampleDescription.textContent = "Custom scene";
       exampleSourceLink.href = "https://github.com/HoangYell/markdy-com/tree/main/examples";
-      exampleSourceLink.textContent = "Browse examples/";
+      exampleSourceLink.textContent = "Browse examples ↗";
       return;
     }
 
     exampleDescription.textContent = example.description;
     exampleSourceLink.href = example.sourceUrl;
-    exampleSourceLink.textContent = example.sourcePath;
+    exampleSourceLink.textContent = "View source ↗";
   }
 
   function getEditorCode(): string {
@@ -1628,7 +1627,7 @@ seq wave(arm, angle) {
 
   /* ── Packages ────────────────────────────────────────────────────── */
   .packages {
-    max-width: 900px;
+    max-width: 1080px;
     margin: 0 auto;
     padding: 2.5rem 1.5rem 3rem;
     border-top: 1px solid var(--border-subtle);
@@ -1636,11 +1635,15 @@ seq wave(arm, angle) {
 
   .pkg-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: 1rem;
+    max-width: 980px;
+    margin: 0 auto;
+    align-items: stretch;
   }
 
   .pkg-card {
+    grid-column: span 2;
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
@@ -1650,6 +1653,14 @@ seq wave(arm, angle) {
     background: var(--bg-secondary);
     text-decoration: none;
     transition: all 0.2s ease;
+  }
+
+  .pkg-card:nth-child(4) {
+    grid-column: 2 / span 2;
+  }
+
+  .pkg-card:nth-child(5) {
+    grid-column: 4 / span 2;
   }
 
   .pkg-card:hover {
@@ -1731,7 +1742,7 @@ seq wave(arm, angle) {
 
   /* ── Playground ──────────────────────────────────────────────────── */
   .playground {
-    max-width: 1100px;
+    max-width: 1240px;
     margin: 0 auto;
     padding: 2rem 1.5rem 3rem;
   }
@@ -1786,12 +1797,12 @@ seq wave(arm, angle) {
   /* ── Editor layout ───────────────────────────────────────────────── */
   .editor-layout {
     display: grid;
-    grid-template-columns: 240px 1fr 1fr;
+    grid-template-columns: minmax(220px, 240px) minmax(360px, 1.1fr) minmax(400px, 1.25fr);
     gap: 0;
     border: 1px solid var(--border);
     border-radius: 12px;
     overflow: hidden;
-    height: 520px;
+    height: clamp(560px, 68vh, 680px);
     background: var(--bg-secondary);
     box-shadow: 0 4px 24px var(--shadow-sm);
     transition: all 0.3s ease;
@@ -1819,6 +1830,9 @@ seq wave(arm, angle) {
     color: var(--text-primary);
     font-weight: 600;
     text-decoration: none;
+    text-transform: none;
+    letter-spacing: 0;
+    white-space: nowrap;
   }
 
   .example-source-link:hover {
@@ -1852,6 +1866,7 @@ seq wave(arm, angle) {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 0.75rem;
     padding: 0.45rem 0.85rem;
     background: var(--bg-tertiary);
     border-bottom: 1px solid var(--border);
@@ -1861,6 +1876,10 @@ seq wave(arm, angle) {
     text-transform: uppercase;
     letter-spacing: 0.07em;
     transition: all 0.3s ease;
+  }
+
+  .panel-label > span:first-child {
+    flex-shrink: 0;
   }
 
   .editor-toolbar {
@@ -1936,7 +1955,7 @@ seq wave(arm, angle) {
     position: relative;
     background: var(--bg-tertiary);
     overflow: hidden;
-    padding: 0;
+    padding: 1rem;
     transition: background 0.3s ease;
   }
 
@@ -2464,6 +2483,19 @@ seq wave(arm, angle) {
   }
 
   /* ── Responsive ──────────────────────────────────────────────────── */
+  @media (max-width: 1080px) {
+    .pkg-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      max-width: 720px;
+    }
+
+    .pkg-card,
+    .pkg-card:nth-child(4),
+    .pkg-card:nth-child(5) {
+      grid-column: auto;
+    }
+  }
+
   @media (max-width: 768px) {
     .menu-toggle { display: flex; }
 
@@ -2485,12 +2517,17 @@ seq wave(arm, angle) {
 
     .nav-links a { font-size: 0.9rem; }
 
-    .hero { padding: 3.5rem 1rem 2rem; }
-    .hero h1 { font-size: 2rem; }
-    .hero-sub { font-size: 0.95rem; }
+    .nav { padding: 0.7rem 1rem; }
+    .hero { padding: 3rem 1rem 1.75rem; }
+    .hero h1 { font-size: 2rem; line-height: 1.06; }
+    .hero-sub { font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem; }
+    .usage-section { max-width: none; }
+    .usage-tabs { overflow-x: auto; scrollbar-width: none; }
+    .usage-tabs::-webkit-scrollbar { display: none; }
+    .usage-tab { flex: 1 0 auto; white-space: nowrap; padding: 0.5rem 0.85rem; }
 
     .features-grid { grid-template-columns: repeat(2, 1fr); }
-    .pkg-grid { grid-template-columns: 1fr; }
+    .pkg-grid { grid-template-columns: 1fr; max-width: none; }
 
     .editor-layout { grid-template-columns: 1fr; }
     .examples-col { border-right: none; border-bottom: 1px solid var(--border); }
@@ -2513,8 +2550,52 @@ seq wave(arm, angle) {
   @media (max-width: 480px) {
     .features-grid { grid-template-columns: 1fr; }
     .footer-cols { grid-template-columns: 1fr; }
-    .hero-actions { flex-direction: column; }
-    .usage-section { margin-top: 1.5rem; }
+    .nav-brand { font-size: 1rem; }
+    .brand-icon { font-size: 1.1rem; }
+    .hero { padding: 2.35rem 1rem 1.25rem; }
+    .hero-badge {
+      font-size: 0.65rem;
+      padding: 0.28rem 0.75rem;
+      margin-bottom: 0.9rem;
+      letter-spacing: 0.07em;
+    }
+    .hero h1 {
+      font-size: 1.72rem;
+      margin-bottom: 0.75rem;
+      letter-spacing: -0.05em;
+    }
+    .hero-sub {
+      font-size: 0.82rem;
+      line-height: 1.55;
+      max-width: 330px;
+      margin-bottom: 1.25rem;
+    }
+    .hero-actions {
+      flex-direction: column;
+      gap: 0.6rem;
+      align-items: stretch;
+      max-width: 320px;
+      margin: 0 auto;
+    }
+    .btn-primary,
+    .btn-secondary {
+      width: 100%;
+      justify-content: center;
+      padding: 0.8rem 1rem;
+      font-size: 0.88rem;
+    }
+    .usage-section { margin-top: 1.1rem; }
+    .usage-tab { font-size: 0.72rem; padding: 0.45rem 0.7rem; }
+    .usage-install { padding: 0.4rem 0.5rem 0.4rem 0.65rem; }
+    .usage-cmd { font-size: 0.72rem; line-height: 1.35; }
+    .copy-btn { width: 30px; height: 30px; }
+    .usage-code {
+      font-size: 0.7rem;
+      line-height: 1.55;
+      padding: 0.75rem 0.8rem;
+      max-height: 220px;
+      -webkit-overflow-scrolling: touch;
+    }
 
     .syntax-ref { padding: 2rem 0.75rem 2.5rem; }
     .ref-card { padding: 1rem; }
