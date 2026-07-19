@@ -15,16 +15,18 @@ The parser and AST types for [MarkdyScript](../../docs/SYNTAX.md) — a DSL for 
 pnpm add @markdy/core
 ```
 
-## Visual guide
+## Package position (text)
+
+```text
+@markdy/core
+  -> parser + AST types (no DOM, no runtime deps)
+  -> foundation for renderer, CLI, language server, and integrations
+```
+
+## Output preview
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-core-renderer-map.webp" alt="Markdy core and renderer package map" width="900" />
-</p>
-
-## Love Story result
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-love-story-result.webp" alt="Love Story main Markdy result" width="900" />
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-output-preview.webp" alt="Markdy output preview" width="900" />
 </p>
 
 ## Usage

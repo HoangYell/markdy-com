@@ -8,16 +8,18 @@ Current capabilities:
 - hover docs for common actions
 - document symbols for scenes, actors, defs, and seqs
 
-## Visual guide
+## Package position (text)
+
+```text
+Editor -> @markdy/language-server -> @markdy/core parser
+
+The server translates parse diagnostics and symbols into LSP responses.
+```
+
+## Output preview
 
 <p align="center">
-	<img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-tooling-map.webp" alt="Markdy tooling and editor support visual" width="900" />
-</p>
-
-## Love Story result
-
-<p align="center">
-	<img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-love-story-result.webp" alt="Love Story main Markdy result" width="900" />
+	<img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-output-preview.webp" alt="Markdy output preview" width="900" />
 </p>
 
 Run on stdio:

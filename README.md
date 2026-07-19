@@ -79,23 +79,35 @@ npm i -g @markdy/cli
 
 `--out` writes the generated HTML to the path you pass in, relative to the current working directory unless you give an absolute path.
 
-## Visual guides
+## Ecosystem map (text)
+
+```text
+@markdy/core
+  -> parses MarkdyScript into AST
+
+@markdy/renderer-dom
+  -> renders AST in the browser with Web Animations API
+
+@markdy/astro, @markdy/mdx
+  -> host integrations for site/content workflows
+
+@markdy/cli
+  -> lint, format, render, explain, and preview commands
+
+@markdy/language-server
+  -> diagnostics, completion, and hover in editors
+
+@markdy/stdlib-systems
+  -> optional actor/action pack for system diagrams
+```
+
+## Output preview
 
 <p align="center">
-  <img src="website/public/images/markdy-package-map.webp" alt="Markdy package map visual" width="1100" />
+  <img src="website/public/images/markdy-output-preview.webp" alt="Markdy output preview" width="1100" />
 </p>
 
-<p align="center">
-  <img src="website/public/images/markdy-cli-flow.webp" alt="Markdy CLI workflow visual" width="1100" />
-</p>
-
-## Love Story result
-
-<p align="center">
-  <img src="website/public/images/markdy-love-story-result.webp" alt="Love Story main Markdy result" width="1100" />
-</p>
-
-This is the default Love Story / Full Story preview used across the site. To get the same result locally, run:
+To preview a full scene result locally, run:
 
 ```sh
 npx markdy render examples/00-love-story.markdy --out examples/xscene.html

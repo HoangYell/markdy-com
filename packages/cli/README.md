@@ -11,19 +11,22 @@ npm i -D @markdy/cli
 If you install it into a project, run it with `npx markdy ...` or `npm exec markdy ...` from that project.
 To make `markdy` available as a shell command everywhere, install it globally with `npm i -g @markdy/cli`.
 
-## Visual guide
+## Package position (text)
+
+```text
+@markdy/cli
+	-> reads .markdy files from disk
+	-> uses parser/runtime packages internally
+	-> outputs diagnostics, formatted source, or rendered HTML
+```
+
+## Output preview
 
 <p align="center">
-	<img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-cli-flow.webp" alt="Markdy CLI workflow visual" width="900" />
+	<img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-output-preview.webp" alt="Markdy output preview" width="900" />
 </p>
 
-## Love Story result
-
-<p align="center">
-	<img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-love-story-result.webp" alt="Love Story main Markdy result" width="900" />
-</p>
-
-Use the same command shown in this repo to generate the preview image yourself:
+Use this command to generate a local HTML preview:
 
 ```bash
 npx markdy render examples/00-love-story.markdy --out examples/xscene.html

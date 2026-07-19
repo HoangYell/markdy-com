@@ -11,16 +11,18 @@ MDX integration for MarkdyScript with Lighthouse-safe defaults:
 pnpm add @markdy/mdx react react-dom
 ```
 
-## Visual guide
+## Package position (text)
+
+```text
+@markdy/core -> @markdy/renderer-dom -> @markdy/mdx
+
+MDX integration transforms fenced markdy blocks into lazy player components.
+```
+
+## Output preview
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-integrations-map.webp" alt="Markdy Astro and MDX integration visual" width="900" />
-</p>
-
-## Love Story result
-
-<p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-love-story-result.webp" alt="Love Story main Markdy result" width="900" />
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-output-preview.webp" alt="Markdy output preview" width="900" />
 </p>
 
 ## Usage
