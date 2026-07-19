@@ -70,27 +70,6 @@ const {
       "author": { "@type": "Person", "name": "Hoang Yell", "url": "https://hoangyell.com" }
     })} />
 
-    <!-- Google tag (gtag.js) - Delayed for Perf -->
-    <script is:inline>
-      let isGtagLoaded = false;
-      const loadGtag = () => {
-        if (isGtagLoaded) return;
-        isGtagLoaded = true;
-        const script = document.createElement('script');
-        script.src = "https://www.googletagmanager.com/gtag/js?id=G-THREG65JS6";
-        script.async = true;
-        document.head.appendChild(script);
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-THREG65JS6');
-      };
-      ['mousemove', 'scroll', 'keydown', 'click', 'touchstart'].forEach(function(e) {
-        window.addEventListener(e, loadGtag, { once: true, passive: true });
-      });
-      setTimeout(loadGtag, 8000);
-    </script>
-
     <!-- Prevent FOUC: set theme before render -->
     <script is:inline>
       (function() {
