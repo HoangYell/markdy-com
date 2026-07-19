@@ -14,24 +14,29 @@ type PlaygroundExample = {
   previewStart?: number;
 };
 
-const PLAYGROUND_EXAMPLE_FILES = [
-  "00-love-story.markdy",
-  "02-at-plus-shorthand.markdy",
-  "03-chapters.markdy",
-  "06-camera-shake.markdy",
-  "09-exit-action.markdy",
-  "10-unified-modifiers.markdy",
-  "13-combined.markdy",
-  "15-must-understand.markdy",
-];
-
-function titleizeExample(fileName: string): string {
-  const base = fileName.replace(/^\d+-/, "").replace(/\.markdy$/, "");
-  return base
-    .split("-")
-    .map((part) => part === "at" ? "@+" : part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
+const PLAYGROUND_EXAMPLES = [
+  {
+    fileName: "00-love-story.markdy",
+    label: "Love Story",
+    previewStart: 3.2,
+  },
+  {
+    fileName: "13-combined.markdy",
+    label: "Feature Tour",
+  },
+  {
+    fileName: "06-camera-shake.markdy",
+    label: "Fight Beat",
+  },
+  {
+    fileName: "02-at-plus-shorthand.markdy",
+    label: "@+ Timing",
+  },
+  {
+    fileName: "10-unified-modifiers.markdy",
+    label: "Modifiers",
+  },
+] as const;
 
 function firstCommentDescription(code: string): string {
   const first = code.split(/\r?\n/).find((line) => line.trim().startsWith("#"));
@@ -39,16 +44,16 @@ function firstCommentDescription(code: string): string {
 }
 
 const EXAMPLES: PlaygroundExample[] = await Promise.all(
-  PLAYGROUND_EXAMPLE_FILES.map(async (fileName) => {
+  PLAYGROUND_EXAMPLES.map(async ({ fileName, label, previewStart }) => {
     const sourcePath = `examples/${fileName}`;
     const code = await readFile(join(ROOT, sourcePath), "utf8");
     return {
-      label: titleizeExample(fileName),
+      label,
       sourcePath,
       sourceUrl: `https://github.com/HoangYell/markdy-com/blob/main/${sourcePath}`,
       description: firstCommentDescription(code),
       code,
-      previewStart: fileName === "00-love-story.markdy" ? 3.2 : 0,
+      previewStart: previewStart ?? 0,
     };
   }),
 );
