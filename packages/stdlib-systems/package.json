@@ -1,6 +1,6 @@
 {
   "name": "@markdy/stdlib-systems",
-  "version": "0.7.20",
+  "version": "0.7.21",
   "description": "System diagram actor/action pack for Markdy.",
   "license": "MIT",
   "type": "module",
