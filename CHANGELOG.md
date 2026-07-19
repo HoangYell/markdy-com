@@ -5,6 +5,16 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.17] — 2026-07-19
+
+### Added
+- **Restored homepage default scene** — Brought back the original Love Story example as a shipped scene file and made it the default playground example again.
+
+### Changed
+- **Homepage example curation** — Reduced the homepage example picker to a smaller, stronger set of scenes so the sidebar focuses on the best demos.
+- **Preview sizing behavior** — Adjusted the playground preview to scale scenes up while preserving their original aspect ratio, rather than using a crop/zoom style fill.
+- **Default preview framing** — Start the Love Story default example from a more meaningful moment so the preview is visually informative on first load.
+
 ## [0.7.16] — 2026-07-19
 
 ### Changed
