@@ -1170,6 +1170,12 @@ function validateActionForActor(
   lineNum: number,
   warnings: ParseWarning[],
 ): void {
+  // Registry-known actions take precedence over the hardcoded figure-only
+  // set: a registered actor pack may legitimately grant a figure-only-named
+  // action (e.g. "wave", "bounce") to its own actor type, and that explicit
+  // grant should win over the generic reservation below.
+  if (isKnownAction(actorDef.type, action)) return;
+
   if (isFigureOnlyAction(action)) {
     if (actorDef.type !== "figure") {
       throw new ParseError(
@@ -1179,7 +1185,6 @@ function validateActionForActor(
     }
     return;
   }
-  if (isKnownAction(actorDef.type, action)) return;
 
   if (mustUnderstand) {
     throw new ParseError(`Unknown action "${action}" (must-understand form)`, lineNum);

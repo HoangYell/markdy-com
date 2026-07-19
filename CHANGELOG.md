@@ -5,6 +5,12 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.19] — 2026-07-19
+
+### Changed
+- **Homepage package showcase details** — Added clearer package-level descriptions and practical usage examples on the homepage so new users can understand each package's role faster.
+- **Website button accessibility and ergonomics** — Improved button accessibility and interaction behavior in the website layout for better keyboard and screen-reader usability.
+
 ## [0.7.18] — 2026-07-19
 
 ### Changed

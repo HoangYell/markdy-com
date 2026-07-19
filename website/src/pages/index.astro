@@ -69,6 +69,69 @@ const FEATURES = [
   { icon: "🧩", title: "Framework Agnostic", desc: "Works anywhere. Astro island component included." },
 ];
 
+/* ── Packages: one card per published package, each with a real usage line ──
+   `required` packages are the minimum to render a scene anywhere; everything
+   else is an optional add-on for a specific host (Astro, MDX), workflow
+   (CLI, editor tooling), or content pack (system-diagram actors). ── */
+const PACKAGES = [
+  {
+    name: "@markdy/core",
+    required: true,
+    badge: "Engine",
+    desc: "Parser + AST types. Every other package builds on this — no DOM, no dependencies.",
+    size: "~12 KB",
+    snippet: `<span class="u-kw">import</span> { parse } <span class="u-kw">from</span> <span class="u-str">"@markdy/core"</span>;`,
+  },
+  {
+    name: "@markdy/renderer-dom",
+    required: true,
+    badge: "DOM",
+    desc: "Takes a parsed scene and animates it in the browser via the Web Animations API.",
+    size: "~22 KB",
+    snippet: `<span class="u-kw">import</span> { createPlayer } <span class="u-kw">from</span> <span class="u-str">"@markdy/renderer-dom"</span>;`,
+  },
+  {
+    name: "@markdy/astro",
+    required: false,
+    badge: "Astro",
+    desc: "Astro island. Pass your scene as a code prop — it hydrates only when scrolled into view.",
+    size: "~2 KB",
+    snippet: `&lt;<span class="u-fn">Markdy</span> code={code} autoplay /&gt;`,
+  },
+  {
+    name: "@markdy/mdx",
+    required: false,
+    badge: "MDX",
+    desc: "Write fenced markdy code blocks straight in Markdown/MDX — no component imports needed.",
+    size: "~8 KB",
+    snippet: `remarkPlugins: [<span class="u-fn">remarkMarkdy</span>]`,
+  },
+  {
+    name: "@markdy/cli",
+    required: false,
+    badge: "Tooling",
+    desc: "Lint, format, render, and preview .markdy files from your terminal — no browser needed.",
+    size: "Node",
+    snippet: `markdy <span class="u-fn">render</span> scene.markdy --out out.html`,
+  },
+  {
+    name: "@markdy/language-server",
+    required: false,
+    badge: "LSP",
+    desc: "Diagnostics, autocomplete, and hover docs for any LSP-capable editor (VS Code, Neovim, Zed).",
+    size: "Node",
+    snippet: `npx <span class="u-str">@markdy/language-server</span>`,
+  },
+  {
+    name: "@markdy/stdlib-systems",
+    required: false,
+    badge: "Actor Pack",
+    desc: "Optional add-on: service/db/queue/client actors for drawing system architecture diagrams.",
+    size: "<1 KB",
+    snippet: `<span class="u-fn">registerActorPack</span>(systemsPack);`,
+  },
+] as const;
+
 /* ── Usage code snippets (pre-formatted HTML to avoid Astro expression parsing) ── */
 const USAGE_VANILLA = `<span class="u-kw">import</span> { createPlayer } <span class="u-kw">from</span> <span class="u-str">"@markdy/renderer-dom"</span>;
 
@@ -93,15 +156,19 @@ const USAGE_ASTRO = `<span class="u-comment">---</span>
 
 &lt;<span class="u-fn">Markdy</span> {code} width={800} height={400} bg=<span class="u-str">"#fff5f9"</span> autoplay /&gt;`;
 
-const USAGE_MDX = `<span class="u-kw">import</span> { Markdy } <span class="u-kw">from</span> <span class="u-str">"@markdy/astro"</span>;
+const USAGE_MDX = `<span class="u-comment">// mdx.config.mjs — one-time setup</span>
+<span class="u-kw">import</span> { remarkMarkdy } <span class="u-kw">from</span> <span class="u-str">"@markdy/mdx"</span>;
 
-<span class="u-kw">export const</span> code = <span class="u-str">\`
-  scene width=600 height=300 bg=white
-  actor label = text("Hello") at (200, 130) size 40 opacity 0
-  @0.3: label.fade_in(dur=0.6)
-\`</span>;
+<span class="u-kw">export default</span> {
+  remarkPlugins: [remarkMarkdy],
+};
 
-&lt;<span class="u-fn">Markdy</span> {code} width={600} height={300} autoplay /&gt;`;
+<span class="u-comment">// content.mdx — no imports, just write markdown</span>
+\`\`\`markdy
+scene width=600 height=300 bg=white
+actor label = text(<span class="u-str">"Hello"</span>) at (200, 130) size 40
+@0.3: label.fade_in(dur=0.6)
+\`\`\``;
 
 const USAGE_CLI = `<span class="u-comment"># validate, format, and preview a scene</span>
 markdy <span class="u-fn">lint</span> trailer.markdy
@@ -180,7 +247,8 @@ markdy <span class="u-fn">check-all</span> examples`;
         <div class="usage-install">
           <code class="usage-cmd">npm i @markdy/core @markdy/renderer-dom</code>
           <button class="copy-btn" title="Copy" aria-label="Copy install command">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <svg class="copy-icon-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </button>
         </div>
         <pre class="usage-code"><code set:html={USAGE_VANILLA} /></pre>
@@ -190,7 +258,8 @@ markdy <span class="u-fn">check-all</span> examples`;
         <div class="usage-install">
           <code class="usage-cmd">pnpm add -D @markdy/cli</code>
           <button class="copy-btn" title="Copy" aria-label="Copy install command">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <svg class="copy-icon-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </button>
         </div>
         <pre class="usage-code"><code set:html={USAGE_CLI} /></pre>
@@ -200,7 +269,8 @@ markdy <span class="u-fn">check-all</span> examples`;
         <div class="usage-install">
           <code class="usage-cmd">pnpm add @markdy/astro</code>
           <button class="copy-btn" title="Copy" aria-label="Copy install command">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <svg class="copy-icon-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </button>
         </div>
         <pre class="usage-code"><code set:html={USAGE_ASTRO} /></pre>
@@ -208,9 +278,10 @@ markdy <span class="u-fn">check-all</span> examples`;
 
       <div class="usage-panel" data-panel="mdx">
         <div class="usage-install">
-          <code class="usage-cmd">pnpm add @markdy/astro</code>
+          <code class="usage-cmd">pnpm add @markdy/mdx react react-dom</code>
           <button class="copy-btn" title="Copy" aria-label="Copy install command">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <svg class="copy-icon-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </button>
         </div>
         <pre class="usage-code"><code set:html={USAGE_MDX} /></pre>
@@ -239,34 +310,20 @@ markdy <span class="u-fn">check-all</span> examples`;
     <div class="section-header">
       <span class="section-tag">Ecosystem</span>
       <h2>Lightweight Packages</h2>
-      <p>Ship only what you need. Tiny bundles, zero bloat.</p>
+      <p>Two packages to render a scene anywhere. Everything else is an optional add-on for your stack.</p>
     </div>
     <div class="pkg-grid">
-      <a class="pkg-card" href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener noreferrer">
-        <div class="pkg-name">@markdy/core</div>
-        <div class="pkg-desc">Parser + AST types — zero runtime deps</div>
-        <div class="pkg-meta"><span class="pkg-size">~12 KB</span><span class="pkg-badge">TypeScript</span></div>
-      </a>
-      <a class="pkg-card" href="https://www.npmjs.com/package/@markdy/renderer-dom" target="_blank" rel="noopener noreferrer">
-        <div class="pkg-name">@markdy/renderer-dom</div>
-        <div class="pkg-desc">Web Animations API renderer</div>
-        <div class="pkg-meta"><span class="pkg-size">~22 KB</span><span class="pkg-badge">DOM</span></div>
-      </a>
-      <a class="pkg-card" href="https://www.npmjs.com/package/@markdy/cli" target="_blank" rel="noopener noreferrer">
-        <div class="pkg-name">@markdy/cli</div>
-        <div class="pkg-desc">CLI for linting, formatting, previews, and local playground workflows</div>
-        <div class="pkg-meta"><span class="pkg-size">Node</span><span class="pkg-badge">Tooling</span></div>
-      </a>
-      <a class="pkg-card" href="https://www.npmjs.com/package/@markdy/astro" target="_blank" rel="noopener noreferrer">
-        <div class="pkg-name">@markdy/astro</div>
-        <div class="pkg-desc">Astro island component — viewport hydration</div>
-        <div class="pkg-meta"><span class="pkg-size">~2 KB</span><span class="pkg-badge">Astro</span></div>
-      </a>
-      <a class="pkg-card" href="https://www.npmjs.com/package/@markdy/language-server" target="_blank" rel="noopener noreferrer">
-        <div class="pkg-name">@markdy/language-server</div>
-        <div class="pkg-desc">Shared LSP server for diagnostics, completion, and editor integrations</div>
-        <div class="pkg-meta"><span class="pkg-size">Node</span><span class="pkg-badge">LSP</span></div>
-      </a>
+      {PACKAGES.map((pkg) => (
+        <a class="pkg-card" href={`https://www.npmjs.com/package/${pkg.name}`} target="_blank" rel="noopener noreferrer">
+          <div class="pkg-card-top">
+            <div class="pkg-name">{pkg.name}</div>
+            {pkg.required && <span class="pkg-required">Required</span>}
+          </div>
+          <div class="pkg-desc">{pkg.desc}</div>
+          <pre class="pkg-snippet"><code set:html={pkg.snippet} /></pre>
+          <div class="pkg-meta"><span class="pkg-size">{pkg.size}</span><span class="pkg-badge">{pkg.badge}</span></div>
+        </a>
+      ))}
     </div>
   </section>
 
@@ -345,7 +402,7 @@ markdy <span class="u-fn">check-all</span> examples`;
         <div class="ref-card-header">
           <div class="step-badge">1</div>
           <h3>Scene Setup</h3>
-          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
         <p class="ref-intro">Every animation starts by defining the canvas. This must be the first line in your <code>.markdy</code> file.</p>
         <div class="ref-code-wrap">
@@ -372,7 +429,7 @@ actor a = figure(#c68642, m, 😎) at (400, 200) scale 1.5
         <div class="ref-card-header">
           <div class="step-badge">2</div>
           <h3>Actors & Positioning</h3>
-          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
         <p class="ref-intro">Actors are the objects in your scene. Place them with <code>at (x, y)</code> and add optional modifiers.</p>
         <div class="ref-code-wrap">
@@ -404,7 +461,7 @@ actor c = box() at (600, 200)
         <div class="ref-card-header">
           <div class="step-badge">3</div>
           <h3>Timeline & Motion</h3>
-          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
         <p class="ref-intro">Schedule actions on a timeline with <code>@time: actor.action()</code>. Time is in decimal seconds.</p>
         <div class="ref-code-wrap">
@@ -438,7 +495,7 @@ actor a = figure(#c68642, m, 😎) at (400, 200)
         <div class="ref-card-header">
           <div class="step-badge">4</div>
           <h3>Speech & Effects</h3>
-          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
         <p class="ref-intro">Make actors talk with comic speech bubbles and add dynamic effects like shaking.</p>
         <div class="ref-code-wrap">
@@ -472,7 +529,7 @@ actor b = figure(#fad4c0, f, 😊) at (550, 200)
         <div class="ref-card-header">
           <div class="step-badge">5</div>
           <h3>Expressions & Limbs</h3>
-          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
         <p class="ref-intro"><code>figure</code> actors have articulated limbs you can individually control for expressive animations.</p>
         <div class="ref-code-wrap">
@@ -506,7 +563,7 @@ actor a = figure(#c68642, m, 😐) at (400, 200) scale 1.5
         <div class="ref-card-header">
           <div class="step-badge">5b</div>
           <h3>Gestures & Posing</h3>
-          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
         <p class="ref-intro">Built-in gestures save you from chaining <code>rotate_part</code> calls. <code>pose</code> sets multiple parts at once.</p>
         <div class="ref-code-wrap">
@@ -546,7 +603,7 @@ actor a = figure(#c68642, m, 😎) at (400, 200) scale 1.5
         <div class="ref-card-header">
           <div class="step-badge">6</div>
           <h3>Assets & Sprites</h3>
-          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
         <p class="ref-intro">Load external images and vector icons as assets, then render them as <code>sprite</code> actors.</p>
         <div class="ref-code-wrap">
@@ -581,7 +638,7 @@ actor flames = sprite(fire_icon) at (200, 200) scale 2.0
         <div class="ref-card-header">
           <div class="step-badge">7</div>
           <h3>Variables & Templates</h3>
-          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
         <p class="ref-intro">Avoid repetition with <code>var</code> for values and <code>def</code> for reusable actor templates.</p>
         <div class="ref-code-wrap">
@@ -612,7 +669,7 @@ actor rose = char(#e5a285, 👩) at (600, 200) scale 1.5
         <div class="ref-card-header">
           <div class="step-badge">8</div>
           <h3>Sequences</h3>
-          <button class="apply-ref-btn" title="Try in Playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
         <p class="ref-intro">Package multi-step choreographies into reusable <code>seq</code> blocks. The ultimate power move.</p>
         <div class="ref-code-wrap">
@@ -803,12 +860,23 @@ seq wave(arm, angle) {
 
   /* ── Copy install commands ─────────────────────────────────────────── */
   document.querySelectorAll<HTMLButtonElement>(".copy-btn").forEach(btn => {
+    let revertTimer: ReturnType<typeof setTimeout> | null = null;
     btn.addEventListener("click", () => {
       const cmd = btn.closest(".usage-install")?.querySelector(".usage-cmd");
       if (!cmd) return;
-      navigator.clipboard.writeText(cmd.textContent?.trim() ?? "");
-      btn.title = "Copied!";
-      setTimeout(() => { btn.title = "Copy"; }, 2000);
+      navigator.clipboard.writeText(cmd.textContent?.trim() ?? "").then(() => {
+        if (revertTimer) clearTimeout(revertTimer);
+        btn.classList.add("copied");
+        btn.title = "Copied!";
+        btn.setAttribute("aria-label", "Copied to clipboard");
+        revertTimer = setTimeout(() => {
+          btn.classList.remove("copied");
+          btn.title = "Copy";
+          btn.setAttribute("aria-label", "Copy install command");
+        }, 2000);
+      }).catch(() => {
+        btn.title = "Copy failed — select and copy manually";
+      });
     });
   });
 
@@ -1138,13 +1206,14 @@ seq wave(arm, angle) {
     const code = getEditorCode();
     const url = setShareURL(code);
     navigator.clipboard.writeText(url).then(() => {
-      const prev = shareBtn.textContent!.trim();
       shareBtn.textContent = "✓ Copied!";
       shareBtn.style.color = "var(--accent, #ea4c89)";
       setTimeout(() => {
         shareBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share`;
         shareBtn.style.color = "";
       }, 2000);
+    }).catch(() => {
+      shareBtn.title = "Copy failed — check clipboard permissions";
     });
   });
 
@@ -1594,6 +1663,10 @@ seq wave(arm, angle) {
 
   .copy-btn:hover { color: var(--accent); background: var(--accent-light); }
 
+  .copy-btn.copied { color: var(--accent); background: var(--accent-light); }
+  .copy-btn.copied .copy-icon { display: none; }
+  .copy-btn.copied .copy-icon-check { display: block !important; }
+
   .usage-code {
     background: var(--ref-code-bg);
     color: var(--ref-code-text);
@@ -1695,12 +1768,9 @@ seq wave(arm, angle) {
     transition: all 0.2s ease;
   }
 
-  .pkg-card:nth-child(4) {
-    grid-column: 2 / span 2;
-  }
-
-  .pkg-card:nth-child(5) {
-    grid-column: 4 / span 2;
+  /* 7 cards at span-2 in a 6-col grid leaves one orphan on the last row — center it */
+  .pkg-card:last-child {
+    grid-column: 3 / span 2;
   }
 
   .pkg-card:hover {
@@ -1710,6 +1780,13 @@ seq wave(arm, angle) {
     color: var(--text-primary);
   }
 
+  .pkg-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
   .pkg-name {
     font-family: "JetBrains Mono", monospace;
     font-size: 0.82rem;
@@ -1717,11 +1794,38 @@ seq wave(arm, angle) {
     color: var(--accent);
   }
 
+  .pkg-required {
+    flex-shrink: 0;
+    font-size: 0.6rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    padding: 0.1rem 0.4rem;
+    border-radius: 100px;
+  }
+
   .pkg-desc {
     font-size: 0.78rem;
     color: var(--text-primary);
     line-height: 1.45;
+  }
+
+  .pkg-snippet {
     flex: 1;
+    display: flex;
+    align-items: center;
+    background: var(--ref-code-bg);
+    color: var(--ref-code-text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.5rem 0.6rem;
+    margin: 0;
+    font-size: 0.7rem;
+    line-height: 1.4;
+    overflow-x: auto;
+    white-space: pre;
   }
 
   .pkg-meta {
@@ -2534,8 +2638,7 @@ seq wave(arm, angle) {
     }
 
     .pkg-card,
-    .pkg-card:nth-child(4),
-    .pkg-card:nth-child(5) {
+    .pkg-card:last-child {
       grid-column: auto;
     }
   }

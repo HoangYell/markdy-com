@@ -214,19 +214,22 @@ function buildSemanticTokenData(document: TextDocument): number[] {
   for (let line = 0; line < lines.length; line++) {
     const content = lines[line];
     const head = content.trim();
+    // Collected per-line and sorted by column before emitting: the LSP semantic
+    // tokens data array is a delta encoding that requires tokens on the same
+    // line to be emitted in strictly increasing column order.
+    const tokens: Array<{ char: number; length: number; type: (typeof SEMANTIC_TOKEN_TYPES)[number] }> = [];
 
     for (const keyword of KEYWORDS) {
-      const idx = head.indexOf(keyword);
-      if (idx === 0) {
+      if (head.startsWith(keyword) && !/\w/.test(head.charAt(keyword.length))) {
         const start = content.indexOf(keyword);
-        if (start >= 0) pushSemanticToken(data, cursor, line, start, keyword.length, "keyword");
+        if (start >= 0) tokens.push({ char: start, length: keyword.length, type: "keyword" });
       }
     }
 
     for (const name of actors) {
       const match = new RegExp(`\\b${name}\\b`).exec(content);
       if (match?.index !== undefined) {
-        pushSemanticToken(data, cursor, line, match.index, name.length, "variable");
+        tokens.push({ char: match.index, length: name.length, type: "variable" });
       }
     }
 
@@ -234,13 +237,18 @@ function buildSemanticTokenData(document: TextDocument): number[] {
     if (actionMatch?.index !== undefined) {
       const actionName = actionMatch[1];
       const actionStart = actionMatch.index + actionMatch[0].indexOf(actionName);
-      pushSemanticToken(data, cursor, line, actionStart, actionName.length, "method");
+      tokens.push({ char: actionStart, length: actionName.length, type: "method" });
     }
 
     const defMatch = /^def\s+([A-Za-z_]\w*)/.exec(head);
     if (defMatch) {
       const start = content.indexOf(defMatch[1]);
-      if (start >= 0) pushSemanticToken(data, cursor, line, start, defMatch[1].length, "class");
+      if (start >= 0) tokens.push({ char: start, length: defMatch[1].length, type: "class" });
+    }
+
+    tokens.sort((a, b) => a.char - b.char);
+    for (const token of tokens) {
+      pushSemanticToken(data, cursor, line, token.char, token.length, token.type);
     }
   }
   return data;
@@ -324,6 +332,11 @@ connection.onInitialize((_params: InitializeParams): InitializeResult => ({
 
 documents.onDidOpen((e) => validateTextDocument(e.document));
 documents.onDidChangeContent((e) => validateTextDocument(e.document));
+documents.onDidClose((e) => {
+  // Clear diagnostics so stale errors/warnings don't linger in the client
+  // after the document is closed.
+  connection.sendDiagnostics({ uri: e.document.uri, diagnostics: [] });
+});
 
 connection.onCompletion((params): CompletionItem[] => {
   const doc = documents.get(params.textDocument.uri);
