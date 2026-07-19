@@ -11,14 +11,13 @@ type PlaygroundExample = {
   sourceUrl: string;
   description: string;
   code: string;
+  previewStart?: number;
 };
 
 const PLAYGROUND_EXAMPLE_FILES = [
-  "01-caption-basic.markdy",
+  "00-love-story.markdy",
   "02-at-plus-shorthand.markdy",
   "03-chapters.markdy",
-  "04-camera-pan.markdy",
-  "05-camera-zoom.markdy",
   "06-camera-shake.markdy",
   "09-exit-action.markdy",
   "10-unified-modifiers.markdy",
@@ -49,6 +48,7 @@ const EXAMPLES: PlaygroundExample[] = await Promise.all(
       sourceUrl: `https://github.com/HoangYell/markdy-com/blob/main/${sourcePath}`,
       description: firstCommentDescription(code),
       code,
+      previewStart: fileName === "00-love-story.markdy" ? 3.2 : 0,
     };
   }),
 );
@@ -889,6 +889,7 @@ seq wave(arm, angle) {
     sourceUrl: string;
     description: string;
     code: string;
+    previewStart?: number;
   };
 
   const examples: PlaygroundExample[]  = (window as any).__MARKDY_EXAMPLES;
@@ -910,6 +911,7 @@ seq wave(arm, angle) {
   let isAnimPlaying = false;
   let debounce: ReturnType<typeof setTimeout> | null = null;
   let editorView: EditorView | null = null;
+  let currentPreviewStart = 0;
 
   function setPlayState(playing: boolean) {
     isAnimPlaying = playing;
@@ -935,25 +937,49 @@ seq wave(arm, angle) {
     
     // Don't scale error messages
     if (sceneEl.classList.contains("parse-error")) {
+      stageWrap.style.removeProperty("--preview-aspect");
       sceneEl.style.transform = "";
       return;
     }
 
-    const sceneWidth = parseFloat(sceneEl.style.width) || 800;
-    const sceneHeight = parseFloat(sceneEl.style.height) || 400;
-
     const wrapW = stageWrap.clientWidth;
+    const styleWidth = sceneEl.style.width.trim();
+    const styleHeight = sceneEl.style.height.trim();
+    const aspectRatio = sceneEl.style.aspectRatio || getComputedStyle(sceneEl).aspectRatio;
+
+    let sceneWidth = parseFloat(styleWidth);
+    let sceneHeight = parseFloat(styleHeight);
+
+    if (styleWidth.endsWith("%") && aspectRatio.includes("/")) {
+      const [aspectW, aspectH] = aspectRatio.split("/").map((value) => Number.parseFloat(value.trim()));
+      if (Number.isFinite(aspectW) && Number.isFinite(aspectH) && aspectW > 0 && aspectH > 0) {
+        if (wrapW >= 420) {
+          stageWrap.style.setProperty("--preview-aspect", `${aspectW} / ${aspectH}`);
+        } else {
+          stageWrap.style.removeProperty("--preview-aspect");
+        }
+        sceneWidth = wrapW;
+        sceneHeight = wrapW * (aspectH / aspectW);
+      }
+    }
+
     const wrapH = stageWrap.clientHeight;
     if (wrapW === 0 || wrapH === 0) return;
 
-    const paddingX = 32;
-    const paddingY = 48;
+    if (!Number.isFinite(sceneWidth) || sceneWidth <= 0 || !Number.isFinite(sceneHeight) || sceneHeight <= 0) {
+      stageWrap.style.removeProperty("--preview-aspect");
+      sceneWidth = wrapW;
+      sceneHeight = stageWrap.firstElementChild?.getBoundingClientRect().height || 400;
+    }
+
+    const paddingX = 12;
+    const paddingY = 12;
     const availW = wrapW - paddingX;
     const availH = wrapH - paddingY;
 
     const scaleX = availW / sceneWidth;
     const scaleY = availH / sceneHeight;
-    const scale = Math.min(1.0, Math.min(scaleX, scaleY));
+    const scale = Math.min(scaleX, scaleY);
 
     // Override renderer's absolute position cleanly to center it visually
     sceneEl.style.position = "absolute";
@@ -986,11 +1012,15 @@ seq wave(arm, angle) {
     return code;
   }
 
-  function render(code: string) {
+  function render(code: string, previewStart = currentPreviewStart) {
+    currentPreviewStart = previewStart;
     if (player) { player.destroy(); player = null; }
     stage.innerHTML = "";
     try {
       player = createPlayer({ container: stage, code: adaptCodeToTheme(code), assets, autoplay: true, copyright: false });
+      if (previewStart > 0) {
+        player.seek(previewStart);
+      }
       setPlayState(true);
       setStatus(true);
       if ((window as any).Iconify) {
@@ -1060,6 +1090,7 @@ seq wave(arm, angle) {
       EditorView.contentAttributes.of({ "aria-label": "Code Editor" }),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
+          currentPreviewStart = 0;
           exBtns.forEach(b => b.classList.remove("active"));
           if (debounce) clearTimeout(debounce);
           debounce = setTimeout(() => render(getEditorCode()), 600);
@@ -1121,11 +1152,14 @@ seq wave(arm, angle) {
     const sharedCode = getCodeFromHash();
     const initialCode = sharedCode ?? examples[0].code;
     createEditor(initialCode);
-    render(initialCode);
     if (!sharedCode) {
+      currentPreviewStart = examples[0].previewStart ?? 0;
+      render(initialCode, currentPreviewStart);
       setActiveBtn(0);
       setExampleMeta(0);
     } else {
+      currentPreviewStart = 0;
+      render(initialCode, 0);
       setActiveBtn(-1);
       setExampleMeta(-1);
     }
@@ -1142,7 +1176,7 @@ seq wave(arm, angle) {
   (window as any).__recreateEditor = () => {
     const currentCode = getEditorCode();
     createEditor(currentCode);
-    render(currentCode);
+    render(currentCode, currentPreviewStart);
   };
 
   // Example buttons
@@ -1152,7 +1186,7 @@ seq wave(arm, angle) {
       setActiveBtn(idx);
       setExampleMeta(idx);
       createEditor(examples[idx].code);
-      render(examples[idx].code);
+      render(examples[idx].code, examples[idx].previewStart ?? 0);
     });
   });
 
@@ -1182,7 +1216,8 @@ seq wave(arm, angle) {
   // Setup global Apply function for Syntax Reference examples
   (window as any).applyRefCode = (code: string) => {
     createEditor(code);
-    render(code);
+    currentPreviewStart = 0;
+    render(code, 0);
     setActiveBtn(-1); // Remove active state
     setExampleMeta(-1);
     document.getElementById("playground")?.scrollIntoView({ behavior: "smooth" });
@@ -1951,7 +1986,11 @@ seq wave(arm, angle) {
   }
 
   .stage-wrap {
-    flex: 1;
+    flex: 0 0 auto;
+    width: 100%;
+    align-self: stretch;
+    aspect-ratio: var(--preview-aspect, 16 / 9);
+    margin: auto 0;
     position: relative;
     background: var(--bg-tertiary);
     overflow: hidden;
@@ -2534,7 +2573,13 @@ seq wave(arm, angle) {
     .editor-col { border-right: none; border-bottom: 1px solid var(--border); }
     .examples-list { max-height: 220px; }
     .code-editor-wrap { min-height: 220px; }
-    .stage-wrap { min-height: 280px; }
+    .stage-wrap {
+      flex: 1;
+      width: auto;
+      margin: 0;
+      aspect-ratio: auto;
+      min-height: 280px;
+    }
 
     .ref-grid { grid-template-columns: 1fr; }
     .ai-grid { grid-template-columns: 1fr; }
