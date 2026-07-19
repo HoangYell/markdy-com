@@ -15,6 +15,18 @@
 pnpm add @markdy/astro
 ```
 
+## Visual guide
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-integrations-map.webp" alt="Markdy Astro and MDX integration visual" width="900" />
+</p>
+
+## Love Story result
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-love-story-result.webp" alt="Love Story main Markdy result" width="900" />
+</p>
+
 ## Usage
 
 ```astro

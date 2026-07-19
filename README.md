@@ -65,6 +65,42 @@ actor label = text("Hello World") at (50, 130) size 40 opacity 0
 
 ---
 
+## CLI install note
+
+`@markdy/cli` provides the `markdy` binary, but a normal project install does not put that binary on your shell PATH.
+
+Use one of these depending on where you installed it:
+
+```sh
+npx markdy render examples/00-love-story.markdy --out examples/xscene.html
+npm exec markdy render examples/00-love-story.markdy --out examples/xscene.html
+npm i -g @markdy/cli
+```
+
+`--out` writes the generated HTML to the path you pass in, relative to the current working directory unless you give an absolute path.
+
+## Visual guides
+
+<p align="center">
+  <img src="website/public/images/markdy-package-map.webp" alt="Markdy package map visual" width="1100" />
+</p>
+
+<p align="center">
+  <img src="website/public/images/markdy-cli-flow.webp" alt="Markdy CLI workflow visual" width="1100" />
+</p>
+
+## Love Story result
+
+<p align="center">
+  <img src="website/public/images/markdy-love-story-result.webp" alt="Love Story main Markdy result" width="1100" />
+</p>
+
+This is the default Love Story / Full Story preview used across the site. To get the same result locally, run:
+
+```sh
+npx markdy render examples/00-love-story.markdy --out examples/xscene.html
+```
+
 ## Quick Start
 
 ### Vanilla JS / TypeScript
