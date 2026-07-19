@@ -1,6 +1,6 @@
 import { PRESETS, PRESET_NAMES, parse, type ParseWarning, type SceneAST } from "@markdy/core";
 import { createRequire } from "node:module";
-import { basename, dirname, extname, join, resolve } from "node:path";
+import { basename, dirname, extname, join, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { readdir, readFile, stat, writeFile } from "node:fs/promises";
@@ -46,7 +46,7 @@ export async function runCli(
 ): Promise<RunResult> {
   const parsed = parseArgv(argv);
 
-  if (!parsed.command && hasFlag(parsed, "help")) {
+  if (hasFlag(parsed, "help")) {
     io.stdout(helpText());
     return { exitCode: 0 };
   }
@@ -56,10 +56,6 @@ export async function runCli(
   }
 
   const command = parsed.command;
-  if (command === "--help" || command === "-h") {
-    io.stdout(helpText());
-    return { exitCode: 0 };
-  }
 
   switch (command) {
     case "lint":
@@ -396,7 +392,7 @@ async function startPreviewServer(
 async function servePackageFile(response: ServerResponse, distDir: string, relativePath: string): Promise<void> {
   const safePath = relativePath.replace(/^\/+/, "");
   const fullPath = resolve(distDir, safePath);
-  if (!fullPath.startsWith(distDir)) {
+  if (fullPath !== distDir && !fullPath.startsWith(distDir + sep)) {
     sendText(response, 403, "Forbidden", "text/plain; charset=utf-8");
     return;
   }
@@ -749,11 +745,13 @@ function parseArgv(argv: string[]): ParsedArgs {
     }
 
     if (arg.startsWith("--")) {
-      const [rawKey, rawValue] = arg.slice(2).split("=", 2);
-      if (rawValue !== undefined) {
-        flags.set(rawKey, rawValue);
+      const body = arg.slice(2);
+      const eqIndex = body.indexOf("=");
+      if (eqIndex !== -1) {
+        flags.set(body.slice(0, eqIndex), body.slice(eqIndex + 1));
         continue;
       }
+      const rawKey = body;
 
       const next = argv[index + 1];
       if (next && !next.startsWith("-") && expectsValue(rawKey)) {
