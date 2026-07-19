@@ -3,7 +3,12 @@
   "compilerOptions": {
     "outDir": "dist",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@markdy/core": ["../core/src/index.ts"],
+      "@markdy/renderer-dom": ["../renderer-dom/src/index.ts"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
