@@ -28,6 +28,28 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  packages/cli:
+    dependencies:
+      '@markdy/core':
+        specifier: workspace:*
+        version: link:../core
+      '@markdy/renderer-dom':
+        specifier: workspace:*
+        version: link:../renderer-dom
+    devDependencies:
+      '@types/node':
+        specifier: ^25.9.5
+        version: 25.9.5
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(postcss@8.5.19)(tsx@4.23.1)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.7
+        version: 4.1.7(@opentelemetry/api@1.9.1)(@types/node@25.9.5)(jsdom@29.1.1)(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(tsx@4.23.1))
+
   packages/compat:
     dependencies:
       '@markdy/core':
@@ -4650,7 +4672,7 @@ snapshots:
 
   '@types/connect@3.4.38':
     dependencies:
-      '@types/node': 26.1.1
+      '@types/node': 25.9.5
 
   '@types/deep-eql@4.0.2': {}
 
@@ -4672,7 +4694,7 @@ snapshots:
 
   '@types/mysql@2.15.26':
     dependencies:
-      '@types/node': 26.1.1
+      '@types/node': 25.9.5
 
   '@types/nlcst@2.0.3':
     dependencies:
@@ -4689,6 +4711,7 @@ snapshots:
   '@types/node@26.1.1':
     dependencies:
       undici-types: 8.3.0
+    optional: true
 
   '@types/pg-pool@2.0.6':
     dependencies:
@@ -4696,7 +4719,7 @@ snapshots:
 
   '@types/pg@8.6.1':
     dependencies:
-      '@types/node': 26.1.1
+      '@types/node': 25.9.5
       pg-protocol: 1.15.0
       pg-types: 2.2.0
 
@@ -4710,13 +4733,13 @@ snapshots:
 
   '@types/sax@1.2.7':
     dependencies:
-      '@types/node': 24.13.3
+      '@types/node': 25.9.5
 
   '@types/shimmer@1.2.0': {}
 
   '@types/tedious@4.0.14':
     dependencies:
-      '@types/node': 26.1.1
+      '@types/node': 25.9.5
 
   '@types/unist@3.0.3': {}
 
@@ -4730,6 +4753,14 @@ snapshots:
       '@vitest/utils': 4.1.7
       chai: 6.2.2
       tinyrainbow: 3.1.0
+
+  '@vitest/mocker@4.1.7(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(tsx@4.23.1))':
+    dependencies:
+      '@vitest/spy': 4.1.7
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+      vite: 8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(tsx@4.23.1)
 
   '@vitest/mocker@4.1.7(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(tsx@4.23.1))':
     dependencies:
@@ -5039,7 +5070,7 @@ snapshots:
 
   chrome-launcher@1.2.1:
     dependencies:
-      '@types/node': 26.1.1
+      '@types/node': 25.9.5
       escape-string-regexp: 4.0.0
       is-wsl: 2.2.0
       lighthouse-logger: 2.0.2
@@ -6083,7 +6114,7 @@ snapshots:
 
   speedline-core@1.4.3:
     dependencies:
-      '@types/node': 26.1.1
+      '@types/node': 25.9.5
       image-ssim: 0.2.0
       jpeg-js: 0.4.4
 
@@ -6268,7 +6299,8 @@ snapshots:
 
   undici-types@7.24.6: {}
 
-  undici-types@8.3.0: {}
+  undici-types@8.3.0:
+    optional: true
 
   undici@7.26.0: {}
 
@@ -6343,6 +6375,19 @@ snapshots:
       '@types/unist': 3.0.3
       vfile-message: 4.0.3
 
+  vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(tsx@4.23.1):
+    dependencies:
+      lightningcss: 1.32.0
+      picomatch: 4.0.5
+      postcss: 8.5.19
+      rolldown: 1.1.5
+      tinyglobby: 0.2.17
+    optionalDependencies:
+      '@types/node': 25.9.5
+      esbuild: 0.28.1
+      fsevents: 2.3.3
+      tsx: 4.23.1
+
   vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(tsx@4.23.1):
     dependencies:
       lightningcss: 1.32.0
@@ -6359,6 +6404,35 @@ snapshots:
   vitefu@1.1.3(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(tsx@4.23.1)):
     optionalDependencies:
       vite: 8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(tsx@4.23.1)
+
+  vitest@4.1.7(@opentelemetry/api@1.9.1)(@types/node@25.9.5)(jsdom@29.1.1)(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(tsx@4.23.1)):
+    dependencies:
+      '@vitest/expect': 4.1.7
+      '@vitest/mocker': 4.1.7(vite@8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(tsx@4.23.1))
+      '@vitest/pretty-format': 4.1.7
+      '@vitest/runner': 4.1.7
+      '@vitest/snapshot': 4.1.7
+      '@vitest/spy': 4.1.7
+      '@vitest/utils': 4.1.7
+      es-module-lexer: 2.0.0
+      expect-type: 1.3.0
+      magic-string: 0.30.21
+      obug: 2.1.1
+      pathe: 2.0.3
+      picomatch: 4.0.4
+      std-env: 4.0.0
+      tinybench: 2.9.0
+      tinyexec: 1.1.1
+      tinyglobby: 0.2.16
+      tinyrainbow: 3.1.0
+      vite: 8.1.5(@types/node@25.9.5)(esbuild@0.28.1)(tsx@4.23.1)
+      why-is-node-running: 2.3.0
+    optionalDependencies:
+      '@opentelemetry/api': 1.9.1
+      '@types/node': 25.9.5
+      jsdom: 29.1.1
+    transitivePeerDependencies:
+      - msw
 
   vitest@4.1.7(@opentelemetry/api@1.9.1)(@types/node@26.1.1)(jsdom@29.1.1)(vite@8.1.5(@types/node@26.1.1)(esbuild@0.28.1)(tsx@4.23.1)):
     dependencies:

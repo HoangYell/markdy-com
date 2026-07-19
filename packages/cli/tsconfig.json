@@ -2,12 +2,8 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "outDir": "dist",
-    "lib": ["ES2022"],
-    "baseUrl": ".",
-    "paths": {
-      "@markdy/core": ["../core/src/index.ts"]
-    }
+    "types": ["node"]
   },
-  "include": ["src"],
+  "include": ["src", "tests"],
   "exclude": ["node_modules", "dist"]
 }

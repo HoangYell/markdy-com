@@ -26,7 +26,7 @@ packages/
   astro/           @markdy/astro        — <Markdy /> Astro island
   mdx/             @markdy/mdx          — MDX plugin + lazy React player
   stdlib-systems/  @markdy/stdlib-systems — System actor/action pack
-  markdy-language-server/ markdy-language-server — Shared LSP server
+  markdy-language-server/ @markdy/language-server — Shared LSP server
 examples/
 website/             Official markdy.com website
 docs/

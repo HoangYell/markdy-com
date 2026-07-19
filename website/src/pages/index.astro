@@ -1,259 +1,59 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { readFile } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 
-/* ── Example snippets for the playground ────────────────────────────── */
-const EXAMPLES = [
-  {
-    label: "Full Story",
-    code: `scene width=800 height=400 fps=30 bg=#fafafa
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(__dirname, "../../../..");
 
-var skin_a = #c68642
-var skin_b = #8d5524
-var skin_g = #fad4c0
+type PlaygroundExample = {
+  label: string;
+  sourcePath: string;
+  sourceUrl: string;
+  description: string;
+  code: string;
+};
 
-def fighter(skin, face) {
-  figure(\${skin}, m, \${face})
-}
-
-def girl(skin, face) {
-  figure(\${skin}, f, \${face})
-}
-
-seq hit(side, power) {
-  @+0.0: $.punch(side=\${side}, dur=0.3)
-  @+0.05: $.shake(intensity=\${power}, dur=0.3)
-}
-
-actor act1  = caption("I. Boys See Girl") at top opacity 0
-actor act2  = caption("II. Boys Fight") at top opacity 0
-actor act3  = caption("III. Girl Says No") at top opacity 0
-actor act4  = caption("IV. Girl Picks the Loser") at top opacity 0
-
-actor chad  = fighter(\${skin_a}, 😏) at (640, 180)
-actor kevin = fighter(\${skin_b}, 😤) at (100, 180)
-actor mia   = girl(\${skin_g}, 👧)    at (370, 180) opacity 0
-actor bush  = text("🪨") at (50, 285) size 80 opacity 0
-
-scene "rivals" {
-  @+0.0: act1.fade_in(dur=0.3)
-  @+0.1: mia.fade_in(dur=0.5)
-  @+0.0: chad.enter(from=right, dur=0.6)
-  @+0.0: kevin.enter(from=left, dur=0.6)
-  @+0.2: chad.wave(side=left, dur=0.5)
-  @+0.0: kevin.wave(side=right, dur=0.5)
-  @+0.2: chad.face("😍")
-  @+0.0: kevin.face("😍")
-  @+0.2: chad.say("Hey gorgeous 😘", dur=1.3)
-  @+0.3: kevin.say("Back off, she's mine!", dur=1.3)
-  @+0.6: act1.fade_out(dur=0.3)
-  @+0.1: mia.face("😳")
-  @+0.2: mia.say("…do I get a say?", dur=1.2)
-  @+0.4: mia.move(to=(600, 180), dur=0.5, ease=out)
-}
-
-scene "duel" {
-  @+0.0: act2.fade_in(dur=0.3)
-  @+0.3: chad.face("😠")
-  @+0.0: kevin.face("😠")
-  @+0.1: chad.move(to=(400, 180), dur=0.5, ease=in)
-  @+0.0: kevin.move(to=(320, 180), dur=0.5, ease=in)
-  @+0.3: act2.fade_out(dur=0.3)
-  @+0.2: kevin.say("En garde, bro!", dur=1.0)
-  @+0.3: chad.play(hit, side=left, power=7)
-  @+0.0: camera.shake(intensity=6, dur=0.3)
-  @+0.1: kevin.play(hit, side=right, power=7)
-  @+0.2: kevin.kick(side=right, dur=0.3)
-  @+0.0: chad.shake(intensity=9, dur=0.3)
-  @+0.2: chad.say("Is that all?", dur=0.9)
-  @+0.9: chad.punch(side=left, dur=0.25)
-  @+0.0: camera.shake(intensity=16, dur=0.5)
-  @+0.0: kevin.face("😵")
-  @+0.0: bush.fade_in(dur=0.2)
-  @+0.1: kevin.move(to=(110, 275), dur=0.55, ease=out)
-  @+0.0: kevin.rotate(to=-80, dur=0.55, ease=out)
-  @+0.4: bush.shake(intensity=7, dur=0.4)
-  @+0.0: bush.fade_out(dur=0.3)
-  @+0.0: kevin.face("🤕")
-  @+0.3: chad.face("😎")
-  @+0.2: chad.say("Too easy. She's mine!", dur=1.4)
-}
-
-scene "rejection" {
-  @+0.0: act3.fade_in(dur=0.3)
-  @+0.3: chad.face("🥰")
-  @+0.0: chad.move(to=(520, 180), dur=0.6, ease=out)
-  @+0.5: chad.say("My queen 👑", dur=1.1)
-  @+0.3: mia.face("🙅")
-  @+0.2: mia.say("Hard pass.", dur=1.1)
-  @+0.0: mia.shake(intensity=5, dur=0.4)
-  @+0.4: act3.fade_out(dur=0.3)
-  @+0.1: chad.face("😨")
-  @+0.2: chad.say("But… I WON??", dur=1.3)
-  @+0.4: mia.face("😒")
-  @+0.2: mia.say("That's the problem.", dur=1.4)
-  @+0.6: chad.face("😭")
-  @+0.4: chad.exit(to=right, dur=0.8)
-}
-
-scene "aftermath" {
-  @+0.0: act4.fade_in(dur=0.3)
-  @+0.2: mia.face("🥺")
-  @+0.1: mia.move(to=(230, 210), dur=1.2, ease=out)
-  @+0.0: camera.pan(to=(100, 345), dur=1.2, ease=out)
-  @+0.0: camera.zoom(to=1.3, dur=1.2, ease=out)
-  @+0.6: act4.fade_out(dur=0.3)
-  @+0.3: mia.face("😊")
-  @+0.2: mia.say("You okay down there?", dur=1.6)
-  @+0.2: kevin.face("🥲")
-  @+0.2: kevin.face("🥹")
-  @+0.2: kevin.say("Mission failed…", dur=1.3)
-  @+0.2: kevin.say("…successfully. 💖", dur=1.6)
-  @+0.2: mia.face("😘")
-}`,
-  },
-  {
-    label: "Hello World",
-    code: `scene width=600 height=260 fps=30 bg=#fafafa
-
-actor hi = caption("Hello, Markdy!") at top opacity 0
-actor a  = figure(#c68642, m, 😎) at (300, 160)
-
-@0.0:  hi.fade_in(dur=0.5)
-@+0.2: a.enter(from=left, dur=0.7)
-@+0.3: a.wave(side=right, dur=0.8)
-@+0.0: a.say("Let's go!", dur=1.4)
-@+0.5: a.move(to=(400, 160), dur=0.7, ease=out)
-@+0.2: a.nod(dur=0.4)`,
-  },
-  {
-    label: "Fight Scene",
-    code: `scene width=640 height=300 fps=30 bg=#fafafa
-
-actor ko      = caption("K.O.") at center size 64 opacity 0
-actor hero    = figure(#6ee7b7, m, 😎) at (160, 170) z 5
-actor villain = figure(#f87171, m, 😈) at (480, 170) z 3
-
-scene "intro" {
-  @0.0:  hero.enter(from=left, dur=0.7)
-  @+0.0: villain.enter(from=right, dur=0.7)
-  @+0.4: hero.say("Bring it on!", dur=1.2)
-  @+0.5: villain.say("Haha!", dur=1.2)
-}
-
-scene "clash" {
-  @+0.4: hero.move(to=(300, 170), dur=0.5, ease=in)
-  @+0.0: villain.move(to=(340, 170), dur=0.5, ease=in)
-  @+0.2: hero.punch(side=right, dur=0.3)
-  @+0.1: camera.shake(intensity=14, dur=0.4)
-  @+0.0: villain.shake(intensity=8, dur=0.4)
-  @+0.0: villain.face("😵")
-}
-
-scene "finisher" {
-  @+0.6: hero.kick(side=right, dur=0.35)
-  @+0.1: villain.bounce(intensity=10, count=2, dur=0.4)
-  @+0.4: camera.zoom(to=1.25, dur=0.4)
-  @+0.0: ko.fade_in(dur=0.3)
-  @+0.3: villain.exit(to=right, dur=0.6)
-  @+0.0: hero.face("😄")
-  @+0.0: hero.jump(height=25, dur=0.5)
-}`,
-  },
-  {
-    label: "Love Story",
-    code: `scene width=640 height=300 fps=30 bg=#fafafa
-
-actor title = caption("A Love Story") at top opacity 0
-actor later = caption("…months later") at top opacity 0
-actor boy   = figure(#c68642, m, 😊) at (150, 170)
-actor girl  = figure(#fad4c0, f, 😊) at (490, 170)
-
-scene "meet" {
-  @+0.0: title.fade_in(dur=0.4)
-  @+0.2: boy.enter(from=left, dur=0.7)
-  @+0.0: girl.enter(from=right, dur=0.7)
-  @+0.2: boy.face("😍")
-  @+0.0: boy.wave(side=right, dur=0.6)
-  @+0.0: boy.say("Hi there!", dur=1.1)
-  @+0.2: girl.face("😊")
-  @+0.0: girl.say("Hey!", dur=1.0)
-  @+0.2: title.fade_out(dur=0.4)
-}
-
-scene "approach" {
-  @+0.2: later.fade_in(dur=0.4)
-  @+0.5: later.fade_out(dur=0.4)
-  @+0.1: boy.move(to=(280, 170), dur=0.7, ease=out)
-  @+0.0: girl.move(to=(360, 170), dur=0.7, ease=out)
-  @+0.1: boy.pose(arm_right=-70, dur=0.4)
-  @+0.0: girl.pose(arm_left=70, dur=0.4)
-}
-
-scene "closer" {
-  @+0.1: camera.zoom(to=1.4, dur=0.6, ease=out)
-  @+0.1: boy.face("🥰")
-  @+0.0: girl.face("🥰")
-  @+0.2: boy.nod(dur=0.4)
-  @+0.0: girl.nod(dur=0.4)
-}`,
-  },
-  {
-    label: "Dance Party",
-    code: `scene width=720 height=340 fps=30 bg=#fafafa
-
-var skin_a = #c68642
-var skin_b = #fad4c0
-var skin_c = #8d5524
-
-def dancer(skin, face) {
-  figure(\${skin}, m, \${face})
-}
-
-seq celebrate {
-  @+0.0: $.jump(height=25, dur=0.4)
-  @+0.4: $.pose(arm_left=70, arm_right=-70, dur=0.3)
-  @+0.3: $.bounce(intensity=10, count=2, dur=0.4)
-  @+0.4: $.pose(arm_left=0, arm_right=0, dur=0.3)
-}
-
-actor title = caption("Dance Party") at top opacity 0
-actor drop  = caption("THE DROP") at center size 64 opacity 0
-actor dj    = dancer(\${skin_a}, 😎) at (360, 180) z 5
-actor left  = dancer(\${skin_b}, 😄) at (140, 200)
-actor right = figure(\${skin_c}, f, 💃) at (560, 200)
-
-scene "warmup" {
-  @+0.0: title.fade_in(dur=0.4)
-  @+0.1: dj.enter(from=top, dur=0.6)
-  @+0.0: left.enter(from=left, dur=0.7)
-  @+0.0: right.enter(from=right, dur=0.7)
-  @+0.2: dj.say("Let's dance!", dur=1.2)
-  @+0.0: dj.wave(side=right, dur=0.6)
-  @+0.2: left.play(celebrate)
-  @+0.1: right.play(celebrate)
-}
-
-scene "thedrop" {
-  @+0.3: drop.fade_in(dur=0.3)
-  @+0.0: camera.zoom(to=1.25, dur=0.4)
-  @+0.0: camera.shake(intensity=10, dur=0.5)
-  @+0.1: dj.jump(height=35, dur=0.5)
-  @+0.0: dj.pose(arm_left=90, arm_right=-90, dur=0.3)
-  @+0.3: drop.fade_out(dur=0.3)
-  @+0.0: camera.zoom(to=1.0, dur=0.4)
-}
-
-scene "finale" {
-  @+0.1: left.wave(side=right, dur=0.5)
-  @+0.0: right.wave(side=left, dur=0.5)
-  @+0.1: dj.nod(dur=0.4)
-  @+0.2: dj.face("🤩")
-  @+0.0: dj.say("Yeah!", dur=1.2)
-  @+0.0: left.bounce(intensity=15, count=3, dur=0.5)
-  @+0.0: right.bounce(intensity=15, count=3, dur=0.5)
-}`,
-  },
+const PLAYGROUND_EXAMPLE_FILES = [
+  "01-caption-basic.markdy",
+  "02-at-plus-shorthand.markdy",
+  "03-chapters.markdy",
+  "04-camera-pan.markdy",
+  "05-camera-zoom.markdy",
+  "06-camera-shake.markdy",
+  "09-exit-action.markdy",
+  "10-unified-modifiers.markdy",
+  "13-combined.markdy",
+  "15-must-understand.markdy",
 ];
+
+function titleizeExample(fileName: string): string {
+  const base = fileName.replace(/^\d+-/, "").replace(/\.markdy$/, "");
+  return base
+    .split("-")
+    .map((part) => part === "at" ? "@+" : part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function firstCommentDescription(code: string): string {
+  const first = code.split(/\r?\n/).find((line) => line.trim().startsWith("#"));
+  return first ? first.replace(/^#\s*/, "").trim() : "Shipped example from examples/.";
+}
+
+const EXAMPLES: PlaygroundExample[] = await Promise.all(
+  PLAYGROUND_EXAMPLE_FILES.map(async (fileName) => {
+    const sourcePath = `examples/${fileName}`;
+    const code = await readFile(join(ROOT, sourcePath), "utf8");
+    return {
+      label: titleizeExample(fileName),
+      sourcePath,
+      sourceUrl: `https://github.com/HoangYell/markdy-com/blob/main/${sourcePath}`,
+      description: firstCommentDescription(code),
+      code,
+    };
+  }),
+);
 
 const FLOWER_ASSET: Record<string, string> = {
   flower: "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'36'%20height%3D'36'%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'16'%20fill%3D'%23ff69b4'%2F%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'6'%20fill%3D'%23ffff00'%2F%3E%3C%2Fsvg%3E",
@@ -299,6 +99,12 @@ const USAGE_MDX = `<span class="u-kw">import</span> { Markdy } <span class="u-kw
 \`</span>;
 
 &lt;<span class="u-fn">Markdy</span> {code} width={600} height={300} autoplay /&gt;`;
+
+const USAGE_CLI = `<span class="u-comment"># validate, format, and preview a scene</span>
+markdy <span class="u-fn">lint</span> trailer.markdy
+markdy <span class="u-fn">fmt</span> trailer.markdy --write
+markdy <span class="u-fn">render</span> trailer.markdy --out dist/trailer.html
+markdy <span class="u-fn">check-all</span> examples`;
 ---
 
 <Layout 
@@ -362,6 +168,7 @@ const USAGE_MDX = `<span class="u-kw">import</span> { Markdy } <span class="u-kw
     <div class="usage-section">
       <div class="usage-tabs" role="tablist">
         <button class="usage-tab active" data-tab="vanilla" role="tab" aria-selected="true">Vanilla</button>
+        <button class="usage-tab" data-tab="cli" role="tab" aria-selected="false">CLI</button>
         <button class="usage-tab" data-tab="astro" role="tab" aria-selected="false">Astro</button>
         <button class="usage-tab" data-tab="mdx" role="tab" aria-selected="false">MDX</button>
       </div>
@@ -374,6 +181,16 @@ const USAGE_MDX = `<span class="u-kw">import</span> { Markdy } <span class="u-kw
           </button>
         </div>
         <pre class="usage-code"><code set:html={USAGE_VANILLA} /></pre>
+      </div>
+
+      <div class="usage-panel" data-panel="cli">
+        <div class="usage-install">
+          <code class="usage-cmd">pnpm add -D @markdy/cli</code>
+          <button class="copy-btn" title="Copy" aria-label="Copy install command">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          </button>
+        </div>
+        <pre class="usage-code"><code set:html={USAGE_CLI} /></pre>
       </div>
 
       <div class="usage-panel" data-panel="astro">
@@ -432,10 +249,20 @@ const USAGE_MDX = `<span class="u-kw">import</span> { Markdy } <span class="u-kw
         <div class="pkg-desc">Web Animations API renderer</div>
         <div class="pkg-meta"><span class="pkg-size">~22 KB</span><span class="pkg-badge">DOM</span></div>
       </a>
+      <a class="pkg-card" href="https://www.npmjs.com/package/@markdy/cli" target="_blank" rel="noopener noreferrer">
+        <div class="pkg-name">@markdy/cli</div>
+        <div class="pkg-desc">CLI for linting, formatting, previews, and local playground workflows</div>
+        <div class="pkg-meta"><span class="pkg-size">Node</span><span class="pkg-badge">Tooling</span></div>
+      </a>
       <a class="pkg-card" href="https://www.npmjs.com/package/@markdy/astro" target="_blank" rel="noopener noreferrer">
         <div class="pkg-name">@markdy/astro</div>
         <div class="pkg-desc">Astro island component — viewport hydration</div>
         <div class="pkg-meta"><span class="pkg-size">~2 KB</span><span class="pkg-badge">Astro</span></div>
+      </a>
+      <a class="pkg-card" href="https://www.npmjs.com/package/@markdy/language-server" target="_blank" rel="noopener noreferrer">
+        <div class="pkg-name">@markdy/language-server</div>
+        <div class="pkg-desc">Shared LSP server for diagnostics, completion, and editor integrations</div>
+        <div class="pkg-meta"><span class="pkg-size">Node</span><span class="pkg-badge">LSP</span></div>
       </a>
     </div>
   </section>
@@ -445,16 +272,26 @@ const USAGE_MDX = `<span class="u-kw">import</span> { Markdy } <span class="u-kw
     <div class="section-header">
       <span class="section-tag">Interactive</span>
       <h2>Playground</h2>
-      <p>Edit the code and watch it animate. Pick an example or write your own.</p>
-    </div>
-
-    <div class="examples-bar">
-      {EXAMPLES.map((ex, i) => (
-        <button class="example-btn" data-index={i}>{ex.label}</button>
-      ))}
+      <p>Edit the code and watch it animate. The sidebar loads directly from the shipped <code>examples/</code> files.</p>
     </div>
 
     <div class="editor-layout">
+      <aside class="examples-col">
+        <div class="panel-label">
+          <span>Examples</span>
+          <a id="example-source-link" class="example-source-link" href={EXAMPLES[0].sourceUrl} target="_blank" rel="noopener noreferrer">View source</a>
+        </div>
+        <div class="examples-list">
+          {EXAMPLES.map((ex, i) => (
+            <button class="example-btn" data-index={i} title={ex.description}>
+              <strong>{ex.label}</strong>
+              <span>{ex.sourcePath}</span>
+            </button>
+          ))}
+        </div>
+        <p id="example-description" class="example-description">{EXAMPLES[0].description}</p>
+      </aside>
+
       <div class="editor-col">
         <div class="panel-label">
           <span>Editor</span>
@@ -940,7 +777,7 @@ seq wave(arm, angle) {
 </Layout>
 
 <!-- ─── Client-side: editor + examples ──────────────────────────────── -->
-<script define:vars={{ examples: EXAMPLES.map(e => e.code), flowerAsset: FLOWER_ASSET }}>
+<script define:vars={{ examples: EXAMPLES, flowerAsset: FLOWER_ASSET }}>
   window.__MARKDY_EXAMPLES = examples;
   window.__MARKDY_ASSETS = flowerAsset;
 </script>
@@ -1048,7 +885,15 @@ seq wave(arm, angle) {
   import { createPlayer } from "@markdy/renderer-dom";
   import type { Player } from "@markdy/renderer-dom";
 
-  const examples: string[]  = (window as any).__MARKDY_EXAMPLES;
+  type PlaygroundExample = {
+    label: string;
+    sourcePath: string;
+    sourceUrl: string;
+    description: string;
+    code: string;
+  };
+
+  const examples: PlaygroundExample[]  = (window as any).__MARKDY_EXAMPLES;
   const assets: Record<string, string> = (window as any).__MARKDY_ASSETS;
 
   const editorContainer = document.getElementById("code-editor") as HTMLDivElement;
@@ -1060,6 +905,8 @@ seq wave(arm, angle) {
   const pauseIcon = document.getElementById("pause-icon") as SVGElement;
   const playLabel = document.getElementById("play-label") as HTMLSpanElement;
   const exBtns    = document.querySelectorAll<HTMLButtonElement>(".example-btn");
+  const exampleDescription = document.getElementById("example-description") as HTMLParagraphElement;
+  const exampleSourceLink = document.getElementById("example-source-link") as HTMLAnchorElement;
 
   let player: Player | null = null;
   let isAnimPlaying = false;
@@ -1163,6 +1010,20 @@ seq wave(arm, angle) {
     exBtns.forEach((b, i) => b.classList.toggle("active", i === index));
   }
 
+  function setExampleMeta(index: number) {
+    const example = examples[index];
+    if (!example) {
+      exampleDescription.textContent = "Custom scene";
+      exampleSourceLink.href = "https://github.com/HoangYell/markdy-com/tree/main/examples";
+      exampleSourceLink.textContent = "Browse examples/";
+      return;
+    }
+
+    exampleDescription.textContent = example.description;
+    exampleSourceLink.href = example.sourceUrl;
+    exampleSourceLink.textContent = example.sourcePath;
+  }
+
   function getEditorCode(): string {
     return editorView?.state.doc.toString() ?? "";
   }
@@ -1259,10 +1120,16 @@ seq wave(arm, angle) {
     isPlaygroundInit = true;
     // Load from URL hash if present, else use default example
     const sharedCode = getCodeFromHash();
-    const initialCode = sharedCode ?? examples[0];
+    const initialCode = sharedCode ?? examples[0].code;
     createEditor(initialCode);
     render(initialCode);
-    if (!sharedCode) setActiveBtn(0);
+    if (!sharedCode) {
+      setActiveBtn(0);
+      setExampleMeta(0);
+    } else {
+      setActiveBtn(-1);
+      setExampleMeta(-1);
+    }
   };
 
   ['mousemove', 'scroll', 'keydown', 'click', 'touchstart'].forEach((event) => {
@@ -1284,8 +1151,9 @@ seq wave(arm, angle) {
     btn.addEventListener("click", () => {
       const idx = Number(btn.dataset.index);
       setActiveBtn(idx);
-      createEditor(examples[idx]);
-      render(examples[idx]);
+      setExampleMeta(idx);
+      createEditor(examples[idx].code);
+      render(examples[idx].code);
     });
   });
 
@@ -1317,6 +1185,7 @@ seq wave(arm, angle) {
     createEditor(code);
     render(code);
     setActiveBtn(-1); // Remove active state
+    setExampleMeta(-1);
     document.getElementById("playground")?.scrollIntoView({ behavior: "smooth" });
   };
 </script>
@@ -1767,7 +1636,7 @@ seq wave(arm, angle) {
 
   .pkg-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 1rem;
   }
 
@@ -1799,7 +1668,7 @@ seq wave(arm, angle) {
 
   .pkg-desc {
     font-size: 0.78rem;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     line-height: 1.45;
     flex: 1;
   }
@@ -1867,24 +1736,34 @@ seq wave(arm, angle) {
     padding: 2rem 1.5rem 3rem;
   }
 
-  .examples-bar {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-  }
-
   .example-btn {
-    padding: 0.35rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+    width: 100%;
+    padding: 0.65rem 0.8rem;
     border: 1px solid var(--border);
     border-radius: 8px;
     background: var(--bg-secondary);
     font-size: 0.8rem;
     font-weight: 500;
     cursor: pointer;
-    color: var(--text-secondary);
+    color: var(--text-primary);
     transition: all 0.2s ease;
     font-family: inherit;
+    text-align: left;
+  }
+
+  .example-btn strong {
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .example-btn span {
+    font-size: 0.69rem;
+    color: var(--text-secondary);
+    font-family: "JetBrains Mono", monospace;
   }
 
   .example-btn:hover {
@@ -1900,10 +1779,14 @@ seq wave(arm, angle) {
     box-shadow: 0 1px 4px var(--accent-light);
   }
 
+  .example-btn.active span {
+    color: rgba(255, 255, 255, 0.9);
+  }
+
   /* ── Editor layout ───────────────────────────────────────────────── */
   .editor-layout {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 240px 1fr 1fr;
     gap: 0;
     border: 1px solid var(--border);
     border-radius: 12px;
@@ -1912,6 +1795,42 @@ seq wave(arm, angle) {
     background: var(--bg-secondary);
     box-shadow: 0 4px 24px var(--shadow-sm);
     transition: all 0.3s ease;
+  }
+
+  .examples-col {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    min-width: 0;
+    border-right: 1px solid var(--border);
+    background: var(--bg-tertiary);
+  }
+
+  .examples-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: 0.9rem;
+    overflow-y: auto;
+  }
+
+  .example-source-link {
+    font-size: 0.72rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .example-source-link:hover {
+    text-decoration: underline;
+  }
+
+  .example-description {
+    padding: 0 0.9rem 0.9rem;
+    margin: 0;
+    font-size: 0.76rem;
+    line-height: 1.5;
+    color: var(--text-primary);
   }
 
   .editor-col {
@@ -2574,7 +2493,9 @@ seq wave(arm, angle) {
     .pkg-grid { grid-template-columns: 1fr; }
 
     .editor-layout { grid-template-columns: 1fr; }
+    .examples-col { border-right: none; border-bottom: 1px solid var(--border); }
     .editor-col { border-right: none; border-bottom: 1px solid var(--border); }
+    .examples-list { max-height: 220px; }
     .code-editor-wrap { min-height: 220px; }
     .stage-wrap { min-height: 280px; }
 

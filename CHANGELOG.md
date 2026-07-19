@@ -5,15 +5,38 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.7.14] — 2026-07-19
+## [0.7.15] — 2026-07-19
+
+### Added
+- **New package: `@markdy/cli`** — Added a first-party CLI for linting, formatting, explaining, rendering, and local preview/playground workflows.
 
 ### Changed
-- TODO: summarize release changes.
+- **Language server publishing** — Scoped the language-server package to `@markdy/language-server` and updated install/docs references accordingly.
+- **Release pipeline coverage** — Updated the npm release workflow to build and publish the new CLI package and to publish the scoped language-server package name.
+- **Landing page + playground refresh** — Updated the website package showcase and switched the playground example picker to read from the shipped `examples/` corpus with source links.
+- **Agent docs refresh** — Updated `docs/AGENT.md` with corrected integration snippets plus CLI and language-server guidance.
+
+### Fixed
+- **Workspace lint stability** — Added local workspace path mappings so recursive TypeScript linting no longer depends on prebuilt sibling package artifacts during release validation.
+
+## [0.7.14] — 2026-07-19
+
+### Internal
+- **Follow-up release cut** — Published `0.7.14` as a no-feature-change release to keep the release train moving after `0.7.13`.
+- **No runtime behavior changes** — Parser, renderer, website, MDX integration, and language-server behavior are unchanged from `0.7.13`.
 
 ## [0.7.13] — 2026-07-19
 
+### Added
+- **New package: `@markdy/mdx`** — Added a lightweight MDX integration package with a remark plugin and lazy React player for embedding Markdy scenes in MDX content.
+- **Shared language server package** — Added the Markdy language server package for editor integrations and LSP-powered diagnostics/completion.
+
+### Fixed
+- **MDX prop normalization** — Normalized MDX props for better framework compatibility across downstream MDX runtimes.
+
 ### Changed
-- TODO: summarize release changes.
+- **Release automation** — Expanded `release.sh` into a more complete end-to-end release flow covering validation, release PR creation, merge, tagging, and release monitoring.
+- **Website analytics cleanup** — Removed the delayed Google Analytics tracking snippet from the website.
 
 ## [0.7.12] — 2026-07-18
 

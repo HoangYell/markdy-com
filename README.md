@@ -58,6 +58,8 @@ actor label = text("Hello World") at (50, 130) size 40 opacity 0
 |---|---|---|
 | [`@markdy/core`](packages/core) | Parser + AST types (zero runtime deps) | ~12 KB |
 | [`@markdy/renderer-dom`](packages/renderer-dom) | Web Animations API renderer | ~22 KB |
+| [`@markdy/cli`](packages/cli) | CLI for linting, formatting, explaining, rendering, and local previews | Node package |
+| [`@markdy/language-server`](packages/markdy-language-server) | Shared LSP server for editors and IDE integrations | Node package |
 | [`@markdy/astro`](packages/astro) | Astro island component | ~2 KB |
 | [`@markdy/mdx`](packages/mdx) | MDX remark plugin + lazy React player | ~4 KB |
 
@@ -341,10 +343,11 @@ pnpm test
 packages/
   core/              @markdy/core         — Parser + AST types (zero deps)
   renderer-dom/      @markdy/renderer-dom — WAAPI renderer
+  cli/               @markdy/cli          — CLI for local authoring workflows
   astro/             @markdy/astro        — Astro island component
   mdx/               @markdy/mdx          — MDX plugin + React player with viewport hydration
   stdlib-systems/    @markdy/stdlib-systems — System-diagram actor/action pack
-  markdy-language-server/ markdy-language-server — Shared LSP server for editors
+  markdy-language-server/ @markdy/language-server — Shared LSP server for editors
 website/               Official markdy.com playground & website (Astro)
 docs/
   SYNTAX.md          Full DSL reference

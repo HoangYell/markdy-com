@@ -660,7 +660,9 @@ interface SceneAST {
       | "unknown-scene-key"
       | "unknown-preset"
       | "import-unresolved"
-      | "preset-mixed";
+      | "preset-mixed"
+      | "actor-count-threshold"
+      | "label-overflow";
     message: string;
     line: number;
   }>;
@@ -699,7 +701,8 @@ When generating MarkdyScript, verify:
 ### Browser (Vanilla)
 
 ```typescript
-import { createPlayer, parse } from "@markdy/renderer-dom";
+import { parse } from "@markdy/core";
+import { createPlayer } from "@markdy/renderer-dom";
 
 const player = createPlayer({
   container: document.getElementById("scene")!,
@@ -716,6 +719,21 @@ const player = createPlayer({
   },
 });
 ```
+
+### CLI (hosted validation / formatting / preview)
+
+```sh
+pnpm add -D @markdy/cli
+
+markdy lint scene.markdy
+markdy fmt scene.markdy --write
+markdy render scene.markdy --out dist/scene.html
+markdy check-all examples
+```
+
+- The CLI resolves `import "..." as ns` from disk before parsing.
+- `markdy` with no args opens a local playground.
+- `markdy explain scene.markdy --json` prints the parsed AST for tooling/debugging.
 
 ### Astro Component
 
@@ -754,3 +772,12 @@ try {
   }
 }
 ```
+
+### Language Server
+
+```sh
+npx @markdy/language-server
+```
+
+- Runs on stdio as an LSP server.
+- Provides parser diagnostics, actor-aware completions, hover docs, and document symbols for Markdy editors/IDE integrations.

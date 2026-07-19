@@ -1,6 +1,6 @@
 {
   "name": "@markdy/astro",
-  "version": "0.7.14",
+  "version": "0.7.15",
   "description": "Astro island component for MarkdyScript animations.",
   "license": "MIT",
   "type": "module",
