@@ -1,6 +1,6 @@
 {
   "name": "@markdy/mdx",
-  "version": "0.7.15",
+  "version": "0.7.16",
   "description": "MDX integration plugin and lightweight React player for Markdy.",
   "license": "MIT",
   "type": "module",

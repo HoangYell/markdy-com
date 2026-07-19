@@ -5,6 +5,16 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.16] — 2026-07-19
+
+### Changed
+- **Homepage layout polish** — Rebalanced the package showcase into a more intentional desktop/tablet layout so the section no longer leaves an awkward orphan card row.
+- **Playground UX cleanup** — Improved the homepage playground copy, source-link labeling, preview spacing, and stage scaling so examples fit more comfortably and read more clearly.
+- **Mobile landing-page refinement** — Tightened the hero, CTA stack, and usage tabs/code sample on small screens to improve above-the-fold density and readability.
+
+### Fixed
+- **Website example loading** — Made homepage example-file loading work consistently in both `astro dev` and `astro build` environments.
+
 ## [0.7.15] — 2026-07-19
 
 ### Added
