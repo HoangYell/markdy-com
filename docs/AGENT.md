@@ -2,8 +2,6 @@
 
 > **Purpose:** This document is a structured, machine-readable reference for AI agents and LLMs generating MarkdyScript code. It provides the exact grammar, all valid tokens, constraints, and common patterns in a format optimized for prompt engineering and code generation.
 
-> For long-form writing tasks (blog/tutorial/explainer content about Markdy), use [prompts/new-post.prompt.md](../prompts/new-post.prompt.md). This AGENT file is code-generation focused.
-
 ---
 
 ## System Prompt Context

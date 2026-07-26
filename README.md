@@ -431,7 +431,6 @@ The project is deployed via Cloudflare Pages (Workers Assets).
 | **[SYNTAX.md](docs/SYNTAX.md)** | All users | Complete DSL language reference |
 | **[TUTORIAL.md](docs/TUTORIAL.md)** | Humans | Step-by-step guide from zero to animated scenes |
 | **[AGENT.md](docs/AGENT.md)** | AI agents / LLMs | Structured prompt-ready reference for code generation |
-| **[new-post.prompt.md](prompts/new-post.prompt.md)** | Authors + AI agents | Beginner-friendly long-form post template for Markdy explainers/tutorials |
 | **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** | Contributors | Technical design, renderer internals, AST shape |
 | **[CONTRIBUTING.md](CONTRIBUTING.md)** | Contributors | Dev setup, code style, PR guidelines |
 
