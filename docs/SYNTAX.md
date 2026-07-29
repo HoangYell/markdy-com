@@ -84,9 +84,9 @@ Actors are the objects visible in the scene. They must be declared before any ev
 Figures are emoji-based stick figures with named body parts that can be individually animated.
 
 ```markdy
-actor guy  = figure(#c68642)           at (100, 200)    # male, default face 😶
-actor gal  = figure(#fad4c0, f)        at (300, 200)    # female variant, default face 🙂
-actor hero = figure(#c68642, m, 😎)   at (500, 200)    # custom starting face
+actor guy  = figure(#c68642)           at (100, 200)    # gender defaults to x, shirt 👕
+actor gal  = figure(#fad4c0, f)        at (300, 200)    # gender = f, dress 👗
+actor hero = figure(#c68642, m, 😎)   at (500, 200)    # gender = m, necktie 👔; custom starting face
 ```
 
 **Arguments** (positional, inside the parentheses):
@@ -94,8 +94,8 @@ actor hero = figure(#c68642, m, 😎)   at (500, 200)    # custom starting face
 | Position | Name | Default | Description |
 |---|---|---|---|
 | 1 | `skinColor` | `#ffdbac` | CSS colour for skin (neck, arm sticks) |
-| 2 | `gender` | `m` | `m` = male (👕🤜👟), `f` = female (👗💅👠) |
-| 3 | `face` | `😶` (m) / `🙂` (f) | Starting emoji expression |
+| 2 | `gender` | `x` | `f` \| `m` \| `x` (any other value falls back to `x`). Sets the torso: 👗 (f), 👔 (m), 👕 (x) |
+| 3 | `face` | `🙂` | Starting emoji expression |
 
 **Named body parts** (used by `rotate_part`, `punch`, `kick`):
 
@@ -103,7 +103,7 @@ actor hero = figure(#c68642, m, 😎)   at (500, 200)    # custom starting face
 |---|---|---|
 | `head` | `data-fig-head` | The emoji face span |
 | `face` | `data-fig-face` | Same element (alias) |
-| `body` | `data-fig-body` | Torso emoji (👕 or 👗) |
+| `body` | `data-fig-body` | Torso emoji (👗/👔/👕, by gender) |
 | `arm_left` | `data-fig-arm-l` | Left arm (pivot: shoulder) |
 | `arm_right` | `data-fig-arm-r` | Right arm (pivot: shoulder) |
 | `leg_left` | `data-fig-leg-l` | Left leg (pivot: hip) |

@@ -4,7 +4,7 @@
 scene width=800 height=400
 
 # unknown-modifier: `fizzbuzz` is not a known modifier key.
-actor hero = figure(#c68642, m, 🙂) at (400, 240) with scale=1.0, fizzbuzz=true
+actor hero = figure(#c68642, f, 🙂) at (400, 240) with scale=1.0, fizzbuzz=true
 
 @0.0: hero.enter(from=left, dur=0.5)
 # unknown-action: `breakdance` is not a known action. The renderer no-ops it,
