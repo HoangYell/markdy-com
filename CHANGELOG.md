@@ -5,6 +5,16 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.23] — 2026-07-30
+
+### Added
+- **Website SEO foundation** — Expanded site-wide metadata, Open Graph/Twitter previews, structured data, crawler hints, `llms.txt`, a web manifest, and a square site icon so search engines, social previews, and AI tools can better understand Markdy.
+- **Documentation landing page** — Added an indexable `/docs/` page that points developers to the tutorial, syntax reference, AI agent guide, examples, and quickstart install command.
+- **Homepage intent content** — Added use-case, FAQ, and promotion sections to answer common animation DSL questions and give visitors clearer paths to GitHub, npm, and AI-agent docs.
+
+### Changed
+- **Privacy copy accuracy** — Updated the privacy page to reflect that Markdy.com does not currently run analytics scripts or advertising pixels.
+
 ## [0.7.22] — 2026-07-30
 
 ### Changed
