@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Markdy">
+  <rect width="512" height="512" rx="112" fill="#047857"/>
+  <path d="M112 176h288v184c0 22-18 40-40 40H152c-22 0-40-18-40-40V176Z" fill="#f8fafc"/>
+  <path d="M112 176 160 96h72l-48 80h72l48-80h72l-48 80h72v56H112v-56Z" fill="#0f172a"/>
+  <path d="M112 176h288v56H112v-56Z" fill="#10b981"/>
+  <path d="M202 292c0-10 11-16 20-11l82 48c9 5 9 18 0 23l-82 48c-9 5-20-1-20-11v-97Z" fill="#047857"/>
+</svg>

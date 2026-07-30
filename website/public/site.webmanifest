@@ -1,0 +1,18 @@
+{
+  "name": "Markdy",
+  "short_name": "Markdy",
+  "description": "Open-source text-to-motion animation DSL for browser-rendered animated scenes.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fafafa",
+  "theme_color": "#047857",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
