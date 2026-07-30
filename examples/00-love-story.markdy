@@ -73,7 +73,7 @@ scene "rejection" {
   @+0.3: alice.face("🥰")
   @+0.0: alice.move(to=(520, 180), dur=0.6, ease=out)
   @+0.5: alice.say("You're the prize 🏆", dur=1.1)
-  @+0.3: charlie.face("🙅")
+  @+0.3: charlie.face("😤")
   @+0.2: charlie.say("Hard pass.", dur=1.1)
   @+0.0: charlie.shake(intensity=5, dur=0.4)
   @+0.4: act3.fade_out(dur=0.3)
