@@ -5,6 +5,11 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.24] — 2026-07-30
+
+### Fixed
+- **Website favicon fallback** — Added a legacy `/favicon.ico` route so browser favicon probes resolve to the shipped site icon instead of returning a 404.
+
 ## [0.7.23] — 2026-07-30
 
 ### Added
