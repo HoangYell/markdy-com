@@ -696,6 +696,48 @@ seq wave(arm, angle) {
         <p><code>$</code> refers to the calling actor. Times with <code>@+</code> are relative offsets from when <code>.play()</code> is triggered.</p>
       </article>
 
+      <!-- Step 9: Captions & Camera -->
+      <article class="ref-card">
+        <div class="ref-card-header">
+          <div class="step-badge">9</div>
+          <h3>Captions & Camera</h3>
+          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+        </div>
+        <p class="ref-intro">Use anchored captions for titles and punchlines, then direct the viewer with built-in camera moves.</p>
+        <div class="ref-code-wrap">
+        <pre><code>actor title = caption("ROUND 1") at top
+actor punchline = caption("zoom in") at bottom
+
+@0.5: camera.pan(to=(500, 200), dur=0.8, ease=out)
+@1.2: camera.zoom(to=1.35, dur=0.6, ease=out)
+@2.0: camera.shake(intensity=10, dur=0.35)</code></pre>
+        <script type="text/plain" class="ref-code-data">
+scene width=800 height=400 bg=#f8fafc
+actor title = caption("ROUND 1") at top
+actor punchline = caption("zoom in") at bottom opacity 0
+actor hero = figure(#c68642, m, 😎) at (250, 220) scale 1.4
+actor target = box() at (560, 220) scale 0.8
+
+@0.3: title.fade_in(dur=0.3)
+@0.7: camera.pan(to=(500, 220), dur=0.8, ease=out)
+@1.3: camera.zoom(to=1.35, dur=0.6, ease=out)
+@1.8: punchline.fade_in(dur=0.3)
+@2.1: camera.shake(intensity=10, dur=0.35)
+@2.7: camera.zoom(to=1.0, dur=0.5, ease=inout)
+        </script>
+        </div>
+        <table>
+          <thead><tr><th>Feature</th><th>Syntax</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>caption</code></td><td><code>at top|bottom|center</code></td><td>Auto-positioned overlay text</td></tr>
+            <tr><td><code>pan</code></td><td><code>to=(x, y)</code></td><td>Moves the scene focus point</td></tr>
+            <tr><td><code>zoom</code></td><td><code>to=1.4</code></td><td>Scales the scene content</td></tr>
+            <tr><td><code>shake</code></td><td>intensity, dur</td><td>Adds full-scene impact</td></tr>
+          </tbody>
+        </table>
+        <p><code>camera</code> is reserved. Do not declare it as an actor; call <code>camera.pan</code>, <code>camera.zoom</code>, or <code>camera.shake</code> directly in timeline events.</p>
+      </article>
+
     </div>
   </section>
 
