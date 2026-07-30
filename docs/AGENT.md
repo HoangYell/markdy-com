@@ -169,8 +169,8 @@ The actor name `camera` is **reserved**. Never declare `actor camera = ...` — 
 | Position | Name | Type | Default | Valid values |
 |---|---|---|---|---|
 | 1 | skinColor | CSS colour | `#ffdbac` | Any hex/named colour |
-| 2 | gender | string | `x` | `f`, `m`, `x` (anything else falls back to `x`) — sets the torso: 👗 (f), 👔 (m), 👕 (x) |
-| 3 | face | emoji | `🙂` | Any single emoji |
+| 2 | gender | string | `m` | `m`, `f` |
+| 3 | face | emoji | `😶` (m) / `🙂` (f) | Any single emoji |
 
 **Caption positioning:** captions use anchor keywords (`at top | bottom | center`) instead of numeric coordinates. They're auto-centered horizontally (`x = scene.width / 2`) and placed at `~12%` / `~88%` / `50%` of scene height respectively. Numeric `at (x, y)` is a `ParseError` for captions; anchor syntax on non-captions is a `ParseError` too.
 

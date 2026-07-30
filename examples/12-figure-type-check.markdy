@@ -4,7 +4,7 @@
 # parser hard-fail with a helpful message.
 scene width=800 height=400
 
-actor fighter = figure(#c68642, x, 😎) at (400, 240)
+actor fighter = figure(#c68642, m, 😎) at (400, 240)
 actor label   = text("legal") at (360, 80)
 
 @0.0:  fighter.enter(from=left, dur=0.4)

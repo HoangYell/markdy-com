@@ -3,7 +3,7 @@
 # Add the ! when you'd rather fail the build than ship a silent no-op.
 scene width=800 height=400
 
-actor hero = figure(#c68642, x, 🙂) at (400, 240)
+actor hero = figure(#c68642, m, 🙂) at (400, 240)
 
 @0.0:  hero.enter(from=left, dur=0.4)
 # Known action with !: no-op, always safe.

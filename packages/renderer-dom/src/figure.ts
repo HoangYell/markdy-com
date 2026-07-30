@@ -20,25 +20,21 @@ import type { ActorDef } from "@markdy/core";
 //   data-fig-hip-r    — right hip joint
 //
 // DSL syntax:
-//   actor a = figure(#c68642)           at (x,y)   — gender defaults to x, shirt 👕
-//   actor b = figure(#fad4c0, f)        at (x,y)   — gender = f, dress 👗
-//   actor c = figure(#c68642, m, 😎)   at (x,y)   — gender = m, necktie 👔; custom starting face
-//   actor d = figure(#8d5524, x, 🙂)   at (x,y)   — gender = x (also the default), shirt 👕
-
-const TORSO_EMOJI: Record<"f" | "m" | "x", string> = { f: "👗", m: "👔", x: "👕" };
+//   actor a = figure(#c68642)           at (x,y)   — male, default face 😶
+//   actor b = figure(#fad4c0, f)        at (x,y)   — female (skirt + bun)
+//   actor c = figure(#c68642, m, 😎)   at (x,y)   — custom starting face
 
 export function createFigureEl(def: ActorDef): HTMLElement {
   const skinColor = def.args[0] || "#ffdbac";
-  const genderArg = def.args[1];
-  const gender: "f" | "m" | "x" = genderArg === "f" || genderArg === "m" ? genderArg : "x";
-  const startFace = def.args[2] || "🙂";
+  const isFemale  = def.args[1] === "f";
+  const startFace = def.args[2] || (isFemale ? "🙂" : "😶");
   // Use currentColor so leg sticks inherit the scene's text color
   // (dark on light backgrounds, light on dark backgrounds)
   const ink = "currentColor";
 
   const WRAP_W   = 80;
   const FACE_FS  = 40;
-  const SHIRT_FS = gender === "f" ? 48 : 44;
+  const SHIRT_FS = isFemale ? 48 : 44;
   // Estimated visual shirt width ≈ 90% of font-size on most platforms
   const vShirtW  = SHIRT_FS * 0.9;
   // Shoulder x within the shirt row div (centred at WRAP_W/2)
@@ -103,7 +99,7 @@ export function createFigureEl(def: ActorDef): HTMLElement {
 
   const torso = document.createElement("span");
   (torso.dataset as Record<string, string>).figBody = "";
-  torso.textContent = TORSO_EMOJI[gender];
+  torso.textContent = isFemale ? "👗" : "👕";
   Object.assign(torso.style, {
     fontSize:      `${SHIRT_FS}px`,
     lineHeight:    "1",
@@ -121,7 +117,7 @@ export function createFigureEl(def: ActorDef): HTMLElement {
   shirtRow.appendChild(shoulderR);
 
   // ── Arms ──────────────────────────────────────────────────────────────────
-  const armHandEmoji = "🤜";
+  const armHandEmoji = isFemale ? "💅" : "🤜";
 
   shirtRow.appendChild(
     buildArm("left", armHandEmoji, skinColor, {
@@ -129,7 +125,7 @@ export function createFigureEl(def: ActorDef): HTMLElement {
       anchorX: WRAP_W - shLx,
       anchorY: shY,
       restDeg: 20,
-      flipFist: true,
+      flipFist: !isFemale,
     }),
   );
   shirtRow.appendChild(
@@ -176,12 +172,11 @@ export function createFigureEl(def: ActorDef): HTMLElement {
     position:       "relative",
   });
 
-  const legL = buildLeg(true, ink, skinColor, LEG_H, LEG_STICK_H, JOINT_SIZE);
-  const legR = buildLeg(false, ink, skinColor, LEG_H, LEG_STICK_H, JOINT_SIZE);
+  const legL = buildLeg(true, isFemale, ink, skinColor, LEG_H, LEG_STICK_H, JOINT_SIZE);
+  const legR = buildLeg(false, isFemale, ink, skinColor, LEG_H, LEG_STICK_H, JOINT_SIZE);
   legsRow.append(legL, legR);
   hipRow.appendChild(legsRow);
 
-  wrap.dataset.figGender = gender;
   wrap.append(faceEl, neck, shirtRow, hipRow);
   return wrap;
 }
@@ -293,6 +288,7 @@ function buildArm(
 
 function buildLeg(
   isLeft: boolean,
+  isFemale: boolean,
   ink: string,
   skinColor: string,
   legH: number,
@@ -357,7 +353,7 @@ function buildLeg(
   });
 
   const shoe = document.createElement("span");
-  shoe.textContent = "👟";
+  shoe.textContent = isFemale ? "👠" : "👟";
   Object.assign(shoe.style, {
     position:      "absolute",
     fontSize:      "17px",

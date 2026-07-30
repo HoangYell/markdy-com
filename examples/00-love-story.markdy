@@ -3,10 +3,14 @@ scene width=800 height=400 fps=30 bg=#fafafa
 
 var skin_a = #c68642
 var skin_b = #8d5524
-var skin_c = #fad4c0
+var skin_g = #fad4c0
 
-def person(skin, gender, face) {
-  figure(${skin}, ${gender}, ${face})
+def fighter(skin, face) {
+  figure(${skin}, m, ${face})
+}
+
+def girl(skin, face) {
+  figure(${skin}, f, ${face})
 }
 
 seq hit(side, power) {
@@ -14,96 +18,89 @@ seq hit(side, power) {
   @+0.05: $.shake(intensity=${power}, dur=0.3)
 }
 
-actor act1 = caption("I. Alice and Bob See Charlie") at top opacity 0
-actor act2 = caption("II. Alice and Bob Fight") at top opacity 0
-actor act3 = caption("III. Charlie Says No") at top opacity 0
-actor act4 = caption("IV. Charlie Picks Themself") at top opacity 0
+actor act1 = caption("I. Boys See Girl") at top opacity 0
+actor act2 = caption("II. Boys Fight") at top opacity 0
+actor act3 = caption("III. Girl Says No") at top opacity 0
+actor act4 = caption("IV. Girl Picks the Loser") at top opacity 0
 
-actor alice = person(${skin_a}, f, 😏) at (640, 180)
-actor bob = person(${skin_b}, m, 😤) at (100, 180)
-actor charlie = person(${skin_c}, x, 🙂) at (370, 180) opacity 0
+actor chad = fighter(${skin_a}, 😏) at (640, 180)
+actor kevin = fighter(${skin_b}, 😤) at (100, 180)
+actor mia = girl(${skin_g}, 👧) at (370, 180) opacity 0
 actor bush = text("🪨") at (50, 285) size 80 opacity 0
 
 scene "rivals" {
   @+0.0: act1.fade_in(dur=0.3)
-  @+0.1: charlie.fade_in(dur=0.5)
-  @+0.0: alice.enter(from=right, dur=0.6)
-  @+0.0: bob.enter(from=left, dur=0.6)
-  @+0.2: alice.wave(side=left, dur=0.5)
-  @+0.0: bob.wave(side=right, dur=0.5)
-  @+0.2: alice.face("😍")
-  @+0.0: bob.face("😍")
-  @+0.2: alice.say("Hey gorgeous 😘", dur=1.3)
-  @+0.3: bob.say("Back off, they're mine!", dur=1.3)
+  @+0.1: mia.fade_in(dur=0.5)
+  @+0.0: chad.enter(from=right, dur=0.6)
+  @+0.0: kevin.enter(from=left, dur=0.6)
+  @+0.2: chad.wave(side=left, dur=0.5)
+  @+0.0: kevin.wave(side=right, dur=0.5)
+  @+0.2: chad.face("😍")
+  @+0.0: kevin.face("😍")
+  @+0.2: chad.say("Hey gorgeous 😘", dur=1.3)
+  @+0.3: kevin.say("Back off, she's mine!", dur=1.3)
   @+0.6: act1.fade_out(dur=0.3)
-  @+0.1: charlie.face("😳")
-  @+0.2: charlie.say("…do I get a say?", dur=1.2)
-  @+0.4: charlie.move(to=(600, 180), dur=0.5, ease=out)
+  @+0.1: mia.face("😳")
+  @+0.2: mia.say("…do I get a say?", dur=1.2)
+  @+0.4: mia.move(to=(600, 180), dur=0.5, ease=out)
 }
 
 scene "duel" {
   @+0.0: act2.fade_in(dur=0.3)
-  @+0.3: alice.face("😠")
-  @+0.0: bob.face("😠")
-  @+0.1: alice.move(to=(400, 180), dur=0.5, ease=in)
-  @+0.0: bob.move(to=(320, 180), dur=0.5, ease=in)
+  @+0.3: chad.face("😠")
+  @+0.0: kevin.face("😠")
+  @+0.1: chad.move(to=(400, 180), dur=0.5, ease=in)
+  @+0.0: kevin.move(to=(320, 180), dur=0.5, ease=in)
   @+0.3: act2.fade_out(dur=0.3)
-  @+0.2: bob.say("En garde!", dur=1.0)
-  @+0.3: alice.play(hit, side=left, power=7)
+  @+0.2: kevin.say("En garde, bro!", dur=1.0)
+  @+0.3: chad.play(hit, side=left, power=7)
   @+0.0: camera.shake(intensity=6, dur=0.3)
-  @+0.1: bob.play(hit, side=right, power=7)
-  @+0.2: bob.kick(side=right, dur=0.3)
-  @+0.0: alice.shake(intensity=9, dur=0.3)
-  @+0.2: alice.say("Is that all?", dur=0.9)
-  @+0.9: alice.punch(side=left, dur=0.25)
+  @+0.1: kevin.play(hit, side=right, power=7)
+  @+0.2: kevin.kick(side=right, dur=0.3)
+  @+0.0: chad.shake(intensity=9, dur=0.3)
+  @+0.2: chad.say("Is that all?", dur=0.9)
+  @+0.9: chad.punch(side=left, dur=0.25)
   @+0.0: camera.shake(intensity=16, dur=0.5)
-  @+0.0: bob.face("😵")
+  @+0.0: kevin.face("😵")
   @+0.0: bush.fade_in(dur=0.2)
-  @+0.1: bob.move(to=(110, 275), dur=0.55, ease=out)
-  @+0.0: bob.rotate(to=-80, dur=0.55, ease=out)
+  @+0.1: kevin.move(to=(110, 275), dur=0.55, ease=out)
+  @+0.0: kevin.rotate(to=-80, dur=0.55, ease=out)
   @+0.4: bush.shake(intensity=7, dur=0.4)
   @+0.0: bush.fade_out(dur=0.3)
-  @+0.0: bob.face("🤕")
-  @+0.3: alice.face("😎")
-  @+0.2: alice.say("Too easy. They're mine!", dur=1.4)
+  @+0.0: kevin.face("🤕")
+  @+0.3: chad.face("😎")
+  @+0.2: chad.say("Too easy. She's mine!", dur=1.4)
 }
 
 scene "rejection" {
   @+0.0: act3.fade_in(dur=0.3)
-  @+0.3: alice.face("🥰")
-  @+0.0: alice.move(to=(520, 180), dur=0.6, ease=out)
-  @+0.5: alice.say("You're the prize 🏆", dur=1.1)
-  @+0.3: charlie.face("🙅")
-  @+0.2: charlie.say("Hard pass.", dur=1.1)
-  @+0.0: charlie.shake(intensity=5, dur=0.4)
+  @+0.3: chad.face("🥰")
+  @+0.0: chad.move(to=(520, 180), dur=0.6, ease=out)
+  @+0.5: chad.say("My queen 👑", dur=1.1)
+  @+0.3: mia.face("🙅")
+  @+0.2: mia.say("Hard pass.", dur=1.1)
+  @+0.0: mia.shake(intensity=5, dur=0.4)
   @+0.4: act3.fade_out(dur=0.3)
-  @+0.1: alice.face("😨")
-  @+0.2: alice.say("But… I WON??", dur=1.3)
-  @+0.4: charlie.face("😒")
-  @+0.2: charlie.say("I'm not a trophy, Alice.", dur=1.4)
-  @+0.6: alice.face("😭")
-  @+0.4: alice.exit(to=right, dur=0.8)
+  @+0.1: chad.face("😨")
+  @+0.2: chad.say("But… I WON??", dur=1.3)
+  @+0.4: mia.face("😒")
+  @+0.2: mia.say("That's the problem.", dur=1.4)
+  @+0.6: chad.face("😭")
+  @+0.4: chad.exit(to=right, dur=0.8)
 }
 
 scene "aftermath" {
   @+0.0: act4.fade_in(dur=0.3)
-  @+0.2: charlie.face("🥺")
-  @+0.1: charlie.move(to=(230, 210), dur=1.2, ease=out)
+  @+0.2: mia.face("🥺")
+  @+0.1: mia.move(to=(230, 210), dur=1.2, ease=out)
   @+0.0: camera.pan(to=(100, 345), dur=1.2, ease=out)
   @+0.0: camera.zoom(to=1.3, dur=1.2, ease=out)
   @+0.6: act4.fade_out(dur=0.3)
-  @+0.3: charlie.face("😊")
-  @+0.2: charlie.say("You okay down there?", dur=1.6)
-  @+0.2: bob.face("🥲")
-  @+0.2: bob.say("Mission failed. But I'm okay.", dur=1.6)
-  @+0.2: charlie.face("🙂")
-  @+0.2: charlie.say("Glad to hear.", dur=1.2)
-  @+0.3: bob.rotate(to=0, dur=0.6, ease=out)
-  @+0.0: bob.move(to=(160, 275), dur=0.6, ease=out)
-  @+0.1: bob.face("🙂")
-  @+0.3: bob.exit(to=left, dur=0.6)
-  @+0.0: camera.pan(to=(230, 210), dur=1.0, ease=out)
-  @+0.2: charlie.say("Turns out…", dur=1.0)
-  @+0.2: charlie.say("I'm my own ending. 💛", dur=1.4)
-  @+0.2: charlie.face("😌")
+  @+0.3: mia.face("😊")
+  @+0.2: mia.say("You okay down there?", dur=1.6)
+  @+0.2: kevin.face("🥲")
+  @+0.2: kevin.face("🥹")
+  @+0.2: kevin.say("Mission failed…", dur=1.3)
+  @+0.2: kevin.say("…successfully. 💖", dur=1.6)
+  @+0.2: mia.face("😘")
 }
