@@ -132,6 +132,91 @@ const PACKAGES = [
   },
 ] as const;
 
+const USE_CASES = [
+  {
+    title: "Animated docs and tutorials",
+    desc: "Turn walkthroughs, feature explanations, and onboarding steps into small timeline scenes that stay readable in source control.",
+  },
+  {
+    title: "AI-generated motion sketches",
+    desc: "Give an AI agent a plain-English scene brief and get deterministic MarkdyScript back instead of brittle generated JavaScript.",
+  },
+  {
+    title: "Astro and MDX content sites",
+    desc: "Embed animations in documentation, launch posts, and technical articles without shipping a full creative suite to every page.",
+  },
+  {
+    title: "Explainers, memes, and social clips",
+    desc: "Prototype short visual stories with actors, captions, camera movement, and speech bubbles using text-only files.",
+  },
+] as const;
+
+const FAQS = [
+  {
+    question: "What is Markdy?",
+    answer: "Markdy is an open-source animation DSL for writing text-to-motion scenes. You define actors, assets, captions, and timeline events in MarkdyScript, then render the result in the browser.",
+  },
+  {
+    question: "Is Markdy an alternative to GSAP or Framer Motion?",
+    answer: "Markdy is not a general animation framework replacement. It is focused on declarative, scriptable 2D scenes for docs, explainers, demos, memes, and AI-generated animation snippets.",
+  },
+  {
+    question: "Does Markdy require Canvas or a video renderer?",
+    answer: "No. The DOM renderer uses web-native elements, CSS transforms, and the Web Animations API. Scenes can be embedded in normal web pages and Astro projects.",
+  },
+  {
+    question: "Can AI tools generate MarkdyScript?",
+    answer: "Yes. MarkdyScript is intentionally line-based and constrained so tools like Claude, ChatGPT, GitHub Copilot, Cursor, and Windsurf can generate, validate, and revise scenes from natural-language prompts.",
+  },
+  {
+    question: "Which packages do I need to render a scene?",
+    answer: "Use @markdy/core to parse MarkdyScript and @markdy/renderer-dom to render scenes in a browser. Optional packages add Astro, MDX, CLI, language server, and actor-pack support.",
+  },
+] as const;
+
+const PROMOTION_LINKS = [
+  { label: "Star on GitHub", href: "https://github.com/HoangYell/markdy-com", desc: "Follow releases, open issues, and contribute examples." },
+  { label: "Install from npm", href: "https://www.npmjs.com/package/@markdy/core", desc: "Use the parser and renderer packages in your app." },
+  { label: "Read the agent guide", href: "https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md", desc: "Give AI tools the complete grammar and action reference." },
+] as const;
+
+const homepageStructuredData = [
+  {
+    "@type": "WebPage",
+    "@id": "https://markdy.com/#webpage",
+    url: "https://markdy.com/",
+    name: "Markdy — Open-Source Animation DSL Engine",
+    description: "Markdy is a framework-agnostic text-to-motion animation DSL for animated scenes, docs, Astro sites, MDX content, and AI-generated motion sketches.",
+    isPartOf: { "@id": "https://markdy.com/#website" },
+    about: { "@id": "https://markdy.com/#software" },
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: "https://markdy.com/og-image.png",
+      width: 1200,
+      height: 630,
+    },
+  },
+  {
+    "@type": "BreadcrumbList",
+    "@id": "https://markdy.com/#breadcrumb",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://markdy.com/" },
+    ],
+  },
+  {
+    "@type": "FAQPage",
+    "@id": "https://markdy.com/#faq",
+    mainEntity: FAQS.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: item.answer,
+      },
+    })),
+  },
+];
+
 /* ── Usage code snippets (pre-formatted HTML to avoid Astro expression parsing) ── */
 const USAGE_VANILLA = `<span class="u-kw">import</span> { createPlayer } <span class="u-kw">from</span> <span class="u-str">"@markdy/renderer-dom"</span>;
 
@@ -182,6 +267,8 @@ markdy <span class="u-fn">check-all</span> examples`;
   title="Markdy — Open-Source Animation DSL Engine"
   description="Markdy is a framework-agnostic text-to-motion animation DSL. Write animated scenes like Markdown. No Canvas, no GSAP, no bloated dependencies."
   keywords="open-source animation dsl, text-to-motion, declarative animation, framer motion alternative, gsap alternative, markdown animation, web animations api, stick figure animation"
+  ogImageAlt="Markdy playground showing text-to-motion animation code and a rendered scene preview"
+  structuredData={homepageStructuredData}
 >
 
   <!-- ─── Nav ──────────────────────────────────────────────────────────── -->
@@ -197,7 +284,9 @@ markdy <span class="u-fn">check-all</span> examples`;
       <a href="#features">Features</a>
       <a href="#playground">Playground</a>
       <a href="#learn">Learn</a>
+      <a href="/docs/">Docs</a>
       <a href="#ai-gen">AI</a>
+      <a href="#faq">FAQ</a>
       <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="nav-github">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
         <span>Star</span>
@@ -796,6 +885,60 @@ actor target = box() at (560, 220) scale 0.8
     </div>
   </section>
 
+  <!-- ─── Search Intent: Use Cases + FAQ ──────────────────────────────── -->
+  <section id="use-cases" class="intent-section" aria-label="Markdy use cases">
+    <div class="section-header">
+      <span class="section-tag">Use Cases</span>
+      <h2>Where Markdy Fits</h2>
+      <p>Markdy is built for lightweight animation workflows where text, version control, and AI generation matter more than timeline-heavy creative tools.</p>
+    </div>
+    <div class="intent-grid">
+      {USE_CASES.map((item) => (
+        <article class="intent-card">
+          <h3>{item.title}</h3>
+          <p>{item.desc}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section id="faq" class="faq-section" aria-label="Frequently asked questions">
+    <div class="section-header">
+      <span class="section-tag">FAQ</span>
+      <h2>Animation DSL Questions</h2>
+      <p>Direct answers for developers comparing Markdy with JavaScript animation libraries, Canvas renderers, and AI-generated code.</p>
+    </div>
+    <div class="faq-list">
+      {FAQS.map((item) => (
+        <details class="faq-item">
+          <summary>{item.question}</summary>
+          <p>{item.answer}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <!-- ─── Promotion Kit ──────────────────────────────────────────────── -->
+  <section id="share" class="share-section" aria-label="Share Markdy">
+    <div class="section-header">
+      <span class="section-tag">Promotion</span>
+      <h2>Share the Project</h2>
+      <p>Consistent links and descriptions help developers, search engines, and AI tools understand what Markdy is.</p>
+    </div>
+    <div class="share-grid">
+      {PROMOTION_LINKS.map((item) => (
+        <a class="share-card" href={item.href} target="_blank" rel="noopener noreferrer">
+          <strong>{item.label}</strong>
+          <span>{item.desc}</span>
+        </a>
+      ))}
+    </div>
+    <div class="share-copy" aria-label="Short project description">
+      <span>Short description</span>
+      <code>Markdy is an open-source text-to-motion animation DSL for writing browser-rendered animated scenes like Markdown.</code>
+    </div>
+  </section>
+
   <!-- ─── Showcase ─────────────────────────────────────────────────────── -->
   <section id="showcase" class="showcase-section" aria-label="Built with Markdy">
     <div class="section-header">
@@ -845,19 +988,22 @@ actor target = box() at (560, 220) scale 0.8
             <a href="#learn">Syntax Reference</a>
             <a href="#packages">Packages</a>
             <a href="#ai-gen">AI Generation</a>
+            <a href="#faq">FAQ</a>
             <a href="#showcase">Showcase</a>
           </div>
           <div class="footer-col">
             <h3>Resources</h3>
+            <a href="/docs/">Documentation</a>
             <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/TUTORIAL.md" target="_blank" rel="noopener noreferrer">Tutorial</a>
-            <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/SYNTAX.md" target="_blank" rel="noopener noreferrer">Syntax Docs</a>
-            <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md" target="_blank" rel="noopener noreferrer">Agent Guide</a>
+            <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/SYNTAX.md" target="_blank" rel="noopener noreferrer">Syntax Reference</a>
+            <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md" target="_blank" rel="noopener noreferrer">AI Agent Guide</a>
             <a href="https://github.com/HoangYell/markdy-com/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">Contributing</a>
           </div>
           <div class="footer-col">
             <h3>Community</h3>
             <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">GitHub</a>
             <a href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener noreferrer">npm</a>
+            <a href="/llms.txt">llms.txt</a>
             <a href="https://github.com/HoangYell/markdy-com/issues" target="_blank" rel="noopener noreferrer">Report a Bug</a>
           </div>
         </div>
@@ -2558,6 +2704,122 @@ actor target = box() at (560, 220) scale 0.8
     background: var(--bg-secondary);
   }
 
+  /* ── Intent + FAQ + Promotion ────────────────────────────────────── */
+  .intent-section,
+  .faq-section,
+  .share-section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 3.5rem;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .intent-grid,
+  .share-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .intent-card,
+  .share-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    min-height: 100%;
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-secondary);
+    box-shadow: 0 1px 4px var(--shadow-sm);
+    transition: all 0.2s ease;
+  }
+
+  .intent-card h3,
+  .share-card strong {
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--text-primary);
+  }
+
+  .intent-card p,
+  .share-card span {
+    font-size: 0.8rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+  }
+
+  .share-card:hover {
+    border-color: var(--accent);
+    box-shadow: 0 4px 16px var(--shadow-md);
+    transform: translateY(-2px);
+  }
+
+  .faq-list {
+    display: grid;
+    gap: 0.8rem;
+    max-width: 820px;
+    margin: 0 auto;
+  }
+
+  .faq-item {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-secondary);
+    box-shadow: 0 1px 4px var(--shadow-sm);
+  }
+
+  .faq-item summary {
+    cursor: pointer;
+    padding: 1rem 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .faq-item summary::marker {
+    color: var(--accent);
+  }
+
+  .faq-item p {
+    padding: 0 1.25rem 1rem;
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    line-height: 1.65;
+  }
+
+  .share-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .share-copy {
+    display: grid;
+    gap: 0.45rem;
+    max-width: 900px;
+    margin: 1rem auto 0;
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-tertiary);
+  }
+
+  .share-copy span {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .share-copy code {
+    color: var(--text-primary);
+    font-size: 0.82rem;
+    line-height: 1.6;
+    white-space: normal;
+  }
+
   /* ── Footer ──────────────────────────────────────────────────────── */
   .footer {
     padding: 2.5rem 1.5rem 1.5rem;
@@ -2734,6 +2996,8 @@ actor target = box() at (560, 220) scale 0.8
 
     .ref-grid { grid-template-columns: 1fr; }
     .ai-grid { grid-template-columns: 1fr; }
+    .intent-grid,
+    .share-grid { grid-template-columns: 1fr; }
     .ref-card { overflow: hidden; }
     .ref-card pre { white-space: pre; }
 

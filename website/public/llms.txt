@@ -1,0 +1,42 @@
+# Markdy
+
+> Open-source text-to-motion animation DSL for writing browser-rendered animated scenes like Markdown.
+
+Markdy lets developers define actors, assets, captions, camera movement, and timeline events in MarkdyScript. It is useful for animated docs, explainers, memes, social clips, Astro sites, MDX content, and AI-generated motion sketches.
+
+## Primary Links
+
+- Website and playground: https://markdy.com/
+- Documentation landing page: https://markdy.com/docs/
+- GitHub repository: https://github.com/HoangYell/markdy-com
+- AI agent reference: https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md
+- Syntax reference: https://github.com/HoangYell/markdy-com/blob/main/docs/SYNTAX.md
+- Tutorial: https://github.com/HoangYell/markdy-com/blob/main/docs/TUTORIAL.md
+- npm core package: https://www.npmjs.com/package/@markdy/core
+- npm DOM renderer: https://www.npmjs.com/package/@markdy/renderer-dom
+- npm Astro package: https://www.npmjs.com/package/@markdy/astro
+- npm MDX package: https://www.npmjs.com/package/@markdy/mdx
+- npm CLI package: https://www.npmjs.com/package/@markdy/cli
+
+## Short Description
+
+Markdy is an open-source animation DSL. Write MarkdyScript text files, parse them with @markdy/core, and render animated browser scenes with @markdy/renderer-dom.
+
+## Best AI Context
+
+Use docs/AGENT.md as the complete reference when generating MarkdyScript. It contains the grammar, valid actor types, actions, camera commands, examples, and constraints.
+
+## Install
+
+```sh
+npm i @markdy/core @markdy/renderer-dom
+```
+
+## Minimal Scene
+
+```markdy
+scene width=600 height=300 bg=white
+actor label = text("Hello Markdy") at (180, 130) size 36 opacity 0
+@0.2: label.fade_in(dur=0.5)
+@1.0: label.move(to=(260, 130), dur=0.8, ease=out)
+```

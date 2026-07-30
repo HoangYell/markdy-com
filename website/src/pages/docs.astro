@@ -1,0 +1,212 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const docStructuredData = [
+  {
+    "@type": "WebPage",
+    "@id": "https://markdy.com/docs/#webpage",
+    url: "https://markdy.com/docs/",
+    name: "Markdy Documentation",
+    description: "Start learning MarkdyScript, the open-source text-to-motion animation DSL for browser-rendered scenes.",
+    isPartOf: { "@id": "https://markdy.com/#website" },
+    about: { "@id": "https://markdy.com/#software" },
+  },
+  {
+    "@type": "BreadcrumbList",
+    "@id": "https://markdy.com/docs/#breadcrumb",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: "https://markdy.com/" },
+      { "@type": "ListItem", position: 2, name: "Docs", item: "https://markdy.com/docs/" },
+    ],
+  },
+  {
+    "@type": "ItemList",
+    "@id": "https://markdy.com/docs/#resources",
+    name: "Markdy documentation resources",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "MarkdyScript Tutorial", url: "https://github.com/HoangYell/markdy-com/blob/main/docs/TUTORIAL.md" },
+      { "@type": "ListItem", position: 2, name: "MarkdyScript Syntax", url: "https://github.com/HoangYell/markdy-com/blob/main/docs/SYNTAX.md" },
+      { "@type": "ListItem", position: 3, name: "AI Agent Reference", url: "https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md" },
+    ],
+  },
+];
+---
+
+<Layout
+  title="Markdy Documentation — Learn MarkdyScript"
+  description="Learn MarkdyScript with the tutorial, syntax reference, AI agent guide, examples, and package docs for the open-source text-to-motion animation DSL."
+  canonicalURL="https://markdy.com/docs/"
+  keywords="Markdy documentation, MarkdyScript tutorial, animation DSL docs, text-to-motion syntax, AI animation DSL"
+  structuredData={docStructuredData}
+>
+  <main class="docs-page">
+    <a href="/" class="back-link">Back to Markdy</a>
+    <header class="docs-hero">
+      <span class="docs-kicker">Documentation</span>
+      <h1>Learn MarkdyScript</h1>
+      <p>Start with a scene, add actors, schedule timeline events, and render browser-native animations from plain text.</p>
+    </header>
+
+    <section class="docs-grid" aria-label="Documentation resources">
+      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/TUTORIAL.md" target="_blank" rel="noopener noreferrer">
+        <span>Tutorial</span>
+        <h2>Build Your First Scene</h2>
+        <p>A step-by-step guide from text labels and movement to variables, templates, sequences, stick figures, speech, and interaction.</p>
+      </a>
+      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/SYNTAX.md" target="_blank" rel="noopener noreferrer">
+        <span>Reference</span>
+        <h2>MarkdyScript Syntax</h2>
+        <p>The language reference for scene declarations, assets, actor types, modifiers, timeline events, camera actions, and presets.</p>
+      </a>
+      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md" target="_blank" rel="noopener noreferrer">
+        <span>AI Agents</span>
+        <h2>Agent Generation Guide</h2>
+        <p>A machine-readable reference optimized for Claude, ChatGPT, GitHub Copilot, Cursor, Windsurf, and other LLM coding agents.</p>
+      </a>
+      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/tree/main/examples" target="_blank" rel="noopener noreferrer">
+        <span>Examples</span>
+        <h2>Shipped Scenes</h2>
+        <p>Browse real .markdy examples for captions, camera movement, gestures, templates, imports, and combined feature demos.</p>
+      </a>
+    </section>
+
+    <section class="quickstart" aria-label="Markdy quickstart">
+      <div>
+        <span class="docs-kicker">Quickstart</span>
+        <h2>Install the parser and DOM renderer</h2>
+        <p>Use <code>@markdy/core</code> for parsing and <code>@markdy/renderer-dom</code> for browser playback with the Web Animations API.</p>
+      </div>
+      <pre><code>npm i @markdy/core @markdy/renderer-dom</code></pre>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .docs-page {
+    min-height: 100vh;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 5rem 1.5rem;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 2rem;
+    color: var(--accent, #047857);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .docs-hero {
+    max-width: 720px;
+    margin-bottom: 2rem;
+  }
+
+  .docs-kicker {
+    display: inline-block;
+    margin-bottom: 0.6rem;
+    color: var(--accent, #047857);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    color: var(--text-primary, #0f172a);
+    font-size: clamp(2.4rem, 7vw, 4.5rem);
+    line-height: 0.98;
+    letter-spacing: -0.05em;
+    margin-bottom: 1rem;
+  }
+
+  .docs-hero p,
+  .quickstart p {
+    color: var(--text-secondary, #64748b);
+    font-size: 1rem;
+    line-height: 1.7;
+  }
+
+  .docs-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
+  .doc-card,
+  .quickstart {
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 12px;
+    background: var(--bg-secondary, #ffffff);
+    box-shadow: 0 1px 4px var(--shadow-sm, rgba(0, 0, 0, 0.04));
+  }
+
+  .doc-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: 1.25rem;
+    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .doc-card:hover {
+    border-color: var(--accent, #047857);
+    box-shadow: 0 4px 16px var(--shadow-md, rgba(0, 0, 0, 0.06));
+    transform: translateY(-2px);
+  }
+
+  .doc-card span {
+    color: var(--accent, #047857);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .doc-card h2 {
+    color: var(--text-primary, #0f172a);
+    font-size: 1rem;
+    line-height: 1.35;
+  }
+
+  .doc-card p {
+    color: var(--text-secondary, #64748b);
+    font-size: 0.84rem;
+    line-height: 1.6;
+  }
+
+  .quickstart {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 1.5rem;
+    align-items: center;
+    margin-top: 1rem;
+    padding: 1.5rem;
+  }
+
+  .quickstart h2 {
+    color: var(--text-primary, #0f172a);
+    font-size: 1.3rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .quickstart pre {
+    overflow-x: auto;
+    margin: 0;
+    padding: 0.9rem 1rem;
+    border-radius: 8px;
+    background: var(--ref-code-bg, #f6f8fa);
+    color: var(--ref-code-text, #24292f);
+    font-size: 0.82rem;
+  }
+
+  @media (max-width: 900px) {
+    .docs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .quickstart { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 560px) {
+    .docs-page { padding: 3rem 1rem; }
+    .docs-grid { grid-template-columns: 1fr; }
+  }
+</style>

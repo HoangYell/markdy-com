@@ -6,7 +6,9 @@ export interface Props extends HTMLAttributes<"html"> {
   description?: string;
   canonicalURL?: string;
   ogImage?: string;
+  ogImageAlt?: string;
   keywords?: string;
+  structuredData?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
@@ -14,8 +16,69 @@ const {
   description = "Markdy is an open-source text-to-motion animation DSL. Write animated scenes in a simple text language with no keyframes and no drag-and-drop.",
   canonicalURL = "https://markdy.com",
   ogImage = "https://markdy.com/og-image.png",
+  ogImageAlt = "Markdy open-source animation DSL preview",
   keywords = "animation dsl, text-to-motion, declarative animation, markdown animation, framer motion alternative, gsap alternative, astro animation, web animations api",
+  structuredData = [],
 } = Astro.props;
+
+const sameAs = [
+  "https://github.com/HoangYell/markdy-com",
+  "https://www.npmjs.com/package/@markdy/core",
+  "https://www.npmjs.com/package/@markdy/renderer-dom",
+  "https://hoangyell.com",
+];
+
+const baseStructuredData = [
+  {
+    "@type": "WebSite",
+    "@id": "https://markdy.com/#website",
+    name: "Markdy",
+    url: "https://markdy.com/",
+    description,
+    inLanguage: "en",
+    publisher: { "@id": "https://markdy.com/#organization" },
+  },
+  {
+    "@type": "Organization",
+    "@id": "https://markdy.com/#organization",
+    name: "Markdy",
+    url: "https://markdy.com/",
+    logo: "https://markdy.com/icon.svg",
+    sameAs,
+  },
+  {
+    "@type": "Person",
+    "@id": "https://markdy.com/#hoang-yell",
+    name: "Hoang Yell",
+    url: "https://hoangyell.com",
+    sameAs: ["https://github.com/HoangYell", "https://hoangyell.com"],
+  },
+  {
+    "@type": "SoftwareApplication",
+    "@id": "https://markdy.com/#software",
+    name: "Markdy",
+    description,
+    keywords,
+    url: "https://markdy.com/",
+    applicationCategory: "DeveloperApplication",
+    applicationSubCategory: "Animation DSL",
+    operatingSystem: "Web",
+    programmingLanguage: "TypeScript",
+    codeRepository: "https://github.com/HoangYell/markdy-com",
+    license: "https://github.com/HoangYell/markdy-com/blob/main/LICENSE",
+    isAccessibleForFree: true,
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    author: { "@id": "https://markdy.com/#hoang-yell" },
+    publisher: { "@id": "https://markdy.com/#organization" },
+    sameAs,
+  },
+];
+
+const pageStructuredData = Array.isArray(structuredData) ? structuredData : [structuredData];
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [...baseStructuredData, ...pageStructuredData],
+};
 ---
 
 <!doctype html>
@@ -27,6 +90,8 @@ const {
     <meta name="keywords" content={keywords} />
     <meta name="author" content="Hoang Yell" />
     <meta name="robots" content="index, follow" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="format-detection" content="telephone=no" />
     <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
     <title>{title}</title>
@@ -38,15 +103,22 @@ const {
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt} />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:site_name" content="Markdy" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:creator" content="@HoangYell" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={ogImageAlt} />
 
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>" />
+    <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" />
@@ -57,18 +129,7 @@ const {
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js" defer></script>
 
     <!-- JSON-LD Structured Data -->
-    <script type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
-      "name": "Markdy",
-      "description": description,
-      "keywords": keywords,
-      "url": canonicalURL,
-      "applicationCategory": "DeveloperApplication",
-      "operatingSystem": "Web",
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-      "author": { "@type": "Person", "name": "Hoang Yell", "url": "https://hoangyell.com" }
-    })} />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
     <!-- Prevent FOUC: set theme before render -->
     <script is:inline>
