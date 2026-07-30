@@ -4,8 +4,8 @@
 scene width=1200 height=400 bg=#0d1117
 
 actor a = caption("left side") at top
-actor lf = figure(#c68642, m, 🙂) at (200, 260)
-actor rf = figure(#8d5524, m, 😎) at (1000, 260)
+actor lf = figure(#c68642, f, 🙂) at (200, 260)
+actor rf = figure(#8d5524, x, 😎) at (1000, 260)
 
 @0.0:  a.fade_in(dur=0.3)
 @0.3:  lf.enter(from=left, dur=0.5)

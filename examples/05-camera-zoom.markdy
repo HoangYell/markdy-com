@@ -3,7 +3,7 @@
 scene width=800 height=450 bg=#0d1117
 
 actor punchline = caption("wait for it") at center
-actor hero      = figure(#c68642, m, 🙂) at (400, 320)
+actor hero      = figure(#c68642, x, 🙂) at (400, 320)
 
 @0.0:  hero.enter(from=bottom, dur=0.5)
 @0.8:  punchline.fade_in(dur=0.4)
