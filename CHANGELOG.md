@@ -5,6 +5,12 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.22] — 2026-07-30
+
+### Changed
+- **Learn section balance** — Added a final Captions & Camera card to the homepage Learn MarkdyScript guide so the desktop grid no longer ends with an orphan card.
+- **Camera syntax onboarding** — Expanded the learning path with runnable examples for anchored captions plus `camera.pan`, `camera.zoom`, and `camera.shake`.
+
 ## [0.7.21] — 2026-07-19
 
 ### Changed
