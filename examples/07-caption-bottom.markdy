@@ -2,7 +2,7 @@
 scene width=720 height=720 bg=#111
 
 actor topline = caption("when the compat gate") at top
-actor hero    = figure(#c68642, f, 😎) at (360, 430)
+actor hero    = figure(#c68642, m, 😎) at (360, 430)
 actor botline = caption("stays green on every PR") at bottom
 
 @0.0: topline.fade_in(dur=0.3)

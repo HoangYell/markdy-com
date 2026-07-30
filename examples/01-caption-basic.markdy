@@ -2,7 +2,7 @@
 scene width=800 height=400 bg=#111
 
 actor header = caption("hello, markdy") at top
-actor hero   = figure(#c68642, f, 😎) at (400, 280)
+actor hero   = figure(#c68642, m, 😎) at (400, 280)
 
 @0.0: header.fade_in(dur=0.4)
 @0.4: hero.enter(from=bottom, dur=0.6)
