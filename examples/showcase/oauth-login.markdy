@@ -1,0 +1,29 @@
+# OAuth login through browser, gateway, identity provider, and database.
+scene width=1000 height=460 bg=#0f172a fps=30
+
+client Browser at (100, 240)
+service Gateway at (330, 160)
+service Auth at (560, 160)
+database Users at (790, 160)
+service App at (560, 320)
+actor title = caption("OAuth login") at top opacity 0
+
+scene "authorize" {
+  @+0.0: title.line_reveal(from=left, dur=0.4)
+  @+0.2: Browser.request(to=Gateway, label="GET /login", dur=0.6)
+  @+0.0: Gateway.glow(color=#38bdf8, dur=0.5)
+  @+0.2: Gateway.request(to=Auth, label=authorize, dur=0.6)
+}
+
+scene "token" {
+  @+0.2: Auth.request(to=Users, label=lookup, dur=0.5)
+  @+0.0: Users.pulse(amount=1.08, dur=0.4)
+  @+0.2: Users.response(to=Auth, label=profile, dur=0.5)
+  @+0.1: Auth.response(to=Gateway, label=token, dur=0.6)
+}
+
+scene "session" {
+  @+0.2: Gateway.request(to=App, label=session, dur=0.5)
+  @+0.0: App.ripple(color=#22c55e, dur=0.5)
+  @+0.2: Gateway.response(to=Browser, label="302", dur=0.6)
+}

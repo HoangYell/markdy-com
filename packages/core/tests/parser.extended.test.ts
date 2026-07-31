@@ -620,14 +620,41 @@ describe("actor packs and system actions", () => {
   beforeAll(() => {
     registerActorPack({
       name: "systems-test-pack",
-      actors: ["service", "db", "queue", "client"],
+      actors: ["service", "database", "db", "queue", "cache", "client", "cloud", "region", "container", "microservice", "cluster"],
       actions: {
         service: ["request", "response", "emit"],
+        database: ["request", "response", "emit"],
         db: ["request", "response", "emit"],
         queue: ["request", "response", "emit"],
+        cache: ["request", "response", "emit"],
         client: ["request", "response", "emit"],
+        cloud: ["request", "response", "emit"],
+        region: ["request", "response", "emit"],
+        container: ["request", "response", "emit"],
+        microservice: ["request", "response", "emit"],
+        cluster: ["request", "response", "emit"],
       },
     });
+  });
+
+  it("parses architecture-node shorthand with auto-layout and optional positions", () => {
+    const ast = parse(
+      [
+        "scene width=900 height=420 bg=#0f172a",
+        "service API",
+        "database PostgreSQL at (620, 120)",
+        'cache Redis "Session Cache"',
+        "@0.0: API.glow(color=#38bdf8, dur=0.4)",
+        "@0.5: API.pulse(amount=1.12, dur=0.3)",
+        "@0.9: API.request(to=PostgreSQL, label=read, dur=0.6)",
+      ].join("\n"),
+    );
+
+    expect(ast.actors["API"]).toMatchObject({ type: "service", args: ["API"] });
+    expect(ast.actors["PostgreSQL"]).toMatchObject({ type: "database", x: 620, y: 120 });
+    expect(ast.actors["Redis"]).toMatchObject({ type: "cache", args: ["Session Cache"] });
+    expect(ast.events.map((e) => e.action)).toEqual(["glow", "pulse", "request"]);
+    expect(ast.warnings.filter((w) => w.kind === "unknown-action")).toEqual([]);
   });
 
   it("parses system actors and request/response/emit actions", () => {

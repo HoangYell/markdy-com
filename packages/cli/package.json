@@ -48,7 +48,8 @@
   },
   "dependencies": {
     "@markdy/core": "workspace:*",
-    "@markdy/renderer-dom": "workspace:*"
+    "@markdy/renderer-dom": "workspace:*",
+    "@markdy/stdlib-systems": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.9.5",

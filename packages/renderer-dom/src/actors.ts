@@ -92,9 +92,18 @@ export function createActorEl(
     }
 
     case "service":
+    case "api":
+    case "microservice":
     case "client":
+    case "user":
     case "db":
-    case "queue": {
+    case "database":
+    case "queue":
+    case "cache":
+    case "cloud":
+    case "region":
+    case "container":
+    case "cluster": {
       const card = document.createElement("div");
       const label = document.createElement("div");
       label.textContent = def.args[0] ?? "";
@@ -123,10 +132,10 @@ export function createActorEl(
         padding: "10px 12px",
       });
 
-      if (def.type === "service") {
+      if (def.type === "service" || def.type === "api" || def.type === "microservice") {
         card.style.borderRadius = "12px";
         card.style.background = "linear-gradient(180deg, #1e293b 0%, #0f172a 100%)";
-      } else if (def.type === "client") {
+      } else if (def.type === "client" || def.type === "user") {
         const bar = document.createElement("div");
         Object.assign(bar.style, {
           position: "absolute",
@@ -141,14 +150,22 @@ export function createActorEl(
         card.style.borderRadius = "10px";
         card.style.paddingTop = "20px";
         card.appendChild(bar);
-      } else if (def.type === "db") {
+      } else if (def.type === "db" || def.type === "database" || def.type === "cache") {
         card.style.borderRadius = "50% / 14%";
         card.style.background = "linear-gradient(180deg, #334155 0%, #0f172a 70%)";
         card.style.boxShadow = "inset 0 10px 0 rgba(226, 232, 240, 0.12)";
+        if (def.type === "cache") card.style.borderStyle = "dashed";
       } else if (def.type === "queue") {
         card.style.borderRadius = "8px";
         card.style.boxShadow =
           "-6px -6px 0 rgba(30, 41, 59, 0.9), -12px -12px 0 rgba(15, 23, 42, 0.9)";
+      } else if (def.type === "cloud" || def.type === "region") {
+        card.style.borderRadius = "999px";
+        card.style.background = "linear-gradient(180deg, #164e63 0%, #0f172a 100%)";
+      } else if (def.type === "container" || def.type === "cluster") {
+        card.style.borderRadius = "6px";
+        card.style.borderStyle = def.type === "cluster" ? "double" : "solid";
+        card.style.background = "linear-gradient(180deg, #172554 0%, #0f172a 100%)";
       }
 
       card.appendChild(label);

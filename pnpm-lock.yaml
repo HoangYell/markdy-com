@@ -36,6 +36,9 @@ importers:
       '@markdy/renderer-dom':
         specifier: workspace:*
         version: link:../renderer-dom
+      '@markdy/stdlib-systems':
+        specifier: workspace:*
+        version: link:../stdlib-systems
     devDependencies:
       '@types/node':
         specifier: ^25.9.5

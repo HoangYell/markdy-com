@@ -1,0 +1,19 @@
+# Database primary replicating to read replicas and backup storage.
+scene width=1000 height=430 bg=#0f172a fps=30
+
+database Primary at (220, 220)
+database ReplicaA "Replica A" at (520, 140)
+database ReplicaB "Replica B" at (520, 300)
+cloud Backup at (800, 220)
+actor title = caption("Database replication") at top opacity 0
+
+scene "replicate" {
+  @+0.0: title.line_reveal(from=left, dur=0.4)
+  @+0.2: Primary.glow(color=#38bdf8, dur=0.5)
+  @+0.0: Primary.emit(to=ReplicaA, label=WAL, dur=0.7)
+  @+0.0: Primary.emit(to=ReplicaB, label=WAL, dur=0.7)
+  @+0.3: ReplicaA.pulse(dur=0.35)
+  @+0.0: ReplicaB.pulse(dur=0.35)
+  @+0.2: Primary.emit(to=Backup, label=snapshot, dur=0.7)
+  @+0.0: Backup.ripple(color=#22c55e, dur=0.6)
+}

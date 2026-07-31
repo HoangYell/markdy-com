@@ -5,7 +5,8 @@
     "lib": ["ES2022"],
     "baseUrl": ".",
     "paths": {
-      "@markdy/core": ["../core/src/index.ts"]
+      "@markdy/core": ["../core/src/index.ts"],
+      "@markdy/stdlib-systems": ["../stdlib-systems/src/index.ts"]
     }
   },
   "include": ["src"],

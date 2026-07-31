@@ -396,6 +396,29 @@ const IMPORT_RE = /^import\s+"([^"]+)"\s+as\s+(\w+)\s*$/;
 // `preset <name>` with optional (args)
 const PRESET_RE = /^preset\s+(\w+)(?:\s*\((.*)\))?\s*$/;
 
+// First-class architecture-node shorthand:
+//   service API
+//   database PostgreSQL at (620, 180)
+//   cache Redis "Session Cache"
+const ARCHITECTURE_NODE_RE =
+  /^(service|database|db|queue|cache|api|user|client|cloud|region|container|microservice|cluster)\s+(\w+)(?:\s+("[^"]+"|'[^']+'))?(?:\s+at\s+\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\))?(.*)$/;
+
+const ARCHITECTURE_ALIAS_TO_TYPE: Record<string, string> = {
+  api: "service",
+  database: "database",
+  db: "db",
+  user: "client",
+  client: "client",
+  service: "service",
+  queue: "queue",
+  cache: "cache",
+  cloud: "cloud",
+  region: "region",
+  container: "container",
+  microservice: "microservice",
+  cluster: "cluster",
+};
+
 // ---------------------------------------------------------------------------
 // Variable interpolation
 // ---------------------------------------------------------------------------
@@ -796,8 +819,8 @@ export function parse(source: string, opts: ParseOptions = {}): SceneAST {
       continue;
     }
 
-    // ── actor ────────────────────────────────────────────────────────────────
-    if (raw.startsWith("actor ")) {
+    // ── actor / architecture-node shorthand ─────────────────────────────────
+    if (raw.startsWith("actor ") || isArchitectureNodeLine(raw)) {
       const actorInfo = parseActorLine(raw, lineNum, ast);
       if (!actorCountWarned && actorCountWarningThreshold > 0) {
         const actorCount = Object.keys(ast.actors).length;
@@ -892,6 +915,9 @@ function parseActorLine(
   lineNum: number,
   ast: SceneAST,
 ): { name: string; args: string[] } {
+  const architectureNode = parseArchitectureNodeLine(raw, lineNum, ast);
+  if (architectureNode) return architectureNode;
+
   // Try anchor-position form first; it's distinctive (`at top|bottom|center`).
   const amAnchor = ACTOR_ANCHOR_POS_RE.exec(raw);
   const amNum = amAnchor ? null : ACTOR_NUM_POS_RE.exec(raw);
@@ -1001,6 +1027,69 @@ function parseActorLine(
     ...(anchor ? { anchor } : {}),
   };
   return { name, args: resolvedArgs };
+}
+
+function isArchitectureNodeLine(raw: string): boolean {
+  return ARCHITECTURE_NODE_RE.test(raw);
+}
+
+function parseArchitectureNodeLine(
+  raw: string,
+  lineNum: number,
+  ast: SceneAST,
+): { name: string; args: string[] } | null {
+  const m = ARCHITECTURE_NODE_RE.exec(raw);
+  if (!m) return null;
+
+  const [, alias, name, labelRaw, xRaw, yRaw, trailer] = m;
+  if (name === "camera") {
+    throw new ParseError(
+      `"camera" is a reserved actor name; choose a different architecture node name`,
+      lineNum,
+    );
+  }
+
+  const typeName = ARCHITECTURE_ALIAS_TO_TYPE[alias] ?? alias;
+  if (!isKnownActorType(typeName)) {
+    throw new ParseError(
+      `Architecture node "${alias}" requires an actor pack that registers type "${typeName}"`,
+      lineNum,
+    );
+  }
+
+  const actorIndex = Object.keys(ast.actors).length;
+  const x = xRaw === undefined ? autoNodeX(actorIndex, ast.meta.width) : Number(xRaw);
+  const y = yRaw === undefined ? autoNodeY(actorIndex, ast.meta.height, ast.meta.width) : Number(yRaw);
+  if (x < 0 || x > ast.meta.width || y < 0 || y > ast.meta.height) {
+    throw new ParseError(
+      `Actor "${name}" position (${x}, ${y}) is outside scene bounds (0–${ast.meta.width}, 0–${ast.meta.height})`,
+      lineNum,
+    );
+  }
+
+  const quoted = labelRaw ? parseQuotedLiteral(labelRaw.trim()) : null;
+  const label = quoted ?? labelRaw?.trim() ?? name;
+  const modifiers = parseActorTrailer(trailer, lineNum, ast.warnings);
+  ast.actors[name] = {
+    type: typeName as ActorDef["type"],
+    args: [label],
+    x,
+    y,
+    ...modifiers,
+  };
+  return { name, args: [label] };
+}
+
+function autoNodeX(index: number, width: number): number {
+  const columns = Math.max(1, Math.floor(width / 220));
+  const gutter = width / (columns + 1);
+  return Math.round(gutter * ((index % columns) + 1));
+}
+
+function autoNodeY(index: number, height: number, width: number = DEFAULTS.width): number {
+  const columns = Math.max(1, Math.floor(width / 220));
+  const row = Math.floor(index / columns);
+  return Math.min(height - 60, 90 + row * 120);
 }
 
 // ---------------------------------------------------------------------------

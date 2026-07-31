@@ -34,12 +34,19 @@ beforeAll(() => {
 
   registerActorPack({
     name: "systems-test-pack",
-    actors: ["service", "db", "queue", "client"],
+    actors: ["service", "database", "db", "queue", "cache", "client", "cloud", "region", "container", "microservice", "cluster"],
     actions: {
       service: ["request", "response", "emit"],
+      database: ["request", "response", "emit"],
       db: ["request", "response", "emit"],
       queue: ["request", "response", "emit"],
+      cache: ["request", "response", "emit"],
       client: ["request", "response", "emit"],
+      cloud: ["request", "response", "emit"],
+      region: ["request", "response", "emit"],
+      container: ["request", "response", "emit"],
+      microservice: ["request", "response", "emit"],
+      cluster: ["request", "response", "emit"],
     },
   });
 });
@@ -180,6 +187,30 @@ describe("renderer — enter action", () => {
           kf[1].opacity === 1,
       );
     expect(enterKF).toBeDefined();
+  });
+});
+
+// ---------------------------------------------------------------------------
+
+describe("renderer — premium universal effects", () => {
+  it("renders architecture shorthand actors and visual effects", () => {
+    const { actorEls, anims } = mount(
+      [
+        "scene width=900 height=420 bg=#0f172a",
+        "service API",
+        "database PostgreSQL at (620, 120)",
+        "@0.0: API.glow(color=#38bdf8, dur=0.4)",
+        "@0.4: API.pulse(amount=1.1, dur=0.3)",
+        "@0.8: API.ripple(color=#22c55e, dur=0.5)",
+        "@1.4: API.spring(to=(360, 210), dur=0.5)",
+        "@2.0: API.line_reveal(dur=0.3)",
+      ].join("\n"),
+    );
+
+    expect(actorEls.get("API")?.textContent).toBe("API");
+    expect(actorEls.get("PostgreSQL")?.textContent).toBe("PostgreSQL");
+    expect(actorEls.get("API")?.querySelector("[data-markdy-ripple='1']")).toBeDefined();
+    expect(anims.length).toBeGreaterThanOrEqual(5);
   });
 });
 

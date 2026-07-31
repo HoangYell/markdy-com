@@ -17,13 +17,16 @@
  * shipped examples when the grammar is extended.
  */
 
-import { parse, type ParseWarning, type SceneAST } from "../packages/core/src/index.js";
+import { parse, registerActorPack, type ParseWarning, type SceneAST } from "../packages/core/src/index.js";
+import { systemsPack } from "../packages/stdlib-systems/src/index.js";
 import { readdir, readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
+
+registerActorPack(systemsPack);
 
 interface Failure {
   file: string;

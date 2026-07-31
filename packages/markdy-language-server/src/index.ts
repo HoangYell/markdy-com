@@ -3,9 +3,10 @@ import {
   ParseError,
   UNIVERSAL_ACTION_NAMES,
   parse,
+  registerActorPack,
   type ParseWarning,
 } from "@markdy/core";
-import { SYSTEM_FLOW_ACTIONS } from "@markdy/stdlib-systems";
+import { SYSTEM_ACTOR_TYPES, SYSTEM_FLOW_ACTIONS, systemsPack } from "@markdy/stdlib-systems";
 import {
   type CompletionItem,
   CompletionItemKind,
@@ -34,11 +35,29 @@ type ActorInfo = {
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
+registerActorPack(systemsPack);
+
 // Action vocabularies come from the packages that define them, so
 // completions can never drift out of sync with what the parser accepts.
 const UNIVERSAL_ACTIONS: string[] = [...UNIVERSAL_ACTION_NAMES];
 const FIGURE_ACTIONS: string[] = [...FIGURE_ONLY_ACTION_NAMES];
 const SYSTEM_ACTIONS: string[] = [...SYSTEM_FLOW_ACTIONS];
+const SYSTEM_TYPES = new Set<string>(SYSTEM_ACTOR_TYPES);
+const ARCHITECTURE_KEYWORDS = new Set<string>([
+  "service",
+  "database",
+  "db",
+  "queue",
+  "cache",
+  "api",
+  "user",
+  "client",
+  "cloud",
+  "region",
+  "container",
+  "microservice",
+  "cluster",
+]);
 
 const KEYWORDS = [
   "scene",
@@ -51,6 +70,7 @@ const KEYWORDS = [
   "preset",
   "import",
   "camera",
+  ...ARCHITECTURE_KEYWORDS,
 ];
 const SEMANTIC_TOKEN_TYPES = ["keyword", "variable", "method", "class"] as const;
 const SEMANTIC_TOKEN_TYPE_INDEX = new Map(
@@ -71,15 +91,32 @@ const ACTION_DOCS: Record<string, string> = {
   pan: "Move camera center. Params: `to=(x,y)`, `dur`, `ease`.",
   zoom: "Change camera zoom. Params: `to`, `dur`, `ease`.",
   shake: "Shake actor/camera. Params: `intensity`, `dur`.",
+  spring: "Spring to a coordinate with overshoot. Params: `to=(x,y)`, `stiffness`, `dur`.",
+  follow_path: "Move along an SVG path using CSS motion paths. Params: `path`, `dur`, `rotate`.",
+  pulse: "Scale up and settle back for emphasis. Params: `amount`, `dur`.",
+  glow: "Animate drop-shadow/box-shadow emphasis. Params: `color`, `strength`, `dur`.",
+  ripple: "Emit a transient expanding ring from the actor center. Params: `color`, `size`, `dur`.",
+  blur: "Animate CSS blur. Params: `from`, `to`, `dur`.",
+  line_reveal: "Reveal an actor with a directional clip-path wipe. Params: `from`, `dur`.",
+  mask: "Animate a circular clip-path mask. Params: `from`, `to`, `dur`.",
+  parallax: "Offset an actor by depth for layered movement. Params: `depth`, `by=(x,y)`, `dur`.",
 };
 
 function extractActors(text: string): ActorInfo[] {
   const actors: ActorInfo[] = [];
   const lines = text.split(/\r?\n/);
   for (let i = 0; i < lines.length; i++) {
-    const m = /^actor\s+(\w+)\s*=\s*([\w.]+)\(/.exec(lines[i].trim());
-    if (!m) continue;
-    actors.push({ name: m[1], type: m[2], line: i });
+    const raw = lines[i].trim();
+    const actor = /^actor\s+(\w+)\s*=\s*([\w.]+)\(/.exec(raw);
+    if (actor) {
+      actors.push({ name: actor[1], type: actor[2], line: i });
+      continue;
+    }
+    const shorthand = /^(service|database|db|queue|cache|api|user|client|cloud|region|container|microservice|cluster)\s+(\w+)\b/.exec(raw);
+    if (shorthand) {
+      const type = shorthand[1] === "api" ? "service" : shorthand[1] === "user" ? "client" : shorthand[1];
+      actors.push({ name: shorthand[2], type, line: i });
+    }
   }
   return actors;
 }
@@ -87,7 +124,7 @@ function extractActors(text: string): ActorInfo[] {
 function getActionsForActorType(actorType: string): string[] {
   const out = [...UNIVERSAL_ACTIONS];
   if (actorType === "figure") out.push(...FIGURE_ACTIONS);
-  if (actorType === "service" || actorType === "db" || actorType === "queue" || actorType === "client") {
+  if (SYSTEM_TYPES.has(actorType)) {
     out.push(...SYSTEM_ACTIONS);
   }
   return out;
@@ -265,6 +302,18 @@ function buildDocumentSymbols(document: TextDocument): DocumentSymbol[] {
       symbols.push({
         name: actor[1],
         detail: "actor",
+        kind: SymbolKind.Variable,
+        range: lineRange(document, i),
+        selectionRange: lineRange(document, i),
+        children: [],
+      });
+      continue;
+    }
+    const shorthand = /^(service|database|db|queue|cache|api|user|client|cloud|region|container|microservice|cluster)\s+(\w+)\b/.exec(raw);
+    if (shorthand) {
+      symbols.push({
+        name: shorthand[2],
+        detail: shorthand[1],
         kind: SymbolKind.Variable,
         range: lineRange(document, i),
         selectionRange: lineRange(document, i),

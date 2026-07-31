@@ -1,0 +1,25 @@
+# Microservice architecture with gateway, services, cache, and database.
+scene width=1000 height=460 bg=#0f172a fps=30
+
+client Web at (100, 240)
+service Gateway at (300, 240)
+microservice Orders at (520, 140)
+microservice Billing at (520, 340)
+cache Redis at (740, 140)
+database Postgres at (740, 340)
+actor title = caption("Microservice architecture") at top opacity 0
+
+scene "fanout" {
+  @+0.0: title.line_reveal(from=left, dur=0.4)
+  @+0.2: Web.request(to=Gateway, label="POST /orders", dur=0.6)
+  @+0.0: Gateway.glow(color=#38bdf8, dur=0.5)
+  @+0.2: Gateway.request(to=Orders, label=create, dur=0.5)
+  @+0.0: Gateway.request(to=Billing, label=charge, dur=0.5)
+}
+
+scene "state" {
+  @+0.2: Orders.request(to=Redis, label=cache, dur=0.5)
+  @+0.0: Billing.request(to=Postgres, label=write, dur=0.5)
+  @+0.2: Redis.response(to=Orders, label=hit, dur=0.4)
+  @+0.0: Postgres.response(to=Billing, label=ok, dur=0.4)
+}

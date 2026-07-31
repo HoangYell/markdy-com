@@ -49,6 +49,8 @@ const TOKEN_TAG: Record<string, any> = {
 
 const KEYWORDS = new Set([
   "scene", "actor", "asset", "var", "def", "seq", "group",
+  "service", "database", "db", "queue", "cache", "api", "user", "client",
+  "cloud", "region", "container", "microservice", "cluster",
 ]);
 
 // Derived from the packages that define the vocabulary rather than
@@ -70,6 +72,7 @@ const ACTIONS = new Set<string>([
 
 const PARAMS = new Set([
   "from", "to", "dur", "ease", "intensity", "side", "part", "stagger",
+  "amount", "strength", "color", "path", "depth", "by",
   "width", "height", "fps", "bg", "duration",
   "scale", "rotate", "opacity", "size",
 ]);
@@ -230,6 +233,7 @@ const typeCompletions: Completion[] = [
   { label: "text",   type: "type", detail: "text label",      info: 'text("content")' },
   { label: "sprite", type: "type", detail: "image sprite",    info: "sprite(assetName)" },
   { label: "box",    type: "type", detail: "grey box",        info: "box()" },
+  ...SYSTEM_ACTOR_TYPES.map((label): Completion => ({ label, type: "type", detail: "architecture node", info: `${label} Name` })),
   { label: "image",  type: "type", detail: "image asset",     info: 'image("path/to/img.png")' },
   { label: "icon",   type: "type", detail: "icon asset",      info: 'icon("set:name")' },
 ];
@@ -237,11 +241,23 @@ const typeCompletions: Completion[] = [
 const actionCompletions: Completion[] = [
   { label: "enter",       type: "function", detail: "slide in",       info: "enter(from=left, dur=0.8)" },
   { label: "move",        type: "function", detail: "translate",      info: "move(to=(x,y), dur=1.0, ease=out)" },
+  { label: "spring",      type: "function", detail: "spring motion",   info: "spring(to=(x,y), stiffness=0.18, dur=0.7)" },
+  { label: "follow_path", type: "function", detail: "motion path",     info: 'follow_path(path="M 0 0 C 80 -40 160 40 240 0", dur=1.0)' },
   { label: "fade_in",     type: "function", detail: "appear",         info: "fade_in(dur=0.5)" },
   { label: "fade_out",    type: "function", detail: "disappear",      info: "fade_out(dur=0.4)" },
   { label: "scale",       type: "function", detail: "resize",         info: "scale(to=1.5, dur=0.4)" },
   { label: "rotate",      type: "function", detail: "spin",           info: "rotate(to=90, dur=0.5)" },
   { label: "shake",       type: "function", detail: "oscillate",      info: "shake(intensity=5, dur=0.5)" },
+  { label: "pulse",       type: "function", detail: "emphasis",       info: "pulse(amount=1.08, dur=0.35)" },
+  { label: "glow",        type: "function", detail: "light emphasis", info: "glow(color=#38bdf8, strength=24, dur=0.5)" },
+  { label: "ripple",      type: "function", detail: "expanding ring", info: "ripple(color=#22c55e, size=140, dur=0.5)" },
+  { label: "blur",        type: "function", detail: "blur transition", info: "blur(from=8, to=0, dur=0.4)" },
+  { label: "line_reveal", type: "function", detail: "clip reveal",    info: "line_reveal(from=left, dur=0.4)" },
+  { label: "mask",        type: "function", detail: "mask reveal",    info: "mask(from=0, to=120, dur=0.5)" },
+  { label: "parallax",    type: "function", detail: "depth offset",   info: "parallax(depth=0.4, by=(40,0), dur=1.0)" },
+  { label: "request",     type: "function", detail: "flow edge",      info: 'request(to=API, label="GET /v1", dur=0.8)' },
+  { label: "response",    type: "function", detail: "return edge",    info: 'response(to=Client, label="200 OK", dur=0.6)' },
+  { label: "emit",        type: "function", detail: "async edge",     info: "emit(to=Kafka, label=event, dur=0.5)" },
   { label: "say",         type: "function", detail: "speech bubble",  info: 'say("text", dur=1.0)' },
   { label: "throw",       type: "function", detail: "projectile",     info: "throw(asset, to=actor, dur=0.8)" },
   { label: "play",        type: "function", detail: "run sequence",   info: "play(seqName, key=value)" },
@@ -257,6 +273,12 @@ const paramCompletions: Completion[] = [
   { label: "dur=",       type: "property", detail: "duration (s)", apply: "dur=" },
   { label: "ease=",      type: "property", detail: "easing",       apply: "ease=" },
   { label: "intensity=", type: "property", detail: "shake px",     apply: "intensity=" },
+  { label: "amount=",    type: "property", detail: "scale factor",  apply: "amount=" },
+  { label: "strength=",  type: "property", detail: "glow px",      apply: "strength=" },
+  { label: "color=",     type: "property", detail: "CSS color",     apply: "color=" },
+  { label: "path=",      type: "property", detail: "SVG path",      apply: "path=" },
+  { label: "depth=",     type: "property", detail: "parallax",      apply: "depth=" },
+  { label: "by=",        type: "property", detail: "offset tuple",   apply: "by=" },
   { label: "side=",      type: "property", detail: "left|right",   apply: "side=" },
   { label: "part=",      type: "property", detail: "body part",    apply: "part=" },
   { label: "width=",     type: "property", detail: "scene width",  apply: "width=" },

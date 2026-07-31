@@ -131,6 +131,24 @@ actor box1  = box() at (50,50) rotate 45
 actor hero  = figure(#c68642, m, 😎) at (200, 200) z 5
 ```
 
+### Architecture node shorthand
+
+When the systems actor pack is registered, common architecture nodes can be declared without the `actor ... = type(...)` ceremony:
+
+```markdy
+service API
+database PostgreSQL at (620, 140)
+queue Kafka
+cache Redis "Session Cache"
+client Browser at (120, 220)
+cloud AWS
+region USEast
+container PodA
+cluster Kubernetes
+```
+
+Shorthand declarations expand to ordinary actors in the AST. `service API` is equivalent to `actor API = service("API") at (...)`, with a deterministic auto-layout position when `at (x,y)` is omitted. `database`, `cache`, `cloud`, `region`, `container`, `microservice`, and `cluster` render as architecture diagram nodes and support system flow actions such as `request`, `response`, and `emit`.
+
 ---
 
 ## Timeline events
@@ -193,6 +211,62 @@ Translates the actor to a new position.
 | `to`      | `(x,y)`      | Target position in pixels |
 | `dur`     | seconds      |                           |
 | `ease`    | easing token |                           |
+
+---
+
+### `spring`
+
+Moves to a new coordinate with a subtle overshoot and settle.
+
+```markdy
+@0.4: API.spring(to=(360,210), stiffness=0.18, dur=0.7)
+```
+
+| Parameter   | Type    | Default | Description                     |
+|-------------|---------|---------|---------------------------------|
+| `to`        | `(x,y)` | current | Target position in pixels       |
+| `stiffness` | number  | `0.18`  | Overshoot amount                |
+
+---
+
+### `follow_path`
+
+Moves an actor along an SVG path string using CSS motion path properties.
+
+```markdy
+@1.0: packet.follow_path(path="M 0 0 C 80 -40 160 40 240 0", dur=1.0)
+```
+
+| Parameter | Type   | Default | Description                         |
+|-----------|--------|---------|-------------------------------------|
+| `path`    | string | line    | SVG path data                       |
+| `rotate`  | bool   | `true`  | Use automatic path-facing rotation  |
+
+---
+
+### Visual effects
+
+These universal actions work on all actor types and compile to Web Animations API keyframes plus lightweight transient DOM where needed.
+
+```markdy
+@0.0: API.glow(color=#38bdf8, strength=24, dur=0.5)
+@0.2: API.pulse(amount=1.08, dur=0.35)
+@0.4: API.ripple(color=#22c55e, size=140, dur=0.5)
+@0.8: title.line_reveal(from=left, dur=0.4)
+@1.2: panel.mask(from=0, to=120, dur=0.6)
+@1.6: panel.blur(from=8, to=0, dur=0.4)
+@2.0: bg.parallax(depth=0.35, by=(40,0), dur=1.0)
+```
+
+| Action        | Purpose                                      |
+|---------------|----------------------------------------------|
+| `pulse`       | Temporary scale emphasis                     |
+| `glow`        | Animated drop-shadow/box-shadow highlight    |
+| `ripple`      | Expanding ring from actor center             |
+| `blur`        | CSS blur transition                          |
+| `line_reveal` | Directional clip-path reveal                 |
+| `mask`        | Circular clip-path reveal/conceal            |
+| `parallax`    | Depth-scaled offset for layered motion       |
 
 ---
 

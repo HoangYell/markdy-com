@@ -1,4 +1,5 @@
-import { PRESETS, PRESET_NAMES, parse, type ParseWarning, type SceneAST } from "@markdy/core";
+import { PRESETS, PRESET_NAMES, parse, registerActorPack, type ParseWarning, type SceneAST } from "@markdy/core";
+import { systemsPack } from "@markdy/stdlib-systems";
 import { createRequire } from "node:module";
 import { basename, dirname, extname, join, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -38,6 +39,8 @@ const DEFAULT_PORT = 4242;
 const IMPORT_RE = /^import\s+"([^"]+)"\s+as\s+(\w+)\s*$/;
 const MARKDY_EXT = ".markdy";
 const PACKAGE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+
+registerActorPack(systemsPack);
 
 export async function runCli(
   argv: string[],

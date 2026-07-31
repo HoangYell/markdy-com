@@ -14,6 +14,7 @@
 import type { ActionHandler } from "./context.js";
 import * as figure from "./figure.js";
 import * as transform from "./transform.js";
+import * as effects from "./effects.js";
 import { flowEdge } from "./flow.js";
 import { say } from "./speech.js";
 import { throwAsset } from "./projectile.js";
@@ -25,9 +26,18 @@ export const ACTION_HANDLERS: Readonly<Record<string, ActionHandler>> = Object.f
   exit: transform.exit,
   fade_in: transform.fadeIn,
   fade_out: transform.fadeOut,
+  spring: effects.spring,
+  follow_path: effects.followPath,
   scale: transform.scale,
   rotate: transform.rotate,
   shake: transform.shake,
+  pulse: effects.pulse,
+  glow: effects.glow,
+  ripple: effects.ripple,
+  blur: effects.blur,
+  line_reveal: effects.lineReveal,
+  mask: effects.mask,
+  parallax: effects.parallax,
   jump: transform.jump,
   bounce: transform.bounce,
   say,
