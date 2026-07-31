@@ -1,6 +1,6 @@
 # MarkdyScript Tutorial
 
-A step-by-step guide to creating animated scenes with MarkdyScript — from your first text label to full stick-figure choreographies.
+A step-by-step guide to creating animated docs, product explainers, and diagram-like scenes with MarkdyScript.
 
 > **Prerequisites:** Basic familiarity with any text editor. No programming required to write MarkdyScript.
 
@@ -12,8 +12,8 @@ A step-by-step guide to creating animated scenes with MarkdyScript — from your
 2. [Adding Movement](#2-adding-movement)
 3. [Multiple Actors](#3-multiple-actors)
 4. [Working with Images](#4-working-with-images)
-5. [Stick Figures](#5-stick-figures)
-6. [Speech & Interaction](#6-speech--interaction)
+5. [Optional Character Guides](#5-optional-character-guides)
+6. [Captions & Effects](#6-captions--effects)
 7. [Variables](#7-variables)
 8. [Templates](#8-templates)
 9. [Sequences](#9-sequences)
@@ -122,19 +122,21 @@ actor icon = sprite(fire) at (400, 200) size 48
 
 ---
 
-## 5. Stick Figures
+## 5. Optional Character Guides
 
-The `figure` actor type creates emoji stick figures with articulatable limbs:
+The `figure` actor type creates optional character guides with articulatable limbs. Use them when a presenter or guide makes the explainer clearer; most product flows can use `text`, `box`, `sprite`, and `caption` actors instead.
 
 ```markdy
 scene width=800 height=400 bg=#f5f5ff
 
 # Arguments: skinColor, gender, startingFace
-actor guy = figure(#c68642, m, 😎) at (200, 200)
-actor gal = figure(#fad4c0, f, 🙂) at (500, 200)
+actor guide = figure(#c68642, m, 🙂) at (220, 220)
+actor card = box() at (500, 170) scale 1.4
+actor label = text("Explain the flow") at (500, 230) size 24
 
-@0.0: guy.enter(from=left, dur=0.8)
-@0.5: gal.enter(from=right, dur=0.8)
+@0.0: guide.enter(from=left, dur=0.8)
+@0.5: card.fade_in(dur=0.4)
+@0.7: label.fade_in(dur=0.4)
 ```
 
 **Figure arguments:**
@@ -151,17 +153,11 @@ Figures have named body parts you can animate individually:
 
 ```markdy
 # Wave: rotate the right arm up, then back down
-@2.0: guy.rotate_part(part=arm_right, to=-80, dur=0.3)
-@2.5: guy.rotate_part(part=arm_right, to=-20, dur=0.3)
+@2.0: guide.rotate_part(part=arm_right, to=-80, dur=0.3)
+@2.5: guide.rotate_part(part=arm_right, to=-20, dur=0.3)
 
 # Tilt the head
-@3.0: gal.rotate_part(part=head, to=15, dur=0.3)
-
-# Quick punch with the left arm
-@4.0: guy.punch(side=left, dur=0.3)
-
-# Kick with the right leg
-@5.0: guy.kick(side=right, dur=0.35)
+@3.0: guide.rotate_part(part=head, to=15, dur=0.3)
 ```
 
 **Part names:** `head`, `face`, `body`, `arm_left`, `arm_right`, `leg_left`, `leg_right`
@@ -172,10 +168,10 @@ Instead of chaining multiple `rotate_part` calls, use `pose` to set several body
 
 ```markdy
 # Arms up celebration
-@2.0: guy.pose(arm_left=70, arm_right=-70, dur=0.4)
+@2.0: guide.pose(arm_left=70, arm_right=-70, dur=0.4)
 
 # Reset to neutral
-@3.0: guy.pose(arm_left=0, arm_right=0, head=0, dur=0.3)
+@3.0: guide.pose(arm_left=0, arm_right=0, head=0, dur=0.3)
 ```
 
 Only the parts you specify are animated — everything else stays put.
@@ -186,16 +182,16 @@ Common gestures have dedicated actions so you don't have to build them from `rot
 
 ```markdy
 # Wave hello
-@2.0: guy.wave(side=right, dur=0.8)
+@2.0: guide.wave(side=right, dur=0.8)
 
 # Nod in agreement
-@3.0: gal.nod(dur=0.4)
+@3.0: guide.nod(dur=0.4)
 
-# Jump with excitement
-@4.0: guy.jump(height=30, dur=0.5)
+# Jump for emphasis
+@4.0: guide.jump(height=30, dur=0.5)
 
 # Bounce on landing
-@5.0: guy.bounce(intensity=15, count=3, dur=0.6)
+@5.0: guide.bounce(intensity=15, count=3, dur=0.6)
 ```
 
 ### Face Expressions
@@ -204,8 +200,8 @@ Swap the emoji face at any point in the timeline:
 
 ```markdy
 @0.0: guy.face("😊")
-@3.0: guy.face("😡")    # angry!
-@5.0: guy.face("😵")    # knocked out
+@3.0: guy.face("🤔")    # thinking
+@5.0: guy.face("🙂")    # ready
 @7.0: guy.face("😄")    # happy again
 ```
 
@@ -213,13 +209,30 @@ Face changes are instant and **seek-safe** — scrubbing backward shows the corr
 
 ---
 
-## 6. Speech & Interaction
+## 6. Captions & Effects
+
+Use `caption` for scene-level narration and effects like `shake` to highlight a status change:
+
+```markdy
+scene width=800 height=400 bg=#f8fafc
+
+actor title = caption("Release checklist") at top opacity 0
+actor card = box() at (350, 150) scale 1.5 opacity 0
+actor status = caption("Checks passed") at bottom opacity 0
+
+@0.0: title.fade_in(dur=0.4)
+@0.5: card.fade_in(dur=0.5)
+@1.2: status.fade_in(dur=0.4)
+@1.6: card.shake(intensity=4, dur=0.4)
+```
 
 ### Speech Bubbles
 
+Speech bubbles are useful for presenter-style scenes:
+
 ```markdy
-@1.0: guy.say("Hello there!", dur=1.5)
-@3.0: gal.say("Nice to meet you 😊", dur=2.0)
+@1.0: guide.say("Start with the API.", dur=1.5)
+@3.0: guide.say("Then show the handoff.", dur=2.0)
 ```
 
 The bubble appears above the actor for `dur` seconds with fade-in/fade-out.
@@ -227,13 +240,13 @@ The bubble appears above the actor for `dur` seconds with fade-in/fade-out.
 ### Throwing Objects
 
 ```markdy
-asset ball = icon("noto:basketball")
+asset packet = icon("lucide:send")
 
-@4.0: guy.throw(ball, to=gal, dur=0.8)
-@5.0: gal.shake(intensity=5, dur=0.4)
+@4.0: api.throw(packet, to=edge, dur=0.8)
+@5.0: edge.shake(intensity=5, dur=0.4)
 ```
 
-`throw` animates a projectile from one actor to another. Combine with `shake` on the target for impact.
+`throw` animates a projectile from one actor to another. Combine with `shake` on the target to emphasize arrival.
 
 ---
 

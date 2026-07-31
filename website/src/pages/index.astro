@@ -16,9 +16,9 @@ type PlaygroundExample = {
 
 const PLAYGROUND_EXAMPLES = [
   {
-    fileName: "00-love-story.markdy",
-    label: "Love Story",
-    previewStart: 3.2,
+    fileName: "00-launch-flow.markdy",
+    label: "Launch Flow",
+    previewStart: 0,
   },
   {
     fileName: "13-combined.markdy",
@@ -26,15 +26,15 @@ const PLAYGROUND_EXAMPLES = [
   },
   {
     fileName: "06-camera-shake.markdy",
-    label: "Fight Beat",
+    label: "Camera Shake",
   },
   {
-    fileName: "02-at-plus-shorthand.markdy",
-    label: "@+ Timing",
+    fileName: "16-chart-reveal.markdy",
+    label: "Chart Reveal",
   },
   {
-    fileName: "10-unified-modifiers.markdy",
-    label: "Modifiers",
+    fileName: "17-api-edge-flow.markdy",
+    label: "API Edge Flow",
   },
 ] as const;
 
@@ -138,23 +138,23 @@ const USE_CASES = [
     desc: "Turn walkthroughs, feature explanations, and onboarding steps into small timeline scenes that stay readable in source control.",
   },
   {
-    title: "AI-generated motion sketches",
-    desc: "Give an AI agent a plain-English scene brief and get deterministic MarkdyScript back instead of brittle generated JavaScript.",
+    title: "Architecture and product flows",
+    desc: "Show APIs, edge services, launch steps, and process handoffs as animated diagrams instead of static screenshots.",
   },
   {
     title: "Astro and MDX content sites",
     desc: "Embed animations in documentation, launch posts, and technical articles without shipping a full creative suite to every page.",
   },
   {
-    title: "Explainers, memes, and social clips",
-    desc: "Prototype short visual stories with actors, captions, camera movement, and speech bubbles using text-only files.",
+    title: "AI-generated explainer scenes",
+    desc: "Give an AI agent a plain-English brief and get deterministic MarkdyScript back instead of brittle generated JavaScript.",
   },
 ] as const;
 
 const FAQS = [
   {
     question: "What is Markdy?",
-    answer: "Markdy is an open-source animation DSL for writing text-to-motion scenes. You define actors, assets, captions, and timeline events in MarkdyScript, then render the result in the browser.",
+    answer: "Markdy is an open-source animation DSL for writing text-to-animation scenes. You define actors, assets, captions, and timeline events in MarkdyScript, then render the result in the browser.",
   },
   {
     question: "Is Markdy an alternative to GSAP or Framer Motion?",
@@ -186,7 +186,7 @@ const homepageStructuredData = [
     "@id": "https://markdy.com/#webpage",
     url: "https://markdy.com/",
     name: "Markdy — Open-Source Animation DSL Engine",
-    description: "Markdy is a framework-agnostic text-to-motion animation DSL for animated scenes, docs, Astro sites, MDX content, and AI-generated motion sketches.",
+    description: "Markdy is a framework-agnostic text-to-animation DSL for animated docs, product explainers, system diagrams, Astro sites, MDX content, and AI-generated scenes.",
     isPartOf: { "@id": "https://markdy.com/#website" },
     about: { "@id": "https://markdy.com/#software" },
     primaryImageOfPage: {
@@ -223,8 +223,9 @@ const USAGE_VANILLA = `<span class="u-kw">import</span> { createPlayer } <span c
 createPlayer({
   container: <span class="u-fn">document.getElementById</span>(<span class="u-str">"stage"</span>),
   code: <span class="u-str">\`scene width=600 height=300
-  actor a = figure(#c68642, m, 😎) at (300, 150)
-  @0.3: a.enter(from=left, dur=0.8)\`</span>,
+  actor label = text("API request") at (120, 150) opacity 0
+  @0.3: label.fade_in(dur=0.5)
+  @1.0: label.move(to=(380, 150), dur=0.8, ease=out)\`</span>,
   autoplay: <span class="u-lit">true</span>,
 });`;
 
@@ -232,10 +233,11 @@ const USAGE_ASTRO = `<span class="u-comment">---</span>
 <span class="u-kw">import</span> { Markdy } <span class="u-kw">from</span> <span class="u-str">"@markdy/astro"</span>;
 
 <span class="u-kw">const</span> code = <span class="u-str">\`
-  scene width=800 height=400 bg=#fff5f9
-  actor hero = figure(#c68642, m, 😎) at (400, 200)
-  @0.0: hero.enter(from=left, dur=0.8)
-  @1.5: hero.say("Hello!", dur=1.2)
+  scene width=800 height=400 bg=#f8fafc
+  actor title = caption("Product update") at top opacity 0
+  actor card = box() at (350, 150) scale 1.4 opacity 0
+  @0.0: title.fade_in(dur=0.4)
+  @0.4: card.fade_in(dur=0.5)
 \`</span>;
 <span class="u-comment">---</span>
 
@@ -265,9 +267,9 @@ markdy <span class="u-fn">check-all</span> examples`;
 
 <Layout 
   title="Markdy — Open-Source Animation DSL Engine"
-  description="Markdy is a framework-agnostic text-to-motion animation DSL. Write animated scenes like Markdown. No Canvas, no GSAP, no bloated dependencies."
-  keywords="open-source animation dsl, text-to-motion, declarative animation, framer motion alternative, gsap alternative, markdown animation, web animations api, stick figure animation"
-  ogImageAlt="Markdy playground showing text-to-motion animation code and a rendered scene preview"
+  description="Markdy is a framework-agnostic text-to-animation DSL for animated docs, product explainers, and system diagrams. No Canvas, no GSAP, no bloated dependencies."
+  keywords="open-source animation dsl, text-to-animation, animated diagrams, declarative animation, framer motion alternative, gsap alternative, markdown animation, web animations api"
+  ogImageAlt="Markdy playground showing text-to-animation code and a rendered scene preview"
   structuredData={homepageStructuredData}
 >
 
@@ -314,10 +316,10 @@ markdy <span class="u-fn">check-all</span> examples`;
   <!-- ─── Hero ─────────────────────────────────────────────────────────── -->
   <header class="hero">
     <div class="hero-badge">Open-Source Animation DSL</div>
-    <h1>Text-to-motion <span class="gradient-text">animation DSL</span>.</h1>
+    <h1>Text-to-animation for <span class="gradient-text">docs and diagrams</span>.</h1>
     <p class="hero-sub">
-      Define actors, timelines, and interactions in a simple text language.
-      Markdy is built for animated scenes, not static chart or graph diagrams.
+      Write timeline-driven explainers, product flows, and animated diagrams in a small text language.
+      Markdy renders them with browser-native Web Animations.
     </p>
     <div class="hero-actions">
       <a href="#playground" class="btn-primary">Try the Playground</a>
@@ -459,6 +461,14 @@ markdy <span class="u-fn">check-all</span> examples`;
           <span>Preview</span>
           <div style="display:flex;align-items:center;gap:0.5rem;">
             <span id="status" class="status ok"></span>
+            <button id="rewind-btn" class="btn-share" title="Back 1 second" aria-label="Back 1 second">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
+              <span>-1s</span>
+            </button>
+            <button id="restart-btn" class="btn-share" title="Play from start" aria-label="Play from start">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="19 20 9 12 19 4 19 20"></polygon><rect x="5" y="4" width="2" height="16"></rect></svg>
+              <span>Start</span>
+            </button>
             <button id="play-btn" class="btn-share" title="Play / Pause" aria-label="Play">
               <svg id="play-icon" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
               <svg id="pause-icon" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
@@ -472,6 +482,10 @@ markdy <span class="u-fn">check-all</span> examples`;
         </div>
         <div id="stage-wrap" class="stage-wrap">
           <div id="stage"></div>
+        </div>
+        <div class="timeline-controls" aria-label="Timeline controls">
+          <input id="timeline-range" class="timeline-range" type="range" min="0" max="0" step="0.01" value="0" aria-label="Scrub timeline" />
+          <span id="timeline-time" class="timeline-time">0:00 / 0:00</span>
         </div>
       </div>
     </div>
@@ -499,7 +513,8 @@ markdy <span class="u-fn">check-all</span> examples`;
         <pre><code>scene width=800 height=400 fps=30 bg=#fafafa</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene width=800 height=400 fps=30 bg=#fafafa
-actor a = figure(#c68642, m, 😎) at (400, 200) scale 1.5
+actor label = text("Launch checklist") at (400, 120) size 32
+actor card = box() at (350, 180) scale 1.4
         </script>
         </div>
         <table>
@@ -523,15 +538,15 @@ actor a = figure(#c68642, m, 😎) at (400, 200) scale 1.5
         </div>
         <p class="ref-intro">Actors are the objects in your scene. Place them with <code>at (x, y)</code> and add optional modifiers.</p>
         <div class="ref-code-wrap">
-        <pre><code>actor a = figure(#c68642, m, 😎) at (100, 200) scale 1.2
-actor b = text("Hello World") at (50, 50) size 24
-actor c = box() at (300, 200)</code></pre>
+        <pre><code>actor title = text("Release Plan") at (260, 70) size 32
+actor card = box() at (350, 160) scale 1.4
+actor step = text("Run checks") at (400, 215) size 24</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene width=800 height=400
 
-actor a = figure(#c68642, m, 😎) at (200, 200) scale 1.2
-actor b = text("Hello World") at (400, 80) size 28
-actor c = box() at (600, 200)
+actor title = text("Release Plan") at (260, 70) size 32
+actor card = box() at (350, 160) scale 1.4
+actor step = text("Run checks") at (400, 215) size 24
         </script>
         </div>
         <table>
@@ -539,7 +554,7 @@ actor c = box() at (600, 200)
           <tbody>
             <tr><td><code>text</code></td><td><code>"quoted string"</code></td><td>Plain text label. Customise with <code>size</code>.</td></tr>
             <tr><td><code>box</code></td><td>—</td><td>100x100 solid box. Great for prototyping.</td></tr>
-            <tr><td><code>figure</code></td><td>skinColor, gender, face</td><td>Stick figure with articulatable limbs.</td></tr>
+            <tr><td><code>figure</code></td><td>skinColor, gender, face</td><td>Optional character actor with articulatable limbs.</td></tr>
             <tr><td><code>sprite</code></td><td>asset name</td><td>Renders an image or icon asset.</td></tr>
           </tbody>
         </table>
@@ -560,7 +575,7 @@ actor c = box() at (600, 200)
 @3.0: a.fade_out(dur=0.5)</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene width=800 height=400
-actor a = figure(#c68642, m, 😎) at (400, 200)
+actor a = text("Draft") at (160, 200) size 28 opacity 0
 
 @0.3: a.enter(from=left, dur=0.8)
 @1.5: a.move(to=(500, 200), dur=0.8, ease=out)
@@ -580,61 +595,58 @@ actor a = figure(#c68642, m, 😎) at (400, 200)
         <p><strong>Easing:</strong> <code>linear</code>, <code>in</code>, <code>out</code>, <code>inout</code></p>
       </article>
 
-      <!-- Step 4: Speech & Effects -->
+      <!-- Step 4: Captions & Effects -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">4</div>
-          <h3>Speech & Effects</h3>
+          <h3>Captions & Effects</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Make actors talk with comic speech bubbles and add dynamic effects like shaking.</p>
+        <p class="ref-intro">Use captions for scene-level narration and effects like shaking to highlight state changes.</p>
         <div class="ref-code-wrap">
-        <pre><code>@1.0: a.say("Hello! 👋", dur=1.5)
-@2.5: a.shake(intensity=8, dur=0.4)</code></pre>
+        <pre><code>@1.0: status.fade_in(dur=0.4)
+@1.5: card.shake(intensity=4, dur=0.4)</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene width=800 height=400
-actor a = figure(#c68642, m, 😎) at (250, 200)
-actor b = figure(#fad4c0, f, 😊) at (550, 200)
+actor card = box() at (350, 150) scale 1.5 opacity 0
+actor status = caption("Checks passed") at bottom opacity 0
 
-@0.5: a.enter(from=left, dur=0.7)
-@0.7: b.enter(from=right, dur=0.7)
-@1.5: a.say("Hello! 👋", dur=1.5)
-@2.5: b.say("Hey there! 😊", dur=1.5)
-@4.0: a.shake(intensity=8, dur=0.4)
-@4.5: a.say("Whoa! 😲", dur=1.2)
+@0.5: card.fade_in(dur=0.5)
+@1.2: status.fade_in(dur=0.4)
+@1.6: card.shake(intensity=4, dur=0.4)
         </script>
         </div>
         <table>
           <thead><tr><th>Action</th><th>Parameters</th><th>What it does</th></tr></thead>
           <tbody>
-            <tr><td><code>say</code></td><td><code>"text"</code>, dur</td><td>Shows an anchored speech bubble</td></tr>
+            <tr><td><code>say</code></td><td><code>"text"</code>, dur</td><td>Shows an anchored speech bubble for character scenes</td></tr>
             <tr><td><code>shake</code></td><td>intensity, dur</td><td>Oscillates on the X axis</td></tr>
-            <tr><td><code>throw</code></td><td>asset, to, dur</td><td>Launches a projectile between actors</td></tr>
+            <tr><td><code>caption</code></td><td>top, center, bottom</td><td>Adds scene-level text overlays</td></tr>
           </tbody>
         </table>
       </article>
 
-      <!-- Step 5: Figure Expressions & Limbs -->
+      <!-- Step 5: Character Gestures -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">5</div>
-          <h3>Expressions & Limbs</h3>
+          <h3>Character Gestures</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro"><code>figure</code> actors have articulated limbs you can individually control for expressive animations.</p>
+        <p class="ref-intro"><code>figure</code> actors are optional, but useful when an explainer needs a presenter or guide.</p>
         <div class="ref-code-wrap">
-        <pre><code>@1.0: a.face("😵")
-@1.5: a.rotate_part(part=arm_right, to=130, dur=0.4)
-@2.0: a.punch(side=right, dur=0.2)
-@2.5: a.kick(side=left, dur=0.3)</code></pre>
+        <pre><code>@1.0: guide.wave(side=right, dur=0.8)
+@1.5: guide.nod(dur=0.4)
+@2.0: guide.pose(arm_left=70, arm_right=-70, dur=0.4)</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene width=800 height=400
-actor a = figure(#c68642, m, 😐) at (400, 200) scale 1.5
+actor guide = figure(#c68642, m, 🙂) at (400, 220) scale 1.4
+actor label = caption("Use figures only when they help explain") at top opacity 0
 
-@1.0: a.face("😵")
-@1.5: a.rotate_part(part=arm_right, to=130, dur=0.4)
-@2.0: a.punch(side=right, dur=0.2)
-@2.5: a.kick(side=left, dur=0.3)
+@0.5: label.fade_in(dur=0.4)
+@1.0: guide.wave(side=right, dur=0.8)
+@1.8: guide.nod(dur=0.4)
+@2.4: guide.pose(arm_left=70, arm_right=-70, dur=0.4)
         </script>
         </div>
         <table>
@@ -642,7 +654,8 @@ actor a = figure(#c68642, m, 😐) at (400, 200) scale 1.5
           <tbody>
             <tr><td><code>face</code></td><td><code>"emoji"</code> — instant expression swap</td></tr>
             <tr><td><code>rotate_part</code></td><td>part, to (degrees), dur</td></tr>
-            <tr><td><code>punch</code> / <code>kick</code></td><td>side (left|right), dur</td></tr>
+            <tr><td><code>wave</code> / <code>nod</code></td><td>side, dur</td></tr>
+            <tr><td><code>pose</code></td><td>arm_left, arm_right, head, dur</td></tr>
           </tbody>
         </table>
         <p><strong>Body parts:</strong> <code>head</code>, <code>face</code>, <code>body</code>, <code>arm_left</code>, <code>arm_right</code>, <code>leg_left</code>, <code>leg_right</code></p>
@@ -698,21 +711,23 @@ actor a = figure(#c68642, m, 😎) at (400, 200) scale 1.5
         <p class="ref-intro">Load external images and vector icons as assets, then render them as <code>sprite</code> actors.</p>
         <div class="ref-code-wrap">
         <pre><code># Declare assets first
-asset cat = image("https://example.com/cat.gif")
-asset fire = icon("lucide:flame")
+asset logo = image("/icon.svg")
+asset check = icon("lucide:circle-check")
 
 # Render them as actors
-actor meme = sprite(cat) at (400, 200) scale 0.5
-actor icon = sprite(fire) at (100, 100) scale 2.0</code></pre>
+actor mark = sprite(logo) at (260, 190) scale 0.6
+actor done = sprite(check) at (520, 190) scale 2.0</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene width=800 height=400 bg=#ffffff
-asset cool_cat = image("https://media1.tenor.com/m/4n4cErvEq_sAAAAd/yapapa-cat.gif")
-asset fire_icon = icon("lucide:flame")
+asset logo = image("/icon.svg")
+asset check_icon = icon("lucide:circle-check")
 
-actor my_meme = sprite(cool_cat) at (600, 200) scale 0.5
-actor flames = sprite(fire_icon) at (200, 200) scale 2.0
+actor mark = sprite(logo) at (260, 190) scale 0.6 opacity 0
+actor done = sprite(check_icon) at (520, 190) scale 2.0 opacity 0
 
-@1.0: my_meme.throw(fire_icon, to=flames, dur=0.5)
+@0.5: mark.fade_in(dur=0.4)
+@1.2: done.fade_in(dur=0.4)
+@1.6: done.scale(to=2.4, dur=0.3, ease=out)
         </script>
         </div>
         <table>
@@ -732,26 +747,27 @@ actor flames = sprite(fire_icon) at (200, 200) scale 2.0
         </div>
         <p class="ref-intro">Avoid repetition with <code>var</code> for values and <code>def</code> for reusable actor templates.</p>
         <div class="ref-code-wrap">
-        <pre><code>var accent_skin = #fad4c0
+        <pre><code>var y = 180
 
-def char(skin, face) {'{'}
-  figure(${'${skin}'}, f, ${'${face}'})
+def feature_card() {'{'}
+  box()
 {'}'}
 
-actor lily = char(${'${accent_skin}'}, 😊) at (100, 200)</code></pre>
+actor docs = feature_card() at (230, ${'${y}'}) scale 1.2</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene width=800 height=400
-var accent_skin = #fad4c0
+var y = 180
 
-def char(skin, face) {
-  figure(${skin}, f, ${face})
+def feature_card() {
+  box()
 }
 
-actor lily = char(${accent_skin}, 😊) at (200, 200) scale 1.5
-actor rose = char(#e5a285, 👩) at (600, 200) scale 1.5
+actor docs = feature_card() at (230, ${y}) scale 1.2
+actor api = feature_card() at (430, ${y}) scale 1.2
+actor edge = feature_card() at (630, ${y}) scale 1.2
         </script>
         </div>
-        <p><code>var</code> substitutes values (robust for <code>#hex</code> colors). <code>def</code> creates actor factory templates — build character systems without any JavaScript.</p>
+        <p><code>var</code> substitutes values (robust for <code>#hex</code> colors). <code>def</code> creates actor factory templates — build reusable scene systems without any JavaScript.</p>
       </article>
 
       <!-- Step 8: Sequences -->
@@ -792,26 +808,26 @@ seq wave(arm, angle) {
           <h3>Captions & Camera</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Use anchored captions for titles and punchlines, then direct the viewer with built-in camera moves.</p>
+        <p class="ref-intro">Use anchored captions for titles and takeaways, then direct the viewer with built-in camera moves.</p>
         <div class="ref-code-wrap">
-        <pre><code>actor title = caption("ROUND 1") at top
-actor punchline = caption("zoom in") at bottom
+        <pre><code>actor title = caption("Request lifecycle") at top
+      actor takeaway = caption("Edge cache hit") at bottom
 
 @0.5: camera.pan(to=(500, 200), dur=0.8, ease=out)
 @1.2: camera.zoom(to=1.35, dur=0.6, ease=out)
-@2.0: camera.shake(intensity=10, dur=0.35)</code></pre>
+      @2.0: camera.shake(intensity=4, dur=0.35)</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene width=800 height=400 bg=#f8fafc
-actor title = caption("ROUND 1") at top
-actor punchline = caption("zoom in") at bottom opacity 0
-actor hero = figure(#c68642, m, 😎) at (250, 220) scale 1.4
-actor target = box() at (560, 220) scale 0.8
+      actor title = caption("Request lifecycle") at top
+      actor takeaway = caption("Edge cache hit") at bottom opacity 0
+      actor client = text("Client") at (250, 220) size 24
+      actor edge = box() at (560, 180) scale 1.2
 
 @0.3: title.fade_in(dur=0.3)
 @0.7: camera.pan(to=(500, 220), dur=0.8, ease=out)
 @1.3: camera.zoom(to=1.35, dur=0.6, ease=out)
-@1.8: punchline.fade_in(dur=0.3)
-@2.1: camera.shake(intensity=10, dur=0.35)
+      @1.8: takeaway.fade_in(dur=0.3)
+      @2.1: camera.shake(intensity=4, dur=0.35)
 @2.7: camera.zoom(to=1.0, dur=0.5, ease=inout)
         </script>
         </div>
@@ -821,7 +837,7 @@ actor target = box() at (560, 220) scale 0.8
             <tr><td><code>caption</code></td><td><code>at top|bottom|center</code></td><td>Auto-positioned overlay text</td></tr>
             <tr><td><code>pan</code></td><td><code>to=(x, y)</code></td><td>Moves the scene focus point</td></tr>
             <tr><td><code>zoom</code></td><td><code>to=1.4</code></td><td>Scales the scene content</td></tr>
-            <tr><td><code>shake</code></td><td>intensity, dur</td><td>Adds full-scene impact</td></tr>
+            <tr><td><code>shake</code></td><td>intensity, dur</td><td>Adds full-scene emphasis</td></tr>
           </tbody>
         </table>
         <p><code>camera</code> is reserved. Do not declare it as an actor; call <code>camera.pan</code>, <code>camera.zoom</code>, or <code>camera.shake</code> directly in timeline events.</p>
@@ -833,7 +849,7 @@ actor target = box() at (560, 220) scale 0.8
   <!-- ─── AI-Friendly Generation ───────────────────────────────────────── -->
   <section id="ai-gen" class="ai-section" aria-label="AI-powered generation">
     <div class="section-header">
-      <span class="section-tag">Vibe Coding</span>
+      <span class="section-tag">AI Authoring</span>
       <h2>AI-Friendly by Design</h2>
       <p>MarkdyScript is a structured DSL that AI agents can generate, validate, and iterate on. Just describe what you want.</p>
     </div>
@@ -848,7 +864,7 @@ actor target = box() at (560, 220) scale 0.8
           </li>
           <li>
             <strong>Describe your scene in plain English</strong>
-            <p>Tell the AI what you want to visualize — characters, actions, emotions, timing.</p>
+            <p>Tell the AI what you want to visualize: architecture flows, product steps, training scenarios, or tutorial sequences.</p>
           </li>
           <li>
             <strong>Get valid MarkdyScript back</strong>
@@ -866,7 +882,7 @@ actor target = box() at (560, 220) scale 0.8
           <blockquote class="ai-prompt-text">
             Use <code>https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md</code> as a complete reference (grammar, actions, patterns, examples), then write a Markdy scene:
             <br /><br />
-            <em>"A guy holding a coffee cup walks in, trips on a rock, and loses his coffee cup. The cup flies and smashes. He looks sad."</em>
+            <em>"Show a client request moving through an API, edge cache, and database. Reveal each node, animate the handoff, then zoom to the cache hit."</em>
           </blockquote>
         </div>
         <p class="ai-hint">The AI reads the docs, understands the grammar, and outputs a complete <code>.markdy</code> scene with actors, timeline events, and expressions — ready to render.</p>
@@ -935,7 +951,7 @@ actor target = box() at (560, 220) scale 0.8
     </div>
     <div class="share-copy" aria-label="Short project description">
       <span>Short description</span>
-      <code>Markdy is an open-source text-to-motion animation DSL for writing browser-rendered animated scenes like Markdown.</code>
+      <code>Markdy is an open-source text-to-animation DSL for browser-rendered docs, explainers, and animated diagrams.</code>
     </div>
   </section>
 
@@ -978,7 +994,7 @@ actor target = box() at (560, 220) scale 0.8
       <div class="footer-top">
         <div class="footer-brand-col">
           <span class="footer-brand">🎬 markdy</span>
-          <p class="footer-tagline">Open-source text-to-motion DSL.<br />Built for animated scenes on the web.</p>
+          <p class="footer-tagline">Open-source text-to-animation DSL.<br />Built for animated docs and diagrams.</p>
         </div>
         <div class="footer-cols">
           <h2 class="sr-only">Footer Links</h2>
@@ -1161,10 +1177,14 @@ actor target = box() at (560, 220) scale 0.8
   const stage     = document.getElementById("stage")      as HTMLDivElement;
   const runBtn    = document.getElementById("run-btn")    as HTMLButtonElement;
   const statusEl  = document.getElementById("status")     as HTMLSpanElement;
+  const rewindBtn = document.getElementById("rewind-btn") as HTMLButtonElement;
+  const restartBtn = document.getElementById("restart-btn") as HTMLButtonElement;
   const playBtn   = document.getElementById("play-btn")   as HTMLButtonElement;
   const playIcon  = document.getElementById("play-icon")  as SVGElement;
   const pauseIcon = document.getElementById("pause-icon") as SVGElement;
   const playLabel = document.getElementById("play-label") as HTMLSpanElement;
+  const timelineRange = document.getElementById("timeline-range") as HTMLInputElement;
+  const timelineTime = document.getElementById("timeline-time") as HTMLSpanElement;
   const exBtns    = document.querySelectorAll<HTMLButtonElement>(".example-btn");
   const exampleDescription = document.getElementById("example-description") as HTMLParagraphElement;
   const exampleSourceLink = document.getElementById("example-source-link") as HTMLAnchorElement;
@@ -1174,6 +1194,24 @@ actor target = box() at (560, 220) scale 0.8
   let debounce: ReturnType<typeof setTimeout> | null = null;
   let editorView: EditorView | null = null;
   let currentPreviewStart = 0;
+  let isScrubbing = false;
+
+  function formatTime(seconds: number): string {
+    if (!Number.isFinite(seconds) || seconds <= 0) return "0:00";
+    const total = Math.floor(seconds);
+    const mins = Math.floor(total / 60);
+    const secs = total % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  }
+
+  function setTimeline(current: number, duration: number) {
+    const safeDuration = Number.isFinite(duration) && duration > 0 ? duration : 0;
+    const safeCurrent = safeDuration > 0 ? Math.min(Math.max(current, 0), safeDuration) : 0;
+    timelineRange.max = safeDuration.toFixed(2);
+    if (!isScrubbing) timelineRange.value = safeCurrent.toFixed(2);
+    timelineRange.disabled = safeDuration <= 0;
+    timelineTime.textContent = `${formatTime(safeCurrent)} / ${formatTime(safeDuration)}`;
+  }
 
   function setPlayState(playing: boolean) {
     isAnimPlaying = playing;
@@ -1279,11 +1317,20 @@ actor target = box() at (560, 220) scale 0.8
     if (player) { player.destroy(); player = null; }
     stage.innerHTML = "";
     try {
-      player = createPlayer({ container: stage, code: adaptCodeToTheme(code), assets, autoplay: true, copyright: false });
+      player = createPlayer({
+        container: stage,
+        code: adaptCodeToTheme(code),
+        assets,
+        autoplay: true,
+        copyright: false,
+        onTimeUpdate: setTimeline,
+        onPlayStateChange: setPlayState,
+      });
       if (previewStart > 0) {
         player.seek(previewStart);
       }
       setPlayState(true);
+      setTimeline(player.currentTime(), player.duration());
       setStatus(true);
       if ((window as any).Iconify) {
         (window as any).Iconify.scan(stage);
@@ -1294,6 +1341,7 @@ actor target = box() at (560, 220) scale 0.8
       stage.innerHTML = `<p class="parse-error">${msg}</p>`;
       setStatus(false);
       setPlayState(false);
+      setTimeline(0, 0);
     }
   }
 
@@ -1458,11 +1506,32 @@ actor target = box() at (560, 220) scale 0.8
     if (!player) return;
     if (isAnimPlaying) {
       player.pause();
-      setPlayState(false);
     } else {
       player.play();
-      setPlayState(true);
     }
+  });
+
+  rewindBtn.addEventListener("click", () => {
+    if (!player) return;
+    player.seek(player.currentTime() - 1);
+  });
+
+  restartBtn.addEventListener("click", () => {
+    if (!player) return;
+    player.seek(0);
+    if (!player.isPlaying()) player.play();
+  });
+
+  timelineRange.addEventListener("input", () => {
+    if (!player) return;
+    isScrubbing = true;
+    player.seek(Number(timelineRange.value));
+  });
+
+  timelineRange.addEventListener("change", () => {
+    isScrubbing = false;
+    if (!player) return;
+    player.seek(Number(timelineRange.value));
   });
 
   // Run button
@@ -2296,6 +2365,36 @@ actor target = box() at (560, 220) scale 0.8
     transition: background 0.3s ease;
   }
 
+  .timeline-controls {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.85rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg-secondary);
+  }
+
+  .timeline-range {
+    width: 100%;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .timeline-range:disabled {
+    cursor: not-allowed;
+    opacity: 0.45;
+  }
+
+  .timeline-time {
+    min-width: 5.6rem;
+    text-align: right;
+    font-family: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
   #stage {
     position: absolute;
     inset: 0;
@@ -2992,6 +3091,15 @@ actor target = box() at (560, 220) scale 0.8
       margin: 0;
       aspect-ratio: auto;
       min-height: 280px;
+    }
+
+    .timeline-controls {
+      grid-template-columns: 1fr;
+      gap: 0.35rem;
+    }
+
+    .timeline-time {
+      text-align: left;
     }
 
     .ref-grid { grid-template-columns: 1fr; }

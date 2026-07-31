@@ -1,0 +1,33 @@
+# Animated system flow: client to API to edge to data.
+scene width=900 height=420 fps=30 bg=#0f172a
+
+actor title = caption("Client -> API -> Edge -> Data") at top opacity 0
+actor client = text("Client") at (120, 210) size 26 opacity 0
+actor api = text("API") at (330, 210) size 26 opacity 0
+actor edge = text("Edge") at (540, 210) size 26 opacity 0
+actor data = text("Data") at (750, 210) size 26 opacity 0
+actor packet = text("●") at (120, 210) size 36 opacity 0
+actor note = caption("Explain system behavior") at bottom opacity 0
+
+scene "nodes" {
+  @+0.0: title.fade_in(dur=0.4)
+  @+0.2: client.fade_in(dur=0.3)
+  @+0.1: api.fade_in(dur=0.3)
+  @+0.1: edge.fade_in(dur=0.3)
+  @+0.1: data.fade_in(dur=0.3)
+}
+
+scene "request" {
+  @+0.0: packet.fade_in(dur=0.2)
+  @+0.0: packet.move(to=(330, 210), dur=0.55, ease=out)
+  @+0.1: api.shake(intensity=3, dur=0.2)
+  @+0.1: packet.move(to=(540, 210), dur=0.55, ease=out)
+  @+0.1: edge.shake(intensity=3, dur=0.2)
+  @+0.1: packet.move(to=(750, 210), dur=0.55, ease=out)
+  @+0.1: data.shake(intensity=3, dur=0.2)
+}
+
+scene "explain" {
+  @+0.0: note.fade_in(dur=0.4)
+  @+0.4: packet.fade_out(dur=0.3)
+}

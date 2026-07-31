@@ -1,11 +1,18 @@
-# camera.shake(intensity=N) — full-scene shake for impacts.
-scene width=800 height=400 bg=#111
+# camera.shake(intensity=N) — draw attention to a status change.
+scene width=800 height=400 bg=#111827
 
-actor lf = figure(#c68642, m, 😤) at (260, 240)
-actor rf = figure(#8d5524, m, 😬) at (540, 240)
+actor panel = box() at (350, 145) scale 1.8 opacity 0
+actor label = text("Deploy pipeline") at (400, 105) size 28 opacity 0
+actor build = text("Build") at (260, 210) size 24 opacity 0
+actor test = text("Test") at (400, 210) size 24 opacity 0
+actor ship = text("Ship") at (540, 210) size 24 opacity 0
+actor status = caption("Release ready") at bottom opacity 0
 
-@0.0:  lf.enter(from=left, dur=0.4)
-@0.0:  rf.enter(from=right, dur=0.4)
-@+0.2: lf.punch(side=right, dur=0.3)
-@+0.0: camera.shake(intensity=12, dur=0.5)
-@+0.0: rf.shake(intensity=8, dur=0.5)
+@0.0: panel.fade_in(dur=0.35)
+@+0.1: label.fade_in(dur=0.35)
+@+0.2: build.fade_in(dur=0.25)
+@+0.2: test.fade_in(dur=0.25)
+@+0.2: ship.fade_in(dur=0.25)
+@+0.1: camera.shake(intensity=4, dur=0.35)
+@+0.0: panel.shake(intensity=3, dur=0.35)
+@+0.1: status.fade_in(dur=0.35)

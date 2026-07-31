@@ -1,4 +1,4 @@
-# 🎯 Show HN: Markdy — I built Mermaid.js, but for web animations
+# Show HN: Markdy — animated diagrams and explainers from text
 
 *(Paste this verbatim into https://news.ycombinator.com/submit — Target: Friday 9am PT)*
 
@@ -6,7 +6,7 @@
 
 **Title:**
 ```
-Show HN: Markdy – I built Mermaid.js but for motion (open-source animation DSL)
+Show HN: Markdy - animated diagrams and explainers from text
 ```
 
 **URL:**
@@ -16,19 +16,24 @@ https://markdy.com
 
 **Text body (for the comments section, post immediately after submitting):**
 
-Hi HN! I got tired of writing 80-line GSAP timelines for simple diagrams on my Astro blog. Mermaid lets you write a sequence diagram in 5 lines of text — I wanted the same for animation.
+Hi HN! I got tired of writing 80-line GSAP timelines for simple animated diagrams on my Astro blog. Mermaid lets you write a sequence diagram in 5 lines of text. I wanted the same text-first workflow for small animations in docs and product explainers.
 
-So I built Markdy: a text-based DSL where you describe actors, timelines, and motion in plain text — and the engine renders it using the browser-native Web Animations API.
+So I built Markdy: a text-based DSL where you describe actors, timelines, and motion in plain text, then render it using the browser-native Web Animations API.
 
 ```
 scene width=600 height=300 bg=white
 
-actor hero = figure(#c68642, m, 😎) at (100, 200)
-actor label = text("No JavaScript needed.") at (350, 80) opacity 0
+actor source = text("Client") at (100, 150) opacity 0
+actor api = text("API") at (300, 150) opacity 0
+actor edge = text("Edge") at (500, 150) opacity 0
+actor packet = text("●") at (100, 150) size 30 opacity 0
 
-@0.5: hero.enter(from=left, dur=0.8)
-@1.5: hero.say("Hi!", dur=1.0)
-@2.0: label.fade_in(dur=0.6)
+@0.2: source.fade_in(dur=0.4)
+@0.4: api.fade_in(dur=0.4)
+@0.6: edge.fade_in(dur=0.4)
+@1.0: packet.fade_in(dur=0.2)
+@1.0: packet.move(to=(300, 150), dur=0.6, ease=out)
+@1.7: packet.move(to=(500, 150), dur=0.6, ease=out)
 ```
 
 **Interesting technical decisions:**
@@ -37,7 +42,7 @@ actor label = text("No JavaScript needed.") at (350, 80) opacity 0
 
 2. **WAAPI with manual rAF loop** — instead of relying on WAAPI's `startTime` (which has browser-specific quirks), I permanently pause every animation and manually set `anim.currentTime = sceneMs` each rAF frame. This gives reliable `seek()`, scrubbing, and pause anywhere.
 
-3. **Emoji stick figures** — the `figure` actor type has articulatable SVG limbs + emoji face swapping. The coordinate system is fully normalized so LLMs can generate valid choreography without counting pixels.
+3. **Practical actor primitives** — text, boxes, sprites, captions, camera controls, and optional figure actors cover docs, product flows, diagrams, and lightweight presenter scenes.
 
 4. **AI-friendly by design** — I wrote a structured `AGENT.md` prompt file; when attached to Claude/Cursor, the LLM reliably writes valid MarkdyScript without hallucinating API surfaces.
 

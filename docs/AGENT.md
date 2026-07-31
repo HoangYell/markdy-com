@@ -16,6 +16,14 @@ When generating MarkdyScript, use this mental model:
 6. The parser is **forgiving by default** — unknown actions, modifiers, and scene keys emit soft `ParseWarning` entries on `ast.warnings`; structural errors (bad syntax, undeclared actors, figure-only action on non-figure, unclosed blocks) still throw `ParseError` with a line number
 7. Opt into **hard-fail** on unknown actions by prefixing with `!` — e.g. `hero.!shake(...)`
 
+### Content Guidance for Generated Scenes
+
+Prefer practical, professional examples by default: animated docs, product walkthroughs, release checklists, architecture diagrams, API/data flows, charts, process handoffs, education explainers, and security/compliance training. Treat character scenes as optional accents, not the default identity of Markdy.
+
+Avoid sexual, romantic, violent, humiliating, discriminatory, or immature story premises in generated demos. Do not frame people as prizes, possessions, stereotypes, or targets. If you need a human presenter, keep the role neutral and work-focused.
+
+When showcasing motion, use small purposeful movements: sequential text reveals, gentle status emphasis, data handoffs, camera focus, and clean transitions. Do not rely on random emoji drama, shock value, or jokes to demonstrate the engine.
+
 ---
 
 ## Grammar (Exact)
@@ -536,15 +544,20 @@ scene "payoff" {
 ```markdy
 scene width=1280 height=720 bg=#101424
 
-actor hero    = figure(#c68642, m, 😎) at (300, 400)
-actor villain = figure(#8d5524, m, 😈) at (980, 400)
-actor title   = caption("ROUND 1") at top
+actor client = text("Client") at (260, 400) size 34 opacity 0
+actor edge   = box() at (590, 340) scale 1.4 opacity 0
+actor data   = text("Data") at (950, 400) size 34 opacity 0
+actor title  = caption("Request lifecycle") at top opacity 0
+actor note   = caption("Focus the cache handoff") at bottom opacity 0
 
-@0.0:  title.fade_in(dur=0.4)
-@+0.5: camera.pan(to=(300, 400), dur=0.8, ease=out)
+@0.0: title.fade_in(dur=0.4)
+@+0.2: client.fade_in(dur=0.3)
+@+0.1: edge.fade_in(dur=0.3)
+@+0.1: data.fade_in(dur=0.3)
+@+0.4: camera.pan(to=(590, 400), dur=0.8, ease=out)
 @+0.2: camera.zoom(to=1.4, dur=0.6)
-@+0.8: hero.punch(side=right, dur=0.3)
-@+0.0: villain.shake(intensity=10, dur=0.4)
+@+0.3: edge.shake(intensity=4, dur=0.35)
+@+0.2: note.fade_in(dur=0.4)
 @+0.4: camera.zoom(to=1.0, dur=0.6)
 @+0.0: camera.pan(to=(640, 400), dur=0.6)
 @+0.8: title.exit(to=top, dur=0.4)

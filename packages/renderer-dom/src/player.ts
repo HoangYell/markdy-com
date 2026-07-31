@@ -54,12 +54,19 @@ export interface PlayerOptions {
    * Pass a no-op to silence; pass a custom collector to surface warnings in a UI.
    */
   onWarning?: (warning: ParseWarning) => void;
+  /** Invoked whenever playback or seek changes the current timeline time. */
+  onTimeUpdate?: (seconds: number, durationSeconds: number) => void;
+  /** Invoked when playback starts or pauses. */
+  onPlayStateChange?: (playing: boolean) => void;
 }
 
 export interface Player {
   play(): void;
   pause(): void;
   seek(seconds: number): void;
+  currentTime(): number;
+  duration(): number;
+  isPlaying(): boolean;
   destroy(): void;
 }
 
@@ -95,10 +102,13 @@ export function createPlayer(opts: PlayerOptions): Player {
     copyright = true,
     progressBar = true,
     onWarning = (w) => console.warn(`[markdy] line ${w.line}: ${w.message} (${w.kind})`),
+    onTimeUpdate,
+    onPlayStateChange,
   } = opts;
 
   const ast = parse(code, imports ? { imports } : undefined);
   const totalDurationMs = (ast.meta.duration ?? 0) * 1000;
+  const durationSeconds = totalDurationMs / 1000;
 
   // Surface soft parse warnings so hosts can collect them. We never throw on
   // warnings — the renderer silently no-ops unknown actions, modifiers, and
@@ -266,6 +276,7 @@ export function createPlayer(opts: PlayerOptions): Player {
       anim.currentTime = sceneMs;
     }
     applyFaceSwaps();
+    onTimeUpdate?.(sceneMs / 1000, durationSeconds);
   }
 
   function applyFaceSwaps(): void {
@@ -306,6 +317,7 @@ export function createPlayer(opts: PlayerOptions): Player {
         sceneMs = totalDurationMs;
         applyCurrentTime();
         isPlaying = false;
+        onPlayStateChange?.(false);
         lastRafTs = null;
         rafId = null;
         return;
@@ -324,6 +336,7 @@ export function createPlayer(opts: PlayerOptions): Player {
     play() {
       if (isPlaying) return;
       isPlaying = true;
+      onPlayStateChange?.(true);
       lastRafTs = null;
       rafId = requestAnimationFrame(rafTick);
     },
@@ -331,6 +344,7 @@ export function createPlayer(opts: PlayerOptions): Player {
     pause() {
       if (!isPlaying) return;
       isPlaying = false;
+      onPlayStateChange?.(false);
       if (rafId !== null) {
         cancelAnimationFrame(rafId);
         rafId = null;
@@ -339,9 +353,22 @@ export function createPlayer(opts: PlayerOptions): Player {
     },
 
     seek(seconds: number) {
-      sceneMs = seconds * 1000;
+      const nextMs = seconds * 1000;
+      sceneMs = totalDurationMs > 0 ? Math.min(Math.max(nextMs, 0), totalDurationMs) : Math.max(nextMs, 0);
       applyCurrentTime();
       if (totalDurationMs > 0) updateProgressBar(sceneMs / totalDurationMs);
+    },
+
+    currentTime() {
+      return sceneMs / 1000;
+    },
+
+    duration() {
+      return durationSeconds;
+    },
+
+    isPlaying() {
+      return isPlaying;
     },
 
     destroy() {

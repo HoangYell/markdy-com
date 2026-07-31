@@ -1,0 +1,41 @@
+# Product launch explainer: text, systems, and timeline motion.
+scene width=800 height=400 fps=30 bg=#f8fafc
+
+actor title = caption("Launch flow in 12 seconds") at top opacity 0
+actor source = text("Spec") at (120, 210) size 28 opacity 0
+actor api = text("API") at (300, 210) size 28 opacity 0
+actor edge = text("Edge") at (480, 210) size 28 opacity 0
+actor app = text("App") at (660, 210) size 28 opacity 0
+actor bullet1 = text("1. Define the flow") at (400, 305) size 22 opacity 0
+actor bullet2 = text("2. Animate each handoff") at (400, 335) size 22 opacity 0
+actor bullet3 = text("3. Embed it in docs") at (400, 365) size 22 opacity 0
+actor packet = text("●") at (120, 210) size 36 opacity 0
+actor note = caption("Source-controlled browser animation") at bottom opacity 0
+
+scene "overview" {
+  @+0.0: title.fade_in(dur=0.4)
+  @+0.2: source.fade_in(dur=0.3)
+  @+0.1: api.fade_in(dur=0.3)
+  @+0.1: edge.fade_in(dur=0.3)
+  @+0.1: app.fade_in(dur=0.3)
+  @+0.2: bullet1.fade_in(dur=0.35)
+  @+0.2: bullet2.fade_in(dur=0.35)
+  @+0.2: bullet3.fade_in(dur=0.35)
+}
+
+scene "handoff" {
+  @+0.0: packet.fade_in(dur=0.2)
+  @+0.0: packet.move(to=(300, 210), dur=0.7, ease=out)
+  @+0.2: api.shake(intensity=3, dur=0.25)
+  @+0.1: packet.move(to=(480, 210), dur=0.7, ease=out)
+  @+0.2: edge.shake(intensity=3, dur=0.25)
+  @+0.1: packet.move(to=(660, 210), dur=0.7, ease=out)
+  @+0.2: app.shake(intensity=3, dur=0.25)
+}
+
+scene "focus" {
+  @+0.0: camera.zoom(to=1.15, dur=0.7, ease=out)
+  @+0.0: camera.pan(to=(80, -20), dur=0.7, ease=out)
+  @+0.2: note.fade_in(dur=0.4)
+  @+0.6: packet.fade_out(dur=0.3)
+}

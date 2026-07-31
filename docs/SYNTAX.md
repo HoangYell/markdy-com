@@ -56,8 +56,8 @@ Assets are named references to external resources. The name is used later by act
 | `icon`  | `set:name`    | Stored in `data-icon`; compatible with Iconify  |
 
 ```markdy
-asset pepe = image("https://media1.tenor.com/m/4n4cErvEq_sAAAAd/yapapa-cat.gif")
-asset fire = icon("lucide:flame")
+asset logo = image("/icon.svg")
+asset packet = icon("lucide:send")
 ```
 
 ---
@@ -266,7 +266,7 @@ Rapidly oscillates the actor horizontally and returns it to its original positio
 Displays a speech bubble above the actor for `dur` seconds.
 
 ```markdy
-@1.0: p.say("bruh", dur=1.0)
+@1.0: guide.say("Start with the API.", dur=1.0)
 ```
 
 The text string is the first positional argument (no key required).
@@ -435,8 +435,8 @@ Bounces the actor vertically with diminishing amplitude — useful for emphasis 
 Instantly swaps the emoji face of a figure actor. Seek-safe — works correctly with both forward playback and `seek()` backwards. **Figure actors only.**
 
 ```markdy
-@5.0: hero.face("😡")
-@9.5: hero.face("😵")
+@5.0: hero.face("🤔")
+@9.5: hero.face("🙂")
 ```
 
 | Argument  | Type   | Description           |
@@ -450,21 +450,20 @@ Instantly swaps the emoji face of a figure actor. Seek-safe — works correctly 
 ```markdy
 scene width=800 height=400 fps=30 bg=white
 
-asset pepe = image("https://media1.tenor.com/m/4n4cErvEq_sAAAAd/yapapa-cat.gif")
-asset cat  = image("/memes/cat.png")
-asset fire = icon("lucide:flame")
+asset packet = icon("lucide:send")
 
-actor p     = sprite(pepe) at (100,250) scale 0.4
-actor c     = sprite(cat)  at (600,250) scale 0.4
-actor title = text("Ship it") at (320,80) size 48
+actor client = text("Client") at (120,220) size 28 opacity 0
+actor api    = text("API") at (340,220) size 28 opacity 0
+actor data   = text("Data") at (560,220) size 28 opacity 0
+actor title  = caption("Request lifecycle") at top opacity 0
 
-@0.0: p.enter(from=left, dur=0.8)
-@1.0: p.say("bruh", dur=1.0)
-@2.0: p.move(to=(300,250), dur=1.0, ease=inout)
-@3.0: p.throw(fire, to=c, dur=0.8)
-@4.0: c.shake(intensity=3, dur=0.5)
-@4.6: c.fade_out(dur=0.4)
-@5.2: title.fade_in(dur=0.5)
+@0.0: title.fade_in(dur=0.4)
+@0.3: client.fade_in(dur=0.3)
+@0.5: api.fade_in(dur=0.3)
+@0.7: data.fade_in(dur=0.3)
+@1.2: client.throw(packet, to=api, dur=0.6)
+@1.9: api.throw(packet, to=data, dur=0.6)
+@2.6: data.shake(intensity=3, dur=0.4)
 ```
 
 ---
