@@ -1,4 +1,11 @@
-import { ParseError, parse, type ParseWarning } from "@markdy/core";
+import {
+  FIGURE_ONLY_ACTION_NAMES,
+  ParseError,
+  UNIVERSAL_ACTION_NAMES,
+  parse,
+  type ParseWarning,
+} from "@markdy/core";
+import { SYSTEM_FLOW_ACTIONS } from "@markdy/stdlib-systems";
 import {
   type CompletionItem,
   CompletionItemKind,
@@ -27,31 +34,11 @@ type ActorInfo = {
 const connection = createConnection(ProposedFeatures.all);
 const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 
-const UNIVERSAL_ACTIONS = [
-  "enter",
-  "exit",
-  "move",
-  "fade_in",
-  "fade_out",
-  "scale",
-  "rotate",
-  "shake",
-  "say",
-  "throw",
-  "play",
-];
-const FIGURE_ACTIONS = [
-  "punch",
-  "kick",
-  "wave",
-  "nod",
-  "jump",
-  "bounce",
-  "face",
-  "rotate_part",
-  "pose",
-];
-const SYSTEM_ACTIONS = ["request", "response", "emit"];
+// Action vocabularies come from the packages that define them, so
+// completions can never drift out of sync with what the parser accepts.
+const UNIVERSAL_ACTIONS: string[] = [...UNIVERSAL_ACTION_NAMES];
+const FIGURE_ACTIONS: string[] = [...FIGURE_ONLY_ACTION_NAMES];
+const SYSTEM_ACTIONS: string[] = [...SYSTEM_FLOW_ACTIONS];
 
 const KEYWORDS = [
   "scene",
@@ -60,6 +47,7 @@ const KEYWORDS = [
   "var",
   "def",
   "seq",
+  "group",
   "preset",
   "import",
   "camera",

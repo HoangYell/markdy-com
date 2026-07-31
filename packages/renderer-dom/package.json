@@ -52,6 +52,7 @@
     "@markdy/core": "workspace:*"
   },
   "devDependencies": {
+    "@markdy/stdlib-systems": "workspace:*",
     "jsdom": "^29.1.1",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",

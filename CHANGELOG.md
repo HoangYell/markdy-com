@@ -5,6 +5,11 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Actor groups** — Added `group <name> = actorA, actorB` declarations so one event can target multiple actors, with `stagger=N` support for cascaded fan-out timing.
+
 ## [0.7.25] — 2026-07-31
 
 ### Changed

@@ -1,14 +1,24 @@
 import type { BuiltinActorType } from "./ast.js";
 
-const BUILTIN_ACTOR_TYPES: readonly BuiltinActorType[] = [
+/**
+ * The canonical vocabulary of the language.
+ *
+ * These arrays are the single source of truth for every tool that needs to
+ * know what Markdy understands — the parser, the language server, the
+ * playground's syntax highlighter, and the renderer's handler-coverage test.
+ * Anything that hard-codes its own copy will silently drift out of date, so
+ * import from here instead.
+ */
+export const BUILTIN_ACTOR_TYPES: readonly BuiltinActorType[] = [
   "sprite",
   "text",
   "box",
   "figure",
   "caption",
-];
+] as const;
 
-const UNIVERSAL_ACTIONS = new Set<string>([
+/** Actions valid on every actor type. */
+export const UNIVERSAL_ACTION_NAMES = [
   "enter",
   "exit",
   "move",
@@ -20,9 +30,13 @@ const UNIVERSAL_ACTIONS = new Set<string>([
   "say",
   "throw",
   "play",
-]);
+] as const;
 
-const FIGURE_ONLY_ACTIONS = new Set<string>([
+/**
+ * Actions that require a `figure` actor. Applying one to any other actor
+ * type is a hard `ParseError`, not a soft warning — it's always a mistake.
+ */
+export const FIGURE_ONLY_ACTION_NAMES = [
   "punch",
   "kick",
   "wave",
@@ -32,9 +46,14 @@ const FIGURE_ONLY_ACTIONS = new Set<string>([
   "face",
   "rotate_part",
   "pose",
-]);
+] as const;
 
-const CAMERA_ACTIONS = new Set<string>(["pan", "zoom", "shake"]);
+/** Actions valid on the reserved `camera` actor. */
+export const CAMERA_ACTION_NAMES = ["pan", "zoom", "shake"] as const;
+
+const UNIVERSAL_ACTIONS = new Set<string>(UNIVERSAL_ACTION_NAMES);
+const FIGURE_ONLY_ACTIONS = new Set<string>(FIGURE_ONLY_ACTION_NAMES);
+const CAMERA_ACTIONS = new Set<string>(CAMERA_ACTION_NAMES);
 
 const actorTypes = new Set<string>(BUILTIN_ACTOR_TYPES);
 const actorActions = new Map<string, Set<string>>();

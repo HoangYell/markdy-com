@@ -136,6 +136,12 @@ export type SceneAST = {
   seqs: Record<string, SequenceDef>;
   /** User-defined variables — kept in AST for tooling/inspection. */
   vars: Record<string, string>;
+  /**
+   * Named actor groups, in declaration order, mapping group name to member
+   * actor names. Groups fan out into per-actor events at parse time, so the
+   * renderer never sees them — this is kept for tooling and inspection.
+   */
+  groups: Record<string, string[]>;
   /** Named chapter blocks in author order. Empty when no chapters were used. */
   chapters: Chapter[];
   /** Soft parse issues. Always present; empty in the happy path. */

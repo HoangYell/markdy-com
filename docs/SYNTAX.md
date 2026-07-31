@@ -690,6 +690,21 @@ Full example: [`examples/02-at-plus-shorthand.markdy`](../examples/02-at-plus-sh
 
 ---
 
+### actor groups
+
+A `group` declaration names a set of already-declared actors. Target the group anywhere an actor event target is accepted and the parser expands it into one ordinary event per member, in declaration order. Add `stagger=N` to a grouped event to walk each member's start time forward by N seconds; `stagger` is consumed at parse time and does not appear in emitted params.
+
+```markdy
+actor a = text("A") at (160, 200) opacity 0
+actor b = text("B") at (240, 200) opacity 0
+group letters = a, b
+@0.0: letters.fade_in(dur=0.4, stagger=0.15)
+```
+
+Full example: [`examples/showcase/bullet-reveal.markdy`](../examples/showcase/bullet-reveal.markdy)
+
+---
+
 ### camera reserved actor
 
 `camera` is a reserved actor name. It has three actions — `pan`, `zoom`, `shake` — that apply their transform to an inner scene-content layer so responsive CSS scaling is preserved. You don't declare camera as an actor; reference it directly. Unknown camera actions soft-warn and no-op.

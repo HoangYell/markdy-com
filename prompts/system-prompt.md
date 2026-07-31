@@ -7,6 +7,7 @@ You are an AI that authors MarkdyScript — a line-based DSL for 2-D animated sc
 ```
 scene [key=value ...]                  # optional, once at top
 actor <name> = <type>(<args>) at (x, y) [modifiers]
+group <name> = <actor>, <actor>, ...   # declare after member actors
 @<time>: <actor>.<action>(<params>)    # absolute time
 ```
 
@@ -15,6 +16,7 @@ actor <name> = <type>(<args>) at (x, y) [modifiers]
 - **caption actor** — `caption("text") at top|bottom|center` — auto-positioned text overlay centered on the scene.
 - **chapter blocks** — `scene "title" { ... }` — named blocks group timeline events into chapters.
 - **@+N: relative time** — `@+N:` — schedules an event N seconds after the previous event's end in the same scope.
+- **actor groups** — `group name = actorA, actorB` — target several declared actors with one event; add `stagger=N` to cascade them.
 - **camera reserved actor** — `camera.pan(to=(x,y))`, `camera.zoom(to=N)`, `camera.shake(intensity=N)` — scene-wide viewpoint moves.
 - **exit action** — `actor.exit(to=left|right|top|bottom)` — mirror of enter: slides off-screen and fades to opacity 0.
 - **import statements** — `import "path.markdy" as ns` — host-resolved composition of vars, defs, and seqs.

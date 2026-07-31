@@ -12,22 +12,20 @@ actor l3 = text("Q3") at (460, 330) size 20 opacity 0
 actor l4 = text("Q4") at (600, 330) size 20 opacity 0
 actor note = caption("Focus the takeaway") at bottom opacity 0
 
+group bars = q1, q2, q3, q4
+group labels = l1, l2, l3, l4
+
 scene "intro" {
   @+0.0: title.fade_in(dur=0.4)
 }
 
 scene "bars" {
-  @+0.2: q1.fade_in(dur=0.4, ease=out)
-  @+0.15: q2.fade_in(dur=0.4, ease=out)
-  @+0.15: q3.fade_in(dur=0.4, ease=out)
-  @+0.15: q4.fade_in(dur=0.4, ease=out)
+  @+0.2: bars.fade_in(dur=0.4, stagger=0.15)
+  @+0.6: q4.shake(intensity=3, dur=0.25)
 }
 
 scene "labels" {
-  @+0.1: l1.fade_in(dur=0.3, ease=overshoot)
-  @+0.05: l2.fade_in(dur=0.3, ease=overshoot)
-  @+0.05: l3.fade_in(dur=0.3, ease=overshoot)
-  @+0.05: l4.fade_in(dur=0.3, ease=overshoot)
+  @+0.1: labels.fade_in(dur=0.3, ease=overshoot, stagger=0.05)
 }
 
 scene "takeaway" {
