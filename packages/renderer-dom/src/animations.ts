@@ -4,6 +4,18 @@ import { stateFrom, tx, txCaption, toEasing } from "./types.js";
 import { PART_SEL, readRotation } from "./figure.js";
 
 // ---------------------------------------------------------------------------
+// Default easing for entrance/exit-style actions when `ease=` is omitted.
+// See the rationale comment at the call site below.
+// ---------------------------------------------------------------------------
+
+const DEFAULT_EASE_BY_ACTION: Record<string, string> = {
+  enter: "out",
+  fade_in: "out",
+  exit: "in",
+  fade_out: "in",
+};
+
+// ---------------------------------------------------------------------------
 // Scene luminance detection (for adaptive bubble/overlay colors)
 // ---------------------------------------------------------------------------
 
@@ -73,7 +85,13 @@ export function buildAnimations(
       1,
       (typeof ev.params.dur === "number" ? ev.params.dur : 0.5) * 1000,
     );
-    const easing = toEasing(ev.params.ease);
+    // Entrances read as natural when they decelerate into place (ease-out);
+    // exits read as natural when they accelerate away (ease-in). Actors
+    // arriving/leaving via bare `enter`/`fade_in`/`exit`/`fade_out` with no
+    // explicit `ease=` used to fall through to the base "linear" default,
+    // which is what made unstyled scenes look mechanical. An explicit
+    // `ease=` always wins — this only fills in when the author left it out.
+    const easing = toEasing(ev.params.ease ?? DEFAULT_EASE_BY_ACTION[ev.action]);
     const baseOpts: KeyframeAnimationOptions = {
       delay: delayMs,
       duration: durMs,

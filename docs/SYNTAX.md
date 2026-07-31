@@ -159,7 +159,9 @@ Events are executed in time order. Multiple events may share the same timestamp.
 | Parameter | Type   | Default  | Description                             |
 |-----------|--------|----------|-----------------------------------------|
 | `dur`     | number | `0.5`    | Duration of the action in seconds       |
-| `ease`    | string | `linear` | Easing: `linear`, `in`, `out`, `inout`, `smooth`, `snappy`, `overshoot`, `sharp`, or a literal `cubic-bezier(x1,y1,x2,y2)` curve |
+| `ease`    | string | `linear`* | Easing: `linear`, `in`, `out`, `inout`, `smooth`, `snappy`, `overshoot`, `sharp`, or a literal `cubic-bezier(x1,y1,x2,y2)` curve |
+
+\* `enter` and `fade_in` default to `out` (decelerate into place) and `exit`/`fade_out` default to `in` (accelerate away) when `ease` is omitted — this is what makes a bare `hero.enter(from=left, dur=0.6)` look natural instead of mechanical. Every other action still defaults to `linear`. An explicit `ease=` always overrides the default.
 
 ---
 
