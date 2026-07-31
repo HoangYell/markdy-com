@@ -733,23 +733,23 @@ actor edge = feature_card() at (630, ${y}) scale 1.2
         </div>
         <p class="ref-intro">Package multi-step choreographies into reusable <code>seq</code> blocks. The ultimate power move.</p>
         <div class="ref-code-wrap">
-        <pre><code>seq wave(arm, angle) {'{'}
-  @+0.0: $.rotate_part(part=${'${arm}'}, to=${'${angle}'}, dur=0.3)
-  @+0.3: $.rotate_part(part=${'${arm}'}, to=25, dur=0.3)
+        <pre><code>seq nudge(x) {'{'}
+  @+0.0: $.move(to=(${'${x}'}, 200), dur=0.3)
+  @+0.3: $.move(to=(400, 200), dur=0.3)
 {'}'}
 
-@2.0: lily.play(wave, arm=arm_left, angle=-80)</code></pre>
+@2.0: card.play(nudge, x=320)</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene width=800 height=400
-actor lily = figure(#fad4c0, f, 😊) at (400, 200) scale 1.5
+actor card = box() at (400, 200) scale 1.5
 
-seq wave(arm, angle) {
-  @+0.0: $.rotate_part(part=${arm}, to=${angle}, dur=0.3)
-  @+0.3: $.rotate_part(part=${arm}, to=25, dur=0.3)
+seq nudge(x) {
+  @+0.0: $.move(to=(${x}, 200), dur=0.3)
+  @+0.3: $.move(to=(400, 200), dur=0.3)
 }
 
-@1.0: lily.play(wave, arm=arm_left, angle=-80)
-@2.0: lily.play(wave, arm=arm_right, angle=80)
+@1.0: card.play(nudge, x=320)
+@2.0: card.play(nudge, x=480)
         </script>
         </div>
         <p><code>$</code> refers to the calling actor. Times with <code>@+</code> are relative offsets from when <code>.play()</code> is triggered.</p>

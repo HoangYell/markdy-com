@@ -2,24 +2,24 @@
 scene width=960 height=540 bg=#0d1117 fps=30
 
 actor title = caption("The Demo") at top
-actor hero  = figure(#c68642, m, 😎) at (480, 360)
+actor card  = box() at (480, 360)
 actor tag   = caption("markdy does cinema now") at bottom
 
 scene "cold_open" {
   @+0.0: title.fade_in(dur=0.4)
-  @+0.5: hero.enter(from=bottom, dur=0.6)
-  @+0.2: hero.wave(side=right, dur=0.5)
+  @+0.5: card.enter(from=bottom, dur=0.6)
+  @+0.2: card.shake(intensity=4, dur=0.5)
 }
 
 scene "punchline" {
   @+0.3: camera.zoom(to=1.25, dur=0.6, ease=out)
-  @+0.0: hero.face("🤩")
+  @+0.0: card.scale(to=1.2, dur=0.4)
   @+0.2: tag.fade_in(dur=0.4)
   @+0.3: camera.shake(intensity=5, dur=0.4)
 }
 
 scene "outro" {
-  @+0.5: hero.exit(to=bottom, dur=0.5)
+  @+0.5: card.exit(to=bottom, dur=0.5)
   @+0.0: title.exit(to=top, dur=0.4)
   @+0.0: tag.exit(to=bottom, dur=0.4)
 }

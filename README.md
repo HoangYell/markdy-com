@@ -153,9 +153,9 @@ import { Markdy } from "@markdy/astro";
 
 const code = `
   scene width=800 height=400 bg=#fff5f9
-  actor hero = figure(#c68642, m, 😎) at (300, 200)
-  @0.5: hero.enter(from=left, dur=0.8)
-  @1.5: hero.say("Hello!", dur=1.0)
+  actor card = box() at (300, 200)
+  @0.5: card.enter(from=left, dur=0.8)
+  @1.5: card.say("Hello!", dur=1.0)
 `;
 ---
 
@@ -169,8 +169,8 @@ import { parse, ParseError } from "@markdy/core";
 
 try {
   const ast = parse(source);
-  console.log(ast.actors);  // { hero: { type: "figure", ... } }
-  console.log(ast.events);  // [{ time: 0.5, actor: "hero", action: "enter", ... }]
+  console.log(ast.actors);  // { card: { type: "box", ... } }
+  console.log(ast.events);  // [{ time: 0.5, actor: "card", action: "enter", ... }]
 } catch (e) {
   if (e instanceof ParseError) {
     console.error(`Line ${e.line}: ${e.message}`);
@@ -191,12 +191,12 @@ scene width=800 height=400 bg=white
 
 asset flower = image("/flower.svg")
 
-actor hero  = figure(#c68642, m, 😎) at (100, 200)
+actor card  = box() at (100, 200)
 actor label = text("Watch this") at (400, 50) size 32 opacity 0
 
-@0.0: hero.enter(from=left, dur=0.8)
-@1.0: hero.say("Hi!", dur=1.2)
-@2.5: hero.face("😄")
+@0.0: card.enter(from=left, dur=0.8)
+@1.0: card.say("Hi!", dur=1.2)
+@2.5: card.shake(intensity=4, dur=0.4)
 @3.0: label.fade_in(dur=0.5)
 ```
 
