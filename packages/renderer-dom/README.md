@@ -70,6 +70,9 @@ player.destroy();    // clean up DOM + cancel animations
 | `loop` | `boolean` | `true` | Loop the animation when it reaches the end |
 | `copyright` | `boolean` | `true` | Show a small "Powered by Markdy" badge below the animation |
 | `progressBar` | `boolean` | `true` | Show a rainbow progress bar around the viewport border |
+| `onWarning` | `(warning: ParseWarning) => void` | `console.warn` | Called for each soft parse warning |
+| `onTimeUpdate` | `(seconds: number, durationSeconds: number) => void` | — | Called whenever playback or seek changes the current time |
+| `onPlayStateChange` | `(playing: boolean) => void` | — | Called when playback starts or pauses |
 
 ### `Player`
 
@@ -78,6 +81,11 @@ player.destroy();    // clean up DOM + cancel animations
 | `play()` | Start or resume playback |
 | `pause()` | Pause at current position |
 | `seek(seconds)` | Jump to a specific time |
+| `currentTime()` | Current playback position in seconds |
+| `duration()` | Total scene duration in seconds |
+| `isPlaying()` | Whether the scene is currently playing |
+| `chapters()` | Named `scene "..." { ... }` chapter blocks, in author order (empty if none) |
+| `seekToChapter(name)` | Seek to the start of a named chapter; no-op if the name doesn't match |
 | `destroy()` | Remove DOM elements and cancel all animations |
 
 ## Module Structure

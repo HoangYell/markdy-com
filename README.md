@@ -72,8 +72,8 @@ actor label = text("Hello World") at (50, 130) size 40 opacity 0
 Use one of these depending on where you installed it:
 
 ```sh
-npx markdy render examples/00-love-story.markdy --out examples/xscene.html
-npm exec markdy render examples/00-love-story.markdy --out examples/xscene.html
+npx markdy render examples/00-launch-flow.markdy --out examples/xscene.html
+npm exec markdy render examples/00-launch-flow.markdy --out examples/xscene.html
 npm i -g @markdy/cli
 ```
 
@@ -205,19 +205,19 @@ actor label = text("Watch this") at (400, 50) size 32 opacity 0
 ```markdy
 var skin = #c68642
 
-def fighter(skin, face) {
+def presenter(skin, face) {
   figure(${skin}, m, ${face})
 }
 
-seq punch_combo(side) {
-  @+0.0: $.punch(side=${side}, dur=0.3)
-  @+0.3: $.shake(intensity=5, dur=0.2)
+seq greet(side) {
+  @+0.0: $.wave(side=${side}, dur=0.4)
+  @+0.3: $.nod(dur=0.3)
 }
 
-actor bruno = fighter(${skin}, 😏) at (200, 200)
+actor host = presenter(${skin}, 🙂) at (200, 200)
 
-@0.5: bruno.enter(from=left, dur=0.8)
-@2.0: bruno.play(punch_combo, side=right)
+@0.5: host.enter(from=left, dur=0.8)
+@2.0: host.play(greet, side=right)
 ```
 
 ### Chapters, Camera, Captions
@@ -225,36 +225,36 @@ actor bruno = fighter(${skin}, 😏) at (200, 200)
 ```markdy
 scene width=900 height=500 bg=#101424
 
-actor title = caption("ROUND 1") at top
-actor hero  = figure(#c68642, m, 😎) at (300, 260)
+actor title  = caption("Request lifecycle") at top
+actor client = figure(#c68642, m, 🙂) at (300, 260)
 
 scene "intro" {
   @+0.0: title.fade_in(dur=0.3)
-  @+0.3: hero.enter(from=left, dur=0.7)
+  @+0.3: client.enter(from=left, dur=0.7)
 }
 
 scene "beat" {
   @+0.2: camera.zoom(to=1.3, dur=0.5)
-  @+0.1: hero.punch(side=right, dur=0.3)
+  @+0.1: client.wave(side=right, dur=0.3)
   @+0.0: camera.shake(intensity=10, dur=0.3)
 }
 
-@+0.5: hero.exit(to=right, dur=0.5)
+@+0.5: client.exit(to=right, dur=0.5)
 ```
 
 ### Namespaced Imports + Presets
 
 ```markdy
 # One-liner using a shipped preset macro:
-preset meme("when the bug is finally fixed", "it was a typo")
+preset explainer("Deploy pipeline")
 ```
 
 ```markdy
 # Compose across files — host resolves "as chars" → ast
 import "./characters.markdy" as chars
 
-actor hero = chars.fighter(${chars.skin_warm}, 😎) at (200, 200)
-@0.0: hero.enter(from=left, dur=0.6)
+actor host = chars.presenter(${chars.skin_warm}, 🙂) at (200, 200)
+@0.0: host.enter(from=left, dur=0.6)
 ```
 
 ### Actions Reference

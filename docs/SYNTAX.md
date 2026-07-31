@@ -160,7 +160,7 @@ Events are executed in time order. Multiple events may share the same timestamp.
 | Parameter | Type   | Default  | Description                             |
 |-----------|--------|----------|-----------------------------------------|
 | `dur`     | number | `0.5`    | Duration of the action in seconds       |
-| `ease`    | string | `linear` | Easing: `linear`, `in`, `out`, `inout`  |
+| `ease`    | string | `linear` | Easing: `linear`, `in`, `out`, `inout`, `smooth`, `snappy`, `overshoot`, `sharp`, or a literal `cubic-bezier(x1,y1,x2,y2)` curve |
 
 ---
 
@@ -541,7 +541,7 @@ def <name>(<param1>, <param2>, ...) {
 The body is exactly one line containing a built-in actor type and its arguments. Template parameters are substituted using `${param}`.
 
 ```markdy
-def fighter(skin, gender, face) {
+def presenter(skin, gender, face) {
   figure(${skin}, ${gender}, ${face})
 }
 
@@ -550,9 +550,9 @@ def label(content) {
 }
 
 # Usage — works exactly like a built-in type:
-actor bruno = fighter(#c68642, m, 😏) at (740, 200)
-actor alex  = fighter(#8d5524, m, 😤) at (120, 200) scale 1.2
-actor title = label("Round 1") at (400, 50) size 32
+actor host  = presenter(#c68642, m, 🙂) at (740, 200)
+actor guide = presenter(#8d5524, m, 🙂) at (120, 200) scale 1.2
+actor title = label("Release Plan") at (400, 50) size 32
 ```
 
 ---
@@ -597,17 +597,17 @@ seq wave {
   @+0.3: $.rotate_part(part=arm_right, to=-25, dur=0.3)
 }
 
-@2.0: bruno.play(wave)
-@3.0: alex.play(wave)
+@2.0: host.play(wave)
+@3.0: guide.play(wave)
 
-# A parameterized punch combo
-seq punch_combo(side) {
-  @+0.0: $.punch(side=${side}, dur=0.3)
-  @+0.3: $.shake(intensity=5, dur=0.2)
+# A parameterized greeting
+seq greet(side) {
+  @+0.0: $.wave(side=${side}, dur=0.4)
+  @+0.5: $.nod(dur=0.3)
 }
 
-@5.0: bruno.play(punch_combo, side=left)
-@6.0: alex.play(punch_combo, side=right)
+@5.0: host.play(greet, side=left)
+@6.0: guide.play(greet, side=right)
 ```
 
 ---
@@ -622,12 +622,8 @@ var skin_a = #c68642
 var skin_b = #8d5524
 
 # ── Templates ──────────────────────
-def fighter(skin, face) {
-  figure(${skin}, m, ${face})
-}
-
-def heroine(skin, face) {
-  figure(${skin}, f, ${face})
+def presenter(skin, gender, face) {
+  figure(${skin}, ${gender}, ${face})
 }
 
 # ── Sequences ──────────────────────
@@ -642,16 +638,16 @@ seq celebrate {
 }
 
 # ── Scene ──────────────────────────
-scene width=920 height=460 bg=#fff5f9
+scene width=920 height=460 bg=#f8fafc
 
-actor bruno = fighter(${skin_a}, 😏) at (740, 200)
-actor alex  = fighter(${skin_b}, 😤) at (120, 200)
-actor lily  = heroine(#fad4c0, 😊) at (430, 200) opacity 0
+actor host  = presenter(${skin_a}, m, 🙂) at (740, 200)
+actor guide = presenter(${skin_b}, m, 🙂) at (120, 200)
+actor lead  = presenter(#fad4c0, f, 🙂) at (430, 200) opacity 0
 
-@0.0: lily.fade_in(dur=0.7)
-@0.8: bruno.play(entrance, side=right)
-@1.1: alex.play(entrance, side=left)
-@10.1: bruno.play(celebrate)
+@0.0: lead.fade_in(dur=0.7)
+@0.8: host.play(entrance, side=right)
+@1.1: guide.play(entrance, side=left)
+@10.1: host.play(celebrate)
 ```
 
 ---

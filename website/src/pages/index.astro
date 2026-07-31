@@ -158,7 +158,11 @@ const FAQS = [
   },
   {
     question: "Is Markdy an alternative to GSAP or Framer Motion?",
-    answer: "Markdy is not a general animation framework replacement. It is focused on declarative, scriptable 2D scenes for docs, explainers, demos, memes, and AI-generated animation snippets.",
+    answer: "Markdy is not a general animation framework replacement. It is focused on declarative, scriptable 2D scenes for docs, explainers, demos, and AI-generated animation snippets.",
+  },
+  {
+    question: "How is Markdy different from AnimeJS, A-Frame, or other animation libraries?",
+    answer: "Those are imperative JavaScript APIs you call from code. Markdy is a text-based DSL, like Mermaid but for animation: you write a small declarative script instead of orchestrating timelines in JavaScript, and it renders directly from that text.",
   },
   {
     question: "Does Markdy require Canvas or a video renderer?",
@@ -484,6 +488,7 @@ markdy <span class="u-fn">check-all</span> examples`;
           <div id="stage"></div>
         </div>
         <div class="timeline-controls" aria-label="Timeline controls">
+          <select id="scene-jump" class="scene-jump" aria-label="Jump to scene" hidden></select>
           <input id="timeline-range" class="timeline-range" type="range" min="0" max="0" step="0.01" value="0" aria-label="Scrub timeline" />
           <span id="timeline-time" class="timeline-time">0:00 / 0:00</span>
         </div>
@@ -1185,6 +1190,7 @@ scene width=800 height=400 bg=#f8fafc
   const playLabel = document.getElementById("play-label") as HTMLSpanElement;
   const timelineRange = document.getElementById("timeline-range") as HTMLInputElement;
   const timelineTime = document.getElementById("timeline-time") as HTMLSpanElement;
+  const sceneJump = document.getElementById("scene-jump") as HTMLSelectElement;
   const exBtns    = document.querySelectorAll<HTMLButtonElement>(".example-btn");
   const exampleDescription = document.getElementById("example-description") as HTMLParagraphElement;
   const exampleSourceLink = document.getElementById("example-source-link") as HTMLAnchorElement;
@@ -1211,6 +1217,26 @@ scene width=800 height=400 bg=#f8fafc
     if (!isScrubbing) timelineRange.value = safeCurrent.toFixed(2);
     timelineRange.disabled = safeDuration <= 0;
     timelineTime.textContent = `${formatTime(safeCurrent)} / ${formatTime(safeDuration)}`;
+  }
+
+  function populateSceneJump(chapters: { name: string; startTime: number }[]) {
+    sceneJump.innerHTML = "";
+    if (chapters.length === 0) {
+      sceneJump.hidden = true;
+      return;
+    }
+    sceneJump.hidden = false;
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "Jump to scene…";
+    sceneJump.appendChild(placeholder);
+    for (const chapter of chapters) {
+      const option = document.createElement("option");
+      option.value = chapter.name;
+      option.textContent = chapter.name;
+      sceneJump.appendChild(option);
+    }
+    sceneJump.value = "";
   }
 
   function setPlayState(playing: boolean) {
@@ -1331,6 +1357,7 @@ scene width=800 height=400 bg=#f8fafc
       }
       setPlayState(true);
       setTimeline(player.currentTime(), player.duration());
+      populateSceneJump(player.chapters());
       setStatus(true);
       if ((window as any).Iconify) {
         (window as any).Iconify.scan(stage);
@@ -1342,6 +1369,7 @@ scene width=800 height=400 bg=#f8fafc
       setStatus(false);
       setPlayState(false);
       setTimeline(0, 0);
+      populateSceneJump([]);
     }
   }
 
@@ -1532,6 +1560,11 @@ scene width=800 height=400 bg=#f8fafc
     isScrubbing = false;
     if (!player) return;
     player.seek(Number(timelineRange.value));
+  });
+
+  sceneJump.addEventListener("change", () => {
+    if (!player || !sceneJump.value) return;
+    player.seekToChapter(sceneJump.value);
   });
 
   // Run button
@@ -2367,12 +2400,24 @@ scene width=800 height=400 bg=#f8fafc
 
   .timeline-controls {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: auto minmax(0, 1fr) auto;
     align-items: center;
     gap: 0.75rem;
     padding: 0.5rem 0.85rem;
     border-top: 1px solid var(--border);
     background: var(--bg-secondary);
+  }
+
+  .scene-jump {
+    font-family: inherit;
+    font-size: 0.68rem;
+    color: var(--text-secondary);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.2rem 0.4rem;
+    max-width: 9rem;
+    cursor: pointer;
   }
 
   .timeline-range {
@@ -3096,6 +3141,11 @@ scene width=800 height=400 bg=#f8fafc
     .timeline-controls {
       grid-template-columns: 1fr;
       gap: 0.35rem;
+    }
+
+    .scene-jump {
+      max-width: none;
+      width: 100%;
     }
 
     .timeline-time {

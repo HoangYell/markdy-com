@@ -281,18 +281,14 @@ When you create multiple similar actors, **templates** (`def`) eliminate repetit
 
 ```markdy
 # Define once
-def fighter(skin, face) {
-  figure(${skin}, m, ${face})
-}
-
-def heroine(skin, face) {
-  figure(${skin}, f, ${face})
+def presenter(skin, gender, face) {
+  figure(${skin}, ${gender}, ${face})
 }
 
 # Use many times — works exactly like a built-in type
-actor bruno = fighter(#c68642, 😏) at (200, 200)
-actor alex  = fighter(#8d5524, 😤) at (600, 200)
-actor lily  = heroine(#fad4c0, 😊) at (400, 200)
+actor host  = presenter(#c68642, m, 🙂) at (200, 200)
+actor guide = presenter(#8d5524, m, 🙂) at (600, 200)
+actor lead  = presenter(#fad4c0, f, 🙂) at (400, 200)
 ```
 
 Templates expand at parse time — the renderer only sees standard `figure` actors.
@@ -310,27 +306,27 @@ seq wave {
 }
 
 # Any actor can play it
-@2.0: bruno.play(wave)
-@3.0: alex.play(wave)
+@2.0: host.play(wave)
+@3.0: guide.play(wave)
 ```
 
 **Key concepts:**
 - `$` is a placeholder for whichever actor calls `play`
 - `@+offset` is **relative** time — `@+0.3` means "0.3 seconds after play starts"
-- Events expand inline at parse time: `@2.0: bruno.play(wave)` becomes `@2.0: bruno.rotate_part(...)` + `@2.3: bruno.rotate_part(...)`
+- Events expand inline at parse time: `@2.0: host.play(wave)` becomes `@2.0: host.rotate_part(...)` + `@2.3: host.rotate_part(...)`
 
 ### Parameterized Sequences
 
 Pass arguments to make sequences flexible:
 
 ```markdy
-seq punch_combo(side) {
-  @+0.0: $.punch(side=${side}, dur=0.3)
-  @+0.3: $.shake(intensity=5, dur=0.2)
+seq greet(side) {
+  @+0.0: $.wave(side=${side}, dur=0.4)
+  @+0.5: $.nod(dur=0.3)
 }
 
-@5.0: bruno.play(punch_combo, side=left)
-@6.0: alex.play(punch_combo, side=right)
+@5.0: host.play(greet, side=left)
+@6.0: guide.play(greet, side=right)
 ```
 
 ---
@@ -340,7 +336,7 @@ seq punch_combo(side) {
 Here's a complete scene combining everything:
 
 ```markdy
-scene width=920 height=460 bg=#fff5f9
+scene width=920 height=460 bg=#f8fafc
 
 # ── Variables ──────────────────────────────────────────────
 var skin_a = #c68642
@@ -348,8 +344,8 @@ var skin_b = #8d5524
 var y = 200
 
 # ── Templates ─────────────────────────────────────────────
-def fighter(skin, face) {
-  figure(${skin}, m, ${face})
+def presenter(skin, gender, face) {
+  figure(${skin}, ${gender}, ${face})
 }
 
 # ── Sequences ─────────────────────────────────────────────
@@ -369,24 +365,22 @@ seq celebrate {
 }
 
 # ── Actors ────────────────────────────────────────────────
-actor bruno = fighter(${skin_a}, 😏) at (740, ${y})
-actor alex  = fighter(${skin_b}, 😤) at (120, ${y})
+actor host  = presenter(${skin_a}, m, 🙂) at (740, ${y})
+actor guide = presenter(${skin_b}, m, 🙂) at (120, ${y})
 
 # ── Timeline ─────────────────────────────────────────────
-@0.0: bruno.play(entrance, side=right)
-@0.3: alex.play(entrance, side=left)
+@0.0: host.play(entrance, side=right)
+@0.3: guide.play(entrance, side=left)
 
-@2.0: bruno.play(wave)
-@2.5: alex.play(wave)
+@2.0: host.play(wave)
+@2.5: guide.play(wave)
 
-@4.0: bruno.say("Let's go!", dur=1.2)
-@4.5: alex.face("😡")
-@5.0: alex.punch(side=right, dur=0.3)
-@5.1: bruno.shake(intensity=8, dur=0.3)
-@5.1: bruno.face("😵")
+@4.0: host.say("Let's walk through it.", dur=1.2)
+@4.5: guide.nod(dur=0.4)
+@5.0: guide.say("Sounds good.", dur=1.0)
 
-@6.5: bruno.face("😎")
-@6.5: bruno.play(celebrate)
+@6.5: host.face("😊")
+@6.5: host.play(celebrate)
 ```
 
 ---

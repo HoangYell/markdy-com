@@ -21,7 +21,7 @@
  */
 
 import { parse } from "@markdy/core";
-import type { ParseWarning, SceneAST } from "@markdy/core";
+import type { Chapter, ParseWarning, SceneAST } from "@markdy/core";
 import type { FaceSwap } from "./types.js";
 import { createActorEl } from "./actors.js";
 import { buildAnimations } from "./animations.js";
@@ -67,6 +67,10 @@ export interface Player {
   currentTime(): number;
   duration(): number;
   isPlaying(): boolean;
+  /** Named `scene "..." { ... }` chapter blocks, in author order. Empty when the scene has none. */
+  chapters(): Chapter[];
+  /** Seeks to the start of the named chapter. No-op if the name doesn't match a chapter. */
+  seekToChapter(name: string): void;
   destroy(): void;
 }
 
@@ -369,6 +373,16 @@ export function createPlayer(opts: PlayerOptions): Player {
 
     isPlaying() {
       return isPlaying;
+    },
+
+    chapters() {
+      return ast.chapters;
+    },
+
+    seekToChapter(name: string) {
+      const chapter = ast.chapters.find((c) => c.name === name);
+      if (!chapter) return;
+      player.seek(chapter.startTime);
     },
 
     destroy() {

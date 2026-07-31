@@ -272,9 +272,9 @@ import "<relative-path>.markdy" as <namespace>
 - The **host** (playground, CLI, Astro plugin) resolves the path and passes `{ imports: { <namespace>: SceneAST } }` to `parse()`
 - When resolved, the child's `vars`, `defs`, and `seqs` merge into the parent under `ns.name`
 - Reference namespaced symbols with dotted names:
-  - Actor type: `actor hero = chars.fighter(...) at (...)`
+  - Actor type: `actor host = chars.presenter(...) at (...)`
   - Variable: `${chars.skin_tone}`
-  - Sequence: `@0.0: hero.play(anim.combo_strike)`
+  - Sequence: `@0.0: host.play(anim.wave_combo)`
 - Unresolved imports emit `import-unresolved` warnings; the renderer no-ops references
 
 ### `preset` — Built-in Scene Macros
@@ -427,13 +427,13 @@ actor bob   = character(#c68642, 😏) at (700, ${y})
 ```markdy
 scene width=900 height=450 bg=white
 
-def fighter(skin, face) {
+def presenter(skin, face) {
   figure(${skin}, m, ${face})
 }
 
-seq punch_combo(side) {
-  @+0.0: $.punch(side=${side}, dur=0.3)
-  @+0.05: $.shake(intensity=5, dur=0.3)
+seq nod_combo {
+  @+0.0: $.nod(dur=0.3)
+  @+0.1: $.rotate_part(part=head, to=0, dur=0.3)
 }
 
 seq wave_arm(arm, angle) {
@@ -441,14 +441,14 @@ seq wave_arm(arm, angle) {
   @+0.3: $.rotate_part(part=${arm}, to=25, dur=0.3)
 }
 
-actor a = fighter(#c68642, 😤) at (300, 200)
-actor b = fighter(#8d5524, 😡) at (600, 200)
+actor a = presenter(#c68642, 🙂) at (300, 200)
+actor b = presenter(#8d5524, 🙂) at (600, 200)
 
 @0.0: a.enter(from=left, dur=0.8)
 @0.3: b.enter(from=right, dur=0.8)
 @2.0: a.play(wave_arm, arm=arm_right, angle=-80)
-@3.0: a.play(punch_combo, side=right)
-@3.1: b.face("😵")
+@3.0: a.play(nod_combo)
+@3.1: b.face("😊")
 ```
 
 ### Pattern 5: Object Throwing
@@ -569,7 +569,7 @@ actor note   = caption("Focus the cache handoff") at bottom opacity 0
 # characters.markdy
 var skin_warm = #c68642
 var skin_cool = #8d5524
-def fighter(skin, face) {
+def presenter(skin, face) {
   figure(${skin}, m, ${face})
 }
 ```
@@ -579,12 +579,12 @@ def fighter(skin, face) {
 import "./characters.markdy" as chars
 scene width=900 height=500 bg=white
 
-actor hero    = chars.fighter(${chars.skin_warm}, 😎) at (300, 260)
-actor villain = chars.fighter(${chars.skin_cool}, 😤) at (600, 260)
+actor host  = chars.presenter(${chars.skin_warm}, 🙂) at (300, 260)
+actor guide = chars.presenter(${chars.skin_cool}, 🙂) at (600, 260)
 
-@0.0:  hero.enter(from=left, dur=0.7)
-@+0.0: villain.enter(from=right, dur=0.7)
-@+0.2: hero.face("😏")
+@0.0:  host.enter(from=left, dur=0.7)
+@+0.0: guide.enter(from=right, dur=0.7)
+@+0.2: host.face("😊")
 ```
 
 ### Pattern 12: Preset Shorthand

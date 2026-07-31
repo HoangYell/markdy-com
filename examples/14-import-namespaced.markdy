@@ -9,10 +9,10 @@ import "./characters.markdy" as chars
 import "./sequences.markdy"  as seqs
 
 # Once the host resolves `chars` and `seqs`, these lines work:
-#   actor hero = chars.fighter(😎) at (400, 240)
-#   @0.0: hero.play(seqs.combo_strike)
+#   actor host = chars.presenter(🙂) at (400, 240)
+#   @0.0: host.play(seqs.wave_combo)
 # Namespaced templates, vars, and sequences are all supported —
-# dotted type names (chars.fighter), dotted vars (${chars.skin}),
+# dotted type names (chars.presenter), dotted vars (${chars.skin}),
 # and dotted sequence refs in play(...) all resolve at parse time.
 
 # Without host resolution, the parser emits:
