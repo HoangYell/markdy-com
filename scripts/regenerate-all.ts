@@ -410,6 +410,10 @@ async function writeExamplesReadme(): Promise<void> {
       "to learn a specific capability (captions, chapters, camera, imports, etc.).",
   );
   lines.push(
+    "- `showcase/` — the demo scenes shown on the homepage playground and docs page. Listed in " +
+      "`website/src/data/examples.ts`, the single registry both pages read from.",
+  );
+  lines.push(
     "- `presets/` — one-line `preset <name>(...)` calls showcasing the built-in scene templates. " +
       "These are the shortest valid MarkdyScript programs that still produce a complete scene.",
   );

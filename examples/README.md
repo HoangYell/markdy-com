@@ -5,15 +5,10 @@ Every file in this tree parses cleanly on the current grammar. Changes that brea
 ## Layout
 
 - Top-level `.markdy` files — one file per feature. Good starting points when you want to learn a specific capability (captions, chapters, camera, imports, etc.).
+- `showcase/` — the demo scenes shown on the homepage playground and docs page. Listed in `website/src/data/examples.ts`, the single registry both pages read from.
 - `presets/` — one-line `preset <name>(...)` calls showcasing the built-in scene templates. These are the shortest valid MarkdyScript programs that still produce a complete scene.
 
 Compat-gate fixtures (baseline snapshot corpus) live alongside their snapshots in `packages/compat/fixtures/` and are covered by `pnpm run gate`.
-
-## Output preview
-
-<p align="center">
-	<img src="../website/public/images/markdy-output-preview.webp" alt="Markdy output preview" width="1000" />
-</p>
 
 ## Verifying
 

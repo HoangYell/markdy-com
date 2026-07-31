@@ -1,7 +1,7 @@
-# Animated chart reveal for docs, reports, and launch posts.
+# Bars rising with staggered easing while axis labels settle into place.
 scene width=800 height=400 fps=30 bg=#f8fafc
 
-actor title = caption("Quarterly adoption") at top opacity 0
+actor title = caption("Quarterly adoption") at top
 actor q1 = box() at (180, 245) scale 0.55 opacity 0
 actor q2 = box() at (320, 225) scale 0.75 opacity 0
 actor q3 = box() at (460, 200) scale 1.0 opacity 0
@@ -12,24 +12,26 @@ actor l3 = text("Q3") at (460, 330) size 20 opacity 0
 actor l4 = text("Q4") at (600, 330) size 20 opacity 0
 actor note = caption("Focus the takeaway") at bottom opacity 0
 
-scene "setup" {
+scene "intro" {
   @+0.0: title.fade_in(dur=0.4)
-  @+0.2: l1.fade_in(dur=0.2)
-  @+0.0: l2.fade_in(dur=0.2)
-  @+0.0: l3.fade_in(dur=0.2)
-  @+0.0: l4.fade_in(dur=0.2)
 }
 
 scene "bars" {
-  @+0.0: q1.fade_in(dur=0.35)
-  @+0.2: q2.fade_in(dur=0.35)
-  @+0.2: q3.fade_in(dur=0.35)
-  @+0.2: q4.fade_in(dur=0.35)
-  @+0.2: q4.shake(intensity=3, dur=0.25)
+  @+0.2: q1.fade_in(dur=0.4, ease=out)
+  @+0.15: q2.fade_in(dur=0.4, ease=out)
+  @+0.15: q3.fade_in(dur=0.4, ease=out)
+  @+0.15: q4.fade_in(dur=0.4, ease=out)
+}
+
+scene "labels" {
+  @+0.1: l1.fade_in(dur=0.3, ease=overshoot)
+  @+0.05: l2.fade_in(dur=0.3, ease=overshoot)
+  @+0.05: l3.fade_in(dur=0.3, ease=overshoot)
+  @+0.05: l4.fade_in(dur=0.3, ease=overshoot)
 }
 
 scene "takeaway" {
-  @+0.0: camera.pan(to=(90, -20), dur=0.7, ease=out)
+  @+0.2: camera.pan(to=(90, -20), dur=0.7, ease=out)
   @+0.0: camera.zoom(to=1.15, dur=0.7, ease=out)
   @+0.3: note.fade_in(dur=0.4)
 }

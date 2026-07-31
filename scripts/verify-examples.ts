@@ -34,8 +34,9 @@ interface Failure {
 type ExpectWarnings = "none" | "allow-intentional" | "any";
 
 const DIRS: Array<{ dir: string; expectWarnings: ExpectWarnings; expectChapters: boolean }> = [
-  { dir: "examples",         expectWarnings: "allow-intentional", expectChapters: true },
-  { dir: "examples/presets", expectWarnings: "any",  expectChapters: true },
+  { dir: "examples",           expectWarnings: "allow-intentional", expectChapters: true },
+  { dir: "examples/presets",   expectWarnings: "any",  expectChapters: true },
+  { dir: "examples/showcase",  expectWarnings: "none", expectChapters: true },
 ];
 
 async function list(dir: string): Promise<string[]> {

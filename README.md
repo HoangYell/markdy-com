@@ -72,8 +72,8 @@ actor label = text("Hello World") at (50, 130) size 40 opacity 0
 Use one of these depending on where you installed it:
 
 ```sh
-npx markdy render examples/00-launch-flow.markdy --out examples/xscene.html
-npm exec markdy render examples/00-launch-flow.markdy --out examples/xscene.html
+npx markdy render examples/showcase/bullet-reveal.markdy --out examples/xscene.html
+npm exec markdy render examples/showcase/bullet-reveal.markdy --out examples/xscene.html
 npm i -g @markdy/cli
 ```
 

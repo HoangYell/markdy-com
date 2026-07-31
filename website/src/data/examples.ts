@@ -34,48 +34,45 @@ export interface ExampleEntry extends ExampleMeta {
   code: string;
 }
 
-// NOTE: this still lists the pre-refactor carousel content. Step 3 swaps
-// these entries for the new showcase demo set (bullet-reveal,
-// request-lifecycle, bar-chart-grow-in, retry-with-backoff,
-// component-state-transition) in a follow-up commit — kept separate so the
-// registry-extraction refactor and the content swap are independently
-// reviewable.
+// Bullet Reveal is first (and has no explicit previewStart override), which
+// makes it the landing-page/playground default — it's the calmest and most
+// immediately legible of the five: no failure states, no camera movement.
 export const EXAMPLE_REGISTRY: ExampleMeta[] = [
   {
-    id: "launch-flow",
-    title: "Launch Flow",
-    description: "Product launch explainer: text, systems, and timeline motion.",
+    id: "bullet-reveal",
+    title: "Bullet Reveal",
+    description: "Sequential bullet points animating in with stagger — the PowerPoint-style reveal people actually need.",
     category: "product",
-    file: "00-launch-flow.markdy",
+    file: "showcase/bullet-reveal.markdy",
     playback: { previewStart: 0 },
   },
   {
-    id: "feature-tour",
-    title: "Feature Tour",
-    description: "A fully-loaded example: chapters + captions + camera + @+N + exit.",
+    id: "request-lifecycle",
+    title: "Request Lifecycle",
+    description: "Browser to CDN to server to database, with a packet traveling the path and a response returning.",
     category: "system",
-    file: "13-combined.markdy",
+    file: "showcase/request-lifecycle.markdy",
   },
   {
-    id: "camera-shake",
-    title: "Camera Shake",
-    description: "camera.shake(intensity=N) — draw attention to a status change.",
-    category: "ui-state",
-    file: "06-camera-shake.markdy",
-  },
-  {
-    id: "chart-reveal",
-    title: "Chart Reveal",
-    description: "Animated chart reveal for docs, reports, and launch posts.",
+    id: "bar-chart-grow-in",
+    title: "Bar Chart Grow-In",
+    description: "Bars rising with staggered easing while axis labels settle into place.",
     category: "chart",
-    file: "16-chart-reveal.markdy",
+    file: "showcase/bar-chart-grow-in.markdy",
   },
   {
-    id: "api-edge-flow",
-    title: "API Edge Flow",
-    description: "Animated system flow: client to API to edge to data.",
-    category: "system",
-    file: "17-api-edge-flow.markdy",
+    id: "retry-with-backoff",
+    title: "Retry with Backoff",
+    description: "A failing request retrying at increasing intervals until it succeeds.",
+    category: "reliability",
+    file: "showcase/retry-with-backoff.markdy",
+  },
+  {
+    id: "component-state-transition",
+    title: "Component State Transition",
+    description: "A card moving through idle, loading, loaded, and error states.",
+    category: "ui-state",
+    file: "showcase/component-state-transition.markdy",
   },
 ];
 

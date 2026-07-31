@@ -29,7 +29,7 @@ To make `markdy` available as a shell command everywhere, install it globally wi
 Use this command to generate a local HTML preview:
 
 ```bash
-npx markdy render examples/00-launch-flow.markdy --out examples/xscene.html
+npx markdy render examples/showcase/bullet-reveal.markdy --out examples/xscene.html
 ```
 
 ## Commands
