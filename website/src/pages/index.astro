@@ -1,62 +1,11 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { loadExamples } from "../data/examples";
 
 const ROOT = join(process.cwd(), "..");
 
-type PlaygroundExample = {
-  label: string;
-  sourcePath: string;
-  sourceUrl: string;
-  description: string;
-  code: string;
-  previewStart?: number;
-};
-
-const PLAYGROUND_EXAMPLES = [
-  {
-    fileName: "00-launch-flow.markdy",
-    label: "Launch Flow",
-    previewStart: 0,
-  },
-  {
-    fileName: "13-combined.markdy",
-    label: "Feature Tour",
-  },
-  {
-    fileName: "06-camera-shake.markdy",
-    label: "Camera Shake",
-  },
-  {
-    fileName: "16-chart-reveal.markdy",
-    label: "Chart Reveal",
-  },
-  {
-    fileName: "17-api-edge-flow.markdy",
-    label: "API Edge Flow",
-  },
-] as const;
-
-function firstCommentDescription(code: string): string {
-  const first = code.split(/\r?\n/).find((line) => line.trim().startsWith("#"));
-  return first ? first.replace(/^#\s*/, "").trim() : "Shipped example from examples/.";
-}
-
-const EXAMPLES: PlaygroundExample[] = await Promise.all(
-  PLAYGROUND_EXAMPLES.map(async ({ fileName, label, previewStart }) => {
-    const sourcePath = `examples/${fileName}`;
-    const code = await readFile(join(ROOT, sourcePath), "utf8");
-    return {
-      label,
-      sourcePath,
-      sourceUrl: `https://github.com/HoangYell/markdy-com/blob/main/${sourcePath}`,
-      description: firstCommentDescription(code),
-      code,
-      previewStart: previewStart ?? 0,
-    };
-  }),
-);
+const EXAMPLES = await loadExamples(ROOT);
 
 const FLOWER_ASSET: Record<string, string> = {
   flower: "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'36'%20height%3D'36'%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'16'%20fill%3D'%23ff69b4'%2F%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'6'%20fill%3D'%23ffff00'%2F%3E%3C%2Fsvg%3E",
@@ -440,7 +389,7 @@ markdy <span class="u-fn">check-all</span> examples`;
         <div class="examples-list">
           {EXAMPLES.map((ex, i) => (
             <button class="example-btn" data-index={i} title={ex.description}>
-              <strong>{ex.label}</strong>
+              <strong>{ex.title}</strong>
               <span>{ex.sourcePath}</span>
             </button>
           ))}
@@ -1165,17 +1114,9 @@ scene width=800 height=400 bg=#f8fafc
   import { baseTheme, lightTheme, darkTheme } from "../editor/editor-theme";
   import { createPlayer } from "@markdy/renderer-dom";
   import type { Player } from "@markdy/renderer-dom";
+  import type { ExampleEntry } from "../data/examples";
 
-  type PlaygroundExample = {
-    label: string;
-    sourcePath: string;
-    sourceUrl: string;
-    description: string;
-    code: string;
-    previewStart?: number;
-  };
-
-  const examples: PlaygroundExample[]  = (window as any).__MARKDY_EXAMPLES;
+  const examples: ExampleEntry[]  = (window as any).__MARKDY_EXAMPLES;
   const assets: Record<string, string> = (window as any).__MARKDY_ASSETS;
 
   const editorContainer = document.getElementById("code-editor") as HTMLDivElement;
@@ -1492,7 +1433,7 @@ scene width=800 height=400 bg=#f8fafc
     const initialCode = sharedCode ?? examples[0].code;
     createEditor(initialCode);
     if (!sharedCode) {
-      currentPreviewStart = examples[0].previewStart ?? 0;
+      currentPreviewStart = examples[0].playback?.previewStart ?? 0;
       render(initialCode, currentPreviewStart);
       setActiveBtn(0);
       setExampleMeta(0);
@@ -1525,7 +1466,7 @@ scene width=800 height=400 bg=#f8fafc
       setActiveBtn(idx);
       setExampleMeta(idx);
       createEditor(examples[idx].code);
-      render(examples[idx].code, examples[idx].previewStart ?? 0);
+      render(examples[idx].code, examples[idx].playback?.previewStart ?? 0);
     });
   });
 

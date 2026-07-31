@@ -1,5 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { join } from "node:path";
+import { loadExamples } from "../data/examples";
+
+const ROOT = join(process.cwd(), "..");
+const EXAMPLES = await loadExamples(ROOT);
 
 const docStructuredData = [
   {
@@ -70,6 +75,23 @@ const docStructuredData = [
       </a>
     </section>
 
+    <section class="showcase-grid" aria-label="Showcase examples">
+      <div class="docs-hero">
+        <span class="docs-kicker">Showcase</span>
+        <h2>Demo Scenes</h2>
+        <p>The scenes shown in the homepage playground — each one a real, runnable <code>.markdy</code> file.</p>
+      </div>
+      <div class="docs-grid">
+        {EXAMPLES.map((ex) => (
+          <a class="doc-card" href={ex.sourceUrl} target="_blank" rel="noopener noreferrer">
+            <span>{ex.category}</span>
+            <h2>{ex.title}</h2>
+            <p>{ex.description}</p>
+          </a>
+        ))}
+      </div>
+    </section>
+
     <section class="quickstart" aria-label="Markdy quickstart">
       <div>
         <span class="docs-kicker">Quickstart</span>
@@ -131,6 +153,14 @@ const docStructuredData = [
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 1rem;
+  }
+
+  .showcase-grid {
+    margin-top: 3rem;
+  }
+
+  .showcase-grid .docs-hero {
+    margin-bottom: 1.25rem;
   }
 
   .doc-card,
