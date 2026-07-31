@@ -124,7 +124,7 @@ actor icon = sprite(fire) at (400, 200) size 48
 
 ## 5. Optional Character Guides
 
-The `figure` actor type creates optional character guides with articulatable limbs. Use them when a presenter or guide makes the explainer clearer; most product flows can use `text`, `box`, `sprite`, and `caption` actors instead.
+The `figure` actor type creates optional presenter guides. Use them when a person-like guide makes the explainer clearer; most product flows can use `text`, `box`, `sprite`, and `caption` actors instead.
 
 ```markdy
 scene width=800 height=400 bg=#f5f5ff
@@ -147,38 +147,30 @@ actor label = text("Explain the flow") at (500, 230) size 24
 | 2nd | Gender | `m` (👕🤜👟) or `f` (👗💅👠) |
 | 3rd | Starting face | Any emoji (`😎`, `🙂`, `😡`, etc.) |
 
-### Body Part Actions
+### Small Presenter Actions
 
-Figures have named body parts you can animate individually:
+Figures support simple actions for presenter-style scenes:
 
 ```markdy
-# Wave: rotate the right arm up, then back down
-@2.0: guide.rotate_part(part=arm_right, to=-80, dur=0.3)
-@2.5: guide.rotate_part(part=arm_right, to=-20, dur=0.3)
-
-# Tilt the head
-@3.0: guide.rotate_part(part=head, to=15, dur=0.3)
+@2.0: guide.wave(side=right, dur=0.8)
+@3.0: guide.nod(dur=0.4)
+@4.0: guide.say("Checks are green.", dur=1.2)
 ```
-
-**Part names:** `head`, `face`, `body`, `arm_left`, `arm_right`, `leg_left`, `leg_right`
 
 ### Posing Multiple Parts at Once
 
-Instead of chaining multiple `rotate_part` calls, use `pose` to set several body parts simultaneously:
+`pose` can set several parts at once, but keep presenter poses simple and readable:
 
 ```markdy
-# Arms up celebration
-@2.0: guide.pose(arm_left=70, arm_right=-70, dur=0.4)
-
-# Reset to neutral
-@3.0: guide.pose(arm_left=0, arm_right=0, head=0, dur=0.3)
+@2.0: guide.pose(head=10, dur=0.3)
+@3.0: guide.pose(head=0, dur=0.3)
 ```
 
 Only the parts you specify are animated — everything else stays put.
 
 ### Built-in Gestures
 
-Common gestures have dedicated actions so you don't have to build them from `rotate_part`:
+Common gestures have dedicated actions:
 
 ```markdy
 # Wave hello
@@ -301,8 +293,7 @@ When the same animation pattern repeats across actors, use **sequences** (`seq`)
 
 ```markdy
 seq wave {
-  @+0.0: $.rotate_part(part=arm_right, to=-80, dur=0.3)
-  @+0.3: $.rotate_part(part=arm_right, to=-25, dur=0.3)
+  @+0.0: $.wave(side=right, dur=0.6)
 }
 
 # Any actor can play it
@@ -313,7 +304,7 @@ seq wave {
 **Key concepts:**
 - `$` is a placeholder for whichever actor calls `play`
 - `@+offset` is **relative** time — `@+0.3` means "0.3 seconds after play starts"
-- Events expand inline at parse time: `@2.0: host.play(wave)` becomes `@2.0: host.rotate_part(...)` + `@2.3: host.rotate_part(...)`
+- Events expand inline at parse time: `@2.0: host.play(wave)` becomes the events defined inside `seq wave`
 
 ### Parameterized Sequences
 
@@ -354,14 +345,12 @@ seq entrance(side) {
 }
 
 seq wave {
-  @+0.0: $.rotate_part(part=arm_right, to=-80, dur=0.3)
-  @+0.3: $.rotate_part(part=arm_right, to=-25, dur=0.3)
+  @+0.0: $.wave(side=right, dur=0.6)
 }
 
 seq celebrate {
-  @+0.0: $.rotate_part(part=arm_right, to=-130, dur=0.3)
-  @+0.4: $.rotate_part(part=arm_right, to=-25, dur=0.4)
-  @+0.0: $.say("🎉", dur=1.5)
+  @+0.0: $.jump(height=20, dur=0.5)
+  @+0.1: $.say("Checks passed.", dur=1.5)
 }
 
 # ── Actors ────────────────────────────────────────────────
@@ -414,10 +403,8 @@ actor guide = presenter(${skin_b}, m, 🙂) at (120, ${y})
 | `shake(intensity, dur)` | All | Horizontal shake |
 | `say("text", dur)` | All | Show speech bubble |
 | `throw(asset, to, dur)` | All | Throw projectile to target actor |
-| `punch(side, dur)` | Figure | Swing arm out and back |
-| `kick(side, dur)` | Figure | Swing leg out and back |
-| `rotate_part(part, to, dur)` | Figure | Rotate named body part |
-| `pose(arm_left, arm_right, ..., dur)` | Figure | Set multiple parts at once |
+| `rotate_part(part, to, dur)` | Figure | Rotate a named body part; prefer simple head/guide movements in public demos |
+| `pose(head, ..., dur)` | Figure | Set multiple parts at once; keep poses neutral and readable |
 | `wave(side, dur)` | Figure | Wave gesture |
 | `nod(dur)` | Figure | Head nod gesture |
 | `jump(height, dur)` | All | Jump with squash/stretch |

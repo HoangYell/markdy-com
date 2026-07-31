@@ -42,7 +42,7 @@ actor bruno   = figure(#c68642, m, 😎) at (400, 150)
 @2.0: bruno.say("Look, no JavaScript!", dur=2.0)
 ```
 
-The coolest part is that it inherently supports an `emoji`-powered stick-figure actor type, so you get character expressions and articulated limbs out-of-the-box.
+The coolest part is that it can add an optional presenter guide when the scene needs a human cue, while product flows can stay entirely diagram-based.
 
 ### Why WAAPI over GSAP?
 A huge focus for Markdy was keeping the bundle size microscopic. Because Markdy compiles down to CSS Transforms and the browser-native Web Animations API, the parser and renderer combined are less than `35kb` (compared to GSAP's massive core).
@@ -71,7 +71,7 @@ actor label = text("Hydrated on scroll!") at (200, 200)
 
 ### AI Generation (Vibe Coding)
 Because MarkdyScript is a strict DSL, it is **incredibly easy for LLMs to write**.
-I wrote an [AGENT.md instructions file](https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md) for the project. You feed that link to Claude or Cursor, and simply say: *"Draw a guy punching another guy"* — and the AI handles all the coordinate math and outputs perfect MarkdyScript.
+I wrote an [AGENT.md instructions file](https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md) for the project. You feed that link to Claude or Cursor, and simply say: *"Animate an API request moving from browser to edge cache to database"* — and the AI handles the timing and outputs clean MarkdyScript.
 
 ### Give it a spin
 If you build interactive docs or just want to play around with bringing code scenes to life:

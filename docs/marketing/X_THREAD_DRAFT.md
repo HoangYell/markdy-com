@@ -18,14 +18,14 @@ Meet Markdy 🎬👇
 
 ### Tweet 2
 **The Problem:**
-Adding simple choreographic animations (Text fading in, diagrams moving, stick figures waving) to documentation or blogs takes hours of precise `<canvas>` math or messy DOM refs. 
+Adding simple choreographic animations (text fading in, diagrams moving, API handoffs) to documentation or blogs takes hours of precise `<canvas>` math or messy DOM refs. 
 
 **The Solution:**
 With Markdy, you just write text:
 ```text
 @0.5: label.fade_in(dur=1.0)
-@1.0: guy.enter(from=left)
-@1.5: guy.punch()
+@1.0: api.move(to=(420, 180), dur=0.8)
+@1.8: cache.shake(intensity=3, dur=0.3)
 ```
 
 ---
@@ -41,7 +41,7 @@ Since it renders purely to browser-native Web Animations API (WAAPI), the AST pa
 ---
 
 ### Tweet 4 (The Call To Action)
-Instead of dragging nodes around in Figma or coding keyframes by hand, you can just tell an LLM: "Write a Markdy script of a stick figure doing a backflip" and paste the text block directly into your MDX files.
+Instead of dragging nodes around in Figma or coding keyframes by hand, you can just tell an LLM: "Write a Markdy script showing an API request through the edge cache" and paste the text block directly into your MDX files.
 
 Try the interactive playground and see the source code here! 
 Star it if you hate writing UI animation code yourself 🌟

@@ -508,7 +508,7 @@ actor step = text("Run checks") at (400, 215) size 24
           <tbody>
             <tr><td><code>text</code></td><td><code>"quoted string"</code></td><td>Plain text label. Customise with <code>size</code>.</td></tr>
             <tr><td><code>box</code></td><td>—</td><td>100x100 solid box. Great for prototyping.</td></tr>
-            <tr><td><code>figure</code></td><td>skinColor, gender, face</td><td>Optional character actor with articulatable limbs.</td></tr>
+            <tr><td><code>figure</code></td><td>skinColor, gender, face</td><td>Optional presenter or guide actor.</td></tr>
             <tr><td><code>sprite</code></td><td>asset name</td><td>Renders an image or icon asset.</td></tr>
           </tbody>
         </table>
@@ -580,18 +580,18 @@ actor status = caption("Checks passed") at bottom opacity 0
         </table>
       </article>
 
-      <!-- Step 5: Character Gestures -->
+      <!-- Step 5: Presenter Gestures -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">5</div>
-          <h3>Character Gestures</h3>
+          <h3>Presenter Gestures</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
         <p class="ref-intro"><code>figure</code> actors are optional, but useful when an explainer needs a presenter or guide.</p>
         <div class="ref-code-wrap">
         <pre><code>@1.0: guide.wave(side=right, dur=0.8)
 @1.5: guide.nod(dur=0.4)
-@2.0: guide.pose(arm_left=70, arm_right=-70, dur=0.4)</code></pre>
+@2.0: guide.say("Checks are green.", dur=1.2)</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene width=800 height=400
 actor guide = figure(#c68642, m, 🙂) at (400, 220) scale 1.4
@@ -600,47 +600,42 @@ actor label = caption("Use figures only when they help explain") at top opacity 
 @0.5: label.fade_in(dur=0.4)
 @1.0: guide.wave(side=right, dur=0.8)
 @1.8: guide.nod(dur=0.4)
-@2.4: guide.pose(arm_left=70, arm_right=-70, dur=0.4)
+@2.4: guide.say("Checks are green.", dur=1.2)
         </script>
         </div>
         <table>
           <thead><tr><th>Action</th><th>Parameters</th></tr></thead>
           <tbody>
             <tr><td><code>face</code></td><td><code>"emoji"</code> — instant expression swap</td></tr>
-            <tr><td><code>rotate_part</code></td><td>part, to (degrees), dur</td></tr>
+            <tr><td><code>say</code></td><td><code>"text"</code>, dur</td></tr>
             <tr><td><code>wave</code> / <code>nod</code></td><td>side, dur</td></tr>
-            <tr><td><code>pose</code></td><td>arm_left, arm_right, head, dur</td></tr>
           </tbody>
         </table>
-        <p><strong>Body parts:</strong> <code>head</code>, <code>face</code>, <code>body</code>, <code>arm_left</code>, <code>arm_right</code>, <code>leg_left</code>, <code>leg_right</code></p>
       </article>
 
-      <!-- Step 5b: Gestures & Posing -->
+      <!-- Step 5b: Friendly Presenter Actions -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">5b</div>
-          <h3>Gestures & Posing</h3>
+          <h3>Friendly Presenter Actions</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Built-in gestures save you from chaining <code>rotate_part</code> calls. <code>pose</code> sets multiple parts at once.</p>
+        <p class="ref-intro">Use small, readable presenter motions when a human guide clarifies the scene.</p>
         <div class="ref-code-wrap">
         <pre><code>@1.0: a.wave(side=right, dur=0.8)
 @2.0: a.nod(dur=0.4)
-@3.0: a.pose(arm_left=70, arm_right=-70, dur=0.4)
-@4.0: a.jump(height=25, dur=0.5)
-@4.5: a.bounce(intensity=12, count=3, dur=0.5)</code></pre>
+@3.0: a.face("🙂")
+@4.0: a.jump(height=20, dur=0.5)</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene width=800 height=400
-actor a = figure(#c68642, m, 😎) at (400, 200) scale 1.5
+actor a = figure(#c68642, m, 🙂) at (400, 200) scale 1.5
 
 @0.5: a.wave(side=right, dur=0.8)
-@1.5: a.say("Hey!", dur=1.0)
+@1.5: a.say("Ready to ship.", dur=1.0)
 @1.5: a.nod(dur=0.4)
-@2.5: a.pose(arm_left=70, arm_right=-70, dur=0.4)
-@3.0: a.face("😄")
-@3.0: a.jump(height=25, dur=0.5)
-@3.5: a.bounce(intensity=12, count=3, dur=0.5)
-@4.5: a.pose(arm_left=0, arm_right=0, dur=0.3)
+@2.5: a.face("😄")
+@3.0: a.jump(height=20, dur=0.5)
+@3.5: a.bounce(intensity=10, count=2, dur=0.5)
         </script>
         </div>
         <table>
@@ -648,7 +643,6 @@ actor a = figure(#c68642, m, 😎) at (400, 200) scale 1.5
           <tbody>
             <tr><td><code>wave</code></td><td>side, dur</td><td>Wave gesture — arm up, oscillate, return</td></tr>
             <tr><td><code>nod</code></td><td>dur</td><td>Head nod — down and up twice</td></tr>
-            <tr><td><code>pose</code></td><td>arm_left, arm_right, leg_left, leg_right, head, body, dur</td><td>Set multiple parts at once</td></tr>
             <tr><td><code>jump</code></td><td>height, dur</td><td>Jump with squash/stretch</td></tr>
             <tr><td><code>bounce</code></td><td>intensity, count, dur</td><td>Diminishing vertical bounce</td></tr>
           </tbody>

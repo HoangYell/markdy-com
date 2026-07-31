@@ -77,16 +77,15 @@ Actors are the objects visible in the scene. They must be declared before any ev
 | `sprite` | asset name                     | Renders the named image or icon asset   |
 | `text`   | `"quoted string"`              | Renders a text label                    |
 | `box`    | *(none)*                       | Renders a 100×100 px solid grey box     |
-| `figure` | `skinColor [, gender [, face]]` | Emoji stick figure with articulatable limbs |
+| `figure` | `skinColor [, gender [, face]]` | Optional presenter or guide actor |
 
 ### The `figure` actor type
 
-Figures are emoji-based stick figures with named body parts that can be individually animated.
+Figures are emoji-based presenter actors for scenes that need a neutral guide.
 
 ```markdy
-actor guy  = figure(#c68642)           at (100, 200)    # male, default face 😶
-actor gal  = figure(#fad4c0, f)        at (300, 200)    # female variant, default face 🙂
-actor hero = figure(#c68642, m, 😎)   at (500, 200)    # custom starting face
+actor guide = figure(#c68642, m, 🙂) at (300, 200)    # neutral presenter
+actor host  = figure(#fad4c0, f, 🤔) at (500, 200)    # custom starting face
 ```
 
 **Arguments** (positional, inside the parentheses):
@@ -97,7 +96,7 @@ actor hero = figure(#c68642, m, 😎)   at (500, 200)    # custom starting face
 | 2 | `gender` | `m` | `m` = male (👕🤜👟), `f` = female (👗💅👠) |
 | 3 | `face` | `😶` (m) / `🙂` (f) | Starting emoji expression |
 
-**Named body parts** (used by `rotate_part`, `punch`, `kick`):
+**Named body parts** (used by `rotate_part` and `pose`):
 
 | Part name | Data attribute | Description |
 |---|---|---|
@@ -296,33 +295,9 @@ The asset name is the first positional argument.
 
 ---
 
-### `punch`
+### Legacy figure actions
 
-Swings one arm out and snaps it back. **Figure actors only.**
-
-```markdy
-@5.0: hero.punch(side=right, dur=0.3)
-```
-
-| Parameter | Values          | Default  |
-|-----------|-----------------|----------|
-| `side`    | `left`, `right` | `right`  |
-| `dur`     | seconds         | `0.5`    |
-
----
-
-### `kick`
-
-Swings one leg out and snaps it back. **Figure actors only.**
-
-```markdy
-@5.5: hero.kick(side=left, dur=0.36)
-```
-
-| Parameter | Values          | Default  |
-|-----------|-----------------|----------|
-| `side`    | `left`, `right` | `right`  |
-| `dur`     | seconds         | `0.5`    |
+`punch` and `kick` remain supported for compatibility with older scenes, but avoid them in public docs, onboarding, and generated examples. Prefer neutral presenter gestures like `wave`, `nod`, `face`, and small `pose` changes.
 
 ---
 
@@ -331,9 +306,8 @@ Swings one leg out and snaps it back. **Figure actors only.**
 Rotates any named body part of a figure to a target angle. **Figure actors only.**
 
 ```markdy
-@1.0: hero.rotate_part(part=arm_right, to=90, dur=0.4)
-@2.0: hero.rotate_part(part=leg_left, to=-60, dur=0.35)
-@3.0: hero.rotate_part(part=head, to=20, dur=0.3)
+@1.0: guide.rotate_part(part=head, to=10, dur=0.3)
+@2.0: guide.rotate_part(part=head, to=0, dur=0.3)
 ```
 
 | Parameter | Type    | Description                                       |
@@ -351,8 +325,8 @@ Valid part names: `head`, `face`, `body`, `arm_left`, `arm_right`, `leg_left`, `
 Sets multiple body parts to target angles simultaneously in a single action. More ergonomic than chaining multiple `rotate_part` calls. **Figure actors only.**
 
 ```markdy
-@1.0: hero.pose(arm_left=45, arm_right=-45, leg_left=10, dur=0.4)
-@2.0: hero.pose(arm_left=0, arm_right=0, head=15, dur=0.3)
+@1.0: guide.pose(head=10, dur=0.3)
+@2.0: guide.pose(head=0, dur=0.3)
 ```
 
 | Parameter    | Type   | Description                         |
@@ -593,8 +567,7 @@ The `play` action expands the sequence inline at parse time — each `@+offset` 
 ```markdy
 # A simple wave animation — reuse on any actor
 seq wave {
-  @+0.0: $.rotate_part(part=arm_right, to=-80, dur=0.3)
-  @+0.3: $.rotate_part(part=arm_right, to=-25, dur=0.3)
+  @+0.0: $.wave(side=right, dur=0.6)
 }
 
 @2.0: host.play(wave)
@@ -632,9 +605,8 @@ seq entrance(side) {
 }
 
 seq celebrate {
-  @+0.0: $.rotate_part(part=arm_right, to=-130, dur=0.3)
-  @+0.3: $.rotate_part(part=arm_right, to=-25, dur=0.4)
-  @+0.0: $.say("🎉", dur=1.5)
+  @+0.0: $.jump(height=20, dur=0.5)
+  @+0.1: $.say("Checks passed.", dur=1.5)
 }
 
 # ── Scene ──────────────────────────
@@ -665,7 +637,7 @@ The parser throws a `ParseError` with the offending line number for:
 - Empty `def` body
 - Unknown sequence name in `play`
 - Unrecognised top-level statement
-- Figure-only action (`punch`, `kick`, `wave`, `nod`, `face`, `pose`, `rotate_part`) on a non-figure actor
+- Figure-only action (`wave`, `nod`, `face`, `pose`, `rotate_part`) on a non-figure actor
 - Must-understand (`!action`) call on an unknown action
 
 Unknown scene property keys, unknown actions without `!`, unknown modifier keys, and unresolved imports are *soft warnings* — see the "Soft warnings" section below.

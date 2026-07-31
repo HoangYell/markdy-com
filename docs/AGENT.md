@@ -311,10 +311,10 @@ Shipping presets: `meme`, `explainer`, `reaction`, `pov`, `typing`, `terminal`, 
 
 | Action | Parameters | Behaviour |
 |---|---|---|
-| `punch` | `side=left\|right` (default `right`), `dur` | Swing arm out and back |
-| `kick` | `side=left\|right` (default `right`), `dur` | Swing leg out and back |
+| `punch` | `side=left\|right` (default `right`), `dur` | Legacy compatibility action; avoid in generated examples |
+| `kick` | `side=left\|right` (default `right`), `dur` | Legacy compatibility action; avoid in generated examples |
 | `rotate_part` | `part=STRING`, `to=NUM` (degrees), `dur` | Rotate named body part |
-| `pose` | `arm_left=NUM`, `arm_right=NUM`, `leg_left=NUM`, `leg_right=NUM`, `head=NUM`, `body=NUM`, `dur` | Set multiple parts at once |
+| `pose` | `arm_left=NUM`, `arm_right=NUM`, `leg_left=NUM`, `leg_right=NUM`, `head=NUM`, `body=NUM`, `dur` | Set multiple parts at once; keep presenter poses neutral and readable |
 | `wave` | `side=left\|right` (default `right`), `dur` | Wave gesture (arm up, oscillate, return) |
 | `nod` | `dur` | Head nod gesture (down-up twice) |
 | `face` | `"emoji"` (positional) | Instant emoji face swap (seek-safe) |
@@ -436,9 +436,9 @@ seq nod_combo {
   @+0.1: $.rotate_part(part=head, to=0, dur=0.3)
 }
 
-seq wave_arm(arm, angle) {
-  @+0.0: $.rotate_part(part=${arm}, to=${angle}, dur=0.3)
-  @+0.3: $.rotate_part(part=${arm}, to=25, dur=0.3)
+seq greet(side) {
+  @+0.0: $.wave(side=${side}, dur=0.6)
+  @+0.6: $.nod(dur=0.3)
 }
 
 actor a = presenter(#c68642, 🙂) at (300, 200)
@@ -446,7 +446,7 @@ actor b = presenter(#8d5524, 🙂) at (600, 200)
 
 @0.0: a.enter(from=left, dur=0.8)
 @0.3: b.enter(from=right, dur=0.8)
-@2.0: a.play(wave_arm, arm=arm_right, angle=-80)
+@2.0: a.play(greet, side=right)
 @3.0: a.play(nod_combo)
 @3.1: b.face("😊")
 ```
@@ -468,7 +468,7 @@ actor catcher = figure(#8d5524, m, 😊) at (650, 200)
 @2.3: catcher.face("😵")
 ```
 
-### Pattern 6: Expressive Figure with Pose and Gestures
+### Pattern 6: Presenter with Neutral Gestures
 
 ```markdy
 scene width=800 height=400 bg=#f0f4ff
@@ -478,12 +478,11 @@ actor hero = figure(#c68642, m, 😎) at (400, 200)
 @0.0: hero.enter(from=left, dur=0.8)
 @1.0: hero.wave(side=right, dur=0.8)
 @1.0: hero.face("😄")
-@2.0: hero.say("Hey there!", dur=1.2)
+@2.0: hero.say("Checks are green.", dur=1.2)
 @2.0: hero.nod(dur=0.4)
-@3.5: hero.pose(arm_left=70, arm_right=-70, dur=0.4)
-@4.0: hero.jump(height=25, dur=0.5)
+@3.5: hero.face("🙂")
+@4.0: hero.jump(height=20, dur=0.5)
 @4.5: hero.bounce(intensity=10, count=2, dur=0.4)
-@5.0: hero.pose(arm_left=0, arm_right=0, dur=0.3)
 @5.0: hero.face("😎")
 ```
 
@@ -605,7 +604,7 @@ Other ready-to-use preset names: `explainer`, `reaction`, `pov`, `chat_bubble`, 
 |---|---|
 | Using `#comment` inside `var` value | `var` lines skip comment stripping — `#hex` is safe |
 | Referencing actor before declaration | Move `actor` line above the `@time` event |
-| Using `punch`/`kick`/`face`/`jump`/`bounce` on non-figure | These only work on `figure` actors |
+| Using `face`/`wave`/`nod`/`jump`/`bounce` on non-figure | These only work on `figure` actors |
 | Missing quotes on `say` text | `say("text")` or `say('text')` |
 | Quote conflicts inside strings | Escape inner quote: `\"` or `\'` |
 | Windows/file paths lose backslashes | Escape slashes: `"C:\\\\work\\\\scene"` |
@@ -692,7 +691,7 @@ When generating MarkdyScript, verify:
 - [ ] Every referenced asset is declared before its actor
 - [ ] Every `play()` references a declared `seq` (namespaced `ns.name` OK if imported)
 - [ ] Actor types using templates reference a declared `def` (namespaced `ns.name` OK if imported)
-- [ ] `figure`-only actions (`punch`, `kick`, `rotate_part`, `pose`, `wave`, `nod`, `face`, `jump`, `bounce`) target figure actors
+- [ ] `figure`-only actions (`rotate_part`, `pose`, `wave`, `nod`, `face`, `jump`, `bounce`) target figure actors
 - [ ] `throw` references a declared asset name and a declared actor in `to=`
 - [ ] All `def`, `seq`, and chapter (`scene "title" { ... }`) blocks have matching `}` on their own line
 - [ ] `@time` uses decimal seconds (e.g., `@2.5:` not `@2.5s:`)

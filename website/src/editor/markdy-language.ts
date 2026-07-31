@@ -230,10 +230,10 @@ const actionCompletions: Completion[] = [
   { label: "say",         type: "function", detail: "speech bubble",  info: 'say("text", dur=1.0)' },
   { label: "throw",       type: "function", detail: "projectile",     info: "throw(asset, to=actor, dur=0.8)" },
   { label: "play",        type: "function", detail: "run sequence",   info: "play(seqName, key=value)" },
-  { label: "punch",       type: "function", detail: "figure only",    info: "punch(side=right, dur=0.3)" },
-  { label: "kick",        type: "function", detail: "figure only",    info: "kick(side=left, dur=0.35)" },
+  { label: "wave",        type: "function", detail: "figure only",    info: "wave(side=right, dur=0.8)" },
+  { label: "nod",         type: "function", detail: "figure only",    info: "nod(dur=0.4)" },
   { label: "rotate_part", type: "function", detail: "figure only",    info: "rotate_part(part=arm_right, to=90, dur=0.4)" },
-  { label: "face",        type: "function", detail: "figure only",    info: 'face("😎")' },
+  { label: "face",        type: "function", detail: "figure only",    info: 'face("🙂")' },
 ];
 
 const paramCompletions: Completion[] = [
