@@ -7,8 +7,9 @@ actor b2 = text("Smaller bundle size") at (400, 220) size 26 opacity 0
 actor b3 = text("Built-in retry logic") at (400, 270) size 26 opacity 0
 actor b4 = text("Zero config setup") at (400, 320) size 26 opacity 0
 
+# One name for all four bullets. `stagger` then walks the start time
+# forward per member, so the whole cascade is a single line.
+group bullets = b1, b2, b3, b4
+
 @0.0: title.fade_in(dur=0.5)
-@0.8: b1.fade_in(dur=0.5, ease=out)
-@1.0: b2.fade_in(dur=0.5, ease=out)
-@1.2: b3.fade_in(dur=0.5, ease=out)
-@1.4: b4.fade_in(dur=0.5, ease=out)
+@0.8: bullets.fade_in(dur=0.5, stagger=0.2)

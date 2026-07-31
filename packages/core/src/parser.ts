@@ -524,6 +524,7 @@ export function parse(source: string, opts: ParseOptions = {}): SceneAST {
     defs: {},
     seqs: {},
     vars: {},
+    groups: {},
     chapters: [],
     warnings: [],
     imports: [],
@@ -826,6 +827,12 @@ export function parse(source: string, opts: ParseOptions = {}): SceneAST {
       continue;
     }
 
+    // ── group ────────────────────────────────────────────────────────────────
+    if (raw.startsWith("group ")) {
+      parseGroupLine(raw, lineNum, ast);
+      continue;
+    }
+
     // ── event / play / @+N relative / camera ────────────────────────────────
     if (raw.startsWith("@")) {
       parseEventLine(raw, lineNum, ast, inChapter, topScope);
@@ -997,6 +1004,95 @@ function parseActorLine(
 }
 
 // ---------------------------------------------------------------------------
+// Group line parsing
+// ---------------------------------------------------------------------------
+
+const GROUP_RE = /^group\s+([A-Za-z_][\w.]*)\s*=\s*(.+)$/;
+
+/**
+ * `group <name> = <actor>, <actor>, ...`
+ *
+ * Declares a named set of existing actors that can then be targeted as a
+ * single event subject. Groups expand into per-member events at parse time
+ * (see `parseEventLine`), so nothing downstream needs to know they exist.
+ */
+function parseGroupLine(raw: string, lineNum: number, ast: SceneAST): void {
+  const m = GROUP_RE.exec(raw);
+  if (!m) {
+    throw new ParseError(`Invalid group declaration: ${raw}`, lineNum);
+  }
+
+  const [, name, membersRaw] = m;
+
+  if (ast.actors[name]) {
+    throw new ParseError(`Group "${name}" collides with an actor of the same name`, lineNum);
+  }
+  if (ast.groups[name]) {
+    throw new ParseError(`Group "${name}" is already defined`, lineNum);
+  }
+
+  const members = splitByComma(membersRaw)
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0);
+
+  if (members.length === 0) {
+    throw new ParseError(`Group "${name}" has no members`, lineNum);
+  }
+
+  // Members must already exist, matching the rule that actors are declared
+  // before they're referenced. Catching it here points at the group line
+  // rather than at some later event that fans out into a missing actor.
+  for (const member of members) {
+    if (!ast.actors[member]) {
+      throw new ParseError(`Unknown actor "${member}" in group "${name}"`, lineNum);
+    }
+  }
+
+  const seen = new Set<string>();
+  for (const member of members) {
+    if (seen.has(member)) {
+      throw new ParseError(`Actor "${member}" listed twice in group "${name}"`, lineNum);
+    }
+    seen.add(member);
+  }
+
+  ast.groups[name] = members;
+}
+
+/**
+ * Pulls a `stagger=N` parameter out of a raw parameter string.
+ *
+ * `stagger` is a group-expansion directive rather than an animation
+ * parameter — it controls *when* each member's event fires, not how that
+ * event animates — so it's consumed here and never reaches the AST.
+ */
+function takeStagger(paramsRaw: string, lineNum: number): { step: number; rest: string } {
+  if (!paramsRaw.includes("stagger")) return { step: 0, rest: paramsRaw };
+
+  const kept: string[] = [];
+  let step = 0;
+
+  for (const part of splitByComma(paramsRaw)) {
+    const eq = part.indexOf("=");
+    if (eq !== -1 && part.slice(0, eq).trim() === "stagger") {
+      const rawValue = part.slice(eq + 1).trim();
+      const value = Number(rawValue);
+      if (Number.isNaN(value)) {
+        throw new ParseError(`Invalid stagger value: ${rawValue}`, lineNum);
+      }
+      if (value < 0) {
+        throw new ParseError(`stagger must not be negative (got ${rawValue})`, lineNum);
+      }
+      step = value;
+      continue;
+    }
+    kept.push(part);
+  }
+
+  return { step, rest: kept.join(",") };
+}
+
+// ---------------------------------------------------------------------------
 // Event line parsing
 // ---------------------------------------------------------------------------
 
@@ -1081,7 +1177,65 @@ function parseEventLine(
     return;
   }
 
-  // Regular actor.
+  // Resolve the event subject. A group name fans out into one event per
+  // member; a plain actor name is just a group of one. `stagger=N` walks the
+  // start time forward for each successive member.
+  const groupMembers = ast.groups[actor];
+  if (!groupMembers && !ast.actors[actor]) {
+    throw new ParseError(`Unknown actor: "${actor}"`, lineNum);
+  }
+
+  if (groupMembers) {
+    const { step, rest } = takeStagger(paramsRaw, lineNum);
+    groupMembers.forEach((member, index) => {
+      emitActorEvent(
+        member,
+        round3(time + index * step),
+        action,
+        rest,
+        mustUnderstand,
+        lineNum,
+        ast,
+        scope,
+        inChapter,
+        recordEventTime,
+      );
+    });
+    return;
+  }
+
+  emitActorEvent(
+    actor,
+    time,
+    action,
+    paramsRaw,
+    mustUnderstand,
+    lineNum,
+    ast,
+    scope,
+    inChapter,
+    recordEventTime,
+  );
+}
+
+/**
+ * Emits the event(s) for a single actor.
+ *
+ * Split out of `parseEventLine` so a group can drive it once per member
+ * without duplicating the sequence-expansion and validation logic.
+ */
+function emitActorEvent(
+  actor: string,
+  time: number,
+  action: string,
+  paramsRaw: string,
+  mustUnderstand: boolean,
+  lineNum: number,
+  ast: SceneAST,
+  scope: TimeScope,
+  inChapter: { name: string; scope: TimeScope; earliestEventTime: number } | null,
+  recordEventTime: (t: number) => void,
+): void {
   const actorDef = ast.actors[actor];
   if (!actorDef) {
     throw new ParseError(`Unknown actor: "${actor}"`, lineNum);

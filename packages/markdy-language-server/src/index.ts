@@ -47,6 +47,7 @@ const KEYWORDS = [
   "var",
   "def",
   "seq",
+  "group",
   "preset",
   "import",
   "camera",

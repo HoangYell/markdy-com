@@ -44,7 +44,7 @@ actor label = text("Hello World") at (50, 130) size 40 opacity 0
 | **Web-native renderer** | Web Animations API + CSS transforms. No Canvas, no GSAP |
 | **Stick-figure actors** | Emoji-based `figure` type with articulatable limbs, face expressions |
 | **Chapters + cameras** | `scene "title" { ... }` blocks, `camera.pan/zoom/shake`, `@+N:` relative time |
-| **Captions, imports, presets** | First-class `caption` actors, `import "..." as ns` composition, parse-time `preset <name>(...)` macros |
+| **Captions, groups, imports, presets** | First-class `caption` actors, `group` fan-out with `stagger`, `import "..." as ns` composition, parse-time `preset <name>(...)` macros |
 | **Forgiving by default, strict on demand** | Unknown actions soft-warn; prefix with `!` to hard-fail (e.g. `hero.!shake(...)`) |
 | **Language-first design** | `var`, `def`, `seq` let users build character systems and choreographies without engine changes |
 | **Astro-ready** | `<Markdy />` island that hydrates on viewport entry |

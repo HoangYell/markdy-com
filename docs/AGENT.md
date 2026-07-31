@@ -145,6 +145,19 @@ scene "chapter name" {
 - Chapters can't nest — close one before opening the next
 - Adjacent chapters chain: the next chapter's `startTime` = previous chapter's `endTime`
 
+### `group` — Actor Group Declaration
+
+```
+group <name> = <actor>, <actor>, ...
+@<time>: <group>.<action>(<params>, stagger=<seconds>)
+```
+
+- Declares a named set of already-declared actors
+- Stored in `ast.groups` for tooling and inspection
+- Events targeting a group expand at parse time into one event per member, in declaration order
+- `stagger=N` on a grouped event offsets each successive member by N seconds and is not emitted as an event param
+- Group names cannot collide with actor names, and members must be unique declared actors
+
 ### `asset` — Asset Declaration
 
 ```
@@ -662,6 +675,7 @@ interface SceneAST {
   defs: Record<string, { params: string[]; actorType: string; bodyArgs: string[] }>;
   seqs: Record<string, { params: string[]; events: Array<{ offset: number; action: string; paramsRaw: string }> }>;
   vars: Record<string, string>;
+  groups: Record<string, string[]>;
   chapters: Array<{ name: string; startLine: number; startTime: number; endTime: number }>;
   imports: Array<{ path: string; namespace: string; line: number }>;
   warnings: Array<{
@@ -688,6 +702,7 @@ interface SceneAST {
 When generating MarkdyScript, verify:
 
 - [ ] Every referenced actor is declared before its first event
+- [ ] Every `group` member is a declared actor, and group names do not collide with actor names
 - [ ] Every referenced asset is declared before its actor
 - [ ] Every `play()` references a declared `seq` (namespaced `ns.name` OK if imported)
 - [ ] Actor types using templates reference a declared `def` (namespaced `ns.name` OK if imported)

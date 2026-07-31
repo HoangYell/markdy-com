@@ -81,6 +81,20 @@ const FEATURES: Feature[] = [
     exampleFile: "examples/02-at-plus-shorthand.markdy",
   },
   {
+    id: "groups",
+    name: "actor groups",
+    summary: "`group name = actorA, actorB` — target several declared actors with one event; add `stagger=N` to cascade them.",
+    detail: [
+      "A `group` declaration names a set of already-declared actors. Target the",
+      "group anywhere an actor event target is accepted and the parser expands it",
+      "into one ordinary event per member, in declaration order. Add `stagger=N`",
+      "to a grouped event to walk each member's start time forward by N seconds;",
+      "`stagger` is consumed at parse time and does not appear in emitted params.",
+    ].join(" "),
+    example: "actor a = text(\"A\") at (160, 200) opacity 0\nactor b = text(\"B\") at (240, 200) opacity 0\ngroup letters = a, b\n@0.0: letters.fade_in(dur=0.4, stagger=0.15)",
+    exampleFile: "examples/showcase/bullet-reveal.markdy",
+  },
+  {
     id: "camera",
     name: "camera reserved actor",
     summary: "`camera.pan(to=(x,y))`, `camera.zoom(to=N)`, `camera.shake(intensity=N)` — scene-wide viewpoint moves.",
@@ -280,6 +294,7 @@ async function writeSystemPromptMd(): Promise<void> {
   lines.push("```");
   lines.push("scene [key=value ...]                  # optional, once at top");
   lines.push('actor <name> = <type>(<args>) at (x, y) [modifiers]');
+  lines.push("group <name> = <actor>, <actor>, ...   # declare after member actors");
   lines.push("@<time>: <actor>.<action>(<params>)    # absolute time");
   lines.push("```");
   lines.push("");
@@ -341,6 +356,7 @@ async function writeSystemPromptJson(): Promise<void> {
     baselineGrammar: {
       scene: "scene [key=value ...]",
       actor: "actor <name> = <type>(<args>) at (x, y) [modifiers]",
+      group: "group <name> = <actor>, <actor>, ...",
       event: "@<time>: <actor>.<action>(<params>)",
       eventRelative: "@+<offset>: <actor>.<action>(<params>)",
       chapter: "scene \"<title>\" { <events...> }",

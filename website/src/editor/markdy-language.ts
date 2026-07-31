@@ -48,7 +48,7 @@ const TOKEN_TAG: Record<string, any> = {
 /* ── StreamParser for MarkdyScript ─────────────────────────────────── */
 
 const KEYWORDS = new Set([
-  "scene", "actor", "asset", "var", "def", "seq",
+  "scene", "actor", "asset", "var", "def", "seq", "group",
 ]);
 
 // Derived from the packages that define the vocabulary rather than
@@ -69,7 +69,7 @@ const ACTIONS = new Set<string>([
 ]);
 
 const PARAMS = new Set([
-  "from", "to", "dur", "ease", "intensity", "side", "part",
+  "from", "to", "dur", "ease", "intensity", "side", "part", "stagger",
   "width", "height", "fps", "bg", "duration",
   "scale", "rotate", "opacity", "size",
 ]);
@@ -221,6 +221,7 @@ const keywordCompletions: Completion[] = [
   { label: "var",    type: "keyword", detail: "variable",          info: "var name = value" },
   { label: "def",    type: "keyword", detail: "template",          info: "def name(params) { ... }" },
   { label: "seq",    type: "keyword", detail: "sequence",          info: "seq name(params) { ... }" },
+  { label: "group",  type: "keyword", detail: "actor group",       info: "group name = actorA, actorB, actorC" },
   { label: "at",     type: "keyword", detail: "position",          info: "at (x, y)" },
 ];
 
