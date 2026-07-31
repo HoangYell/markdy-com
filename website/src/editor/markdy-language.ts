@@ -6,6 +6,13 @@
  */
 
 import {
+  BUILTIN_ACTOR_TYPES,
+  CAMERA_ACTION_NAMES,
+  FIGURE_ONLY_ACTION_NAMES,
+  UNIVERSAL_ACTION_NAMES,
+} from "@markdy/core";
+import { SYSTEM_ACTOR_TYPES, SYSTEM_FLOW_ACTIONS } from "@markdy/stdlib-systems";
+import {
   StreamLanguage,
   type StreamParser,
 } from "@codemirror/language";
@@ -44,14 +51,21 @@ const KEYWORDS = new Set([
   "scene", "actor", "asset", "var", "def", "seq",
 ]);
 
-const ACTOR_TYPES = new Set([
-  "figure", "text", "sprite", "box", "image", "icon",
+// Derived from the packages that define the vocabulary rather than
+// hand-listed: a hand-listed copy had already fallen behind and stopped
+// highlighting exit, wave, nod, jump, bounce, pose, and the flow verbs.
+const ACTOR_TYPES = new Set<string>([
+  ...BUILTIN_ACTOR_TYPES,
+  ...SYSTEM_ACTOR_TYPES,
+  // Asset constructors, which appear in the same syntactic position.
+  "image", "icon",
 ]);
 
-const ACTIONS = new Set([
-  "enter", "move", "fade_in", "fade_out", "scale", "rotate",
-  "shake", "say", "throw", "play", "punch", "kick",
-  "rotate_part", "face",
+const ACTIONS = new Set<string>([
+  ...UNIVERSAL_ACTION_NAMES,
+  ...FIGURE_ONLY_ACTION_NAMES,
+  ...CAMERA_ACTION_NAMES,
+  ...SYSTEM_FLOW_ACTIONS,
 ]);
 
 const PARAMS = new Set([

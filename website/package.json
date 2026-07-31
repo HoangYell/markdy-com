@@ -26,6 +26,7 @@
     "@markdy/astro": "workspace:*",
     "@markdy/core": "workspace:*",
     "@markdy/renderer-dom": "workspace:*",
+    "@markdy/stdlib-systems": "workspace:*",
     "astro": "^7.1.1"
   }
 }

@@ -21,3 +21,13 @@ export type { PresetFn } from "./presets.js";
 
 export { registerActorPack } from "./registry.js";
 export type { ActorPack } from "./registry.js";
+
+// The language's canonical vocabulary. Tooling (language server, syntax
+// highlighting, renderer coverage checks) should import these rather than
+// keeping private copies that drift.
+export {
+  BUILTIN_ACTOR_TYPES,
+  UNIVERSAL_ACTION_NAMES,
+  FIGURE_ONLY_ACTION_NAMES,
+  CAMERA_ACTION_NAMES,
+} from "./registry.js";

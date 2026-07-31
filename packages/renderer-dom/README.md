@@ -92,13 +92,38 @@ player.destroy();    // clean up DOM + cancel animations
 
 ```
 src/
-  types.ts        — ActorState, FaceSwap, easing utilities
-  figure.ts       — Stick-figure DOM factory (emoji body parts)
-  actors.ts       — Actor element factory (sprite, text, figure, box)
-  animations.ts   — Timeline → WAAPI Animation builder
-  player.ts       — Public API, rAF loop, face-swap engine
   index.ts        — Barrel exports
+  player.ts       — Public API, rAF loop, face-swap engine
+  animations.ts   — Timeline walker: dispatches each event to its handler
+  actions/
+    context.ts    — ActionContext: the one argument every handler receives
+    registry.ts   — Action name → handler table
+    transform.ts  — move, enter, exit, fade, scale, rotate, shake, jump, bounce
+    figure.ts     — Figure-only gestures and limb articulation
+    speech.ts     — say (speech bubbles)
+    projectile.ts — throw
+    flow.ts       — request / response / emit (system-diagram edges)
+  geometry/
+    rect.ts       — Actor bounds and hit-testing (DOM-free, unit tested)
+    path.ts       — Polyline measurement and obstacle-aware edge routing
+  camera.ts       — pan / zoom / shake on the scene-content layer
+  stage.ts        — t=0 staging and off-screen placement
+  theme.ts        — Scene-adaptive colors for renderer-drawn chrome
+  actors.ts       — Actor element factory (sprite, text, figure, box, caption)
+  figure.ts       — Stick-figure DOM factory (emoji body parts)
+  types.ts        — ActorState, FaceSwap, easing utilities
 ```
+
+### Adding an action
+
+1. Write a handler — a function taking `ActionContext` — in the relevant
+   `actions/` module (or a new one).
+2. Register it by name in `actions/registry.ts`.
+3. Add the name to the matching list in `@markdy/core`'s `registry.ts` so the
+   parser accepts it.
+
+Step 3 is enforced: `tests/action-coverage.test.ts` fails the build if the
+parser accepts an action the renderer can't draw, or vice versa.
 
 ## Documentation
 
