@@ -207,8 +207,8 @@ describe("renderer — premium universal effects", () => {
       ].join("\n"),
     );
 
-    expect(actorEls.get("API")?.textContent).toBe("API");
-    expect(actorEls.get("PostgreSQL")?.textContent).toBe("PostgreSQL");
+    expect(actorEls.get("API")?.querySelector(".markdy-arch-node__label")?.firstChild?.textContent).toBe("API");
+    expect(actorEls.get("PostgreSQL")?.querySelector(".markdy-arch-node__label")?.firstChild?.textContent).toBe("PostgreSQL");
     expect(actorEls.get("API")?.querySelector("[data-markdy-ripple='1']")).toBeDefined();
     expect(anims.length).toBeGreaterThanOrEqual(5);
   });

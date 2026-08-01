@@ -49,6 +49,46 @@ function ensureEdgeLayer(scene: HTMLElement): SVGSVGElement {
   return svg;
 }
 
+function ensureEdgeDefs(svg: SVGSVGElement): void {
+  if (svg.querySelector("defs[data-markdy-flow-defs='1']")) return;
+
+  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+  defs.setAttribute("data-markdy-flow-defs", "1");
+
+  const glow = document.createElementNS("http://www.w3.org/2000/svg", "filter");
+  glow.setAttribute("id", "markdy-flow-glow");
+  glow.setAttribute("x", "-40%");
+  glow.setAttribute("y", "-40%");
+  glow.setAttribute("width", "180%");
+  glow.setAttribute("height", "180%");
+  const blur = document.createElementNS("http://www.w3.org/2000/svg", "feGaussianBlur");
+  blur.setAttribute("stdDeviation", "3");
+  blur.setAttribute("result", "coloredBlur");
+  const merge = document.createElementNS("http://www.w3.org/2000/svg", "feMerge");
+  const glowNode = document.createElementNS("http://www.w3.org/2000/svg", "feMergeNode");
+  glowNode.setAttribute("in", "coloredBlur");
+  const sourceNode = document.createElementNS("http://www.w3.org/2000/svg", "feMergeNode");
+  sourceNode.setAttribute("in", "SourceGraphic");
+  merge.append(glowNode, sourceNode);
+  glow.append(blur, merge);
+
+  const arrow = document.createElementNS("http://www.w3.org/2000/svg", "marker");
+  arrow.setAttribute("id", "markdy-flow-arrow");
+  arrow.setAttribute("viewBox", "0 0 10 10");
+  arrow.setAttribute("refX", "8");
+  arrow.setAttribute("refY", "5");
+  arrow.setAttribute("markerWidth", "6");
+  arrow.setAttribute("markerHeight", "6");
+  arrow.setAttribute("orient", "auto-start-reverse");
+  const arrowPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  arrowPath.setAttribute("d", "M 1 1 L 9 5 L 1 9 z");
+  arrowPath.setAttribute("fill", "context-stroke");
+  arrow.appendChild(arrowPath);
+
+  defs.append(glow, arrow);
+  svg.prepend(defs);
+}
+
 /**
  * `response` edges and anything explicitly marked `dashed` /
  * `fire_and_forget` render as a dashed line rather than a solid draw-on.
@@ -72,6 +112,8 @@ function buildEdge(ctx: ActionContext, targetName: string): void {
   const length = polylineLength(points);
   const pathD = toPathD(points);
   const stroke = STROKE_BY_ACTION[ev.action] ?? DEFAULT_STROKE;
+  const svg = ensureEdgeLayer(scene);
+  ensureEdgeDefs(svg);
 
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
   group.setAttribute("data-markdy-flow-edge", "1");
@@ -80,7 +122,11 @@ function buildEdge(ctx: ActionContext, targetName: string): void {
   path.setAttribute("d", pathD);
   path.setAttribute("fill", "none");
   path.setAttribute("stroke", stroke);
-  path.setAttribute("stroke-width", "2.5");
+  path.setAttribute("stroke-width", "3");
+  path.setAttribute("stroke-linecap", "round");
+  path.setAttribute("stroke-linejoin", "round");
+  path.setAttribute("marker-end", "url(#markdy-flow-arrow)");
+  path.setAttribute("filter", "url(#markdy-flow-glow)");
   path.setAttribute("data-markdy-flow-action", ev.action);
   // A solid edge draws itself on by retracting one full-length dash; a
   // dashed edge keeps a repeating pattern and slides it instead.
@@ -89,8 +135,9 @@ function buildEdge(ctx: ActionContext, targetName: string): void {
   group.appendChild(path);
 
   const marker = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  marker.setAttribute("r", "3");
+  marker.setAttribute("r", "4.5");
   marker.setAttribute("fill", stroke);
+  marker.setAttribute("filter", "url(#markdy-flow-glow)");
   marker.style.offsetPath = `path('${pathD}')`;
   marker.style.offsetDistance = "0%";
   marker.style.opacity = "0";
@@ -104,14 +151,20 @@ function buildEdge(ctx: ActionContext, targetName: string): void {
     label.setAttribute("y", `${round1(midPoint.y - 8)}`);
     label.setAttribute("text-anchor", "middle");
     label.setAttribute("font-size", "12");
+    label.setAttribute("font-weight", "700");
+    label.setAttribute("paint-order", "stroke");
+    label.setAttribute("stroke", "rgba(2, 6, 23, 0.88)");
+    label.setAttribute("stroke-width", "5");
+    label.setAttribute("stroke-linejoin", "round");
     label.setAttribute("fill", "#cbd5e1");
+    label.setAttribute("filter", "url(#markdy-flow-glow)");
     label.setAttribute("data-full-label", labelText);
     label.textContent =
       labelText.length > LABEL_MAX_CHARS ? `${labelText.slice(0, LABEL_MAX_CHARS - 1)}…` : labelText;
     group.appendChild(label);
   }
 
-  ensureEdgeLayer(scene).appendChild(group);
+  svg.appendChild(group);
 
   anims.push(
     path.animate([{ strokeDashoffset: length }, { strokeDashoffset: 0 }], baseOpts),

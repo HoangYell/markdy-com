@@ -26,6 +26,60 @@ import type { FaceSwap } from "./types.js";
 import { createActorEl } from "./actors.js";
 import { buildAnimations } from "./animations.js";
 
+const SCENE_STYLE_ID = "markdy-scene-ambience-styles";
+
+function ensureSceneStyles(doc: Document): void {
+  if (doc.getElementById(SCENE_STYLE_ID)) return;
+
+  const style = doc.createElement("style");
+  style.id = SCENE_STYLE_ID;
+  style.textContent = `
+.markdy-scene-root {
+  --markdy-scene-grid: rgba(148, 163, 184, 0.13);
+  --markdy-scene-grid-strong: rgba(148, 163, 184, 0.2);
+  --markdy-scene-vignette: rgba(2, 6, 23, 0.72);
+  --markdy-scene-accent: rgba(56, 189, 248, 0.16);
+  isolation: isolate;
+}
+.markdy-scene-root::before,
+.markdy-scene-root::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.markdy-scene-root::before {
+  z-index: 0;
+  background:
+    linear-gradient(var(--markdy-scene-grid) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(90deg, var(--markdy-scene-grid) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(var(--markdy-scene-grid-strong) 1px, transparent 1px) 0 0 / 160px 160px,
+    linear-gradient(90deg, var(--markdy-scene-grid-strong) 1px, transparent 1px) 0 0 / 160px 160px;
+  mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 90%, transparent);
+  opacity: 0.82;
+}
+.markdy-scene-root::after {
+  z-index: 1;
+  background:
+    radial-gradient(ellipse at 50% 0%, var(--markdy-scene-accent), transparent 42%),
+    linear-gradient(180deg, transparent 0%, rgba(2, 6, 23, 0.08) 58%, var(--markdy-scene-vignette) 100%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035), transparent 18%, transparent 82%, rgba(255, 255, 255, 0.035));
+  mix-blend-mode: screen;
+  opacity: 0.8;
+}
+.markdy-scene-root[data-markdy-scene-tone="light"] {
+  --markdy-scene-grid: rgba(15, 23, 42, 0.09);
+  --markdy-scene-grid-strong: rgba(15, 23, 42, 0.14);
+  --markdy-scene-vignette: rgba(241, 245, 249, 0.74);
+  --markdy-scene-accent: rgba(14, 165, 233, 0.12);
+}
+.markdy-scene-content {
+  z-index: 2;
+}
+`;
+  doc.head.appendChild(style);
+}
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -209,6 +263,9 @@ export function createPlayer(opts: PlayerOptions): Player {
   // This keeps camera transforms (which need to animate translate/scale) on
   // an inner layer so they don't clobber the outer responsive scale.
   const scene = document.createElement("div");
+  ensureSceneStyles(document);
+  scene.className = "markdy-scene-root";
+  scene.dataset.markdySceneTone = bgToTextColor(ast.meta.bg) === "#1a1a1a" ? "light" : "dark";
   Object.assign(scene.style, {
     position: "absolute",
     top: "0",
@@ -224,6 +281,7 @@ export function createPlayer(opts: PlayerOptions): Player {
   viewport.appendChild(scene);
 
   const sceneContent = document.createElement("div");
+  sceneContent.className = "markdy-scene-content";
   Object.assign(sceneContent.style, {
     position: "absolute",
     top: "0",
