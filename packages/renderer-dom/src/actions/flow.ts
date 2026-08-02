@@ -8,7 +8,9 @@
  * busy sequence diagram doesn't accumulate clutter.
  */
 import type { ActionContext, ActionHandler } from "./context.js";
-import { labelPointForPath, polylineLength, round1, routeFlowPath, toPathD } from "../geometry/path.js";
+import type { ActorState } from "../types.js";
+import { placeFlowLabel, polylineLength, routeFlowPath, toPathD } from "../geometry/path.js";
+import { actorRect, inflateRect, type Rect } from "../geometry/rect.js";
 
 const EDGE_LAYER_ATTR = "data-markdy-edge-layer";
 
@@ -21,8 +23,20 @@ const STROKE_BY_ACTION: Record<string, string> = {
 
 const DEFAULT_STROKE = "#38bdf8";
 const LABEL_MAX_CHARS = 28;
-/** How long an edge lingers after its dot arrives, in milliseconds. */
-const EDGE_FADE_MS = 140;
+/** Approximate rendered width of one label character at 12px bold, in px. */
+const LABEL_CHAR_PX = 6.8;
+/** How long the draw-on / fade-in of an edge takes, in milliseconds. */
+const EDGE_REVEAL_MS = 220;
+
+/**
+ * Per-scene registry of placed label rectangles.
+ *
+ * Flow edges are built independently (one call to `buildEdge` each), but their
+ * labels must not collide, so each edge records the box it claimed here and
+ * later edges route their labels around the accumulated set. Keyed by the SVG
+ * overlay element so a rebuilt scene (new overlay) starts from a clean slate.
+ */
+const LABEL_RECTS = new WeakMap<SVGSVGElement, Rect[]>();
 
 /**
  * Lazily creates the shared SVG overlay that all flow edges draw into.
@@ -98,6 +112,22 @@ function isDashed(ctx: ActionContext): boolean {
   return style === "dashed" || style === "fire_and_forget" || ctx.ev.action === "response";
 }
 
+/**
+ * Bounding box an edge label must dodge.
+ *
+ * Normal top-left-anchored actors use their `actorRect`. A `caption` is a
+ * centered overlay ribbon whose real rendered width depends on its text (and
+ * so isn't known here), so we reserve its full-width horizontal band — which
+ * is also what a title/subtitle visually occupies — keeping edge labels out
+ * of the title zone entirely.
+ */
+function nodeObstacleRect(state: ActorState, type: string, sceneWidth: number): Rect {
+  const rect = actorRect(state, type);
+  if (type !== "caption") return rect;
+  const halfH = (rect.y2 - rect.y1) / 2 + 4;
+  return { x1: 0, y1: state.y - halfH, x2: sceneWidth, y2: state.y + halfH };
+}
+
 function buildEdge(ctx: ActionContext, targetName: string): void {
   const { ev, state, states, ast, scene, baseOpts, anims } = ctx;
   const targetState = states.get(targetName);
@@ -115,8 +145,16 @@ function buildEdge(ctx: ActionContext, targetName: string): void {
   const svg = ensureEdgeLayer(scene);
   ensureEdgeDefs(svg);
 
+  const startMs = Number(baseOpts.delay ?? 0);
+  const durationMs = Math.max(1, Number(baseOpts.duration ?? 500));
+  const revealMs = Math.min(EDGE_REVEAL_MS, durationMs);
+
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
   group.setAttribute("data-markdy-flow-edge", "1");
+  // Hidden until the edge's scheduled time; `fill: both` on the reveal below
+  // holds this 0 during the delay so future edges don't show early, then the
+  // edge draws on and stays part of the assembled diagram.
+  group.style.opacity = "0";
 
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path.setAttribute("d", pathD);
@@ -145,22 +183,34 @@ function buildEdge(ctx: ActionContext, targetName: string): void {
 
   const labelText = String(ev.params.label ?? "");
   if (labelText) {
-    const midPoint = labelPointForPath(points, lane);
+    const shown =
+      labelText.length > LABEL_MAX_CHARS ? `${labelText.slice(0, LABEL_MAX_CHARS - 1)}…` : labelText;
+    const textWidth = shown.length * LABEL_CHAR_PX + 12;
+
+    const placed = LABEL_RECTS.get(svg) ?? (LABEL_RECTS.set(svg, []), LABEL_RECTS.get(svg)!);
+    const obstacles: Rect[] = [...placed];
+    for (const [name, nodeState] of states.entries()) {
+      const type = ast.actors[name]?.type ?? "box";
+      obstacles.push(inflateRect(nodeObstacleRect(nodeState, type, ast.meta.width), 2));
+    }
+
+    const spot = placeFlowLabel(points, textWidth, obstacles, ast);
+    placed.push(spot.rect);
+
     const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    label.setAttribute("x", `${round1(midPoint.x)}`);
-    label.setAttribute("y", `${round1(midPoint.y - 8)}`);
+    label.setAttribute("x", `${spot.x}`);
+    label.setAttribute("y", `${spot.y}`);
     label.setAttribute("text-anchor", "middle");
+    label.setAttribute("dominant-baseline", "middle");
     label.setAttribute("font-size", "12");
     label.setAttribute("font-weight", "700");
     label.setAttribute("paint-order", "stroke");
-    label.setAttribute("stroke", "rgba(2, 6, 23, 0.88)");
+    label.setAttribute("stroke", "rgba(2, 6, 23, 0.9)");
     label.setAttribute("stroke-width", "5");
     label.setAttribute("stroke-linejoin", "round");
-    label.setAttribute("fill", "#cbd5e1");
-    label.setAttribute("filter", "url(#markdy-flow-glow)");
+    label.setAttribute("fill", "#dbe4f0");
     label.setAttribute("data-full-label", labelText);
-    label.textContent =
-      labelText.length > LABEL_MAX_CHARS ? `${labelText.slice(0, LABEL_MAX_CHARS - 1)}…` : labelText;
+    label.textContent = shown;
     group.appendChild(label);
   }
 
@@ -168,17 +218,22 @@ function buildEdge(ctx: ActionContext, targetName: string): void {
 
   anims.push(
     path.animate([{ strokeDashoffset: length }, { strokeDashoffset: 0 }], baseOpts),
+    // Travel the dot along the edge, then fade it at arrival so the finished
+    // edge is a clean line + arrowhead rather than a dot resting on the tip.
     marker.animate(
       [
-        { offsetDistance: "0%", opacity: 1 },
-        { offsetDistance: "100%", opacity: 1 },
+        { offsetDistance: "0%", opacity: 1, offset: 0 },
+        { offsetDistance: "100%", opacity: 1, offset: 0.82 },
+        { offsetDistance: "100%", opacity: 0, offset: 1 },
       ],
       baseOpts,
     ),
-    group.animate([{ opacity: 1 }, { opacity: 0 }], {
-      delay: Number(baseOpts.delay ?? 0) + Number(baseOpts.duration ?? 0),
-      duration: EDGE_FADE_MS,
-      fill: "forwards",
+    // Reveal the edge at its scheduled time and keep it (persist). `fill: both`
+    // holds opacity 0 during the delay, so nothing appears before its turn.
+    group.animate([{ opacity: 0 }, { opacity: 1 }], {
+      delay: startMs,
+      duration: revealMs,
+      fill: "both",
     }),
   );
 }

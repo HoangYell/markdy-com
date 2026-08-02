@@ -8,6 +8,7 @@
  */
 import { describe, it, expect } from "vitest";
 import { parse, TECHNICAL_NODE_TYPES } from "@markdy/core";
+import type { SceneAST } from "@markdy/core";
 import {
   actorCenter,
   actorRect,
@@ -16,8 +17,10 @@ import {
   inflateRect,
   segmentIntersectsRect,
 } from "../src/geometry/rect.js";
+import type { Rect } from "../src/geometry/rect.js";
 import {
   labelPointForPath,
+  placeFlowLabel,
   pointAtDistance,
   polylineLength,
   round1,
@@ -139,6 +142,34 @@ describe("polyline measurement", () => {
   it("places labels on the longest segment with lane-aware offset", () => {
     expect(labelPointForPath(path, 0)).toEqual({ x: 40, y: 20 });
     expect(labelPointForPath(path, 2)).toEqual({ x: 56, y: 20 });
+  });
+});
+
+describe("placeFlowLabel", () => {
+  const ast = { meta: { width: 400, height: 300 } } as unknown as SceneAST;
+  const rectsOverlap = (a: Rect, b: Rect) =>
+    a.x1 < b.x2 && a.x2 > b.x1 && a.y1 < b.y2 && a.y2 > b.y1;
+
+  it("centers on the longest segment when nothing is in the way", () => {
+    const spot = placeFlowLabel([{ x: 40, y: 100 }, { x: 240, y: 100 }], 60, [], ast);
+    expect(spot.x).toBe(140);
+    // A horizontal edge parks its label just above the line.
+    expect(spot.y).toBeLessThan(100);
+  });
+
+  it("nudges the label clear of an obstacle it would otherwise hit", () => {
+    const points = [{ x: 40, y: 100 }, { x: 240, y: 100 }];
+    const blocker: Rect = { x1: 100, y1: 70, x2: 180, y2: 100 };
+    const spot = placeFlowLabel(points, 60, [blocker], ast);
+    expect(rectsOverlap(spot.rect, blocker)).toBe(false);
+  });
+
+  it("keeps the whole label box inside the scene", () => {
+    const spot = placeFlowLabel([{ x: 4, y: 6 }, { x: 4, y: 260 }], 120, [], ast);
+    expect(spot.rect.x1).toBeGreaterThanOrEqual(0);
+    expect(spot.rect.x2).toBeLessThanOrEqual(ast.meta.width);
+    expect(spot.rect.y1).toBeGreaterThanOrEqual(0);
+    expect(spot.rect.y2).toBeLessThanOrEqual(ast.meta.height);
   });
 });
 
