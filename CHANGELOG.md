@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.29] — 2026-08-02
+
+### Fixed
+- **Flow-edge labels no longer overlap** — Edges now appear at their scheduled time and persist, assembling the diagram instead of showing every label from the first frame. Labels are placed with collision avoidance so they never sit on top of nodes, the title caption, or one another, and the traveling dot fades on arrival to leave a clean line and arrowhead.
+
+### Changed
+- **Learn MarkdyScript rebuilt around architecture diagrams** — The step-by-step guide now teaches the real production recipe (systems nodes, grouped reveals, chaptered `request`/`response`/`emit` flows, polish, and camera direction) with practical, runnable examples instead of one-off story scenes.
+
 ## [0.7.28] — 2026-08-02
 
 ### Added

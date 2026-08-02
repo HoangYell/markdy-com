@@ -454,7 +454,7 @@ markdy <span class="u-fn">check-all</span> examples`;
     <div class="section-header">
       <span class="section-tag">Step-by-Step</span>
       <h2>Learn MarkdyScript</h2>
-      <p>Build cinematic scenes with premium surfaces, routed systems, reusable choreography, and camera direction. Every card is runnable in the playground.</p>
+      <p>Build production architecture diagrams step by step: lay out systems nodes, narrate the flow with labeled <code>request</code>/<code>response</code>/<code>emit</code> edges, group reveals into chapters, then add polish and camera direction. Every card is runnable in the playground.</p>
     </div>
 
     <div class="ref-grid">
@@ -466,32 +466,34 @@ markdy <span class="u-fn">check-all</span> examples`;
           <h3>Cinematic Scene Setup</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Start with a wide video canvas, dark art direction, and 60fps when the scene needs HUD detail, glow, and smooth motion.</p>
+        <p class="ref-intro">Start with a wide 16:9 canvas and dark art direction, then declare systems nodes with the <code>&lt;type&gt; Name "Label" at (x, y)</code> shorthand and reveal them together with a staggered <code>group</code>.</p>
         <div class="ref-code-wrap">
-        <pre><code>scene width=1280 height=720 bg=#050816 fps=60
-actor title = caption("Cyber parking control room") at top opacity 0
-        actor hud = surface("Vision routing HUD", "live ops", cyan) at (56, 124) scale 0.9 opacity 0</code></pre>
+        <pre><code>scene width=1280 height=720 bg=#07111f fps=60
+actor title = caption("Checkout Service") at top opacity 0
+client Web "Web App" at (110, 320) opacity 0
+service Orders "Order Service" at (660, 230) opacity 0</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=1280 height=720 bg=#050816 fps=60
-actor title = caption("Cyber parking control room") at top opacity 0
-actor hud = surface("Vision routing HUD", "live ops", cyan) at (56, 124) scale 0.9 opacity 0 z 35
-actor status = text("SCAN -> OCR -> ROUTE -> GATE") at (432, 632) size 23 opacity 0 z 70
+scene width=1280 height=720 bg=#07111f fps=60
+actor title = caption("Checkout Service") at top opacity 0
+client Web "Web App" at (110, 320) opacity 0
+api_gateway Gateway "API Gateway" at (380, 320) opacity 0
+service Orders "Order Service" at (660, 230) opacity 0
+database OrderDB "Orders DB" at (930, 230) opacity 0
+
+group nodes = Web, Gateway, Orders, OrderDB
 
 @0.0: title.line_reveal(from=left, dur=0.42)
-@0.1: hud.fade_in(dur=0.45)
-@0.1: hud.mask(from=0, to=120, dur=0.75, ease=smooth)
-@0.2: hud.glow(color=#38bdf8, strength=42, dur=0.75)
-@0.8: status.line_reveal(from=left, dur=0.45)
+@0.2: nodes.fade_in(dur=0.5, stagger=0.08)
         </script>
         </div>
         <table>
           <thead><tr><th>Property</th><th>Default</th><th>Description</th></tr></thead>
           <tbody>
-            <tr><td><code>width</code></td><td><code>800</code></td><td>Canvas width in pixels</td></tr>
-            <tr><td><code>height</code></td><td><code>400</code></td><td>Canvas height in pixels</td></tr>
-            <tr><td><code>fps</code></td><td><code>30</code></td><td>Frame rate for the rendering engine</td></tr>
-            <tr><td><code>bg</code></td><td><code>white</code></td><td>Use art-directed CSS colors; dark scenes make neon surfaces pop</td></tr>
-            <tr><td><code>duration</code></td><td><i>auto</i></td><td>Override total length in seconds</td></tr>
+            <tr><td><code>width</code></td><td><code>800</code></td><td>Canvas width — use <code>1280</code> for presentation diagrams</td></tr>
+            <tr><td><code>height</code></td><td><code>400</code></td><td>Canvas height — <code>720</code> keeps a clean 16:9 frame</td></tr>
+            <tr><td><code>fps</code></td><td><code>30</code></td><td>Frame rate; <code>60</code> for smooth glow and camera moves</td></tr>
+            <tr><td><code>bg</code></td><td><code>white</code></td><td>Dark backgrounds (<code>#07111f</code>) make node accents pop</td></tr>
+            <tr><td><code>group</code></td><td><i>—</i></td><td>Name a set of nodes to reveal or animate together with <code>stagger</code></td></tr>
           </tbody>
         </table>
       </article>
@@ -503,40 +505,40 @@ actor status = text("SCAN -> OCR -> ROUTE -> GATE") at (432, 632) size 23 opacit
           <h3>Visual Primitives</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Compose reusable visual primitives instead of relying on one-off story actors.</p>
+        <p class="ref-intro">Beyond diagram nodes, compose reusable visual primitives — <code>surface</code>, <code>terminal</code>, <code>matrix</code>, <code>stat</code>, <code>chips</code>, <code>glyph</code> — for dashboards, code panels, and annotations. Each takes a label first and a colour tone last.</p>
         <div class="ref-code-wrap">
-        <pre><code>actor shell = terminal("Compiler", "[IN]===LANE===[OUT]", "tokens -> graph", "slots -> state", green) at (58, 130)
-actor cells = matrix("Cells", "4x2", "3 6 8", green) at (236, 154)
-actor stat = stat("latency", "18ms", cyan) at (196, 322)</code></pre>
+        <pre><code>actor shell = terminal("Build log", "npm run build", "✓ 42 modules", "done in 1.2s", green) at (58, 130)
+actor cells = matrix("Cache", "4x2", "3 6 8", green) at (236, 154)
+actor kpi = stat("p99 latency", "18ms", cyan) at (196, 322)</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene width=1280 height=720 bg=#07111f fps=60
 
-actor title = caption("ASCII parking garage") at top opacity 0
-actor ascii = terminal("Text map compiler", "[P1][P2][  ][EV]", "[IN]===LANE===[OUT]", "0101 0000 0100 0001", green) at (58, 130) scale 0.9 opacity 0 z 35
-actor mini = matrix("mini map", "3x2", "2 6", green) at (282, 192) opacity 0 scale 0.72 z 50
-actor stages = chips("tokens|graph|slots", green) at (88, 324) opacity 0 scale 0.84 z 55
-client Terminal "Terminal" at (600, 150) opacity 0
-service Lexer "Lexer" at (832, 150) opacity 0
-service Graph "Graph builder" at (1064, 150) opacity 0
+actor title = caption("Build Pipeline") at top opacity 0
+actor shell = terminal("Build log", "npm run build", "✓ 42 modules bundled", "done in 1.2s", green) at (58, 130) scale 0.9 opacity 0 z 35
+actor cache = matrix("cache hits", "3x2", "2 6", green) at (282, 192) opacity 0 scale 0.72 z 50
+actor stages = chips("lint|test|build|deploy", green) at (88, 324) opacity 0 scale 0.84 z 55
+repo Repo "Git repo" at (600, 150) opacity 0
+runner CI "CI Runner" at (832, 150) opacity 0
+artifact Image "Image" at (1064, 150) opacity 0
 
 @0.0: title.line_reveal(from=left, dur=0.42)
-@0.1: ascii.fade_in(dur=0.45)
-@0.1: mini.fade_in(dur=0.45)
+@0.1: shell.fade_in(dur=0.45)
+@0.1: cache.fade_in(dur=0.45)
 @0.1: stages.fade_in(dur=0.45)
-@0.1: ascii.mask(from=0, to=120, dur=0.72, ease=smooth)
-@0.2: Terminal.enter(from=right, dur=0.44, ease=snappy)
-@0.28: Lexer.enter(from=right, dur=0.44, ease=snappy)
-@0.36: Graph.enter(from=right, dur=0.44, ease=snappy)
+@0.1: shell.mask(from=0, to=120, dur=0.72, ease=smooth)
+@0.2: Repo.enter(from=right, dur=0.44, ease=snappy)
+@0.28: CI.enter(from=right, dur=0.44, ease=snappy)
+@0.36: Image.enter(from=right, dur=0.44, ease=snappy)
         </script>
         </div>
         <table>
           <thead><tr><th>Type</th><th>Arguments</th><th>Description</th></tr></thead>
           <tbody>
-            <tr><td><code>panel</code></td><td>title, tag, tone</td><td>Generic cinematic dashboard shell</td></tr>
-            <tr><td><code>terminal</code></td><td>title, line1, line2, line3, tone</td><td>Reusable terminal/code surface</td></tr>
-            <tr><td><code>grid</code></td><td>label, colsxrows, active cells, tone</td><td>Any matrix: slots, bits, tokens, health, inventory</td></tr>
-            <tr><td><code>metric</code></td><td>label, value, tone</td><td>Compact HUD counters and stats</td></tr>
-            <tr><td><code>lane</code>, <code>marker</code>, <code>token_strip</code>, <code>glyph_card</code></td><td>generic args</td><td>Composable motion/detail primitives</td></tr>
+            <tr><td><code>surface</code></td><td>label, tag, tone</td><td>Dashboard / card shell with a scanline and cells</td></tr>
+            <tr><td><code>terminal</code></td><td>label, line1, line2, line3, tone</td><td>Terminal / code surface with up to 3 output lines</td></tr>
+            <tr><td><code>matrix</code></td><td>label, colsxrows, active cells, tone</td><td>Cell grid: slots, bits, health, inventory</td></tr>
+            <tr><td><code>stat</code></td><td>label, value, tone</td><td>Big-number KPI tile</td></tr>
+            <tr><td><code>chips</code>, <code>track</code>, <code>dot</code>, <code>glyph</code></td><td>generic args</td><td>Token rows, lanes, markers, badge cards</td></tr>
           </tbody>
         </table>
         <p><strong>Modifiers:</strong> <code>opacity</code> (0–1), <code>scale</code>, <code>rotate</code>, <code>size</code> (text only), <code>z</code> (layer order).</p>
@@ -549,42 +551,54 @@ service Graph "Graph builder" at (1064, 150) opacity 0
           <h3>Routed Systems</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Pair premium visuals with architecture nodes and flow actions so handoffs draw accurate, readable routes.</p>
+        <p class="ref-intro">Narrate the data flow with <code>request</code> (call), <code>response</code> (return), and <code>emit</code> (async event). Give every edge a short <code>label</code>, and group beats into <code>scene "…" { }</code> chapters so the story reads phase by phase.</p>
         <div class="ref-code-wrap">
-        <pre><code>@0.6: DriverApp.request(to=GateCam, label="arrival", dur=0.55)
-@1.2: GateCam.request(to=PlateOCR, label="plate frame", dur=0.58)
-@1.8: PlateOCR.request(to=Occupancy, label="permit lookup", dur=0.6)</code></pre>
+        <pre><code>@+0.2: Web.request(to=Gateway, label="POST /checkout", dur=0.5)
+@+0.1: Orders.emit(to=Events, label="order.created", dur=0.5)
+@+0.1: Orders.response(to=Web, label="201 created", dur=0.55)</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=1280 height=720 bg=#050816 fps=60
-actor dash = surface("Vision routing HUD", "live ops", cyan) at (56, 124) scale 0.9 opacity 0 z 35
-actor route = track("route", cyan) at (82, 250) scale 0.9 opacity 0 z 45
-actor vehicle = dot("vehicle", cyan) at (244, 260) scale 0.9 opacity 0 z 55
-client DriverApp "Driver app" at (600, 150) opacity 0
-service GateCam "Gate camera" at (832, 150) opacity 0
-service PlateOCR "Plate OCR" at (1064, 150) opacity 0
-db Occupancy "Occupancy DB" at (600, 454) opacity 0
+scene width=1280 height=720 bg=#07111f fps=60
+actor title = caption("Checkout Flow") at top opacity 0
+client Web "Web App" at (90, 320) opacity 0
+api_gateway Gateway "API Gateway" at (350, 320) opacity 0
+service Orders "Order Service" at (630, 210) opacity 0
+cache Cart "Cart Cache" at (900, 110) opacity 0
+database OrderDB "Orders DB" at (900, 330) opacity 0
+queue Events "order.events" at (630, 470) opacity 0
 
-group nodes = DriverApp, GateCam, PlateOCR, Occupancy
+group nodes = Web, Gateway, Orders, Cart, OrderDB, Events
 
-@0.0: dash.fade_in(dur=0.35)
-@0.05: route.fade_in(dur=0.35)
-@0.1: vehicle.fade_in(dur=0.35)
-@0.2: nodes.fade_in(dur=0.42, stagger=0.08)
-@0.8: DriverApp.request(to=GateCam, label="arrival", dur=0.55)
-@1.4: GateCam.request(to=PlateOCR, label="plate frame", dur=0.58)
-@2.0: PlateOCR.request(to=Occupancy, label="permit lookup", dur=0.6)
+scene "layout" {
+  @+0.0: title.line_reveal(from=left, dur=0.42)
+  @+0.2: nodes.fade_in(dur=0.45, stagger=0.06)
+}
+
+scene "checkout" {
+  @+0.2: Web.request(to=Gateway, label="POST /checkout", dur=0.5)
+  @+0.1: Gateway.request(to=Orders, label="create order", dur=0.5)
+  @+0.1: Orders.request(to=Cart, label="read cart", dur=0.5)
+  @+0.1: Cart.response(to=Orders, label="items", dur=0.5)
+  @+0.1: Orders.request(to=OrderDB, label="persist", dur=0.5)
+  @+0.1: Orders.emit(to=Events, label="order.created", dur=0.5)
+  @+0.1: Orders.response(to=Web, label="201 created", dur=0.55)
+}
+
+scene "takeaway" {
+  @+0.2: Orders.glow(color=#22c55e, strength=32, dur=0.55)
+  @+0.0: camera.zoom(to=1.03, dur=0.6, ease=smooth)
+}
         </script>
         </div>
         <table>
           <thead><tr><th>Action</th><th>Parameters</th><th>What it does</th></tr></thead>
           <tbody>
-            <tr><td><code>request</code></td><td>to, label, dur</td><td>Draws a directed handoff between nodes</td></tr>
-            <tr><td><code>response</code></td><td>to, label, dur</td><td>Shows return paths without manually positioning lines</td></tr>
-            <tr><td><code>emit</code></td><td>to, label, dur</td><td>Broadcasts events or state updates through the scene</td></tr>
-            <tr><td><code>group</code></td><td>actor list</td><td>Lets a whole system fade, enter, or stagger together</td></tr>
+            <tr><td><code>request</code></td><td>to, label, dur</td><td>Solid directed call from one node to another</td></tr>
+            <tr><td><code>response</code></td><td>to, label, dur</td><td>Dashed return path (keep <code>label</code> ≤ 28 chars)</td></tr>
+            <tr><td><code>emit</code></td><td>to, label, dur</td><td>Async event / publish edge for queues and topics</td></tr>
+            <tr><td><code>scene "…" { }</code></td><td>—</td><td>Chapter block; <code>@+N</code> times are relative to the chapter</td></tr>
           </tbody>
         </table>
-        <p>Routes avoid actor boxes and use lane-aware labels, so dense scenes stay clean instead of becoming spaghetti.</p>
+        <p>Edges appear at their scheduled time and stay, assembling the full diagram. Routes dodge node boxes and labels auto-place clear of nodes and each other, so dense scenes stay readable instead of turning into spaghetti.</p>
       </article>
 
       <!-- Step 4: Visual Polish -->
@@ -594,29 +608,29 @@ group nodes = DriverApp, GateCam, PlateOCR, Occupancy
           <h3>Visual Polish</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Layer masks, glow, blur, ripple, and text reveals to make the scene feel designed rather than assembled.</p>
+        <p class="ref-intro">Layer <code>mask</code>, <code>glow</code>, <code>blur</code>, <code>ripple</code>, <code>pulse</code>, and text reveals to make a scene feel designed rather than assembled — great for highlighting a healthy service or a successful deploy.</p>
         <div class="ref-code-wrap">
-        <pre><code>@0.1: world.blur(from=8, to=0, dur=0.52)
-@0.2: world.glow(color=#f59e0b, strength=44, dur=0.72)
-@1.7: combo.scale(to=1.12, dur=0.38, ease=overshoot)</code></pre>
+        <pre><code>@0.1: panel.blur(from=8, to=0, dur=0.52)
+@0.2: panel.glow(color=#22c55e, strength=44, dur=0.72)
+@1.7: badge.scale(to=1.12, dur=0.38, ease=overshoot)</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene width=1280 height=720 bg=#0b1020 fps=60
-actor title = caption("Parking game loop") at top opacity 0
-actor world = surface("Parking micro-game", "60 fps", amber) at (58, 128) scale 0.9 opacity 0 z 35
-actor track = track("drive line", amber) at (82, 260) scale 0.9 opacity 0 z 45
-actor car = dot("car", rose) at (174, 270) scale 1.05 opacity 0 z 55
-actor combo = text("PERFECT PARK +1200") at (438, 632) size 32 opacity 0 scale 0.72 z 80
+actor title = caption("Deploy Succeeded") at top opacity 0
+actor panel = surface("Release dashboard", "healthy", green) at (58, 128) scale 0.9 opacity 0 z 35
+actor bar = track("rollout", green) at (82, 260) scale 0.9 opacity 0 z 45
+actor tip = dot("canary", cyan) at (174, 270) scale 1.05 opacity 0 z 55
+actor badge = text("DEPLOY OK · 0 errors") at (438, 632) size 32 opacity 0 scale 0.72 z 80
 
 @0.0: title.line_reveal(from=left, dur=0.42)
-@0.1: world.fade_in(dur=0.42)
-@0.15: track.fade_in(dur=0.42)
-@0.2: car.fade_in(dur=0.42)
-@0.1: world.blur(from=8, to=0, dur=0.52)
-@0.2: world.glow(color=#f59e0b, strength=44, dur=0.72)
-@1.0: world.pulse(amount=1.035, dur=0.46)
-@1.35: world.ripple(color=#22c55e, size=190, dur=0.68)
-@1.55: combo.fade_in(dur=0.25)
-@1.55: combo.scale(to=1.12, dur=0.38, ease=overshoot)
+@0.1: panel.fade_in(dur=0.42)
+@0.15: bar.fade_in(dur=0.42)
+@0.2: tip.fade_in(dur=0.42)
+@0.1: panel.blur(from=8, to=0, dur=0.52)
+@0.2: panel.glow(color=#22c55e, strength=44, dur=0.72)
+@1.0: panel.pulse(amount=1.035, dur=0.46)
+@1.35: panel.ripple(color=#22c55e, size=190, dur=0.68)
+@1.55: badge.fade_in(dur=0.25)
+@1.55: badge.scale(to=1.12, dur=0.38, ease=overshoot)
         </script>
         </div>
         <table>
@@ -636,40 +650,45 @@ actor combo = text("PERFECT PARK +1200") at (438, 632) size 32 opacity 0 scale 0
           <h3>Dense Layouts</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Put rich detail on the left and the explanation graph on the right, then let safe framing keep everything in view.</p>
+        <p class="ref-intro">Put a rich detail panel on the left and the explanation graph on the right. Safe framing scales oversized content back into view, so you can pack in stats and still keep everything on screen.</p>
         <div class="ref-code-wrap">
-        <pre><code>        actor viz = surface("Character pipeline", "UTF-8", purple) at (48, 132) scale 0.88
-        client Input "Text input" at (600, 150)
-        service Encoder "UTF-8 encoder" at (1064, 150)</code></pre>
+        <pre><code>actor kpi = stat("throughput", "1.2M/s", cyan) at (70, 300)
+producer Ingest "Ingest API" at (300, 200)
+warehouse Store "Warehouse" at (1020, 200)</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene width=1280 height=720 bg=#06101f fps=60
-actor title = caption("UTF-8 byte visualizer") at top opacity 0
-actor viz = surface("Character pipeline", "UTF-8", purple) at (48, 132) scale 0.88 opacity 0 z 35
-actor glyph = glyph("A", "glyph", purple) at (74, 174) scale 0.9 opacity 0 z 45
-actor tokens = chips("char|U+0041|0x41|01000001", purple) at (188, 190) scale 0.78 opacity 0 z 50
-client Input "Text input" at (600, 150) opacity 0
-service CodePoint "Code point" at (832, 150) opacity 0
-service Encoder "UTF-8 encoder" at (1064, 150) opacity 0
-queue Bytes "Byte stream" at (600, 454) opacity 0
-container Bits "Bit lanes" at (832, 454) opacity 0
-cloud Screen "Rendered glyph" at (1064, 454) opacity 0
+actor title = caption("Streaming Pipeline") at top opacity 0
+actor panel = surface("Pipeline health", "live", cyan) at (48, 150) scale 0.88 opacity 0 z 35
+actor kpi = stat("throughput", "1.2M/s", cyan) at (96, 372) opacity 0 scale 0.9 z 45
+actor stages = chips("ingest|stream|store|serve", cyan) at (86, 470) scale 0.8 opacity 0 z 50
+producer Ingest "Ingest API" at (470, 180) opacity 0
+queue Kafka "Kafka" at (720, 180) opacity 0
+worker Flink "Stream Workers" at (970, 180) opacity 0
+warehouse Store "Warehouse" at (970, 430) opacity 0
+dashboard BI "BI Dashboard" at (720, 430) opacity 0
 
-group pipeline = Input, CodePoint, Encoder, Bytes, Bits, Screen
+group pipeline = Ingest, Kafka, Flink, Store, BI
 
-@0.0: title.line_reveal(from=left, dur=0.42)
-@0.1: viz.fade_in(dur=0.42)
-@0.14: glyph.fade_in(dur=0.42)
-@0.18: tokens.fade_in(dur=0.42)
-@0.2: pipeline.enter(from=right, dur=0.44, ease=snappy, stagger=0.06)
-@1.0: Input.request(to=CodePoint, label="character", dur=0.55)
-@1.55: CodePoint.request(to=Encoder, label="U+0041", dur=0.56)
-@2.15: Encoder.emit(to=Bytes, label="0x41", dur=0.55)
+scene "layout" {
+  @+0.0: title.line_reveal(from=left, dur=0.42)
+  @+0.1: panel.fade_in(dur=0.42)
+  @+0.05: kpi.fade_in(dur=0.42)
+  @+0.05: stages.fade_in(dur=0.42)
+  @+0.1: pipeline.enter(from=right, dur=0.44, ease=snappy, stagger=0.06)
+}
+
+scene "stream" {
+  @+0.2: Ingest.request(to=Kafka, label="events", dur=0.5)
+  @+0.1: Kafka.request(to=Flink, label="consume", dur=0.5)
+  @+0.1: Flink.emit(to=Store, label="aggregates", dur=0.5)
+  @+0.1: Store.response(to=BI, label="query", dur=0.5)
+}
         </script>
         </div>
         <table>
           <thead><tr><th>Technique</th><th>Why it helps</th></tr></thead>
           <tbody>
-            <tr><td>Hero surface + graph</td><td>Separates visual detail from explanatory structure</td></tr>
+            <tr><td>Detail panel + graph</td><td>Separates visual detail from explanatory structure</td></tr>
             <tr><td>Scale-aware bounds</td><td>Flows route around what the viewer actually sees</td></tr>
             <tr><td>Safe framing</td><td>Oversized content is kept inside the viewport</td></tr>
           </tbody>
@@ -690,15 +709,15 @@ group pipeline = Input, CodePoint, Encoder, Bytes, Bits, Screen
 @2.0: guide.wave(side=left, dur=0.8)</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene width=1280 height=720 bg=#050816 fps=60
-actor dash = surface("Vision routing HUD", "live ops", cyan) at (56, 124) scale 0.9 opacity 0 z 35
-service Allocator "Spot allocator" at (832, 454) opacity 0
-container Gate "Gate arm" at (1064, 454) opacity 0
+actor dash = surface("Service dashboard", "live", cyan) at (56, 124) scale 0.9 opacity 0 z 35
+service Orders "Order Service" at (832, 454) opacity 0
+queue Events "order.events" at (1064, 454) opacity 0
 actor guide = figure(#c68642, m, 😎) at (1040, 584) scale 1.15 opacity 0 z 80
 
 @0.0: dash.fade_in(dur=0.4)
-@0.2: Allocator.fade_in(dur=0.35)
-@0.35: Gate.fade_in(dur=0.35)
-@0.7: Allocator.emit(to=Gate, label="open lane", dur=0.56)
+@0.2: Orders.fade_in(dur=0.35)
+@0.35: Events.fade_in(dur=0.35)
+@0.7: Orders.emit(to=Events, label="order.created", dur=0.56)
 @0.9: guide.fade_in(dur=0.35)
 @1.25: guide.say("Flow labels stay out of the mess.", dur=1.25)
 @2.0: guide.wave(side=left, dur=0.8)
@@ -737,7 +756,7 @@ scene width=1280 height=720 bg=#0b1020 fps=60
 asset badge = icon("lucide:badge-check")
 asset zap = icon("lucide:zap")
 
-actor world = surface("Parking micro-game", "60 fps", amber) at (58, 128) scale 0.9 opacity 0 z 35
+actor world = surface("Release dashboard", "healthy", green) at (58, 128) scale 0.9 opacity 0 z 35
 actor boost = sprite(zap) at (360, 520) scale 1.8 opacity 0 z 70
 actor clear = sprite(badge) at (930, 610) scale 2.2 opacity 0 z 80
 
@@ -851,30 +870,30 @@ seq inspect(color) {
         </div>
         <p class="ref-intro">Use anchored captions for context, then direct attention with camera movement while safe framing protects the shot.</p>
         <div class="ref-code-wrap">
-        <pre><code>actor title = caption("Replay camera") at top
-actor takeaway = caption("Focus the perfect park") at bottom
+        <pre><code>actor title = caption("Deploy Replay") at top
+actor takeaway = caption("Focus the hot path") at bottom
 
 @1.2: camera.pan(to=(640, 340), dur=0.78, ease=smooth)
 @1.2: camera.zoom(to=1.02, dur=0.78, ease=smooth)</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene width=1280 height=720 bg=#0b1020 fps=60
-actor title = caption("Replay camera") at top opacity 0
-actor world = surface("Parking micro-game", "60 fps", amber) at (58, 128) scale 0.9 opacity 0 z 35
-actor track = track("drive line", amber) at (82, 260) scale 0.9 opacity 0 z 45
-actor car = dot("car", rose) at (174, 270) scale 1.05 opacity 0 z 55
-actor combo = text("PERFECT PARK +1200") at (438, 632) size 32 opacity 0 scale 0.72 z 80
-actor takeaway = caption("Focus the perfect park") at bottom opacity 0
+actor title = caption("Deploy Replay") at top opacity 0
+actor world = surface("Release dashboard", "healthy", green) at (58, 128) scale 0.9 opacity 0 z 35
+actor bar = track("rollout", green) at (82, 260) scale 0.9 opacity 0 z 45
+actor tip = dot("canary", cyan) at (174, 270) scale 1.05 opacity 0 z 55
+actor badge = text("DEPLOY OK · 0 errors") at (438, 632) size 32 opacity 0 scale 0.72 z 80
+actor takeaway = caption("Focus the hot path") at bottom opacity 0
 
 @0.3: title.fade_in(dur=0.3)
 @0.4: world.fade_in(dur=0.42)
-@0.45: track.fade_in(dur=0.42)
-@0.5: car.fade_in(dur=0.42)
-@0.9: combo.fade_in(dur=0.25)
-@0.9: combo.scale(to=1.12, dur=0.38, ease=overshoot)
+@0.45: bar.fade_in(dur=0.42)
+@0.5: tip.fade_in(dur=0.42)
+@0.9: badge.fade_in(dur=0.25)
+@0.9: badge.scale(to=1.12, dur=0.38, ease=overshoot)
 @1.25: camera.pan(to=(640, 340), dur=0.78, ease=smooth)
 @1.25: camera.zoom(to=1.02, dur=0.78, ease=smooth)
 @1.6: takeaway.fade_in(dur=0.3)
-@2.2: combo.shake(intensity=4, dur=0.24)
+@2.2: badge.shake(intensity=4, dur=0.24)
 @2.7: camera.zoom(to=1.0, dur=0.55, ease=inout)
         </script>
         </div>
