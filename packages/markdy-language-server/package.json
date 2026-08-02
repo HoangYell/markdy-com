@@ -1,6 +1,6 @@
 {
   "name": "@markdy/language-server",
-  "version": "0.7.28",
+  "version": "0.7.29",
   "description": "Language Server Protocol implementation for MarkdyScript.",
   "license": "MIT",
   "type": "module",
