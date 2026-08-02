@@ -1,0 +1,44 @@
+# URL shortener architecture: write path, read/redirect path, cache, and durable mapping storage.
+scene width=1280 height=720 bg=#07111f fps=60
+
+actor title = caption("URL Shortener Architecture") at top opacity 0
+user Visitor "User" at (70, 112) opacity 0
+browser Browser "Browser" at (70, 312) opacity 0
+api_gateway Gateway "API Gateway" at (318, 220) opacity 0
+service Shortener "URL Shortener" at (570, 112) opacity 0
+service Redirector "Redirect Service" at (570, 400) opacity 0
+cache Redis "Hot URL Cache" at (835, 220) opacity 0
+database UrlDB "URL Mapping DB" at (835, 400) opacity 0
+actor Legend = chips("write|read|cache hit|DB fallback") at (70, 618) opacity 0 z 60
+
+group nodes = Visitor, Browser, Gateway, Shortener, Redirector, Redis, UrlDB
+
+scene "layout" {
+  @+0.0: title.line_reveal(from=left, dur=0.42)
+  @+0.18: nodes.fade_in(dur=0.42, stagger=0.06)
+  @+0.42: Legend.fade_in(dur=0.3)
+}
+
+scene "create-short-url" {
+  @+0.14: Browser.request(to=Gateway, label="POST /shorten", dur=0.5)
+  @+0.08: Gateway.request(to=Shortener, label="validate URL", dur=0.5)
+  @+0.08: Shortener.request(to=UrlDB, label="store slug", dur=0.55)
+  @+0.08: Shortener.emit(to=Redis, label="warm cache", dur=0.5)
+  @+0.08: Shortener.response(to=Browser, label="short.ly/a7", dur=0.6)
+}
+
+scene "redirect-read" {
+  @+0.14: Visitor.request(to=Browser, label="open short link", dur=0.5)
+  @+0.08: Browser.request(to=Gateway, label="GET /a7", dur=0.5)
+  @+0.08: Gateway.request(to=Redirector, label="resolve slug", dur=0.52)
+  @+0.08: Redirector.request(to=Redis, label="cache lookup", dur=0.5)
+  @+0.08: Redis.response(to=Redirector, label="target URL", dur=0.45)
+  @+0.08: Redirector.request(to=UrlDB, label="miss fallback", dur=0.52)
+  @+0.08: Redirector.response(to=Browser, label="301 redirect", dur=0.55)
+}
+
+scene "takeaway" {
+  @+0.16: Redis.glow(color=#22c55e, strength=34, dur=0.55)
+  @+0.0: UrlDB.glow(color=#38bdf8, strength=28, dur=0.55)
+  @+0.0: camera.zoom(to=1.02, dur=0.6, ease=smooth)
+}

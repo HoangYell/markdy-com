@@ -1,0 +1,50 @@
+# YouTube-style video processing pipeline: upload, transcoding, thumbnails, metadata, CDN playback.
+scene width=1280 height=720 bg=#0b1020 fps=60
+
+actor title = caption("YouTube Video Processing Pipeline") at top opacity 0
+user Creator "Creator" at (70, 112) opacity 0
+api UploadAPI "Upload API" at (300, 112) opacity 0
+bucket RawStore "Object Storage" at (530, 112) opacity 0
+queue UploadQueue "Upload Queue" at (760, 112) opacity 0
+worker Transcoder "Processing Workers" at (990, 112) opacity 0
+worker Thumbnailer "Thumbnail Generator" at (990, 304) opacity 0
+database MetadataDB "Metadata DB" at (760, 496) opacity 0
+bucket Renditions "Encoded Renditions" at (530, 496) opacity 0
+cdn CDN "Global CDN" at (300, 496) opacity 0
+user Viewer "Viewer" at (70, 496) opacity 0
+actor Profiles = chips("240p|720p|1080p|4K") at (990, 496) opacity 0 z 60
+
+group nodes = Creator, UploadAPI, RawStore, UploadQueue, Transcoder, Thumbnailer, MetadataDB, Renditions, CDN, Viewer, Profiles
+
+scene "layout" {
+  @+0.0: title.line_reveal(from=left, dur=0.42)
+  @+0.16: nodes.fade_in(dur=0.42, stagger=0.05)
+}
+
+scene "upload" {
+  @+0.12: Creator.request(to=UploadAPI, label="upload video", dur=0.52)
+  @+0.08: UploadAPI.request(to=RawStore, label="raw bytes", dur=0.52)
+  @+0.08: UploadAPI.emit(to=UploadQueue, label="processing job", dur=0.52)
+}
+
+scene "process" {
+  @+0.12: UploadQueue.emit(to=Transcoder, label="transcode", dur=0.55)
+  @+0.08: Transcoder.emit(to=Renditions, label="HLS/DASH", dur=0.58)
+  @+0.08: Transcoder.emit(to=Profiles, label="profiles", dur=0.5)
+  @+0.08: Transcoder.emit(to=Thumbnailer, label="keyframes", dur=0.5)
+  @+0.08: Thumbnailer.emit(to=MetadataDB, label="thumbnail", dur=0.55)
+  @+0.0: Transcoder.glow(color=#f59e0b, strength=34, dur=0.55)
+}
+
+scene "publish-and-play" {
+  @+0.12: Transcoder.emit(to=MetadataDB, label="metadata", dur=0.52)
+  @+0.08: Renditions.emit(to=CDN, label="publish", dur=0.55)
+  @+0.08: Viewer.request(to=CDN, label="playback", dur=0.52)
+  @+0.08: CDN.request(to=MetadataDB, label="manifest", dur=0.52)
+}
+
+scene "takeaway" {
+  @+0.16: CDN.glow(color=#38bdf8, strength=32, dur=0.55)
+  @+0.0: Renditions.glow(color=#22c55e, strength=28, dur=0.55)
+  @+0.0: camera.zoom(to=1.02, dur=0.6, ease=smooth)
+}

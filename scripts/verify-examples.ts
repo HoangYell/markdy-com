@@ -17,7 +17,7 @@
  * shipped examples when the grammar is extended.
  */
 
-import { parse, registerActorPack, type ParseWarning, type SceneAST } from "../packages/core/src/index.js";
+import { parse, registerActorPack, type ParseOptions, type ParseWarning, type SceneAST } from "../packages/core/src/index.js";
 import { systemsPack } from "../packages/stdlib-systems/src/index.js";
 import { readdir, readFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
@@ -36,10 +36,10 @@ interface Failure {
 
 type ExpectWarnings = "none" | "allow-intentional" | "any";
 
-const DIRS: Array<{ dir: string; expectWarnings: ExpectWarnings; expectChapters: boolean }> = [
+const DIRS: Array<{ dir: string; expectWarnings: ExpectWarnings; expectChapters: boolean; parseOptions?: ParseOptions }> = [
   { dir: "examples",           expectWarnings: "allow-intentional", expectChapters: true },
   { dir: "examples/presets",   expectWarnings: "any",  expectChapters: true },
-  { dir: "examples/showcase",  expectWarnings: "none", expectChapters: true },
+  { dir: "examples/showcase",  expectWarnings: "none", expectChapters: true, parseOptions: { actorCountWarningThreshold: 24 } },
 ];
 
 async function list(dir: string): Promise<string[]> {
@@ -59,7 +59,7 @@ async function verify(): Promise<number> {
   const failures: Failure[] = [];
   let total = 0;
 
-  for (const { dir, expectWarnings, expectChapters } of DIRS) {
+  for (const { dir, expectWarnings, expectChapters, parseOptions } of DIRS) {
     const files = await list(dir);
     for (const name of files) {
       total++;
@@ -68,7 +68,7 @@ async function verify(): Promise<number> {
 
       let ast: SceneAST;
       try {
-        ast = parse(source);
+        ast = parse(source, parseOptions);
       } catch (err) {
         failures.push({
           file: join(dir, name),

@@ -149,6 +149,56 @@ cluster Kubernetes
 
 Shorthand declarations expand to ordinary actors in the AST. `service API` is equivalent to `actor API = service("API") at (...)`, with a deterministic auto-layout position when `at (x,y)` is omitted. `database`, `cache`, `cloud`, `region`, `container`, `microservice`, and `cluster` render as architecture diagram nodes and support system flow actions such as `request`, `response`, and `emit`.
 
+The systems pack is intentionally broad enough for most software engineering diagrams. These aliases all render as generic technical nodes and support the same flow actions:
+
+| Family | Node types |
+| --- | --- |
+| Compute/backend | `service`, `api`, `microservice`, `backend`, `server`, `worker`, `job`, `scheduler`, `cron`, `batch`, `function`, `lambda`, `edge`, `controller`, `handler`, `repository`, `runtime`, `process` |
+| Frontend/client | `client`, `user`, `browser`, `web`, `mobile`, `desktop`, `frontend`, `app`, `page`, `view`, `component`, `store` |
+| Data/storage | `db`, `database`, `sql`, `nosql`, `table`, `index`, `warehouse`, `lake`, `object_store`, `bucket`, `blob`, `volume`, `disk`, `search`, `cache` |
+| Messaging/events | `queue`, `topic`, `stream`, `event`, `event_bus`, `bus`, `broker`, `pubsub`, `kafka`, `producer`, `consumer`, `dead_letter`, `dlq`, `webhook` |
+| Network/cloud | `cloud`, `region`, `vpc`, `subnet`, `network`, `internet`, `dns`, `cdn`, `proxy`, `gateway`, `api_gateway`, `load_balancer`, `reverse_proxy`, `router`, `switch`, `nat`, `firewall`, `waf`, `vpn`, `bastion` |
+| Platform/Kubernetes/Docker | `container`, `cluster`, `pod`, `node`, `deployment`, `replicaset`, `statefulset`, `daemonset`, `namespace`, `ingress`, `service_mesh`, `sidecar`, `image`, `registry`, `docker`, `compose`, `helm`, `chart`, `configmap`, `pvc` |
+| Security/IAM | `auth`, `identity`, `oauth`, `oidc`, `jwt`, `session`, `policy`, `role`, `permission`, `vault`, `secret`, `key`, `certificate` |
+| CI/CD | `repo`, `branch`, `commit`, `pipeline`, `workflow`, `runner`, `build`, `test`, `artifact`, `deploy`, `release`, `environment`, `preview` |
+| Observability | `monitor`, `metrics`, `logs`, `trace`, `alert`, `dashboard`, `probe`, `slo` |
+| Flow/state/sequence | `start`, `end`, `state`, `decision`, `condition`, `step`, `loop`, `sequence`, `participant` |
+| Distributed systems | `replica`, `shard`, `leader`, `follower`, `quorum`, `consensus`, `lock` |
+| Programming concepts | `class`, `interface`, `method`, `object`, `enum`, `type`, `module`, `package`, `library`, `sdk`, `cli` |
+
+Example:
+
+```markdy
+client Browser at (80, 160)
+api_gateway EdgeAPI "API Gateway" at (320, 160)
+auth OIDC "OIDC Provider" at (560, 160)
+pod CheckoutPod "Checkout Pod" at (320, 340)
+topic Orders "orders.created" at (560, 340)
+warehouse BI "Analytics Warehouse" at (800, 340)
+
+@0.5: Browser.request(to=EdgeAPI, label="POST /checkout")
+@1.2: EdgeAPI.request(to=OIDC, label="verify token")
+@1.9: EdgeAPI.emit(to=Orders, label="order.created")
+@2.5: Orders.emit(to=BI, label="stream")
+```
+
+### Generic visual primitives
+
+The systems actor pack also includes reusable visual primitives for composing rich UI scenes without adding story-specific actor types:
+
+```markdy
+actor shell = surface("Ops dashboard", "live", cyan) at (60, 120)
+actor log = terminal("Compiler", "input rows", "tokens -> graph", "state synced", green) at (60, 120)
+actor cells = matrix("cells", "4x2", "3 6 8", green) at (240, 160)
+actor latency = stat("latency", "18ms", cyan) at (90, 330)
+actor route = track("handoff", cyan) at (80, 260)
+actor packet = dot("packet", cyan) at (240, 270)
+actor tokens = chips("char|U+0041|0x41", purple) at (190, 210)
+actor glyph = glyph("A", "glyph", purple) at (80, 180)
+```
+
+Use these as composable building blocks for dashboards, terminals, games, maps, encoders, education flows, and product explainers. They accept normal modifiers and universal actions, so you can animate them with `fade_in`, `mask`, `glow`, `ripple`, `move`, `pulse`, and `play(...)`.
+
 ---
 
 ## Timeline events
@@ -864,6 +914,54 @@ Full example: [`examples/12-figure-type-check.markdy`](../examples/12-figure-typ
 
 ---
 
+### systems architecture nodes
+
+Register the `@markdy/stdlib-systems` pack to unlock a broad vocabulary of software-diagram node types across compute, client, data, messaging, network, Kubernetes/Docker, security, CI/CD, observability, flow, and distributed-systems categories. Shorthand `<type> <Name> ["Label"] [at (x,y)]` expands to a normal actor and is styled by semantic category, so you name the concept and the renderer handles the look.
+
+```markdy
+service Orders "Orders API" at (200, 120)
+```
+
+Full example: [`examples/showcase/url-shortener-architecture.markdy`](../examples/showcase/url-shortener-architecture.markdy)
+
+---
+
+### system flow edges
+
+The three flow verbs draw labeled, auto-routed edges between technical nodes: `request` is a solid call (blue), `response` a dashed return (violet), and `emit` an async/event edge (amber). Edges route around other nodes, fan parallel calls into separate lanes, and fade out after their dot arrives so busy diagrams stay readable. `to=` is required; keep `label=` under 28 characters.
+
+```markdy
+@0.5: Orders.request(to=UrlDB, label="store slug", dur=0.5)
+```
+
+Full example: [`examples/showcase/twitter-timeline-service.markdy`](../examples/showcase/twitter-timeline-service.markdy)
+
+---
+
+### premium visual effects
+
+Beyond the core motion actions, every actor supports a set of premium effects: `glow`/`pulse`/`ripple` for emphasis, `blur`/`mask`/`line_reveal` for reveals, `parallax` for layered depth, and `spring`/`follow_path` for richer motion. Pair `smooth`, `snappy`, `overshoot`, or `sharp` easing (or a literal `cubic-bezier(...)`) for a polished feel.
+
+```markdy
+@0.0: Orders.glow(color=#38bdf8, strength=24, dur=0.5)
+```
+
+Full example: [`examples/showcase/youtube-processing-pipeline.markdy`](../examples/showcase/youtube-processing-pipeline.markdy)
+
+---
+
+### visual composition primitives
+
+Compose Excalidraw/Lucidchart-style annotated scenes without scenario-specific actors. Each primitive takes a positional label first and a colour tone last (`cyan`, `green`, `amber`, `purple`, ...): `surface`/`terminal` for panels, `stat` for KPIs, `matrix` for cell grids, `track`/`dot` for paths, `chips` for token rows, and `glyph` for badge cards. They accept all normal modifiers and universal actions.
+
+```markdy
+actor kpi = stat("latency", "18ms", cyan) at (90, 330)
+```
+
+Full example: [`examples/showcase/technical-diagram-vocabulary.markdy`](../examples/showcase/technical-diagram-vocabulary.markdy)
+
+---
+
 ## Soft warnings
 
 Where the grammar could have hard-errored, it often emits a `ParseWarning` instead. Warnings are attached to `ast.warnings` and surfaced via the renderer's `onWarning` callback. This keeps older scripts parseable as the grammar evolves.
@@ -877,6 +975,8 @@ Where the grammar could have hard-errored, it often emits a `ParseWarning` inste
 | `unknown-preset` | `preset <name>` references a preset that doesn't exist; the message lists available names |
 | `import-unresolved` | an `import ... as ns` has no matching host-provided namespace |
 | `preset-mixed` | `preset <name>` appears alongside other statements (presets are whole-file shorthands) |
+| `actor-count-threshold` | a scene declares an unusually large number of actors; a hint to split or simplify |
+| `label-overflow` | a caption or label is long enough that it may overflow its layout box |
 
 Prefix an action with `!` to opt into hard-fail behavior instead: `actor.!action(...)` throws `ParseError` on unknown actions.
 <!-- markdy:regen:syntax-addendum:end -->

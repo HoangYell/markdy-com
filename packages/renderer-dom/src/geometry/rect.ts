@@ -7,6 +7,7 @@
  * testable without a browser environment.
  */
 import type { ActorState } from "../types.js";
+import { TECHNICAL_NODE_TYPES } from "@markdy/core";
 
 export interface Point {
   x: number;
@@ -26,27 +27,32 @@ export interface Rect {
  * the stdlib-systems node styles; they are deliberately approximate because
  * they only feed routing heuristics, never layout.
  */
+const SYSTEM_NODE_SIZE = { width: 184, height: 88 };
+
 const ACTOR_SIZES: Record<string, { width: number; height: number }> = {
-  service: { width: 184, height: 88 },
-  api: { width: 184, height: 88 },
-  microservice: { width: 184, height: 88 },
-  client: { width: 184, height: 88 },
-  user: { width: 184, height: 88 },
-  db: { width: 184, height: 88 },
-  database: { width: 184, height: 88 },
-  queue: { width: 184, height: 88 },
-  cache: { width: 184, height: 88 },
-  cloud: { width: 184, height: 88 },
-  region: { width: 184, height: 88 },
-  container: { width: 184, height: 88 },
-  cluster: { width: 184, height: 88 },
+  ...Object.fromEntries(TECHNICAL_NODE_TYPES.map((type) => [type, SYSTEM_NODE_SIZE])),
   box: { width: 100, height: 100 },
   caption: { width: 260, height: 56 },
   figure: { width: 120, height: 170 },
+  panel: { width: 390, height: 250 },
+  surface: { width: 390, height: 250 },
+  terminal: { width: 390, height: 250 },
+  metric: { width: 112, height: 44 },
+  stat: { width: 112, height: 44 },
+  grid: { width: 190, height: 92 },
+  matrix: { width: 190, height: 92 },
+  lane: { width: 300, height: 44 },
+  track: { width: 300, height: 44 },
+  marker: { width: 50, height: 24 },
+  dot: { width: 50, height: 24 },
+  token_strip: { width: 300, height: 54 },
+  chips: { width: 300, height: 54 },
+  glyph_card: { width: 98, height: 120 },
+  glyph: { width: 98, height: 120 },
   parking_map: { width: 390, height: 250 },
   ascii_map: { width: 390, height: 250 },
   game_scene: { width: 390, height: 250 },
-  byte_viz: { width: 420, height: 250 },
+  byte_viz: { width: 390, height: 250 },
 };
 
 const DEFAULT_ACTOR_SIZE = { width: 140, height: 42 };

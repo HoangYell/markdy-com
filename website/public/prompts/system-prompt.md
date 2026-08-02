@@ -24,12 +24,16 @@ group <name> = <actor>, <actor>, ...   # declare after member actors
 - **!action must-understand prefix** — `actor.!action(...)` — hard-fail on unknown actions. Without `!`, unknowns soft-warn.
 - **unified with-modifier form** — `with key=val, key=val` — modifier form alongside the space-separated `scale 1.5 rotate 10` syntax.
 - **figure-only type check** — Figure-only actions (`punch`, `kick`, `wave`, `nod`, `jump`, `bounce`, `face`, `pose`, `rotate_part`) error on non-figure targets.
+- **systems architecture nodes** — `service API`, `db Users`, `queue Jobs` — shorthand technical nodes (needs `@markdy/stdlib-systems`) for architecture diagrams; auto-layout when `at (x,y)` is omitted.
+- **system flow edges** — `node.request(to=Other, label="…")`, `.response(...)`, `.emit(...)` — animated, auto-routed edges between nodes for calls, returns, and events.
+- **premium visual effects** — `glow`, `pulse`, `ripple`, `blur`, `line_reveal`, `mask`, `parallax`, `spring`, `follow_path` — universal polish actions for emphasis and motion.
+- **visual composition primitives** — `surface`, `terminal`, `stat`, `matrix`, `track`, `dot`, `chips`, `glyph` — reusable annotated UI building blocks (needs `@markdy/stdlib-systems`).
 
 ## Soft-warning rules
 
 Unknown actions, modifier keys, and scene keys emit `ParseWarning` instead of throwing. Prefix an action with `!` (e.g. `hero.!punch(...)`) to require must-understand semantics.
 
-Figure-only actions (`punch`, `kick`, `wave`, `nod`, `jump`, `bounce`, `face`, `pose`, `rotate_part`) hard-fail if the target is not a figure actor.
+Figure-only actions (`punch`, `kick`, `wave`, `nod`, `jump`, `bounce`, `face`, `rotate_part`, `pose`) hard-fail if the target is not a figure actor.
 
 ## Authoring defaults
 
@@ -38,6 +42,7 @@ Figure-only actions (`punch`, `kick`, `wave`, `nod`, `jump`, `bounce`, `face`, `
 - Use `caption(...) at top|bottom|center` for overlay text, never `text` for captions.
 - `camera.pan/zoom/shake` makes scenes feel cinematic — use it sparingly.
 - `preset <name>` is the fastest way to scaffold a scene; edit after expanding.
+- For architecture diagrams, register `@markdy/stdlib-systems`, lay out `service`/`db`/`queue`/`client` nodes left→right, and narrate the flow with labeled `request`/`response`/`emit` edges.
 
 ## Minimum viable scene
 

@@ -24,8 +24,8 @@
 
 Define actors, timelines, and interactions in a simple, readable DSL. The engine handles rendering with the Web Animations API. No Canvas, no GSAP, no bloated dependencies.
 
-> Markdy is built for **text-to-motion scenes**.
-> It is **not** a static diagram generator for flowcharts, ERDs, or network graphs.
+> Markdy is built for **text-to-motion scenes and animated technical diagrams**.
+> With `@markdy/stdlib-systems`, it can express architecture, cloud, Kubernetes, CI/CD, auth, data, messaging, state-machine, and flow diagrams.
 
 ```markdy
 scene width=600 height=300 bg=white
@@ -47,6 +47,7 @@ actor label = text("Hello World") at (50, 130) size 40 opacity 0
 | **Captions, groups, imports, presets** | First-class `caption` actors, `group` fan-out with `stagger`, `import "..." as ns` composition, parse-time `preset <name>(...)` macros |
 | **Forgiving by default, strict on demand** | Unknown actions soft-warn; prefix with `!` to hard-fail (e.g. `hero.!shake(...)`) |
 | **Language-first design** | `var`, `def`, `seq` let users build character systems and choreographies without engine changes |
+| **Technical diagram vocabulary** | Optional systems pack adds architecture nodes, visual primitives, and labeled flows for software-engineering diagrams |
 | **Astro-ready** | `<Markdy />` island that hydrates on viewport entry |
 | **AI-agent friendly** | Structured DSL that LLMs can generate, validate, and iterate on ([Agent Guide](docs/AGENT.md)) |
 
@@ -98,7 +99,7 @@ npm i -g @markdy/cli
   -> diagnostics, completion, and hover in editors
 
 @markdy/stdlib-systems
-  -> optional actor/action pack for system diagrams
+  -> optional actor/action pack for architecture and technical diagrams
 ```
 
 ## Output preview
@@ -218,6 +219,26 @@ actor host = presenter(${skin}, 🙂) at (200, 200)
 
 @0.5: host.enter(from=left, dur=0.8)
 @2.0: host.play(greet, side=right)
+```
+
+### Technical Diagrams
+
+Register `@markdy/stdlib-systems` to use semantic nodes and labeled flows:
+
+```markdy
+scene width=1280 height=720 bg=#07111f fps=60
+
+browser Browser "Web app" at (80, 160)
+api_gateway EdgeAPI "API Gateway" at (320, 160)
+auth OIDC "OIDC Provider" at (560, 160)
+pod CheckoutPod "Checkout Pod" at (320, 340)
+topic Orders "orders.created" at (560, 340)
+warehouse BI "Analytics Warehouse" at (800, 340)
+
+@0.5: Browser.request(to=EdgeAPI, label="POST /checkout")
+@1.2: EdgeAPI.request(to=OIDC, label="verify token")
+@1.9: EdgeAPI.emit(to=Orders, label="order.created")
+@2.5: Orders.emit(to=BI, label="stream")
 ```
 
 ### Chapters, Camera, Captions

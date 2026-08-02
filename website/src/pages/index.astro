@@ -412,7 +412,7 @@ markdy <span class="u-fn">check-all</span> examples`;
       <div class="preview-col">
         <div class="panel-label">
           <span>Preview</span>
-          <div style="display:flex;align-items:center;gap:0.5rem;">
+          <div class="preview-toolbar">
             <span id="status" class="status ok"></span>
             <button id="rewind-btn" class="btn-share" title="Back 1 second" aria-label="Back 1 second">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
@@ -426,6 +426,10 @@ markdy <span class="u-fn">check-all</span> examples`;
               <svg id="play-icon" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
               <svg id="pause-icon" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
               <span id="play-label">Play</span>
+            </button>
+            <button id="expand-preview-btn" class="btn-share" title="Expand preview" aria-label="Expand preview" aria-pressed="false">
+              <svg id="expand-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+              <span id="expand-preview-label">Expand View</span>
             </button>
             <button id="share-btn" class="btn-share" title="Copy shareable link to clipboard" aria-label="Share">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -450,25 +454,34 @@ markdy <span class="u-fn">check-all</span> examples`;
     <div class="section-header">
       <span class="section-tag">Step-by-Step</span>
       <h2>Learn MarkdyScript</h2>
-      <p>Follow this guide from basics to advanced. Each card builds on the last.</p>
+      <p>Build cinematic scenes with premium surfaces, routed systems, reusable choreography, and camera direction. Every card is runnable in the playground.</p>
     </div>
 
     <div class="ref-grid">
 
-      <!-- Step 1: Scene Setup -->
+      <!-- Step 1: Cinematic Scene Setup -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">1</div>
-          <h3>Scene Setup</h3>
+          <h3>Cinematic Scene Setup</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Every animation starts by defining the canvas. This must be the first line in your <code>.markdy</code> file.</p>
+        <p class="ref-intro">Start with a wide video canvas, dark art direction, and 60fps when the scene needs HUD detail, glow, and smooth motion.</p>
         <div class="ref-code-wrap">
-        <pre><code>scene width=800 height=400 fps=30 bg=#fafafa</code></pre>
+        <pre><code>scene width=1280 height=720 bg=#050816 fps=60
+actor title = caption("Cyber parking control room") at top opacity 0
+        actor hud = surface("Vision routing HUD", "live ops", cyan) at (56, 124) scale 0.9 opacity 0</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=800 height=400 fps=30 bg=#fafafa
-actor label = text("Launch checklist") at (400, 120) size 32
-actor card = box() at (350, 180) scale 1.4
+scene width=1280 height=720 bg=#050816 fps=60
+actor title = caption("Cyber parking control room") at top opacity 0
+actor hud = surface("Vision routing HUD", "live ops", cyan) at (56, 124) scale 0.9 opacity 0 z 35
+actor status = text("SCAN -> OCR -> ROUTE -> GATE") at (432, 632) size 23 opacity 0 z 70
+
+@0.0: title.line_reveal(from=left, dur=0.42)
+@0.1: hud.fade_in(dur=0.45)
+@0.1: hud.mask(from=0, to=120, dur=0.75, ease=smooth)
+@0.2: hud.glow(color=#38bdf8, strength=42, dur=0.75)
+@0.8: status.line_reveal(from=left, dur=0.45)
         </script>
         </div>
         <table>
@@ -477,165 +490,219 @@ actor card = box() at (350, 180) scale 1.4
             <tr><td><code>width</code></td><td><code>800</code></td><td>Canvas width in pixels</td></tr>
             <tr><td><code>height</code></td><td><code>400</code></td><td>Canvas height in pixels</td></tr>
             <tr><td><code>fps</code></td><td><code>30</code></td><td>Frame rate for the rendering engine</td></tr>
-            <tr><td><code>bg</code></td><td><code>white</code></td><td>Any CSS color value (e.g. <code>#1a1a2e</code>)</td></tr>
+            <tr><td><code>bg</code></td><td><code>white</code></td><td>Use art-directed CSS colors; dark scenes make neon surfaces pop</td></tr>
             <tr><td><code>duration</code></td><td><i>auto</i></td><td>Override total length in seconds</td></tr>
           </tbody>
         </table>
       </article>
 
-      <!-- Step 2: Actors & Positioning -->
+      <!-- Step 2: Visual Primitives -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">2</div>
-          <h3>Actors & Positioning</h3>
+          <h3>Visual Primitives</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Actors are the objects in your scene. Place them with <code>at (x, y)</code> and add optional modifiers.</p>
+        <p class="ref-intro">Compose reusable visual primitives instead of relying on one-off story actors.</p>
         <div class="ref-code-wrap">
-        <pre><code>actor title = text("Release Plan") at (260, 70) size 32
-actor card = box() at (350, 160) scale 1.4
-actor step = text("Run checks") at (400, 215) size 24</code></pre>
+        <pre><code>actor shell = terminal("Compiler", "[IN]===LANE===[OUT]", "tokens -> graph", "slots -> state", green) at (58, 130)
+actor cells = matrix("Cells", "4x2", "3 6 8", green) at (236, 154)
+actor stat = stat("latency", "18ms", cyan) at (196, 322)</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=800 height=400
+scene width=1280 height=720 bg=#07111f fps=60
 
-actor title = text("Release Plan") at (260, 70) size 32
-actor card = box() at (350, 160) scale 1.4
-actor step = text("Run checks") at (400, 215) size 24
+actor title = caption("ASCII parking garage") at top opacity 0
+actor ascii = terminal("Text map compiler", "[P1][P2][  ][EV]", "[IN]===LANE===[OUT]", "0101 0000 0100 0001", green) at (58, 130) scale 0.9 opacity 0 z 35
+actor mini = matrix("mini map", "3x2", "2 6", green) at (282, 192) opacity 0 scale 0.72 z 50
+actor stages = chips("tokens|graph|slots", green) at (88, 324) opacity 0 scale 0.84 z 55
+client Terminal "Terminal" at (600, 150) opacity 0
+service Lexer "Lexer" at (832, 150) opacity 0
+service Graph "Graph builder" at (1064, 150) opacity 0
+
+@0.0: title.line_reveal(from=left, dur=0.42)
+@0.1: ascii.fade_in(dur=0.45)
+@0.1: mini.fade_in(dur=0.45)
+@0.1: stages.fade_in(dur=0.45)
+@0.1: ascii.mask(from=0, to=120, dur=0.72, ease=smooth)
+@0.2: Terminal.enter(from=right, dur=0.44, ease=snappy)
+@0.28: Lexer.enter(from=right, dur=0.44, ease=snappy)
+@0.36: Graph.enter(from=right, dur=0.44, ease=snappy)
         </script>
         </div>
         <table>
           <thead><tr><th>Type</th><th>Arguments</th><th>Description</th></tr></thead>
           <tbody>
-            <tr><td><code>text</code></td><td><code>"quoted string"</code></td><td>Plain text label. Customise with <code>size</code>.</td></tr>
-            <tr><td><code>box</code></td><td>—</td><td>100x100 solid box. Great for prototyping.</td></tr>
-            <tr><td><code>figure</code></td><td>skinColor, gender, face</td><td>Optional presenter or guide actor.</td></tr>
-            <tr><td><code>sprite</code></td><td>asset name</td><td>Renders an image or icon asset.</td></tr>
+            <tr><td><code>panel</code></td><td>title, tag, tone</td><td>Generic cinematic dashboard shell</td></tr>
+            <tr><td><code>terminal</code></td><td>title, line1, line2, line3, tone</td><td>Reusable terminal/code surface</td></tr>
+            <tr><td><code>grid</code></td><td>label, colsxrows, active cells, tone</td><td>Any matrix: slots, bits, tokens, health, inventory</td></tr>
+            <tr><td><code>metric</code></td><td>label, value, tone</td><td>Compact HUD counters and stats</td></tr>
+            <tr><td><code>lane</code>, <code>marker</code>, <code>token_strip</code>, <code>glyph_card</code></td><td>generic args</td><td>Composable motion/detail primitives</td></tr>
           </tbody>
         </table>
         <p><strong>Modifiers:</strong> <code>opacity</code> (0–1), <code>scale</code>, <code>rotate</code>, <code>size</code> (text only), <code>z</code> (layer order).</p>
       </article>
 
-      <!-- Step 3: Timeline & Motion -->
+      <!-- Step 3: Routed Systems -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">3</div>
-          <h3>Timeline & Motion</h3>
+          <h3>Routed Systems</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Schedule actions on a timeline with <code>@time: actor.action()</code>. Time is in decimal seconds.</p>
+        <p class="ref-intro">Pair premium visuals with architecture nodes and flow actions so handoffs draw accurate, readable routes.</p>
         <div class="ref-code-wrap">
-        <pre><code>@0.5: a.enter(from=left, dur=0.8)
-@1.5: a.move(to=(400, 200), dur=1.0, ease=out)
-@3.0: a.fade_out(dur=0.5)</code></pre>
+        <pre><code>@0.6: DriverApp.request(to=GateCam, label="arrival", dur=0.55)
+@1.2: GateCam.request(to=PlateOCR, label="plate frame", dur=0.58)
+@1.8: PlateOCR.request(to=Occupancy, label="permit lookup", dur=0.6)</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=800 height=400
-actor a = text("Draft") at (160, 200) size 28 opacity 0
+scene width=1280 height=720 bg=#050816 fps=60
+actor dash = surface("Vision routing HUD", "live ops", cyan) at (56, 124) scale 0.9 opacity 0 z 35
+actor route = track("route", cyan) at (82, 250) scale 0.9 opacity 0 z 45
+actor vehicle = dot("vehicle", cyan) at (244, 260) scale 0.9 opacity 0 z 55
+client DriverApp "Driver app" at (600, 150) opacity 0
+service GateCam "Gate camera" at (832, 150) opacity 0
+service PlateOCR "Plate OCR" at (1064, 150) opacity 0
+db Occupancy "Occupancy DB" at (600, 454) opacity 0
 
-@0.3: a.enter(from=left, dur=0.8)
-@1.5: a.move(to=(500, 200), dur=0.8, ease=out)
-@3.0: a.fade_out(dur=0.6)
-@4.0: a.fade_in(dur=0.4)
+group nodes = DriverApp, GateCam, PlateOCR, Occupancy
+
+@0.0: dash.fade_in(dur=0.35)
+@0.05: route.fade_in(dur=0.35)
+@0.1: vehicle.fade_in(dur=0.35)
+@0.2: nodes.fade_in(dur=0.42, stagger=0.08)
+@0.8: DriverApp.request(to=GateCam, label="arrival", dur=0.55)
+@1.4: GateCam.request(to=PlateOCR, label="plate frame", dur=0.58)
+@2.0: PlateOCR.request(to=Occupancy, label="permit lookup", dur=0.6)
         </script>
         </div>
         <table>
           <thead><tr><th>Action</th><th>Parameters</th><th>What it does</th></tr></thead>
           <tbody>
-            <tr><td><code>enter</code></td><td>from, dur</td><td>Slides in from canvas edge</td></tr>
-            <tr><td><code>move</code></td><td>to, dur, ease</td><td>Translates to target coordinates</td></tr>
-            <tr><td><code>fade_in</code> / <code>fade_out</code></td><td>dur</td><td>Animates opacity</td></tr>
-            <tr><td><code>scale</code> / <code>rotate</code></td><td>to, dur</td><td>Transforms the actor</td></tr>
+            <tr><td><code>request</code></td><td>to, label, dur</td><td>Draws a directed handoff between nodes</td></tr>
+            <tr><td><code>response</code></td><td>to, label, dur</td><td>Shows return paths without manually positioning lines</td></tr>
+            <tr><td><code>emit</code></td><td>to, label, dur</td><td>Broadcasts events or state updates through the scene</td></tr>
+            <tr><td><code>group</code></td><td>actor list</td><td>Lets a whole system fade, enter, or stagger together</td></tr>
           </tbody>
         </table>
-        <p><strong>Easing:</strong> <code>linear</code>, <code>in</code>, <code>out</code>, <code>inout</code></p>
+        <p>Routes avoid actor boxes and use lane-aware labels, so dense scenes stay clean instead of becoming spaghetti.</p>
       </article>
 
-      <!-- Step 4: Captions & Effects -->
+      <!-- Step 4: Visual Polish -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">4</div>
-          <h3>Captions & Effects</h3>
+          <h3>Visual Polish</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Use captions for scene-level narration and effects like shaking to highlight state changes.</p>
+        <p class="ref-intro">Layer masks, glow, blur, ripple, and text reveals to make the scene feel designed rather than assembled.</p>
         <div class="ref-code-wrap">
-        <pre><code>@1.0: status.fade_in(dur=0.4)
-@1.5: card.shake(intensity=4, dur=0.4)</code></pre>
+        <pre><code>@0.1: world.blur(from=8, to=0, dur=0.52)
+@0.2: world.glow(color=#f59e0b, strength=44, dur=0.72)
+@1.7: combo.scale(to=1.12, dur=0.38, ease=overshoot)</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=800 height=400
-actor card = box() at (350, 150) scale 1.5 opacity 0
-actor status = caption("Checks passed") at bottom opacity 0
+scene width=1280 height=720 bg=#0b1020 fps=60
+actor title = caption("Parking game loop") at top opacity 0
+actor world = surface("Parking micro-game", "60 fps", amber) at (58, 128) scale 0.9 opacity 0 z 35
+actor track = track("drive line", amber) at (82, 260) scale 0.9 opacity 0 z 45
+actor car = dot("car", rose) at (174, 270) scale 1.05 opacity 0 z 55
+actor combo = text("PERFECT PARK +1200") at (438, 632) size 32 opacity 0 scale 0.72 z 80
 
-@0.5: card.fade_in(dur=0.5)
-@1.2: status.fade_in(dur=0.4)
-@1.6: card.shake(intensity=4, dur=0.4)
+@0.0: title.line_reveal(from=left, dur=0.42)
+@0.1: world.fade_in(dur=0.42)
+@0.15: track.fade_in(dur=0.42)
+@0.2: car.fade_in(dur=0.42)
+@0.1: world.blur(from=8, to=0, dur=0.52)
+@0.2: world.glow(color=#f59e0b, strength=44, dur=0.72)
+@1.0: world.pulse(amount=1.035, dur=0.46)
+@1.35: world.ripple(color=#22c55e, size=190, dur=0.68)
+@1.55: combo.fade_in(dur=0.25)
+@1.55: combo.scale(to=1.12, dur=0.38, ease=overshoot)
         </script>
         </div>
         <table>
           <thead><tr><th>Action</th><th>Parameters</th><th>What it does</th></tr></thead>
           <tbody>
-            <tr><td><code>say</code></td><td><code>"text"</code>, dur</td><td>Shows an anchored speech bubble for character scenes</td></tr>
-            <tr><td><code>shake</code></td><td>intensity, dur</td><td>Oscillates on the X axis</td></tr>
-            <tr><td><code>caption</code></td><td>top, center, bottom</td><td>Adds scene-level text overlays</td></tr>
+            <tr><td><code>mask</code></td><td>from, to, dur</td><td>Wipes a complex surface into view</td></tr>
+            <tr><td><code>glow</code></td><td>color, strength, dur</td><td>Adds cinematic emphasis without extra HTML</td></tr>
+            <tr><td><code>ripple</code></td><td>color, size, dur</td><td>Marks success, alerts, or selected targets</td></tr>
           </tbody>
         </table>
       </article>
 
-      <!-- Step 5: Presenter Gestures -->
+      <!-- Step 5: Dense Layouts -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">5</div>
-          <h3>Presenter Gestures</h3>
+          <h3>Dense Layouts</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro"><code>figure</code> actors are optional, but useful when an explainer needs a presenter or guide.</p>
+        <p class="ref-intro">Put rich detail on the left and the explanation graph on the right, then let safe framing keep everything in view.</p>
         <div class="ref-code-wrap">
-        <pre><code>@1.0: guide.wave(side=right, dur=0.8)
-@1.5: guide.nod(dur=0.4)
-@2.0: guide.say("Checks are green.", dur=1.2)</code></pre>
+        <pre><code>        actor viz = surface("Character pipeline", "UTF-8", purple) at (48, 132) scale 0.88
+        client Input "Text input" at (600, 150)
+        service Encoder "UTF-8 encoder" at (1064, 150)</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=800 height=400
-actor guide = figure(#c68642, m, 🙂) at (400, 220) scale 1.4
-actor label = caption("Use figures only when they help explain") at top opacity 0
+scene width=1280 height=720 bg=#06101f fps=60
+actor title = caption("UTF-8 byte visualizer") at top opacity 0
+actor viz = surface("Character pipeline", "UTF-8", purple) at (48, 132) scale 0.88 opacity 0 z 35
+actor glyph = glyph("A", "glyph", purple) at (74, 174) scale 0.9 opacity 0 z 45
+actor tokens = chips("char|U+0041|0x41|01000001", purple) at (188, 190) scale 0.78 opacity 0 z 50
+client Input "Text input" at (600, 150) opacity 0
+service CodePoint "Code point" at (832, 150) opacity 0
+service Encoder "UTF-8 encoder" at (1064, 150) opacity 0
+queue Bytes "Byte stream" at (600, 454) opacity 0
+container Bits "Bit lanes" at (832, 454) opacity 0
+cloud Screen "Rendered glyph" at (1064, 454) opacity 0
 
-@0.5: label.fade_in(dur=0.4)
-@1.0: guide.wave(side=right, dur=0.8)
-@1.8: guide.nod(dur=0.4)
-@2.4: guide.say("Checks are green.", dur=1.2)
+group pipeline = Input, CodePoint, Encoder, Bytes, Bits, Screen
+
+@0.0: title.line_reveal(from=left, dur=0.42)
+@0.1: viz.fade_in(dur=0.42)
+@0.14: glyph.fade_in(dur=0.42)
+@0.18: tokens.fade_in(dur=0.42)
+@0.2: pipeline.enter(from=right, dur=0.44, ease=snappy, stagger=0.06)
+@1.0: Input.request(to=CodePoint, label="character", dur=0.55)
+@1.55: CodePoint.request(to=Encoder, label="U+0041", dur=0.56)
+@2.15: Encoder.emit(to=Bytes, label="0x41", dur=0.55)
         </script>
         </div>
         <table>
-          <thead><tr><th>Action</th><th>Parameters</th></tr></thead>
+          <thead><tr><th>Technique</th><th>Why it helps</th></tr></thead>
           <tbody>
-            <tr><td><code>face</code></td><td><code>"emoji"</code> — instant expression swap</td></tr>
-            <tr><td><code>say</code></td><td><code>"text"</code>, dur</td></tr>
-            <tr><td><code>wave</code> / <code>nod</code></td><td>side, dur</td></tr>
+            <tr><td>Hero surface + graph</td><td>Separates visual detail from explanatory structure</td></tr>
+            <tr><td>Scale-aware bounds</td><td>Flows route around what the viewer actually sees</td></tr>
+            <tr><td>Safe framing</td><td>Oversized content is kept inside the viewport</td></tr>
           </tbody>
         </table>
       </article>
 
-      <!-- Step 5b: Friendly Presenter Actions -->
+      <!-- Step 5b: Human Moments -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">5b</div>
-          <h3>Friendly Presenter Actions</h3>
+          <h3>Human Moments</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Use small, readable presenter motions when a human guide clarifies the scene.</p>
+        <p class="ref-intro">When a presenter helps the story, keep it supporting the product scene instead of replacing it.</p>
         <div class="ref-code-wrap">
-        <pre><code>@1.0: a.wave(side=right, dur=0.8)
-@2.0: a.nod(dur=0.4)
-@3.0: a.face("🙂")
-@4.0: a.jump(height=20, dur=0.5)</code></pre>
+        <pre><code>actor guide = figure(#c68642, m, 😎) at (1010, 520) scale 1.15
+@1.2: guide.say("The route stays readable.", dur=1.2)
+@2.0: guide.wave(side=left, dur=0.8)</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=800 height=400
-actor a = figure(#c68642, m, 🙂) at (400, 200) scale 1.5
+scene width=1280 height=720 bg=#050816 fps=60
+actor dash = surface("Vision routing HUD", "live ops", cyan) at (56, 124) scale 0.9 opacity 0 z 35
+service Allocator "Spot allocator" at (832, 454) opacity 0
+container Gate "Gate arm" at (1064, 454) opacity 0
+actor guide = figure(#c68642, m, 😎) at (1040, 584) scale 1.15 opacity 0 z 80
 
-@0.5: a.wave(side=right, dur=0.8)
-@1.5: a.say("Ready to ship.", dur=1.0)
-@1.5: a.nod(dur=0.4)
-@2.5: a.face("😄")
-@3.0: a.jump(height=20, dur=0.5)
-@3.5: a.bounce(intensity=10, count=2, dur=0.5)
+@0.0: dash.fade_in(dur=0.4)
+@0.2: Allocator.fade_in(dur=0.35)
+@0.35: Gate.fade_in(dur=0.35)
+@0.7: Allocator.emit(to=Gate, label="open lane", dur=0.56)
+@0.9: guide.fade_in(dur=0.35)
+@1.25: guide.say("Flow labels stay out of the mess.", dur=1.25)
+@2.0: guide.wave(side=left, dur=0.8)
+@2.7: guide.nod(dur=0.4)
         </script>
         </div>
         <table>
@@ -643,8 +710,8 @@ actor a = figure(#c68642, m, 🙂) at (400, 200) scale 1.5
           <tbody>
             <tr><td><code>wave</code></td><td>side, dur</td><td>Wave gesture — arm up, oscillate, return</td></tr>
             <tr><td><code>nod</code></td><td>dur</td><td>Head nod — down and up twice</td></tr>
-            <tr><td><code>jump</code></td><td>height, dur</td><td>Jump with squash/stretch</td></tr>
-            <tr><td><code>bounce</code></td><td>intensity, count, dur</td><td>Diminishing vertical bounce</td></tr>
+            <tr><td><code>say</code></td><td><code>"text"</code>, dur</td><td>Adds a brief human annotation</td></tr>
+            <tr><td><code>face</code></td><td><code>"emoji"</code></td><td>Instant expression swap for reactions</td></tr>
           </tbody>
         </table>
       </article>
@@ -656,26 +723,29 @@ actor a = figure(#c68642, m, 🙂) at (400, 200) scale 1.5
           <h3>Assets & Sprites</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Load external images and vector icons as assets, then render them as <code>sprite</code> actors.</p>
+        <p class="ref-intro">Assets can sit on top of premium surfaces as branded callouts, warnings, or achievement badges.</p>
         <div class="ref-code-wrap">
         <pre><code># Declare assets first
-asset logo = image("/icon.svg")
-asset check = icon("lucide:circle-check")
+asset badge = icon("lucide:badge-check")
+asset zap = icon("lucide:zap")
 
 # Render them as actors
-actor mark = sprite(logo) at (260, 190) scale 0.6
-actor done = sprite(check) at (520, 190) scale 2.0</code></pre>
+actor clear = sprite(badge) at (930, 610) scale 2.2
+actor boost = sprite(zap) at (360, 520) scale 1.8</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=800 height=400 bg=#ffffff
-asset logo = image("/icon.svg")
-asset check_icon = icon("lucide:circle-check")
+scene width=1280 height=720 bg=#0b1020 fps=60
+asset badge = icon("lucide:badge-check")
+asset zap = icon("lucide:zap")
 
-actor mark = sprite(logo) at (260, 190) scale 0.6 opacity 0
-actor done = sprite(check_icon) at (520, 190) scale 2.0 opacity 0
+actor world = surface("Parking micro-game", "60 fps", amber) at (58, 128) scale 0.9 opacity 0 z 35
+actor boost = sprite(zap) at (360, 520) scale 1.8 opacity 0 z 70
+actor clear = sprite(badge) at (930, 610) scale 2.2 opacity 0 z 80
 
-@0.5: mark.fade_in(dur=0.4)
-@1.2: done.fade_in(dur=0.4)
-@1.6: done.scale(to=2.4, dur=0.3, ease=out)
+@0.0: world.fade_in(dur=0.42)
+@0.6: boost.fade_in(dur=0.24)
+@0.6: boost.scale(to=2.15, dur=0.32, ease=overshoot)
+@1.2: clear.fade_in(dur=0.24)
+@1.2: clear.ripple(color=#22c55e, size=170, dur=0.62)
         </script>
         </div>
         <table>
@@ -693,26 +763,38 @@ actor done = sprite(check_icon) at (520, 190) scale 2.0 opacity 0
           <h3>Variables & Templates</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Avoid repetition with <code>var</code> for values and <code>def</code> for reusable actor templates.</p>
+        <p class="ref-intro">Use variables and templates to keep advanced layouts consistent instead of hard-coding every node.</p>
         <div class="ref-code-wrap">
-        <pre><code>var y = 180
+        <pre><code>var top = 148
+var bottom = 448
 
-def feature_card() {'{'}
-  box()
+def service_node(label) {'{'}
+  service(label)
 {'}'}
 
-actor docs = feature_card() at (230, ${'${y}'}) scale 1.2</code></pre>
+actor parse = service_node("Parser") at (825, ${'${top}'})</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=800 height=400
-var y = 180
+scene width=1280 height=720 bg=#07111f fps=60
+var top = 150
+var bottom = 454
 
-def feature_card() {
-  box()
+def service_node(label) {
+  service(label)
 }
 
-actor docs = feature_card() at (230, ${y}) scale 1.2
-actor api = feature_card() at (430, ${y}) scale 1.2
-actor edge = feature_card() at (630, ${y}) scale 1.2
+actor ascii = terminal("Text map compiler", "[P1][P2][  ][EV]", "[IN]===LANE===[OUT]", "0101 0000 0100 0001", green) at (58, 130) scale 0.9 opacity 0 z 35
+client Terminal "Terminal" at (600, ${top}) opacity 0
+actor Lexer = service_node("Lexer") at (832, ${top}) opacity 0
+actor Graph = service_node("Graph builder") at (1064, ${top}) opacity 0
+queue Lane "Lane graph" at (600, ${bottom}) opacity 0
+container Bay "Open bay" at (832, ${bottom}) opacity 0
+db State "State store" at (1064, ${bottom}) opacity 0
+
+@0.0: ascii.fade_in(dur=0.35)
+@0.3: Terminal.request(to=Lexer, label="ASCII rows", dur=0.55)
+@0.9: Lexer.request(to=Graph, label="tokens", dur=0.55)
+@1.5: Graph.emit(to=Lane, label="lane edges", dur=0.55)
+@1.5: Graph.emit(to=Bay, label="bay nodes", dur=0.55)
         </script>
         </div>
         <p><code>var</code> substitutes values (robust for <code>#hex</code> colors). <code>def</code> creates actor factory templates — build reusable scene systems without any JavaScript.</p>
@@ -725,25 +807,36 @@ actor edge = feature_card() at (630, ${y}) scale 1.2
           <h3>Sequences</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Package multi-step choreographies into reusable <code>seq</code> blocks. The ultimate power move.</p>
+        <p class="ref-intro">Package repeated beats into <code>seq</code> blocks so a complex scene feels intentionally choreographed.</p>
         <div class="ref-code-wrap">
-        <pre><code>seq nudge(x) {'{'}
-  @+0.0: $.move(to=(${'${x}'}, 200), dur=0.3)
-  @+0.3: $.move(to=(400, 200), dur=0.3)
+        <pre><code>seq inspect(color) {'{'}
+  @+0.0: $.glow(color=${'${color}'}, strength=38, dur=0.45)
+  @+0.1: $.pulse(amount=1.08, dur=0.42)
 {'}'}
 
-@2.0: card.play(nudge, x=320)</code></pre>
+@1.0: Encoder.play(inspect, color=#a78bfa)</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=800 height=400
-actor card = box() at (400, 200) scale 1.5
+scene width=1280 height=720 bg=#06101f fps=60
+actor viz = surface("Character pipeline", "UTF-8", purple) at (48, 132) scale 0.88 opacity 0 z 35
+actor bitsViz = matrix("bits", "8x1", "2 8", cyan) at (188, 272) scale 0.88 opacity 0 z 50
+service Encoder "UTF-8 encoder" at (1064, 150) opacity 0
+queue Bytes "Byte stream" at (600, 454) opacity 0
+container Bits "Bit lanes" at (832, 454) opacity 0
 
-seq nudge(x) {
-  @+0.0: $.move(to=(${x}, 200), dur=0.3)
-  @+0.3: $.move(to=(400, 200), dur=0.3)
+seq inspect(color) {
+  @+0.0: $.glow(color=${color}, strength=38, dur=0.45)
+  @+0.1: $.pulse(amount=1.08, dur=0.42)
 }
 
-@1.0: card.play(nudge, x=320)
-@2.0: card.play(nudge, x=480)
+@0.0: viz.fade_in(dur=0.42)
+@0.2: Encoder.fade_in(dur=0.35)
+@0.35: Bytes.fade_in(dur=0.35)
+@0.5: Bits.fade_in(dur=0.35)
+@0.8: Encoder.emit(to=Bytes, label="0x41", dur=0.55)
+@1.1: Encoder.play(inspect, color=#a78bfa)
+@1.5: Bytes.emit(to=Bits, label="01000001", dur=0.56)
+@1.8: Bits.play(inspect, color=#22c55e)
+@1.8: bitsViz.play(inspect, color=#22c55e)
         </script>
         </div>
         <p><code>$</code> refers to the calling actor. Times with <code>@+</code> are relative offsets from when <code>.play()</code> is triggered.</p>
@@ -756,27 +849,33 @@ seq nudge(x) {
           <h3>Captions & Camera</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Use anchored captions for titles and takeaways, then direct the viewer with built-in camera moves.</p>
+        <p class="ref-intro">Use anchored captions for context, then direct attention with camera movement while safe framing protects the shot.</p>
         <div class="ref-code-wrap">
-        <pre><code>actor title = caption("Request lifecycle") at top
-      actor takeaway = caption("Edge cache hit") at bottom
+        <pre><code>actor title = caption("Replay camera") at top
+actor takeaway = caption("Focus the perfect park") at bottom
 
-@0.5: camera.pan(to=(500, 200), dur=0.8, ease=out)
-@1.2: camera.zoom(to=1.35, dur=0.6, ease=out)
-      @2.0: camera.shake(intensity=4, dur=0.35)</code></pre>
+@1.2: camera.pan(to=(640, 340), dur=0.78, ease=smooth)
+@1.2: camera.zoom(to=1.02, dur=0.78, ease=smooth)</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=800 height=400 bg=#f8fafc
-      actor title = caption("Request lifecycle") at top
-      actor takeaway = caption("Edge cache hit") at bottom opacity 0
-      actor client = text("Client") at (250, 220) size 24
-      actor edge = box() at (560, 180) scale 1.2
+scene width=1280 height=720 bg=#0b1020 fps=60
+actor title = caption("Replay camera") at top opacity 0
+actor world = surface("Parking micro-game", "60 fps", amber) at (58, 128) scale 0.9 opacity 0 z 35
+actor track = track("drive line", amber) at (82, 260) scale 0.9 opacity 0 z 45
+actor car = dot("car", rose) at (174, 270) scale 1.05 opacity 0 z 55
+actor combo = text("PERFECT PARK +1200") at (438, 632) size 32 opacity 0 scale 0.72 z 80
+actor takeaway = caption("Focus the perfect park") at bottom opacity 0
 
 @0.3: title.fade_in(dur=0.3)
-@0.7: camera.pan(to=(500, 220), dur=0.8, ease=out)
-@1.3: camera.zoom(to=1.35, dur=0.6, ease=out)
-      @1.8: takeaway.fade_in(dur=0.3)
-      @2.1: camera.shake(intensity=4, dur=0.35)
-@2.7: camera.zoom(to=1.0, dur=0.5, ease=inout)
+@0.4: world.fade_in(dur=0.42)
+@0.45: track.fade_in(dur=0.42)
+@0.5: car.fade_in(dur=0.42)
+@0.9: combo.fade_in(dur=0.25)
+@0.9: combo.scale(to=1.12, dur=0.38, ease=overshoot)
+@1.25: camera.pan(to=(640, 340), dur=0.78, ease=smooth)
+@1.25: camera.zoom(to=1.02, dur=0.78, ease=smooth)
+@1.6: takeaway.fade_in(dur=0.3)
+@2.2: combo.shake(intensity=4, dur=0.24)
+@2.7: camera.zoom(to=1.0, dur=0.55, ease=inout)
         </script>
         </div>
         <table>
@@ -830,10 +929,10 @@ scene width=800 height=400 bg=#f8fafc
           <blockquote class="ai-prompt-text">
             Use <code>https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md</code> as a complete reference (grammar, actions, patterns, examples), then write a Markdy scene:
             <br /><br />
-            <em>"Show a client request moving through an API, edge cache, and database. Reveal each node, animate the handoff, then zoom to the cache hit."</em>
+            <em>"Create a presentation-quality 1280x720, 60fps system architecture diagram for a URL shortener. Use systems nodes like <code>client</code>, <code>api_gateway</code>, <code>service</code>, <code>cache</code>, and <code>database</code>; lay them out left→right with no overlaps; reveal them with a staggered <code>group.fade_in</code>; then narrate the write path and read/redirect path in <code>scene "…"</code> chapters using labeled <code>request</code>, <code>response</code>, and <code>emit</code> edges; add a <code>chips</code> legend, finish with <code>glow</code> on the hot path and a gentle <code>camera.zoom</code>, and keep every node inside the viewport."</em>
           </blockquote>
         </div>
-        <p class="ai-hint">The AI reads the docs, understands the grammar, and outputs a complete <code>.markdy</code> scene with actors, timeline events, and expressions — ready to render.</p>
+        <p class="ai-hint">The AI reads the docs, understands the grammar, and outputs a complete <code>.markdy</code> scene with premium actors, routed system flows, timeline choreography, and camera direction — ready to render.</p>
       </div>
     </div>
 
@@ -1127,6 +1226,8 @@ scene width=800 height=400 bg=#f8fafc
   const playIcon  = document.getElementById("play-icon")  as SVGElement;
   const pauseIcon = document.getElementById("pause-icon") as SVGElement;
   const playLabel = document.getElementById("play-label") as HTMLSpanElement;
+  const expandPreviewBtn = document.getElementById("expand-preview-btn") as HTMLButtonElement;
+  const expandPreviewLabel = document.getElementById("expand-preview-label") as HTMLSpanElement;
   const timelineRange = document.getElementById("timeline-range") as HTMLInputElement;
   const timelineTime = document.getElementById("timeline-time") as HTMLSpanElement;
   const sceneJump = document.getElementById("scene-jump") as HTMLSelectElement;
@@ -1140,6 +1241,7 @@ scene width=800 height=400 bg=#f8fafc
   let editorView: EditorView | null = null;
   let currentPreviewStart = 0;
   let isScrubbing = false;
+  let isPreviewExpanded = false;
 
   function formatTime(seconds: number): string {
     if (!Number.isFinite(seconds) || seconds <= 0) return "0:00";
@@ -1207,7 +1309,7 @@ scene width=800 height=400 bg=#f8fafc
       return;
     }
 
-    const wrapW = stageWrap.clientWidth;
+    const wrapW = stage.clientWidth;
     const styleWidth = sceneEl.style.width.trim();
     const styleHeight = sceneEl.style.height.trim();
     const aspectRatio = sceneEl.style.aspectRatio || getComputedStyle(sceneEl).aspectRatio;
@@ -1218,17 +1320,13 @@ scene width=800 height=400 bg=#f8fafc
     if (styleWidth.endsWith("%") && aspectRatio.includes("/")) {
       const [aspectW, aspectH] = aspectRatio.split("/").map((value) => Number.parseFloat(value.trim()));
       if (Number.isFinite(aspectW) && Number.isFinite(aspectH) && aspectW > 0 && aspectH > 0) {
-        if (wrapW >= 420) {
-          stageWrap.style.setProperty("--preview-aspect", `${aspectW} / ${aspectH}`);
-        } else {
-          stageWrap.style.removeProperty("--preview-aspect");
-        }
+        stageWrap.style.setProperty("--preview-aspect", `${aspectW} / ${aspectH}`);
         sceneWidth = wrapW;
         sceneHeight = wrapW * (aspectH / aspectW);
       }
     }
 
-    const wrapH = stageWrap.clientHeight;
+    const wrapH = stage.clientHeight;
     if (wrapW === 0 || wrapH === 0) return;
 
     if (!Number.isFinite(sceneWidth) || sceneWidth <= 0 || !Number.isFinite(sceneHeight) || sceneHeight <= 0) {
@@ -1237,14 +1335,12 @@ scene width=800 height=400 bg=#f8fafc
       sceneHeight = stageWrap.firstElementChild?.getBoundingClientRect().height || 400;
     }
 
-    const paddingX = 12;
-    const paddingY = 12;
-    const availW = wrapW - paddingX;
-    const availH = wrapH - paddingY;
+    const availW = Math.max(1, wrapW);
+    const availH = Math.max(1, wrapH);
 
     const scaleX = availW / sceneWidth;
     const scaleY = availH / sceneHeight;
-    const scale = Math.min(scaleX, scaleY);
+    const scale = Math.max(0.01, Math.min(scaleX, scaleY));
 
     // Override renderer's absolute position cleanly to center it visually
     sceneEl.style.position = "absolute";
@@ -1256,6 +1352,17 @@ scene width=800 height=400 bg=#f8fafc
 
   const ro = new ResizeObserver(() => resizeStage());
   ro.observe(stageWrap);
+  ro.observe(stage);
+
+  function setPreviewExpanded(expanded: boolean) {
+    isPreviewExpanded = expanded;
+    document.querySelector(".playground")?.classList.toggle("is-theater", expanded);
+    expandPreviewBtn.setAttribute("aria-pressed", expanded ? "true" : "false");
+    expandPreviewBtn.setAttribute("aria-label", expanded ? "Collapse preview" : "Expand preview");
+    expandPreviewBtn.title = expanded ? "Collapse preview" : "Expand preview";
+    expandPreviewLabel.textContent = expanded ? "Collapse View" : "Expand View";
+    requestAnimationFrame(() => resizeStage());
+  }
 
   /** Swap the scene bg to match the current website theme. */
   function adaptCodeToTheme(code: string): string {
@@ -1481,6 +1588,16 @@ scene width=800 height=400 bg=#f8fafc
   rewindBtn.addEventListener("click", () => {
     if (!player) return;
     player.seek(player.currentTime() - 1);
+  });
+
+  expandPreviewBtn.addEventListener("click", () => {
+    setPreviewExpanded(!isPreviewExpanded);
+  });
+
+  window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && isPreviewExpanded) {
+      setPreviewExpanded(false);
+    }
   });
 
   restartBtn.addEventListener("click", () => {
@@ -2182,6 +2299,17 @@ scene width=800 height=400 bg=#f8fafc
     transition: all 0.3s ease;
   }
 
+  .playground.is-theater .editor-layout {
+    grid-template-columns: minmax(0, 1fr);
+    height: min(78vh, 820px);
+    min-height: 560px;
+  }
+
+  .playground.is-theater .examples-col,
+  .playground.is-theater .editor-col {
+    display: none;
+  }
+
   .examples-col {
     display: flex;
     flex-direction: column;
@@ -2262,6 +2390,15 @@ scene width=800 height=400 bg=#f8fafc
     gap: 0.75rem;
   }
 
+  .preview-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
   .editor-hint {
     font-size: 0.65rem;
     font-weight: 400;
@@ -2328,13 +2465,22 @@ scene width=800 height=400 bg=#f8fafc
     flex: 0 0 auto;
     width: 100%;
     align-self: stretch;
+    box-sizing: border-box;
     aspect-ratio: var(--preview-aspect, 16 / 9);
     margin: auto 0;
     position: relative;
     background: var(--bg-tertiary);
     overflow: hidden;
-    padding: 1rem;
+    --stage-pad: 1rem;
     transition: background 0.3s ease;
+  }
+
+  .playground.is-theater .stage-wrap {
+    flex: 1 1 auto;
+    min-height: 0;
+    aspect-ratio: auto;
+    margin: 0;
+    --stage-pad: 1rem;
   }
 
   .timeline-controls {
@@ -2381,7 +2527,7 @@ scene width=800 height=400 bg=#f8fafc
 
   #stage {
     position: absolute;
-    inset: 0;
+    inset: var(--stage-pad);
     overflow: hidden;
     line-height: 0;
   }
@@ -3064,17 +3210,51 @@ scene width=800 height=400 bg=#f8fafc
     .features-grid { grid-template-columns: repeat(2, 1fr); }
     .pkg-grid { grid-template-columns: 1fr; max-width: none; }
 
-    .editor-layout { grid-template-columns: 1fr; }
+    .playground {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .editor-layout {
+      grid-template-columns: 1fr;
+      height: auto;
+      min-height: 0;
+    }
+
+    .playground.is-theater .editor-layout {
+      height: min(72vh, 560px);
+      min-height: 360px;
+    }
+
     .examples-col { border-right: none; border-bottom: 1px solid var(--border); }
     .editor-col { border-right: none; border-bottom: 1px solid var(--border); }
     .examples-list { max-height: 220px; }
     .code-editor-wrap { min-height: 220px; }
     .stage-wrap {
-      flex: 1;
-      width: auto;
+      flex: 0 0 auto;
+      width: 100%;
       margin: 0;
+      aspect-ratio: var(--preview-aspect, 16 / 9);
+      min-height: 0;
+      --stage-pad: 0.5rem;
+    }
+
+    .playground.is-theater .stage-wrap {
+      flex: 1 1 auto;
       aspect-ratio: auto;
-      min-height: 280px;
+      --stage-pad: 0.75rem;
+    }
+
+    .preview-toolbar {
+      gap: 0.35rem;
+    }
+
+    .preview-toolbar .btn-share span {
+      display: none;
+    }
+
+    #expand-preview-label {
+      display: inline;
     }
 
     .timeline-controls {

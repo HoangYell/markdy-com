@@ -229,10 +229,10 @@ const keywordCompletions: Completion[] = [
 ];
 
 function systemTypeDetail(label: string): string {
-  if (label === "parking_map" || label === "ascii_map" || label === "game_scene" || label === "byte_viz") {
-    return "premium showcase surface";
+  if (label === "panel" || label === "surface" || label === "terminal" || label === "metric" || label === "stat" || label === "grid" || label === "matrix" || label === "lane" || label === "track" || label === "marker" || label === "dot" || label === "token_strip" || label === "chips" || label === "glyph_card" || label === "glyph") {
+    return "visual primitive";
   }
-  return "architecture node";
+  return "technical diagram node";
 }
 
 const typeCompletions: Completion[] = [
