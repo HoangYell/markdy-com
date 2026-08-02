@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.28] — 2026-08-02
+
 ### Added
 - **Actor groups** — Added `group <name> = actorA, actorB` declarations so one event can target multiple actors, with `stagger=N` support for cascaded fan-out timing.
 - **Production architecture gallery** — Replaced the curated playground set with five complete system-design diagrams: URL Shortener, Twitter Timeline Service, YouTube Processing Pipeline, OAuth/OIDC Login Flow, and Kubernetes Cluster Architecture.
