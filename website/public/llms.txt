@@ -1,8 +1,8 @@
 # Markdy
 
-> Open-source text-to-motion animation DSL for writing browser-rendered animated scenes like Markdown.
+> Open-source text-to-animation and animated diagram DSL for writing browser-rendered technical motion graphics like Markdown.
 
-Markdy lets developers define actors, assets, captions, camera movement, and timeline events in MarkdyScript. It is useful for animated docs, explainers, memes, social clips, Astro sites, MDX content, and AI-generated motion sketches.
+Markdy lets developers define actors, architecture nodes, assets, captions, camera movement, and timeline events in MarkdyScript. It is useful for animated documentation, architecture visualization, sequence flows, infrastructure diagrams, product explainers, Astro sites, MDX content, and AI-generated diagrams.
 
 ## Primary Links
 
@@ -12,6 +12,10 @@ Markdy lets developers define actors, assets, captions, camera movement, and tim
 - AI agent reference: https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md
 - Syntax reference: https://github.com/HoangYell/markdy-com/blob/main/docs/SYNTAX.md
 - Tutorial: https://github.com/HoangYell/markdy-com/blob/main/docs/TUTORIAL.md
+- Getting started: https://github.com/HoangYell/markdy-com/blob/main/docs/GETTING_STARTED.md
+- Guides and best practices: https://github.com/HoangYell/markdy-com/blob/main/docs/GUIDES.md
+- Comparisons: https://github.com/HoangYell/markdy-com/blob/main/docs/COMPARISONS.md
+- Troubleshooting: https://github.com/HoangYell/markdy-com/blob/main/docs/TROUBLESHOOTING.md
 - npm core package: https://www.npmjs.com/package/@markdy/core
 - npm DOM renderer: https://www.npmjs.com/package/@markdy/renderer-dom
 - npm Astro package: https://www.npmjs.com/package/@markdy/astro
@@ -20,11 +24,11 @@ Markdy lets developers define actors, assets, captions, camera movement, and tim
 
 ## Short Description
 
-Markdy is an open-source animation DSL. Write MarkdyScript text files, parse them with @markdy/core, and render animated browser scenes with @markdy/renderer-dom.
+Markdy is an open-source animation DSL and animated diagram scripting language. Write MarkdyScript text files, parse them with @markdy/core, and render animated browser scenes with @markdy/renderer-dom. Use @markdy/stdlib-systems for architecture nodes, infrastructure diagrams, request/response flows, and technical visualizations.
 
 ## Best AI Context
 
-Use docs/AGENT.md as the complete reference when generating MarkdyScript. It contains the grammar, valid actor types, actions, camera commands, examples, and constraints.
+Use docs/AGENT.md as the complete reference when generating MarkdyScript. It contains the grammar, valid actor types, systems vocabulary, actions, camera commands, examples, and constraints. Prefer practical scenes: architecture diagrams, API flows, CI/CD pipelines, Kubernetes diagrams, data pipelines, security reviews, product explainers, and developer education.
 
 ## Install
 

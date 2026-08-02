@@ -13,11 +13,11 @@ export interface Props extends HTMLAttributes<"html"> {
 
 const {
   title,
-  description = "Markdy is an open-source text-to-animation DSL for animated docs, explainers, and diagrams. Write browser-rendered scenes in a simple text language.",
-  canonicalURL = "https://markdy.com",
+  description = "Markdy is an open-source text-to-animation and animated diagram DSL for developer docs, architecture visualization, AI-generated diagrams, and browser-native motion graphics.",
+  canonicalURL = "https://markdy.com/",
   ogImage = "https://markdy.com/og-image.png",
-  ogImageAlt = "Markdy open-source animation DSL preview",
-  keywords = "animation dsl, text-to-animation, animated diagrams, declarative animation, markdown animation, framer motion alternative, gsap alternative, astro animation, web animations api",
+  ogImageAlt = "Markdy playground with MarkdyScript code and an animated architecture diagram preview",
+  keywords = "animation dsl, markdown animation, mermaid alternative, mermaid for animation, interactive diagrams, animated diagrams, system architecture diagrams, sequence diagrams, flowchart dsl, infrastructure diagrams, architecture visualization, developer documentation, AI-generated diagrams, LLM-friendly DSL, diagram scripting, text-to-diagram, text-to-animation, architecture as code, docs as code, visual DSL",
   structuredData = [],
 } = Astro.props;
 
@@ -61,7 +61,7 @@ const baseStructuredData = [
     keywords,
     url: "https://markdy.com/",
     applicationCategory: "DeveloperApplication",
-    applicationSubCategory: "Animation DSL",
+    applicationSubCategory: "Animation DSL, Diagramming Tool, Developer Documentation Tool",
     operatingSystem: "Web",
     programmingLanguage: "TypeScript",
     codeRepository: "https://github.com/HoangYell/markdy-com",
@@ -71,6 +71,16 @@ const baseStructuredData = [
     author: { "@id": "https://markdy.com/#hoang-yell" },
     publisher: { "@id": "https://markdy.com/#organization" },
     sameAs,
+  },
+  {
+    "@type": "SoftwareSourceCode",
+    "@id": "https://markdy.com/#source",
+    name: "Markdy source code",
+    codeRepository: "https://github.com/HoangYell/markdy-com",
+    programmingLanguage: "TypeScript",
+    runtimePlatform: "Web browser, Node.js",
+    license: "https://github.com/HoangYell/markdy-com/blob/main/LICENSE",
+    about: { "@id": "https://markdy.com/#software" },
   },
 ];
 
@@ -99,6 +109,7 @@ const jsonLd = {
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
+    <meta property="og:determiner" content="the" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalURL} />
@@ -112,6 +123,7 @@ const jsonLd = {
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:creator" content="@HoangYell" />
+    <meta name="twitter:site" content="@HoangYell" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />

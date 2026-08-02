@@ -13,4 +13,13 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
 Sitemap: https://markdy.com/sitemap-index.xml

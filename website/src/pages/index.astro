@@ -12,10 +12,10 @@ const FLOWER_ASSET: Record<string, string> = {
 };
 
 const FEATURES = [
-  { icon: "📦", title: "Zero Dependencies", desc: "Pure TypeScript parser — no DOM, no runtime deps." },
-  { icon: "🌐", title: "Web-Native Renderer", desc: "Web Animations API + CSS transforms. No Canvas, no GSAP." },
-  { icon: "🤖", title: "AI-Agent Friendly", desc: "Structured DSL that LLMs can generate, validate, and iterate." },
-  { icon: "🧩", title: "Framework Agnostic", desc: "Works anywhere. Astro island component included." },
+  { icon: "🧭", title: "Animated diagrams as code", desc: "Script system architecture diagrams, sequence flows, and product walkthroughs in reviewable text." },
+  { icon: "🌐", title: "Browser-native motion", desc: "Web Animations API + CSS transforms. No Canvas, video export pipeline, GSAP, or heavy runtime." },
+  { icon: "🤖", title: "AI-agent friendly", desc: "Constrained MarkdyScript is easier for LLMs to generate, validate, diff, and revise than raw JavaScript." },
+  { icon: "🧩", title: "Docs-first integrations", desc: "Use it in Astro, MDX, content sites, docs portals, and internal developer education." },
 ];
 
 /* ── Packages: one card per published package, each with a real usage line ──
@@ -75,7 +75,7 @@ const PACKAGES = [
     name: "@markdy/stdlib-systems",
     required: false,
     badge: "Actor Pack",
-    desc: "Optional add-on: service/db/queue/client actors for drawing system architecture diagrams.",
+    desc: "Optional add-on: architecture nodes, premium visual primitives, and labeled flows for animated system diagrams.",
     size: "<1 KB",
     snippet: `<span class="u-fn">registerActorPack</span>(systemsPack);`,
   },
@@ -83,35 +83,39 @@ const PACKAGES = [
 
 const USE_CASES = [
   {
-    title: "Animated docs and tutorials",
-    desc: "Turn walkthroughs, feature explanations, and onboarding steps into small timeline scenes that stay readable in source control.",
+    title: "Animated developer documentation",
+    desc: "Turn docs-as-code tutorials, onboarding flows, and release notes into small timeline scenes that stay readable in source control.",
   },
   {
-    title: "Architecture and product flows",
-    desc: "Show APIs, edge services, launch steps, and process handoffs as animated diagrams instead of static screenshots.",
+    title: "Architecture visualization",
+    desc: "Show APIs, queues, databases, caches, Kubernetes services, and infrastructure diagrams as animated architecture-as-code.",
   },
   {
-    title: "Astro and MDX content sites",
-    desc: "Embed animations in documentation, launch posts, and technical articles without shipping a full creative suite to every page.",
+    title: "Mermaid-style text diagrams with motion",
+    desc: "Use a text DSL when Mermaid, D2, PlantUML, Graphviz, Excalidraw, or draw.io are too static for a product or systems story.",
   },
   {
     title: "AI-generated explainer scenes",
-    desc: "Give an AI agent a plain-English brief and get deterministic MarkdyScript back instead of brittle generated JavaScript.",
+    desc: "Give an AI coding agent a plain-English brief and get deterministic MarkdyScript back instead of brittle generated JavaScript.",
   },
 ] as const;
 
 const FAQS = [
   {
     question: "What is Markdy?",
-    answer: "Markdy is an open-source animation DSL for writing text-to-animation scenes. You define actors, assets, captions, and timeline events in MarkdyScript, then render the result in the browser.",
+    answer: "Markdy is an open-source animation DSL and animated diagram scripting language. You define actors, architecture nodes, captions, camera movement, and timeline events in MarkdyScript, then render the result in the browser.",
+  },
+  {
+    question: "Is Markdy a Mermaid alternative?",
+    answer: "Markdy overlaps with Mermaid when you want text-based diagrams, but it focuses on animated diagrams, cinematic data flows, and timeline-driven technical explainers. Use Mermaid for static charts; use Markdy when motion and sequence matter.",
+  },
+  {
+    question: "How is Markdy different from PlantUML, D2, Graphviz, Excalidraw, or draw.io?",
+    answer: "Those tools are excellent for static UML, graphs, whiteboards, or architecture diagrams. Markdy is designed for browser-rendered motion: labeled requests, responses, emits, camera direction, glow, reveal, and timed choreography in a text file.",
   },
   {
     question: "Is Markdy an alternative to GSAP or Framer Motion?",
-    answer: "Markdy is not a general animation framework replacement. It is focused on declarative, scriptable 2D scenes for docs, explainers, demos, and AI-generated animation snippets.",
-  },
-  {
-    question: "How is Markdy different from AnimeJS, A-Frame, or other animation libraries?",
-    answer: "Those are imperative JavaScript APIs you call from code. Markdy is a text-based DSL, like Mermaid but for animation: you write a small declarative script instead of orchestrating timelines in JavaScript, and it renders directly from that text.",
+    answer: "Markdy is not a general UI animation framework replacement. It is focused on declarative, scriptable 2D scenes for documentation, explainers, animated architecture diagrams, demos, and AI-generated animation snippets.",
   },
   {
     question: "Does Markdy require Canvas or a video renderer?",
@@ -119,11 +123,11 @@ const FAQS = [
   },
   {
     question: "Can AI tools generate MarkdyScript?",
-    answer: "Yes. MarkdyScript is intentionally line-based and constrained so tools like Claude, ChatGPT, GitHub Copilot, Cursor, and Windsurf can generate, validate, and revise scenes from natural-language prompts.",
+    answer: "Yes. MarkdyScript is intentionally line-based and constrained so tools like Claude, ChatGPT, GitHub Copilot, Cursor, and Windsurf can generate, validate, and revise diagrams from natural-language prompts.",
   },
   {
     question: "Which packages do I need to render a scene?",
-    answer: "Use @markdy/core to parse MarkdyScript and @markdy/renderer-dom to render scenes in a browser. Optional packages add Astro, MDX, CLI, language server, and actor-pack support.",
+    answer: "Use @markdy/core to parse MarkdyScript and @markdy/renderer-dom to render scenes in a browser. Add @markdy/stdlib-systems for system architecture diagrams and @markdy/astro or @markdy/mdx for documentation sites.",
   },
 ] as const;
 
@@ -138,8 +142,8 @@ const homepageStructuredData = [
     "@type": "WebPage",
     "@id": "https://markdy.com/#webpage",
     url: "https://markdy.com/",
-    name: "Markdy — Open-Source Animation DSL Engine",
-    description: "Markdy is a framework-agnostic text-to-animation DSL for animated docs, product explainers, system diagrams, Astro sites, MDX content, and AI-generated scenes.",
+    name: "Markdy — Animation DSL for Animated Developer Diagrams",
+    description: "Markdy is a framework-agnostic text-to-animation DSL for animated docs, architecture visualization, system diagrams, Astro sites, MDX content, and AI-generated scenes.",
     isPartOf: { "@id": "https://markdy.com/#website" },
     about: { "@id": "https://markdy.com/#software" },
     primaryImageOfPage: {
@@ -166,6 +170,17 @@ const homepageStructuredData = [
         "@type": "Answer",
         text: item.answer,
       },
+    })),
+  },
+  {
+    "@type": "ItemList",
+    "@id": "https://markdy.com/#search-intents",
+    name: "Problems Markdy helps developers solve",
+    itemListElement: USE_CASES.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.title,
+      description: item.desc,
     })),
   },
 ];
@@ -219,9 +234,9 @@ markdy <span class="u-fn">check-all</span> examples`;
 ---
 
 <Layout 
-  title="Markdy — Open-Source Animation DSL Engine"
-  description="Markdy is a framework-agnostic text-to-animation DSL for animated docs, product explainers, and system diagrams. No Canvas, no GSAP, no bloated dependencies."
-  keywords="open-source animation dsl, text-to-animation, animated diagrams, declarative animation, framer motion alternative, gsap alternative, markdown animation, web animations api"
+  title="Markdy — Animation DSL for Animated Developer Diagrams"
+  description="Markdy is an open-source text-to-animation DSL for animated diagrams, Mermaid-style motion, architecture visualization, docs-as-code, and AI-generated developer explainers."
+  keywords="animation DSL, Markdown animation, Mermaid alternative, Mermaid for animation, interactive diagrams, animated diagrams, system architecture diagrams, sequence diagrams, flowchart DSL, infrastructure diagrams, architecture visualization, developer documentation, AI-generated diagrams, LLM-friendly DSL, diagram scripting, text-to-diagram, text-to-animation, architecture as code, docs as code, visual DSL"
   ogImageAlt="Markdy playground showing text-to-animation code and a rendered scene preview"
   structuredData={homepageStructuredData}
 >
@@ -268,11 +283,11 @@ markdy <span class="u-fn">check-all</span> examples`;
 
   <!-- ─── Hero ─────────────────────────────────────────────────────────── -->
   <header class="hero">
-    <div class="hero-badge">Open-Source Animation DSL</div>
-    <h1>Text-to-animation for <span class="gradient-text">docs and diagrams</span>.</h1>
+    <div class="hero-badge">Open-source animation DSL · Mermaid-style diagrams with motion</div>
+    <h1>Animated developer diagrams from <span class="gradient-text">plain text</span>.</h1>
     <p class="hero-sub">
-      Write timeline-driven explainers, product flows, and animated diagrams in a small text language.
-      Markdy renders them with browser-native Web Animations.
+      Write architecture flows, sequence diagrams, infrastructure explainers, and product walkthroughs in MarkdyScript.
+      Markdy renders browser-native motion graphics that stay reviewable, versioned, and AI-friendly.
     </p>
     <div class="hero-actions">
       <a href="#playground" class="btn-primary">Try the Playground</a>
@@ -354,8 +369,8 @@ markdy <span class="u-fn">check-all</span> examples`;
   <section id="packages" class="packages" aria-label="Packages">
     <div class="section-header">
       <span class="section-tag">Ecosystem</span>
-      <h2>Lightweight Packages</h2>
-      <p>Two packages to render a scene anywhere. Everything else is an optional add-on for your stack.</p>
+      <h2>Lightweight Packages for Docs-as-Code Animation</h2>
+      <p>Two packages render any scene. Optional packages add Astro, MDX, CLI, LSP, and architecture-diagram vocabulary.</p>
     </div>
     <div class="pkg-grid">
       {PACKAGES.map((pkg) => (
@@ -376,8 +391,8 @@ markdy <span class="u-fn">check-all</span> examples`;
   <section id="playground" class="playground" aria-label="Interactive playground">
     <div class="section-header">
       <span class="section-tag">Interactive</span>
-      <h2>Playground</h2>
-      <p>Start from a real shipped example, tweak the script, and preview the result instantly.</p>
+      <h2>Animated Architecture Playground</h2>
+      <p>Start from a real shipped architecture-as-code example, tweak the script, and preview the motion instantly.</p>
     </div>
 
     <div class="editor-layout">
@@ -916,8 +931,8 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
   <section id="ai-gen" class="ai-section" aria-label="AI-powered generation">
     <div class="section-header">
       <span class="section-tag">AI Authoring</span>
-      <h2>AI-Friendly by Design</h2>
-      <p>MarkdyScript is a structured DSL that AI agents can generate, validate, and iterate on. Just describe what you want.</p>
+      <h2>AI-Friendly Diagram Generation</h2>
+      <p>MarkdyScript is a structured visual DSL that AI agents can generate, validate, diff, and iterate on. Describe the system; get a runnable animated diagram.</p>
     </div>
 
     <div class="ai-grid">
@@ -972,7 +987,7 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
     <div class="section-header">
       <span class="section-tag">Use Cases</span>
       <h2>Where Markdy Fits</h2>
-      <p>Markdy is built for lightweight animation workflows where text, version control, and AI generation matter more than timeline-heavy creative tools.</p>
+      <p>Markdy is built for developer animation workflows where text, version control, docs, and AI generation matter more than timeline-heavy creative tools.</p>
     </div>
     <div class="intent-grid">
       {USE_CASES.map((item) => (
@@ -987,8 +1002,8 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
   <section id="faq" class="faq-section" aria-label="Frequently asked questions">
     <div class="section-header">
       <span class="section-tag">FAQ</span>
-      <h2>Animation DSL Questions</h2>
-      <p>Direct answers for developers comparing Markdy with JavaScript animation libraries, Canvas renderers, and AI-generated code.</p>
+      <h2>Animation DSL, Diagramming, and AI Questions</h2>
+      <p>Direct answers for developers comparing Markdy with Mermaid, PlantUML, D2, Graphviz, JavaScript animation libraries, Canvas renderers, and AI-generated code.</p>
     </div>
     <div class="faq-list">
       {FAQS.map((item) => (
@@ -1180,6 +1195,46 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
       });
     });
   }
+
+  /* ── Active nav link via IntersectionObserver ───────────────────── */
+  (function () {
+    const sectionIds = ["features", "playground", "learn", "ai-gen", "faq"];
+    const navAnchors = new Map(
+      sectionIds.map(id => [id, document.querySelector(`.nav-links a[href="#${id}"]`) as HTMLAnchorElement | null])
+    );
+
+    function setActive(id: string | null) {
+      navAnchors.forEach((a, key) => {
+        if (!a) return;
+        if (key === id) {
+          a.setAttribute("aria-current", "true");
+        } else {
+          a.removeAttribute("aria-current");
+        }
+      });
+    }
+
+    // Use an ordered array — topmost visible section wins
+    const visible = new Set<string>();
+    const observer = new IntersectionObserver(
+      entries => {
+        entries.forEach(e => {
+          const id = (e.target as HTMLElement).id;
+          if (e.isIntersecting) visible.add(id);
+          else visible.delete(id);
+        });
+        // Pick first in order
+        const active = sectionIds.find(id => visible.has(id)) ?? null;
+        setActive(active);
+      },
+      { rootMargin: "-68px 0px -40% 0px", threshold: 0 }
+    );
+
+    sectionIds.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+  })();
 
   /* ── Theme toggle (must run before CodeMirror to set CSS vars) ──── */
   const STORAGE_KEY = "markdy-theme";
@@ -1660,7 +1715,8 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
     render(code, 0);
     setActiveBtn(-1); // Remove active state
     setExampleMeta(-1);
-    document.getElementById("playground")?.scrollIntoView({ behavior: "smooth" });
+    // scrollIntoView respects scroll-margin-top (set to 68px to clear the sticky nav)
+    document.getElementById("playground")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 </script>
 
@@ -1733,7 +1789,7 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
 f 
   /* ── Global overflow guard ────────────────────────────────────────── */
   /* Prevent any single wide element from producing a horizontal scrollbar */
-  html, body { overflow-x: hidden; max-width: 100vw; }
+  html, body { overflow-x: hidden; }
 
   /* ── Nav ──────────────────────────────────────────────────────────── */
   .nav {
@@ -1778,6 +1834,8 @@ f
   }
 
   .nav-links a:hover { color: var(--text-primary); }
+  .nav-links a[aria-current="true"] { color: var(--accent); font-weight: 600; }
+
 
   .nav-github {
     display: inline-flex;
@@ -2067,6 +2125,7 @@ f
     max-width: 900px;
     margin: 0 auto;
     padding: 1rem 1.5rem 3rem;
+    scroll-margin-top: 68px;
   }
 
   .features-grid {
@@ -2114,6 +2173,7 @@ f
     margin: 0 auto;
     padding: 2.5rem 1.5rem 3rem;
     border-top: 1px solid var(--border-subtle);
+    scroll-margin-top: 68px;
   }
 
   .pkg-grid {
@@ -2136,6 +2196,9 @@ f
     background: var(--bg-secondary);
     text-decoration: none;
     transition: all 0.2s ease;
+    /* Prevent grid item from expanding beyond its column */
+    min-width: 0;
+    overflow: hidden;
   }
 
   /* 7 cards at span-2 in a 6-col grid leaves one orphan on the last row — center it */
@@ -2259,6 +2322,7 @@ f
     max-width: 1240px;
     margin: 0 auto;
     padding: 2rem 1.5rem 3rem;
+    scroll-margin-top: 68px;
   }
 
   .example-btn {
@@ -2580,6 +2644,7 @@ f
     margin: 0 auto;
     padding: 3rem 1.5rem 3.5rem;
     border-top: 1px solid var(--border-subtle);
+    scroll-margin-top: 68px;
   }
 
   .ref-grid {
@@ -2788,6 +2853,7 @@ f
     margin: 0 auto;
     padding: 3rem 1.5rem 3.5rem;
     border-top: 1px solid var(--border-subtle);
+    scroll-margin-top: 68px;
   }
 
   .ai-grid {
@@ -2804,6 +2870,8 @@ f
     background: var(--bg-secondary);
     box-shadow: 0 1px 4px var(--shadow-sm);
     transition: all 0.25s ease;
+    min-width: 0;
+    overflow: hidden;
   }
 
   .ai-card:hover {
@@ -2967,6 +3035,7 @@ f
     margin: 0 auto;
     padding: 3rem 1.5rem 3.5rem;
     border-top: 1px solid var(--border-subtle);
+    scroll-margin-top: 68px;
   }
 
   .intent-grid,
@@ -3234,7 +3303,7 @@ f
     .usage-tab { flex: 1 0 auto; white-space: nowrap; padding: 0.5rem 0.85rem; }
 
     .features-grid { grid-template-columns: repeat(2, 1fr); }
-    .pkg-grid { grid-template-columns: 1fr; max-width: none; }
+    .pkg-grid { grid-template-columns: minmax(0, 1fr); max-width: none; }
 
     .playground {
       padding-left: 1rem;

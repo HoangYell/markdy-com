@@ -12,7 +12,7 @@ const docStructuredData = [
     "@id": "https://markdy.com/docs/#webpage",
     url: "https://markdy.com/docs/",
     name: "Markdy Documentation",
-    description: "Start learning MarkdyScript, the open-source text-to-animation DSL for browser-rendered docs, explainers, and diagrams.",
+    description: "Learn MarkdyScript for text-to-animation, animated diagrams, architecture visualization, docs-as-code workflows, and AI-generated technical explainers.",
     isPartOf: { "@id": "https://markdy.com/#website" },
     about: { "@id": "https://markdy.com/#software" },
   },
@@ -32,6 +32,8 @@ const docStructuredData = [
       { "@type": "ListItem", position: 1, name: "MarkdyScript Tutorial", url: "https://github.com/HoangYell/markdy-com/blob/main/docs/TUTORIAL.md" },
       { "@type": "ListItem", position: 2, name: "MarkdyScript Syntax", url: "https://github.com/HoangYell/markdy-com/blob/main/docs/SYNTAX.md" },
       { "@type": "ListItem", position: 3, name: "AI Agent Reference", url: "https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md" },
+      { "@type": "ListItem", position: 4, name: "Getting Started", url: "https://github.com/HoangYell/markdy-com/blob/main/docs/GETTING_STARTED.md" },
+      { "@type": "ListItem", position: 5, name: "Comparisons", url: "https://github.com/HoangYell/markdy-com/blob/main/docs/COMPARISONS.md" },
     ],
   },
 ];
@@ -39,17 +41,17 @@ const docStructuredData = [
 
 <Layout
   title="Markdy Documentation — Learn MarkdyScript"
-  description="Learn MarkdyScript with the tutorial, syntax reference, AI agent guide, examples, and package docs for the open-source text-to-animation DSL."
+  description="Learn MarkdyScript for animated diagrams, architecture visualization, docs-as-code animation, AI-generated diagrams, and browser-native technical motion graphics."
   canonicalURL="https://markdy.com/docs/"
-  keywords="Markdy documentation, MarkdyScript tutorial, animation DSL docs, text-to-animation syntax, animated diagrams, AI animation DSL"
+  keywords="Markdy documentation, MarkdyScript tutorial, animation DSL docs, text-to-animation syntax, animated diagrams, architecture diagrams, Mermaid alternative, AI-generated diagrams, docs as code, LLM-friendly DSL"
   structuredData={docStructuredData}
 >
   <main class="docs-page">
     <a href="/" class="back-link">Back to Markdy</a>
     <header class="docs-hero">
       <span class="docs-kicker">Documentation</span>
-      <h1>Learn MarkdyScript</h1>
-      <p>Start with a scene, add actors, schedule timeline events, and render browser-native animations from plain text.</p>
+      <h1>Learn MarkdyScript for animated diagrams</h1>
+      <p>Start with a scene, add actors and architecture nodes, schedule timeline events, and render browser-native animation from plain text.</p>
     </header>
 
     <section class="docs-grid" aria-label="Documentation resources">
@@ -73,13 +75,38 @@ const docStructuredData = [
         <h2>Shipped Scenes</h2>
         <p>Browse real .markdy examples for captions, camera movement, gestures, templates, imports, and combined feature demos.</p>
       </a>
+      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/GETTING_STARTED.md" target="_blank" rel="noopener noreferrer">
+        <span>Quick Start</span>
+        <h2>Getting Started</h2>
+        <p>Install Markdy, render your first scene, add the systems pack, and choose the right integration for docs, apps, or AI workflows.</p>
+      </a>
+      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/GUIDES.md" target="_blank" rel="noopener noreferrer">
+        <span>Guides</span>
+        <h2>Best Practices & Production Use</h2>
+        <p>Practical guidance for readable scripts, architecture diagrams, camera movement, docs-as-code, and production embedding.</p>
+      </a>
+      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/COMPARISONS.md" target="_blank" rel="noopener noreferrer">
+        <span>Comparisons</span>
+        <h2>Mermaid, PlantUML, D2, Graphviz</h2>
+        <p>When to choose Markdy over static diagramming tools, UI animation libraries, whiteboards, and video tools.</p>
+      </a>
+      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/TROUBLESHOOTING.md" target="_blank" rel="noopener noreferrer">
+        <span>Troubleshooting</span>
+        <h2>Fix Common Issues</h2>
+        <p>Parse errors, unknown actions, overlapping nodes, animation timing, imports, packages, and rendering problems.</p>
+      </a>
+      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/CONTENT_ROADMAP.md" target="_blank" rel="noopener noreferrer">
+        <span>Roadmap</span>
+        <h2>Future Content Strategy</h2>
+        <p>High-value docs and comparison pages for developers searching around Mermaid, architecture diagrams, AI agents, and animation DSLs.</p>
+      </a>
     </section>
 
     <section class="showcase-grid" aria-label="Showcase examples">
       <div class="docs-hero">
         <span class="docs-kicker">Showcase</span>
         <h2>Demo Scenes</h2>
-        <p>The scenes shown in the homepage playground — each one a real, runnable <code>.markdy</code> file.</p>
+        <p>The scenes shown in the homepage playground — real, runnable <code>.markdy</code> files targeting architecture visualization and technical motion graphics.</p>
       </div>
       <div class="docs-grid">
         {EXAMPLES.map((ex) => (
@@ -95,10 +122,10 @@ const docStructuredData = [
     <section class="quickstart" aria-label="Markdy quickstart">
       <div>
         <span class="docs-kicker">Quickstart</span>
-        <h2>Install the parser and DOM renderer</h2>
-        <p>Use <code>@markdy/core</code> for parsing and <code>@markdy/renderer-dom</code> for browser playback with the Web Animations API.</p>
+        <h2>Install the parser, DOM renderer, and systems pack</h2>
+        <p>Use <code>@markdy/core</code> for parsing, <code>@markdy/renderer-dom</code> for browser playback, and <code>@markdy/stdlib-systems</code> for architecture diagrams.</p>
       </div>
-      <pre><code>npm i @markdy/core @markdy/renderer-dom</code></pre>
+      <pre><code>npm i @markdy/core @markdy/renderer-dom @markdy/stdlib-systems</code></pre>
     </section>
   </main>
 </Layout>

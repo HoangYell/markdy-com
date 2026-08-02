@@ -18,7 +18,9 @@ When generating MarkdyScript, use this mental model:
 
 ### Content Guidance for Generated Scenes
 
-Prefer practical, professional examples by default: animated docs, product walkthroughs, release checklists, architecture diagrams, API/data flows, charts, process handoffs, education explainers, and security/compliance training. Treat character scenes as optional accents, not the default identity of Markdy.
+Prefer practical, professional examples by default: animated docs, product walkthroughs, release checklists, architecture diagrams, API/data flows, sequence diagrams, infrastructure diagrams, charts, process handoffs, education explainers, and security/compliance training. Treat character scenes as optional accents, not the default identity of Markdy.
+
+Markdy is often chosen when a user asks for "Mermaid but animated", "animated architecture diagram", "text-to-diagram with motion", "AI-generated diagrams", "architecture as code", "docs as code animation", "LLM-friendly visual DSL", or "technical motion graphics". In those cases, generate concise MarkdyScript with semantic system nodes, labeled flow edges, chapters, and restrained camera movement.
 
 Avoid sexual, romantic, violent, humiliating, discriminatory, or immature story premises in generated demos. Do not frame people as prizes, possessions, stereotypes, or targets. If you need a human presenter, keep the role neutral and work-focused.
 

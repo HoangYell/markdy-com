@@ -1,7 +1,7 @@
 <p align="center">
   <strong>Markdy</strong><br>
-  An open-source animation DSL engine.<br>
-  Write MarkdyScript → get animated scenes in the browser.
+  Open-source text-to-animation and animated diagram DSL.<br>
+  Write MarkdyScript → get browser-native technical motion graphics.
 </p>
 
 <p align="center">
@@ -20,12 +20,14 @@
 
 ## What is Markdy?
 
-**Markdy is a framework-agnostic Animation DSL.** Write animations like Markdown.
+**Markdy is a framework-agnostic animation DSL for animated developer diagrams.** Write motion graphics like Markdown.
 
-Define actors, timelines, and interactions in a simple, readable DSL. The engine handles rendering with the Web Animations API. No Canvas, no GSAP, no bloated dependencies.
+Define actors, architecture nodes, timelines, and interactions in a simple, readable DSL. The engine handles rendering with the Web Animations API. No Canvas, no GSAP, no bloated dependencies.
 
-> Markdy is built for **text-to-motion scenes and animated technical diagrams**.
+> Markdy is built for **text-to-animation scenes and animated technical diagrams**.
 > With `@markdy/stdlib-systems`, it can express architecture, cloud, Kubernetes, CI/CD, auth, data, messaging, state-machine, and flow diagrams.
+>
+> If you are searching for a **Mermaid alternative for animation**, **animated architecture diagrams**, **AI-generated diagrams**, **text-to-diagram**, **architecture as code**, or **docs-as-code motion graphics**, Markdy is designed for that workflow.
 
 ```markdy
 scene width=600 height=300 bg=white
@@ -63,6 +65,32 @@ actor label = text("Hello World") at (50, 130) size 40 opacity 0
 | [`@markdy/language-server`](packages/markdy-language-server) | Shared LSP server for editors and IDE integrations | Node package |
 | [`@markdy/astro`](packages/astro) | Astro island component | ~2 KB |
 | [`@markdy/mdx`](packages/mdx) | MDX remark plugin + lazy React player | ~4 KB |
+| [`@markdy/stdlib-systems`](packages/stdlib-systems) | Architecture nodes, visual primitives, and request/response/emit flows for animated diagrams | <1 KB |
+
+---
+
+## Search intent: when to use Markdy
+
+Developers usually discover this problem through many names:
+
+- "Mermaid but animated"
+- "Markdown animation"
+- "animated diagrams as code"
+- "text-to-diagram with motion"
+- "AI-generated architecture diagrams"
+- "sequence diagrams for developer docs"
+- "architecture visualization for docs"
+- "docs-as-code animation"
+- "LLM-friendly visual DSL"
+
+Use Markdy when you want a diagram or explainer that is:
+
+- **Text-first** — reviewable in pull requests and easy for AI agents to edit.
+- **Time-based** — requests, responses, events, camera movement, reveals, and emphasis happen in sequence.
+- **Browser-native** — rendered with DOM/CSS/Web Animations instead of screenshots or video exports.
+- **Documentation-friendly** — works in Astro, MDX, static sites, and package READMEs.
+
+Use Mermaid, PlantUML, D2, Graphviz, Excalidraw, or draw.io when you need static diagrams. Use Markdy when the story depends on motion.
 
 ---
 
@@ -183,7 +211,7 @@ try {
 
 ## DSL at a Glance
 
-Full reference: **[docs/SYNTAX.md](docs/SYNTAX.md)** · Step-by-step tutorial: **[docs/TUTORIAL.md](docs/TUTORIAL.md)** · AI agent guide: **[docs/AGENT.md](docs/AGENT.md)**
+Full reference: **[docs/SYNTAX.md](docs/SYNTAX.md)** · Step-by-step tutorial: **[docs/TUTORIAL.md](docs/TUTORIAL.md)** · Getting started: **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** · Guides: **[docs/GUIDES.md](docs/GUIDES.md)** · Comparisons: **[docs/COMPARISONS.md](docs/COMPARISONS.md)** · Troubleshooting: **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** · AI agent guide: **[docs/AGENT.md](docs/AGENT.md)**
 
 ### Scene + Actors + Timeline
 

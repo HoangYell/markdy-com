@@ -1,6 +1,6 @@
 # MarkdyScript Tutorial
 
-A step-by-step guide to creating animated docs, product explainers, and diagram-like scenes with MarkdyScript.
+A step-by-step guide to creating animated docs, product explainers, architecture diagrams, and diagram-like scenes with MarkdyScript.
 
 > **Prerequisites:** Basic familiarity with any text editor. No programming required to write MarkdyScript.
 
@@ -8,16 +8,42 @@ A step-by-step guide to creating animated docs, product explainers, and diagram-
 
 ## Table of Contents
 
-1. [Your First Scene](#1-your-first-scene)
-2. [Adding Movement](#2-adding-movement)
-3. [Multiple Actors](#3-multiple-actors)
-4. [Working with Images](#4-working-with-images)
-5. [Optional Character Guides](#5-optional-character-guides)
-6. [Captions & Effects](#6-captions--effects)
-7. [Variables](#7-variables)
-8. [Templates](#8-templates)
-9. [Sequences](#9-sequences)
-10. [Putting It All Together](#10-putting-it-all-together)
+1. [Learning Path](#learning-path)
+2. [Your First Scene](#1-your-first-scene)
+3. [Adding Movement](#2-adding-movement)
+4. [Multiple Actors](#3-multiple-actors)
+5. [Working with Images](#4-working-with-images)
+6. [Optional Character Guides](#5-optional-character-guides)
+7. [Captions & Effects](#6-captions--effects)
+8. [Variables](#7-variables)
+9. [Templates](#8-templates)
+10. [Sequences](#9-sequences)
+11. [Putting It All Together](#10-putting-it-all-together)
+
+---
+
+## Learning Path
+
+Use this path when learning Markdy for animated diagrams, architecture visualization, and AI-generated technical explainers:
+
+1. **Quick Start** — install `@markdy/core`, `@markdy/renderer-dom`, and optionally `@markdy/stdlib-systems`.
+2. **Core Concepts** — understand scenes, actors, timeline events, chapters, and camera movement.
+3. **Basic Examples** — write text, boxes, sprites, captions, groups, and simple movement.
+4. **Real-World Examples** — study URL shorteners, OAuth, Kubernetes, video pipelines, and timeline services in `examples/showcase/`.
+5. **Best Practices** — keep labels short, avoid overlap, use semantic nodes, and split long flows into chapters.
+6. **Advanced Features** — use `var`, `def`, `seq`, imports, systems flow edges, and premium effects.
+7. **AI Agent Workflow** — give `docs/AGENT.md` to the model, ask for MarkdyScript, lint it, and iterate on layout/timing.
+8. **Production Use Cases** — embed in Astro/MDX docs, launch posts, onboarding, architecture reviews, and internal platform docs.
+
+Quick install:
+
+```sh
+npm i @markdy/core @markdy/renderer-dom @markdy/stdlib-systems
+```
+
+AI prompt starter:
+
+> Use `docs/AGENT.md`. Create a 1280x720 animated architecture diagram for an OAuth login flow. Use chapters, semantic systems nodes, labeled request/response edges, short labels, and a final camera focus on the token exchange.
 
 ---
 

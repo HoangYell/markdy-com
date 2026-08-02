@@ -1,7 +1,7 @@
 {
   "name": "Markdy",
   "short_name": "Markdy",
-  "description": "Open-source text-to-motion animation DSL for browser-rendered animated scenes.",
+  "description": "Open-source text-to-animation DSL for animated diagrams, architecture visualization, docs-as-code, and AI-generated technical explainers.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
