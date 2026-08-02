@@ -29,7 +29,7 @@ scene "labels" {
 }
 
 scene "takeaway" {
-  @+0.2: camera.pan(to=(90, -20), dur=0.7, ease=out)
-  @+0.0: camera.zoom(to=1.15, dur=0.7, ease=out)
+  @+0.2: camera.pan(to=(400, 210), dur=0.7, ease=out)
+  @+0.0: camera.zoom(to=1.04, dur=0.7, ease=out)
   @+0.3: note.fade_in(dur=0.4)
 }

@@ -31,3 +31,9 @@ export {
   FIGURE_ONLY_ACTION_NAMES,
   CAMERA_ACTION_NAMES,
 } from "./registry.js";
+
+export {
+  TECHNICAL_NODE_TYPES,
+  TECHNICAL_NODE_KINDS,
+  VISUAL_PRIMITIVE_TYPES,
+} from "./system-vocabulary.js";

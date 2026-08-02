@@ -7,7 +7,7 @@
  * in the package and it now has real coverage.
  */
 import { describe, it, expect } from "vitest";
-import { parse } from "@markdy/core";
+import { parse, TECHNICAL_NODE_TYPES } from "@markdy/core";
 import {
   actorCenter,
   actorRect,
@@ -33,7 +33,7 @@ function stateAt(x: number, y: number): ActorState {
 
 describe("actor bounds", () => {
   it("gives system-diagram node types a shared footprint", () => {
-    for (const type of ["service", "api", "microservice", "client", "user", "database", "db", "queue", "cache", "cloud", "region", "container", "cluster"]) {
+    for (const type of TECHNICAL_NODE_TYPES) {
       expect(actorSizeByType(type)).toEqual({ width: 184, height: 88 });
     }
   });

@@ -1,0 +1,44 @@
+# Broad technical vocabulary: architecture, auth, Kubernetes, events, data, observability, and delivery.
+scene width=1280 height=720 bg=#07111f fps=60
+
+actor title = caption("Technical diagram vocabulary") at top opacity 0
+browser Browser "Web app" at (78, 142) opacity 0
+cdn EdgeCDN "Edge CDN" at (294, 142) opacity 0
+api_gateway Gateway "API Gateway" at (510, 142) opacity 0
+auth OIDC "OIDC auth" at (726, 142) opacity 0
+pod Checkout "Checkout pod" at (510, 338) opacity 0
+topic Orders "orders.created" at (726, 338) opacity 0
+worker Projector "Projection worker" at (942, 338) opacity 0
+warehouse Lakehouse "Lakehouse" at (942, 520) opacity 0
+metrics Prometheus "Prometheus" at (726, 520) opacity 0
+pipeline Deploy "Deploy pipeline" at (294, 520) opacity 0
+registry Images "Image registry" at (510, 520) opacity 0
+decision Approval "Manual approval?" at (78, 520) opacity 0
+
+group nodes = Browser, EdgeCDN, Gateway, OIDC, Checkout, Orders, Projector, Lakehouse, Prometheus, Deploy, Images, Approval
+
+scene "map" {
+  @+0.0: title.line_reveal(from=left, dur=0.42)
+  @+0.2: nodes.fade_in(dur=0.42, stagger=0.05)
+}
+
+scene "request-path" {
+  @+0.1: Browser.request(to=EdgeCDN, label="GET /checkout", dur=0.5)
+  @+0.1: EdgeCDN.request(to=Gateway, label="cache miss", dur=0.5)
+  @+0.1: Gateway.request(to=OIDC, label="verify token", dur=0.5)
+  @+0.1: Gateway.request(to=Checkout, label="route", dur=0.55)
+}
+
+scene "events-and-data" {
+  @+0.1: Checkout.emit(to=Orders, label="order.created", dur=0.55)
+  @+0.1: Orders.emit(to=Projector, label="stream", dur=0.55)
+  @+0.1: Projector.emit(to=Lakehouse, label="facts", dur=0.55)
+  @+0.0: Projector.emit(to=Prometheus, label="metrics", dur=0.55)
+}
+
+scene "delivery-loop" {
+  @+0.1: Approval.request(to=Deploy, label="approve", dur=0.5)
+  @+0.1: Deploy.emit(to=Images, label="push image", dur=0.5)
+  @+0.1: Images.emit(to=Checkout, label="rollout", dur=0.55)
+  @+0.0: camera.zoom(to=1.02, dur=0.6, ease=smooth)
+}

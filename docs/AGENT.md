@@ -185,6 +185,38 @@ actor <name> = caption("<text>") at top | bottom | center
 
 The actor name `camera` is **reserved**. Never declare `actor camera = ...` — reference `camera.pan`, `camera.zoom`, `camera.shake` directly in events.
 
+**Systems pack technical nodes:** when `@markdy/stdlib-systems` is registered, prefer shorthand nodes for software diagrams. Syntax: `<type> <Name> ["Label"] [at (x,y)] [modifiers]`. All support the flow actions `.request`, `.response`, and `.emit` (see the Flow Actions table). Omitting `at (x,y)` triggers deterministic auto-layout. The full vocabulary lives in `TECHNICAL_NODE_TYPES` (`@markdy/core`); the tables below are exhaustive per category.
+
+| Use case | Node types |
+|---|---|
+| Backend / compute | `service`, `api`, `microservice`, `backend`, `server`, `worker`, `job`, `scheduler`, `cron`, `batch`, `function`, `lambda`, `edge`, `controller`, `handler`, `repository`, `runtime`, `process` |
+| Frontend / client | `client`, `user`, `browser`, `web`, `mobile`, `desktop`, `frontend`, `app`, `page`, `view`, `component`, `store` |
+| Data | `db`, `database`, `sql`, `nosql`, `table`, `index`, `warehouse`, `lake`, `object_store`, `bucket`, `blob`, `volume`, `disk`, `search`, `cache` |
+| Messaging | `queue`, `topic`, `stream`, `event`, `event_bus`, `bus`, `broker`, `pubsub`, `kafka`, `producer`, `consumer`, `dead_letter`, `dlq`, `webhook` |
+| Cloud / network | `cloud`, `region`, `vpc`, `subnet`, `network`, `internet`, `dns`, `cdn`, `proxy`, `gateway`, `api_gateway`, `load_balancer`, `reverse_proxy`, `router`, `switch`, `nat`, `firewall`, `waf`, `vpn`, `bastion` |
+| Kubernetes / Docker | `container`, `cluster`, `pod`, `node`, `deployment`, `replicaset`, `statefulset`, `daemonset`, `namespace`, `ingress`, `service_mesh`, `sidecar`, `image`, `registry`, `docker`, `compose`, `helm`, `chart`, `configmap`, `pvc` |
+| Security | `auth`, `identity`, `oauth`, `oidc`, `jwt`, `session`, `policy`, `role`, `permission`, `vault`, `secret`, `key`, `certificate` |
+| CI/CD | `repo`, `branch`, `commit`, `pipeline`, `workflow`, `runner`, `build`, `test`, `artifact`, `deploy`, `release`, `environment`, `preview` |
+| Observability | `monitor`, `metrics`, `logs`, `trace`, `alert`, `dashboard`, `probe`, `slo` |
+| Flow / logic | `start`, `end`, `state`, `decision`, `condition`, `step`, `loop`, `sequence`, `participant` |
+| Distributed systems | `replica`, `shard`, `leader`, `follower`, `quorum`, `consensus`, `lock` |
+| Programming concepts | `class`, `interface`, `method`, `object`, `enum`, `type`, `module`, `package`, `library`, `sdk`, `cli` |
+
+Node types are styled by semantic category (compute, client, data, messaging, network, platform, security, delivery, observability, flow, distributed, code), so pick the type that names the concept — the renderer handles the look.
+
+**Visual composition primitives:** build Excalidraw/Lucidchart-style annotated scenes without scenario-specific actors. Each takes a positional label first; the last positional arg is a colour tone (`cyan`, `green`, `amber`, `purple`, …). They accept normal modifiers and all universal actions.
+
+| Type (alias) | Args | Renders |
+|---|---|---|
+| `surface` (`panel`) | `label, pill, tone` | Dashboard/card surface with scanline + cells |
+| `terminal` | `label, line1, line2, line3, tone` | Terminal window with up to 3 output lines |
+| `stat` (`metric`) | `label, value, tone` | Big-number KPI tile |
+| `matrix` (`grid`) | `label, "COLSxROWS", "active cells", tone` | Cell grid; space/`|`-separated 1-based indices light up |
+| `track` (`lane`) | `label, tone` | Horizontal rail/lane |
+| `dot` (`marker`) | `label, tone` | Marker/checkpoint dot |
+| `chips` (`token_strip`) | `"a|b|c", tone` | Pill row; `|`-separated tokens |
+| `glyph` (`glyph_card`) | `char, label, tone` | Single-glyph badge card |
+
 **Figure arguments in detail:**
 
 | Position | Name | Type | Default | Valid values |
@@ -306,16 +338,37 @@ Shipping presets: `meme`, `explainer`, `reaction`, `pov`, `typing`, `terminal`, 
 
 ### Universal Actions (all actor types)
 
+**Motion & transforms**
+
 | Action | Parameters | Behaviour |
 |---|---|---|
 | `enter` | `from=left\|right\|top\|bottom`, `dur`, `ease` | Slide in from offscreen + fade to opacity 1 |
 | `exit` | `to=left\|right\|top\|bottom`, `dur`, `ease` | Slide off-screen + fade to opacity 0 |
 | `move` | `to=(x,y)`, `dur`, `ease` | Translate to position |
+| `spring` | `to=(x,y)`, `stiffness=NUM` (default 0.18), `dur` | Move to position with overshoot-and-settle |
+| `follow_path` | `path="<SVG path d>"` (default `M 0 0 L 120 0`), `rotate=true\|false`, `dur` | Travel along an SVG path; `rotate=false` keeps orientation fixed |
 | `fade_in` | `dur` | Opacity 0 → 1 |
 | `fade_out` | `dur` | Current opacity → 0 |
 | `scale` | `to=NUM`, `dur`, `ease` | Animate scale |
 | `rotate` | `to=NUM` (degrees), `dur` | Animate rotation |
 | `shake` | `intensity=NUM` (px, default 5), `dur` | Horizontal oscillation, returns to origin |
+
+**Premium effects** (great for technical diagrams and emphasis)
+
+| Action | Parameters | Behaviour |
+|---|---|---|
+| `pulse` | `amount=NUM` (scale multiplier, default 1.08), `dur` | One-shot scale emphasis, returns to origin |
+| `glow` | `color=STRING` (default `#38bdf8`), `strength=NUM` (px, default 24), `dur` | Animated drop-shadow/box-shadow highlight |
+| `ripple` | `color=STRING`, `size=NUM` (px, default 140), `dur` | Expanding ring from the actor's center |
+| `blur` | `from=NUM` (px, default 0), `to=NUM` (px, default 8), `dur` | Animate CSS blur |
+| `line_reveal` | `from=left\|right` (default `left`), `dur` | Directional clip-path wipe reveal |
+| `mask` | `from=NUM` (%, default 0), `to=NUM` (%, default 120), `dur` | Circular clip-path reveal/conceal |
+| `parallax` | `depth=NUM` (default 0.35), `by=(dx,dy)` (default `(24,0)`), `dur` | Depth-scaled offset for layered motion |
+
+**Content & composition**
+
+| Action | Parameters | Behaviour |
+|---|---|---|
 | `say` | `"text"` (positional), `dur` | Speech bubble above actor |
 | `throw` | `assetName` (positional), `to=actorName`, `dur` | Projectile animation |
 | `play` | `seqName` (positional), named params | Expand sequence inline |
@@ -344,6 +397,20 @@ Shipping presets: `meme`, `explainer`, `reaction`, `pov`, `typing`, `terminal`, 
 
 Unknown camera actions soft-warn (`unknown-camera-action`) and no-op. `camera` is not declared as an actor — reference it directly in events.
 
+### System-Diagram Flow Actions (via `@markdy/stdlib-systems`)
+
+Available on every technical node type (`service`, `api`, `db`, `queue`, …) once the systems pack is registered. Each draws an animated, auto-routed edge from the source node to `to=`, then fades out so busy diagrams stay clean.
+
+| Action | Parameters | Behaviour |
+|---|---|---|
+| `request` | `to=<node>`, `label=STRING`, `style=dashed\|fire_and_forget`, `dur`, `ease` | Solid draw-on edge (blue). Directed call from source → target |
+| `response` | `to=<node>`, `label=STRING`, `dur`, `ease` | Dashed return edge (violet). Always dashed regardless of `style` |
+| `emit` | `to=<node>`, `label=STRING`, `style=dashed\|fire_and_forget`, `dur`, `ease` | Event/publish edge (amber). Use for async, fan-out, and pub/sub |
+
+- `to=` is **required** — an edge with no target silently no-ops.
+- `label=` is truncated to 28 characters in the rendered edge; keep labels short (`"POST /shorten"`, `"order.created"`).
+- Concurrent edges between the same pair fan out into separate lanes automatically, so parallel calls stay readable.
+
 ### Valid `part` Names for `rotate_part`
 
 `head`, `face`, `body`, `arm_left`, `arm_right`, `leg_left`, `leg_right`
@@ -353,16 +420,22 @@ Unknown camera actions soft-warn (`unknown-camera-action`) and no-op. `camera` i
 | Parameter | Type | Default | Present on |
 |---|---|---|---|
 | `dur` | float (seconds) | `0.5` | All timed actions |
-| `ease` | string | `linear` | `enter`, `move`, `scale`, `rotate` |
+| `ease` | string | `linear` | Any action with `ease=` (`enter`, `move`, `scale`, `rotate`, camera, flow edges, …) |
 
 ### Easing Values
 
-| Token | CSS Equivalent |
-|---|---|
-| `linear` | `linear` |
-| `in` | `ease-in` |
-| `out` | `ease-out` |
-| `inout` | `ease-in-out` |
+| Token | CSS Equivalent | Feel |
+|---|---|---|
+| `linear` | `linear` | Constant speed |
+| `in` | `ease-in` | Accelerate |
+| `out` | `ease-out` | Decelerate |
+| `inout` | `ease-in-out` | Ease both ends |
+| `smooth` | `cubic-bezier(0.4, 0, 0.2, 1)` | Material-style, polished default |
+| `snappy` | `cubic-bezier(0.16, 1, 0.3, 1)` | Fast start, gentle settle |
+| `overshoot` | `cubic-bezier(0.34, 1.56, 0.64, 1)` | Springy overshoot |
+| `sharp` | `cubic-bezier(0.4, 0, 1, 1)` | Decisive, abrupt finish |
+
+A literal `cubic-bezier(x1, y1, x2, y2)` curve is also accepted verbatim. Any unrecognized value falls back to `linear`.
 
 ---
 
@@ -389,6 +462,58 @@ timeline events (sorted by @time)
 ---
 
 ## Generation Patterns
+
+### Architecture Diagram (recommended default for technical scenes)
+
+The flagship use case. Compose a diagram from shorthand technical nodes, then narrate the data flow with chaptered `request`/`response`/`emit` edges. Use `group` + `stagger` to reveal nodes, `glow` to emphasize the takeaway, and a gentle `camera.zoom` to finish.
+
+```markdy
+scene width=1280 height=720 bg=#07111f fps=60
+
+actor title = caption("URL Shortener Architecture") at top opacity 0
+browser Browser "Browser" at (70, 312) opacity 0
+api_gateway Gateway "API Gateway" at (318, 220) opacity 0
+service Shortener "URL Shortener" at (570, 112) opacity 0
+cache Redis "Hot URL Cache" at (835, 220) opacity 0
+database UrlDB "URL Mapping DB" at (835, 400) opacity 0
+actor Legend = chips("write|read|cache hit|DB fallback") at (70, 618) opacity 0 z 60
+
+group nodes = Browser, Gateway, Shortener, Redis, UrlDB
+
+scene "layout" {
+  @+0.0:  title.line_reveal(from=left, dur=0.42)
+  @+0.18: nodes.fade_in(dur=0.42, stagger=0.06)
+  @+0.42: Legend.fade_in(dur=0.3)
+}
+
+scene "write-path" {
+  @+0.14: Browser.request(to=Gateway, label="POST /shorten", dur=0.5)
+  @+0.08: Gateway.request(to=Shortener, label="validate URL", dur=0.5)
+  @+0.08: Shortener.request(to=UrlDB, label="store slug", dur=0.55)
+  @+0.08: Shortener.emit(to=Redis, label="warm cache", dur=0.5)
+  @+0.08: Shortener.response(to=Browser, label="short.ly/a7", dur=0.6)
+}
+
+scene "read-path" {
+  @+0.14: Browser.request(to=Gateway, label="GET /a7", dur=0.5)
+  @+0.08: Gateway.request(to=Redis, label="cache lookup", dur=0.5)
+  @+0.08: Redis.response(to=Browser, label="301 redirect", dur=0.55)
+}
+
+scene "takeaway" {
+  @+0.16: Redis.glow(color=#22c55e, strength=34, dur=0.55)
+  @+0.0:  UrlDB.glow(color=#38bdf8, strength=28, dur=0.55)
+  @+0.0:  camera.zoom(to=1.02, dur=0.6, ease=smooth)
+}
+```
+
+**Rules of thumb for polished diagrams:**
+- Use a wide `1280x720` (16:9) canvas and a dark `bg` (`#07111f`) so accent colours pop.
+- Lay nodes left→right (or top→bottom) along the data flow; leave ≥180px horizontal gaps so the 184px-wide nodes never touch.
+- Give every node an explicit `at (x,y)` for full control; keep everything inside the canvas with ~60px margins.
+- One `group.fade_in(stagger=…)` to reveal the topology, then chapters for each flow phase.
+- Prefer short edge `label=`s (≤28 chars). Use `request` for calls, `response` for returns, `emit` for async/events.
+- Reserve `glow` for the 1–2 nodes that matter most in the "takeaway" beat.
 
 ### Pattern 1: Simple Text Animation
 
@@ -630,6 +755,9 @@ Other ready-to-use preset names: `explainer`, `reaction`, `pov`, `chat_bubble`, 
 | `scene width=2000` inside a chapter block | Move scene header outside or use `scene "title" { ... }` for a sub-chapter |
 | Using `!action` for normal forgiving behavior | Drop the `!` — without it, unknown actions warn instead of throwing |
 | Expecting imports to auto-resolve | The parser never opens files; the host must pass `{ imports: { ns: ast } }` |
+| `Node.request(...)` with no `to=` | Flow edges need a target: `request(to=OtherNode, label="…")` |
+| Technical nodes / flow edges do nothing | Register `@markdy/stdlib-systems` on the host before parsing/rendering |
+| Edge `label=` longer than 28 chars gets cut | Keep flow labels terse (`"POST /shorten"`, `"order.created"`) |
 
 ---
 
@@ -653,7 +781,9 @@ interface SceneAST {
   };
   assets: Record<string, { type: "image" | "icon"; value: string }>;
   actors: Record<string, {
-    type: "sprite" | "text" | "box" | "figure" | "caption";
+    // Built-in types plus any registered pack type (systems nodes,
+    // visual primitives). Typed as `BuiltinActorType | (string & {})`.
+    type: "sprite" | "text" | "box" | "figure" | "caption" | string;
     args: string[];
     x: number;
     y: number;
@@ -708,6 +838,8 @@ When generating MarkdyScript, verify:
 - [ ] Actor types using templates reference a declared `def` (namespaced `ns.name` OK if imported)
 - [ ] `figure`-only actions (`rotate_part`, `pose`, `wave`, `nod`, `face`, `jump`, `bounce`) target figure actors
 - [ ] `throw` references a declared asset name and a declared actor in `to=`
+- [ ] Flow actions (`request`/`response`/`emit`) target a declared node via `to=` and keep `label=` ≤ 28 chars
+- [ ] Technical-diagram scenes assume the host registered `@markdy/stdlib-systems`
 - [ ] All `def`, `seq`, and chapter (`scene "title" { ... }`) blocks have matching `}` on their own line
 - [ ] `@time` uses decimal seconds (e.g., `@2.5:` not `@2.5s:`)
 - [ ] `@+N:` is only used after at least one event exists in the same scope (or is intentionally offsetting from `0.0`)

@@ -17,6 +17,7 @@ import {
   isKnownAction,
   isKnownActorType,
 } from "./registry.js";
+import { TECHNICAL_NODE_TYPES } from "./system-vocabulary.js";
 
 // ---------------------------------------------------------------------------
 // Error
@@ -400,8 +401,10 @@ const PRESET_RE = /^preset\s+(\w+)(?:\s*\((.*)\))?\s*$/;
 //   service API
 //   database PostgreSQL at (620, 180)
 //   cache Redis "Session Cache"
-const ARCHITECTURE_NODE_RE =
-  /^(service|database|db|queue|cache|api|user|client|cloud|region|container|microservice|cluster)\s+(\w+)(?:\s+("[^"]+"|'[^']+'))?(?:\s+at\s+\(\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\))?(.*)$/;
+//   pipeline CI "Build & Test"
+const ARCHITECTURE_NODE_RE = new RegExp(
+  `^(${TECHNICAL_NODE_TYPES.join("|")})\\s+(\\w+)(?:\\s+("[^"]+"|'[^']+'))?(?:\\s+at\\s+\\(\\s*(-?[\\d.]+)\\s*,\\s*(-?[\\d.]+)\\s*\\))?(.*)$`,
+);
 
 const ARCHITECTURE_ALIAS_TO_TYPE: Record<string, string> = {
   api: "service",

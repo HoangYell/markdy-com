@@ -1,0 +1,49 @@
+# Twitter timeline service: tweet write, fan-out, timeline materialization, notification, and read path.
+scene width=1280 height=720 bg=#06101f fps=60
+
+actor title = caption("Twitter Timeline Fan-out") at top opacity 0
+user Author "Author" at (70, 112) opacity 0
+user Reader "Reader" at (70, 432) opacity 0
+api_gateway Gateway "API Gateway" at (300, 272) opacity 0
+service TweetSvc "Tweet Service" at (525, 112) opacity 0
+queue TweetQueue "Tweet Queue" at (755, 112) opacity 0
+worker Fanout "Fan-out Workers" at (985, 112) opacity 0
+service TimelineSvc "Timeline Service" at (525, 432) opacity 0
+cache Redis "Redis Timeline Cache" at (755, 432) opacity 0
+database TimelineDB "Timeline DB" at (985, 432) opacity 0
+service Notify "Notification Service" at (985, 272) opacity 0
+
+group nodes = Author, Reader, Gateway, TweetSvc, TweetQueue, Fanout, TimelineSvc, Redis, TimelineDB, Notify
+
+scene "layout" {
+  @+0.0: title.line_reveal(from=left, dur=0.42)
+  @+0.18: nodes.fade_in(dur=0.42, stagger=0.05)
+}
+
+scene "post-tweet" {
+  @+0.12: Author.request(to=Gateway, label="POST tweet", dur=0.5)
+  @+0.08: Gateway.request(to=TweetSvc, label="validate + store", dur=0.52)
+  @+0.08: TweetSvc.emit(to=TweetQueue, label="publish tweet", dur=0.52)
+  @+0.08: TweetQueue.emit(to=Fanout, label="fan-out job", dur=0.52)
+}
+
+scene "fan-out" {
+  @+0.12: Fanout.emit(to=Redis, label="home timelines", dur=0.55)
+  @+0.06: Fanout.emit(to=TimelineDB, label="persist entries", dur=0.55)
+  @+0.06: Fanout.emit(to=Notify, label="mentions", dur=0.5)
+  @+0.0: Fanout.glow(color=#a78bfa, strength=32, dur=0.55)
+}
+
+scene "read-timeline" {
+  @+0.12: Reader.request(to=Gateway, label="GET timeline", dur=0.5)
+  @+0.08: Gateway.request(to=TimelineSvc, label="hydrate feed", dur=0.52)
+  @+0.08: TimelineSvc.request(to=Redis, label="read hot", dur=0.5)
+  @+0.08: TimelineSvc.request(to=TimelineDB, label="page miss", dur=0.52)
+  @+0.08: TimelineSvc.response(to=Reader, label="ranked feed", dur=0.6)
+}
+
+scene "takeaway" {
+  @+0.16: Redis.glow(color=#22c55e, strength=32, dur=0.55)
+  @+0.0: TimelineDB.glow(color=#38bdf8, strength=28, dur=0.55)
+  @+0.0: camera.zoom(to=1.02, dur=0.6, ease=smooth)
+}

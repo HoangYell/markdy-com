@@ -43,7 +43,45 @@ beforeAll(() => {
 
   registerActorPack({
     name: "systems-test-pack",
-    actors: ["service", "database", "db", "queue", "cache", "client", "cloud", "region", "container", "microservice", "cluster"],
+    actors: [
+      "service",
+      "database",
+      "db",
+      "queue",
+      "cache",
+      "client",
+      "cloud",
+      "region",
+      "container",
+      "microservice",
+      "cluster",
+      "api_gateway",
+      "pod",
+      "pipeline",
+      "auth",
+      "metrics",
+      "decision",
+      "class",
+      "panel",
+      "surface",
+      "terminal",
+      "metric",
+      "stat",
+      "grid",
+      "matrix",
+      "lane",
+      "track",
+      "marker",
+      "dot",
+      "token_strip",
+      "chips",
+      "glyph_card",
+      "glyph",
+      "parking_map",
+      "ascii_map",
+      "game_scene",
+      "byte_viz",
+    ],
     actions: {
       service: ["request", "response", "emit"],
       database: ["request", "response", "emit"],
@@ -220,6 +258,66 @@ describe("renderer — premium universal effects", () => {
     expect(actorEls.get("PostgreSQL")?.querySelector(".markdy-arch-node__label")?.firstChild?.textContent).toBe("PostgreSQL");
     expect(actorEls.get("API")?.querySelector("[data-markdy-ripple='1']")).toBeDefined();
     expect(anims.length).toBeGreaterThanOrEqual(5);
+  });
+
+  it("renders composable visual primitives", () => {
+    const { actorEls } = mount(
+      [
+        "scene width=1280 height=720 bg=#050816",
+        'actor dash = surface("Vision routing HUD", "live ops", cyan) at (56, 124) scale 0.9',
+        'actor speed = stat("latency", "18ms", cyan) at (96, 322)',
+        'actor slots = matrix("slots", "4x2", "3 6 8", green) at (234, 156)',
+        'actor road = track("route", cyan) at (82, 250)',
+        'actor car = dot("packet", cyan) at (244, 260)',
+      ].join("\n"),
+    );
+
+    const dash = actorEls.get("dash");
+    expect(dash?.classList.contains("markdy-visual--panel")).toBe(true);
+    expect(actorEls.get("speed")?.querySelector(".visual-metric strong")?.textContent).toBe("18ms");
+    expect(actorEls.get("slots")?.querySelectorAll(".visual-grid__cell.is-active")).toHaveLength(3);
+    expect(actorEls.get("road")?.querySelector(".visual-lane")).toBeDefined();
+    expect(actorEls.get("car")?.querySelector(".visual-marker")).toBeDefined();
+  });
+
+  it("keeps legacy showcase actor names as compatibility aliases", () => {
+    const { actorEls } = mount(
+      [
+        "scene width=1280 height=720 bg=#050816",
+        'actor parking = parking_map("Legacy parking") at (56, 124)',
+        'actor ascii = ascii_map("Legacy terminal") at (56, 420)',
+        'actor game = game_scene("Legacy game") at (500, 124)',
+        'actor bytes = byte_viz("Legacy bytes") at (500, 420)',
+      ].join("\n"),
+    );
+
+    expect(actorEls.get("parking")?.dataset.visualType).toBe("panel");
+    expect(actorEls.get("ascii")?.dataset.visualType).toBe("terminal");
+    expect(actorEls.get("game")?.dataset.visualType).toBe("panel");
+    expect(actorEls.get("bytes")?.dataset.visualType).toBe("panel");
+  });
+
+  it("renders expanded technical diagram nodes by semantic kind", () => {
+    const { actorEls } = mount(
+      [
+        "scene width=1280 height=720 bg=#050816",
+        'api_gateway EdgeAPI "API Gateway" at (80, 120)',
+        'pod CheckoutPod "Checkout Pod" at (300, 120)',
+        'pipeline CI "Build Pipeline" at (520, 120)',
+        'auth OIDC "OIDC Provider" at (740, 120)',
+        'metrics Prom "Prometheus" at (80, 260)',
+        'decision Gate "Approve?" at (300, 260)',
+        'class UserClass "User class" at (520, 260)',
+      ].join("\n"),
+    );
+
+    expect(actorEls.get("EdgeAPI")?.dataset.markdySystemKind).toBe("network");
+    expect(actorEls.get("CheckoutPod")?.dataset.markdySystemKind).toBe("platform");
+    expect(actorEls.get("CI")?.dataset.markdySystemKind).toBe("delivery");
+    expect(actorEls.get("OIDC")?.dataset.markdySystemKind).toBe("security");
+    expect(actorEls.get("Prom")?.dataset.markdySystemKind).toBe("observability");
+    expect(actorEls.get("Gate")?.dataset.markdySystemKind).toBe("flow");
+    expect(actorEls.get("UserClass")?.dataset.markdySystemKind).toBe("code");
   });
 });
 

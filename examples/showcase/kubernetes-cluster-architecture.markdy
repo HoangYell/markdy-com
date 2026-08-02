@@ -1,0 +1,58 @@
+# Kubernetes cluster architecture: control plane, data plane, scheduling, service discovery, and external traffic.
+scene width=1280 height=720 bg=#07111f fps=60
+
+actor title = caption("Kubernetes Cluster Architecture") at top opacity 0
+user Operator "User" at (62, 92) opacity 0
+cli Kubectl "kubectl" at (262, 92) opacity 0
+api APIServer "API Server" at (462, 92) opacity 0
+scheduler Scheduler "Scheduler" at (700, 76) opacity 0
+controller Controller "Controller Manager" at (700, 216) opacity 0
+db Etcd "etcd" at (462, 286) opacity 0
+load_balancer LB "Load Balancer" at (62, 476) opacity 0
+ingress Ingress "Ingress" at (262, 476) opacity 0
+service KubeService "Service" at (462, 476) opacity 0
+node Worker "Worker Nodes" at (700, 416) opacity 0
+pod AppPod "App Pod" at (930, 370) opacity 0
+pod JobPod "Worker Pod" at (930, 500) opacity 0
+configmap Config "ConfigMap" at (700, 570) opacity 0
+secret Secret "Secret" at (930, 610) opacity 0
+volume PV "Persistent Volume" at (462, 610) opacity 0
+actor Legend = chips("control|data|traffic|storage") at (62, 620) opacity 0 z 60
+
+group control = Operator, Kubectl, APIServer, Scheduler, Controller, Etcd
+group data = LB, Ingress, KubeService, Worker, AppPod, JobPod, Config, Secret, PV, Legend
+
+scene "layout" {
+  @+0.0: title.line_reveal(from=left, dur=0.42)
+  @+0.16: control.fade_in(dur=0.42, stagger=0.05)
+  @+0.36: data.fade_in(dur=0.42, stagger=0.04)
+}
+
+scene "control-plane" {
+  @+0.12: Operator.request(to=Kubectl, label="kubectl apply", dur=0.5)
+  @+0.08: Kubectl.request(to=APIServer, label="manifest", dur=0.5)
+  @+0.08: APIServer.request(to=Etcd, label="persist state", dur=0.52)
+  @+0.08: APIServer.emit(to=Scheduler, label="pending pod", dur=0.52)
+  @+0.08: APIServer.emit(to=Controller, label="reconcile", dur=0.52)
+}
+
+scene "scheduling" {
+  @+0.12: Scheduler.emit(to=Worker, label="bind pod", dur=0.55)
+  @+0.08: Controller.emit(to=AppPod, label="desired replicas", dur=0.55)
+  @+0.08: Config.emit(to=AppPod, label="env", dur=0.45)
+  @+0.08: Secret.emit(to=JobPod, label="mount", dur=0.45)
+  @+0.08: PV.emit(to=JobPod, label="storage", dur=0.45)
+}
+
+scene "traffic" {
+  @+0.12: LB.request(to=Ingress, label="external traffic", dur=0.52)
+  @+0.08: Ingress.request(to=KubeService, label="route rule", dur=0.52)
+  @+0.08: KubeService.request(to=AppPod, label="cluster IP", dur=0.52)
+  @+0.08: KubeService.request(to=JobPod, label="load balance", dur=0.52)
+}
+
+scene "takeaway" {
+  @+0.16: APIServer.glow(color=#38bdf8, strength=30, dur=0.55)
+  @+0.0: Worker.glow(color=#c084fc, strength=30, dur=0.55)
+  @+0.0: camera.zoom(to=1.02, dur=0.6, ease=smooth)
+}

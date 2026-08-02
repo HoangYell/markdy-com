@@ -12,7 +12,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-export type ExampleCategory = "product" | "system" | "chart" | "ui-state" | "reliability" | "interactive" | "education";
+export type ExampleCategory = "product" | "system" | "architecture" | "chart" | "ui-state" | "reliability" | "interactive" | "education";
 
 export interface ExampleMeta {
   id: string;
@@ -38,33 +38,40 @@ export interface ExampleEntry extends ExampleMeta {
 // this curated set should showcase complex animated UI, systems, and education scenes.
 export const EXAMPLE_REGISTRY: ExampleMeta[] = [
   {
-    id: "cyber-parking-control",
-    title: "Cyber Parking Control",
-    description: "A smart-garage control-room video with a custom CSS dashboard, OCR flow, live routing, glow effects, and a cinematic camera push.",
-    category: "system",
-    file: "showcase/cyber-parking-control.markdy",
+    id: "url-shortener-architecture",
+    title: "URL Shortener Architecture",
+    description: "A production URL shortener diagram showing short-link creation, redirect resolution, cache lookup, and database fallback paths.",
+    category: "architecture",
+    file: "showcase/url-shortener-architecture.markdy",
     playback: { previewStart: 0 },
   },
   {
-    id: "ascii-parking-garage",
-    title: "ASCII Parking Garage",
-    description: "A terminal-style ASCII map compiler that turns text rows into lane graphs, bay nodes, state sync, and a polished animated mini-map.",
-    category: "education",
-    file: "showcase/ascii-parking-garage.markdy",
+    id: "twitter-timeline-service",
+    title: "Twitter Timeline Service",
+    description: "A timeline service architecture covering tweet writes, fan-out workers, Redis timeline cache, durable storage, notifications, and reads.",
+    category: "architecture",
+    file: "showcase/twitter-timeline-service.markdy",
   },
   {
-    id: "parking-game-loop",
-    title: "Parking Game Loop",
-    description: "An arcade-grade parking-game viewport with CSS road motion, car parking, HUD, physics/collision flow, replay capture, and score punch-in.",
-    category: "interactive",
-    file: "showcase/parking-game-loop.markdy",
+    id: "youtube-processing-pipeline",
+    title: "YouTube Processing Pipeline",
+    description: "An upload-to-playback video pipeline with object storage, queueing, transcode workers, thumbnails, metadata, renditions, and CDN delivery.",
+    category: "architecture",
+    file: "showcase/youtube-processing-pipeline.markdy",
   },
   {
-    id: "utf8-byte-visualizer",
-    title: "UTF-8 Byte Visualizer",
-    description: "A rich byte-visualizer surface where one character becomes code point, hex byte, bit lanes, and a rendered glyph with data-flow choreography.",
-    category: "education",
-    file: "showcase/utf8-byte-visualizer.markdy",
+    id: "oauth-oidc-login-flow",
+    title: "OAuth / OIDC Login Flow",
+    description: "A clear authorization-code flow diagram with redirects, authorization endpoint, token exchange, access/refresh tokens, and protected API access.",
+    category: "architecture",
+    file: "showcase/oauth-oidc-login-flow.markdy",
+  },
+  {
+    id: "kubernetes-cluster-architecture",
+    title: "Kubernetes Cluster Architecture",
+    description: "A Kubernetes architecture diagram showing control plane, data plane, scheduling, service discovery, config, secrets, storage, and ingress traffic.",
+    category: "architecture",
+    file: "showcase/kubernetes-cluster-architecture.markdy",
   },
 ];
 

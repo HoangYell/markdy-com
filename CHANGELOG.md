@@ -5,11 +5,23 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Actor groups** — Added `group <name> = actorA, actorB` declarations so one event can target multiple actors, with `stagger=N` support for cascaded fan-out timing.
+- **Production architecture gallery** — Replaced the curated playground set with five complete system-design diagrams: URL Shortener, Twitter Timeline Service, YouTube Processing Pipeline, OAuth/OIDC Login Flow, and Kubernetes Cluster Architecture.
+
+### Changed
+- **Generic visual primitives** — Replaced story-specific showcase surface actors with reusable primitives and friendly aliases (`surface`, `terminal`, `stat`, `matrix`, `track`, `dot`, `chips`, and `glyph`) so advanced scenes can be composed for any scenario instead of relying on hardcoded examples.
+- **Technical diagram vocabulary** — Expanded the systems DSL with broad software-engineering node families for architecture, cloud, frontend/backend, data, messaging, Kubernetes, Docker, CI/CD, auth, observability, state machines, flowcharts, distributed systems, and programming concepts.
+- **Reference & prompt accuracy** — Documented the full action surface (premium effects, system flow edges, extended easings) and systems vocabulary across `docs/AGENT.md`, the syntax reference, and the generated AI prompt, and derived `system-prompt.json` from the canonical `@markdy/core` vocabulary so the docs, prompt, and engine can no longer drift.
+- **Legacy showcase compatibility** — Preserved the earlier bespoke showcase actor names as non-advertised compatibility aliases that render through the generic primitive layer.
+
 ## [0.7.27] — 2026-08-02
 
 ### Added
 - **Premium playground showcases** — Replaced the simple homepage playground set with polished Cyber Parking, ASCII Parking Garage, Parking Game Loop, and UTF-8 Byte Visualizer scenes that demonstrate complex HTML/CSS surfaces, animated HUDs, terminal views, game-style motion, and byte-level education flows.
-- **Showcase surface actors** — Added `parking_map`, `ascii_map`, `game_scene`, and `byte_viz` system actors so Markdy scenes can render detailed dashboard, terminal, game, and byte-visualization surfaces directly in the renderer.
+- **Showcase surface actors** — Added an initial bespoke showcase-surface experiment for detailed dashboard, terminal, game, and byte-visualization scenes.
 
 ### Changed
 - **Renderer safe framing** — Added an automatic safe-frame actor layer so large or animated scene content is scaled and translated back inside the viewport instead of being clipped.
@@ -18,12 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.7.26] — 2026-07-31
 
 ### Changed
-- TODO: summarize release changes.
-
-## [Unreleased]
-
-### Added
-- **Actor groups** — Added `group <name> = actorA, actorB` declarations so one event can target multiple actors, with `stagger=N` support for cascaded fan-out timing.
+- **Homepage learning polish** — Refined the Learn MarkdyScript section and homepage layout copy for clearer onboarding before the playground/gallery refresh.
 
 ## [0.7.25] — 2026-07-31
 

@@ -18,6 +18,15 @@ import { readFile, writeFile, mkdir, readdir, copyFile } from "node:fs/promises"
 import { existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import {
+  BUILTIN_ACTOR_TYPES,
+  UNIVERSAL_ACTION_NAMES,
+  FIGURE_ONLY_ACTION_NAMES,
+  CAMERA_ACTION_NAMES,
+  TECHNICAL_NODE_TYPES,
+  VISUAL_PRIMITIVE_TYPES,
+} from "../packages/core/src/index.js";
+import { SYSTEM_FLOW_ACTIONS } from "../packages/stdlib-systems/src/index.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, "..");
@@ -186,6 +195,69 @@ const FEATURES: Feature[] = [
     example: "# Type check: `text` actors cannot use `punch`\n# @0.0: label.punch(...)   → ParseError",
     exampleFile: "examples/12-figure-type-check.markdy",
   },
+  {
+    id: "systems-nodes",
+    name: "systems architecture nodes",
+    summary:
+      "`service API`, `db Users`, `queue Jobs` — shorthand technical nodes (needs `@markdy/stdlib-systems`) for architecture diagrams; auto-layout when `at (x,y)` is omitted.",
+    detail: [
+      "Register the `@markdy/stdlib-systems` pack to unlock a broad vocabulary of",
+      "software-diagram node types across compute, client, data, messaging,",
+      "network, Kubernetes/Docker, security, CI/CD, observability, flow, and",
+      "distributed-systems categories. Shorthand `<type> <Name> [\"Label\"] [at (x,y)]`",
+      "expands to a normal actor and is styled by semantic category, so you name",
+      "the concept and the renderer handles the look.",
+    ].join(" "),
+    example: 'service Orders "Orders API" at (200, 120)',
+    exampleFile: "examples/showcase/url-shortener-architecture.markdy",
+  },
+  {
+    id: "flow-actions",
+    name: "system flow edges",
+    summary:
+      "`node.request(to=Other, label=\"…\")`, `.response(...)`, `.emit(...)` — animated, auto-routed edges between nodes for calls, returns, and events.",
+    detail: [
+      "The three flow verbs draw labeled, auto-routed edges between technical",
+      "nodes: `request` is a solid call (blue), `response` a dashed return",
+      "(violet), and `emit` an async/event edge (amber). Edges route around other",
+      "nodes, fan parallel calls into separate lanes, and fade out after their",
+      "dot arrives so busy diagrams stay readable. `to=` is required; keep",
+      "`label=` under 28 characters.",
+    ].join(" "),
+    example: '@0.5: Orders.request(to=UrlDB, label="store slug", dur=0.5)',
+    exampleFile: "examples/showcase/twitter-timeline-service.markdy",
+  },
+  {
+    id: "premium-effects",
+    name: "premium visual effects",
+    summary:
+      "`glow`, `pulse`, `ripple`, `blur`, `line_reveal`, `mask`, `parallax`, `spring`, `follow_path` — universal polish actions for emphasis and motion.",
+    detail: [
+      "Beyond the core motion actions, every actor supports a set of premium",
+      "effects: `glow`/`pulse`/`ripple` for emphasis, `blur`/`mask`/`line_reveal`",
+      "for reveals, `parallax` for layered depth, and `spring`/`follow_path` for",
+      "richer motion. Pair `smooth`, `snappy`, `overshoot`, or `sharp` easing (or",
+      "a literal `cubic-bezier(...)`) for a polished feel.",
+    ].join(" "),
+    example: "@0.0: Orders.glow(color=#38bdf8, strength=24, dur=0.5)",
+    exampleFile: "examples/showcase/youtube-processing-pipeline.markdy",
+  },
+  {
+    id: "visual-primitives",
+    name: "visual composition primitives",
+    summary:
+      "`surface`, `terminal`, `stat`, `matrix`, `track`, `dot`, `chips`, `glyph` — reusable annotated UI building blocks (needs `@markdy/stdlib-systems`).",
+    detail: [
+      "Compose Excalidraw/Lucidchart-style annotated scenes without",
+      "scenario-specific actors. Each primitive takes a positional label first and a colour",
+      "tone last (`cyan`, `green`, `amber`, `purple`, ...): `surface`/`terminal`",
+      "for panels, `stat` for KPIs, `matrix` for cell grids, `track`/`dot` for",
+      "paths, `chips` for token rows, and `glyph` for badge cards. They accept all",
+      "normal modifiers and universal actions.",
+    ].join(" "),
+    example: 'actor kpi = stat("latency", "18ms", cyan) at (90, 330)',
+    exampleFile: "examples/showcase/technical-diagram-vocabulary.markdy",
+  },
 ];
 
 const WARNING_KINDS: Array<{ kind: string; emittedWhen: string }> = [
@@ -196,6 +268,8 @@ const WARNING_KINDS: Array<{ kind: string; emittedWhen: string }> = [
   { kind: "unknown-preset", emittedWhen: "`preset <name>` references a preset that doesn't exist; the message lists available names" },
   { kind: "import-unresolved", emittedWhen: "an `import ... as ns` has no matching host-provided namespace" },
   { kind: "preset-mixed", emittedWhen: "`preset <name>` appears alongside other statements (presets are whole-file shorthands)" },
+  { kind: "actor-count-threshold", emittedWhen: "a scene declares an unusually large number of actors; a hint to split or simplify" },
+  { kind: "label-overflow", emittedWhen: "a caption or label is long enough that it may overflow its layout box" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -312,7 +386,7 @@ async function writeSystemPromptMd(): Promise<void> {
   );
   lines.push("");
   lines.push(
-    "Figure-only actions (`punch`, `kick`, `wave`, `nod`, `jump`, `bounce`, `face`, `pose`, `rotate_part`) " +
+    `Figure-only actions (${FIGURE_ONLY_ACTION_NAMES.map((a) => `\`${a}\``).join(", ")}) ` +
       "hard-fail if the target is not a figure actor.",
   );
   lines.push("");
@@ -323,6 +397,9 @@ async function writeSystemPromptMd(): Promise<void> {
   lines.push("- Use `caption(...) at top|bottom|center` for overlay text, never `text` for captions.");
   lines.push("- `camera.pan/zoom/shake` makes scenes feel cinematic — use it sparingly.");
   lines.push("- `preset <name>` is the fastest way to scaffold a scene; edit after expanding.");
+  lines.push(
+    "- For architecture diagrams, register `@markdy/stdlib-systems`, lay out `service`/`db`/`queue`/`client` nodes left→right, and narrate the flow with labeled `request`/`response`/`emit` edges.",
+  );
   lines.push("");
   lines.push("## Minimum viable scene");
   lines.push("");
@@ -361,34 +438,15 @@ async function writeSystemPromptJson(): Promise<void> {
       eventRelative: "@+<offset>: <actor>.<action>(<params>)",
       chapter: "scene \"<title>\" { <events...> }",
     },
-    actorTypes: ["sprite", "text", "box", "figure", "caption"],
+    actorTypes: [...BUILTIN_ACTOR_TYPES],
     reservedActors: ["camera"],
-    // Must stay in sync with parser.ts FIGURE_ONLY_ACTIONS / UNIVERSAL_ACTIONS.
-    figureOnlyActions: [
-      "punch",
-      "kick",
-      "wave",
-      "nod",
-      "jump",
-      "bounce",
-      "face",
-      "rotate_part",
-      "pose",
-    ],
-    universalActions: [
-      "enter",
-      "exit",
-      "move",
-      "fade_in",
-      "fade_out",
-      "scale",
-      "rotate",
-      "shake",
-      "say",
-      "throw",
-      "play",
-    ],
-    cameraActions: ["pan", "zoom", "shake"],
+    figureOnlyActions: [...FIGURE_ONLY_ACTION_NAMES],
+    universalActions: [...UNIVERSAL_ACTION_NAMES],
+    cameraActions: [...CAMERA_ACTION_NAMES],
+    // Systems pack (`@markdy/stdlib-systems`) vocabulary.
+    technicalNodeTypes: [...TECHNICAL_NODE_TYPES],
+    visualPrimitiveTypes: [...VISUAL_PRIMITIVE_TYPES],
+    flowActions: [...SYSTEM_FLOW_ACTIONS],
   };
 
   const path = join(ROOT, "prompts/system-prompt.json");
