@@ -228,12 +228,19 @@ const keywordCompletions: Completion[] = [
   { label: "at",     type: "keyword", detail: "position",          info: "at (x, y)" },
 ];
 
+function systemTypeDetail(label: string): string {
+  if (label === "parking_map" || label === "ascii_map" || label === "game_scene" || label === "byte_viz") {
+    return "premium showcase surface";
+  }
+  return "architecture node";
+}
+
 const typeCompletions: Completion[] = [
   { label: "figure", type: "type", detail: "stick figure",    info: "figure(skin, gender, face)" },
   { label: "text",   type: "type", detail: "text label",      info: 'text("content")' },
   { label: "sprite", type: "type", detail: "image sprite",    info: "sprite(assetName)" },
   { label: "box",    type: "type", detail: "grey box",        info: "box()" },
-  ...SYSTEM_ACTOR_TYPES.map((label): Completion => ({ label, type: "type", detail: "architecture node", info: `${label} Name` })),
+  ...SYSTEM_ACTOR_TYPES.map((label): Completion => ({ label, type: "type", detail: systemTypeDetail(label), info: `${label} Name` })),
   { label: "image",  type: "type", detail: "image asset",     info: 'image("path/to/img.png")' },
   { label: "icon",   type: "type", detail: "icon asset",      info: 'icon("set:name")' },
 ];

@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { parse, registerActorPack } from "@markdy/core";
 import { createActorEl } from "../src/actors.js";
 import { buildAnimations } from "../src/animations.js";
+import { createPlayer } from "../src/player.js";
 import type { FaceSwap } from "../src/types.js";
 
 // ---------------------------------------------------------------------------
@@ -23,6 +24,7 @@ beforeAll(() => {
           removeEventListener() {},
           currentTime: 0,
           playState: "paused",
+          _target: this,
           // Non-standard fields — tests read these to assert on keyframe shape
           // without needing a full WAAPI implementation.
           _keyframes: keyframes,
@@ -30,6 +32,13 @@ beforeAll(() => {
         } as unknown as Animation;
       };
     }
+  }
+  if (typeof (g as { ResizeObserver?: typeof ResizeObserver }).ResizeObserver !== "function") {
+    (g as { ResizeObserver?: typeof ResizeObserver }).ResizeObserver = class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    } as unknown as typeof ResizeObserver;
   }
 
   registerActorPack({
@@ -72,7 +81,7 @@ function mount(code: string) {
     actorEls.set(name, el);
   }
   const faceSwaps: FaceSwap[] = [];
-  const anims = buildAnimations(ast, actorEls, sceneContent, {}, faceSwaps);
+  const anims = buildAnimations(ast, actorEls, sceneContent, sceneContent, {}, faceSwaps);
   return { ast, scene, sceneContent, actorEls, anims };
 }
 
@@ -345,6 +354,55 @@ describe("renderer — system flow actions", () => {
     expect(actorEls.get("client")?.textContent).toContain("Browser");
     expect(actorEls.get("auth")?.textContent).toContain("Auth API");
     expect(anims.length).toBeGreaterThan(0);
+  });
+
+  // ---------------------------------------------------------------------------
+
+  describe("renderer — safe framing", () => {
+    it("wraps actors in a safe-frame layer when content would otherwise clip", () => {
+      const container = document.createElement("div");
+      const player = createPlayer({
+        container,
+        code: [
+          "scene width=400 height=240 bg=#0f172a",
+          "actor left = box() at (0, 20) scale 2",
+          "actor right = box() at (300, 120) scale 2",
+        ].join("\n"),
+        autoplay: false,
+        copyright: false,
+        progressBar: false,
+      });
+
+      const layer = container.querySelector<HTMLElement>(".markdy-scene-actor-layer");
+      expect(layer).toBeDefined();
+      expect(layer?.dataset.markdySafeFrame).not.toBe("0,0,1");
+      expect(layer?.style.transform).toContain("scale(");
+      player.destroy();
+    });
+
+    it("keeps camera animations off the safe-frame actor layer", () => {
+      const ast = parse(
+        [
+          "scene width=400 height=240 bg=#0f172a",
+          "actor card = box() at (300, 120) scale 2",
+          "@0.0: camera.zoom(to=1.2, dur=0.4)",
+        ].join("\n"),
+      );
+      const actorLayer = document.createElement("div");
+      const cameraLayer = document.createElement("div");
+      const actorEls = new Map<string, HTMLElement>();
+      actorEls.set("card", createActorEl("card", ast.actors["card"], ast.assets, {}));
+
+      const anims = buildAnimations(ast, actorEls, actorLayer, cameraLayer, {}, []);
+      const cameraAnim = anims.find((anim) => {
+        const keyframes = (anim as unknown as { _keyframes?: unknown })._keyframes;
+        return Array.isArray(keyframes) && keyframes.some((frame) => String((frame as Keyframe).transform ?? "").includes("scale(1.2)"));
+      });
+
+      expect(cameraAnim).toBeDefined();
+      expect((cameraAnim as unknown as { _target?: Element })._target).toBe(cameraLayer);
+      expect((cameraAnim as unknown as { _target?: Element })._target).not.toBe(actorLayer);
+    });
   });
 
   it("routes around a blocking middle actor in a 3-actor scene", () => {

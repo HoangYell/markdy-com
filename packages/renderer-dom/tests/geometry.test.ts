@@ -17,6 +17,7 @@ import {
   segmentIntersectsRect,
 } from "../src/geometry/rect.js";
 import {
+  labelPointForPath,
   pointAtDistance,
   polylineLength,
   round1,
@@ -32,8 +33,8 @@ function stateAt(x: number, y: number): ActorState {
 
 describe("actor bounds", () => {
   it("gives system-diagram node types a shared footprint", () => {
-    for (const type of ["service", "client", "db", "queue"]) {
-      expect(actorSizeByType(type)).toEqual({ width: 180, height: 84 });
+    for (const type of ["service", "api", "microservice", "client", "user", "database", "db", "queue", "cache", "cloud", "region", "container", "cluster"]) {
+      expect(actorSizeByType(type)).toEqual({ width: 184, height: 88 });
     }
   });
 
@@ -44,6 +45,16 @@ describe("actor bounds", () => {
   it("treats an actor's position as its top-left corner", () => {
     expect(actorRect(stateAt(10, 20), "box")).toEqual({ x1: 10, y1: 20, x2: 110, y2: 120 });
     expect(actorCenter(stateAt(10, 20), "box")).toEqual({ x: 60, y: 70 });
+  });
+
+  it("expands bounds around the actor center when scale changes", () => {
+    expect(actorRect({ ...stateAt(10, 20), scale: 2 }, "box")).toEqual({
+      x1: -40,
+      y1: -30,
+      x2: 160,
+      y2: 170,
+    });
+    expect(actorCenter({ ...stateAt(10, 20), scale: 2 }, "box")).toEqual({ x: 60, y: 70 });
   });
 
   it("inflates rectangles symmetrically", () => {
@@ -123,6 +134,11 @@ describe("polyline measurement", () => {
   it("emits compact SVG path data", () => {
     expect(toPathD(path)).toBe("M 0 0 L 30 0 L 30 40");
     expect(round1(12.349)).toBe(12.3);
+  });
+
+  it("places labels on the longest segment with lane-aware offset", () => {
+    expect(labelPointForPath(path, 0)).toEqual({ x: 40, y: 20 });
+    expect(labelPointForPath(path, 2)).toEqual({ x: 56, y: 20 });
   });
 });
 

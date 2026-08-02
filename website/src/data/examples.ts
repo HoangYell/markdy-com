@@ -12,7 +12,7 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 
-export type ExampleCategory = "product" | "system" | "chart" | "ui-state" | "reliability";
+export type ExampleCategory = "product" | "system" | "chart" | "ui-state" | "reliability" | "interactive" | "education";
 
 export interface ExampleMeta {
   id: string;
@@ -34,45 +34,37 @@ export interface ExampleEntry extends ExampleMeta {
   code: string;
 }
 
-// Bullet Reveal is first (and has no explicit previewStart override), which
-// makes it the landing-page/playground default — it's the calmest and most
-// immediately legible of the five: no failure states, no camera movement.
+// The first entry is the landing-page/playground default. Keep it high-impact:
+// this curated set should showcase complex animated UI, systems, and education scenes.
 export const EXAMPLE_REGISTRY: ExampleMeta[] = [
   {
-    id: "bullet-reveal",
-    title: "Bullet Reveal",
-    description: "Sequential bullet points animating in with stagger — the PowerPoint-style reveal people actually need.",
-    category: "product",
-    file: "showcase/bullet-reveal.markdy",
+    id: "cyber-parking-control",
+    title: "Cyber Parking Control",
+    description: "A smart-garage control-room video with a custom CSS dashboard, OCR flow, live routing, glow effects, and a cinematic camera push.",
+    category: "system",
+    file: "showcase/cyber-parking-control.markdy",
     playback: { previewStart: 0 },
   },
   {
-    id: "request-lifecycle",
-    title: "Request Lifecycle",
-    description: "Browser to CDN to server to database, with a packet traveling the path and a response returning.",
-    category: "system",
-    file: "showcase/request-lifecycle.markdy",
+    id: "ascii-parking-garage",
+    title: "ASCII Parking Garage",
+    description: "A terminal-style ASCII map compiler that turns text rows into lane graphs, bay nodes, state sync, and a polished animated mini-map.",
+    category: "education",
+    file: "showcase/ascii-parking-garage.markdy",
   },
   {
-    id: "bar-chart-grow-in",
-    title: "Bar Chart Grow-In",
-    description: "Bars rising with staggered easing while axis labels settle into place.",
-    category: "chart",
-    file: "showcase/bar-chart-grow-in.markdy",
+    id: "parking-game-loop",
+    title: "Parking Game Loop",
+    description: "An arcade-grade parking-game viewport with CSS road motion, car parking, HUD, physics/collision flow, replay capture, and score punch-in.",
+    category: "interactive",
+    file: "showcase/parking-game-loop.markdy",
   },
   {
-    id: "retry-with-backoff",
-    title: "Retry with Backoff",
-    description: "A failing request retrying at increasing intervals until it succeeds.",
-    category: "reliability",
-    file: "showcase/retry-with-backoff.markdy",
-  },
-  {
-    id: "component-state-transition",
-    title: "Component State Transition",
-    description: "A card moving through idle, loading, loaded, and error states.",
-    category: "ui-state",
-    file: "showcase/component-state-transition.markdy",
+    id: "utf8-byte-visualizer",
+    title: "UTF-8 Byte Visualizer",
+    description: "A rich byte-visualizer surface where one character becomes code point, hex byte, bit lanes, and a rendered glyph with data-flow choreography.",
+    category: "education",
+    file: "showcase/utf8-byte-visualizer.markdy",
   },
 ];
 

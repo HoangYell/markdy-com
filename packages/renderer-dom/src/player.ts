@@ -23,10 +23,13 @@
 import { parse } from "@markdy/core";
 import type { Chapter, ParseWarning, SceneAST } from "@markdy/core";
 import type { FaceSwap } from "./types.js";
+import { stateFrom } from "./types.js";
 import { createActorEl } from "./actors.js";
 import { buildAnimations } from "./animations.js";
+import { actorRect, type Rect } from "./geometry/rect.js";
 
 const SCENE_STYLE_ID = "markdy-scene-ambience-styles";
+const SAFE_FRAME_PADDING = 28;
 
 function ensureSceneStyles(doc: Document): void {
   if (doc.getElementById(SCENE_STYLE_ID)) return;
@@ -75,6 +78,13 @@ function ensureSceneStyles(doc: Document): void {
 }
 .markdy-scene-content {
   z-index: 2;
+}
+.markdy-scene-actor-layer {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  transform-origin: 0 0;
+  will-change: transform;
 }
 `;
   doc.head.appendChild(style);
@@ -126,6 +136,93 @@ export interface Player {
   /** Seeks to the start of the named chapter. No-op if the name doesn't match a chapter. */
   seekToChapter(name: string): void;
   destroy(): void;
+}
+
+interface SafeFrame {
+  x: number;
+  y: number;
+  scale: number;
+}
+
+function unionRect(a: Rect | null, b: Rect): Rect {
+  if (!a) return b;
+  return {
+    x1: Math.min(a.x1, b.x1),
+    y1: Math.min(a.y1, b.y1),
+    x2: Math.max(a.x2, b.x2),
+    y2: Math.max(a.y2, b.y2),
+  };
+}
+
+function numericPair(value: unknown): [number, number] | null {
+  if (!Array.isArray(value) || value.length < 2) return null;
+  const [x, y] = value;
+  return typeof x === "number" && typeof y === "number" ? [x, y] : null;
+}
+
+function computeContentBounds(ast: SceneAST): Rect | null {
+  let bounds: Rect | null = null;
+  const maxScaleByActor = new Map<string, number>();
+  const positionsByActor = new Map<string, Array<[number, number]>>();
+
+  for (const [name, def] of Object.entries(ast.actors)) {
+    maxScaleByActor.set(name, Math.max(0.001, def.scale ?? 1));
+    positionsByActor.set(name, [[def.x, def.y]]);
+  }
+
+  for (const ev of ast.events) {
+    if (ev.actor === "camera") continue;
+    if (ev.action === "scale" && typeof ev.params.to === "number") {
+      maxScaleByActor.set(ev.actor, Math.max(maxScaleByActor.get(ev.actor) ?? 1, ev.params.to));
+    }
+    if (ev.action === "move" || ev.action === "spring") {
+      const to = numericPair(ev.params.to);
+      if (to) positionsByActor.get(ev.actor)?.push(to);
+    }
+  }
+
+  for (const [name, def] of Object.entries(ast.actors)) {
+    const positions = positionsByActor.get(name) ?? [[def.x, def.y]];
+    const scale = maxScaleByActor.get(name) ?? def.scale ?? 1;
+    for (const [x, y] of positions) {
+      bounds = unionRect(bounds, actorRect({ ...stateFrom(def), x, y, scale }, def.type));
+    }
+  }
+
+  return bounds;
+}
+
+function computeSafeFrame(ast: SceneAST): SafeFrame {
+  const bounds = computeContentBounds(ast);
+  if (!bounds) return { x: 0, y: 0, scale: 1 };
+
+  const boundsWidth = Math.max(1, bounds.x2 - bounds.x1);
+  const boundsHeight = Math.max(1, bounds.y2 - bounds.y1);
+  const availableWidth = Math.max(1, ast.meta.width - SAFE_FRAME_PADDING * 2);
+  const availableHeight = Math.max(1, ast.meta.height - SAFE_FRAME_PADDING * 2);
+  const scale = Math.min(1, availableWidth / boundsWidth, availableHeight / boundsHeight);
+  const scaledWidth = boundsWidth * scale;
+  const scaledHeight = boundsHeight * scale;
+
+  function axisOffset(min: number, max: number, sceneSize: number, scaledSize: number): number {
+    const paddedMin = SAFE_FRAME_PADDING;
+    const paddedMax = sceneSize - SAFE_FRAME_PADDING;
+    const scaledMin = min * scale;
+    const scaledMax = max * scale;
+
+    if (scaledSize > paddedMax - paddedMin) return (sceneSize - scaledSize) / 2 - scaledMin;
+    if (scaledMin < paddedMin) return paddedMin - scaledMin;
+    if (scaledMax > paddedMax) return paddedMax - scaledMax;
+    return 0;
+  }
+
+  const x = axisOffset(bounds.x1, bounds.x2, ast.meta.width, scaledWidth);
+  const y = axisOffset(bounds.y1, bounds.y2, ast.meta.height, scaledHeight);
+  return {
+    x: Math.round(x * 1000) / 1000,
+    y: Math.round(y * 1000) / 1000,
+    scale: Math.round(scale * 1000) / 1000,
+  };
 }
 
 /**
@@ -293,6 +390,13 @@ export function createPlayer(opts: PlayerOptions): Player {
   });
   scene.appendChild(sceneContent);
 
+  const actorLayer = document.createElement("div");
+  actorLayer.className = "markdy-scene-actor-layer";
+  const safeFrame = computeSafeFrame(ast);
+  actorLayer.dataset.markdySafeFrame = `${safeFrame.x},${safeFrame.y},${safeFrame.scale}`;
+  actorLayer.style.transform = `translate(${safeFrame.x}px, ${safeFrame.y}px) scale(${safeFrame.scale})`;
+  sceneContent.appendChild(actorLayer);
+
   function scaleScene(): void {
     const s = viewport.clientWidth / ast.meta.width;
     scene.style.transform = `scale(${s})`;
@@ -305,13 +409,13 @@ export function createPlayer(opts: PlayerOptions): Player {
   const actorEls = new Map<string, HTMLElement>();
   for (const [name, def] of Object.entries(ast.actors)) {
     const el = createActorEl(name, def, ast.assets, assetOverrides);
-    sceneContent.appendChild(el);
+    actorLayer.appendChild(el);
     actorEls.set(name, el);
   }
 
   // ── Build all animations, keep them permanently paused ────────────────────
   const faceSwaps: FaceSwap[] = [];
-  const allAnims = buildAnimations(ast, actorEls, sceneContent, assetOverrides, faceSwaps);
+  const allAnims = buildAnimations(ast, actorEls, actorLayer, sceneContent, assetOverrides, faceSwaps);
   faceSwaps.sort((a, b) => a.timeMs - b.timeMs);
 
   for (const anim of allAnims) {

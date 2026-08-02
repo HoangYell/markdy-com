@@ -35,7 +35,7 @@ export interface ActionContext {
   states: Map<string, ActorState>;
   /** Root elements for every actor, keyed by actor name. */
   actorEls: Map<string, HTMLElement>;
-  /** The camera/content layer actors are mounted into. */
+  /** The actor/effects layer that actor-relative overlays are mounted into. */
   scene: HTMLElement;
   /** Host-supplied asset URL overrides, keyed by asset name. */
   assetOverrides: Record<string, string>;
