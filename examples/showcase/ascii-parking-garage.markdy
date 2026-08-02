@@ -1,0 +1,49 @@
+# ASCII source becomes a polished garage visualization with terminal chrome, mini-map, parser graph, and state sync.
+scene width=1280 height=720 bg=#07111f fps=60
+
+actor title = caption("ASCII parking garage") at top opacity 0
+actor ascii = ascii_map("Text map compiler") at (82, 130) opacity 0 scale 0.94 z 35
+client Terminal "Terminal" at (590, 148) opacity 0
+service Lexer "Lexer" at (825, 148) opacity 0
+service Graph "Graph builder" at (1060, 148) opacity 0
+queue Lane "Lane graph" at (590, 448) opacity 0
+container Bay "Open bay" at (825, 448) opacity 0
+db State "State store" at (1060, 448) opacity 0
+actor diff = text("+ A-03 free    + EV bay reserved") at (442, 628) size 24 opacity 0 z 70
+
+group pipeline = Terminal, Lexer, Graph, Lane, Bay, State
+
+scene "source-text" {
+  @+0.0: title.line_reveal(from=left, dur=0.42)
+  @+0.12: ascii.fade_in(dur=0.45)
+  @+0.0: ascii.mask(from=0, to=120, dur=0.72, ease=smooth)
+  @+0.0: ascii.glow(color=#22c55e, strength=42, dur=0.72)
+  @+0.24: pipeline.enter(from=right, dur=0.46, ease=snappy, stagger=0.06)
+}
+
+scene "parse" {
+  @+0.16: Terminal.request(to=Lexer, label="ASCII rows", dur=0.55)
+  @+0.0: Lexer.pulse(amount=1.1, dur=0.4)
+  @+0.1: Lexer.request(to=Graph, label="tokens", dur=0.55)
+  @+0.0: Graph.glow(color=#38bdf8, strength=32, dur=0.5)
+}
+
+scene "materialize" {
+  @+0.16: Graph.emit(to=Lane, label="lane edges", dur=0.55)
+  @+0.0: Graph.emit(to=Bay, label="bay nodes", dur=0.55)
+  @+0.0: Lane.ripple(color=#38bdf8, size=145, dur=0.55)
+  @+0.0: Bay.ripple(color=#22c55e, size=145, dur=0.55)
+}
+
+scene "sync" {
+  @+0.16: Lane.request(to=State, label="occupancy", dur=0.58)
+  @+0.0: Bay.request(to=State, label="EV reserve", dur=0.58)
+  @+0.16: State.glow(color=#22c55e, strength=38, dur=0.55)
+  @+0.0: diff.line_reveal(from=left, dur=0.45)
+}
+
+scene "focus-terminal" {
+  @+0.22: camera.pan(to=(270, 260), dur=0.78, ease=smooth)
+  @+0.0: camera.zoom(to=1.2, dur=0.78, ease=smooth)
+  @+0.18: ascii.pulse(amount=1.035, dur=0.45)
+}

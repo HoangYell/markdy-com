@@ -40,7 +40,8 @@ const DEFAULT_EASE_BY_ACTION: Record<string, string> = {
 export function buildAnimations(
   ast: SceneAST,
   actorEls: Map<string, HTMLElement>,
-  scene: HTMLElement,
+  actorLayer: HTMLElement,
+  cameraLayer: HTMLElement,
   assetOverrides: Record<string, string>,
   faceSwaps: FaceSwap[],
 ): Animation[] {
@@ -82,7 +83,7 @@ export function buildAnimations(
     // The camera is a reserved actor with no element of its own — it
     // transforms the whole content layer, so it routes separately.
     if (ev.actor === "camera") {
-      buildCameraAction(ev, scene, ast, baseOpts, anims, cameraState);
+      buildCameraAction(ev, cameraLayer, ast, baseOpts, anims, cameraState);
       continue;
     }
 
@@ -101,7 +102,7 @@ export function buildAnimations(
       ast,
       states,
       actorEls,
-      scene,
+      scene: actorLayer,
       assetOverrides,
       faceSwaps,
       anims,

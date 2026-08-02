@@ -14,6 +14,10 @@ export const SYSTEM_ACTOR_TYPES = [
   "region",
   "container",
   "cluster",
+  "parking_map",
+  "ascii_map",
+  "game_scene",
+  "byte_viz",
 ] as const;
 export const SYSTEM_FLOW_ACTIONS = ["request", "response", "emit"] as const;
 

@@ -1,0 +1,53 @@
+# Smart-garage video scene: premium HTML/CSS dashboard, routed flows, camera work, and staged emphasis.
+scene width=1280 height=720 bg=#050816 fps=60
+
+actor title = caption("Cyber parking control room") at top opacity 0
+actor dash = parking_map("Vision routing HUD") at (72, 124) opacity 0 scale 0.92 z 35
+client DriverApp "Driver app" at (560, 156) opacity 0
+service GateCam "Gate camera" at (808, 156) opacity 0
+service PlateOCR "Plate OCR" at (1048, 156) opacity 0
+db Occupancy "Occupancy DB" at (560, 442) opacity 0
+service Allocator "Spot allocator" at (808, 442) opacity 0
+container Gate "Gate arm" at (1048, 442) opacity 0
+cloud Garage "Garage A-17" at (1048, 300) opacity 0
+actor status = text("SCAN -> OCR -> ROUTE -> GATE") at (432, 632) size 23 opacity 0 z 70
+
+group nodes = DriverApp, GateCam, PlateOCR, Occupancy, Allocator, Gate, Garage
+
+scene "cold-open" {
+  @+0.0: title.line_reveal(from=left, dur=0.42)
+  @+0.1: dash.mask(from=0, to=120, dur=0.75, ease=smooth)
+  @+0.0: dash.fade_in(dur=0.45)
+  @+0.0: dash.glow(color=#38bdf8, strength=42, dur=0.75)
+  @+0.2: nodes.fade_in(dur=0.42, stagger=0.08)
+}
+
+scene "scan-and-read" {
+  @+0.2: DriverApp.request(to=GateCam, label="arrival", dur=0.55)
+  @+0.0: GateCam.glow(color=#38bdf8, strength=30, dur=0.48)
+  @+0.08: GateCam.request(to=PlateOCR, label="plate frame", dur=0.58)
+  @+0.0: PlateOCR.pulse(amount=1.1, dur=0.42)
+  @+0.0: dash.pulse(amount=1.04, dur=0.46)
+}
+
+scene "decision-loop" {
+  @+0.12: PlateOCR.request(to=Occupancy, label="permit lookup", dur=0.6)
+  @+0.0: Occupancy.glow(color=#22c55e, strength=34, dur=0.5)
+  @+0.14: Occupancy.response(to=Allocator, label="3 free bays", dur=0.58)
+  @+0.0: Allocator.glow(color=#a78bfa, strength=36, dur=0.54)
+  @+0.16: status.fade_in(dur=0.35)
+}
+
+scene "route-car" {
+  @+0.2: Allocator.emit(to=Gate, label="open lane", dur=0.56)
+  @+0.0: Gate.ripple(color=#22c55e, size=160, dur=0.62)
+  @+0.12: Gate.emit(to=Garage, label="reserve A-17", dur=0.58)
+  @+0.0: Garage.ripple(color=#38bdf8, size=190, dur=0.7)
+}
+
+scene "cinematic-push" {
+  @+0.18: camera.pan(to=(270, 260), dur=0.84, ease=smooth)
+  @+0.0: camera.zoom(to=1.22, dur=0.84, ease=smooth)
+  @+0.2: dash.glow(color=#22c55e, strength=48, dur=0.72)
+  @+0.0: status.scale(to=1.06, dur=0.4, ease=overshoot)
+}

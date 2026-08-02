@@ -14,6 +14,14 @@ Adds actor types:
 - `db`
 - `queue`
 - `client`
+- `cloud`
+- `region`
+- `container`
+- `cluster`
+- `parking_map`
+- `ascii_map`
+- `game_scene`
+- `byte_viz`
 
 Adds actions:
 - `.request(to=..., label=..., dur=...)`

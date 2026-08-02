@@ -8,7 +8,7 @@
  * busy sequence diagram doesn't accumulate clutter.
  */
 import type { ActionContext, ActionHandler } from "./context.js";
-import { pointAtDistance, polylineLength, round1, routeFlowPath, toPathD } from "../geometry/path.js";
+import { labelPointForPath, polylineLength, round1, routeFlowPath, toPathD } from "../geometry/path.js";
 
 const EDGE_LAYER_ATTR = "data-markdy-edge-layer";
 
@@ -145,7 +145,7 @@ function buildEdge(ctx: ActionContext, targetName: string): void {
 
   const labelText = String(ev.params.label ?? "");
   if (labelText) {
-    const midPoint = pointAtDistance(points, length * 0.5);
+    const midPoint = labelPointForPath(points, lane);
     const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
     label.setAttribute("x", `${round1(midPoint.x)}`);
     label.setAttribute("y", `${round1(midPoint.y - 8)}`);

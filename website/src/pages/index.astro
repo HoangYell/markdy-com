@@ -1105,10 +1105,14 @@ scene width=800 height=400 bg=#f8fafc
   import { closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
 
   import { markdyLanguage, markdyAutocomplete, markdyHighlightLight, markdyHighlightDark } from "../editor/markdy-language";
+  import { registerActorPack } from "@markdy/core";
   import { baseTheme, lightTheme, darkTheme } from "../editor/editor-theme";
   import { createPlayer } from "@markdy/renderer-dom";
+  import { systemsPack } from "@markdy/stdlib-systems";
   import type { Player } from "@markdy/renderer-dom";
   import type { ExampleEntry } from "../data/examples";
+
+  registerActorPack(systemsPack);
 
   const examples: ExampleEntry[]  = (window as any).__MARKDY_EXAMPLES;
   const assets: Record<string, string> = (window as any).__MARKDY_ASSETS;
