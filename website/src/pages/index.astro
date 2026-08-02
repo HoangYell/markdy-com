@@ -1730,6 +1730,10 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
     --ref-code-bg: #161b22;
     --ref-code-text: #c9d1d9;
   }
+f 
+  /* ── Global overflow guard ────────────────────────────────────────── */
+  /* Prevent any single wide element from producing a horizontal scrollbar */
+  html, body { overflow-x: hidden; max-width: 100vw; }
 
   /* ── Nav ──────────────────────────────────────────────────────────── */
   .nav {
@@ -2580,7 +2584,7 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
 
   .ref-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.25rem;
   }
 
@@ -2591,6 +2595,9 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
     background: var(--bg-secondary);
     box-shadow: 0 1px 4px var(--shadow-sm);
     transition: all 0.25s ease;
+    /* Prevent grid item from expanding wider than its column */
+    min-width: 0;
+    overflow: hidden;
   }
 
   .ref-card:hover {
@@ -2785,7 +2792,7 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
 
   .ai-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: 1.25rem;
     margin-bottom: 1.5rem;
   }
@@ -3294,7 +3301,6 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
     .ai-grid { grid-template-columns: 1fr; }
     .intent-grid,
     .share-grid { grid-template-columns: 1fr; }
-    .ref-card { overflow: hidden; }
     .ref-card pre { white-space: pre; }
 
     .footer-top { grid-template-columns: 1fr; }
