@@ -1,5 +1,5 @@
 import type { EdgeKind, PositionedNode, ThemeTokens, TimedCue } from "@markdy/core";
-import { labelPointForPath, polylineLength, routeOrthogonal, toPathD } from "./geometry/path.js";
+import { placeFlowLabel, polylineLength, routeOrthogonal, toPathD } from "./geometry/path.js";
 import { boxRect, type Point, type Rect } from "./geometry/rect.js";
 
 const EDGE_LAYER_ATTR = "data-markdy-edge-layer";
@@ -70,6 +70,7 @@ export interface EdgeRuntime {
   dot: SVGCircleElement;
   pathLen: number;
   points: Point[];
+  labelRect?: Rect;
 }
 
 export function createEdgeRuntime(
@@ -80,13 +81,15 @@ export function createEdgeRuntime(
   label: string | undefined,
   theme: ThemeTokens,
   sceneId: string,
-  obstacles: Rect[],
+  routeObstacles: Rect[],
+  labelObstacles: Rect[],
   bounds: { width: number; height: number },
+  lane: number,
 ): EdgeRuntime {
   ensureDefs(svg, theme, sceneId);
   const color = theme.edges[kind];
   const style = EDGE_STYLES[kind];
-  const points = dedupePoints(routeOrthogonal(boxRect(from), boxRect(to), obstacles, bounds));
+  const points = dedupePoints(routeOrthogonal(boxRect(from), boxRect(to), routeObstacles, bounds, lane));
   const d = toPathD(points);
   const len = polylineLength(points);
 
@@ -116,22 +119,31 @@ export function createEdgeRuntime(
   group.append(path, dot);
 
   let labelEl: SVGTextElement | undefined;
+  let labelRect: Rect | undefined;
   if (label) {
-    const mid = labelPointForPath(points, 0);
+    const textWidth = label.length * 6.6 + 10;
+    const placement = placeFlowLabel(points, textWidth, labelObstacles, bounds);
+    labelRect = placement.rect;
     labelEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    labelEl.setAttribute("x", String(mid.x));
-    labelEl.setAttribute("y", String(mid.y));
+    labelEl.setAttribute("x", String(placement.x));
+    labelEl.setAttribute("y", String(placement.y));
     labelEl.setAttribute("text-anchor", "middle");
+    labelEl.setAttribute("dominant-baseline", "middle");
     labelEl.setAttribute("font-size", "11");
     labelEl.setAttribute("font-family", "ui-monospace, SFMono-Regular, Menlo, monospace");
     labelEl.setAttribute("fill", theme.textMuted);
+    // Halo so labels stay readable over grid lines and edges.
+    labelEl.setAttribute("stroke", theme.canvas);
+    labelEl.setAttribute("stroke-width", "3");
+    labelEl.setAttribute("paint-order", "stroke");
+    labelEl.setAttribute("stroke-linejoin", "round");
     labelEl.textContent = label;
     labelEl.style.opacity = "0";
     group.appendChild(labelEl);
   }
 
   svg.appendChild(group);
-  return { group, path, label: labelEl, dot, pathLen: len, points };
+  return { group, path, label: labelEl, dot, pathLen: len, points, labelRect };
 }
 
 /** Keyframes that walk the dot along the polyline at constant speed. */
@@ -198,6 +210,9 @@ export function buildCueAnimations(
   const anims: Animation[] = [];
   const nodeById = new Map(nodes.map((n) => [n.id, n]));
   const rectById = new Map(nodes.map((n) => [n.id, boxRect(n)]));
+  const allNodeRects = [...rectById.values()];
+  const placedLabels: Rect[] = [];
+  const laneByPair = new Map<string, number>();
   const svg = ensureEdgeLayer(scene);
   const sceneId = `md-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -273,11 +288,16 @@ export function buildCueAnimations(
       const from = nodeById.get(seg.from);
       const to = nodeById.get(seg.to);
       if (!from || !to) continue;
-      const obstacles: Rect[] = [];
+      const routeObstacles: Rect[] = [];
       for (const [id, rect] of rectById) {
-        if (id !== seg.from && id !== seg.to) obstacles.push(rect);
+        if (id !== seg.from && id !== seg.to) routeObstacles.push(rect);
       }
-      const runtime = createEdgeRuntime(svg, from, to, seg.op, seg.label, theme, sceneId, obstacles, bounds);
+      const pairKey = [seg.from, seg.to].sort().join("|");
+      const lane = laneByPair.get(pairKey) ?? 0;
+      laneByPair.set(pairKey, lane + 1);
+      const labelObstacles = [...allNodeRects, ...placedLabels];
+      const runtime = createEdgeRuntime(svg, from, to, seg.op, seg.label, theme, sceneId, routeObstacles, labelObstacles, bounds, lane);
+      if (runtime.labelRect) placedLabels.push(runtime.labelRect);
       anims.push(...animateEdgeReveal(runtime, startMs, durMs));
     }
   }

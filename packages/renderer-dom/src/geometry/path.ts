@@ -72,6 +72,87 @@ export function labelPointForPath(points: Point[], lane: number): Point {
   return { x: round1(mid.x + 10 + offset), y: round1(mid.y) };
 }
 
+export interface LabelPlacement {
+  x: number;
+  y: number;
+  rect: Rect;
+}
+
+const LABEL_BOX_HEIGHT = 16;
+
+function rectsOverlap(a: Rect, b: Rect): boolean {
+  return a.x1 < b.x2 && a.x2 > b.x1 && a.y1 < b.y2 && a.y2 > b.y1;
+}
+
+function overlapCount(rect: Rect, obstacles: Rect[]): number {
+  let hits = 0;
+  for (const o of obstacles) if (rectsOverlap(rect, o)) hits++;
+  return hits;
+}
+
+/**
+ * Chooses a readable anchor for an edge label: it steps perpendicular to the
+ * edge's longest segment until the label box clears every obstacle (node boxes
+ * and already-placed labels), staying inside the scene. The least-crowded
+ * candidate wins if nothing is fully clear.
+ */
+export function placeFlowLabel(
+  points: Point[],
+  textWidth: number,
+  obstacles: Rect[],
+  bounds: { width: number; height: number },
+): LabelPlacement {
+  let bestIndex = 0;
+  let bestLength = -1;
+  for (let i = 0; i < points.length - 1; i++) {
+    const len = segmentLength(points[i], points[i + 1]);
+    if (len > bestLength) {
+      bestLength = len;
+      bestIndex = i;
+    }
+  }
+
+  const a = points[bestIndex] ?? { x: 0, y: 0 };
+  const b = points[bestIndex + 1] ?? a;
+  const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+  const horizontal = Math.abs(a.x - b.x) >= Math.abs(a.y - b.y);
+
+  const half = textWidth / 2;
+  const halfH = LABEL_BOX_HEIGHT / 2;
+  const pad = 8;
+
+  const base = horizontal ? 14 : half + 12;
+  const step = horizontal ? LABEL_BOX_HEIGHT + 4 : textWidth + 12;
+  const order = horizontal ? [-1, 1] : [1, -1];
+  const offsets: number[] = [];
+  for (let k = 0; k < 8; k++) {
+    for (const sign of order) offsets.push(sign * (base + k * step));
+  }
+
+  let fallback: LabelPlacement | null = null;
+  let fallbackHits = Number.POSITIVE_INFINITY;
+
+  for (const off of offsets) {
+    const cx = clamp(horizontal ? mid.x : mid.x + off, pad + half, bounds.width - pad - half);
+    const cy = clamp(horizontal ? mid.y + off : mid.y, pad + halfH, bounds.height - pad - halfH);
+    const rect: Rect = { x1: cx - half, y1: cy - halfH, x2: cx + half, y2: cy + halfH };
+    const hits = overlapCount(rect, obstacles);
+    if (hits === 0) return { x: round1(cx), y: round1(cy), rect };
+    if (hits < fallbackHits) {
+      fallbackHits = hits;
+      fallback = { x: round1(cx), y: round1(cy), rect };
+    }
+  }
+
+  return (
+    fallback ?? {
+      x: round1(mid.x),
+      y: round1(mid.y),
+      rect: { x1: mid.x - half, y1: mid.y - halfH, x2: mid.x + half, y2: mid.y + halfH },
+    }
+  );
+}
+
 function clamp(n: number, min: number, max: number): number {
   if (max < min) return n;
   return Math.min(max, Math.max(min, n));
