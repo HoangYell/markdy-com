@@ -1,0 +1,176 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+const ARTICLES = [
+  {
+    slug: "animated-diagrams-as-code",
+    title: "Animated Diagrams as Code: Version Your Architecture in Git",
+    dek: "Describe your system in plain text, review it in pull requests, and let Markdy animate it in the browser.",
+    tag: "Diagram as code",
+  },
+  {
+    slug: "browser-native-diagram-animation",
+    title: "Browser-Native Diagram Animation: No Canvas, No GSAP",
+    dek: "How Markdy animates architecture diagrams with the Web Animations API and CSS — tiny, seekable, embeddable.",
+    tag: "Performance",
+  },
+  {
+    slug: "ai-generated-architecture-diagrams",
+    title: "AI-Generated Architecture Diagrams: Let LLMs Write Your Diagrams",
+    dek: "Prompt Claude, ChatGPT, or Copilot for a valid, animated architecture diagram instead of brittle JavaScript.",
+    tag: "AI authoring",
+  },
+  {
+    slug: "animated-diagrams-astro-mdx",
+    title: "Animated Diagrams in Astro & MDX: Docs-as-Code, With Motion",
+    dek: "Embed lazy-loaded animated diagrams in Astro and MDX docs, versioned in git next to your content.",
+    tag: "Docs as code",
+  },
+];
+
+const blogStructuredData = [
+  {
+    "@type": "CollectionPage",
+    "@id": "https://markdy.com/blog/#collection",
+    url: "https://markdy.com/blog/",
+    name: "Markdy Articles — Animated Diagrams as Code",
+    description:
+      "Guides on animated architecture diagrams as code: diagram-as-code, browser-native motion, AI-generated diagrams, and Astro/MDX docs.",
+    isPartOf: { "@id": "https://markdy.com/#website" },
+  },
+  {
+    "@type": "ItemList",
+    "@id": "https://markdy.com/blog/#list",
+    itemListElement: ARTICLES.map((a, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      url: `https://markdy.com/blog/${a.slug}/`,
+      name: a.title,
+    })),
+  },
+];
+---
+
+<Layout
+  title="Markdy Articles — Animated Diagrams as Code"
+  description="Guides on animated architecture and system diagrams as code: diagram-as-code, browser-native motion, AI-generated diagrams, and Astro/MDX docs-as-code."
+  canonicalURL="https://markdy.com/blog/"
+  keywords="animated diagrams as code, diagram as code, architecture diagram guide, mermaid alternative, ai generated architecture diagram, astro diagrams, mdx diagrams"
+  structuredData={blogStructuredData}
+>
+  <main class="hub">
+    <nav class="hub-crumbs" aria-label="Breadcrumb">
+      <a href="/">Markdy</a>
+      <span aria-hidden="true">/</span>
+      <span>Articles</span>
+    </nav>
+
+    <header class="hub-head">
+      <h1>Animated diagrams as code — guides &amp; deep dives</h1>
+      <p class="hub-dek">
+        Short, practical articles on turning plain text into animated architecture and system diagrams.
+        Start with the <a href="/#playground">interactive playground</a> or the
+        <a href="/docs/">documentation</a>, then dig into a topic below.
+      </p>
+    </header>
+
+    <ul class="hub-list">
+      {ARTICLES.map((a) => (
+        <li class="hub-card">
+          <a href={`/blog/${a.slug}/`}>
+            <span class="hub-tag">{a.tag}</span>
+            <h2>{a.title}</h2>
+            <p>{a.dek}</p>
+            <span class="hub-more">Read the guide →</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <aside class="hub-cta">
+      <p>New to Markdy? The fastest way in is the <a href="/#playground">live playground</a> — edit a real architecture scene and watch it animate.</p>
+    </aside>
+  </main>
+</Layout>
+
+<style>
+  .hub {
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 5rem 1.25rem 4rem;
+  }
+  .hub-crumbs {
+    font-size: 0.85rem;
+    color: var(--text-secondary, #64748b);
+    margin-bottom: 1.5rem;
+  }
+  .hub-crumbs a { color: var(--accent, #38bdf8); text-decoration: none; }
+  .hub-crumbs span { margin: 0 0.4rem; }
+  .hub-head h1 {
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin: 0 0 1rem;
+  }
+  .hub-dek {
+    font-size: 1.12rem;
+    line-height: 1.65;
+    color: var(--text-secondary, #475569);
+    margin: 0 0 2.5rem;
+  }
+  .hub-dek a, .hub-cta a { color: var(--accent, #0ea5e9); }
+  .hub-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 1rem;
+  }
+  .hub-card a {
+    display: block;
+    padding: 1.5rem;
+    border-radius: 14px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    background: var(--bg-secondary, #ffffff);
+    text-decoration: none;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+  .hub-card a:hover {
+    transform: translateY(-2px);
+    border-color: var(--accent, #38bdf8);
+  }
+  .hub-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent, #0ea5e9);
+    margin-bottom: 0.5rem;
+  }
+  .hub-card h2 {
+    font-size: 1.3rem;
+    line-height: 1.25;
+    margin: 0 0 0.5rem;
+    color: var(--text-primary, #0f172a);
+  }
+  .hub-card p {
+    color: var(--text-secondary, #475569);
+    line-height: 1.6;
+    margin: 0 0 0.9rem;
+  }
+  .hub-more {
+    font-weight: 600;
+    color: var(--accent, #0ea5e9);
+    font-size: 0.95rem;
+  }
+  .hub-cta {
+    margin-top: 2.5rem;
+    padding: 1.4rem 1.6rem;
+    border-radius: 14px;
+    background: var(--bg-secondary, rgba(56, 189, 248, 0.06));
+    border: 1px solid var(--border-color, #e2e8f0);
+    line-height: 1.6;
+    color: var(--text-secondary, #475569);
+  }
+</style>

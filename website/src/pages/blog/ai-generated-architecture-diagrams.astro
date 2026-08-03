@@ -1,0 +1,106 @@
+---
+/*
+  SEO BRIEF — satellite article for feature: "AI-agent friendly"
+  Target keywords: ai generated architecture diagram, ai diagram generator, llm
+    diagram, chatgpt architecture diagram, copilot diagram, text to diagram AI
+  Search intent: commercial-investigation / how-to — developers who want an AI to
+    generate maintainable architecture diagrams from a plain-English brief.
+  Meta title: AI-Generated Architecture Diagrams: Let LLMs Write Diagrams | Markdy
+  Meta description: Give Claude, ChatGPT, or Copilot a plain-English brief and get a
+    valid, animated architecture diagram back. A constrained, AI-friendly diagram DSL.
+  Primary CTA: Open the Playground. Secondary: Read the agent guide / Star on GitHub.
+*/
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+
+const canonicalURL = "https://markdy.com/blog/ai-generated-architecture-diagrams/";
+const structuredData = [
+  {
+    "@type": "BlogPosting",
+    "@id": `${canonicalURL}#article`,
+    headline: "AI-Generated Architecture Diagrams: Let LLMs Write Your Diagrams as Code",
+    description:
+      "Why a constrained text DSL beats generated JavaScript for AI diagramming, and how to prompt Claude, ChatGPT, or Copilot for a runnable animated architecture diagram.",
+    inLanguage: "en",
+    url: canonicalURL,
+    mainEntityOfPage: canonicalURL,
+    isPartOf: { "@id": "https://markdy.com/#website" },
+    about: { "@id": "https://markdy.com/#software" },
+    author: { "@id": "https://markdy.com/#hoang-yell" },
+    publisher: { "@id": "https://markdy.com/#organization" },
+    keywords: "ai generated architecture diagram, ai diagram generator, llm diagram, chatgpt architecture diagram, copilot diagram",
+  },
+];
+---
+
+<ArticleLayout
+  title="AI-Generated Architecture Diagrams: Let LLMs Write Diagrams | Markdy"
+  description="Give Claude, ChatGPT, or Copilot a plain-English brief and get a valid, animated architecture diagram back. MarkdyScript is a constrained, AI-friendly diagram DSL."
+  keywords="ai generated architecture diagram, ai diagram generator, llm diagram, chatgpt architecture diagram, copilot diagram, text to diagram, AI diagramming"
+  canonicalURL={canonicalURL}
+  headline="AI-Generated Architecture Diagrams: Let LLMs Write Your Diagrams as Code"
+  dek="Why a constrained text DSL beats generated JavaScript for AI diagramming — and how to prompt Claude, ChatGPT, or Copilot to produce runnable Markdy scenes."
+  structuredData={structuredData}
+>
+  <p>
+    Ask an LLM to "draw our architecture" and you usually get one of two disappointing results: an ASCII sketch, or a
+    wall of brittle Canvas/JavaScript that half-runs. The problem isn't the model — it's the target format.
+    <strong>MarkdyScript</strong> is a small, line-based, strictly-validated DSL, which makes it a great compile
+    target for AI: easy to generate, easy to validate, and easy to revise.
+  </p>
+
+  <h2>Why constrained text is the right AI target</h2>
+  <ul>
+    <li><strong>Small grammar.</strong> Nodes, groups, beats, and four flow operators — a model can learn it from one reference page.</li>
+    <li><strong>Deterministic.</strong> The same text always renders the same diagram, so results are reproducible and diffable.</li>
+    <li><strong>Line-numbered errors.</strong> When the model gets something wrong, the parser points at the exact line, so the agent can self-correct.</li>
+    <li><strong>No runtime to hallucinate.</strong> There's no imperative API surface to invent — just declarative statements.</li>
+  </ul>
+
+  <h2>How to prompt for a Markdy diagram</h2>
+  <p>
+    Point the model at the <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md" target="_blank" rel="noopener noreferrer">Markdy agent guide</a>
+    (grammar, node kinds, examples) and describe the system in plain English:
+  </p>
+  <blockquote>
+    Use the Markdy agent guide. Create a 1280×720 animated architecture diagram for a URL shortener. Use semantic
+    node kinds, beats, labeled flow edges (<code>-&gt;</code>, <code>&lt;-</code>, <code>~&gt;</code>), short labels,
+    and a final <code>glow</code> on the hot path.
+  </blockquote>
+  <p>You get back a complete, runnable scene:</p>
+  <pre><code>scene "URL Shortener" theme=midnight
+layout LR
+
+browser Browser
+gateway Gateway "API Gateway"
+service Shortener "URL Shortener"
+cache Redis "Hot URL Cache"
+database UrlDB "URL Store"
+
+group storage: Redis UrlDB
+
+beat create:
+  Browser -&gt; Gateway "POST /shorten" -&gt; Shortener
+  Shortener -&gt; UrlDB "store slug" &amp; Shortener ~&gt; Redis "warm cache"
+  Browser &lt;- Shortener "short.ly/a7"
+
+beat finish:
+  glow storage color=#22c55e</code></pre>
+  <p>
+    Paste it straight into the <a href="/#playground">playground</a> to verify it. If it doesn't parse, hand the
+    line-numbered error back to the model and ask it to fix that line — the loop is fast and reliable.
+  </p>
+
+  <h2>Works with the tools you already use</h2>
+  <p>
+    MarkdyScript is plain text, so it works with any assistant that accepts a URL as context — Claude, ChatGPT,
+    GitHub Copilot, Cursor, and Windsurf. Keep the diagram in your repo and the same agent can update it whenever the
+    system changes, exactly like <a href="/blog/animated-diagrams-as-code/">diagrams as code</a>.
+  </p>
+
+  <h2>Validate what the AI produced</h2>
+  <p>
+    Trust, but verify. Run <code>markdy lint scene.markdy</code> in CI, or render the scene in
+    <a href="/blog/animated-diagrams-astro-mdx/">Astro or MDX</a> docs so a broken diagram fails your build instead of
+    shipping. Deterministic output means AI-generated diagrams stay reviewable — not magic you can't audit.
+  </p>
+</ArticleLayout>

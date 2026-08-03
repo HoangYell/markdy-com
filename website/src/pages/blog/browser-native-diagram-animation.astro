@@ -1,0 +1,102 @@
+---
+/*
+  SEO BRIEF — satellite article for feature: "Browser-native motion"
+  Target keywords: web animations api diagrams, gsap alternative, browser native
+    animation, css transform diagram, lightweight diagram animation
+  Search intent: technical evaluation — developers who want animated diagrams
+    without shipping Canvas, a video pipeline, or a heavy animation library.
+  Meta title: Browser-Native Diagram Animation — No Canvas, No GSAP | Markdy
+  Meta description: Markdy animates diagrams with the Web Animations API and CSS —
+    no Canvas, no GSAP, no video export. Lightweight, seekable, embeddable motion.
+  Primary CTA: Open the Playground. Secondary: Read the Docs / Star on GitHub.
+*/
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+
+const canonicalURL = "https://markdy.com/blog/browser-native-diagram-animation/";
+const structuredData = [
+  {
+    "@type": "BlogPosting",
+    "@id": `${canonicalURL}#article`,
+    headline: "Browser-Native Diagram Animation: No Canvas, No GSAP, No Video Export",
+    description:
+      "How Markdy animates architecture diagrams with the Web Animations API and CSS transforms — a lightweight, seekable, embeddable alternative to Canvas and GSAP.",
+    inLanguage: "en",
+    url: canonicalURL,
+    mainEntityOfPage: canonicalURL,
+    isPartOf: { "@id": "https://markdy.com/#website" },
+    about: { "@id": "https://markdy.com/#software" },
+    author: { "@id": "https://markdy.com/#hoang-yell" },
+    publisher: { "@id": "https://markdy.com/#organization" },
+    keywords: "web animations api, gsap alternative, browser native animation, lightweight diagram animation",
+  },
+];
+
+const playerExample = `import { createPlayer } from "@markdy/renderer-dom";
+
+const player = createPlayer({
+  container: document.getElementById("scene"),
+  code: \`
+    scene "Request" theme=midnight
+    browser Web
+    service API
+    beat main:
+      show $nodes
+      Web -> API "GET /users"
+  \`,
+});
+
+player.seek(1.2); // scrubbing just works`;
+---
+
+<ArticleLayout
+  title="Browser-Native Diagram Animation — No Canvas, No GSAP | Markdy"
+  description="Markdy animates architecture diagrams with the Web Animations API and CSS transforms — no Canvas, no GSAP, no video export. Lightweight, seekable, embeddable motion for docs."
+  keywords="web animations api diagrams, gsap alternative, browser native animation, css transform diagram, lightweight diagram animation, framer motion alternative"
+  canonicalURL={canonicalURL}
+  headline="Browser-Native Diagram Animation: No Canvas, No GSAP, No Video Export"
+  dek="How Markdy renders animated architecture diagrams with the Web Animations API and CSS — a tiny bundle, seekable playback, and zero heavy dependencies."
+  structuredData={structuredData}
+>
+  <p>
+    Most "animated diagram" solutions reach for a big hammer: a Canvas engine, a full animation library like GSAP,
+    or an offline render that spits out an MP4. All three add weight, break text selection and accessibility, and
+    turn your diagram into an opaque blob. <strong>Markdy</strong> takes the opposite approach — it animates real
+    DOM and SVG with the <strong>Web Animations API (WAAPI)</strong> and CSS transforms.
+  </p>
+
+  <h2>What "browser-native" buys you</h2>
+  <ul>
+    <li><strong>Tiny footprint.</strong> The parser and renderer are small and dependency-light — no Canvas runtime, no GSAP core.</li>
+    <li><strong>Seekable and scrubbable.</strong> Every animation is driven by a single timeline, so <code>play()</code>, <code>pause()</code>, and <code>seek()</code> work in any direction.</li>
+    <li><strong>Accessible and inspectable.</strong> Nodes are real elements with real text — selectable, translatable, and visible to crawlers.</li>
+    <li><strong>Embeddable anywhere.</strong> It's just a DOM subtree, so it drops into any web page, Astro island, or MDX block.</li>
+  </ul>
+
+  <h2>How the renderer works</h2>
+  <p>
+    Markdy splits parsing from rendering. <code>@markdy/core</code> compiles your text into a render plan: positioned
+    nodes, routed edges, and a schedule of timed cues. <code>@markdy/renderer-dom</code> then builds DOM nodes and an
+    SVG edge layer and drives them with WAAPI:
+  </p>
+  <pre><code>{playerExample}</code></pre>
+  <p>
+    Because playback is a controlled timeline rather than fire-and-forget CSS keyframes, you get reliable seeking and
+    a progress bar for free — the same machinery that powers the <a href="/#playground">playground</a> scrubber.
+  </p>
+
+  <h2>A GSAP or Framer Motion alternative?</h2>
+  <p>
+    Not exactly — GSAP and Framer Motion are general-purpose UI animation frameworks. Markdy is narrower and higher
+    level: it's for <strong>animated architecture and system diagrams</strong> specifically. If your goal is a
+    labeled, narrated diagram of a request path or a deploy pipeline (not a bespoke UI interaction), Markdy gets you
+    there in a few lines of text instead of imperative animation code. See
+    <a href="/blog/animated-diagrams-as-code/">animated diagrams as code</a> for the authoring model.
+  </p>
+
+  <h2>Where it shines</h2>
+  <p>
+    Docs sites, launch posts, onboarding flows, and architecture reviews — anywhere a lightweight, in-page animation
+    beats a heavy video embed. Pair it with <a href="/blog/animated-diagrams-astro-mdx/">Astro and MDX</a> to lazy-load
+    scenes only when they scroll into view.
+  </p>
+</ArticleLayout>

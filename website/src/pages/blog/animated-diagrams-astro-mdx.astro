@@ -1,0 +1,110 @@
+---
+/*
+  SEO BRIEF — satellite article for feature: "Docs-first integrations"
+  Target keywords: astro diagrams, mdx diagrams, docs as code animation, animated
+    documentation, astro architecture diagram, mdx architecture diagram
+  Search intent: how-to / implementation — docs authors on Astro or MDX who want
+    to embed animated architecture diagrams that stay in version control.
+  Meta title: Animated Diagrams in Astro & MDX — Docs-as-Code with Motion | Markdy
+  Meta description: Embed animated architecture diagrams in Astro and MDX docs.
+    Markdy hydrates on scroll, ships tiny, and keeps diagrams in version control.
+  Primary CTA: Open the Playground. Secondary: Read the Docs / Star on GitHub.
+*/
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+
+const canonicalURL = "https://markdy.com/blog/animated-diagrams-astro-mdx/";
+const structuredData = [
+  {
+    "@type": "BlogPosting",
+    "@id": `${canonicalURL}#article`,
+    headline: "Animated Diagrams in Astro & MDX: Docs-as-Code, With Motion",
+    description:
+      "Add lazy-loaded, animated architecture diagrams to your Astro site or MDX content with one component — versioned in git next to your docs.",
+    inLanguage: "en",
+    url: canonicalURL,
+    mainEntityOfPage: canonicalURL,
+    isPartOf: { "@id": "https://markdy.com/#website" },
+    about: { "@id": "https://markdy.com/#software" },
+    author: { "@id": "https://markdy.com/#hoang-yell" },
+    publisher: { "@id": "https://markdy.com/#organization" },
+    keywords: "astro diagrams, mdx diagrams, docs as code animation, animated documentation, astro architecture diagram",
+  },
+];
+
+const astroExample = `---
+import { Markdy } from "@markdy/astro";
+
+const code = \`
+  scene "Request" theme=midnight width=800 height=400
+  browser Web
+  service API
+  beat main:
+    show $nodes
+    Web -> API "GET /users"
+\`;
+---
+
+<Markdy code={code} width={800} height={400} bg="#07111f" autoplay />`;
+---
+
+<ArticleLayout
+  title="Animated Diagrams in Astro & MDX — Docs-as-Code with Motion | Markdy"
+  description="Embed animated architecture diagrams in Astro and MDX docs. Markdy hydrates on scroll, ships tiny, and keeps your diagrams in version control alongside content."
+  keywords="astro diagrams, mdx diagrams, docs as code animation, animated documentation, astro architecture diagram, mdx architecture diagram"
+  canonicalURL={canonicalURL}
+  headline="Animated Diagrams in Astro & MDX: Docs-as-Code, With Motion"
+  dek="Add lazy-loaded, animated architecture diagrams to your Astro site or MDX content with a single component — and keep them in git next to your docs."
+  structuredData={structuredData}
+>
+  <p>
+    Docs-as-code teams already keep prose in version control. The missing piece is usually the diagrams — still
+    exported as PNGs from a design tool and perpetually out of date. <strong>Markdy</strong> closes that gap: drop an
+    <strong>animated architecture diagram</strong> straight into your <strong>Astro</strong> or <strong>MDX</strong>
+    content as text, and it renders in the browser, versioned alongside the page.
+  </p>
+
+  <h2>Astro: one island component</h2>
+  <p>
+    Install <code>@markdy/astro</code> and pass your scene as a <code>code</code> prop. The island hydrates only when
+    it scrolls into view, so it never blocks your critical render path:
+  </p>
+  <pre><code>{astroExample}</code></pre>
+
+  <h2>MDX: fenced code blocks</h2>
+  <p>
+    With <code>@markdy/mdx</code> you write a <code>markdy</code> fenced block right in Markdown — no per-file
+    component imports:
+  </p>
+  <pre><code>```markdy
+scene "Request" theme=midnight
+browser Web
+service API
+beat main:
+  show $nodes
+  Web -&gt; API "GET /users"
+```</code></pre>
+  <p>
+    The remark plugin turns that block into a lazy-loaded player. Your authors keep writing Markdown; the diagrams
+    come along for free.
+  </p>
+
+  <h2>Why this beats a screenshot</h2>
+  <ul>
+    <li><strong>Never stale.</strong> The diagram updates in the same commit as the doc — true <a href="/blog/animated-diagrams-as-code/">diagrams as code</a>.</li>
+    <li><strong>SEO- and crawler-friendly.</strong> Real text and elements, plus an SSR placeholder and <code>&lt;noscript&gt;</code> fallback for indexing.</li>
+    <li><strong>No layout shift.</strong> The placeholder reserves the exact aspect ratio before hydration.</li>
+    <li><strong>Lightweight.</strong> It's <a href="/blog/browser-native-diagram-animation/">browser-native motion</a> — no Canvas, no GSAP, no video embed.</li>
+  </ul>
+
+  <h2>A tidy docs workflow</h2>
+  <ol>
+    <li>Draft the scene in the <a href="/#playground">playground</a> until it looks right.</li>
+    <li>Commit the <code>.markdy</code> source (or inline it) next to the doc.</li>
+    <li>Lint diagrams in CI with <code>markdy lint</code> so a broken diagram fails the build.</li>
+    <li>Let an <a href="/blog/ai-generated-architecture-diagrams/">AI agent</a> keep them updated as the system changes.</li>
+  </ol>
+  <p>
+    Read the <a href="/docs/">documentation</a> for the full component API, then ship docs where the diagrams move
+    with your system instead of drifting away from it.
+  </p>
+</ArticleLayout>
