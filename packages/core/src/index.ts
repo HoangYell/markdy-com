@@ -1,35 +1,39 @@
 export type {
-  AssetDef,
-  ActorDef,
-  ActorType,
-  BuiltinActorType,
-  TimelineEvent,
+  BeatDecl,
+  BeatRange,
+  Cue,
+  DiagramAST,
+  Diagnostic,
+  EdgeDecl,
+  EdgeKind,
+  FlowSegment,
+  GroupDecl,
+  LayoutDirection,
+  NodeDecl,
+  PatternDecl,
+  PositionedNode,
+  RenderPlan,
+  RoutedEdge,
   SceneMeta,
-  SceneAST,
-  TemplateDef,
-  SequenceDef,
-  Chapter,
-  ParseWarning,
-  ImportDecl,
+  StyleDecl,
+  ThemeTokens,
+  TimedCue,
 } from "./ast.js";
 
-export { parse, ParseError } from "./parser.js";
-export type { ParseOptions } from "./parser.js";
+export { parse, compile, parseAndCompile, ParseError, compilePlan } from "./parser.js";
+export type { ParseOptions, ParseResult } from "./parser.js";
 
-export { PRESETS, PRESET_NAMES } from "./presets.js";
-export type { PresetFn } from "./presets.js";
+export { resolveTheme, THEMES } from "./themes.js";
 
-export { registerActorPack } from "./registry.js";
-export type { ActorPack } from "./registry.js";
-
-// The language's canonical vocabulary. Tooling (language server, syntax
-// highlighting, renderer coverage checks) should import these rather than
-// keeping private copies that drift.
 export {
-  BUILTIN_ACTOR_TYPES,
-  UNIVERSAL_ACTION_NAMES,
-  FIGURE_ONLY_ACTION_NAMES,
-  CAMERA_ACTION_NAMES,
+  NODE_KINDS,
+  EDGE_OPERATORS,
+  NODE_ALIASES,
+  BEAT_CUE_KEYWORDS,
+  SCENE_KEYS,
+  canonicalNodeKind,
+  humanizeId,
+  nodeRole,
 } from "./registry.js";
 
 export {

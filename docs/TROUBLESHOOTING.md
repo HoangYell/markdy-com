@@ -2,62 +2,46 @@
 
 This guide helps fix common problems when writing MarkdyScript, rendering animated diagrams, or generating scenes with AI agents.
 
-## "Unknown actor type or template"
+## "Unknown node kind"
 
-Cause: the actor type is not built in and no actor pack registered it.
+Cause: the first word of a node declaration isn't a recognized kind.
 
-Fix:
+Fix: use a kind from the vocabulary (it ships inside `@markdy/core` — no registration needed). Common kinds: `service`, `client`, `browser`, `database`, `cache`, `queue`, `cloud`, `container`, `cluster`, `gateway`. Aliases like `db`, `api`, and `lb` expand automatically. See the full list in [AGENT.md](AGENT.md#node-kinds).
 
-```ts
-import { registerActorPack } from "@markdy/core";
-import { systemsPack } from "@markdy/stdlib-systems";
-
-registerActorPack(systemsPack);
-```
-
-Use this for `service`, `client`, `database`, `queue`, `cache`, `cloud`, `container`, `cluster`, and other systems vocabulary.
-
-## "Unrecognized statement"
+## "Unexpected statement" / "top-level cues must be inside a beat block"
 
 Common causes:
 
-- typo in `actor name = type(args) at (x, y)`
-- missing colon in `@0.5: actor.action(...)`
-- architecture shorthand used without the systems pack
-- commas or quotes not escaped inside strings
+- legacy syntax: `actor`, `@time:`, `figure()`, `caption()`, `preset`, `def`, `seq` were removed in 0.8
+- a flow (`A -> B`) or cue (`show`, `glow`) written outside a `beat` block
+- referencing a node id that was never declared
+- a missing `"` around a label
 
 Fix by checking the line number in the `ParseError`.
 
-## Unknown action warnings
+## Parse warnings
 
-Unknown actions soft-warn by default. This helps forward compatibility, but it can hide typos.
-
-Use must-understand actions when a scene depends on an action:
-
-```markdy
-@0.0: API.!glow(color=#38bdf8, dur=0.4)
-```
+Non-fatal issues (like an unknown `scene` property) are reported as warnings in `ast.diagnostics` rather than throwing. Inspect them via the `onWarning` callback on `createPlayer`, or run `markdy lint`.
 
 ## Nodes overlap or edges are hard to read
 
 - Increase scene size to `1280x720`.
-- Put nodes on a simple grid.
-- Leave room between nodes for labels.
+- Reduce the number of nodes per rank.
 - Keep edge labels short.
-- Split long flows into chapters.
+- Split long flows across several `beat` blocks.
 
 ## The animation feels too busy
 
 - Reveal nodes first, then animate flows.
-- Use one emphasis effect per chapter.
-- Use camera zoom at the end, not constantly.
+- Use one emphasis effect per beat.
+- Use `focus` at the end, not constantly.
 - Prefer `stagger` over many simultaneous effects.
 
 ## Scene works locally but not in a website
 
-Check that package versions are aligned, the systems pack is registered before rendering, assets are reachable, the container exists before `createPlayer`, and SSR code does not access `document` before hydration.
+Check that package versions are aligned, assets are reachable, the container exists before `createPlayer`, and SSR code does not access `document` before hydration.
 
 ## AI-generated MarkdyScript fails
 
-Give the model `docs/AGENT.md` and ask it to fix the exact line number, keep all actors declared before events, use only documented actions, shorten labels, and avoid undeclared imports.
+Give the model `docs/AGENT.md` and ask it to fix the exact line number, keep all nodes declared before flows, use only documented cues and flow operators, and shorten labels.
 

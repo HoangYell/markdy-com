@@ -29,20 +29,21 @@ It allows you to define scenes, actors, and timelines completely in text. The pa
 
 ### How it looks in practice:
 
-Instead of hooking into component lifecycles, I just specify my actors and what time they move:
+Instead of hooking into component lifecycles, I just declare my nodes and how they connect:
 
 ```text
-scene width=600 height=300 bg=#fafafa
+scene "Hello World" theme=midnight
+layout LR
 
-actor text_hi = text("Hello World") at (100, 150) size 30 opacity 0
-actor bruno   = figure(#c68642, m, 😎) at (400, 150)
+browser Web
+service API
 
-@0.3: text_hi.fade_in(dur=0.6)
-@1.0: bruno.enter(from=right, dur=0.8, ease=out)
-@2.0: bruno.say("Look, no JavaScript!", dur=2.0)
+beat main:
+  show $nodes stagger=80ms
+  Web -> API "GET /users"
 ```
 
-The coolest part is that it can add an optional presenter guide when the scene needs a human cue, while product flows can stay entirely diagram-based.
+The coolest part is that layout and edge routing are automatic — you never place a node or draw a line by hand.
 
 ### Why WAAPI over GSAP?
 A huge focus for Markdy was keeping the bundle size microscopic. Because Markdy compiles down to CSS Transforms and the browser-native Web Animations API, the parser and renderer combined are less than `35kb` (compared to GSAP's massive core).
@@ -59,9 +60,12 @@ Now, inside my `.mdx` or `.astro` files, I just drop in the `<Markdy>` component
 import { Markdy } from "@markdy/astro";
 
 const code = `
-scene width=600 height=400 bg=white
-actor label = text("Hydrated on scroll!") at (200, 200)
-// ...
+scene "Hydrated on scroll" theme=midnight
+browser Web
+service API
+beat main:
+  show $nodes
+  Web -> API "GET /users"
 `;
 ---
 

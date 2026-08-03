@@ -1,5 +1,10 @@
 # RESEARCH
 
+> **Historical (pre-0.8).** These notes describe the earlier actor/timeline model and
+> predate the **MarkdyScript 0.8 diagram-native redesign**. Syntax shown here
+> (`actor`, `@time:`, `def`/`seq`) is no longer supported. For the current grammar
+> see [docs/AGENT.md](docs/AGENT.md) and [docs/SYNTAX.md](docs/SYNTAX.md).
+
 Prior art, constraints, and design rationale for the current round of
 MarkdyScript enrichment.
 

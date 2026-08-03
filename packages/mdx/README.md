@@ -48,10 +48,13 @@ export const mdxComponents = {
 Then write Markdown:
 
 ````md
-```markdy width=800 height=400 bg="#f8fafc" autoplay=false loop=false
-scene width=800 height=400 bg=#f8fafc
-actor label = text("Hello, MDX") at (80, 180) size 48
-@0.2: label.fade_in(dur=0.6)
+```markdy width=800 height=400 bg="#07111f" autoplay=false loop=false
+scene "Request" theme=midnight width=800 height=400
+browser Web
+service API
+beat main:
+  show $nodes
+  Web -> API "GET /users"
 ```
 ````
 

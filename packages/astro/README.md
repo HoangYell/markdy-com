@@ -36,14 +36,16 @@ Astro integration provides an island wrapper for lazy client-side hydration.
 import { Markdy } from "@markdy/astro";
 
 const code = `
-  scene width=800 height=400 bg=#fff5f9
-  actor hero = figure(#c68642, m, 😎) at (400, 200)
-  @0.0: hero.enter(from=left, dur=0.8)
-  @1.5: hero.say("Hello!", dur=1.2)
+  scene "Request" theme=midnight width=800 height=400
+  browser Web
+  service API
+  beat main:
+    show $nodes
+    Web -> API "GET /users"
 `;
 ---
 
-<Markdy code={code} width={800} height={400} bg="#fff5f9" autoplay />
+<Markdy code={code} width={800} height={400} bg="#07111f" autoplay />
 ```
 
 ### In MDX
@@ -52,12 +54,15 @@ const code = `
 import { Markdy } from "@markdy/astro";
 
 export const code = `
-  scene width=600 height=300 bg=white
-  actor label = text("Hello") at (200, 130) size 40 opacity 0
-  @0.3: label.fade_in(dur=0.6)
+  scene "Request" theme=midnight width=600 height=300
+  browser Web
+  service API
+  beat main:
+    show $nodes
+    Web -> API "GET /users"
 `;
 
-<Markdy code={code} width={600} height={300} autoplay />
+<Markdy code={code} width={600} height={300} bg="#07111f" autoplay />
 ```
 
 ## Props

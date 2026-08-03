@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, it, expect } from "vitest";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -7,18 +7,11 @@ import { runCli, type CliIo } from "../src/index.js";
 class BufferIo implements CliIo {
   readonly out: string[] = [];
   readonly err: string[] = [];
-
-  stdout(message: string): void {
-    this.out.push(message);
-  }
-
-  stderr(message: string): void {
-    this.err.push(message);
-  }
+  stdout(message: string): void { this.out.push(message); }
+  stderr(message: string): void { this.err.push(message); }
 }
 
 const tempDirs: string[] = [];
-
 async function tempDir(): Promise<string> {
   const dir = await mkdtemp(join(tmpdir(), "markdy-cli-"));
   tempDirs.push(dir);
@@ -30,108 +23,53 @@ afterEach(async () => {
 });
 
 describe("markdy cli", () => {
-  it("resolves imported namespaces during lint", async () => {
-    const dir = await tempDir();
-    const child = join(dir, "characters.markdy");
-    const main = join(dir, "main.markdy");
-
-    await writeFile(
-      child,
-      [
-        "var skin = #c68642",
-        "def fighter(face) {",
-        "  figure(${skin}, m, ${face})",
-        "}",
-        "",
-      ].join("\n"),
-      "utf8",
-    );
-
-    await writeFile(
-      main,
-      [
-        'import "./characters.markdy" as chars',
-        "scene width=800 height=400",
-        "actor hero = chars.fighter(😎) at (400, 200)",
-        "@0.0: hero.enter(from=left, dur=0.4)",
-        "",
-      ].join("\n"),
-      "utf8",
-    );
-
-    const io = new BufferIo();
-    const result = await runCli(["lint", main], io, { openBrowser: async () => {} });
-
-    expect(result.exitCode).toBe(0);
-    expect(io.out.join("\n")).toContain(`OK   ${resolve(main)}`);
-    expect(io.err).toEqual([]);
-  });
-
-  it("checks and writes canonical formatting", async () => {
+  it("lints valid diagram scenes", async () => {
     const dir = await tempDir();
     const file = join(dir, "scene.markdy");
-
-    await writeFile(
-      file,
-      [
-        "scene width=800 height=400",
-        'actor hero = figure(#c68642, m, 😎) at (100, 100)',
-        "@0: hero.enter(from=left,dur=0.4)",
-        "",
-      ].join("\n"),
-      "utf8",
-    );
-
-    const checkIo = new BufferIo();
-    const check = await runCli(["fmt", file, "--check"], checkIo, { openBrowser: async () => {} });
-    expect(check.exitCode).toBe(1);
-
-    const writeIo = new BufferIo();
-    const write = await runCli(["fmt", file, "--write"], writeIo, { openBrowser: async () => {} });
-    expect(write.exitCode).toBe(0);
-
-    const contents = await readFile(file, "utf8");
-    expect(contents).toContain("scene width=800 height=400 fps=30");
-    expect(contents).toContain("@0: hero.enter(from=left, dur=0.4)");
+    await writeFile(file, `scene "Demo" theme=midnight\nbrowser Web\nservice API\n\nbeat main:\n  show $nodes\n  Web -> API "ping"\n`, "utf8");
+    const io = new BufferIo();
+    const result = await runCli(["lint", file], io, { openBrowser: async () => {} });
+    expect(result.exitCode).toBe(0);
+    expect(io.out.join("\n")).toContain(`OK   ${resolve(file)}`);
   });
 
-  it("creates new starter scenes", async () => {
+  it("formats diagram scenes", async () => {
     const dir = await tempDir();
-    const target = join(dir, "demo.markdy");
+    const file = join(dir, "scene.markdy");
+    await writeFile(file, `scene theme=midnight\nbrowser Web\nservice API\nbeat main:\n  show Web\n`, "utf8");
     const io = new BufferIo();
-
-    const result = await runCli(["new", "explainer", target], io, { openBrowser: async () => {} });
-
+    const result = await runCli(["fmt", file, "--write"], io, { openBrowser: async () => {} });
     expect(result.exitCode).toBe(0);
-    const contents = await readFile(target, "utf8");
-    expect(contents).toBe("preset explainer\n");
+    const formatted = await readFile(file, "utf8");
+    expect(formatted).toContain("beat main:");
   });
 
-  it("writes standalone render html", async () => {
+  it("creates a diagram template with markdy new", async () => {
     const dir = await tempDir();
-    const scenePath = join(dir, "scene.markdy");
-    const outPath = join(dir, "scene.html");
-    const pkg = JSON.parse(
-      await readFile(new URL("../package.json", import.meta.url), "utf8"),
-    ) as { version: string };
-
-    await writeFile(
-      scenePath,
-      [
-        "scene width=800 height=400",
-        'actor hero = figure(#c68642, m, 😎) at (100, 100)',
-        "@0.0: hero.enter(from=left, dur=0.4)",
-        "",
-      ].join("\n"),
-      "utf8",
-    );
-
+    const file = join(dir, "new.markdy");
     const io = new BufferIo();
-    const result = await runCli(["render", scenePath, "--out", outPath], io, { openBrowser: async () => {} });
-
+    const result = await runCli(["new", file], io, { openBrowser: async () => {} });
     expect(result.exitCode).toBe(0);
-    const html = await readFile(outPath, "utf8");
-    expect(html).toContain(`https://esm.sh/@markdy/core@${pkg.version}`);
-    expect(html).toContain("createPlayer");
+    const content = await readFile(file, "utf8");
+    expect(content).toContain("beat intro:");
+    expect(content).not.toContain("actor ");
+  });
+
+  it("formats idempotently and preserves response-edge direction", async () => {
+    const dir = await tempDir();
+    const file = join(dir, "flows.markdy");
+    const source = `scene "Flows" theme=midnight\nclient Web\nservice API\n\nbeat main:\n  Web -> API "request"\n  API <- Web "response"\n`;
+    await writeFile(file, source, "utf8");
+    const io = new BufferIo();
+
+    const first = await runCli(["fmt", file, "--write"], io, { openBrowser: async () => {} });
+    expect(first.exitCode).toBe(0);
+    const formatted = await readFile(file, "utf8");
+    expect(formatted).toContain("API <- Web \"response\"");
+    expect(formatted).not.toContain("__pos_");
+
+    // A second format is a no-op: --check must pass on already-formatted output.
+    const second = await runCli(["fmt", file, "--check"], new BufferIo(), { openBrowser: async () => {} });
+    expect(second.exitCode).toBe(0);
   });
 });

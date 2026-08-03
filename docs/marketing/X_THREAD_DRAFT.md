@@ -23,9 +23,9 @@ Adding simple choreographic animations (text fading in, diagrams moving, API han
 **The Solution:**
 With Markdy, you just write text:
 ```text
-@0.5: label.fade_in(dur=1.0)
-@1.0: api.move(to=(420, 180), dur=0.8)
-@1.8: cache.shake(intensity=3, dur=0.3)
+beat main:
+  show $nodes stagger=80ms
+  Web -> API "request" -> Cache "lookup"
 ```
 
 ---

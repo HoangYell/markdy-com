@@ -10,7 +10,7 @@ Technical deep dive into Markdy's design, data flow, and renderer internals.
 2. **Zero runtime dependencies** — `@markdy/core` has no deps; `@markdy/renderer-dom` depends only on `@markdy/core`
 3. **Browser-native** — Web Animations API (WAAPI) for animation; no Canvas, no GSAP, no React
 4. **Deterministic playback** — manual `currentTime` control ensures identical rendering across browsers
-5. **Language-first extensibility** — `var`, `def`, `seq` compile down to primitives at parse time; no runtime plugin system needed
+5. **Compile-time layout** — `parse` produces a `DiagramAST`; `compile` lays out nodes, routes edges, and schedules cues into a `RenderPlan`; the renderer just plays it back
 
 ---
 
@@ -23,14 +23,15 @@ Technical deep dive into Markdy's design, data flow, and renderer internals.
   ┌─────────────────────────────────────────────┐
   │              @markdy/core                    │
   │                                              │
-  │  parse(source) ─────────► SceneAST           │
+  │  parse(source) ─────────► DiagramAST         │
+  │  compile(ast) ──────────► RenderPlan         │
   │                                              │
-  │  • Line-by-line single-pass parser           │
-  │  • var/def/seq expanded at parse time        │
+  │  • Indentation-aware block parser            │
+  │  • patterns expanded; layout + edge routing  │
   │  • Strict validation with ParseError(line)   │
-  │  • Pure function, no side effects            │
+  │  • Pure functions, no side effects           │
   └───────────────────┬─────────────────────────┘
-                      │ SceneAST
+                      │ RenderPlan
                       ▼
   ┌─────────────────────────────────────────────┐
   │          @markdy/renderer-dom                │
@@ -38,8 +39,8 @@ Technical deep dive into Markdy's design, data flow, and renderer internals.
   │  createPlayer(opts) ──────► Player           │
   │                                              │
   │  1. Creates scene <div> (root element)       │
-  │  2. Creates actor elements (DOM nodes)       │
-  │  3. Builds WAAPI Animations from events      │
+  │  2. Creates node + edge (SVG) elements       │
+  │  3. Builds WAAPI Animations from cues        │
   │  4. Runs rAF loop to drive currentTime       │
   └───────────────────┬─────────────────────────┘
                       │ Player { play, pause, seek, destroy }
@@ -65,38 +66,39 @@ Technical deep dive into Markdy's design, data flow, and renderer internals.
 
 #### Parser Design
 
-The parser is a **single-pass, line-by-line state machine**:
+The parser reads indentation-aware blocks:
 
 ```
-for each line in source:
-  1. If inside a def/seq block → handle block-specific parsing
-  2. Otherwise, match against statement patterns (var, scene, asset, actor, event)
+for each block in source:
+  1. Match against statement patterns (scene, layout, style, node, group, edge, pattern, beat)
+  2. Collect indented cue lines for beat/pattern blocks
   3. Throw ParseError(lineNumber) on any unrecognised input
 ```
 
 **Key implementation details:**
 
-- **`var` handling:** Parsed *before* comment stripping because values may contain `#` (hex colours)
-- **Comment stripping:** Context-aware — `#` inside parentheses or double quotes is preserved (`stripComment()`)
-- **`def` expansion:** Template args are substituted via `${param}` interpolation and resolved to a built-in actor type
-- **`seq` expansion:** `play()` calls expand sequence events inline, converting relative `@+offset` to absolute `@time` values
-- **Duration auto-computation:** When `scene duration=` is omitted, the parser scans all events and computes `max(event.time + event.dur)`
+- **Legacy detection:** Removed pre-0.8 syntax (`actor`, `@time:`, `def`, `seq`, `preset`, `figure`) raises a helpful `ParseError`
+- **Comment stripping:** `//` line comments are removed before parsing
+- **Flow labels:** A trailing quoted string on a flow target becomes the edge label; response (`<-`) segments are stored in data-flow direction
+- **Pattern expansion:** `use name(args)` expands a `pattern` body with `$param` substitution
+- **Compilation:** `compile(ast)` assigns ranks, positions nodes, routes edges, and schedules cues; `scene duration=` is otherwise derived from cue timing
 
 #### AST Shape
 
 ```typescript
-interface SceneAST {
-  meta: SceneMeta;                    // width, height, fps, bg, duration?
-  assets: Record<string, AssetDef>;   // { type, value }
-  actors: Record<string, ActorDef>;   // { type, args, x, y, scale?, ... }
-  events: TimelineEvent[];            // [{ time, actor, action, params, line }]
-  defs: Record<string, TemplateDef>;  // kept for tooling/inspection
-  seqs: Record<string, SequenceDef>;  // kept for tooling/inspection
-  vars: Record<string, string>;       // kept for tooling/inspection
+interface DiagramAST {
+  meta: SceneMeta;                        // width, height, fps, theme, direction, title?, duration?
+  styles: Record<string, StyleDecl>;      // named node styles
+  nodes: Record<string, NodeDecl>;        // { kind, id, label, style? }
+  edges: EdgeDecl[];                       // static `edge` declarations
+  groups: Record<string, GroupDecl>;       // named node sets
+  patterns: Record<string, PatternDecl>;   // reusable cue templates
+  beats: BeatDecl[];                       // [{ name, cues, ... }]
+  diagnostics: Diagnostic[];               // non-fatal warnings
 }
 ```
 
-`defs`, `seqs`, and `vars` are retained in the AST even though they've already been expanded. This supports future tooling (linters, formatters, editor extensions) that need access to the original source semantics.
+`compile(ast)` turns this into a `RenderPlan` with positioned nodes, routed edges, timed cues, and beat ranges — the shape the renderer consumes.
 
 ---
 
@@ -108,11 +110,11 @@ interface SceneAST {
 
 ```
 src/
-  types.ts        — ActorState, FaceSwap, easing utilities
-  figure.ts       — Stick-figure DOM factory (emoji body parts)
-  actors.ts       — Actor element factory (sprite, text, figure, box)
-  animations.ts   — Timeline event → WAAPI Animation builder
-  player.ts       — Public API, rAF loop, face-swap engine
+  nodes.ts        — Node element factory + scene title
+  edges.ts        — Flow-edge SVG runtime, routing, cue animations
+  geometry/       — Pure rect/point + obstacle-aware routing helpers
+  theme.ts        — Scene ambience styles + theme-token application
+  player.ts       — Public API, rAF loop, progress bar, responsive scaling
   index.ts        — Barrel exports (PlayerOptions, Player, createPlayer)
 ```
 
@@ -239,17 +241,22 @@ createPlayer({ container: el, code, assets, autoplay, loop, copyright, progressB
 
 ## Extension Points
 
-To add a new **action** (e.g., `bounce`):
+To add a new **node kind** (e.g., `graphql`):
 
-1. Add a `case "bounce":` branch in [animations.ts](../packages/renderer-dom/src/animations.ts)
-2. Construct WAAPI keyframes and push to `anims[]`
-3. Update actor state (`s.x`, `s.y`, etc.) if the action has lasting effects
-4. Add parser tests in [packages/core/tests/parser.test.ts](../packages/core/tests/parser.test.ts) — the parser doesn't know about specific action names, so no parser changes needed
-5. Document in [SYNTAX.md](SYNTAX.md), [TUTORIAL.md](TUTORIAL.md), [AGENT.md](AGENT.md)
+1. Add the string to `TECHNICAL_NODE_TYPES` in [system-vocabulary.ts](../packages/core/src/system-vocabulary.ts)
+2. Map it to a role in `TECHNICAL_NODE_KINDS` (e.g., `graphql: "compute"`) — color/styling follow from the role
+3. Document in [SYNTAX.md](SYNTAX.md) and [AGENT.md](AGENT.md)
 
-To add a new **actor type** (e.g., `svg`):
+To add a new **cue** (e.g., `pulse`):
 
-1. Add a `case "svg":` branch in [actors.ts](../packages/renderer-dom/src/actors.ts)
-2. Add the type string to `BUILTIN_ACTOR_TYPES` in the parser
-3. Add the type to the `ActorDef["type"]` union in [ast.ts](../packages/core/src/ast.ts)
+1. Add the keyword to `BEAT_CUE_KEYWORDS` in [registry.ts](../packages/core/src/registry.ts)
+2. Parse it in `parseCueLine` and extend the `Cue` union in [ast.ts](../packages/core/src/ast.ts)
+3. Schedule it in `scheduleBeats` in [compiler.ts](../packages/core/src/compiler.ts)
+4. Animate it in `buildCueAnimations` in [edges.ts](../packages/renderer-dom/src/edges.ts)
+
+To add a new **flow operator / edge kind**:
+
+1. Add the operator to `EDGE_OPERATORS` in [registry.ts](../packages/core/src/registry.ts) and the `EdgeKind` union in [ast.ts](../packages/core/src/ast.ts)
+2. Add its color to each theme's `edges` map in [themes.ts](../packages/core/src/themes.ts)
+3. Add a stroke/marker style to `EDGE_STYLES` in [edges.ts](../packages/renderer-dom/src/edges.ts)
 4. Document everywhere

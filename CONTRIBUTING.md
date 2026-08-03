@@ -25,7 +25,7 @@ packages/
   renderer-dom/    @markdy/renderer-dom — Web Animations API renderer
   astro/           @markdy/astro        — <Markdy /> Astro island
   mdx/             @markdy/mdx          — MDX plugin + lazy React player
-  stdlib-systems/  @markdy/stdlib-systems — System actor/action pack
+  stdlib-systems/  @markdy/stdlib-systems — System-diagram node vocabulary
   markdy-language-server/ @markdy/language-server — Shared LSP server
 examples/
 website/             Official markdy.com website
@@ -55,9 +55,9 @@ docs/
 Use [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
-feat(core): add `seq` reusable animation sequences
-fix(renderer): correct arm pivot calculation in figure
-docs: update SYNTAX.md with var/def/seq reference
+feat(core): add `pattern` reusable flow templates
+fix(renderer): correct orthogonal edge routing around nodes
+docs: update SYNTAX.md with flow-operator reference
 ```
 
 ## Releasing

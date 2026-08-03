@@ -30,12 +30,17 @@ Define actors, architecture nodes, timelines, and interactions in a simple, read
 > If you are searching for a **Mermaid alternative for animation**, **animated architecture diagrams**, **AI-generated diagrams**, **text-to-diagram**, **architecture as code**, or **docs-as-code motion graphics**, Markdy is designed for that workflow.
 
 ```markdy
-scene width=600 height=300 bg=white
+scene "Request path" theme=midnight
+layout LR
 
-actor label = text("Hello World") at (50, 130) size 40 opacity 0
+browser Client
+service API
+database DB
 
-@0.3: label.fade_in(dur=0.6)
-@1.2: label.move(to=(200, 130), dur=0.8, ease=out)
+beat main:
+  show $nodes
+  Client -> API "GET /items" -> DB "query"
+  Client <- API "200 OK"
 ```
 
 ### Key Features
@@ -44,11 +49,12 @@ actor label = text("Hello World") at (50, 130) size 40 opacity 0
 |---|---|
 | **Zero-dep parser** | `@markdy/core` is pure TypeScript — no DOM, no runtime deps |
 | **Web-native renderer** | Web Animations API + CSS transforms. No Canvas, no GSAP |
-| **Stick-figure actors** | Emoji-based `figure` type with articulatable limbs, face expressions |
-| **Chapters + cameras** | `scene "title" { ... }` blocks, `camera.pan/zoom/shake`, `@+N:` relative time |
-| **Captions, groups, imports, presets** | First-class `caption` actors, `group` fan-out with `stagger`, `import "..." as ns` composition, parse-time `preset <name>(...)` macros |
-| **Forgiving by default, strict on demand** | Unknown actions soft-warn; prefix with `!` to hard-fail (e.g. `hero.!shake(...)`) |
-| **Language-first design** | `var`, `def`, `seq` let users build character systems and choreographies without engine changes |
+| **Diagram-native DSL** | Declare nodes, `group`s, and `beat`s; the engine handles layout, routing, timing, and rendering |
+| **Auto-layout + routing** | Rank-based layout and orthogonal edge routing are built in — no coordinates required |
+| **Flow operators** | `->` request, `<-` response, `~>` event, `--` dependency, each with its own edge style |
+| **Beats + cues** | Sequence reveals with `beat` blocks and `show`/`hide`/`glow`/`focus` cues; run cues together with `&` |
+| **Patterns, styles, groups** | Reusable `pattern name(...)` + `use`, per-node `style`, and `group` fan-out with `stagger` |
+| **Semantic themes** | `midnight` (dark) and `paper` (light) — consistent colors per node role and edge kind |
 | **Technical diagram vocabulary** | Optional systems pack adds architecture nodes, visual primitives, and labeled flows for software-engineering diagrams |
 | **Astro-ready** | `<Markdy />` island that hydrates on viewport entry |
 | **AI-agent friendly** | Structured DSL that LLMs can generate, validate, and iterate on ([Agent Guide](docs/AGENT.md)) |
@@ -127,7 +133,7 @@ npm i -g @markdy/cli
   -> diagnostics, completion, and hover in editors
 
 @markdy/stdlib-systems
-  -> optional actor/action pack for architecture and technical diagrams
+  -> optional node vocabulary manifest for architecture and technical diagrams
 ```
 
 ## Output preview
@@ -139,7 +145,7 @@ npm i -g @markdy/cli
 To preview a full scene result locally, run:
 
 ```sh
-npx markdy render examples/00-love-story.markdy --out examples/xscene.html
+npx markdy render examples/showcase/url-shortener-architecture.markdy --out scene.html
 ```
 
 ## Quick Start
@@ -156,9 +162,12 @@ import { createPlayer } from "@markdy/renderer-dom";
 const player = createPlayer({
   container: document.getElementById("scene")!,
   code: `
-    scene width=600 height=300 bg=white
-    actor label = text("Hello") at (50, 130) size 40 opacity 0
-    @0.3: label.fade_in(dur=0.6)
+    scene "Request" theme=midnight
+    browser Web
+    service API
+    beat main:
+      show $nodes
+      Web -> API "GET /users"
   `,
   autoplay: true,
 });
@@ -181,14 +190,16 @@ pnpm add @markdy/astro
 import { Markdy } from "@markdy/astro";
 
 const code = `
-  scene width=800 height=400 bg=#fff5f9
-  actor card = box() at (300, 200)
-  @0.5: card.enter(from=left, dur=0.8)
-  @1.5: card.say("Hello!", dur=1.0)
+  scene "Request" theme=midnight width=800 height=400
+  browser Web
+  service API
+  beat main:
+    show $nodes
+    Web -> API "GET /users"
 `;
 ---
 
-<Markdy code={code} width={800} height={400} bg="#fff5f9" autoplay />
+<Markdy code={code} width={800} height={400} bg="#07111f" autoplay />
 ```
 
 ### Parser Only (Node.js / Edge)
@@ -198,8 +209,8 @@ import { parse, ParseError } from "@markdy/core";
 
 try {
   const ast = parse(source);
-  console.log(ast.actors);  // { card: { type: "box", ... } }
-  console.log(ast.events);  // [{ time: 0.5, actor: "card", action: "enter", ... }]
+  console.log(ast.nodes);  // { API: { kind: "service", ... } }
+  console.log(ast.beats);  // [{ name: "main", cues: [...] }]
 } catch (e) {
   if (e instanceof ParseError) {
     console.error(`Line ${e.line}: ${e.message}`);
@@ -213,144 +224,73 @@ try {
 
 Full reference: **[docs/SYNTAX.md](docs/SYNTAX.md)** · Step-by-step tutorial: **[docs/TUTORIAL.md](docs/TUTORIAL.md)** · Getting started: **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** · Guides: **[docs/GUIDES.md](docs/GUIDES.md)** · Comparisons: **[docs/COMPARISONS.md](docs/COMPARISONS.md)** · Troubleshooting: **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** · AI agent guide: **[docs/AGENT.md](docs/AGENT.md)**
 
-### Scene + Actors + Timeline
+### Nodes + Beats + Flows
 
 ```markdy
-scene width=800 height=400 bg=white
+scene "Order Flow" theme=midnight
+layout LR
 
-asset flower = image("/flower.svg")
+browser Browser
+service API "Order Service"
+database DB "Orders DB"
 
-actor card  = box() at (100, 200)
-actor label = text("Watch this") at (400, 50) size 32 opacity 0
-
-@0.0: card.enter(from=left, dur=0.8)
-@1.0: card.say("Hi!", dur=1.2)
-@2.5: card.shake(intensity=4, dur=0.4)
-@3.0: label.fade_in(dur=0.5)
+beat main:
+  show $nodes stagger=80ms
+  Browser -> API "POST /order" -> DB "persist"
+  Browser <- API "201 Created"
 ```
 
-### Variables + Templates + Sequences
+### Groups + Patterns
 
 ```markdy
-var skin = #c68642
+group storage: Redis DB
 
-def presenter(skin, face) {
-  figure(${skin}, m, ${face})
-}
+pattern lookup(client, store):
+  $client -> $store "lookup"
+  $client <- $store "result"
 
-seq greet(side) {
-  @+0.0: $.wave(side=${side}, dur=0.4)
-  @+0.3: $.nod(dur=0.3)
-}
-
-actor host = presenter(${skin}, 🙂) at (200, 200)
-
-@0.5: host.enter(from=left, dur=0.8)
-@2.0: host.play(greet, side=right)
+beat read:
+  use lookup(API, Redis)
 ```
 
-### Technical Diagrams
+### Flow operators
 
-Register `@markdy/stdlib-systems` to use semantic nodes and labeled flows:
-
-```markdy
-scene width=1280 height=720 bg=#07111f fps=60
-
-browser Browser "Web app" at (80, 160)
-api_gateway EdgeAPI "API Gateway" at (320, 160)
-auth OIDC "OIDC Provider" at (560, 160)
-pod CheckoutPod "Checkout Pod" at (320, 340)
-topic Orders "orders.created" at (560, 340)
-warehouse BI "Analytics Warehouse" at (800, 340)
-
-@0.5: Browser.request(to=EdgeAPI, label="POST /checkout")
-@1.2: EdgeAPI.request(to=OIDC, label="verify token")
-@1.9: EdgeAPI.emit(to=Orders, label="order.created")
-@2.5: Orders.emit(to=BI, label="stream")
-```
-
-### Chapters, Camera, Captions
-
-```markdy
-scene width=900 height=500 bg=#101424
-
-actor title  = caption("Request lifecycle") at top
-actor client = figure(#c68642, m, 🙂) at (300, 260)
-
-scene "intro" {
-  @+0.0: title.fade_in(dur=0.3)
-  @+0.3: client.enter(from=left, dur=0.7)
-}
-
-scene "beat" {
-  @+0.2: camera.zoom(to=1.3, dur=0.5)
-  @+0.1: client.wave(side=right, dur=0.3)
-  @+0.0: camera.shake(intensity=10, dur=0.3)
-}
-
-@+0.5: client.exit(to=right, dur=0.5)
-```
-
-### Namespaced Imports + Presets
-
-```markdy
-# One-liner using a shipped preset macro:
-preset explainer("Deploy pipeline")
-```
-
-```markdy
-# Compose across files — host resolves "as chars" → ast
-import "./characters.markdy" as chars
-
-actor host = chars.presenter(${chars.skin_warm}, 🙂) at (200, 200)
-@0.0: host.enter(from=left, dur=0.6)
-```
-
-### Actions Reference
-
-| Action | Description | Key Parameters |
+| Operator | Edge kind | Rendered as |
 |---|---|---|
-| `enter` | Slide in from offscreen + fade | `from`, `dur`, `ease` |
-| `exit` | Slide off-screen + fade out | `to`, `dur`, `ease` |
-| `move` | Translate to position | `to=(x,y)`, `dur`, `ease` |
-| `fade_in` / `fade_out` | Opacity transitions | `dur` |
-| `scale` | Animate scale | `to`, `dur`, `ease` |
-| `rotate` | Animate rotation | `to` (degrees), `dur` |
-| `shake` | Horizontal oscillation | `intensity`, `dur` |
-| `say` | Speech bubble | `"text"`, `dur` |
-| `throw` | Projectile to target | `asset`, `to`, `dur` |
-| `punch` / `kick` | Limb strike (figure only) | `side` |
-| `rotate_part` | Rotate body part (figure only) | `part`, `to`, `dur` |
-| `pose` | Set multiple parts at once (figure only) | `arm_left`, `arm_right`, etc. |
-| `wave` | Wave gesture (figure only) | `side`, `dur` |
-| `nod` | Head nod gesture (figure only) | `dur` |
-| `jump` | Jump with squash/stretch (figure only) | `height`, `dur` |
-| `bounce` | Diminishing vertical bounce (figure only) | `intensity`, `count`, `dur` |
-| `face` | Swap emoji expression (figure only) | `"emoji"` |
-| `camera.pan` | Pan scene to center on `(x, y)` | `to=(x,y)`, `dur`, `ease` |
-| `camera.zoom` | Zoom scene content | `to`, `dur` |
-| `camera.shake` | Camera-level shake | `intensity`, `dur` |
+| `->` | request | solid arrow |
+| `<-` | response | dashed arrow, drawn back to the caller |
+| `~>` | event | dotted arrow |
+| `--` | dependency | thin link |
 
-Easing values: `linear` (default), `in`, `out`, `inout`.
+### Cues
+
+Cues live inside a `beat` and are scheduled in order; put `&` between two cues to run them together.
+
+| Cue | Description | Key parameters |
+|---|---|---|
+| `show` | Reveal nodes or groups | `stagger`, `dur` |
+| `hide` | Fade nodes out | `dur` |
+| `glow` | Emphasize with a colored glow | `color`, `strength`, `dur` |
+| `focus` | Pulse-scale to draw attention | `zoom`, `dur` |
+| `use` | Expand a `pattern` | pattern args |
+
+Selectors: `$nodes` targets every node; a group name targets its members. Themes: `midnight` (dark, default) and `paper` (light).
 
 ---
 
 ## API Reference
 
-### `parse(source: string, opts?: ParseOptions): SceneAST`
+### `parse(source: string, opts?: ParseOptions): DiagramAST`
 
-Parses MarkdyScript source into a typed AST. Throws `ParseError` with line numbers on structural errors. Pure function with no side effects — runs in Node.js, Deno, edge runtimes, or the browser.
+Parses MarkdyScript source into a typed diagram AST. Throws `ParseError` with line numbers on structural errors. Pure function with no side effects — runs in Node.js, Deno, edge runtimes, or the browser.
 
 ```ts
 interface ParseOptions {
-  // Host-resolved ASTs for `import "..." as ns`. Namespaces whose ASTs are
-  // supplied have their vars/defs/seqs merged under `ns.<name>` and can be
-  // referenced from the parent. Unresolved namespaces emit a soft warning.
-  imports?: Record<string, SceneAST>;
+  parseOnly?: boolean;  // Skip layout/schedule compilation; parse structure only.
 }
 ```
 
-`SceneAST` includes `ast.warnings[]` (soft parse warnings like `unknown-action`, `import-unresolved`), `ast.chapters[]`, and `ast.imports[]`. See [docs/AGENT.md](docs/AGENT.md#ast-shape-for-programmatic-use) for the full shape.
+`DiagramAST` exposes `ast.meta`, `ast.nodes`, `ast.edges`, `ast.groups`, `ast.patterns`, `ast.beats`, and `ast.diagnostics[]` (soft warnings such as unknown scene properties). Call `compile(ast)` to produce a `RenderPlan` with positioned nodes, routed edges, and scheduled cues. See [docs/AGENT.md](docs/AGENT.md) for the full shape.
 
 ### `createPlayer(options: PlayerOptions): Player`
 
@@ -360,19 +300,20 @@ Creates a DOM-based animation player.
 interface PlayerOptions {
   container: HTMLElement;    // Mount point
   code: string;             // MarkdyScript source
-  assets?: Record<string, string>;  // Asset URL overrides
-  imports?: Record<string, SceneAST>;  // Namespaces for `import "..." as ns`
   autoplay?: boolean;       // Start immediately (default: true)
   loop?: boolean;           // Loop at end (default: true)
   copyright?: boolean;      // "Powered by Markdy" badge (default: true)
   progressBar?: boolean;    // Rainbow border progress bar (default: true)
-  onWarning?: (w: ParseWarning) => void;  // Surface soft parse warnings
+  onWarning?: (w: Diagnostic) => void;                 // Soft parse warnings
+  onTimeUpdate?: (seconds: number, duration: number) => void;
+  onPlayStateChange?: (playing: boolean) => void;
 }
 
 interface Player {
   play(): void;             // Start / resume
   pause(): void;            // Pause at current position
   seek(seconds: number): void;  // Jump to time
+  seekToBeat(name: string): void;  // Jump to a named beat
   destroy(): void;          // Remove DOM + cancel animations
 }
 ```
@@ -403,10 +344,10 @@ See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for technical details.
         │
         ▼
   ┌─────────────┐
-  │ @markdy/core │  parse() → SceneAST
+  │ @markdy/core │  parse() → DiagramAST
   │  (parser)    │  Pure TS, zero deps
   └──────┬──────┘
-         │ SceneAST
+         │ DiagramAST
          ▼
   ┌──────────────────┐
   │ @markdy/renderer  │  createPlayer() → Player
@@ -443,7 +384,7 @@ packages/
   cli/               @markdy/cli          — CLI for local authoring workflows
   astro/             @markdy/astro        — Astro island component
   mdx/               @markdy/mdx          — MDX plugin + React player with viewport hydration
-  stdlib-systems/    @markdy/stdlib-systems — System-diagram actor/action pack
+  stdlib-systems/    @markdy/stdlib-systems — System-diagram node vocabulary
   markdy-language-server/ @markdy/language-server — Shared LSP server for editors
 website/               Official markdy.com playground & website (Astro)
 docs/

@@ -1,5 +1,11 @@
 # **Build Markdy.com (MarkdyScript) from Scratch**
 
+> **Historical (pre-0.8).** This is the original from-scratch build brief for the
+> actor/timeline MarkdyScript. It predates the **MarkdyScript 0.8 diagram-native
+> redesign**; the `actor`/`@time:`/`sprite`/`figure` examples below are no longer
+> valid syntax. For the current grammar and how to generate scenes, use
+> [docs/AGENT.md](../docs/AGENT.md).
+
 You are a senior open-source TypeScript library engineer.
 
 Build **Markdy.com**, an open-source animation DSL engine for blog posts, similar to Mermaid but for simple motion scenes.

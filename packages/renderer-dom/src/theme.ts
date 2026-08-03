@@ -1,55 +1,61 @@
-/**
- * Scene-adaptive theming for renderer-generated chrome (speech bubbles and
- * anything else Markdy draws on top of the author's actors).
- *
- * Scenes set their own `bg`, and a hard-coded white bubble on a dark scene
- * (or vice versa) reads as a bug. Rather than asking authors to theme
- * generated chrome, we derive it from the declared background.
- */
+import type { ThemeTokens } from "@markdy/core";
 
-/** Perceived-luminance cutoff (ITU-R BT.601) below which a scene counts as dark. */
-const DARK_LUMINANCE_THRESHOLD = 140;
+const SCENE_STYLE_ID = "markdy-scene-ambience-styles";
 
-const NAMED_DARK: Record<string, boolean> = {
-  black: true,
-  "#000": true,
-  "#000000": true,
-};
-
-/** True when the scene background is dark enough to need light-on-dark chrome. */
-export function isSceneDark(scene: HTMLElement): boolean {
-  const bg = scene.style.background || "white";
-  let hex = bg.trim().replace(/^#/, "");
-  if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-
-  if (hex.length === 6) {
-    const r = parseInt(hex.slice(0, 2), 16);
-    const g = parseInt(hex.slice(2, 4), 16);
-    const b = parseInt(hex.slice(4, 6), 16);
-    return 0.299 * r + 0.587 * g + 0.114 * b <= DARK_LUMINANCE_THRESHOLD;
-  }
-  return NAMED_DARK[bg.toLowerCase()] ?? false;
+export function ensureSceneStyles(doc: Document): void {
+  if (doc.getElementById(SCENE_STYLE_ID)) return;
+  const style = doc.createElement("style");
+  style.id = SCENE_STYLE_ID;
+  style.textContent = `
+.markdy-scene-root {
+  isolation: isolate;
+}
+.markdy-scene-root::before,
+.markdy-scene-root::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.markdy-scene-root::before {
+  z-index: 0;
+  background:
+    linear-gradient(var(--md-grid-minor) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(90deg, var(--md-grid-minor) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(var(--md-grid-major) 1px, transparent 1px) 0 0 / 160px 160px,
+    linear-gradient(90deg, var(--md-grid-major) 1px, transparent 1px) 0 0 / 160px 160px;
+  mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 90%, transparent);
+  opacity: 0.82;
+}
+.markdy-scene-root::after {
+  z-index: 1;
+  background:
+    radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--md-accent) 16%, transparent), transparent 42%),
+    linear-gradient(180deg, transparent 0%, rgba(2, 6, 23, 0.08) 58%, var(--md-vignette) 100%);
+  opacity: 0.8;
+}
+.markdy-scene-content { z-index: 2; }
+.markdy-scene-actor-layer {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+`;
+  doc.head.appendChild(style);
 }
 
-export interface SpeechBubbleTheme {
-  background: string;
-  border: string;
-  text: string;
-  shadow: string;
-}
-
-export function speechBubbleTheme(dark: boolean): SpeechBubbleTheme {
-  return dark
-    ? {
-        background: "#1e2530",
-        border: "#475569",
-        text: "#e2e8f0",
-        shadow: "0 2px 8px rgba(0,0,0,0.35)",
-      }
-    : {
-        background: "white",
-        border: "#222",
-        text: "#222",
-        shadow: "0 2px 8px rgba(0,0,0,0.12)",
-      };
+export function applyThemeToScene(scene: HTMLElement, theme: ThemeTokens): void {
+  scene.style.background = theme.canvas;
+  scene.style.color = theme.text;
+  scene.style.setProperty("--md-canvas", theme.canvas);
+  scene.style.setProperty("--md-surface", theme.surface);
+  scene.style.setProperty("--md-surface-raised", theme.surfaceRaised);
+  scene.style.setProperty("--md-border", theme.border);
+  scene.style.setProperty("--md-text", theme.text);
+  scene.style.setProperty("--md-text-muted", theme.textMuted);
+  scene.style.setProperty("--md-grid-minor", theme.gridMinor);
+  scene.style.setProperty("--md-grid-major", theme.gridMajor);
+  scene.style.setProperty("--md-vignette", theme.vignette);
+  scene.style.setProperty("--md-accent", theme.accent);
+  scene.dataset.markdyTheme = theme.name;
 }

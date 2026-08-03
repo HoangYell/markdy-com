@@ -1,32 +1,33 @@
-import type { ActorPack } from "@markdy/core";
-import { TECHNICAL_NODE_TYPES, VISUAL_PRIMITIVE_TYPES } from "../../core/src/system-vocabulary.js";
+/**
+ * @markdy/stdlib-systems — the system-diagram vocabulary for MarkdyScript.
+ *
+ * As of MarkdyScript 0.8 the node vocabulary ships inside `@markdy/core`, so
+ * there is no runtime registration step anymore. This package re-exports that
+ * vocabulary and a descriptive `systemsPack` manifest for tooling that wants a
+ * single import listing every supported node type and flow action.
+ */
+import { TECHNICAL_NODE_TYPES, VISUAL_PRIMITIVE_TYPES } from "@markdy/core";
 
-export const SYSTEM_ACTOR_TYPES = [
+export const SYSTEM_NODE_TYPES = [
   ...TECHNICAL_NODE_TYPES,
   ...VISUAL_PRIMITIVE_TYPES,
 ] as const;
 
-const LEGACY_VISUAL_ACTOR_TYPES = [
-  "parking_map",
-  "ascii_map",
-  "game_scene",
-  "byte_viz",
-] as const;
+/** Backwards-compatible alias for the pre-0.8 export name. */
+export const SYSTEM_ACTOR_TYPES = SYSTEM_NODE_TYPES;
 
-const REGISTERED_SYSTEM_ACTOR_TYPES = [
-  ...SYSTEM_ACTOR_TYPES,
-  ...LEGACY_VISUAL_ACTOR_TYPES,
-] as const;
-export const SYSTEM_FLOW_ACTIONS = ["request", "response", "emit"] as const;
+export const SYSTEM_FLOW_ACTIONS = ["request", "response", "event", "dependency"] as const;
 
-const FLOW_ACTIONS = [...SYSTEM_FLOW_ACTIONS];
+export interface SystemsPack {
+  name: string;
+  nodes: readonly string[];
+  actions: readonly string[];
+}
 
-const SYSTEM_ACTIONS: Record<string, readonly string[]> = Object.fromEntries(
-  REGISTERED_SYSTEM_ACTOR_TYPES.map((actorType) => [actorType, FLOW_ACTIONS]),
-);
-
-export const systemsPack: ActorPack = {
+export const systemsPack: SystemsPack = {
   name: "systems",
-  actors: REGISTERED_SYSTEM_ACTOR_TYPES,
-  actions: SYSTEM_ACTIONS,
+  nodes: SYSTEM_NODE_TYPES,
+  actions: SYSTEM_FLOW_ACTIONS,
 };
+
+export { TECHNICAL_NODE_TYPES, VISUAL_PRIMITIVE_TYPES } from "@markdy/core";

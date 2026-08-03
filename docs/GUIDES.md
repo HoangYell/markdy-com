@@ -5,19 +5,19 @@ This guide focuses on real problems developers search for: animated architecture
 ## Design an animated architecture diagram
 
 1. Pick one story: write path, read path, deploy path, auth flow, or failure recovery.
-2. Use semantic systems actors: `client`, `service`, `database`, `queue`, `cache`, `cloud`, `container`, and `cluster`.
-3. Put nodes on a simple grid before adding motion.
-4. Use `request` and `response` for synchronous calls; use `emit` for events.
-5. Use chapters to separate phases.
-6. End with one visual takeaway: `glow`, `ripple`, `camera.zoom`, or a caption.
+2. Use semantic node kinds: `client`, `service`, `database`, `queue`, `cache`, `cloud`, `container`, and `cluster`.
+3. Declare nodes first; auto-layout positions them from your flows.
+4. Use `->` and `<-` for synchronous calls; use `~>` for events and `--` for dependencies.
+5. Use separate `beat` blocks to separate phases.
+6. End with one visual takeaway: `glow` or `focus`.
 
 ## Make diagrams readable in documentation
 
 - Keep edge labels under 28 characters when possible.
 - Avoid overlapping nodes; leave room for routed edges.
-- Use dark backgrounds for complex architecture diagrams and light backgrounds for simple onboarding examples.
-- Prefer `group nodes = ...` plus `nodes.fade_in(stagger=...)` for clean reveals.
-- Use camera movement only after the viewer understands the full layout.
+- Use the `midnight` theme for complex architecture diagrams and `paper` for simple onboarding examples.
+- Prefer `group name: ...` plus `show name stagger=...` for clean reveals.
+- Add emphasis (`glow`, `focus`) only after the viewer understands the full layout.
 
 ## Build docs-as-code workflows
 
@@ -32,16 +32,16 @@ This guide focuses on real problems developers search for: animated architecture
 Markdy works well with AI because it is constrained:
 
 - one statement per line
-- typed actors and actions
+- typed node kinds and flow operators
 - line-numbered parse errors
 - deterministic rendering
 - small diffs
 
 Ask AI agents for concrete scenes:
 
-> Create a Markdy scene for a Kubernetes ingress request. Use a browser, ingress, service, pod, Redis cache, and Postgres database. Animate the request path and cache miss path in separate chapters.
+> Create a Markdy scene for a Kubernetes ingress request. Use a browser, ingress, service, pod, Redis cache, and Postgres database. Animate the request path and cache miss path in separate beats.
 
-Then ask the agent to shorten labels, avoid overlapping nodes, add chapters, add camera focus, and validate against `docs/AGENT.md`.
+Then ask the agent to shorten labels, avoid overlapping nodes, split phases into beats, add a final `glow`, and validate against `docs/AGENT.md`.
 
 ## Production embedding checklist
 

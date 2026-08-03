@@ -1,7 +1,7 @@
 {
   "name": "@markdy/stdlib-systems",
   "version": "0.7.29",
-  "description": "System diagram actor/action pack for Markdy.",
+  "description": "System-diagram node vocabulary for Markdy (re-exported from @markdy/core).",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,

@@ -10,35 +10,27 @@ Use this guide when you want to answer: "How do I turn a text description into a
 npm i @markdy/core @markdy/renderer-dom
 ```
 
-For architecture diagrams, also install the systems pack:
-
-```sh
-npm i @markdy/stdlib-systems
-```
+The full architecture node vocabulary ships inside `@markdy/core`, so no registration step is needed. `@markdy/stdlib-systems` is an optional re-export/manifest of that vocabulary for tooling.
 
 ## 2. Render a scene in the browser
 
 ```ts
-import { registerActorPack } from "@markdy/core";
 import { createPlayer } from "@markdy/renderer-dom";
-import { systemsPack } from "@markdy/stdlib-systems";
-
-registerActorPack(systemsPack);
 
 createPlayer({
   container: document.getElementById("scene")!,
   code: `
-scene width=900 height=480 bg=#0f172a fps=60
-client Browser "Browser" at (100, 240) opacity 0
-service API "API" at (360, 240) opacity 0
-database Postgres "Postgres" at (620, 240) opacity 0
-@0.0: Browser.fade_in(dur=0.3)
-@0.1: API.fade_in(dur=0.3)
-@0.2: Postgres.fade_in(dur=0.3)
-@0.6: Browser.request(to=API, label="GET /users", dur=0.6)
-@1.4: API.request(to=Postgres, label="query", dur=0.5)
-@2.1: Postgres.response(to=API, label="rows", dur=0.5)
-@2.8: API.response(to=Browser, label="200 OK", dur=0.6)
+scene "Request" theme=midnight
+layout LR
+
+browser Browser
+service API
+database Postgres "Postgres"
+
+beat main:
+  show $nodes stagger=80ms
+  Browser -> API "GET /users" -> Postgres "query"
+  Browser <- API "200 OK"
 `,
 });
 ```
@@ -52,7 +44,7 @@ database Postgres "Postgres" at (620, 240) opacity 0
 | Write fenced code blocks in MDX | `@markdy/mdx` |
 | Lint, format, render, or preview files | `@markdy/cli` |
 | Autocomplete and diagnostics in editors | `@markdy/language-server` |
-| Architecture nodes and flow edges | `@markdy/stdlib-systems` |
+| Architecture node vocabulary manifest | `@markdy/stdlib-systems` (optional) |
 
 ## 4. Use examples as templates
 
@@ -80,5 +72,5 @@ Use `docs/AGENT.md` as the full grammar reference and ask for MarkdyScript direc
 
 Example prompt:
 
-> Use the Markdy agent guide. Create a 1280x720 animated architecture diagram for a URL shortener. Include short-link creation, redirect resolution, Redis cache lookup, database fallback, chapters, labeled request/response edges, and a final camera focus on the hot path.
+> Use the Markdy agent guide. Create a 1280x720 animated architecture diagram for a URL shortener. Include short-link creation, redirect resolution, Redis cache lookup, database fallback, beats, labeled flow edges (`->`, `<-`, `~>`), and a final `glow` on the hot path.
 

@@ -1,0 +1,58 @@
+{
+  "beats": [
+    {
+      "cues": [
+        {
+          "kind": "show",
+          "line": 8,
+          "targets": [
+            "$nodes"
+          ]
+        },
+        {
+          "kind": "flow",
+          "line": 9,
+          "segments": [
+            {
+              "from": "Client",
+              "label": "GET /health",
+              "op": "request",
+              "to": "API"
+            }
+          ]
+        }
+      ],
+      "line": 7,
+      "name": "intro"
+    }
+  ],
+  "diagnostics": [],
+  "edges": [],
+  "groups": {},
+  "meta": {
+    "direction": "LR",
+    "fps": 60,
+    "height": 720,
+    "theme": "midnight",
+    "title": "Minimal Diagram",
+    "width": 1280
+  },
+  "nodes": {
+    "API": {
+      "id": "API",
+      "kind": "service",
+      "label": "API",
+      "line": 5,
+      "props": {}
+    },
+    "Client": {
+      "id": "Client",
+      "kind": "browser",
+      "label": "Client",
+      "line": 4,
+      "props": {}
+    }
+  },
+  "patterns": {},
+  "styles": {}
+}

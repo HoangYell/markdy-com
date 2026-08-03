@@ -21,7 +21,7 @@ const FEATURES = [
 /* ── Packages: one card per published package, each with a real usage line ──
    `required` packages are the minimum to render a scene anywhere; everything
    else is an optional add-on for a specific host (Astro, MDX), workflow
-   (CLI, editor tooling), or content pack (system-diagram actors). ── */
+   (CLI, editor tooling), or content pack (system-diagram vocabulary). ── */
 const PACKAGES = [
   {
     name: "@markdy/core",
@@ -74,10 +74,10 @@ const PACKAGES = [
   {
     name: "@markdy/stdlib-systems",
     required: false,
-    badge: "Actor Pack",
-    desc: "Optional add-on: architecture nodes, premium visual primitives, and labeled flows for animated system diagrams.",
+    badge: "Vocabulary",
+    desc: "Optional add-on: the full architecture node vocabulary and flow kinds for animated system diagrams.",
     size: "<1 KB",
-    snippet: `<span class="u-fn">registerActorPack</span>(systemsPack);`,
+    snippet: `<span class="u-kw">service</span> API <span class="u-str">"Checkout API"</span>`,
   },
 ] as const;
 
@@ -103,7 +103,7 @@ const USE_CASES = [
 const FAQS = [
   {
     question: "What is Markdy?",
-    answer: "Markdy is an open-source animation DSL and animated diagram scripting language. You define actors, architecture nodes, captions, camera movement, and timeline events in MarkdyScript, then render the result in the browser.",
+    answer: "Markdy is an open-source animation DSL and animated diagram scripting language. You declare architecture nodes, groups, and flow edges in MarkdyScript and sequence them with beats, then render the result in the browser.",
   },
   {
     question: "Is Markdy a Mermaid alternative?",
@@ -190,10 +190,12 @@ const USAGE_VANILLA = `<span class="u-kw">import</span> { createPlayer } <span c
 
 createPlayer({
   container: <span class="u-fn">document.getElementById</span>(<span class="u-str">"stage"</span>),
-  code: <span class="u-str">\`scene width=600 height=300
-  actor label = text("API request") at (120, 150) opacity 0
-  @0.3: label.fade_in(dur=0.5)
-  @1.0: label.move(to=(380, 150), dur=0.8, ease=out)\`</span>,
+  code: <span class="u-str">\`scene "Request" theme=midnight
+  browser Web
+  service API
+  beat main:
+    show $nodes
+    Web -> API "GET /users"\`</span>,
   autoplay: <span class="u-lit">true</span>,
 });`;
 
@@ -201,15 +203,16 @@ const USAGE_ASTRO = `<span class="u-comment">---</span>
 <span class="u-kw">import</span> { Markdy } <span class="u-kw">from</span> <span class="u-str">"@markdy/astro"</span>;
 
 <span class="u-kw">const</span> code = <span class="u-str">\`
-  scene width=800 height=400 bg=#f8fafc
-  actor title = caption("Product update") at top opacity 0
-  actor card = box() at (350, 150) scale 1.4 opacity 0
-  @0.0: title.fade_in(dur=0.4)
-  @0.4: card.fade_in(dur=0.5)
+  scene "Request" theme=midnight width=800 height=400
+  browser Web
+  service API
+  beat main:
+    show $nodes
+    Web -> API "GET /users"
 \`</span>;
 <span class="u-comment">---</span>
 
-&lt;<span class="u-fn">Markdy</span> {code} width={800} height={400} bg=<span class="u-str">"#fff5f9"</span> autoplay /&gt;`;
+&lt;<span class="u-fn">Markdy</span> {code} width={800} height={400} bg=<span class="u-str">"#07111f"</span> autoplay /&gt;`;
 
 const USAGE_MDX = `<span class="u-comment">// mdx.config.mjs — one-time setup</span>
 <span class="u-kw">import</span> { remarkMarkdy } <span class="u-kw">from</span> <span class="u-str">"@markdy/mdx"</span>;
@@ -220,9 +223,12 @@ const USAGE_MDX = `<span class="u-comment">// mdx.config.mjs — one-time setup<
 
 <span class="u-comment">// content.mdx — no imports, just write markdown</span>
 \`\`\`markdy
-scene width=600 height=300 bg=white
-actor label = text(<span class="u-str">"Hello"</span>) at (200, 130) size 40
-@0.3: label.fade_in(dur=0.6)
+scene <span class="u-str">"Request"</span> theme=midnight
+browser Web
+service API
+beat main:
+  show $nodes
+  Web -> API <span class="u-str">"GET /users"</span>
 \`\`\``;
 
 const USAGE_CLI = `<span class="u-comment"># validate, format, and preview a scene</span>
@@ -469,7 +475,7 @@ markdy <span class="u-fn">check-all</span> examples`;
     <div class="section-header">
       <span class="section-tag">Step-by-Step</span>
       <h2>Learn MarkdyScript</h2>
-      <p>Build production architecture diagrams step by step: lay out systems nodes, narrate the flow with labeled <code>request</code>/<code>response</code>/<code>emit</code> edges, group reveals into chapters, then add polish and camera direction. Every card is runnable in the playground.</p>
+      <p>Build production architecture diagrams step by step: declare nodes, group them, narrate flows with <code>-></code>/<code>&lt;-</code>/<code>~&gt;</code>, and compose everything in concise <code>beat</code> blocks. Every card is runnable in the playground.</p>
     </div>
 
     <div class="ref-grid">
@@ -478,450 +484,327 @@ markdy <span class="u-fn">check-all</span> examples`;
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">1</div>
-          <h3>Cinematic Scene Setup</h3>
+          <h3>Scene + Layout</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Start with a wide 16:9 canvas and dark art direction, then declare systems nodes with the <code>&lt;type&gt; Name "Label" at (x, y)</code> shorthand and reveal them together with a staggered <code>group</code>.</p>
+        <p class="ref-intro">Start with a titled scene and semantic theme. Declare nodes by kind, group related services, then reveal them in the first beat.</p>
         <div class="ref-code-wrap">
-        <pre><code>scene width=1280 height=720 bg=#07111f fps=60
-actor title = caption("Checkout Service") at top opacity 0
-client Web "Web App" at (110, 320) opacity 0
-service Orders "Order Service" at (660, 230) opacity 0</code></pre>
+        <pre><code>scene "Checkout Service" theme=midnight
+layout LR
+
+client Web "Web App"
+gateway Gateway "API Gateway"
+service Orders "Order Service"
+database OrderDB "Orders DB"
+
+group nodes: Web Gateway Orders OrderDB
+
+beat layout:
+  show $nodes stagger=60ms</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=1280 height=720 bg=#07111f fps=60
-actor title = caption("Checkout Service") at top opacity 0
-client Web "Web App" at (110, 320) opacity 0
-api_gateway Gateway "API Gateway" at (380, 320) opacity 0
-service Orders "Order Service" at (660, 230) opacity 0
-database OrderDB "Orders DB" at (930, 230) opacity 0
+scene "Checkout Service" theme=midnight
+layout LR
 
-group nodes = Web, Gateway, Orders, OrderDB
+client Web "Web App"
+gateway Gateway "API Gateway"
+service Orders "Order Service"
+database OrderDB "Orders DB"
 
-@0.0: title.line_reveal(from=left, dur=0.42)
-@0.2: nodes.fade_in(dur=0.5, stagger=0.08)
+group nodes: Web Gateway Orders OrderDB
+
+beat layout:
+  show $nodes stagger=60ms
         </script>
         </div>
         <table>
           <thead><tr><th>Property</th><th>Default</th><th>Description</th></tr></thead>
           <tbody>
-            <tr><td><code>width</code></td><td><code>800</code></td><td>Canvas width — use <code>1280</code> for presentation diagrams</td></tr>
-            <tr><td><code>height</code></td><td><code>400</code></td><td>Canvas height — <code>720</code> keeps a clean 16:9 frame</td></tr>
-            <tr><td><code>fps</code></td><td><code>30</code></td><td>Frame rate; <code>60</code> for smooth glow and camera moves</td></tr>
+            <tr><td><code>theme</code></td><td><code>midnight</code></td><td>Semantic palette — <code>midnight</code> or <code>paper</code></td></tr>
+            <tr><td><code>layout</code></td><td><code>LR</code></td><td>Auto-layout direction — <code>LR</code>, <code>TB</code>, <code>RL</code>, <code>BT</code></td></tr>
+            <tr><td><code>beat</code></td><td>—</td><td>Named narrative block with indented cues</td></tr>
             <tr><td><code>bg</code></td><td><code>white</code></td><td>Dark backgrounds (<code>#07111f</code>) make node accents pop</td></tr>
             <tr><td><code>group</code></td><td><i>—</i></td><td>Name a set of nodes to reveal or animate together with <code>stagger</code></td></tr>
           </tbody>
         </table>
       </article>
 
-      <!-- Step 2: Visual Primitives -->
+      <!-- Step 2: Node Kinds -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">2</div>
-          <h3>Visual Primitives</h3>
+          <h3>Node Kinds</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Beyond diagram nodes, compose reusable visual primitives — <code>surface</code>, <code>terminal</code>, <code>matrix</code>, <code>stat</code>, <code>chips</code>, <code>glyph</code> — for dashboards, code panels, and annotations. Each takes a label first and a colour tone last.</p>
+        <p class="ref-intro">Every node is declared as <code>&lt;kind&gt; &lt;Id&gt; ["Label"]</code>. The kind sets the node's semantic color and role; the label is optional and defaults to the id.</p>
         <div class="ref-code-wrap">
-        <pre><code>actor shell = terminal("Build log", "npm run build", "✓ 42 modules", "done in 1.2s", green) at (58, 130)
-actor cells = matrix("Cache", "4x2", "3 6 8", green) at (236, 154)
-actor kpi = stat("p99 latency", "18ms", cyan) at (196, 322)</code></pre>
+        <pre><code>client Web "Web App"
+service API "Checkout API"
+database DB "Orders DB"
+queue Events "order.events"</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=1280 height=720 bg=#07111f fps=60
+scene "Node Kinds" theme=midnight
+layout LR
 
-actor title = caption("Build Pipeline") at top opacity 0
-actor shell = terminal("Build log", "npm run build", "✓ 42 modules bundled", "done in 1.2s", green) at (58, 130) scale 0.9 opacity 0 z 35
-actor cache = matrix("cache hits", "3x2", "2 6", green) at (282, 192) opacity 0 scale 0.72 z 50
-actor stages = chips("lint|test|build|deploy", green) at (88, 324) opacity 0 scale 0.84 z 55
-repo Repo "Git repo" at (600, 150) opacity 0
-runner CI "CI Runner" at (832, 150) opacity 0
-artifact Image "Image" at (1064, 150) opacity 0
+client Web "Web App"
+service API "Checkout API"
+database DB "Orders DB"
+queue Events "order.events"
 
-@0.0: title.line_reveal(from=left, dur=0.42)
-@0.1: shell.fade_in(dur=0.45)
-@0.1: cache.fade_in(dur=0.45)
-@0.1: stages.fade_in(dur=0.45)
-@0.1: shell.mask(from=0, to=120, dur=0.72, ease=smooth)
-@0.2: Repo.enter(from=right, dur=0.44, ease=snappy)
-@0.28: CI.enter(from=right, dur=0.44, ease=snappy)
-@0.36: Image.enter(from=right, dur=0.44, ease=snappy)
+beat main:
+  show $nodes stagger=80ms
         </script>
         </div>
         <table>
-          <thead><tr><th>Type</th><th>Arguments</th><th>Description</th></tr></thead>
+          <thead><tr><th>Role</th><th>Example kinds</th><th>Use for</th></tr></thead>
           <tbody>
-            <tr><td><code>surface</code></td><td>label, tag, tone</td><td>Dashboard / card shell with a scanline and cells</td></tr>
-            <tr><td><code>terminal</code></td><td>label, line1, line2, line3, tone</td><td>Terminal / code surface with up to 3 output lines</td></tr>
-            <tr><td><code>matrix</code></td><td>label, colsxrows, active cells, tone</td><td>Cell grid: slots, bits, health, inventory</td></tr>
-            <tr><td><code>stat</code></td><td>label, value, tone</td><td>Big-number KPI tile</td></tr>
-            <tr><td><code>chips</code>, <code>track</code>, <code>dot</code>, <code>glyph</code></td><td>generic args</td><td>Token rows, lanes, markers, badge cards</td></tr>
+            <tr><td>client</td><td><code>client</code>, <code>browser</code>, <code>mobile</code>, <code>user</code></td><td>Entry points and front ends</td></tr>
+            <tr><td>compute</td><td><code>service</code>, <code>api</code>, <code>worker</code>, <code>function</code></td><td>Backends and jobs</td></tr>
+            <tr><td>data</td><td><code>database</code>, <code>cache</code>, <code>bucket</code>, <code>search</code></td><td>Storage and retrieval</td></tr>
+            <tr><td>messaging</td><td><code>queue</code>, <code>topic</code>, <code>stream</code>, <code>broker</code></td><td>Async events and pipelines</td></tr>
           </tbody>
         </table>
-        <p><strong>Modifiers:</strong> <code>opacity</code> (0–1), <code>scale</code>, <code>rotate</code>, <code>size</code> (text only), <code>z</code> (layer order).</p>
+        <p>Aliases like <code>db</code>, <code>api</code>, <code>lb</code>, and <code>k8s</code> expand to their canonical kinds.</p>
       </article>
 
-      <!-- Step 3: Routed Systems -->
+      <!-- Step 3: Flow Edges -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">3</div>
-          <h3>Routed Systems</h3>
+          <h3>Flow Edges</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Narrate the data flow with <code>request</code> (call), <code>response</code> (return), and <code>emit</code> (async event). Give every edge a short <code>label</code>, and group beats into <code>scene "…" { }</code> chapters so the story reads phase by phase.</p>
+        <p class="ref-intro">Connect nodes with four flow operators. Chain hops on one line and add a short <code>"label"</code> after any target. Edges route around other nodes automatically.</p>
         <div class="ref-code-wrap">
-        <pre><code>@+0.2: Web.request(to=Gateway, label="POST /checkout", dur=0.5)
-@+0.1: Orders.emit(to=Events, label="order.created", dur=0.5)
-@+0.1: Orders.response(to=Web, label="201 created", dur=0.55)</code></pre>
+        <pre><code>Web -> API "POST /checkout"
+API ~> Events "order.created"
+Web <- API "201 Created"</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=1280 height=720 bg=#07111f fps=60
-actor title = caption("Checkout Flow") at top opacity 0
-client Web "Web App" at (90, 320) opacity 0
-api_gateway Gateway "API Gateway" at (350, 320) opacity 0
-service Orders "Order Service" at (630, 210) opacity 0
-cache Cart "Cart Cache" at (900, 110) opacity 0
-database OrderDB "Orders DB" at (900, 330) opacity 0
-queue Events "order.events" at (630, 470) opacity 0
+scene "Flow Edges" theme=midnight
+layout LR
 
-group nodes = Web, Gateway, Orders, Cart, OrderDB, Events
+client Web "Web App"
+service API "Checkout API"
+queue Events "order.events"
+database DB "Orders DB"
 
-scene "layout" {
-  @+0.0: title.line_reveal(from=left, dur=0.42)
-  @+0.2: nodes.fade_in(dur=0.45, stagger=0.06)
-}
-
-scene "checkout" {
-  @+0.2: Web.request(to=Gateway, label="POST /checkout", dur=0.5)
-  @+0.1: Gateway.request(to=Orders, label="create order", dur=0.5)
-  @+0.1: Orders.request(to=Cart, label="read cart", dur=0.5)
-  @+0.1: Cart.response(to=Orders, label="items", dur=0.5)
-  @+0.1: Orders.request(to=OrderDB, label="persist", dur=0.5)
-  @+0.1: Orders.emit(to=Events, label="order.created", dur=0.5)
-  @+0.1: Orders.response(to=Web, label="201 created", dur=0.55)
-}
-
-scene "takeaway" {
-  @+0.2: Orders.glow(color=#22c55e, strength=32, dur=0.55)
-  @+0.0: camera.zoom(to=1.03, dur=0.6, ease=smooth)
-}
+beat flow:
+  show $nodes stagger=70ms
+  Web -> API "POST /checkout"
+  API -> DB "persist" & API ~> Events "order.created"
+  Web <- API "201 Created"
         </script>
         </div>
         <table>
-          <thead><tr><th>Action</th><th>Parameters</th><th>What it does</th></tr></thead>
+          <thead><tr><th>Operator</th><th>Edge kind</th><th>Rendered as</th></tr></thead>
           <tbody>
-            <tr><td><code>request</code></td><td>to, label, dur</td><td>Solid directed call from one node to another</td></tr>
-            <tr><td><code>response</code></td><td>to, label, dur</td><td>Dashed return path (keep <code>label</code> ≤ 28 chars)</td></tr>
-            <tr><td><code>emit</code></td><td>to, label, dur</td><td>Async event / publish edge for queues and topics</td></tr>
-            <tr><td><code>scene "…" { }</code></td><td>—</td><td>Chapter block; <code>@+N</code> times are relative to the chapter</td></tr>
+            <tr><td><code>-&gt;</code></td><td>request</td><td>Solid directed call</td></tr>
+            <tr><td><code>&lt;-</code></td><td>response</td><td>Dashed return, drawn back to the caller</td></tr>
+            <tr><td><code>~&gt;</code></td><td>event</td><td>Dotted async publish / event</td></tr>
+            <tr><td><code>--</code></td><td>dependency</td><td>Thin structural link</td></tr>
           </tbody>
         </table>
-        <p>Edges appear at their scheduled time and stay, assembling the full diagram. Routes dodge node boxes and labels auto-place clear of nodes and each other, so dense scenes stay readable instead of turning into spaghetti.</p>
+        <p>Labels auto-place clear of nodes and each other, so dense scenes stay readable instead of turning into spaghetti.</p>
       </article>
 
-      <!-- Step 4: Visual Polish -->
+      <!-- Step 4: Beats & Cues -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">4</div>
-          <h3>Visual Polish</h3>
+          <h3>Beats &amp; Cues</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Layer <code>mask</code>, <code>glow</code>, <code>blur</code>, <code>ripple</code>, <code>pulse</code>, and text reveals to make a scene feel designed rather than assembled — great for highlighting a healthy service or a successful deploy.</p>
+        <p class="ref-intro">A <code>beat</code> groups cues that play in order. Reveal nodes with <code>show</code>, then emphasize with <code>glow</code> and <code>focus</code>. Put <code>&amp;</code> between two cues to run them together.</p>
         <div class="ref-code-wrap">
-        <pre><code>@0.1: panel.blur(from=8, to=0, dur=0.52)
-@0.2: panel.glow(color=#22c55e, strength=44, dur=0.72)
-@1.7: badge.scale(to=1.12, dur=0.38, ease=overshoot)</code></pre>
+        <pre><code>beat highlight:
+  glow storage color=#22c55e & focus API zoom=1.1</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=1280 height=720 bg=#0b1020 fps=60
-actor title = caption("Deploy Succeeded") at top opacity 0
-actor panel = surface("Release dashboard", "healthy", green) at (58, 128) scale 0.9 opacity 0 z 35
-actor bar = track("rollout", green) at (82, 260) scale 0.9 opacity 0 z 45
-actor tip = dot("canary", cyan) at (174, 270) scale 1.05 opacity 0 z 55
-actor badge = text("DEPLOY OK · 0 errors") at (438, 632) size 32 opacity 0 scale 0.72 z 80
+scene "Beats & Cues" theme=midnight
+layout LR
 
-@0.0: title.line_reveal(from=left, dur=0.42)
-@0.1: panel.fade_in(dur=0.42)
-@0.15: bar.fade_in(dur=0.42)
-@0.2: tip.fade_in(dur=0.42)
-@0.1: panel.blur(from=8, to=0, dur=0.52)
-@0.2: panel.glow(color=#22c55e, strength=44, dur=0.72)
-@1.0: panel.pulse(amount=1.035, dur=0.46)
-@1.35: panel.ripple(color=#22c55e, size=190, dur=0.68)
-@1.55: badge.fade_in(dur=0.25)
-@1.55: badge.scale(to=1.12, dur=0.38, ease=overshoot)
+client Web
+service API
+database DB
+cache Redis
+
+group storage: DB Redis
+
+beat intro:
+  show Web API & show storage stagger=80ms
+
+beat traffic:
+  Web -> API "request" -> DB "query"
+  API -> Redis "cache"
+
+beat highlight:
+  glow storage color=#22c55e & focus API zoom=1.1
         </script>
         </div>
         <table>
-          <thead><tr><th>Action</th><th>Parameters</th><th>What it does</th></tr></thead>
+          <thead><tr><th>Cue</th><th>Parameters</th><th>What it does</th></tr></thead>
           <tbody>
-            <tr><td><code>mask</code></td><td>from, to, dur</td><td>Wipes a complex surface into view</td></tr>
-            <tr><td><code>glow</code></td><td>color, strength, dur</td><td>Adds cinematic emphasis without extra HTML</td></tr>
-            <tr><td><code>ripple</code></td><td>color, size, dur</td><td>Marks success, alerts, or selected targets</td></tr>
+            <tr><td><code>show</code></td><td>stagger, dur</td><td>Reveals nodes or a group</td></tr>
+            <tr><td><code>hide</code></td><td>dur</td><td>Fades nodes out</td></tr>
+            <tr><td><code>glow</code></td><td>color, strength, dur</td><td>Cinematic emphasis without extra HTML</td></tr>
+            <tr><td><code>focus</code></td><td>zoom, dur</td><td>Pulse-scales a node to draw attention</td></tr>
           </tbody>
         </table>
+        <p>Cues without an explicit <code>show</code> fall back to revealing every node at the start.</p>
       </article>
 
-      <!-- Step 5: Dense Layouts -->
+      <!-- Step 5: Groups -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">5</div>
-          <h3>Dense Layouts</h3>
+          <h3>Groups</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Put a rich detail panel on the left and the explanation graph on the right. Safe framing scales oversized content back into view, so you can pack in stats and still keep everything on screen.</p>
+        <p class="ref-intro">Name a set of nodes with <code>group</code>, then target them all at once in any cue. Perfect for revealing a storage tier or glowing a whole subsystem together.</p>
         <div class="ref-code-wrap">
-        <pre><code>actor kpi = stat("throughput", "1.2M/s", cyan) at (70, 300)
-producer Ingest "Ingest API" at (300, 200)
-warehouse Store "Warehouse" at (1020, 200)</code></pre>
+        <pre><code>group storage: DB Redis
+
+beat highlight:
+  glow storage color=#22c55e</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=1280 height=720 bg=#06101f fps=60
-actor title = caption("Streaming Pipeline") at top opacity 0
-actor panel = surface("Pipeline health", "live", cyan) at (48, 150) scale 0.88 opacity 0 z 35
-actor kpi = stat("throughput", "1.2M/s", cyan) at (96, 372) opacity 0 scale 0.9 z 45
-actor stages = chips("ingest|stream|store|serve", cyan) at (86, 470) scale 0.8 opacity 0 z 50
-producer Ingest "Ingest API" at (470, 180) opacity 0
-queue Kafka "Kafka" at (720, 180) opacity 0
-worker Flink "Stream Workers" at (970, 180) opacity 0
-warehouse Store "Warehouse" at (970, 430) opacity 0
-dashboard BI "BI Dashboard" at (720, 430) opacity 0
+scene "Groups" theme=midnight
+layout LR
 
-group pipeline = Ingest, Kafka, Flink, Store, BI
+service API
+database DB
+cache Redis
+queue Events
 
-scene "layout" {
-  @+0.0: title.line_reveal(from=left, dur=0.42)
-  @+0.1: panel.fade_in(dur=0.42)
-  @+0.05: kpi.fade_in(dur=0.42)
-  @+0.05: stages.fade_in(dur=0.42)
-  @+0.1: pipeline.enter(from=right, dur=0.44, ease=snappy, stagger=0.06)
-}
+group storage: DB Redis
 
-scene "stream" {
-  @+0.2: Ingest.request(to=Kafka, label="events", dur=0.5)
-  @+0.1: Kafka.request(to=Flink, label="consume", dur=0.5)
-  @+0.1: Flink.emit(to=Store, label="aggregates", dur=0.5)
-  @+0.1: Store.response(to=BI, label="query", dur=0.5)
-}
+beat reveal:
+  show API Events & show storage stagger=80ms
+
+beat traffic:
+  API -> DB "write" & API -> Redis "cache"
+
+beat highlight:
+  glow storage color=#22c55e
         </script>
         </div>
         <table>
-          <thead><tr><th>Technique</th><th>Why it helps</th></tr></thead>
+          <thead><tr><th>Form</th><th>Meaning</th></tr></thead>
           <tbody>
-            <tr><td>Detail panel + graph</td><td>Separates visual detail from explanatory structure</td></tr>
-            <tr><td>Scale-aware bounds</td><td>Flows route around what the viewer actually sees</td></tr>
-            <tr><td>Safe framing</td><td>Oversized content is kept inside the viewport</td></tr>
+            <tr><td><code>group name: A B C</code></td><td>Declares a group of node ids</td></tr>
+            <tr><td><code>show name</code></td><td>Targets every member of the group</td></tr>
+            <tr><td><code>$nodes</code></td><td>Built-in selector for every node in the scene</td></tr>
           </tbody>
         </table>
       </article>
 
-      <!-- Step 5b: Human Moments -->
-      <article class="ref-card">
-        <div class="ref-card-header">
-          <div class="step-badge">5b</div>
-          <h3>Human Moments</h3>
-          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
-        </div>
-        <p class="ref-intro">When a presenter helps the story, keep it supporting the product scene instead of replacing it.</p>
-        <div class="ref-code-wrap">
-        <pre><code>actor guide = figure(#c68642, m, 😎) at (1010, 520) scale 1.15
-@1.2: guide.say("The route stays readable.", dur=1.2)
-@2.0: guide.wave(side=left, dur=0.8)</code></pre>
-        <script type="text/plain" class="ref-code-data">
-scene width=1280 height=720 bg=#050816 fps=60
-actor dash = surface("Service dashboard", "live", cyan) at (56, 124) scale 0.9 opacity 0 z 35
-service Orders "Order Service" at (832, 454) opacity 0
-queue Events "order.events" at (1064, 454) opacity 0
-actor guide = figure(#c68642, m, 😎) at (1040, 584) scale 1.15 opacity 0 z 80
-
-@0.0: dash.fade_in(dur=0.4)
-@0.2: Orders.fade_in(dur=0.35)
-@0.35: Events.fade_in(dur=0.35)
-@0.7: Orders.emit(to=Events, label="order.created", dur=0.56)
-@0.9: guide.fade_in(dur=0.35)
-@1.25: guide.say("Flow labels stay out of the mess.", dur=1.25)
-@2.0: guide.wave(side=left, dur=0.8)
-@2.7: guide.nod(dur=0.4)
-        </script>
-        </div>
-        <table>
-          <thead><tr><th>Action</th><th>Parameters</th><th>What it does</th></tr></thead>
-          <tbody>
-            <tr><td><code>wave</code></td><td>side, dur</td><td>Wave gesture — arm up, oscillate, return</td></tr>
-            <tr><td><code>nod</code></td><td>dur</td><td>Head nod — down and up twice</td></tr>
-            <tr><td><code>say</code></td><td><code>"text"</code>, dur</td><td>Adds a brief human annotation</td></tr>
-            <tr><td><code>face</code></td><td><code>"emoji"</code></td><td>Instant expression swap for reactions</td></tr>
-          </tbody>
-        </table>
-      </article>
-
-      <!-- Step 6: Assets & Sprites -->
+      <!-- Step 6: Patterns -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">6</div>
-          <h3>Assets & Sprites</h3>
+          <h3>Patterns</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Assets can sit on top of premium surfaces as branded callouts, warnings, or achievement badges.</p>
+        <p class="ref-intro">Define a reusable flow once with <code>pattern</code>, then expand it anywhere with <code>use</code>. Parameters (<code>$name</code>) are substituted at the call site — great for repeated request/response pairs.</p>
         <div class="ref-code-wrap">
-        <pre><code># Declare assets first
-asset badge = icon("lucide:badge-check")
-asset zap = icon("lucide:zap")
-
-# Render them as actors
-actor clear = sprite(badge) at (930, 610) scale 2.2
-actor boost = sprite(zap) at (360, 520) scale 1.8</code></pre>
+        <pre><code>pattern lookup(client, store):
+  $client -> $store "lookup"
+  $client <- $store "result"</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=1280 height=720 bg=#0b1020 fps=60
-asset badge = icon("lucide:badge-check")
-asset zap = icon("lucide:zap")
+scene "Patterns" theme=midnight
+layout LR
 
-actor world = surface("Release dashboard", "healthy", green) at (58, 128) scale 0.9 opacity 0 z 35
-actor boost = sprite(zap) at (360, 520) scale 1.8 opacity 0 z 70
-actor clear = sprite(badge) at (930, 610) scale 2.2 opacity 0 z 80
+service API
+database DB
+cache Redis
 
-@0.0: world.fade_in(dur=0.42)
-@0.6: boost.fade_in(dur=0.24)
-@0.6: boost.scale(to=2.15, dur=0.32, ease=overshoot)
-@1.2: clear.fade_in(dur=0.24)
-@1.2: clear.ripple(color=#22c55e, size=170, dur=0.62)
+pattern lookup(client, store):
+  $client -> $store "lookup"
+  $client <- $store "result"
+
+beat main:
+  show $nodes stagger=80ms
+  use lookup(API, Redis)
+  use lookup(API, DB)
         </script>
         </div>
         <table>
+          <thead><tr><th>Form</th><th>Meaning</th></tr></thead>
           <tbody>
-            <tr><td><code>image("url")</code></td><td>Loads images, GIFs, photos — any URL or local path.</td></tr>
-            <tr><td><code>icon("set:name")</code></td><td>Loads SVG icons from Iconify. Never blurs when scaled.</td></tr>
+            <tr><td><code>pattern name(a, b):</code></td><td>Declares a reusable cue template</td></tr>
+            <tr><td><code>$a</code></td><td>A parameter placeholder, replaced on <code>use</code></td></tr>
+            <tr><td><code>use name(API, DB)</code></td><td>Expands the pattern with positional args</td></tr>
           </tbody>
         </table>
       </article>
 
-      <!-- Step 7: Variables & Templates -->
+      <!-- Step 7: Styles -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">7</div>
-          <h3>Variables & Templates</h3>
+          <h3>Styles</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Use variables and templates to keep advanced layouts consistent instead of hard-coding every node.</p>
+        <p class="ref-intro">Override a node's look with a named <code>style</code>. Attach it with <code>style=name</code> to highlight a primary, a hot path, or a deprecated component.</p>
         <div class="ref-code-wrap">
-        <pre><code>var top = 148
-var bottom = 448
+        <pre><code>style hot = fill=#f59e0b
 
-def service_node(label) {'{'}
-  service(label)
-{'}'}
-
-actor parse = service_node("Parser") at (825, ${'${top}'})</code></pre>
+database Primary "Primary DB" style=hot</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene width=1280 height=720 bg=#07111f fps=60
-var top = 150
-var bottom = 454
+scene "Styles" theme=midnight
+layout LR
 
-def service_node(label) {
-  service(label)
-}
+style hot = fill=#f59e0b
 
-actor ascii = terminal("Text map compiler", "[P1][P2][  ][EV]", "[IN]===LANE===[OUT]", "0101 0000 0100 0001", green) at (58, 130) scale 0.9 opacity 0 z 35
-client Terminal "Terminal" at (600, ${top}) opacity 0
-actor Lexer = service_node("Lexer") at (832, ${top}) opacity 0
-actor Graph = service_node("Graph builder") at (1064, ${top}) opacity 0
-queue Lane "Lane graph" at (600, ${bottom}) opacity 0
-container Bay "Open bay" at (832, ${bottom}) opacity 0
-db State "State store" at (1064, ${bottom}) opacity 0
+service API
+database Primary "Primary DB" style=hot
+database Replica "Read Replica"
 
-@0.0: ascii.fade_in(dur=0.35)
-@0.3: Terminal.request(to=Lexer, label="ASCII rows", dur=0.55)
-@0.9: Lexer.request(to=Graph, label="tokens", dur=0.55)
-@1.5: Graph.emit(to=Lane, label="lane edges", dur=0.55)
-@1.5: Graph.emit(to=Bay, label="bay nodes", dur=0.55)
-        </script>
-        </div>
-        <p><code>var</code> substitutes values (robust for <code>#hex</code> colors). <code>def</code> creates actor factory templates — build reusable scene systems without any JavaScript.</p>
-      </article>
-
-      <!-- Step 8: Sequences -->
-      <article class="ref-card">
-        <div class="ref-card-header">
-          <div class="step-badge">8</div>
-          <h3>Sequences</h3>
-          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
-        </div>
-        <p class="ref-intro">Package repeated beats into <code>seq</code> blocks so a complex scene feels intentionally choreographed.</p>
-        <div class="ref-code-wrap">
-        <pre><code>seq inspect(color) {'{'}
-  @+0.0: $.glow(color=${'${color}'}, strength=38, dur=0.45)
-  @+0.1: $.pulse(amount=1.08, dur=0.42)
-{'}'}
-
-@1.0: Encoder.play(inspect, color=#a78bfa)</code></pre>
-        <script type="text/plain" class="ref-code-data">
-scene width=1280 height=720 bg=#06101f fps=60
-actor viz = surface("Character pipeline", "UTF-8", purple) at (48, 132) scale 0.88 opacity 0 z 35
-actor bitsViz = matrix("bits", "8x1", "2 8", cyan) at (188, 272) scale 0.88 opacity 0 z 50
-service Encoder "UTF-8 encoder" at (1064, 150) opacity 0
-queue Bytes "Byte stream" at (600, 454) opacity 0
-container Bits "Bit lanes" at (832, 454) opacity 0
-
-seq inspect(color) {
-  @+0.0: $.glow(color=${color}, strength=38, dur=0.45)
-  @+0.1: $.pulse(amount=1.08, dur=0.42)
-}
-
-@0.0: viz.fade_in(dur=0.42)
-@0.2: Encoder.fade_in(dur=0.35)
-@0.35: Bytes.fade_in(dur=0.35)
-@0.5: Bits.fade_in(dur=0.35)
-@0.8: Encoder.emit(to=Bytes, label="0x41", dur=0.55)
-@1.1: Encoder.play(inspect, color=#a78bfa)
-@1.5: Bytes.emit(to=Bits, label="01000001", dur=0.56)
-@1.8: Bits.play(inspect, color=#22c55e)
-@1.8: bitsViz.play(inspect, color=#22c55e)
-        </script>
-        </div>
-        <p><code>$</code> refers to the calling actor. Times with <code>@+</code> are relative offsets from when <code>.play()</code> is triggered.</p>
-      </article>
-
-      <!-- Step 9: Captions & Camera -->
-      <article class="ref-card">
-        <div class="ref-card-header">
-          <div class="step-badge">9</div>
-          <h3>Captions & Camera</h3>
-          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
-        </div>
-        <p class="ref-intro">Use anchored captions for context, then direct attention with camera movement while safe framing protects the shot.</p>
-        <div class="ref-code-wrap">
-        <pre><code>actor title = caption("Deploy Replay") at top
-actor takeaway = caption("Focus the hot path") at bottom
-
-@1.2: camera.pan(to=(640, 340), dur=0.78, ease=smooth)
-@1.2: camera.zoom(to=1.02, dur=0.78, ease=smooth)</code></pre>
-        <script type="text/plain" class="ref-code-data">
-scene width=1280 height=720 bg=#0b1020 fps=60
-actor title = caption("Deploy Replay") at top opacity 0
-actor world = surface("Release dashboard", "healthy", green) at (58, 128) scale 0.9 opacity 0 z 35
-actor bar = track("rollout", green) at (82, 260) scale 0.9 opacity 0 z 45
-actor tip = dot("canary", cyan) at (174, 270) scale 1.05 opacity 0 z 55
-actor badge = text("DEPLOY OK · 0 errors") at (438, 632) size 32 opacity 0 scale 0.72 z 80
-actor takeaway = caption("Focus the hot path") at bottom opacity 0
-
-@0.3: title.fade_in(dur=0.3)
-@0.4: world.fade_in(dur=0.42)
-@0.45: bar.fade_in(dur=0.42)
-@0.5: tip.fade_in(dur=0.42)
-@0.9: badge.fade_in(dur=0.25)
-@0.9: badge.scale(to=1.12, dur=0.38, ease=overshoot)
-@1.25: camera.pan(to=(640, 340), dur=0.78, ease=smooth)
-@1.25: camera.zoom(to=1.02, dur=0.78, ease=smooth)
-@1.6: takeaway.fade_in(dur=0.3)
-@2.2: badge.shake(intensity=4, dur=0.24)
-@2.7: camera.zoom(to=1.0, dur=0.55, ease=inout)
+beat main:
+  show $nodes stagger=80ms
+  API -> Primary "write"
+  API -> Replica "read"
         </script>
         </div>
         <table>
-          <thead><tr><th>Feature</th><th>Syntax</th><th>What it does</th></tr></thead>
+          <thead><tr><th>Form</th><th>Meaning</th></tr></thead>
           <tbody>
-            <tr><td><code>caption</code></td><td><code>at top|bottom|center</code></td><td>Auto-positioned overlay text</td></tr>
-            <tr><td><code>pan</code></td><td><code>to=(x, y)</code></td><td>Moves the scene focus point</td></tr>
-            <tr><td><code>zoom</code></td><td><code>to=1.4</code></td><td>Scales the scene content</td></tr>
-            <tr><td><code>shake</code></td><td>intensity, dur</td><td>Adds full-scene emphasis</td></tr>
+            <tr><td><code>style name = k=v</code></td><td>Declares a reusable style with key/value props</td></tr>
+            <tr><td><code>&lt;kind&gt; Id style=name</code></td><td>Applies the style to a node</td></tr>
           </tbody>
         </table>
-        <p><code>camera</code> is reserved. Do not declare it as an actor; call <code>camera.pan</code>, <code>camera.zoom</code>, or <code>camera.shake</code> directly in timeline events.</p>
+      </article>
+
+      <!-- Step 8: Themes & Direction -->
+      <article class="ref-card">
+        <div class="ref-card-header">
+          <div class="step-badge">8</div>
+          <h3>Themes &amp; Direction</h3>
+          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
+        </div>
+        <p class="ref-intro">Pick a semantic <code>theme</code> and a <code>layout</code> direction. Themes set consistent colors per node role; direction controls how auto-layout flows the ranks.</p>
+        <div class="ref-code-wrap">
+        <pre><code>scene "Pipeline" theme=paper
+layout TB</code></pre>
+        <script type="text/plain" class="ref-code-data">
+scene "Themes & Direction" theme=paper
+layout TB
+
+client User
+service API
+queue Jobs
+worker Worker
+
+beat main:
+  show $nodes stagger=80ms
+  User -> API "request"
+  API ~> Jobs "enqueue" -> Worker "process"
+        </script>
+        </div>
+        <table>
+          <thead><tr><th>Setting</th><th>Values</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><code>theme</code></td><td><code>midnight</code>, <code>paper</code></td><td>Dark or light semantic palette</td></tr>
+            <tr><td><code>layout</code></td><td><code>LR</code>, <code>RL</code>, <code>TB</code>, <code>BT</code></td><td>Auto-layout flow direction</td></tr>
+          </tbody>
+        </table>
       </article>
 
     </div>
@@ -963,10 +846,10 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
           <blockquote class="ai-prompt-text">
             Use <code>https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md</code> as a complete reference (grammar, actions, patterns, examples), then write a Markdy scene:
             <br /><br />
-            <em>"Create a presentation-quality 1280x720, 60fps system architecture diagram for a URL shortener. Use systems nodes like <code>client</code>, <code>api_gateway</code>, <code>service</code>, <code>cache</code>, and <code>database</code>; lay them out left→right with no overlaps; reveal them with a staggered <code>group.fade_in</code>; then narrate the write path and read/redirect path in <code>scene "…"</code> chapters using labeled <code>request</code>, <code>response</code>, and <code>emit</code> edges; add a <code>chips</code> legend, finish with <code>glow</code> on the hot path and a gentle <code>camera.zoom</code>, and keep every node inside the viewport."</em>
+            <em>"Create a presentation-quality 1280x720, 60fps system architecture diagram for a URL shortener. Use systems nodes like <code>client</code>, <code>api_gateway</code>, <code>service</code>, <code>cache</code>, and <code>database</code>; set <code>layout LR</code> so auto-layout spreads them left→right; reveal them with <code>show $nodes stagger=60ms</code>; then narrate the write path and read/redirect path across named <code>beat</code> blocks using labeled <code>-&gt;</code>, <code>&lt;-</code>, and <code>~&gt;</code> flow edges; finish with a <code>glow</code> on the hot path and a <code>focus</code> on the cache."</em>
           </blockquote>
         </div>
-        <p class="ai-hint">The AI reads the docs, understands the grammar, and outputs a complete <code>.markdy</code> scene with premium actors, routed system flows, timeline choreography, and camera direction — ready to render.</p>
+        <p class="ai-hint">The AI reads the docs, understands the grammar, and outputs a complete <code>.markdy</code> scene with nodes, groups, routed flow edges, and beat-by-beat choreography — ready to render.</p>
       </div>
     </div>
 
@@ -1278,14 +1161,9 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
   import { closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
 
   import { markdyLanguage, markdyAutocomplete, markdyHighlightLight, markdyHighlightDark } from "../editor/markdy-language";
-  import { registerActorPack } from "@markdy/core";
-  import { baseTheme, lightTheme, darkTheme } from "../editor/editor-theme";
   import { createPlayer } from "@markdy/renderer-dom";
-  import { systemsPack } from "@markdy/stdlib-systems";
   import type { Player } from "@markdy/renderer-dom";
   import type { ExampleEntry } from "../data/examples";
-
-  registerActorPack(systemsPack);
 
   const examples: ExampleEntry[]  = (window as any).__MARKDY_EXAMPLES;
   const assets: Record<string, string> = (window as any).__MARKDY_ASSETS;
@@ -1334,9 +1212,9 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
     timelineTime.textContent = `${formatTime(safeCurrent)} / ${formatTime(safeDuration)}`;
   }
 
-  function populateSceneJump(chapters: { name: string; startTime: number }[]) {
+  function populateSceneJump(beats: { name: string; start: number }[]) {
     sceneJump.innerHTML = "";
-    if (chapters.length === 0) {
+    if (beats.length === 0) {
       sceneJump.hidden = true;
       return;
     }
@@ -1345,10 +1223,10 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
     placeholder.value = "";
     placeholder.textContent = "Jump to scene…";
     sceneJump.appendChild(placeholder);
-    for (const chapter of chapters) {
+    for (const beat of beats) {
       const option = document.createElement("option");
-      option.value = chapter.name;
-      option.textContent = chapter.name;
+      option.value = beat.name;
+      option.textContent = beat.name;
       sceneJump.appendChild(option);
     }
     sceneJump.value = "";
@@ -1438,23 +1316,7 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
     requestAnimationFrame(() => resizeStage());
   }
 
-  /** Swap the scene bg to match the current website theme. */
   function adaptCodeToTheme(code: string): string {
-    const dark = isDarkMode();
-    // Map light-mode defaults to dark-mode equivalents
-    const swaps: [RegExp, string, string][] = [
-      [/bg=#fafafa/g, "bg=#fafafa", "bg=#161b22"],
-      [/bg=white/g,   "bg=white",   "bg=#161b22"],
-      [/bg=#ffffff/gi, "bg=#ffffff", "bg=#161b22"],
-      [/bg=#fff5f9/g, "bg=#fff5f9", "bg=#1c1520"],
-      [/bg=#f5f5ff/g, "bg=#f5f5ff", "bg=#151520"],
-      [/bg=#f0f0f0/g, "bg=#f0f0f0", "bg=#1c2128"],
-      [/bg=#f0f4ff/g, "bg=#f0f4ff", "bg=#131720"],
-    ];
-    if (!dark) return code;
-    for (const [re, , darkVal] of swaps) {
-      code = code.replace(re, darkVal);
-    }
     return code;
   }
 
@@ -1466,7 +1328,6 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
       player = createPlayer({
         container: stage,
         code: adaptCodeToTheme(code),
-        assets,
         autoplay: true,
         copyright: false,
         onTimeUpdate: setTimeline,
@@ -1477,7 +1338,7 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
       }
       setPlayState(true);
       setTimeline(player.currentTime(), player.duration());
-      populateSceneJump(player.chapters());
+      populateSceneJump(player.beats());
       setStatus(true);
       if ((window as any).Iconify) {
         (window as any).Iconify.scan(stage);
@@ -1694,7 +1555,7 @@ actor takeaway = caption("Focus the hot path") at bottom opacity 0
 
   sceneJump.addEventListener("change", () => {
     if (!player || !sceneJump.value) return;
-    player.seekToChapter(sceneJump.value);
+    player.seekToBeat(sceneJump.value);
   });
 
   // Run button

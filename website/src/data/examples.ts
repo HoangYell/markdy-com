@@ -20,6 +20,10 @@ export interface ExampleMeta {
   /** One-line description shown in the playground list and docs cards. */
   description: string;
   category: ExampleCategory;
+  /** Architecture pattern label for gallery filtering. */
+  pattern?: string;
+  /** Semantic theme used by the scene. */
+  theme?: "midnight" | "paper";
   /** Path relative to the repo's `examples/` directory. */
   file: string;
   playback?: {
@@ -42,6 +46,8 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
     title: "URL Shortener Architecture",
     description: "A production URL shortener diagram showing short-link creation, redirect resolution, cache lookup, and database fallback paths.",
     category: "architecture",
+    pattern: "cache-aside",
+    theme: "midnight",
     file: "showcase/url-shortener-architecture.markdy",
     playback: { previewStart: 0 },
   },
@@ -50,6 +56,8 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
     title: "Twitter Timeline Service",
     description: "A timeline service architecture covering tweet writes, fan-out workers, Redis timeline cache, durable storage, notifications, and reads.",
     category: "architecture",
+    pattern: "fan-out",
+    theme: "midnight",
     file: "showcase/twitter-timeline-service.markdy",
   },
   {
@@ -57,6 +65,8 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
     title: "YouTube Processing Pipeline",
     description: "An upload-to-playback video pipeline with object storage, queueing, transcode workers, thumbnails, metadata, renditions, and CDN delivery.",
     category: "architecture",
+    pattern: "pipeline",
+    theme: "midnight",
     file: "showcase/youtube-processing-pipeline.markdy",
   },
   {
@@ -64,6 +74,8 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
     title: "OAuth / OIDC Login Flow",
     description: "A clear authorization-code flow diagram with redirects, authorization endpoint, token exchange, access/refresh tokens, and protected API access.",
     category: "architecture",
+    pattern: "auth-flow",
+    theme: "midnight",
     file: "showcase/oauth-oidc-login-flow.markdy",
   },
   {
@@ -71,6 +83,8 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
     title: "Kubernetes Cluster Architecture",
     description: "A Kubernetes architecture diagram showing control plane, data plane, scheduling, service discovery, config, secrets, storage, and ingress traffic.",
     category: "architecture",
+    pattern: "platform",
+    theme: "midnight",
     file: "showcase/kubernetes-cluster-architecture.markdy",
   },
 ];
