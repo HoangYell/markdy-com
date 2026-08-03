@@ -1,0 +1,105 @@
+---
+/*
+  SEO BRIEF — use-case article: System design diagrams
+  Target keywords: system design diagram, system design diagram tool,
+    microservices diagram, distributed system diagram, system design as code
+  Search intent: use-case — engineers and interview-preppers who want to draw
+    and animate system-design / microservices architectures.
+  Meta title: Animated System Design Diagrams for Interviews & Docs | Markdy
+  Meta description: Draw microservices and distributed-system diagrams as code and
+    animate the data flow — fan-out, caches, queues, and databases — with Markdy.
+*/
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+
+const canonicalURL = "https://markdy.com/blog/system-design-diagrams/";
+const structuredData = [
+  {
+    "@type": "BlogPosting",
+    "@id": `${canonicalURL}#article`,
+    headline: "Animated System Design Diagrams for Interviews and Docs",
+    description:
+      "Draw microservices and distributed-system diagrams as code with Markdy and animate the data flow: fan-out, caches, queues, and databases.",
+    inLanguage: "en",
+    url: canonicalURL,
+    mainEntityOfPage: canonicalURL,
+    isPartOf: { "@id": "https://markdy.com/#website" },
+    about: { "@id": "https://markdy.com/#software" },
+    author: { "@id": "https://markdy.com/#hoang-yell" },
+    publisher: { "@id": "https://markdy.com/#organization" },
+    keywords: "system design diagram, microservices diagram, distributed system diagram, system design as code",
+  },
+];
+---
+
+<ArticleLayout
+  title="Animated System Design Diagrams for Interviews & Docs | Markdy"
+  description="Draw microservices and distributed-system diagrams as code and animate the data flow — fan-out, caches, queues, and databases — with Markdy."
+  keywords="system design diagram, system design diagram tool, microservices diagram, distributed system diagram, system design as code"
+  canonicalURL={canonicalURL}
+  headline="Animated System Design Diagrams for Interviews and Docs"
+  dek="System design is about data flow under load. Static boxes hide it; an animated diagram-as-code shows writes fanning out to caches, queues, and replicas."
+  structuredData={structuredData}
+>
+  <p>
+    Whether you're writing an RFC, prepping for a system-design interview, or documenting a platform, the hard part
+    isn't drawing the boxes — it's showing how data <em>moves</em> under load. <strong>Markdy</strong> models the
+    building blocks of a distributed system and animates the write path and read path so the trade-offs are obvious.
+  </p>
+
+  <h2>The building blocks are node kinds</h2>
+  <ul>
+    <li>Compute: <code>service</code>, <code>api</code>, <code>worker</code>, <code>function</code>, <code>gateway</code></li>
+    <li>Data: <code>database</code>, <code>cache</code>, <code>bucket</code>, <code>search</code>, <code>warehouse</code></li>
+    <li>Messaging: <code>queue</code>, <code>topic</code>, <code>stream</code>, <code>broker</code></li>
+    <li>Distributed: <code>replica</code>, <code>shard</code>, <code>leader</code>, <code>follower</code></li>
+  </ul>
+
+  <h2>Example: a write that fans out</h2>
+  <pre><code>scene "Timeline service" theme=midnight
+layout LR
+
+client Mobile
+gateway Gateway "API Gateway"
+service Writes "Write Service"
+queue Fanout "fanout.jobs"
+worker Worker "Fan-out Worker"
+cache Timeline "Timeline Cache"
+database Store "Tweet Store"
+
+group storage: Timeline Store
+
+beat topology:
+  show $nodes stagger=60ms
+
+beat write:
+  Mobile -&gt; Gateway "POST /tweet" -&gt; Writes
+  Writes -&gt; Store "persist" &amp; Writes ~&gt; Fanout "enqueue"
+  Fanout ~&gt; Worker "consume"
+  Worker -&gt; Timeline "push to followers"
+
+beat read:
+  Mobile -&gt; Gateway "GET /timeline" -&gt; Timeline "cache hit"
+
+beat highlight:
+  glow storage color=#22c55e</code></pre>
+  <p>
+    The animation makes the design legible: the synchronous write persists <em>and</em> emits a fan-out event; a
+    worker consumes it and warms the timeline cache; reads then hit the cache. That's the story a static picture
+    can't tell.
+  </p>
+
+  <h2>Show the trade-off, then the takeaway</h2>
+  <p>
+    Split phases into beats so you can narrate write-path vs. read-path separately, and end with a <code>glow</code>
+    or <code>focus</code> on the component that matters — the cache, the leader, the queue. It's the same
+    <a href="/blog/animated-diagrams-as-code/">diagram-as-code</a> workflow, so the diagram is reviewable in a PR and
+    easy for an <a href="/blog/ai-generated-architecture-diagrams/">AI agent to draft</a> from a prompt.
+  </p>
+
+  <h2>Related</h2>
+  <p>
+    Running on Kubernetes? See <a href="/blog/kubernetes-architecture-diagram/">animated Kubernetes architecture
+    diagrams</a>. Explaining call order? See <a href="/blog/animated-sequence-diagrams/">animated sequence
+    diagrams</a>. Or open the example above in the <a href="/#playground">playground</a>.
+  </p>
+</ArticleLayout>
