@@ -1,0 +1,231 @@
+---
+/**
+ * Shared shell for Markdy satellite/SEO articles.
+ * Wraps the SEO Layout, adds a breadcrumb, article header, and a shared CTA.
+ */
+import Layout from "./Layout.astro";
+
+export interface Props {
+  title: string;
+  description: string;
+  keywords: string;
+  canonicalURL: string;
+  headline: string;
+  dek: string;
+  updated?: string;
+  structuredData?: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const {
+  title,
+  description,
+  keywords,
+  canonicalURL,
+  headline,
+  dek,
+  updated = "August 2026",
+  structuredData,
+} = Astro.props;
+---
+
+<Layout
+  title={title}
+  description={description}
+  keywords={keywords}
+  canonicalURL={canonicalURL}
+  structuredData={structuredData}
+>
+  <article class="article">
+    <nav class="article-crumbs" aria-label="Breadcrumb">
+      <a href="/">Markdy</a>
+      <span aria-hidden="true">/</span>
+      <a href="/blog/">Articles</a>
+    </nav>
+
+    <header class="article-head">
+      <h1>{headline}</h1>
+      <p class="article-dek">{dek}</p>
+      <p class="article-updated">Updated {updated} · <a href="/blog/">All articles</a></p>
+    </header>
+
+    <div class="article-body">
+      <slot />
+    </div>
+
+    <aside class="article-cta" aria-label="Call to action">
+      <h2>See it animate in your browser</h2>
+      <p>Write a diagram in plain text and watch Markdy lay it out, route the edges, and play it back — no signup, no install.</p>
+      <div class="article-cta-actions">
+        <a class="art-btn art-btn-primary" href="/#playground">Open the Playground</a>
+        <a class="art-btn art-btn-secondary" href="/docs/">Read the Docs</a>
+        <a class="art-btn art-btn-ghost" href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">Star on GitHub</a>
+      </div>
+    </aside>
+  </article>
+</Layout>
+
+<style>
+  .article {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 5rem 1.25rem 4rem;
+  }
+  .article-crumbs {
+    font-size: 0.85rem;
+    color: var(--text-secondary, #64748b);
+    margin-bottom: 1.5rem;
+  }
+  .article-crumbs a {
+    color: var(--accent, #38bdf8);
+    text-decoration: none;
+  }
+  .article-crumbs span {
+    margin: 0 0.4rem;
+    opacity: 0.6;
+  }
+  .article-head h1 {
+    font-size: clamp(2rem, 5vw, 2.9rem);
+    line-height: 1.12;
+    letter-spacing: -0.03em;
+    margin: 0 0 1rem;
+  }
+  .article-dek {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: var(--text-secondary, #475569);
+    margin: 0 0 0.75rem;
+  }
+  .article-updated {
+    font-size: 0.85rem;
+    color: var(--text-secondary, #94a3b8);
+    margin: 0 0 2.5rem;
+  }
+  .article-updated a {
+    color: var(--accent, #38bdf8);
+  }
+
+  .article-body :global(h2) {
+    font-size: 1.6rem;
+    letter-spacing: -0.02em;
+    margin: 2.75rem 0 0.9rem;
+    line-height: 1.2;
+  }
+  .article-body :global(h3) {
+    font-size: 1.2rem;
+    margin: 1.8rem 0 0.6rem;
+  }
+  .article-body :global(p),
+  .article-body :global(li) {
+    font-size: 1.02rem;
+    line-height: 1.75;
+    color: var(--text-primary, #1e293b);
+  }
+  .article-body :global(ul),
+  .article-body :global(ol) {
+    padding-left: 1.3rem;
+    margin: 1rem 0;
+  }
+  .article-body :global(li) {
+    margin: 0.4rem 0;
+  }
+  .article-body :global(a) {
+    color: var(--accent, #0ea5e9);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .article-body :global(strong) {
+    color: var(--text-primary, #0f172a);
+  }
+  .article-body :global(pre) {
+    background: var(--bg-code, #0f1b2d);
+    color: #e6edf7;
+    border: 1px solid var(--border-color, #1f2b3d);
+    border-radius: 12px;
+    padding: 1rem 1.15rem;
+    overflow-x: auto;
+    font-size: 0.86rem;
+    line-height: 1.6;
+    margin: 1.2rem 0;
+  }
+  .article-body :global(code) {
+    font-family: "SF Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+  }
+  .article-body :global(:not(pre) > code) {
+    background: var(--bg-secondary, rgba(148, 163, 184, 0.16));
+    padding: 0.12em 0.4em;
+    border-radius: 5px;
+    font-size: 0.9em;
+  }
+  .article-body :global(blockquote) {
+    border-left: 3px solid var(--accent, #38bdf8);
+    margin: 1.4rem 0;
+    padding: 0.4rem 0 0.4rem 1.1rem;
+    color: var(--text-secondary, #475569);
+  }
+  .article-body :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1.4rem 0;
+    font-size: 0.95rem;
+  }
+  .article-body :global(th),
+  .article-body :global(td) {
+    border: 1px solid var(--border-color, #e2e8f0);
+    padding: 0.55rem 0.75rem;
+    text-align: left;
+  }
+  .article-body :global(th) {
+    background: var(--bg-secondary, rgba(148, 163, 184, 0.12));
+  }
+
+  .article-cta {
+    margin-top: 3.5rem;
+    padding: 2rem;
+    border-radius: 16px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    background: var(--bg-secondary, rgba(56, 189, 248, 0.06));
+    text-align: center;
+  }
+  .article-cta h2 {
+    font-size: 1.5rem;
+    margin: 0 0 0.6rem;
+  }
+  .article-cta p {
+    color: var(--text-secondary, #475569);
+    margin: 0 auto 1.4rem;
+    max-width: 46ch;
+    line-height: 1.6;
+  }
+  .article-cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    justify-content: center;
+  }
+  .art-btn {
+    display: inline-block;
+    padding: 0.7rem 1.3rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+  .art-btn:hover {
+    transform: translateY(-1px);
+  }
+  .art-btn-primary {
+    background: var(--accent, #38bdf8);
+    color: #04121f;
+  }
+  .art-btn-secondary {
+    background: transparent;
+    border: 1px solid var(--border-color, #cbd5e1);
+    color: var(--text-primary, #0f172a);
+  }
+  .art-btn-ghost {
+    background: transparent;
+    color: var(--text-secondary, #64748b);
+    border: 1px solid transparent;
+  }
+</style>

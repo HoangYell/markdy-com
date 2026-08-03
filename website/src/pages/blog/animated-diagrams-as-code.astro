@@ -1,0 +1,112 @@
+---
+/*
+  SEO BRIEF — satellite article for feature: "Animated diagrams as code"
+  Target keywords: animated diagrams as code, diagram as code, architecture as code,
+    version controlled diagrams, animated architecture diagram
+  Search intent: commercial-investigation / informational — developers who want
+    architecture diagrams that live in version control and animate, evaluating
+    "diagram as code" tools vs. Figma/Lucidchart screenshots.
+  Meta title: Animated Diagrams as Code — Version Architecture in Git | Markdy
+  Meta description: Write architecture and system diagrams as plain text and get
+    browser-native animation you can review in pull requests. Free & open source.
+  Primary CTA: Open the Playground. Secondary: Read the Docs / Star on GitHub.
+*/
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+
+const canonicalURL = "https://markdy.com/blog/animated-diagrams-as-code/";
+const structuredData = [
+  {
+    "@type": "BlogPosting",
+    "@id": `${canonicalURL}#article`,
+    headline: "Animated Diagrams as Code: Version Your Architecture in Git",
+    description:
+      "Write architecture and system diagrams as plain text and get browser-native animation you can review in pull requests.",
+    inLanguage: "en",
+    url: canonicalURL,
+    mainEntityOfPage: canonicalURL,
+    isPartOf: { "@id": "https://markdy.com/#website" },
+    about: { "@id": "https://markdy.com/#software" },
+    author: { "@id": "https://markdy.com/#hoang-yell" },
+    publisher: { "@id": "https://markdy.com/#organization" },
+    keywords:
+      "animated diagrams as code, diagram as code, architecture as code, version controlled diagrams",
+  },
+];
+---
+
+<ArticleLayout
+  title="Animated Diagrams as Code — Version Architecture in Git | Markdy"
+  description="Write architecture and system diagrams as plain text and get browser-native animation you can review in pull requests. Free and open source diagram-as-code."
+  keywords="animated diagrams as code, diagram as code, architecture as code, version controlled diagrams, animated architecture diagram, text to diagram"
+  canonicalURL={canonicalURL}
+  headline="Animated Diagrams as Code: Version Your Architecture in Git"
+  dek="Stop pasting stale screenshots into your docs. Describe your system in plain text, review it in pull requests, and let Markdy lay it out and animate it in the browser."
+  structuredData={structuredData}
+>
+  <p>
+    Architecture diagrams rot. Someone draws the system in a whiteboard tool, exports a PNG, drops it in the
+    wiki — and six deploys later it's fiction. <strong>Diagram as code</strong> fixes the staleness by keeping the
+    diagram in the same repository as the code it describes. <strong>Markdy</strong> takes that one step further:
+    your diagram isn't just versioned text, it's an <strong>animated architecture diagram</strong> that renders in
+    any browser.
+  </p>
+
+  <h2>What "animated diagrams as code" actually means</h2>
+  <p>
+    In Markdy you declare nodes and connect them with flow operators. There are no coordinates to maintain — the
+    engine handles layout, edge routing, and timing. Here's a complete, runnable scene:
+  </p>
+  <pre><code>scene "Checkout" theme=midnight
+layout LR
+
+browser Web
+service API "Checkout API"
+database DB "Orders DB"
+
+beat main:
+  show $nodes stagger=80ms
+  Web -&gt; API "POST /order" -&gt; DB "persist"
+  Web &lt;- API "201 Created"</code></pre>
+  <p>
+    That's the whole diagram. Paste it into the <a href="/#playground">interactive playground</a> and it lays out
+    left-to-right, routes the arrows around the boxes, and animates the request/response flow. Because it's plain
+    text, a teammate can review the change in a pull request — a one-line diff instead of a re-exported image.
+  </p>
+
+  <h2>Why version-controlled diagrams win</h2>
+  <ul>
+    <li><strong>Reviewable in PRs.</strong> Diagram changes show up as readable diffs next to the code change that caused them.</li>
+    <li><strong>Always current.</strong> The diagram lives in the repo, so it's updated in the same commit as the system.</li>
+    <li><strong>Copy-paste friendly.</strong> No binary assets, no design-tool licenses, no export step.</li>
+    <li><strong>AI-friendly.</strong> A constrained text DSL is easy for LLMs to generate and revise — see <a href="/blog/ai-generated-architecture-diagrams/">AI-generated architecture diagrams</a>.</li>
+  </ul>
+
+  <h2>How it compares to static diagram-as-code tools</h2>
+  <p>
+    Tools like Mermaid, PlantUML, D2, and Graphviz pioneered text-to-diagram. They're excellent for static charts.
+    Markdy is built for the moment when a <em>static</em> picture isn't enough — when you need to walk a viewer
+    through a request path, a cache-miss fallback, or a deploy pipeline step by step.
+  </p>
+  <table>
+    <thead><tr><th>Need</th><th>Reach for</th></tr></thead>
+    <tbody>
+      <tr><td>Static UML / flowchart in a README</td><td>Mermaid, PlantUML</td></tr>
+      <tr><td>Animated, narrated architecture &amp; system flows</td><td>Markdy</td></tr>
+      <tr><td>Freeform whiteboard sketch</td><td>Excalidraw, draw.io</td></tr>
+    </tbody>
+  </table>
+  <p>
+    Prefer a lighter runtime story too? Markdy renders with the Web Animations API and CSS — no Canvas or GSAP.
+    Read <a href="/blog/browser-native-diagram-animation/">browser-native diagram animation</a> for the details.
+  </p>
+
+  <h2>Get started in two minutes</h2>
+  <ol>
+    <li>Open the <a href="/#playground">playground</a> and edit the sample scene.</li>
+    <li>Copy the syntax you need from the <a href="/docs/">docs</a> or the <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md" target="_blank" rel="noopener noreferrer">agent guide</a>.</li>
+    <li>Drop the <code>.markdy</code> file in your repo and render it with <code>@markdy/renderer-dom</code>, Astro, or MDX.</li>
+  </ol>
+  <p>
+    Animated diagrams as code mean your architecture picture is finally as maintainable as the architecture itself.
+  </p>
+</ArticleLayout>
