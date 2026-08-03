@@ -1,7 +1,7 @@
 {
   "name": "@markdy/language-server",
   "version": "0.8.0",
-  "description": "Language Server Protocol implementation for MarkdyScript.",
+  "description": "Language Server Protocol implementation for MarkdyScript diagrams.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -26,6 +26,7 @@
     "lsp",
     "language-server",
     "markdyscript",
+    "diagram-as-code",
     "editor"
   ],
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",

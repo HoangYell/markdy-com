@@ -2,7 +2,7 @@
   "name": "markdy",
   "version": "0.8.0",
   "private": true,
-  "description": "An open-source animation DSL engine. Write MarkdyScript, get animated scenes in the browser.",
+  "description": "Open-source DSL for animated architecture & system diagrams. Write MarkdyScript, get browser-native animated diagrams.",
   "license": "MIT",
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
   "repository": {
@@ -18,15 +18,16 @@
     "pnpm": ">=8"
   },
   "keywords": [
-    "animation",
-    "dsl",
     "markdy",
     "markdyscript",
-    "text-to-motion",
-    "framer-motion-alternative",
-    "markdown-animation",
-    "declarative-animation",
-    "astro-animation",
+    "diagram-as-code",
+    "animated-diagram",
+    "architecture-diagram",
+    "mermaid-alternative",
+    "system-design",
+    "sequence-diagram",
+    "docs-as-code",
+    "dsl",
     "web-animations-api"
   ],
   "packageManager": "pnpm@9.15.4",

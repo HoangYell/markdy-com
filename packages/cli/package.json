@@ -1,7 +1,7 @@
 {
   "name": "@markdy/cli",
   "version": "0.8.0",
-  "description": "First-party CLI for MarkdyScript: lint, format, explain, render, and local playground tooling.",
+  "description": "First-party CLI for MarkdyScript diagrams: lint, format, explain, render, and a local playground.",
   "license": "MIT",
   "type": "module",
   "files": [
@@ -23,9 +23,9 @@
   "keywords": [
     "markdy",
     "cli",
-    "animation",
-    "dsl",
-    "text-to-motion"
+    "diagram-as-code",
+    "architecture-diagram",
+    "dsl"
   ],
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
   "homepage": "https://markdy.com",

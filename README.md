@@ -1,7 +1,7 @@
 <p align="center">
   <strong>Markdy</strong><br>
-  Open-source text-to-animation and animated diagram DSL.<br>
-  Write MarkdyScript → get browser-native technical motion graphics.
+  Open-source DSL for animated architecture & system diagrams.<br>
+  Write MarkdyScript → get browser-native animated diagrams.
 </p>
 
 <p align="center">
@@ -20,14 +20,12 @@
 
 ## What is Markdy?
 
-**Markdy is a framework-agnostic animation DSL for animated developer diagrams.** Write motion graphics like Markdown.
+**Markdy is a framework-agnostic DSL for animated architecture and system diagrams.** Write your diagram as plain text — Markdy handles layout, edge routing, timing, and browser-native rendering with the Web Animations API. No Canvas, no GSAP, no bloated dependencies.
 
-Define actors, architecture nodes, timelines, and interactions in a simple, readable DSL. The engine handles rendering with the Web Animations API. No Canvas, no GSAP, no bloated dependencies.
-
-> Markdy is built for **text-to-animation scenes and animated technical diagrams**.
-> With `@markdy/stdlib-systems`, it can express architecture, cloud, Kubernetes, CI/CD, auth, data, messaging, state-machine, and flow diagrams.
+> Markdy is built for **animated architecture diagrams and system-design explainers**.
+> The built-in vocabulary expresses architecture, cloud, Kubernetes, CI/CD, auth, data, messaging, state-machine, and flow diagrams.
 >
-> If you are searching for a **Mermaid alternative for animation**, **animated architecture diagrams**, **AI-generated diagrams**, **text-to-diagram**, **architecture as code**, or **docs-as-code motion graphics**, Markdy is designed for that workflow.
+> If you are searching for a **Mermaid alternative with animation**, **animated architecture diagrams**, **diagram as code**, **AI-generated diagrams**, **text-to-diagram**, **architecture as code**, or **docs-as-code motion graphics**, Markdy is designed for that workflow.
 
 ```markdy
 scene "Request path" theme=midnight

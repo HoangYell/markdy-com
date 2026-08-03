@@ -1,7 +1,7 @@
 {
   "name": "@markdy/mdx",
   "version": "0.8.0",
-  "description": "MDX integration plugin and lightweight React player for Markdy.",
+  "description": "MDX plugin and lightweight React player for animated Markdy diagrams.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -22,8 +22,9 @@
     "markdy",
     "mdx",
     "remark",
-    "react",
-    "animation"
+    "diagram-as-code",
+    "architecture-diagram",
+    "react"
   ],
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
   "homepage": "https://markdy.com",
