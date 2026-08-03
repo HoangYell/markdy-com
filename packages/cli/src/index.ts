@@ -1,5 +1,4 @@
-import { PRESETS, PRESET_NAMES, parse, registerActorPack, type ParseWarning, type SceneAST } from "@markdy/core";
-import { systemsPack } from "@markdy/stdlib-systems";
+import { parse, type DiagramAST, type Diagnostic } from "@markdy/core";
 import { createRequire } from "node:module";
 import { basename, dirname, extname, join, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -31,16 +30,13 @@ type ParsedArgs = {
 type LoadedScene = {
   filePath: string;
   source: string;
-  ast: SceneAST;
-  imports: Record<string, SceneAST>;
+  ast: DiagramAST;
 };
 
 const DEFAULT_PORT = 4242;
 const IMPORT_RE = /^import\s+"([^"]+)"\s+as\s+(\w+)\s*$/;
 const MARKDY_EXT = ".markdy";
 const PACKAGE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-
-registerActorPack(systemsPack);
 
 export async function runCli(
   argv: string[],
@@ -99,7 +95,7 @@ async function lintCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
     try {
       const scene = await loadSceneFromFile(file, cache);
       io.stdout(`OK   ${file}`);
-      warningCount += printWarnings(scene.ast.warnings, file, io);
+      warningCount += printWarnings(scene.ast.diagnostics, file, io);
     } catch (error) {
       errorCount++;
       io.stderr(`FAIL ${file}`);
@@ -214,40 +210,24 @@ async function explainCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult>
   const summary = [
     `File: ${scene.filePath}`,
     `Viewport: ${scene.ast.meta.width}×${scene.ast.meta.height} @ ${scene.ast.meta.fps}fps`,
-    `Background: ${scene.ast.meta.bg}`,
-    `Duration: ${scene.ast.meta.duration ?? 0}s`,
-    `Actors: ${Object.keys(scene.ast.actors).length}`,
-    `Events: ${scene.ast.events.length}`,
-    `Chapters: ${scene.ast.chapters.length > 0 ? scene.ast.chapters.map((chapter) => chapter.name).join(", ") : "(none)"}`,
-    `Imports: ${scene.ast.imports.length > 0 ? scene.ast.imports.map((item) => `${item.namespace} -> ${item.path}`).join(", ") : "(none)"}`,
-    `Warnings: ${scene.ast.warnings.length}`,
+    `Theme: ${scene.ast.meta.theme}`,
+    `Duration: ${scene.ast.meta.duration ?? "(auto)"}`,
+    `Nodes: ${Object.keys(scene.ast.nodes).length}`,
+    `Beats: ${scene.ast.beats.map((b) => b.name).join(", ") || "(none)"}`,
+    `Diagnostics: ${scene.ast.diagnostics.length}`,
   ];
   io.stdout(summary.join("\n"));
-  if (scene.ast.warnings.length > 0) {
-    printWarnings(scene.ast.warnings, scene.filePath, io);
+  if (scene.ast.diagnostics.length > 0) {
+    printWarnings(scene.ast.diagnostics, scene.filePath, io);
   }
   return { exitCode: 0 };
 }
 
 async function newCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
-  const presetOrTarget = parsed.positionals[0];
-  const second = parsed.positionals[1];
+  const target = parsed.positionals[0] ?? "scene.markdy";
   const force = hasFlag(parsed, "force");
-
-  let presetName = "basic";
-  let target = "scene.markdy";
-
-  if (presetOrTarget) {
-    if (PRESET_NAMES.includes(presetOrTarget)) {
-      presetName = presetOrTarget;
-      target = second ?? target;
-    } else {
-      target = presetOrTarget;
-    }
-  }
-
   const resolvedTarget = resolve(target);
-  const content = presetName === "basic" ? defaultSceneTemplate() : `preset ${presetName}\n`;
+  const content = defaultSceneTemplate();
 
   if (!force && await exists(resolvedTarget)) {
     io.stderr(`markdy new: target already exists: ${resolvedTarget} (pass --force to overwrite)`);
@@ -323,10 +303,9 @@ async function launchPlayground(
 ): Promise<RunResult> {
   const portFlag = getStringFlag(parsed, "port");
   const preferredPort = portFlag ? Number(portFlag) : DEFAULT_PORT;
-  const code = scene?.source ?? PRESETS.explainer([]);
-  const imports = scene?.imports ?? {};
+  const code = scene?.source ?? defaultSceneTemplate();
   const sourcePath = scene?.filePath;
-  const server = await startPreviewServer(code, imports, sourcePath, preferredPort);
+  const server = await startPreviewServer(code, sourcePath, preferredPort);
   const address = server.address();
   const port = typeof address === "object" && address ? address.port : preferredPort;
   const url = `http://127.0.0.1:${port}`;
@@ -341,13 +320,12 @@ async function launchPlayground(
 
 async function startPreviewServer(
   code: string,
-  imports: Record<string, SceneAST>,
   sourcePath: string | undefined,
   preferredPort: number,
 ): Promise<Server> {
   const coreDist = resolvePackageDist("@markdy/core");
   const rendererDist = resolvePackageDist("@markdy/renderer-dom");
-  const html = buildPlaygroundHtml(code, imports, sourcePath);
+  const html = buildPlaygroundHtml(code, sourcePath);
 
   const server = createServer(async (request, response) => {
     try {
@@ -422,28 +400,14 @@ async function loadSceneFromFile(
     throw new Error(`Unable to read ${resolvedPath}: ${describeError(error)}`);
   });
 
-  const imports = await resolveSceneImports(source, resolvedPath, cache, [...stack, resolvedPath]);
-  const ast = parse(source, Object.keys(imports).length > 0 ? { imports } : undefined);
-  const loaded: LoadedScene = { filePath: resolvedPath, source, ast, imports };
+  const ast = parse(source);
+  const loaded: LoadedScene = { filePath: resolvedPath, source, ast };
   cache.set(resolvedPath, loaded);
   return loaded;
 }
 
-async function resolveSceneImports(
-  source: string,
-  filePath: string,
-  cache: Map<string, LoadedScene>,
-  stack: string[],
-): Promise<Record<string, SceneAST>> {
-  const imports: Record<string, SceneAST> = {};
-
-  for (const declaration of scanImports(source)) {
-    const childPath = resolve(dirname(filePath), declaration.path);
-    const child = await loadSceneFromFile(childPath, cache, stack);
-    imports[declaration.namespace] = child.ast;
-  }
-
-  return imports;
+async function resolveSceneImports(): Promise<Record<string, never>> {
+  return {};
 }
 
 function scanImports(source: string): Array<{ path: string; namespace: string }> {
@@ -503,11 +467,7 @@ async function walkMarkdyFiles(root: string): Promise<string[]> {
   return files;
 }
 
-function buildPlaygroundHtml(
-  code: string,
-  imports: Record<string, SceneAST>,
-  sourcePath?: string,
-): string {
+function buildPlaygroundHtml(code: string, sourcePath?: string): string {
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -603,7 +563,7 @@ function buildPlaygroundHtml(
         <strong>Markdy Playground</strong>
         <div><code>${escapeHtml(sourcePath ?? "scratch scene")}</code></div>
       </div>
-      <div>Resolved imports: ${Object.keys(imports).length}</div>
+      <div>MarkdyScript 0.8 diagram playground</div>
     </header>
     <main>
       <section class="editor">
@@ -622,7 +582,6 @@ function buildPlaygroundHtml(
     <script type="module">
       import { createPlayer } from "@markdy/renderer-dom";
 
-      const imports = ${JSON.stringify(imports)};
       const textarea = document.getElementById("code");
       const viewport = document.getElementById("viewport");
       const warnings = document.getElementById("warnings");
@@ -639,10 +598,9 @@ function buildPlaygroundHtml(
           player = createPlayer({
             container: viewport,
             code: textarea.value,
-            imports,
             onWarning(warning) {
               const item = document.createElement("li");
-              item.textContent = \`line \${warning.line}: \${warning.message} (\${warning.kind})\`;
+              item.textContent = \`line \${warning.line}: \${warning.message}\`;
               warnings.appendChild(item);
             }
           });
@@ -706,9 +664,8 @@ export async function buildStandaloneHtml(scene: LoadedScene): Promise<string> {
       createPlayer({
         container: document.getElementById("app"),
         code: ${JSON.stringify(scene.source)},
-        imports: ${JSON.stringify(scene.imports)},
         onWarning(warning) {
-          console.warn(\`[markdy] line \${warning.line}: \${warning.message} (\${warning.kind})\`);
+          console.warn(\`[markdy] line \${warning.line}: \${warning.message}\`);
         }
       });
     </script>
@@ -726,12 +683,10 @@ function helpText(): string {
     "  markdy fmt <file-or-dir> [--write | --check]",
     "  markdy render <file.markdy> [--out file.html] [--port 4242] [--no-open]",
     "  markdy explain <file.markdy> [--json]",
-    "  markdy new [preset-name] [target.markdy] [--force]",
+    "  markdy new [target.markdy] [--force]",
     "  markdy docs [--open]",
     "  markdy ai [--open]",
     "  markdy check-all [dir] [--strict]",
-    "",
-    `Built-in presets: ${PRESET_NAMES.join(", ")}`,
   ].join("\n");
 }
 
@@ -810,11 +765,11 @@ function getStringFlag(parsed: ParsedArgs, name: string): string | undefined {
   return typeof value === "string" ? value : undefined;
 }
 
-function printWarnings(warnings: ParseWarning[], file: string, io: CliIo): number {
-  for (const warning of warnings) {
-    io.stderr(`WARN ${file}:${warning.line} ${warning.kind} ${warning.message}`);
+function printWarnings(warnings: Diagnostic[], file: string, io: CliIo): number {
+  for (const warning of warnings.filter((w) => w.severity === "warning")) {
+    io.stderr(`WARN ${file}:${warning.line} ${warning.message}`);
   }
-  return warnings.length;
+  return warnings.filter((w) => w.severity === "warning").length;
 }
 
 function stableStringify(value: unknown): string {
@@ -888,14 +843,16 @@ function describeError(error: unknown): string {
 
 function defaultSceneTemplate(): string {
   return [
-    "scene width=960 height=540 fps=30 bg=#0d1117",
+    'scene "My Architecture" theme=midnight',
+    "layout LR",
     "",
-    'actor title = caption("hello, markdy") at top',
-    "actor hero = figure(#c68642, m, 😎) at (480, 360)",
+    "browser Client",
+    "service API",
+    "database DB",
     "",
-    '@0.0: title.fade_in(dur=0.4)',
-    "@0.4: hero.enter(from=bottom, dur=0.5)",
-    '@1.2: hero.say("ship it", dur=1.4)',
+    "beat intro:",
+    "  show $nodes",
+    '  Client -> API "GET /health" -> DB "lookup"',
     "",
   ].join("\n");
 }

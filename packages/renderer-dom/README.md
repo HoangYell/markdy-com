@@ -5,12 +5,11 @@ Web Animations API renderer for [MarkdyScript](../../docs/SYNTAX.md) scenes. Tra
 ## Features
 
 - **Browser-native** — Web Animations API + CSS transforms, no Canvas or GSAP
-- **Emoji stick figures** — `figure` actor type with articulatable limbs, shoulder/hip joints, and body-part rig
-- **Expressive gestures** — built-in `wave`, `nod`, `jump`, `bounce`, and multi-part `pose` actions
+- **Auto-layout diagrams** — renders positioned nodes and orthogonal, obstacle-aware edges from a compiled `RenderPlan`
+- **Flow edges** — `->` request, `<-` response, `~>` event, `--` dependency, each with its own stroke, plus a pulse that travels the edge as it draws
+- **Beat-driven cues** — `show`, `hide`, `glow`, and `focus`, sequenced by named beats
 - **Seek-safe** — manual `currentTime` control enables reliable `seek()` in any direction
-- **Face expressions** — instant emoji face swaps that work correctly on seek-back
-- **Speech bubbles** — auto-positioned bubbles with fade-in/fade-out
-- **Z-index layering** — `z` modifier for actor depth ordering
+- **Semantic themes** — `midnight` and `paper`, with per-role node colors
 - **Single dependency** — only `@markdy/core`
 
 ## Installation
@@ -41,11 +40,12 @@ import { createPlayer } from "@markdy/renderer-dom";
 const player = createPlayer({
   container: document.getElementById("scene")!,
   code: `
-    scene width=600 height=300 bg=white
-    actor hero = figure(#c68642, m, 😎) at (200, 150)
-    @0.0: hero.enter(from=left, dur=0.8)
-    @1.5: hero.say("Hello!", dur=1.2)
-    @1.5: hero.face("😄")
+    scene "Request" theme=midnight
+    browser Web
+    service API
+    beat main:
+      show $nodes
+      Web -> API "GET /users"
   `,
   autoplay: true,
 });
@@ -65,12 +65,11 @@ player.destroy();    // clean up DOM + cancel animations
 |---|---|---|---|
 | `container` | `HTMLElement` | *(required)* | DOM element to mount the scene into |
 | `code` | `string` | *(required)* | MarkdyScript source code |
-| `assets` | `Record<string, string>` | `{}` | Asset URL overrides (key = asset name) |
 | `autoplay` | `boolean` | `true` | Start playing immediately |
 | `loop` | `boolean` | `true` | Loop the animation when it reaches the end |
 | `copyright` | `boolean` | `true` | Show a small "Powered by Markdy" badge below the animation |
 | `progressBar` | `boolean` | `true` | Show a rainbow progress bar around the viewport border |
-| `onWarning` | `(warning: ParseWarning) => void` | `console.warn` | Called for each soft parse warning |
+| `onWarning` | `(warning: Diagnostic) => void` | `console.warn` | Called for each soft parse warning |
 | `onTimeUpdate` | `(seconds: number, durationSeconds: number) => void` | — | Called whenever playback or seek changes the current time |
 | `onPlayStateChange` | `(playing: boolean) => void` | — | Called when playback starts or pauses |
 
@@ -84,46 +83,29 @@ player.destroy();    // clean up DOM + cancel animations
 | `currentTime()` | Current playback position in seconds |
 | `duration()` | Total scene duration in seconds |
 | `isPlaying()` | Whether the scene is currently playing |
-| `chapters()` | Named `scene "..." { ... }` chapter blocks, in author order (empty if none) |
-| `seekToChapter(name)` | Seek to the start of a named chapter; no-op if the name doesn't match |
+| `beats()` | Named `beat` ranges, in author order (empty if none) |
+| `seekToBeat(name)` | Seek to the start of a named beat; no-op if the name doesn't match |
 | `destroy()` | Remove DOM elements and cancel all animations |
 
 ## Module Structure
 
 ```
 src/
-  index.ts        — Barrel exports
-  player.ts       — Public API, rAF loop, face-swap engine
-  animations.ts   — Timeline walker: dispatches each event to its handler
-  actions/
-    context.ts    — ActionContext: the one argument every handler receives
-    registry.ts   — Action name → handler table
-    transform.ts  — move, enter, exit, fade, scale, rotate, shake, jump, bounce
-    figure.ts     — Figure-only gestures and limb articulation
-    speech.ts     — say (speech bubbles)
-    projectile.ts — throw
-    flow.ts       — request / response / emit (system-diagram edges)
+  index.ts        — Barrel exports (createPlayer)
+  player.ts       — Public API, rAF loop, progress bar, responsive scaling
+  nodes.ts        — Node element factory + scene title
+  edges.ts        — Flow-edge SVG runtime, routing, and cue animations
   geometry/
-    rect.ts       — Actor bounds and hit-testing (DOM-free, unit tested)
-    path.ts       — Polyline measurement and obstacle-aware edge routing
-  camera.ts       — pan / zoom / shake on the scene-content layer
-  stage.ts        — t=0 staging and off-screen placement
-  theme.ts        — Scene-adaptive colors for renderer-drawn chrome
-  actors.ts       — Actor element factory (sprite, text, figure, box, caption)
-  figure.ts       — Stick-figure DOM factory (emoji body parts)
-  types.ts        — ActorState, FaceSwap, easing utilities
+    rect.ts       — Rects, points, and hit-testing (DOM-free, unit tested)
+    path.ts       — Polyline measurement + obstacle-aware orthogonal routing
+  theme.ts        — Scene ambience styles and theme-token application
 ```
 
-### Adding an action
+### Adding a cue or edge kind
 
-1. Write a handler — a function taking `ActionContext` — in the relevant
-   `actions/` module (or a new one).
-2. Register it by name in `actions/registry.ts`.
-3. Add the name to the matching list in `@markdy/core`'s `registry.ts` so the
-   parser accepts it.
-
-Step 3 is enforced: `tests/action-coverage.test.ts` fails the build if the
-parser accepts an action the renderer can't draw, or vice versa.
+Cue and edge animations live in `edges.ts` (`buildCueAnimations`). Add the new
+keyword or operator to `@markdy/core`'s `registry.ts` so the parser accepts it,
+then handle it in the corresponding branch of `buildCueAnimations`.
 
 ## Documentation
 

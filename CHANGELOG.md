@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] — 2026-08-03
+
+### Changed
+- **MarkdyScript 0.8 — diagram-native redesign (breaking)** — Replaced actor/timestamp syntax with nodes, beats, flow operators (`->`, `<-`, `~>`, `--`), groups, patterns, and semantic themes (`midnight`, `paper`). Auto-layout, edge routing, and beat scheduling are built in. Figure/story/preset syntax removed.
+
+### Fixed
+- **Flow-edge labels** — Inline labels on flow targets (`A -> B "label"`) were folded into the target node id, producing a phantom node so the renderer silently dropped every labeled edge. Labels are now parsed correctly and node ids stay clean.
+- **`markdy fmt` round-trips** — Formatting is now idempotent for response (`<-`) edges (previously the arrow direction flipped on each pass) and no longer leaks internal `__pos_` keys when formatting positional `use` calls.
+- **Edge routing** — Flow edges now route orthogonally around other nodes instead of drawing straight through them, and a pulse travels along the edge as it reveals.
+- **Language server** — Removed duplicate diagnostics reported for a single parse error.
+- Completed the 0.8 migration cleanup: dropped dead figure/actor renderer modules, rebuilt the diagram-native geometry helpers, and updated `@markdy/stdlib-systems` and the Astro starter to the new vocabulary.
+- Migrated all demos, examples, and docs to 0.8 diagram syntax: replaced the old numbered examples/presets with fresh node/flow/beat/pattern examples (now covered by `verify:examples`), rewrote `AGENT.md` and `TUTORIAL.md`, refreshed every package README, and rebuilt the homepage "Learn" cards (all playground snippets are valid 0.8). Historical planning docs are annotated as pre-0.8.
+
+
 ## [0.7.29] — 2026-08-02
 
 ### Fixed

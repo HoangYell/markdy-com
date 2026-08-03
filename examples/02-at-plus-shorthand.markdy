@@ -1,9 +1,0 @@
-# @+N: shorthand — "N seconds after the previous event's end"
-scene width=800 height=400
-
-actor label = text("Status") at (200, 240)
-
-@0.0:  label.enter(from=left, dur=0.5)
-@+0.0: label.say("look ma", dur=0.8)
-@+0.2: label.shake(intensity=3, dur=0.3)
-@+0.5: label.say("no manual timestamps", dur=1.0)

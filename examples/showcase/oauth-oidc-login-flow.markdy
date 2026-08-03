@@ -1,48 +1,36 @@
-# OAuth 2.0 / OIDC authorization-code flow with redirects, token exchange, and protected API access.
-scene width=1280 height=720 bg=#06101f fps=60
+scene "OAuth / OIDC Login Flow" theme=midnight
+layout LR
 
-actor title = caption("OAuth / OIDC Login Flow") at top opacity 0
-user User "User" at (70, 112) opacity 0
-browser Browser "Browser" at (270, 112) opacity 0
-frontend ClientApp "Client App" at (470, 112) opacity 0
-identity IdP "Identity Provider" at (690, 112) opacity 0
-auth Authz "Authorization Endpoint" at (690, 304) opacity 0
-auth Token "Token Endpoint" at (690, 496) opacity 0
-secret Access "Access Token" at (930, 184) opacity 0
-secret Refresh "Refresh Token" at (930, 496) opacity 0
-api ProtectedAPI "Protected API" at (930, 340) opacity 0
-actor Steps = chips("redirect|code|tokens|API access") at (70, 620) opacity 0 z 60
+user User
+browser Browser
+client App "Web App"
+gateway Gateway "API Gateway"
+service AuthSvc "Auth Service"
+service IdP "Identity Provider"
+database SessionDB "Session Store"
+cache TokenCache "Token Cache"
 
-group nodes = User, Browser, ClientApp, IdP, Authz, Token, Access, Refresh, ProtectedAPI, Steps
+group trust: AuthSvc IdP SessionDB TokenCache
 
-scene "layout" {
-  @+0.0: title.line_reveal(from=left, dur=0.42)
-  @+0.18: nodes.fade_in(dur=0.42, stagger=0.05)
-}
+beat layout:
+  show $nodes stagger=50ms
 
-scene "authorize" {
-  @+0.12: User.request(to=Browser, label="1 login", dur=0.45)
-  @+0.08: Browser.request(to=ClientApp, label="2 /login", dur=0.45)
-  @+0.08: ClientApp.request(to=Authz, label="3 authorize", dur=0.55)
-  @+0.08: Authz.response(to=Browser, label="4 code redirect", dur=0.58)
-  @+0.08: Browser.request(to=ClientApp, label="5 callback", dur=0.5)
-}
+beat login:
+  User -> Browser "click sign in" -> App "start login"
+  App -> Gateway "GET /auth/login" -> AuthSvc "create state"
+  AuthSvc -> IdP "authorize redirect"
+  Browser <- IdP "login + consent"
 
-scene "token-exchange" {
-  @+0.12: ClientApp.request(to=Token, label="6 code exchange", dur=0.55)
-  @+0.08: Token.emit(to=Access, label="7 access", dur=0.5)
-  @+0.08: Token.emit(to=Refresh, label="8 refresh", dur=0.5)
-  @+0.0: Token.glow(color=#fb7185, strength=32, dur=0.55)
-}
+beat callback:
+  Browser -> Gateway "GET /callback" -> AuthSvc "exchange code"
+  AuthSvc -> IdP "token request"
+  IdP <- AuthSvc "id_token + access_token"
+  AuthSvc -> SessionDB "store session" & AuthSvc ~> TokenCache "cache tokens"
 
-scene "api-access" {
-  @+0.12: ClientApp.request(to=ProtectedAPI, label="9 API call", dur=0.55)
-  @+0.08: Access.emit(to=ProtectedAPI, label="Bearer token", dur=0.5)
-  @+0.08: ProtectedAPI.response(to=ClientApp, label="protected data", dur=0.55)
-}
+beat session:
+  App <- AuthSvc "session cookie"
+  App -> Gateway "GET /me" -> AuthSvc "validate session"
+  AuthSvc <- App "profile"
 
-scene "takeaway" {
-  @+0.16: Access.glow(color=#22c55e, strength=28, dur=0.55)
-  @+0.0: Refresh.glow(color=#38bdf8, strength=28, dur=0.55)
-  @+0.0: camera.zoom(to=1.02, dur=0.6, ease=smooth)
-}
+beat finish:
+  glow trust color=#fb7185 & focus AuthSvc

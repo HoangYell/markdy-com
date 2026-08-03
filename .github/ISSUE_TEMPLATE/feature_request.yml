@@ -20,8 +20,12 @@ body:
       description: "How would this look in MarkdyScript? Please provide a code example."
       render: markdyscript
       placeholder: |
-        scene width=600 height=300
-        @1.0: my_actor.new_action_here(foo=bar)
+        scene "Example" theme=midnight
+        service API
+        database DB
+        beat main:
+          show $nodes
+          API -> DB "query"
     validations:
       required: true
   - type: textarea

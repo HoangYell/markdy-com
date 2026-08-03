@@ -1,5 +1,10 @@
 # Markdy Architecture Animation Layer
 
+> **Historical (pre-0.8).** This roadmap predates the **MarkdyScript 0.8 diagram-native
+> redesign** and uses the old `actor`/`@time:` syntax. Much of its intent (semantic
+> nodes, layout, routed labeled flows) is now shipped natively. For the current
+> grammar see [AGENT.md](AGENT.md) and [SYNTAX.md](SYNTAX.md).
+
 Markdy is moving toward "Mermaid for animated diagrams": terse architecture syntax, timeline-driven motion, and browser-native rendering that stays inspectable and cheap.
 
 ## Implemented foundation

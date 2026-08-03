@@ -1,5 +1,10 @@
 # PLAN
 
+> **Historical (pre-0.8).** This plan captures an earlier round of the actor/timeline
+> MarkdyScript. It predates the **MarkdyScript 0.8 diagram-native redesign** and its
+> `actor`/`@time:`/`figure`/`preset` syntax is no longer supported. For the current
+> grammar see [docs/AGENT.md](docs/AGENT.md) and [docs/SYNTAX.md](docs/SYNTAX.md).
+
 Dependency-ordered tasks for the current round of MarkdyScript enrichment.
 Each task lists its deps, its deliverable, and its acceptance criteria.
 

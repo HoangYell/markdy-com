@@ -1,0 +1,22 @@
+// Beats sequence the animation; groups let one cue target many nodes.
+// `&` runs cues in parallel. glow/focus emphasize nodes.
+scene "Beats And Groups" theme=midnight
+layout LR
+
+user Visitor
+gateway Gateway "API Gateway"
+service Orders "Order Service"
+cache Redis "Cache"
+database DB "Orders DB"
+
+group storage: Redis DB
+
+beat intro:
+  show Visitor Gateway Orders & show storage stagger=80ms
+
+beat checkout:
+  Visitor -> Gateway "POST /order" -> Orders
+  Orders -> Redis "cache write" & Orders -> DB "persist"
+
+beat highlight:
+  glow storage color=#22c55e & focus Orders zoom=1.1

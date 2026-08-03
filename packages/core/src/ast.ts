@@ -1,151 +1,167 @@
 /**
- * AST types for MarkdyScript — the complete output of the parser.
+ * Diagram-native AST and RenderPlan types for MarkdyScript 0.8+.
  * Zero runtime dependencies.
  */
 
-export type AssetDef = {
-  type: "image" | "icon";
-  value: string;
-};
+export type LayoutDirection = "LR" | "RL" | "TB" | "BT";
 
-export type ActorDef = {
-  type: ActorType;
-  /** Constructor arguments: asset name for sprite, display text for text/caption actors. */
-  args: string[];
-  x: number;
-  y: number;
-  scale?: number;
-  rotate?: number;
-  opacity?: number;
-  /** Font size in pixels; applies to text actors (via the `size` modifier). */
-  size?: number;
-  /** Z-index for layering control (via the `z` modifier). */
-  z?: number;
-  /**
-   * Semantic anchor for captions (`top`, `bottom`, `center`). Absent for
-   * non-caption actors. The parser also fills `x` and `y` from the anchor
-   * so renderers that don't understand the field still place the caption.
-   */
-  anchor?: "top" | "bottom" | "center";
-};
-
-export type BuiltinActorType = "sprite" | "text" | "box" | "figure" | "caption";
-export type ActorType = BuiltinActorType | (string & {});
-
-export type TimelineEvent = {
-  time: number;
-  actor: string;
-  action: string;
-  params: Record<string, unknown>;
-  line: number;
-  /**
-   * The `scene "title" { ... }` block this event belongs to, if any.
-   * Undefined for events in the top-level scope.
-   */
-  chapter?: string;
-};
+export type EdgeKind = "request" | "response" | "event" | "dependency";
 
 export type SceneMeta = {
+  title?: string;
   width: number;
   height: number;
   fps: number;
-  bg: string;
-  /** Auto-computed from the last event + its dur param when not explicitly set. */
+  theme: string;
+  direction: LayoutDirection;
   duration?: number;
 };
 
-/**
- * A user-defined actor template (`def`).
- * Expands to an actor type + args at parse time — the renderer never sees it.
- */
-export type TemplateDef = {
-  /** Parameter names declared on the def line. */
-  params: string[];
-  /** The actor type this def expands to (e.g. "figure", "sprite"). */
-  actorType: ActorDef["type"];
-  /** Raw constructor arg tokens (may contain `${param}` references). */
-  bodyArgs: string[];
+export type NodeDecl = {
+  kind: string;
+  id: string;
+  label: string;
+  style?: string;
+  props: Record<string, unknown>;
+  line: number;
 };
 
-/**
- * A user-defined reusable animation sequence (`seq`).
- * Expanded inline wherever `actor.play(seqName)` appears.
- */
-export type SequenceDef = {
-  /** Parameter names (excluding the implicit `$` target actor). */
-  params: string[];
-  /** Raw event lines with `@+offset` and `$` actor placeholder. */
-  events: Array<{
-    offset: number;
-    action: string;
-    paramsRaw: string;
-  }>;
+export type EdgeDecl = {
+  id: string;
+  kind: EdgeKind;
+  from: string;
+  to: string;
+  label?: string;
+  props: Record<string, unknown>;
+  line: number;
 };
 
-/**
- * A `scene "title" { ... }` block — a named grouping of timeline events.
- * Start/end times are inclusive wall-clock seconds so renderers and
- * tooling can highlight the active chapter without re-walking events.
- */
-export type Chapter = {
+export type GroupDecl = {
+  id: string;
+  label?: string;
+  members: string[];
+  props: Record<string, unknown>;
+  line: number;
+};
+
+export type StyleDecl = {
   name: string;
-  startTime: number;
-  endTime: number;
-  startLine: number;
+  props: Record<string, unknown>;
+  line: number;
 };
 
-/**
- * A non-fatal parse issue. Renderers should surface these via
- * `onWarning` so the author can fix the underlying cause; the
- * renderer otherwise no-ops the offending statement.
- */
-export type ParseWarning = {
-  kind:
-    | "unknown-action"
-    | "unknown-modifier"
-    | "unknown-scene-key"
-    | "unknown-camera-action"
-    | "unknown-preset"
-    | "import-unresolved"
-    | "preset-mixed"
-    | "actor-count-threshold"
-    | "label-overflow";
+export type FlowSegment = {
+  from: string;
+  op: EdgeKind;
+  to: string;
+  label?: string;
+};
+
+export type Cue =
+  | { kind: "flow"; segments: FlowSegment[]; dur?: number; line: number }
+  | { kind: "show"; targets: string[]; stagger?: number; dur?: number; line: number }
+  | { kind: "hide"; targets: string[]; dur?: number; line: number }
+  | { kind: "glow"; targets: string[]; color?: string; strength?: number; dur?: number; line: number }
+  | { kind: "focus"; targets: string[]; zoom?: number; dur?: number; line: number }
+  | { kind: "use"; pattern: string; args: Record<string, string>; line: number }
+  | { kind: "parallel"; cues: Cue[]; line: number };
+
+export type BeatDecl = {
+  name: string;
+  label?: string;
+  cues: Cue[];
+  dur?: number;
+  line: number;
+};
+
+export type PatternDecl = {
+  name: string;
+  params: string[];
+  body: Cue[];
+  line: number;
+};
+
+export type Diagnostic = {
+  severity: "error" | "warning";
   message: string;
   line: number;
+  column?: number;
 };
 
-/**
- * An `import "path.markdy" as ns` declaration. Parsing records the
- * intent; the host (CLI, bundler) resolves the path and may supply
- * pre-parsed ASTs via the `parse(..., { imports })` option.
- */
-export type ImportDecl = {
-  path: string;
-  namespace: string;
-  line: number;
-};
-
-export type SceneAST = {
+export type DiagramAST = {
   meta: SceneMeta;
-  assets: Record<string, AssetDef>;
-  actors: Record<string, ActorDef>;
-  events: TimelineEvent[];
-  /** User-defined actor templates — kept in AST for tooling/inspection. */
-  defs: Record<string, TemplateDef>;
-  /** User-defined sequences — kept in AST for tooling/inspection. */
-  seqs: Record<string, SequenceDef>;
-  /** User-defined variables — kept in AST for tooling/inspection. */
-  vars: Record<string, string>;
-  /**
-   * Named actor groups, in declaration order, mapping group name to member
-   * actor names. Groups fan out into per-actor events at parse time, so the
-   * renderer never sees them — this is kept for tooling and inspection.
-   */
+  styles: Record<string, StyleDecl>;
+  nodes: Record<string, NodeDecl>;
+  edges: EdgeDecl[];
+  groups: Record<string, GroupDecl>;
+  patterns: Record<string, PatternDecl>;
+  beats: BeatDecl[];
+  diagnostics: Diagnostic[];
+};
+
+export type ThemeTokens = {
+  name: string;
+  canvas: string;
+  surface: string;
+  surfaceRaised: string;
+  border: string;
+  text: string;
+  textMuted: string;
+  gridMinor: string;
+  gridMajor: string;
+  vignette: string;
+  accent: string;
+  roles: Record<string, string>;
+  edges: Record<EdgeKind, string>;
+};
+
+export type PositionedNode = {
+  id: string;
+  kind: string;
+  role: string;
+  label: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  style?: Record<string, unknown>;
+  opacity: number;
+};
+
+export type RoutedEdge = {
+  id: string;
+  kind: EdgeKind;
+  from: string;
+  to: string;
+  label?: string;
+};
+
+export type TimedCue = {
+  start: number;
+  duration: number;
+  kind: "show" | "hide" | "flow" | "glow" | "focus";
+  targets: string[];
+  edgeId?: string;
+  segments?: FlowSegment[];
+  params: Record<string, unknown>;
+  beat: string;
+};
+
+export type BeatRange = {
+  name: string;
+  label?: string;
+  start: number;
+  end: number;
+};
+
+export type RenderPlan = {
+  meta: SceneMeta;
+  theme: ThemeTokens;
+  title: string;
+  nodes: PositionedNode[];
+  edges: RoutedEdge[];
+  cues: TimedCue[];
+  beats: BeatRange[];
   groups: Record<string, string[]>;
-  /** Named chapter blocks in author order. Empty when no chapters were used. */
-  chapters: Chapter[];
-  /** Soft parse issues. Always present; empty in the happy path. */
-  warnings: ParseWarning[];
-  /** `import` declarations in author order. Always present; empty when none were used. */
-  imports: ImportDecl[];
+  duration: number;
 };

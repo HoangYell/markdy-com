@@ -33,20 +33,23 @@ pnpm add @markdy/core
 
 ```typescript
 import { parse, ParseError } from "@markdy/core";
-import type { SceneAST } from "@markdy/core";
+import type { DiagramAST } from "@markdy/core";
 
 const source = `
-  scene width=600 height=300 bg=white
-  actor label = text("Hello") at (50, 130) size 40 opacity 0
-  @0.3: label.fade_in(dur=0.6)
+  scene "Request" theme=midnight
+  browser Web
+  service API
+  beat main:
+    show $nodes
+    Web -> API "GET /users"
 `;
 
 try {
-  const ast: SceneAST = parse(source);
+  const ast: DiagramAST = parse(source);
 
-  console.log(ast.meta);     // { width: 600, height: 300, fps: 30, bg: "white", duration: 0.9 }
-  console.log(ast.actors);   // { label: { type: "text", args: ["Hello"], x: 50, y: 130, ... } }
-  console.log(ast.events);   // [{ time: 0.3, actor: "label", action: "fade_in", ... }]
+  console.log(ast.meta);   // { width: 1280, height: 720, fps: 60, theme: "midnight", direction: "LR", title: "Request" }
+  console.log(ast.nodes);  // { Web: { kind: "browser", ... }, API: { kind: "service", ... } }
+  console.log(ast.beats);  // [{ name: "main", cues: [...] }]
 } catch (e) {
   if (e instanceof ParseError) {
     console.error(`Line ${e.line}: ${e.message}`);
@@ -58,15 +61,17 @@ try {
 
 | Export | Type | Description |
 |---|---|---|
-| `parse` | `(source: string) => SceneAST` | Parse MarkdyScript source into an AST |
+| `parse` | `(source, opts?) => DiagramAST` | Parse MarkdyScript source into a diagram AST |
+| `compile` | `(ast) => RenderPlan` | Lay out nodes, route edges, and schedule cues |
+| `parseAndCompile` | `(source) => { ast, plan }` | Parse and compile in one call |
 | `ParseError` | class | Error with `.line` number for diagnostics |
-| `SceneAST` | type | Complete scene representation |
-| `SceneMeta` | type | Scene configuration (width, height, bg, etc.) |
-| `AssetDef` | type | Asset declaration (image or icon) |
-| `ActorDef` | type | Actor declaration (type, position, modifiers) |
-| `TimelineEvent` | type | Timeline event (time, actor, action, params) |
-| `TemplateDef` | type | User-defined actor template |
-| `SequenceDef` | type | User-defined animation sequence |
+| `DiagramAST` | type | Parsed scene: meta, nodes, edges, groups, patterns, beats |
+| `RenderPlan` | type | Positioned nodes, routed edges, timed cues, beat ranges |
+| `SceneMeta` | type | Scene configuration (width, height, fps, theme, direction) |
+| `NodeDecl` | type | Node declaration (kind, id, label, style) |
+| `EdgeDecl` | type | Edge declaration (kind, from, to, label) |
+| `BeatDecl` | type | Named beat with cues |
+| `THEMES` / `resolveTheme` | tokens | Semantic theme palettes (`midnight`, `paper`) |
 
 ## Documentation
 

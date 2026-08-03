@@ -2,15 +2,20 @@
 import { Markdy } from "@markdy/astro";
 
 const code = `
-scene width=800 height=400 bg=#1e1e2e
+scene "Markdy + Astro" theme=midnight width=800 height=400
+layout LR
 
-actor hero = figure(#c68642, m, 😎) at (200, 200) scale 1.5
-actor subtitle = text("Declarative Animations in Astro.") at (400, 50) size 30 opacity 0 color white
+browser Browser
+service API "API Server"
+database DB "Postgres"
 
-@0.5: hero.enter(from=left, dur=1.0, ease=out)
-@1.5: hero.say("Look, no GSAP!", dur=2.0)
-@2.0: subtitle.fade_in(dur=1.0)
-@3.5: hero.face("🤯")
+beat request:
+  show $nodes stagger=80ms
+  Browser -> API "GET /data" -> DB "query"
+
+beat response:
+  DB -> API "rows" & glow API color=#38bdf8
+  Browser <- API "200 OK"
 `;
 ---
 
@@ -26,9 +31,10 @@ actor subtitle = text("Declarative Animations in Astro.") at (400, 50) size 30 o
   </head>
   <body>
     <h1>Markdy + Astro Sandbox</h1>
-    <p>Wait for the component to hydrate and see the animation run globally!</p>
+    <p>Wait for the component to hydrate and see the animated diagram run!</p>
     <div class="container">
-      <Markdy code={code} width={800} height={400} bg="#1e1e2e" autoplay />
+      <Markdy code={code} width={800} height={400} bg="#07111f" autoplay />
     </div>
   </body>
 </html>
+

@@ -1,0 +1,12 @@
+scene "Flow Operators" theme=midnight
+
+client Web
+service API
+database DB
+queue Queue
+
+beat flows:
+  Web -> API "request"
+  API <- Web "response"
+  API ~> Queue "event"
+  API -- DB "dependency"

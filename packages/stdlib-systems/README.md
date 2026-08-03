@@ -1,15 +1,20 @@
 # @markdy/stdlib-systems
 
-System actor/action pack for Markdy.
+The system-diagram vocabulary for MarkdyScript.
+
+As of MarkdyScript 0.8 the node vocabulary ships inside `@markdy/core`, so there
+is **no registration step** — every node kind below is available out of the box.
+This package re-exports that vocabulary and a `systemsPack` manifest for tooling
+that wants a single import listing every supported node type and flow action.
 
 ```ts
-import { registerActorPack } from "@markdy/core";
-import { systemsPack } from "@markdy/stdlib-systems";
+import { systemsPack, SYSTEM_NODE_TYPES, SYSTEM_FLOW_ACTIONS } from "@markdy/stdlib-systems";
 
-registerActorPack(systemsPack);
+systemsPack.nodes;    // every supported node type
+systemsPack.actions;  // ["request", "response", "event", "dependency"]
 ```
 
-Adds actor types:
+Node types:
 
 Architecture / technical nodes:
 - Compute/backend: `service`, `api`, `microservice`, `backend`, `server`, `worker`, `job`, `scheduler`, `cron`, `batch`, `function`, `lambda`, `edge`, `controller`, `handler`, `repository`, `runtime`, `process`
@@ -35,17 +40,19 @@ Generic visual primitives:
 - `chips` (`token_strip` alias)
 - `glyph` (`glyph_card` alias)
 
-Adds actions:
-- `.request(to=..., label=..., dur=...)`
-- `.response(to=..., label=..., dur=...)`
-- `.emit(to=..., label=..., dur=...)`
+Flow operators (from `@markdy/core`):
+- `->` request
+- `<-` response
+- `~>` event
+- `--` dependency
 
 ## Package position (text)
 
 ```text
-@markdy/stdlib-systems -> registerActorPack(...) -> @markdy/core
+@markdy/stdlib-systems re-exports the node vocabulary from @markdy/core
 
-Adds reusable system actors/actions without changing core parser internals.
+The vocabulary is built into the core parser — this package is a convenience
+re-export and manifest, not a runtime registration step.
 ```
 
 ## Output preview

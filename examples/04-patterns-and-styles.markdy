@@ -1,0 +1,20 @@
+// Patterns are reusable cue templates expanded with `use`.
+// $params are substituted at the call site. `style` themes a node.
+scene "Patterns And Styles" theme=paper
+layout TB
+
+style hot = fill=#f59e0b
+
+service API
+database Primary "Primary DB" style=hot
+database Replica "Read Replica"
+
+pattern replicate(leader, follower):
+  $leader -> $follower "stream WAL"
+  $leader <- $follower "ack"
+
+beat main:
+  show $nodes stagger=90ms
+  API -> Primary "write"
+  use replicate(Primary, Replica)
+  API -> Replica "read"

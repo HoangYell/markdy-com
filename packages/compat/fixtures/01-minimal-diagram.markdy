@@ -1,0 +1,9 @@
+scene "Minimal Diagram" theme=midnight
+layout LR
+
+browser Client
+service API
+
+beat intro:
+  show $nodes
+  Client -> API "GET /health"

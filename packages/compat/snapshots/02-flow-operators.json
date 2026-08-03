@@ -1,0 +1,101 @@
+{
+  "beats": [
+    {
+      "cues": [
+        {
+          "kind": "flow",
+          "line": 9,
+          "segments": [
+            {
+              "from": "Web",
+              "label": "request",
+              "op": "request",
+              "to": "API"
+            }
+          ]
+        },
+        {
+          "kind": "flow",
+          "line": 10,
+          "segments": [
+            {
+              "from": "Web",
+              "label": "response",
+              "op": "response",
+              "to": "API"
+            }
+          ]
+        },
+        {
+          "kind": "flow",
+          "line": 11,
+          "segments": [
+            {
+              "from": "API",
+              "label": "event",
+              "op": "event",
+              "to": "Queue"
+            }
+          ]
+        },
+        {
+          "kind": "flow",
+          "line": 12,
+          "segments": [
+            {
+              "from": "API",
+              "label": "dependency",
+              "op": "dependency",
+              "to": "DB"
+            }
+          ]
+        }
+      ],
+      "line": 8,
+      "name": "flows"
+    }
+  ],
+  "diagnostics": [],
+  "edges": [],
+  "groups": {},
+  "meta": {
+    "direction": "LR",
+    "fps": 60,
+    "height": 720,
+    "theme": "midnight",
+    "title": "Flow Operators",
+    "width": 1280
+  },
+  "nodes": {
+    "API": {
+      "id": "API",
+      "kind": "service",
+      "label": "API",
+      "line": 4,
+      "props": {}
+    },
+    "DB": {
+      "id": "DB",
+      "kind": "database",
+      "label": "DB",
+      "line": 5,
+      "props": {}
+    },
+    "Queue": {
+      "id": "Queue",
+      "kind": "queue",
+      "label": "Queue",
+      "line": 6,
+      "props": {}
+    },
+    "Web": {
+      "id": "Web",
+      "kind": "client",
+      "label": "Web",
+      "line": 3,
+      "props": {}
+    }
+  },
+  "patterns": {},
+  "styles": {}
+}

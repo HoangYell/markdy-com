@@ -1,0 +1,15 @@
+scene "Groups And Patterns" theme=midnight
+layout LR
+
+service API
+database DB
+cache Redis
+
+group storage: DB Redis
+
+pattern lookup(client, store):
+  $client -> $store "lookup"
+  $client <- $store "result"
+
+beat main:
+  use lookup(API, DB)

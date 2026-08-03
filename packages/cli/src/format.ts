@@ -1,184 +1,138 @@
-import type { ActorDef, Chapter, ImportDecl, SceneAST, SequenceDef, TemplateDef, TimelineEvent } from "@markdy/core";
+import type { BeatDecl, Cue, DiagramAST, GroupDecl, NodeDecl, StyleDecl } from "@markdy/core";
 
-const BARE_TOKEN_RE = /^[\p{L}\p{N}_.$#/+:-]+$/u;
-const MODIFIER_KEYS = ["scale", "rotate", "opacity", "size", "z"] as const;
+export function formatScene(ast: DiagramAST): string {
+  const lines: string[] = [];
 
-export function formatScene(ast: SceneAST): string {
-  const sections: string[] = [];
+  const sceneParts = [`scene`];
+  if (ast.meta.title) sceneParts.push(JSON.stringify(ast.meta.title));
+  sceneParts.push(`theme=${ast.meta.theme}`);
+  if (ast.meta.width !== 1280) sceneParts.push(`width=${ast.meta.width}`);
+  if (ast.meta.height !== 720) sceneParts.push(`height=${ast.meta.height}`);
+  if (ast.meta.fps !== 60) sceneParts.push(`fps=${ast.meta.fps}`);
+  if (ast.meta.duration !== undefined) sceneParts.push(`duration=${ast.meta.duration}`);
+  lines.push(sceneParts.join(" "));
 
-  sections.push(formatSceneHeader(ast));
-
-  const vars = Object.entries(ast.vars);
-  if (vars.length > 0) {
-    sections.push(vars.map(([name, value]) => `var ${name} = ${value}`).join("\n"));
+  if (ast.meta.direction !== "LR") {
+    lines.push(`layout ${ast.meta.direction}`);
   }
 
-  if (ast.imports.length > 0) {
-    sections.push(ast.imports.map(formatImportDecl).join("\n"));
+  for (const style of Object.values(ast.styles)) {
+    lines.push(formatStyle(style));
   }
 
-  const assets = Object.entries(ast.assets);
-  if (assets.length > 0) {
-    sections.push(
-      assets
-        .map(([name, def]) => `asset ${name} = ${def.type}(${formatToken(def.value)})`)
-        .join("\n"),
-    );
+  for (const node of Object.values(ast.nodes)) {
+    lines.push(formatNode(node));
   }
 
-  const actors = Object.entries(ast.actors);
-  if (actors.length > 0) {
-    sections.push(actors.map(([name, actor]) => formatActorDecl(name, actor)).join("\n"));
+  for (const edge of ast.edges) {
+    lines.push(formatEdge(edge));
   }
 
-  const defs = Object.entries(ast.defs);
-  if (defs.length > 0) {
-    sections.push(defs.map(([name, def]) => formatTemplateDef(name, def)).join("\n\n"));
+  for (const group of Object.values(ast.groups)) {
+    lines.push(formatGroup(group));
   }
 
-  const seqs = Object.entries(ast.seqs);
-  if (seqs.length > 0) {
-    sections.push(seqs.map(([name, seq]) => formatSequenceDef(name, seq)).join("\n\n"));
+  for (const pattern of Object.values(ast.patterns)) {
+    lines.push(`pattern ${pattern.name}(${pattern.params.join(", ")}):`);
+    for (const cue of pattern.body) {
+      lines.push(`  ${formatCue(cue)}`);
+    }
+    lines.push("");
   }
 
-  const timeline = formatTimeline(ast);
-  if (timeline) {
-    sections.push(timeline);
+  for (const beat of ast.beats) {
+    lines.push(formatBeat(beat));
+    lines.push("");
   }
 
-  return `${sections.filter(Boolean).join("\n\n")}\n`;
+  return `${lines.join("\n").trim()}\n`;
 }
 
-function formatSceneHeader(ast: SceneAST): string {
-  const parts = [
-    `scene width=${formatNumber(ast.meta.width)}`,
-    `height=${formatNumber(ast.meta.height)}`,
-    `fps=${formatNumber(ast.meta.fps)}`,
-    `bg=${ast.meta.bg}`,
-  ];
-  if (ast.meta.duration !== undefined) {
-    parts.push(`duration=${formatNumber(ast.meta.duration)}`);
+function formatStyle(style: StyleDecl): string {
+  const props = Object.entries(style.props)
+    .map(([k, v]) => `${k}=${formatValue(v)}`)
+    .join(" ");
+  return `style ${style.name} = ${props}`;
+}
+
+function formatNode(node: NodeDecl): string {
+  let line = `${node.kind} ${node.id}`;
+  if (node.label !== node.id && node.label) line += ` ${JSON.stringify(node.label)}`;
+  if (node.style) line += ` style=${node.style}`;
+  return line;
+}
+
+function formatEdge(edge: { id: string; kind: string; from: string; to: string; label?: string }): string {
+  const op = edge.kind === "request" ? "->" : edge.kind === "response" ? "<-" : edge.kind === "event" ? "~>" : "--";
+  // Response edges are stored reversed (data-flow direction); print in source order.
+  const [left, right] = edge.kind === "response" ? [edge.to, edge.from] : [edge.from, edge.to];
+  let chain = `${left} ${op} ${right}`;
+  if (edge.label) chain += ` ${JSON.stringify(edge.label)}`;
+  return `edge ${edge.id}: ${chain}`;
+}
+
+function formatGroup(group: GroupDecl): string {
+  const label = group.label ? ` ${JSON.stringify(group.label)}` : "";
+  return `group ${group.id}${label}: ${group.members.join(" ")}`;
+}
+
+function formatBeat(beat: BeatDecl): string {
+  const label = beat.label ? ` ${JSON.stringify(beat.label)}` : "";
+  const lines = [`beat ${beat.name}${label}:`];
+  for (const cue of beat.cues) {
+    lines.push(`  ${formatCue(cue)}`);
   }
-  return parts.join(" ");
+  return lines.join("\n");
 }
 
-function formatImportDecl(decl: ImportDecl): string {
-  return `import ${JSON.stringify(decl.path)} as ${decl.namespace}`;
-}
-
-function formatActorDecl(name: string, actor: ActorDef): string {
-  const ctor = `${actor.type}(${actor.args.map(formatToken).join(", ")})`;
-  const position = actor.anchor
-    ? `at ${actor.anchor}`
-    : `at (${formatNumber(actor.x)}, ${formatNumber(actor.y)})`;
-
-  const modifiers = MODIFIER_KEYS
-    .flatMap((key) => {
-      const value = actor[key];
-      return value === undefined ? [] : [`${key}=${formatNumber(value)}`];
-    })
-    .join(", ");
-
-  return modifiers.length > 0
-    ? `actor ${name} = ${ctor} ${position} with ${modifiers}`
-    : `actor ${name} = ${ctor} ${position}`;
-}
-
-function formatTemplateDef(name: string, def: TemplateDef): string {
-  const args = def.bodyArgs.map(formatTemplateArg).join(", ");
-  return `def ${name}(${def.params.join(", ")}) {\n  ${def.actorType}(${args})\n}`;
-}
-
-function formatTemplateArg(arg: string): string {
-  return arg.startsWith("${") && arg.endsWith("}") ? arg : formatToken(arg);
-}
-
-function formatSequenceDef(name: string, seq: SequenceDef): string {
-  const lines = seq.events.map((event) => {
-    const params = event.paramsRaw.trim();
-    const suffix = params ? `(${params})` : "()";
-    return `  @+${formatNumber(event.offset)}: $.${event.action}${suffix}`;
-  });
-  return `seq ${name}(${seq.params.join(", ")}) {\n${lines.join("\n")}\n}`;
-}
-
-function formatTimeline(ast: SceneAST): string {
-  if (ast.events.length === 0 && ast.chapters.length === 0) {
-    return "";
+function formatCue(cue: Cue): string {
+  if (cue.kind === "parallel") {
+    return cue.cues.map(formatCue).join(" & ");
   }
-
-  const blocks: Array<{ line: number; text: string }> = [];
-  const topLevelEvents = ast.events.filter((event) => event.chapter === undefined);
-
-  for (const event of topLevelEvents) {
-    blocks.push({ line: event.line, text: formatEvent(event) });
+  if (cue.kind === "flow") {
+    let chain = "";
+    for (let i = 0; i < cue.segments.length; i++) {
+      const seg = cue.segments[i];
+      const op = seg.op === "request" ? "->" : seg.op === "response" ? "<-" : seg.op === "event" ? "~>" : "--";
+      // Response edges are stored reversed (data-flow direction); print in source order.
+      const [left, right] = seg.op === "response" ? [seg.to, seg.from] : [seg.from, seg.to];
+      if (i === 0) chain += left;
+      chain += ` ${op} ${right}`;
+      if (seg.label) chain += ` ${JSON.stringify(seg.label)}`;
+    }
+    if (cue.dur !== undefined) chain += ` dur=${cue.dur}s`;
+    return chain;
   }
-
-  const chaptersByLine = [...ast.chapters].sort((a, b) => a.startLine - b.startLine);
-  for (let index = 0; index < chaptersByLine.length; index++) {
-    const chapter = chaptersByLine[index];
-    const nextStartLine = chaptersByLine[index + 1]?.startLine ?? Number.POSITIVE_INFINITY;
-    const events = ast.events
-      .filter(
-        (event) =>
-          event.chapter === chapter.name &&
-          event.line > chapter.startLine &&
-          event.line < nextStartLine,
-      )
-      .sort((a, b) => a.line - b.line);
-    blocks.push({ line: chapter.startLine, text: formatChapter(chapter, events) });
+  if (cue.kind === "show" || cue.kind === "hide") {
+    let line = `${cue.kind} ${cue.targets.join(" ")}`;
+    if (cue.kind === "show" && cue.stagger !== undefined) line += ` stagger=${cue.stagger}s`;
+    if (cue.dur !== undefined) line += ` dur=${cue.dur}s`;
+    return line;
   }
-
-  return blocks
-    .sort((a, b) => a.line - b.line)
-    .map((block) => block.text)
-    .join("\n\n");
+  if (cue.kind === "glow") {
+    let line = `glow ${cue.targets.join(" ")}`;
+    if (cue.color) line += ` color=${cue.color}`;
+    if (cue.strength !== undefined) line += ` strength=${cue.strength}`;
+    if (cue.dur !== undefined) line += ` dur=${cue.dur}s`;
+    return line;
+  }
+  if (cue.kind === "focus") {
+    let line = `focus ${cue.targets.join(" ")}`;
+    if (cue.zoom !== undefined) line += ` zoom=${cue.zoom}`;
+    if (cue.dur !== undefined) line += ` dur=${cue.dur}s`;
+    return line;
+  }
+  if (cue.kind === "use") {
+    const args = Object.entries(cue.args)
+      .map(([k, v]) => (k.startsWith("__pos_") ? v : `${k}=${v}`))
+      .join(", ");
+    return `use ${cue.pattern}(${args})`;
+  }
+  return "";
 }
 
-function formatChapter(chapter: Chapter, events: TimelineEvent[]): string {
-  const body = events.length > 0
-    ? `\n${events.map((event) => `  ${formatEvent(event)}`).join("\n")}\n`
-    : "\n";
-  return `scene ${JSON.stringify(chapter.name)} {${body}}`;
-}
-
-function formatEvent(event: TimelineEvent): string {
-  const params = Object.entries(event.params)
-    .map(([key, value]) => `${key}=${formatParamValue(value)}`)
-    .join(", ");
-  return `@${formatNumber(event.time)}: ${event.actor}.${event.action}(${params})`;
-}
-
-function formatParamValue(value: unknown): string {
-  if (Array.isArray(value)) {
-    return `(${value.map(formatTupleValue).join(", ")})`;
-  }
-  if (typeof value === "number") {
-    return formatNumber(value);
-  }
-  if (typeof value === "string") {
-    return formatToken(value);
-  }
-  if (typeof value === "boolean") {
-    return value ? "true" : "false";
-  }
+function formatValue(value: unknown): string {
+  if (typeof value === "number") return String(value);
+  if (typeof value === "string") return value;
   return JSON.stringify(value);
-}
-
-function formatTupleValue(value: unknown): string {
-  if (typeof value === "number") return formatNumber(value);
-  if (typeof value === "string") return formatToken(value);
-  return JSON.stringify(value);
-}
-
-function formatToken(value: string): string {
-  return BARE_TOKEN_RE.test(value) ? value : JSON.stringify(value);
-}
-
-function formatNumber(value: number): string {
-  return Number.isInteger(value) ? String(value) : String(round3(value));
-}
-
-function round3(value: number): number {
-  return Math.round(value * 1000) / 1000;
 }

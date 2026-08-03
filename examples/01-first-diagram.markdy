@@ -1,0 +1,15 @@
+// First diagram — declare nodes and connect them with a flow.
+// Node syntax: <kind> <Id> ["Label"]. Omit the label to reuse the id.
+scene "First Diagram" theme=midnight
+layout LR
+
+browser Browser
+service API "API Server"
+database DB "Postgres"
+
+// A beat groups animated cues. `show $nodes` reveals every node,
+// then the flow chain draws request edges left to right.
+beat main:
+  show $nodes stagger=80ms
+  Browser -> API "GET /users" -> DB "query"
+  Browser <- API "200 OK"
