@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] — 2026-08-03
+
+### Fixed
+- **Flow-label overlap (`@markdy/renderer-dom`)** — Parallel edges between the same node pair now separate into lanes, and edge labels are placed to avoid node boxes and already-placed labels (with a halo for legibility), so dense diagrams stay readable.
+- **Playground editor initialization** — Fixed a missing editor-theme import that left the homepage playground blank (`baseTheme is not defined`).
+
+### Changed
+- Refreshed package descriptions/keywords and site metadata for the diagram-native positioning (animated architecture & system diagrams), and added a `/blog/` article cluster for discoverability.
+
 ## [0.8.0] — 2026-08-03
 
 ### Changed

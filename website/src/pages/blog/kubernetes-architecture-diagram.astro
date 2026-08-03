@@ -1,0 +1,97 @@
+---
+/*
+  SEO BRIEF — use-case article: Kubernetes architecture diagrams
+  Target keywords: kubernetes architecture diagram, k8s diagram, kubernetes
+    diagram tool, kubernetes diagram as code, animated kubernetes diagram
+  Search intent: use-case — engineers documenting or presenting a Kubernetes
+    cluster who want an as-code, animated diagram.
+  Meta title: Animated Kubernetes Architecture Diagrams as Code | Markdy
+  Meta description: Draw Kubernetes architecture diagrams as code and animate the
+    request path — ingress, services, pods, and deployments — in the browser.
+*/
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+
+const canonicalURL = "https://markdy.com/blog/kubernetes-architecture-diagram/";
+const structuredData = [
+  {
+    "@type": "BlogPosting",
+    "@id": `${canonicalURL}#article`,
+    headline: "Animated Kubernetes Architecture Diagrams as Code",
+    description:
+      "Draw Kubernetes architecture diagrams as code with Markdy and animate the request path through ingress, services, pods, and deployments.",
+    inLanguage: "en",
+    url: canonicalURL,
+    mainEntityOfPage: canonicalURL,
+    isPartOf: { "@id": "https://markdy.com/#website" },
+    about: { "@id": "https://markdy.com/#software" },
+    author: { "@id": "https://markdy.com/#hoang-yell" },
+    publisher: { "@id": "https://markdy.com/#organization" },
+    keywords: "kubernetes architecture diagram, k8s diagram, kubernetes diagram tool, kubernetes diagram as code",
+  },
+];
+---
+
+<ArticleLayout
+  title="Animated Kubernetes Architecture Diagrams as Code | Markdy"
+  description="Draw Kubernetes architecture diagrams as code and animate the request path — ingress, services, pods, and deployments — in the browser with Markdy."
+  keywords="kubernetes architecture diagram, k8s diagram, kubernetes diagram tool, kubernetes diagram as code, animated kubernetes diagram"
+  canonicalURL={canonicalURL}
+  headline="Animated Kubernetes Architecture Diagrams as Code"
+  dek="Kubernetes topology is hard to show in a static box-and-line picture. Script it in text and let the request path animate through ingress, services, and pods."
+  structuredData={structuredData}
+>
+  <p>
+    Explaining a <strong>Kubernetes</strong> cluster with a static diagram usually means a wall of boxes nobody
+    reads. <strong>Markdy</strong> ships a first-class Kubernetes vocabulary, so you can describe the cluster in
+    plain text and animate how a request actually travels through it.
+  </p>
+
+  <h2>Kubernetes node kinds</h2>
+  <p>These are built into the language — no plugins, no icon packs to manage:</p>
+  <ul>
+    <li><code>cluster</code>, <code>namespace</code>, <code>node</code></li>
+    <li><code>ingress</code>, <code>service</code>, <code>load_balancer</code>, <code>gateway</code></li>
+    <li><code>pod</code>, <code>deployment</code>, <code>replicaset</code>, <code>statefulset</code>, <code>daemonset</code></li>
+    <li><code>configmap</code>, <code>pvc</code>, <code>sidecar</code>, <code>service_mesh</code></li>
+    <li>Aliases like <code>k8s</code> → <code>cluster</code> and <code>lb</code> → <code>load_balancer</code></li>
+  </ul>
+
+  <h2>An animated cluster request path</h2>
+  <pre><code>scene "Kubernetes request path" theme=midnight
+layout LR
+
+client User
+load_balancer LB "Cloud LB"
+ingress Ingress "NGINX Ingress"
+service Svc "orders Service"
+pod PodA "orders pod 1"
+pod PodB "orders pod 2"
+database DB "Postgres"
+
+group pods: PodA PodB
+
+beat topology:
+  show $nodes stagger=60ms
+
+beat request:
+  User -&gt; LB "HTTPS" -&gt; Ingress "route /orders" -&gt; Svc
+  Svc -&gt; PodA "load-balanced" &amp; Svc -&gt; PodB "load-balanced"
+  PodA -&gt; DB "query"
+
+beat highlight:
+  glow pods color=#38bdf8</code></pre>
+  <p>
+    Reveal the topology first, then play the hop from load balancer to ingress to service to pods to the database.
+    Because the layout and edge routing are automatic, adding a pod or a sidecar is a one-line change — perfect for
+    keeping the diagram accurate as the manifests evolve.
+  </p>
+
+  <h2>Great for runbooks, RFCs, and talks</h2>
+  <p>
+    Drop the scene into your <a href="/blog/animated-diagrams-astro-mdx/">Astro or MDX docs</a> so the cluster
+    diagram lives next to the manifests and updates in the same PR — real
+    <a href="/blog/animated-diagrams-as-code/">diagrams as code</a>. For a broader systems example, see
+    <a href="/blog/system-design-diagrams/">animated system design diagrams</a>, or open this one in the
+    <a href="/#playground">playground</a> and tweak it.
+  </p>
+</ArticleLayout>

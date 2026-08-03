@@ -1,0 +1,110 @@
+---
+/*
+  SEO BRIEF — pillar/guide article: Diagram as code
+  Target keywords: diagram as code, diagrams as code, what is diagram as code,
+    diagram as code tools, architecture diagram as code
+  Search intent: informational (pillar) — developers researching the diagram-as-
+    code approach and the tool landscape; links out to comparison/use-case spokes.
+  Meta title: Diagram as Code: The Complete Guide (2026) | Markdy
+  Meta description: What diagram as code is, why teams adopt it, the main tools
+    (Mermaid, PlantUML, D2, Graphviz, Markdy), and how to add motion. A 2026 guide.
+*/
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+
+const canonicalURL = "https://markdy.com/blog/diagram-as-code-guide/";
+const structuredData = [
+  {
+    "@type": "BlogPosting",
+    "@id": `${canonicalURL}#article`,
+    headline: "Diagram as Code: The Complete Guide (2026)",
+    description:
+      "What diagram as code is, why teams adopt it, the main tools (Mermaid, PlantUML, D2, Graphviz, Markdy), and how to add motion with animated diagrams.",
+    inLanguage: "en",
+    url: canonicalURL,
+    mainEntityOfPage: canonicalURL,
+    isPartOf: { "@id": "https://markdy.com/#website" },
+    about: { "@id": "https://markdy.com/#software" },
+    author: { "@id": "https://markdy.com/#hoang-yell" },
+    publisher: { "@id": "https://markdy.com/#organization" },
+    keywords: "diagram as code, diagrams as code, what is diagram as code, diagram as code tools",
+  },
+];
+---
+
+<ArticleLayout
+  title="Diagram as Code: The Complete Guide (2026) | Markdy"
+  description="What diagram as code is, why teams adopt it, the main tools (Mermaid, PlantUML, D2, Graphviz, Markdy), and how to add motion with animated diagrams."
+  keywords="diagram as code, diagrams as code, what is diagram as code, diagram as code tools, architecture diagram as code"
+  canonicalURL={canonicalURL}
+  headline="Diagram as Code: The Complete Guide"
+  dek="Why teams describe architecture in text instead of dragging boxes, the tools that make it work, and where animation fits."
+  structuredData={structuredData}
+>
+  <p>
+    <strong>Diagram as code</strong> means describing a diagram in a plain-text language and generating the picture
+    from it, instead of drawing it by hand in a GUI. The diagram lives in your repository, changes in pull requests,
+    and never drifts out of sync with the system it documents. This guide covers what it is, why it wins, the main
+    tools, and how <strong>animation</strong> takes it further.
+  </p>
+
+  <h2>Why diagram as code?</h2>
+  <ul>
+    <li><strong>Versioned.</strong> Diagrams live in git next to the code, with a full history and readable diffs.</li>
+    <li><strong>Reviewable.</strong> A diagram change is a text change in a PR — not a re-exported binary image.</li>
+    <li><strong>Always current.</strong> Update the diagram in the same commit as the system.</li>
+    <li><strong>Automatable.</strong> Generate, lint, and render diagrams in CI; let AI agents draft and revise them.</li>
+    <li><strong>Portable.</strong> Plain text — no proprietary file format or per-seat license.</li>
+  </ul>
+
+  <h2>The main diagram-as-code tools</h2>
+  <table>
+    <thead><tr><th>Tool</th><th>Strength</th><th>Output</th></tr></thead>
+    <tbody>
+      <tr><td>Mermaid</td><td>Ubiquitous; built into GitHub/GitLab</td><td>Static SVG</td></tr>
+      <tr><td>PlantUML</td><td>Comprehensive UML</td><td>Static image</td></tr>
+      <tr><td>D2</td><td>Modern layouts, polished architecture diagrams</td><td>Static SVG</td></tr>
+      <tr><td>Graphviz</td><td>Graph layout primitives (DOT)</td><td>Static image</td></tr>
+      <tr><td>Markdy</td><td>Animation, narration, architecture vocabulary</td><td>Animated, seekable scene</td></tr>
+    </tbody>
+  </table>
+  <p>
+    For static charts, Mermaid is the default for a reason. For a comparison focused on motion, see
+    <a href="/blog/markdy-vs-mermaid/">Markdy vs Mermaid</a> and
+    <a href="/blog/mermaid-alternative/">the best Mermaid alternative</a>.
+  </p>
+
+  <h2>The next step: animated diagrams as code</h2>
+  <p>
+    A static picture shows structure; an animated one shows <em>behavior</em> — the order of calls, the fan-out to a
+    queue, the cache-miss fallback. <a href="/blog/animated-diagrams-as-code/">Markdy adds motion to diagram as
+    code</a> using the <a href="/blog/browser-native-diagram-animation/">browser-native Web Animations API</a>, so
+    the diagram plays in any page without Canvas, GSAP, or a video export.
+  </p>
+  <pre><code>scene "Request path" theme=midnight
+layout LR
+
+browser Web
+service API
+database DB
+
+beat main:
+  show $nodes stagger=80ms
+  Web -&gt; API "GET /users" -&gt; DB "query"
+  Web &lt;- API "200 OK"</code></pre>
+
+  <h2>How to start</h2>
+  <ol>
+    <li>Sketch a scene in the <a href="/#playground">playground</a> — no install.</li>
+    <li>Learn the grammar in the <a href="/docs/">docs</a> or the <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md" target="_blank" rel="noopener noreferrer">agent guide</a>.</li>
+    <li>Commit the <code>.markdy</code> file and render it in your app, <a href="/blog/animated-diagrams-astro-mdx/">Astro, or MDX</a>.</li>
+    <li>Lint diagrams in CI with <code>markdy lint</code> so a broken diagram fails the build.</li>
+  </ol>
+
+  <h2>Common use cases</h2>
+  <ul>
+    <li><a href="/blog/system-design-diagrams/">System design &amp; microservices diagrams</a></li>
+    <li><a href="/blog/kubernetes-architecture-diagram/">Kubernetes architecture diagrams</a></li>
+    <li><a href="/blog/animated-sequence-diagrams/">Animated sequence diagrams</a></li>
+    <li><a href="/blog/ai-generated-architecture-diagrams/">AI-generated architecture diagrams</a></li>
+  </ul>
+</ArticleLayout>

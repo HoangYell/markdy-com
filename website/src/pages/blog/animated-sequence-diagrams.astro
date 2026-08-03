@@ -1,0 +1,98 @@
+---
+/*
+  SEO BRIEF — use-case/how-to article: Animated sequence diagrams
+  Target keywords: animated sequence diagram, sequence diagram animation,
+    sequence diagram as code, animated sequence diagram tool
+  Search intent: how-to — developers who want a sequence diagram that animates
+    the request/response order rather than a static ladder.
+  Meta title: How to Make Animated Sequence Diagrams as Code | Markdy
+  Meta description: Build animated sequence diagrams as code. Use Markdy beats and
+    flow operators to reveal request/response steps in order, in the browser.
+*/
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+
+const canonicalURL = "https://markdy.com/blog/animated-sequence-diagrams/";
+const structuredData = [
+  {
+    "@type": "BlogPosting",
+    "@id": `${canonicalURL}#article`,
+    headline: "How to Make Animated Sequence Diagrams as Code",
+    description:
+      "Build animated sequence diagrams as code with Markdy — reveal participants, then play request/response/event steps in order over a timeline.",
+    inLanguage: "en",
+    url: canonicalURL,
+    mainEntityOfPage: canonicalURL,
+    isPartOf: { "@id": "https://markdy.com/#website" },
+    about: { "@id": "https://markdy.com/#software" },
+    author: { "@id": "https://markdy.com/#hoang-yell" },
+    publisher: { "@id": "https://markdy.com/#organization" },
+    keywords: "animated sequence diagram, sequence diagram animation, sequence diagram as code",
+  },
+];
+---
+
+<ArticleLayout
+  title="How to Make Animated Sequence Diagrams as Code | Markdy"
+  description="Build animated sequence diagrams as code. Use Markdy beats and flow operators to reveal request/response steps in order, animated in the browser."
+  keywords="animated sequence diagram, sequence diagram animation, sequence diagram as code, animated sequence diagram tool, request response diagram"
+  canonicalURL={canonicalURL}
+  headline="How to Make Animated Sequence Diagrams as Code"
+  dek="A sequence diagram is a story about order. Markdy lets you play that story — reveal the participants, then trace each request and response in time."
+  structuredData={structuredData}
+>
+  <p>
+    A sequence diagram answers "what calls what, and in what order?" Static tools draw the whole ladder at once,
+    which buries the very thing you're trying to explain: the <em>order</em>. With <strong>Markdy</strong> you script
+    the steps as a timeline, so each call and return appears when it happens.
+  </p>
+
+  <h2>1. Declare the participants</h2>
+  <p>Sequence "participants" are just nodes. Use whatever kind fits — <code>client</code>, <code>service</code>, <code>database</code>, <code>auth</code>:</p>
+  <pre><code>scene "Login sequence" theme=midnight
+layout LR
+
+client User
+service API "Auth API"
+auth OIDC "OIDC Provider"
+database DB "User DB"</code></pre>
+
+  <h2>2. Reveal them, then play the calls</h2>
+  <p>
+    Wrap the flow in a <code>beat</code>. Use <code>-&gt;</code> for a request and <code>&lt;-</code> for a response
+    (Markdy draws the response back toward the caller). Each line animates in order:
+  </p>
+  <pre><code>beat login:
+  show $nodes stagger=80ms
+  User -&gt; API "POST /login"
+  API -&gt; OIDC "verify token"
+  API &lt;- OIDC "claims"
+  API -&gt; DB "load profile"
+  API &lt;- DB "user row"
+  User &lt;- API "session cookie"</code></pre>
+  <p>
+    That reads top-to-bottom like a classic sequence diagram, but it <em>plays</em> — the request travels, the
+    response returns, and a labeled pulse follows each edge.
+  </p>
+
+  <h2>3. Emphasize the important step</h2>
+  <p>Split phases into separate beats and add emphasis with <code>glow</code> or <code>focus</code>:</p>
+  <pre><code>beat highlight:
+  glow OIDC color=#f59e0b &amp; focus API zoom=1.1</code></pre>
+
+  <h2>Async steps and fan-out</h2>
+  <p>
+    Not every call is synchronous. Use <code>~&gt;</code> for an event/publish and <code>&amp;</code> to run two steps
+    together — handy for fan-out to a queue while you also write to a database:
+  </p>
+  <pre><code>beat write:
+  API -&gt; DB "persist" &amp; API ~&gt; Events "user.created"</code></pre>
+
+  <h2>Why animate a sequence at all?</h2>
+  <p>
+    Because comprehension follows attention. In a talk, a launch post, or onboarding docs, revealing one step at a
+    time keeps the reader with you. It's the same <a href="/blog/animated-diagrams-as-code/">diagram-as-code</a>
+    workflow — reviewable in PRs, and <a href="/blog/ai-generated-architecture-diagrams/">easy for an AI to draft</a>.
+    Try the login example above in the <a href="/#playground">playground</a>, then read the
+    <a href="/docs/">docs</a> for the full cue reference.
+  </p>
+</ArticleLayout>
