@@ -17,6 +17,7 @@ import {
 import type { Rect } from "../src/geometry/rect.js";
 import {
   labelPointForPath,
+  placeFlowLabel,
   pointAtDistance,
   polylineLength,
   round1,
@@ -25,6 +26,36 @@ import {
 } from "../src/geometry/path.js";
 
 const BOUNDS = { width: 1280, height: 720 };
+
+const rectsOverlap = (a: Rect, b: Rect) => a.x1 < b.x2 && a.x2 > b.x1 && a.y1 < b.y2 && a.y2 > b.y1;
+
+describe("placeFlowLabel", () => {
+  const horizontalEdge = [{ x: 300, y: 200 }, { x: 700, y: 200 }];
+
+  it("parks a label clear of the edge line", () => {
+    const p = placeFlowLabel(horizontalEdge, 80, [], BOUNDS);
+    expect(p.y).not.toBe(200);
+    expect(Math.abs(p.x - 500)).toBeLessThan(1);
+  });
+
+  it("separates a second label from the first (no overlap)", () => {
+    const first = placeFlowLabel(horizontalEdge, 80, [], BOUNDS);
+    const second = placeFlowLabel(horizontalEdge, 80, [first.rect], BOUNDS);
+    expect(rectsOverlap(first.rect, second.rect)).toBe(false);
+  });
+
+  it("avoids a node box under the edge midpoint", () => {
+    const blocker: Rect = { x1: 460, y1: 180, x2: 540, y2: 240 };
+    const p = placeFlowLabel(horizontalEdge, 80, [blocker], BOUNDS);
+    expect(rectsOverlap(p.rect, blocker)).toBe(false);
+  });
+
+  it("keeps the label box inside the scene bounds", () => {
+    const p = placeFlowLabel([{ x: 10, y: 8 }, { x: 10, y: 700 }], 200, [], BOUNDS);
+    expect(p.rect.x1).toBeGreaterThanOrEqual(0);
+    expect(p.rect.x2).toBeLessThanOrEqual(BOUNDS.width);
+  });
+});
 
 describe("rect helpers", () => {
   it("builds a rect from a positioned node's top-left corner and size", () => {
