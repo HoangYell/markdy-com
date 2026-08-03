@@ -1,8 +1,8 @@
 # Markdy
 
-> Open-source text-to-animation and animated diagram DSL for writing browser-rendered technical motion graphics like Markdown.
+> Open-source DSL for animated architecture and system diagrams — write plain text, get browser-native animated diagrams. A Mermaid alternative with motion.
 
-Markdy lets developers define actors, architecture nodes, assets, captions, camera movement, and timeline events in MarkdyScript. It is useful for animated documentation, architecture visualization, sequence flows, infrastructure diagrams, product explainers, Astro sites, MDX content, and AI-generated diagrams.
+Markdy lets developers declare nodes, groups, beats, and flow operators (`->`, `<-`, `~>`, `--`) in MarkdyScript. It is useful for animated architecture diagrams, system-design explainers, sequence flows, infrastructure diagrams, CI/CD and Kubernetes diagrams, product walkthroughs, Astro sites, MDX content, and AI-generated diagrams.
 
 ## Primary Links
 

@@ -1,7 +1,7 @@
 {
   "name": "@markdy/astro",
   "version": "0.8.0",
-  "description": "Astro island component for MarkdyScript animations.",
+  "description": "Astro island component for animated MarkdyScript architecture diagrams.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -16,12 +16,12 @@
   "keywords": [
     "markdy",
     "astro",
-    "animation",
-    "island",
-    "component",
-    "astro-animation",
     "astro-component",
-    "declarative"
+    "diagram-as-code",
+    "architecture-diagram",
+    "animated-diagram",
+    "island",
+    "component"
   ],
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
   "homepage": "https://markdy.com",

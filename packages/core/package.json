@@ -1,7 +1,7 @@
 {
   "name": "@markdy/core",
   "version": "0.8.0",
-  "description": "MarkdyScript parser and AST types — zero runtime dependencies.",
+  "description": "MarkdyScript parser and diagram compiler (auto-layout, edge routing, cue scheduling) — zero runtime dependencies.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -21,13 +21,13 @@
   "keywords": [
     "markdy",
     "markdyscript",
-    "animation",
-    "dsl",
+    "diagram-as-code",
+    "architecture-diagram",
+    "mermaid-alternative",
     "parser",
-    "ast",
-    "declarative-animation",
-    "text-to-motion",
-    "markdown-animation"
+    "compiler",
+    "dsl",
+    "system-design"
   ],
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
   "homepage": "https://markdy.com",

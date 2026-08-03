@@ -13,11 +13,11 @@ export interface Props extends HTMLAttributes<"html"> {
 
 const {
   title,
-  description = "Markdy is an open-source text-to-animation and animated diagram DSL for developer docs, architecture visualization, AI-generated diagrams, and browser-native motion graphics.",
+  description = "Markdy turns plain text into animated architecture and system diagrams in the browser — an open-source, AI-friendly, Mermaid-style diagram-as-code tool with motion.",
   canonicalURL = "https://markdy.com/",
   ogImage = "https://markdy.com/og-image.png",
-  ogImageAlt = "Markdy playground with MarkdyScript code and an animated architecture diagram preview",
-  keywords = "animation dsl, markdown animation, mermaid alternative, mermaid for animation, interactive diagrams, animated diagrams, system architecture diagrams, sequence diagrams, flowchart dsl, infrastructure diagrams, architecture visualization, developer documentation, AI-generated diagrams, LLM-friendly DSL, diagram scripting, text-to-diagram, text-to-animation, architecture as code, docs as code, visual DSL",
+  ogImageAlt = "Markdy playground with MarkdyScript code and an animated architecture diagram",
+  keywords = "animated architecture diagram, diagram as code, animated diagrams, mermaid alternative, animated mermaid, system design diagram, sequence diagram, flowchart, infrastructure diagram, architecture as code, text to diagram, AI diagram generator, docs as code, software architecture visualization, animated system diagram, developer diagrams",
   structuredData = [],
 } = Astro.props;
 
@@ -61,7 +61,7 @@ const baseStructuredData = [
     keywords,
     url: "https://markdy.com/",
     applicationCategory: "DeveloperApplication",
-    applicationSubCategory: "Animation DSL, Diagramming Tool, Developer Documentation Tool",
+    applicationSubCategory: "Diagramming Tool, Architecture Visualization, Developer Documentation Tool",
     operatingSystem: "Web",
     programmingLanguage: "TypeScript",
     codeRepository: "https://github.com/HoangYell/markdy-com",

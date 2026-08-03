@@ -21,9 +21,10 @@
   "keywords": [
     "markdy",
     "system-diagram",
-    "sequence",
-    "animation",
-    "dsl"
+    "architecture-diagram",
+    "mermaid-alternative",
+    "sequence-diagram",
+    "diagram-as-code"
   ],
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
   "homepage": "https://markdy.com",

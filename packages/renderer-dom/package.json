@@ -1,7 +1,7 @@
 {
   "name": "@markdy/renderer-dom",
   "version": "0.8.0",
-  "description": "Web Animations API renderer for MarkdyScript scenes.",
+  "description": "Browser renderer for animated MarkdyScript architecture diagrams, built on the Web Animations API.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -20,14 +20,14 @@
   },
   "keywords": [
     "markdy",
-    "animation",
+    "animated-diagram",
+    "architecture-diagram",
+    "diagram-as-code",
     "web-animations-api",
     "renderer",
-    "dom",
-    "declarative-animation",
-    "motion",
-    "framer-motion-alternative",
-    "gsap-alternative"
+    "mermaid-alternative",
+    "svg",
+    "motion"
   ],
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
   "homepage": "https://markdy.com",
