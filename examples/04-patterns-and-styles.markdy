@@ -5,9 +5,9 @@ layout TB
 
 style hot = fill=#f59e0b
 
-service API
-database Primary "Primary DB" style=hot
-database Replica "Read Replica"
+service Api
+database PrimaryDb style=hot
+database ReadReplica
 
 pattern replicate(leader, follower):
   $leader -> $follower "stream WAL"
@@ -15,6 +15,6 @@ pattern replicate(leader, follower):
 
 beat main:
   show $nodes stagger=90ms
-  API -> Primary "write"
-  use replicate(Primary, Replica)
-  API -> Replica "read"
+  Api -> PrimaryDb "write"
+  use replicate(PrimaryDb, ReadReplica)
+  Api -> ReadReplica "read"

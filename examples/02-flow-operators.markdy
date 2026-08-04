@@ -2,14 +2,14 @@
 scene "Flow Operators" theme=midnight
 layout LR
 
-client Web
-service API
-database DB
-queue Queue
+client WebApp
+service Api
+database RecordsDb
+queue EventQueue
 
 beat flows:
   show $nodes
-  Web -> API "request"       // -> solid request edge
-  API <- Web "response"      // <- dashed response (drawn back toward API)
-  API ~> Queue "event"       // ~> dotted event edge
-  API -- DB "dependency"     // -- thin dependency link
+  WebApp -> Api "request"          // -> solid request edge
+  Api <- WebApp "response"         // <- dashed response (drawn back toward API)
+  Api ~> EventQueue "event"        // ~> dotted event edge
+  Api -- RecordsDb "dependency"    // -- thin dependency link

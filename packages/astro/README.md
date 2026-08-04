@@ -7,6 +7,7 @@
 - **SSR placeholder** — correctly-sized `<div>` prevents layout shift before hydration
 - **Viewport-triggered hydration** — `IntersectionObserver` with 100px root margin
 - **View Transition compatible** — re-observes elements on `astro:page-load`
+- **Semantic node cards** — inherits renderer SVG glyphs for technical node kinds
 - **Zero config** — pass your MarkdyScript code as a prop
 
 ## Installation
@@ -77,7 +78,9 @@ export const code = `
 | `autoplay` | `boolean` | `true` | Start playing on hydration |
 | `loop` | `boolean` | `true` | Loop the animation when it ends |
 | `copyright` | `boolean` | `true` | Show a "Powered by Markdy" badge below the animation |
-| `progressBar` | `boolean` | `true` | Show a rainbow progress bar around the viewport border |
+| `progressBar` | `boolean` | `true` | Deprecated compatibility flag for the rainbow scene-boundary progress bar |
+| `sceneBoundaryProgress` | `boolean` | `progressBar` | Preferred flag for the rainbow scene-boundary progress bar |
+| `playbackRate` | `number` | `1` | Timeline speed multiplier |
 | `class` | `string` | — | CSS class for the outer wrapper |
 
 > **Tip:** Match `width`, `height`, and `bg` props to your `scene` declaration values to avoid a visual flash on hydration.

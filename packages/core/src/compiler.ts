@@ -3,8 +3,8 @@ import { nodeRole } from "./registry.js";
 
 const SAFE = 64;
 const TITLE_BAND = 96;
-const NODE_W = 184;
-const NODE_H = 88;
+const NODE_W = 168;
+const NODE_H = 72;
 const RANK_GAP = 96;
 const ROW_GAP = 40;
 

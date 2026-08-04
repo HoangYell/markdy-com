@@ -4,19 +4,19 @@ scene "Beats And Groups" theme=midnight
 layout LR
 
 user Visitor
-gateway Gateway "API Gateway"
-service Orders "Order Service"
-cache Redis "Cache"
-database DB "Orders DB"
+gateway ApiGateway
+service OrderService
+cache Redis
+database OrdersDb
 
-group storage: Redis DB
+group storage: Redis OrdersDb
 
 beat intro:
   show Visitor Gateway Orders & show storage stagger=80ms
 
 beat checkout:
-  Visitor -> Gateway "POST /order" -> Orders
-  Orders -> Redis "cache write" & Orders -> DB "persist"
+  Visitor -> ApiGateway "POST /order" -> OrderService
+  OrderService -> Redis "cache write" & OrderService -> OrdersDb "persist"
 
 beat highlight:
-  glow storage color=#22c55e & focus Orders zoom=1.1
+  glow storage color=#22c55e & focus OrderService zoom=1.1

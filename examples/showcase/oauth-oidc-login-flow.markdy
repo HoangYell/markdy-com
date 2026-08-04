@@ -2,40 +2,40 @@ scene "OAuth / OIDC Login Flow" theme=midnight width=1280 height=760
 layout LR
 
 user User
-browser Browser
-client App "Web App"
-gateway Gateway "API Gateway"
-service AuthSvc "Auth Service"
-service IdP "Identity Provider"
-database SessionDB "Session Store"
-cache TokenCache "Token Cache"
+browser UserAgent
+client WebApp
+gateway ApiGateway
+service AuthService
+service IdentityProvider
+database SessionStore
+cache TokenCache
 
-group trust: AuthSvc IdP SessionDB TokenCache
-group client_side: User Browser App Gateway
+group trust: AuthService IdentityProvider SessionStore TokenCache
+group client_side: User UserAgent WebApp ApiGateway
 
 beat layout:
   show client_side stagger=45ms & show trust stagger=45ms
 
 beat login:
-  User -> Browser "click sign in"
-  Browser -> App "start login"
-  App -> Gateway "GET /auth/login"
-  Gateway -> AuthSvc "create state"
-  AuthSvc -> IdP "authorize redirect"
-  Browser <- IdP "login + consent"
+  User -> UserAgent "click sign in"
+  UserAgent -> WebApp "start login"
+  WebApp -> ApiGateway "GET /auth/login"
+  ApiGateway -> AuthService "create state"
+  AuthService -> IdentityProvider "authorize redirect"
+  UserAgent <- IdentityProvider "login + consent"
 
 beat callback:
-  Browser -> Gateway "GET /callback"
-  Gateway -> AuthSvc "exchange code"
-  AuthSvc -> IdP "token request"
-  IdP <- AuthSvc "id_token + access_token"
-  AuthSvc -> SessionDB "store session" & AuthSvc ~> TokenCache "cache tokens"
+  UserAgent -> ApiGateway "GET /callback"
+  ApiGateway -> AuthService "exchange code"
+  AuthService -> IdentityProvider "token request"
+  IdentityProvider <- AuthService "id_token + access_token"
+  AuthService -> SessionStore "store session" & AuthService ~> TokenCache "cache tokens"
 
 beat session:
-  App <- AuthSvc "session cookie"
-  App -> Gateway "GET /me"
-  Gateway -> AuthSvc "validate session"
-  AuthSvc <- App "profile"
+  WebApp <- AuthService "session cookie"
+  WebApp -> ApiGateway "GET /me"
+  ApiGateway -> AuthService "validate session"
+  AuthService <- WebApp "profile"
 
 beat finish:
-  glow trust color=#fb7185 & focus AuthSvc
+  glow trust color=#fb7185 & focus AuthService

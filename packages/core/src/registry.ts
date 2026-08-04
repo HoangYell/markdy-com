@@ -20,10 +20,25 @@ export function nodeRole(kind: string): string {
 }
 
 export function humanizeId(id: string): string {
+  const acronyms = new Set(["api", "cdn", "db", "dns", "http", "https", "id", "jwt", "oidc", "sdk", "tls", "ui", "url"]);
+  const exactCase = new Map([
+    ["etcd", "etcd"],
+    ["kubectl", "kubectl"],
+  ]);
   return id
-    .replace(/([a-z])([A-Z])/g, "$1 $2")
     .replace(/[_-]+/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+    .replace(/([A-Z]+)([A-Z][a-z])/g, "$1 $2")
+    .replace(/([a-z\d])([A-Z])/g, "$1 $2")
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => {
+      const lower = word.toLowerCase();
+      const exact = exactCase.get(lower);
+      if (exact) return exact;
+      if (acronyms.has(lower)) return lower.toUpperCase();
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(" ");
 }
 
 /** Node kind aliases for concise authoring. */

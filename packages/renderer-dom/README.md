@@ -8,7 +8,9 @@ Web Animations API renderer for [MarkdyScript](../../docs/SYNTAX.md) scenes. Tra
 - **Auto-layout diagrams** — renders positioned nodes and orthogonal, obstacle-aware edges from a compiled `RenderPlan`
 - **Flow edges** — `->` request, `<-` response, `~>` event, `--` dependency, each with its own stroke, plus a pulse that travels the edge as it draws
 - **Beat-driven cues** — `show`, `hide`, `glow`, and `focus`, sequenced by named beats
+- **Semantic node cards** — compact SVG glyphs for browsers, services, gateways, queues, workers, databases, storage, CDN, security, platform, and more
 - **Seek-safe** — manual `currentTime` control enables reliable `seek()` in any direction
+- **Playback-rate controls** — set timeline speed to slow down or speed up diagrams without rebuilding animations
 - **Semantic themes** — `midnight` and `paper`, with per-role node colors
 - **Single dependency** — only `@markdy/core`
 
@@ -68,7 +70,9 @@ player.destroy();    // clean up DOM + cancel animations
 | `autoplay` | `boolean` | `true` | Start playing immediately |
 | `loop` | `boolean` | `true` | Loop the animation when it reaches the end |
 | `copyright` | `boolean` | `true` | Show a small "Powered by Markdy" badge below the animation |
-| `progressBar` | `boolean` | `true` | Show a rainbow progress bar around the viewport border |
+| `progressBar` | `boolean` | `true` | Deprecated compatibility flag for the rainbow scene-boundary progress bar |
+| `sceneBoundaryProgress` | `boolean` | `progressBar ?? true` | Preferred flag for the rainbow scene-boundary progress bar |
+| `playbackRate` | `number` | `1` | Timeline speed multiplier |
 | `onWarning` | `(warning: Diagnostic) => void` | `console.warn` | Called for each soft parse warning |
 | `onTimeUpdate` | `(seconds: number, durationSeconds: number) => void` | — | Called whenever playback or seek changes the current time |
 | `onPlayStateChange` | `(playing: boolean) => void` | — | Called when playback starts or pauses |
@@ -80,6 +84,8 @@ player.destroy();    // clean up DOM + cancel animations
 | `play()` | Start or resume playback |
 | `pause()` | Pause at current position |
 | `seek(seconds)` | Jump to a specific time |
+| `setPlaybackRate(rate)` | Change timeline speed; ignores non-positive or non-finite values |
+| `playbackRate()` | Current timeline speed multiplier |
 | `currentTime()` | Current playback position in seconds |
 | `duration()` | Total scene duration in seconds |
 | `isPlaying()` | Whether the scene is currently playing |
