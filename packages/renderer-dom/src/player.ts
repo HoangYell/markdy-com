@@ -12,7 +12,12 @@ export interface PlayerOptions {
   autoplay?: boolean;
   loop?: boolean;
   copyright?: boolean;
+  /** @deprecated Prefer sceneBoundaryProgress. */
   progressBar?: boolean;
+  /** Show rainbow progress around scene boundary. Defaults to true. */
+  sceneBoundaryProgress?: boolean;
+  /** Playback speed multiplier. Defaults to 1. */
+  playbackRate?: number;
   onWarning?: (warning: Diagnostic) => void;
   onTimeUpdate?: (seconds: number, durationSeconds: number) => void;
   onPlayStateChange?: (playing: boolean) => void;
@@ -22,6 +27,8 @@ export interface Player {
   play(): void;
   pause(): void;
   seek(seconds: number): void;
+  setPlaybackRate(rate: number): void;
+  playbackRate(): number;
   currentTime(): number;
   duration(): number;
   isPlaying(): boolean;
@@ -37,11 +44,15 @@ export function createPlayer(opts: PlayerOptions): Player {
     autoplay = true,
     loop = true,
     copyright = true,
-    progressBar = true,
+    progressBar,
+    sceneBoundaryProgress,
+    playbackRate: initialPlaybackRate = 1,
     onWarning = (w) => console.warn(`[markdy] line ${w.line}: ${w.message}`),
     onTimeUpdate,
     onPlayStateChange,
   } = opts;
+
+  const showSceneBoundaryProgress = sceneBoundaryProgress ?? progressBar ?? true;
 
   const { ast, plan } = parseAndCompile(code);
   for (const w of ast.diagnostics) {
@@ -61,7 +72,7 @@ export function createPlayer(opts: PlayerOptions): Player {
   container.appendChild(viewport);
 
   let progressEl: HTMLElement | null = null;
-  if (progressBar) {
+  if (showSceneBoundaryProgress) {
     progressEl = document.createElement("div");
     Object.assign(progressEl.style, {
       position: "absolute",
@@ -164,6 +175,7 @@ export function createPlayer(opts: PlayerOptions): Player {
   }
 
   let sceneMs = 0;
+  let playbackRate = Number.isFinite(initialPlaybackRate) && initialPlaybackRate > 0 ? initialPlaybackRate : 1;
   let lastRafTs: number | null = null;
   let isPlaying = false;
   let rafId: number | null = null;
@@ -174,7 +186,7 @@ export function createPlayer(opts: PlayerOptions): Player {
   }
 
   function rafTick(timestamp: number): void {
-    if (lastRafTs !== null) sceneMs += timestamp - lastRafTs;
+    if (lastRafTs !== null) sceneMs += (timestamp - lastRafTs) * playbackRate;
     lastRafTs = timestamp;
 
     if (totalDurationMs > 0 && sceneMs >= totalDurationMs) {
@@ -215,6 +227,13 @@ export function createPlayer(opts: PlayerOptions): Player {
       sceneMs = totalDurationMs > 0 ? Math.min(Math.max(seconds * 1000, 0), totalDurationMs) : Math.max(seconds * 1000, 0);
       applyCurrentTime();
       if (totalDurationMs > 0) updateProgressBar(sceneMs / totalDurationMs);
+    },
+    setPlaybackRate(rate: number) {
+      if (!Number.isFinite(rate) || rate <= 0) return;
+      playbackRate = rate;
+    },
+    playbackRate() {
+      return playbackRate;
     },
     currentTime() {
       return sceneMs / 1000;

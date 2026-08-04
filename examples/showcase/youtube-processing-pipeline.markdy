@@ -1,4 +1,4 @@
-scene "YouTube Processing Pipeline" theme=midnight
+scene "YouTube Processing Pipeline" theme=midnight width=1280 height=760
 layout LR
 
 user Creator
@@ -12,18 +12,23 @@ database VideoDB "Video Metadata DB"
 bucket ObjectStore "Object Storage"
 cdn CDN "CDN Edge"
 
+group ingest: Creator Studio Gateway UploadSvc
+group processing: TranscodeQueue Transcoder ObjectStore
+group delivery: CatalogSvc VideoDB CDN
+
 beat layout:
-  show $nodes stagger=50ms
+  show ingest stagger=45ms & show processing stagger=45ms & show delivery stagger=45ms
 
 beat upload:
   Creator -> Studio "upload video" -> Gateway "POST /videos"
-  Gateway -> UploadSvc "accept upload" -> ObjectStore "store raw"
+  Gateway -> UploadSvc "accept upload"
+  UploadSvc -> ObjectStore "store raw"
   UploadSvc ~> TranscodeQueue "enqueue job"
 
 beat transcode:
   TranscodeQueue ~> Transcoder "pick job"
-  Transcoder -> ObjectStore "read raw" -> Transcoder "encode renditions"
-  Transcoder -> ObjectStore "write outputs"
+  Transcoder -> ObjectStore "read raw"
+  Transcoder -> ObjectStore "write renditions"
   Transcoder -> CatalogSvc "register renditions"
 
 beat publish:

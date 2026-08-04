@@ -1,5 +1,5 @@
-scene "Kubernetes Cluster Architecture" theme=midnight
-layout TB
+scene "Kubernetes Platform Blueprint" theme=midnight width=1320 height=780
+layout LR
 
 user Operator
 cli Kubectl "kubectl"
@@ -8,35 +8,43 @@ scheduler Scheduler
 controller Controller "Controller Manager"
 database Etcd "etcd"
 load_balancer LB "Load Balancer"
-ingress Ingress
-service KubeService "Service"
-node Worker "Worker Nodes"
-pod AppPod "App Pod"
-pod JobPod "Worker Pod"
+ingress Ingress "Ingress Gateway"
+service KubeService "Cluster Service"
+pod AppPod "App API Pod"
+pod JobPod "Worker Job Pod"
 configmap Config
 secret Secret
 volume PV "Persistent Volume"
 
-group control: Operator Kubectl APIServer Scheduler Controller Etcd
-group dataplane: LB Ingress KubeService Worker AppPod JobPod Config Secret PV
+group control_plane: Operator Kubectl APIServer Scheduler Controller Etcd
+group entry_lane: LB Ingress KubeService
+group workloads: AppPod JobPod
+group runtime_config: Config Secret PV
 
 beat layout:
-  show control stagger=50ms & show dataplane stagger=40ms
+  show control_plane stagger=45ms & show entry_lane stagger=45ms & show workloads stagger=45ms & show runtime_config stagger=45ms
 
 beat control:
-  Operator -> Kubectl "kubectl apply" -> APIServer "manifest"
+  Operator -> Kubectl "kubectl apply"
+  Kubectl -> APIServer "submit manifest"
   APIServer -> Etcd "persist state"
   APIServer ~> Scheduler "pending pod"
   APIServer ~> Controller "reconcile"
 
 beat scheduling:
-  Scheduler ~> Worker "bind pod" & Controller ~> AppPod "desired replicas"
-  Config ~> AppPod "env" & Secret ~> JobPod "mount"
+  Scheduler ~> AppPod "schedule pod"
+  Controller ~> JobPod "scale workers"
+
+beat config:
+  Config ~> AppPod "inject env"
+  Secret ~> JobPod "mount secret"
   PV ~> JobPod "storage"
 
 beat traffic:
-  LB -> Ingress "external traffic" -> KubeService "route rule" -> AppPod "cluster IP"
-  KubeService -> JobPod "load balance"
+  LB -> Ingress "external traffic"
+  Ingress -> KubeService "route to service"
+  KubeService -> AppPod "cluster IP"
+  AppPod ~> JobPod "dispatch background job"
 
 beat finish:
-  glow APIServer color=#c084fc & glow Worker color=#c084fc
+  glow APIServer color=#38bdf8 & glow AppPod color=#22c55e

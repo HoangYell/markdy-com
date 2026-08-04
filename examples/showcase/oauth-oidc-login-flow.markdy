@@ -1,4 +1,4 @@
-scene "OAuth / OIDC Login Flow" theme=midnight
+scene "OAuth / OIDC Login Flow" theme=midnight width=1280 height=760
 layout LR
 
 user User
@@ -11,25 +11,30 @@ database SessionDB "Session Store"
 cache TokenCache "Token Cache"
 
 group trust: AuthSvc IdP SessionDB TokenCache
+group client_side: User Browser App Gateway
 
 beat layout:
-  show $nodes stagger=50ms
+  show client_side stagger=45ms & show trust stagger=45ms
 
 beat login:
-  User -> Browser "click sign in" -> App "start login"
-  App -> Gateway "GET /auth/login" -> AuthSvc "create state"
+  User -> Browser "click sign in"
+  Browser -> App "start login"
+  App -> Gateway "GET /auth/login"
+  Gateway -> AuthSvc "create state"
   AuthSvc -> IdP "authorize redirect"
   Browser <- IdP "login + consent"
 
 beat callback:
-  Browser -> Gateway "GET /callback" -> AuthSvc "exchange code"
+  Browser -> Gateway "GET /callback"
+  Gateway -> AuthSvc "exchange code"
   AuthSvc -> IdP "token request"
   IdP <- AuthSvc "id_token + access_token"
   AuthSvc -> SessionDB "store session" & AuthSvc ~> TokenCache "cache tokens"
 
 beat session:
   App <- AuthSvc "session cookie"
-  App -> Gateway "GET /me" -> AuthSvc "validate session"
+  App -> Gateway "GET /me"
+  Gateway -> AuthSvc "validate session"
   AuthSvc <- App "profile"
 
 beat finish:
