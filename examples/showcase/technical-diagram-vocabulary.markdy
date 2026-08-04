@@ -1,4 +1,4 @@
-scene "Technical Diagram Vocabulary" theme=midnight
+scene "Technical Diagram Vocabulary" theme=midnight width=1200 height=720
 layout LR
 
 client Browser
@@ -10,11 +10,16 @@ auth Auth
 pipeline Pipeline
 monitor Monitor
 
+group app: Browser API Auth
+group data: DB Redis Queue
+group ops: Pipeline Monitor
+
 beat layout:
-  show $nodes stagger=40ms
+  show app stagger=40ms & show data stagger=40ms & show ops stagger=40ms
 
 beat sample:
-  Browser -> API "request" -> DB "persist"
+  Browser -> API "request"
+  API -> DB "persist"
   API ~> Queue "enqueue" & API -> Redis "cache"
   Auth <- API "token"
   Pipeline -- Monitor "metrics"
