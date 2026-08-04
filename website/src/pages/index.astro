@@ -432,38 +432,38 @@ markdy <span class="u-fn">check-all</span> examples`;
 
       <div class="preview-col">
         <div class="panel-label">
-          <span>Embedded Preview</span>
-          <div class="preview-toolbar">
-            <span id="status" class="status ok"></span>
-            <button id="rewind-btn" class="btn-share" title="Back 1 second" aria-label="Back 1 second">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
-              <span>-1s</span>
+          <span class="panel-label-title"><span id="status" class="status ok"></span>Embedded Preview</span>
+          <button id="share-btn" class="btn-icon" title="Copy shareable link to clipboard" aria-label="Share">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+            <span>Share</span>
+          </button>
+        </div>
+        <div class="preview-toolbar">
+          <div class="control-group control-group--transport" role="group" aria-label="Playback">
+            <button id="restart-btn" class="btn-icon" title="Play from start" aria-label="Play from start">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="19 20 9 12 19 4 19 20"></polygon><rect x="5" y="4" width="2" height="16"></rect></svg>
             </button>
-            <button id="restart-btn" class="btn-share" title="Play from start" aria-label="Play from start">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="19 20 9 12 19 4 19 20"></polygon><rect x="5" y="4" width="2" height="16"></rect></svg>
-              <span>Start</span>
+            <button id="rewind-btn" class="btn-icon" title="Back 1 second" aria-label="Back 1 second">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
+              <span>1s</span>
             </button>
-            <button id="play-btn" class="btn-share" title="Play / Pause" aria-label="Play">
-              <svg id="play-icon" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-              <svg id="pause-icon" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+            <button id="play-btn" class="btn-icon btn-icon--primary" title="Play / Pause" aria-label="Play">
+              <svg id="play-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <svg id="pause-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
               <span id="play-label">Play</span>
             </button>
-            <div class="speed-controls" role="group" aria-label="Playback speed">
-              <button class="speed-btn" type="button" data-speed="0.25" aria-pressed="false" title="Playback speed 0.25x">0.25x</button>
-              <button class="speed-btn" type="button" data-speed="0.5" aria-pressed="false" title="Playback speed 0.5x">0.5x</button>
-              <button class="speed-btn" type="button" data-speed="1" aria-pressed="true" title="Playback speed 1x">1x</button>
-              <button class="speed-btn" type="button" data-speed="1.5" aria-pressed="false" title="Playback speed 1.5x">1.5x</button>
-              <button class="speed-btn" type="button" data-speed="2" aria-pressed="false" title="Playback speed 2x">2x</button>
-            </div>
-            <button id="expand-preview-btn" class="btn-share" title="Expand preview" aria-label="Expand preview" aria-pressed="false">
-              <svg id="expand-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
-              <span id="expand-preview-label">Expand View</span>
-            </button>
-            <button id="share-btn" class="btn-share" title="Copy shareable link to clipboard" aria-label="Share">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-              Share
-            </button>
           </div>
+          <div class="speed-controls" role="group" aria-label="Playback speed">
+            <button class="speed-btn" type="button" data-speed="0.25" aria-pressed="false" title="Playback speed 0.25x">0.25×</button>
+            <button class="speed-btn" type="button" data-speed="0.5" aria-pressed="false" title="Playback speed 0.5x">0.5×</button>
+            <button class="speed-btn" type="button" data-speed="1" aria-pressed="true" title="Playback speed 1x">1×</button>
+            <button class="speed-btn" type="button" data-speed="1.5" aria-pressed="false" title="Playback speed 1.5x">1.5×</button>
+            <button class="speed-btn" type="button" data-speed="2" aria-pressed="false" title="Playback speed 2x">2×</button>
+          </div>
+          <button id="expand-preview-btn" class="btn-icon control-group--expand" title="Expand preview" aria-label="Expand preview" aria-pressed="false">
+            <svg id="expand-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
+            <span id="expand-preview-label">Expand</span>
+          </button>
         </div>
         <div id="stage-wrap" class="stage-wrap">
           <div id="stage"></div>
@@ -1408,7 +1408,7 @@ beat finish:
     expandPreviewBtn.setAttribute("aria-pressed", expanded ? "true" : "false");
     expandPreviewBtn.setAttribute("aria-label", expanded ? "Collapse preview" : "Expand preview");
     expandPreviewBtn.title = expanded ? "Collapse preview" : "Expand preview";
-    expandPreviewLabel.textContent = expanded ? "Collapse View" : "Expand View";
+    expandPreviewLabel.textContent = expanded ? "Collapse" : "Expand";
     requestAnimationFrame(() => resizeStage());
   }
 
@@ -1553,7 +1553,7 @@ beat finish:
       shareBtn.textContent = "✓ Copied!";
       shareBtn.style.color = "var(--accent, #ea4c89)";
       setTimeout(() => {
-        shareBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share`;
+        shareBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg><span>Share</span>`;
         shareBtn.style.color = "";
       }, 2000);
     }).catch(() => {
@@ -2437,6 +2437,12 @@ f
     flex-shrink: 0;
   }
 
+  .panel-label-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
   .editor-toolbar {
     display: flex;
     align-items: center;
@@ -2446,34 +2452,48 @@ f
   .preview-toolbar {
     display: flex;
     align-items: center;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    min-width: 0;
+    gap: 0.4rem 0.75rem;
     flex-wrap: wrap;
+    padding: 0.4rem 0.85rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .control-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .control-group--expand {
+    margin-left: auto;
   }
 
   .speed-controls {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.2rem;
+    padding: 0.15rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 999px;
   }
 
   .speed-btn {
     font-family: inherit;
     font-size: 0.64rem;
     font-weight: 700;
-    padding: 0.18rem 0.38rem;
-    border: 1px solid var(--border);
+    padding: 0.16rem 0.42rem;
+    border: 1px solid transparent;
     border-radius: 999px;
-    background: var(--bg-secondary);
-    color: var(--text-secondary);
+    background: transparent;
+    color: var(--text-muted);
     cursor: pointer;
     line-height: 1.2;
     transition: all 0.18s ease;
   }
 
   .speed-btn:hover {
-    border-color: var(--accent);
     color: var(--accent);
   }
 
@@ -2506,23 +2526,34 @@ f
 
   .btn-run:hover { border-color: var(--accent); color: var(--accent); }
 
-  .btn-share {
+  .btn-icon {
     font-family: inherit;
     font-size: 0.7rem;
     font-weight: 600;
-    padding: 0.2rem 0.55rem;
+    padding: 0.24rem 0.5rem;
     border: 1px solid var(--border);
-    border-radius: 5px;
+    border-radius: 6px;
     background: var(--bg-secondary);
     cursor: pointer;
     color: var(--text-secondary);
     transition: all 0.2s ease;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 0.3rem;
   }
 
-  .btn-share:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+
+  .btn-icon--primary {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .panel-label .btn-icon {
+    text-transform: none;
+    letter-spacing: 0;
+  }
 
   .status {
     width: 7px;
@@ -3338,22 +3369,17 @@ f
     }
 
     .preview-toolbar {
-      gap: 0.35rem;
+      gap: 0.3rem 0.5rem;
+      padding: 0.4rem 0.6rem;
     }
 
     .speed-controls {
-      gap: 0.2rem;
-      flex-wrap: wrap;
-      justify-content: flex-end;
+      gap: 0.15rem;
     }
 
     .speed-btn {
       font-size: 0.62rem;
-      padding: 0.14rem 0.33rem;
-    }
-
-    .preview-toolbar .btn-share span {
-      display: none;
+      padding: 0.14rem 0.36rem;
     }
 
     #expand-preview-label {
