@@ -19,25 +19,24 @@ const FEATURES = [
 ];
 
 /* ── Packages: one card per published package, each with a real usage line ──
-   `required` packages are the minimum to render a scene anywhere; everything
-   else is an optional add-on for a specific host (Astro, MDX), workflow
-   (CLI, editor tooling), or content pack (system-diagram vocabulary). ── */
+   MarkdyScript is the primary authoring surface; packages support validation,
+   docs embeds, editor tooling, and browser playback. ── */
 const PACKAGES = [
   {
     name: "@markdy/core",
-    required: true,
-    badge: "Engine",
-    desc: "Parser + AST types. Every other package builds on this — no DOM, no dependencies.",
+    required: false,
+    badge: "Grammar",
+    desc: "Parser + AST types for tools that need to inspect, validate, or compile MarkdyScript.",
     size: "~12 KB",
-    snippet: `<span class="u-kw">import</span> { parse } <span class="u-kw">from</span> <span class="u-str">"@markdy/core"</span>;`,
+    snippet: `<span class="u-kw">scene</span> <span class="u-str">"Checkout Flow"</span> theme=midnight`,
   },
   {
     name: "@markdy/renderer-dom",
-    required: true,
-    badge: "DOM",
-    desc: "Takes a parsed scene and animates it in the browser via the Web Animations API.",
+    required: false,
+    badge: "Runtime",
+    desc: "Browser playback runtime behind Astro, MDX, the CLI preview, and custom embeds.",
     size: "~22 KB",
-    snippet: `<span class="u-kw">import</span> { createPlayer } <span class="u-kw">from</span> <span class="u-str">"@markdy/renderer-dom"</span>;`,
+    snippet: `<span class="u-fn">seek</span>(1.5) · <span class="u-fn">play</span>() · <span class="u-fn">pause</span>()`,
   },
   {
     name: "@markdy/astro",
@@ -77,7 +76,7 @@ const PACKAGES = [
     badge: "Vocabulary",
     desc: "Optional add-on: the full architecture node vocabulary and flow kinds for animated system diagrams.",
     size: "<1 KB",
-    snippet: `<span class="u-kw">service</span> API <span class="u-str">"Checkout API"</span>`,
+    snippet: `<span class="u-kw">service</span> CheckoutApi`,
   },
 ] as const;
 
@@ -127,7 +126,7 @@ const FAQS = [
   },
   {
     question: "Which packages do I need to render a scene?",
-    answer: "Use @markdy/core to parse MarkdyScript and @markdy/renderer-dom to render scenes in a browser. Add @markdy/stdlib-systems for system architecture diagrams and @markdy/astro or @markdy/mdx for documentation sites.",
+    answer: "Start by writing a .markdy scene. Use @markdy/cli to validate or preview files, @markdy/astro or @markdy/mdx for documentation sites, and @markdy/renderer-dom only when you need a custom browser embed.",
   },
 ] as const;
 
@@ -186,29 +185,29 @@ const homepageStructuredData = [
 ];
 
 /* ── Usage code snippets (pre-formatted HTML to avoid Astro expression parsing) ── */
-const USAGE_VANILLA = `<span class="u-kw">import</span> { createPlayer } <span class="u-kw">from</span> <span class="u-str">"@markdy/renderer-dom"</span>;
+const USAGE_SCENE = `<span class="u-comment">// architecture.markdy</span>
+<span class="u-kw">scene</span> <span class="u-str">"Checkout Request"</span> theme=midnight
+layout LR
 
-createPlayer({
-  container: <span class="u-fn">document.getElementById</span>(<span class="u-str">"stage"</span>),
-  code: <span class="u-str">\`scene "Request" theme=midnight
-  browser Web
-  service API
-  beat main:
-    show $nodes
-    Web -> API "GET /users"\`</span>,
-  autoplay: <span class="u-lit">true</span>,
-});`;
+browser WebApp
+service CheckoutApi
+database OrdersDb
+
+beat main:
+  show $nodes stagger=80ms
+  WebApp -> CheckoutApi <span class="u-str">"GET /orders"</span> -> OrdersDb <span class="u-str">"query"</span>
+  WebApp <- CheckoutApi <span class="u-str">"200 OK"</span>`;
 
 const USAGE_ASTRO = `<span class="u-comment">---</span>
 <span class="u-kw">import</span> { Markdy } <span class="u-kw">from</span> <span class="u-str">"@markdy/astro"</span>;
 
 <span class="u-kw">const</span> code = <span class="u-str">\`
   scene "Request" theme=midnight width=800 height=400
-  browser Web
-  service API
+  browser WebApp
+  service CheckoutApi
   beat main:
     show $nodes
-    Web -> API "GET /users"
+    WebApp -> CheckoutApi "GET /users"
 \`</span>;
 <span class="u-comment">---</span>
 
@@ -224,11 +223,11 @@ const USAGE_MDX = `<span class="u-comment">// mdx.config.mjs — one-time setup<
 <span class="u-comment">// content.mdx — no imports, just write markdown</span>
 \`\`\`markdy
 scene <span class="u-str">"Request"</span> theme=midnight
-browser Web
-service API
+browser WebApp
+service CheckoutApi
 beat main:
   show $nodes
-  Web -> API <span class="u-str">"GET /users"</span>
+  WebApp -> CheckoutApi <span class="u-str">"GET /users"</span>
 \`\`\``;
 
 const USAGE_CLI = `<span class="u-comment"># validate, format, and preview a scene</span>
@@ -304,21 +303,21 @@ markdy <span class="u-fn">check-all</span> examples`;
     <!-- ─── Usage tabs ──────────────────────────────────────────────── -->
     <div class="usage-section">
       <div class="usage-tabs" role="tablist">
-        <button class="usage-tab active" data-tab="vanilla" role="tab" aria-selected="true">Vanilla</button>
+        <button class="usage-tab active" data-tab="scene" role="tab" aria-selected="true">.markdy</button>
         <button class="usage-tab" data-tab="cli" role="tab" aria-selected="false">CLI</button>
         <button class="usage-tab" data-tab="astro" role="tab" aria-selected="false">Astro</button>
         <button class="usage-tab" data-tab="mdx" role="tab" aria-selected="false">MDX</button>
       </div>
 
-      <div class="usage-panel active" data-panel="vanilla">
+      <div class="usage-panel active" data-panel="scene">
         <div class="usage-install">
-          <code class="usage-cmd">npm i @markdy/core @markdy/renderer-dom</code>
-          <button class="copy-btn" title="Copy" aria-label="Copy install command">
+          <code class="usage-cmd">architecture.markdy</code>
+          <button class="copy-btn" title="Copy" aria-label="Copy filename">
             <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
             <svg class="copy-icon-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </button>
         </div>
-        <pre class="usage-code"><code set:html={USAGE_VANILLA} /></pre>
+        <pre class="usage-code"><code set:html={USAGE_SCENE} /></pre>
       </div>
 
       <div class="usage-panel" data-panel="cli">
@@ -377,7 +376,7 @@ markdy <span class="u-fn">check-all</span> examples`;
     <div class="section-header">
       <span class="section-tag">Ecosystem</span>
       <h2>Lightweight Packages for Docs-as-Code Animation</h2>
-      <p>Two packages render any scene. Optional packages add Astro, MDX, CLI, LSP, and architecture-diagram vocabulary.</p>
+      <p>Write portable <code>.markdy</code> scenes first. Use packages for validation, docs embeds, editor tooling, previews, and custom playback.</p>
     </div>
     <div class="pkg-grid">
       {PACKAGES.map((pkg) => (
@@ -478,250 +477,264 @@ markdy <span class="u-fn">check-all</span> examples`;
     </div>
   </section>
 
-  <!-- ─── Syntax Reference (Learning Path) ─────────────────────────────── -->
-  <section id="learn" class="syntax-ref" aria-label="Learn MarkdyScript syntax">
+  <!-- ─── How-To Tutorials (Learning Path) ─────────────────────────────── -->
+  <section id="learn" class="syntax-ref" aria-label="Learn MarkdyScript tutorials">
     <div class="section-header">
       <span class="section-tag">Step-by-Step</span>
       <h2>Learn MarkdyScript</h2>
-      <p>Build production architecture diagrams step by step: declare nodes, group them, narrate flows with <code>-></code>/<code>&lt;-</code>/<code>~&gt;</code>, and compose everything in concise <code>beat</code> blocks. Every card is runnable in the playground.</p>
+      <p>Follow a progressive learning path from the smallest runnable scene to production-grade architecture choreography. Each level teaches one practical skill, includes a runnable example, and ends with a task that proves you are ready for the next concept.</p>
     </div>
 
     <div class="ref-grid">
 
-      <!-- Step 1: Cinematic Scene Setup -->
+      <!-- Level 1: Scene shell -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">1</div>
-          <h3>Scene + Layout</h3>
+          <h3>Level 1: Scene Shell</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Start with a titled scene and semantic theme. Declare nodes by kind, group related services, then reveal them in the first beat.</p>
+        <p class="ref-intro"><strong>Objective:</strong> create the smallest complete MarkdyScript scene: a title, a layout direction, declared nodes, and one reveal beat.</p>
         <div class="ref-code-wrap">
-        <pre><code>scene "Checkout Service" theme=midnight
+        <pre><code>scene "Request Path" theme=midnight
 layout LR
 
-client Web "Web App"
-gateway Gateway "API Gateway"
-service Orders "Order Service"
-database OrderDB "Orders DB"
+browser WebApp
+service ApiServer
 
-group nodes: Web Gateway Orders OrderDB
-
-beat layout:
+beat reveal:
   show $nodes stagger=60ms</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene "Checkout Service" theme=midnight
+scene "Request Path" theme=midnight
 layout LR
 
-client Web "Web App"
-gateway Gateway "API Gateway"
-service Orders "Order Service"
-database OrderDB "Orders DB"
+browser WebApp
+service ApiServer
 
-group nodes: Web Gateway Orders OrderDB
-
-beat layout:
+beat reveal:
   show $nodes stagger=60ms
         </script>
         </div>
         <table>
-          <thead><tr><th>Property</th><th>Default</th><th>Description</th></tr></thead>
+          <thead><tr><th>Step</th><th>Action</th><th>Why it matters</th></tr></thead>
           <tbody>
-            <tr><td><code>theme</code></td><td><code>midnight</code></td><td>Semantic palette — <code>midnight</code> or <code>paper</code></td></tr>
-            <tr><td><code>layout</code></td><td><code>LR</code></td><td>Auto-layout direction — <code>LR</code>, <code>TB</code>, <code>RL</code>, <code>BT</code></td></tr>
-            <tr><td><code>beat</code></td><td>—</td><td>Named narrative block with indented cues</td></tr>
-            <tr><td><code>bg</code></td><td><code>white</code></td><td>Dark backgrounds (<code>#07111f</code>) make node accents pop</td></tr>
-            <tr><td><code>group</code></td><td><i>—</i></td><td>Name a set of nodes to reveal or animate together with <code>stagger</code></td></tr>
+            <tr><td>1</td><td>Add <code>scene</code></td><td>Names the diagram and picks the semantic palette.</td></tr>
+            <tr><td>2</td><td>Add <code>layout LR</code></td><td>Lets Markdy place nodes left-to-right without coordinates.</td></tr>
+            <tr><td>3</td><td>Declare every node</td><td>Flow lines can only reference ids that already exist.</td></tr>
+            <tr><td>4</td><td>Add a <code>beat</code></td><td>Beats are the timeline sections that contain animation cues.</td></tr>
           </tbody>
         </table>
+        <p><strong>Ready task:</strong> Add <code>database Postgres</code> to the scene. If <code>show $nodes</code> reveals all three nodes, move to Level 2.</p>
       </article>
 
-      <!-- Step 2: Node Kinds -->
+      <!-- Level 2: Semantic nodes -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">2</div>
-          <h3>Node Kinds</h3>
+          <h3>Level 2: Semantic Nodes</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Every node is declared as <code>&lt;kind&gt; &lt;Id&gt; ["Label"]</code>. The kind sets the node's semantic color and role; the label is optional and defaults to the id.</p>
+        <p class="ref-intro"><strong>Objective:</strong> choose node kinds that explain the architecture, then use readable ids so labels can be generated automatically.</p>
         <div class="ref-code-wrap">
-        <pre><code>client Web "Web App"
-service API "Checkout API"
-database DB "Orders DB"
-queue Events "order.events"</code></pre>
+        <pre><code>user Customer
+browser WebApp
+gateway ApiGateway
+service CheckoutApi
+database OrdersDb
+queue OrderEvents</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene "Node Kinds" theme=midnight
+scene "Checkout Roles" theme=midnight
 layout LR
 
-client Web "Web App"
-service API "Checkout API"
-database DB "Orders DB"
-queue Events "order.events"
+user Customer
+browser WebApp
+gateway ApiGateway
+service CheckoutApi
+database OrdersDb
+queue OrderEvents
 
 beat main:
   show $nodes stagger=80ms
         </script>
         </div>
         <table>
-          <thead><tr><th>Role</th><th>Example kinds</th><th>Use for</th></tr></thead>
+          <thead><tr><th>Kind family</th><th>Common kinds</th><th>Use when you mean</th></tr></thead>
           <tbody>
-            <tr><td>client</td><td><code>client</code>, <code>browser</code>, <code>mobile</code>, <code>user</code></td><td>Entry points and front ends</td></tr>
-            <tr><td>compute</td><td><code>service</code>, <code>api</code>, <code>worker</code>, <code>function</code></td><td>Backends and jobs</td></tr>
-            <tr><td>data</td><td><code>database</code>, <code>cache</code>, <code>bucket</code>, <code>search</code></td><td>Storage and retrieval</td></tr>
-            <tr><td>messaging</td><td><code>queue</code>, <code>topic</code>, <code>stream</code>, <code>broker</code></td><td>Async events and pipelines</td></tr>
+            <tr><td>Client</td><td><code>user</code>, <code>browser</code>, <code>client</code></td><td>Humans, apps, and entry points.</td></tr>
+            <tr><td>Compute</td><td><code>service</code>, <code>api</code>, <code>worker</code></td><td>Code that handles requests or jobs.</td></tr>
+            <tr><td>Data</td><td><code>database</code>, <code>cache</code>, <code>bucket</code></td><td>State, files, and fast lookup layers.</td></tr>
+            <tr><td>Messaging</td><td><code>queue</code>, <code>topic</code>, <code>stream</code></td><td>Async events and background work.</td></tr>
           </tbody>
         </table>
-        <p>Aliases like <code>db</code>, <code>api</code>, <code>lb</code>, and <code>k8s</code> expand to their canonical kinds.</p>
+        <p>Prefer ids like <code>CheckoutApi</code> and <code>OrdersDb</code>. Markdy renders them as <code>Checkout API</code> and <code>Orders DB</code>, so quoted labels are only needed for unusual display text.</p>
+        <p><strong>Ready task:</strong> Add <code>cache RedisCache</code>. If the rendered card has the cache role and a readable label, move to Level 3.</p>
       </article>
 
-      <!-- Step 3: Flow Edges -->
+      <!-- Level 3: Request and event flows -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">3</div>
-          <h3>Flow Edges</h3>
+          <h3>Level 3: Request Flow</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Connect nodes with four flow operators. Chain hops on one line and add a short <code>"label"</code> after any target. Edges route around other nodes automatically.</p>
+        <p class="ref-intro"><strong>Objective:</strong> describe what happens between nodes using directed flow lines inside a beat. Labels belong after the target they describe.</p>
         <div class="ref-code-wrap">
-        <pre><code>Web -> API "POST /checkout"
-API ~> Events "order.created"
-Web <- API "201 Created"</code></pre>
+        <pre><code>WebApp -> CheckoutApi "POST /checkout"
+CheckoutApi ~> OrderEvents "order.created"
+WebApp <- CheckoutApi "201 Created"</code></pre>
         <script type="text/plain" class="ref-code-data">
 scene "Flow Edges" theme=midnight
 layout LR
 
-client Web "Web App"
-service API "Checkout API"
-queue Events "order.events"
-database DB "Orders DB"
+client WebApp
+service CheckoutApi
+queue OrderEvents
+database OrdersDb
 
 beat flow:
   show $nodes stagger=70ms
-  Web -> API "POST /checkout"
-  API -> DB "persist" & API ~> Events "order.created"
-  Web <- API "201 Created"
+  WebApp -> CheckoutApi "POST /checkout"
+  CheckoutApi -> OrdersDb "persist" & CheckoutApi ~> OrderEvents "order.created"
+  WebApp <- CheckoutApi "201 Created"
         </script>
         </div>
         <table>
-          <thead><tr><th>Operator</th><th>Edge kind</th><th>Rendered as</th></tr></thead>
+          <thead><tr><th>Operator</th><th>Use it for</th><th>Rendered intent</th></tr></thead>
           <tbody>
-            <tr><td><code>-&gt;</code></td><td>request</td><td>Solid directed call</td></tr>
-            <tr><td><code>&lt;-</code></td><td>response</td><td>Dashed return, drawn back to the caller</td></tr>
-            <tr><td><code>~&gt;</code></td><td>event</td><td>Dotted async publish / event</td></tr>
-            <tr><td><code>--</code></td><td>dependency</td><td>Thin structural link</td></tr>
+            <tr><td><code>-&gt;</code></td><td>Calls, writes, reads</td><td>Solid request edge.</td></tr>
+            <tr><td><code>&lt;-</code></td><td>Returns and acknowledgements</td><td>Dashed response edge back to the caller.</td></tr>
+            <tr><td><code>~&gt;</code></td><td>Publishes and async jobs</td><td>Dotted event edge.</td></tr>
+            <tr><td><code>--</code></td><td>Static dependency</td><td>Thin relationship edge.</td></tr>
           </tbody>
         </table>
-        <p>Labels auto-place clear of nodes and each other, so dense scenes stay readable instead of turning into spaghetti.</p>
+        <p>Keep labels short and action-oriented: <code>persist</code>, <code>enqueue</code>, <code>cache hit</code>. Long prose belongs in surrounding docs, not edge labels.</p>
+        <p><strong>Ready task:</strong> Add a <code>RedisCache</code> node and one <code>CheckoutApi -> RedisCache "cache write"</code> edge. If every id is declared and the flow renders, move to Level 4.</p>
       </article>
 
-      <!-- Step 4: Beats & Cues -->
+      <!-- Level 4: Beats and timeline cues -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">4</div>
-          <h3>Beats &amp; Cues</h3>
+          <h3>Level 4: Beats &amp; Cues</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">A <code>beat</code> groups cues that play in order. Reveal nodes with <code>show</code>, then emphasize with <code>glow</code> and <code>focus</code>. Put <code>&amp;</code> between two cues to run them together.</p>
+        <p class="ref-intro"><strong>Objective:</strong> split a diagram into narrative beats so viewers can follow setup, traffic, async work, and emphasis in sequence.</p>
         <div class="ref-code-wrap">
         <pre><code>beat highlight:
-  glow storage color=#22c55e & focus API zoom=1.1</code></pre>
+  glow data color=#22c55e & focus CheckoutApi zoom=1.1</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene "Beats & Cues" theme=midnight
+scene "Checkout Beats" theme=midnight
 layout LR
 
-client Web
-service API
-database DB
-cache Redis
+browser WebApp
+service CheckoutApi
+database OrdersDb
+cache RedisCache
+queue OrderEvents
 
-group storage: DB Redis
+group data: OrdersDb RedisCache OrderEvents
 
 beat intro:
-  show Web API & show storage stagger=80ms
+  show WebApp CheckoutApi & show data stagger=80ms
 
 beat traffic:
-  Web -> API "request" -> DB "query"
-  API -> Redis "cache"
+  WebApp -> CheckoutApi "POST /checkout" -> OrdersDb "persist"
+  CheckoutApi -> RedisCache "cache write"
+
+beat publish:
+  CheckoutApi ~> OrderEvents "order.created"
 
 beat highlight:
-  glow storage color=#22c55e & focus API zoom=1.1
+  glow data color=#22c55e & focus CheckoutApi zoom=1.1
         </script>
         </div>
         <table>
-          <thead><tr><th>Cue</th><th>Parameters</th><th>What it does</th></tr></thead>
+          <thead><tr><th>Cue</th><th>Use it when</th><th>Common options</th></tr></thead>
           <tbody>
-            <tr><td><code>show</code></td><td>stagger, dur</td><td>Reveals nodes or a group</td></tr>
-            <tr><td><code>hide</code></td><td>dur</td><td>Fades nodes out</td></tr>
-            <tr><td><code>glow</code></td><td>color, strength, dur</td><td>Cinematic emphasis without extra HTML</td></tr>
-            <tr><td><code>focus</code></td><td>zoom, dur</td><td>Pulse-scales a node to draw attention</td></tr>
+            <tr><td><code>show</code></td><td>Introducing nodes or groups.</td><td><code>stagger</code>, <code>dur</code></td></tr>
+            <tr><td><code>glow</code></td><td>Marking the important path.</td><td><code>color</code>, <code>strength</code></td></tr>
+            <tr><td><code>focus</code></td><td>Calling attention to one node.</td><td><code>zoom</code>, <code>dur</code></td></tr>
+            <tr><td><code>&amp;</code></td><td>Running two cues together.</td><td>Place it between cues on one line.</td></tr>
           </tbody>
         </table>
-        <p>Cues without an explicit <code>show</code> fall back to revealing every node at the start.</p>
+        <p>Name beats after the story moment: <code>intro</code>, <code>traffic</code>, <code>publish</code>, <code>finish</code>. This makes generated scenes easier for people and LLMs to revise.</p>
+        <p><strong>Ready task:</strong> Add a <code>finish</code> beat that glows <code>CheckoutApi</code> and <code>OrdersDb</code> together. If the story still reads in order, move to Level 5.</p>
       </article>
 
-      <!-- Step 5: Groups -->
+      <!-- Level 5: Groups and subsystem targets -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">5</div>
-          <h3>Groups</h3>
+          <h3>Level 5: Subsystem Groups</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Name a set of nodes with <code>group</code>, then target them all at once in any cue. Perfect for revealing a storage tier or glowing a whole subsystem together.</p>
+        <p class="ref-intro"><strong>Objective:</strong> organize real systems into named tiers, then target each tier with one cue instead of repeating node ids everywhere.</p>
         <div class="ref-code-wrap">
-        <pre><code>group storage: DB Redis
+        <pre><code>group ingress: WebApp ApiGateway
+group data: RedisCache OrdersDb
 
-beat highlight:
-  glow storage color=#22c55e</code></pre>
+beat layout:
+  show ingress & show data stagger=70ms</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene "Groups" theme=midnight
+scene "Grouped Checkout" theme=midnight
 layout LR
 
-service API
-database DB
-cache Redis
-queue Events
+browser WebApp
+gateway ApiGateway
+service CheckoutApi
+cache RedisCache
+database OrdersDb
+queue OrderEvents
+monitor Metrics
 
-group storage: DB Redis
+group ingress: WebApp ApiGateway
+group app: CheckoutApi
+group data: RedisCache OrdersDb
+group ops: Metrics
 
-beat reveal:
-  show API Events & show storage stagger=80ms
+beat layout:
+  show ingress stagger=50ms & show app stagger=50ms & show data stagger=50ms & show ops stagger=50ms
 
 beat traffic:
-  API -> DB "write" & API -> Redis "cache"
+  WebApp -> ApiGateway "POST /checkout" -> CheckoutApi
+  CheckoutApi -> RedisCache "cache write" & CheckoutApi -> OrdersDb "persist"
+  CheckoutApi -- Metrics "request metrics"
 
 beat highlight:
-  glow storage color=#22c55e
+  glow data color=#22c55e & focus Metrics
         </script>
         </div>
         <table>
-          <thead><tr><th>Form</th><th>Meaning</th></tr></thead>
+          <thead><tr><th>Pattern</th><th>Why it scales</th></tr></thead>
           <tbody>
-            <tr><td><code>group name: A B C</code></td><td>Declares a group of node ids</td></tr>
-            <tr><td><code>show name</code></td><td>Targets every member of the group</td></tr>
-            <tr><td><code>$nodes</code></td><td>Built-in selector for every node in the scene</td></tr>
+            <tr><td><code>group ingress: ...</code></td><td>Names an architectural tier.</td></tr>
+            <tr><td><code>show ingress</code></td><td>Reveals the whole tier without repeating ids.</td></tr>
+            <tr><td><code>glow data</code></td><td>Highlights all related stateful components at once.</td></tr>
           </tbody>
         </table>
+        <p>Groups are especially useful in AI-generated diagrams because they give the model reusable targets and reduce typo-prone repeated node lists.</p>
+        <p><strong>Ready task:</strong> Add an <code>async</code> group with a queue and worker, reveal it in <code>layout</code>, and send one <code>~&gt;</code> event into it. Then move to Level 6.</p>
       </article>
 
-      <!-- Step 6: Patterns -->
+      <!-- Level 6: Reusable patterns -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">6</div>
-          <h3>Patterns</h3>
+          <h3>Level 6: Reusable Patterns</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Define a reusable flow once with <code>pattern</code>, then expand it anywhere with <code>use</code>. Parameters (<code>$name</code>) are substituted at the call site — great for repeated request/response pairs.</p>
+        <p class="ref-intro"><strong>Objective:</strong> remove repeated flow choreography by defining a pattern once and applying it to different node pairs.</p>
         <div class="ref-code-wrap">
         <pre><code>pattern lookup(client, store):
   $client -> $store "lookup"
   $client <- $store "result"</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene "Patterns" theme=midnight
+scene "Lookup Pattern" theme=midnight
 layout LR
 
-service API
-database DB
-cache Redis
+service CheckoutApi
+cache RedisCache
+database OrdersDb
 
 pattern lookup(client, store):
   $client -> $store "lookup"
@@ -729,90 +742,147 @@ pattern lookup(client, store):
 
 beat main:
   show $nodes stagger=80ms
-  use lookup(API, Redis)
-  use lookup(API, DB)
+  use lookup(CheckoutApi, RedisCache)
+  use lookup(CheckoutApi, OrdersDb)
         </script>
         </div>
         <table>
-          <thead><tr><th>Form</th><th>Meaning</th></tr></thead>
+          <thead><tr><th>Part</th><th>What to write</th><th>What happens</th></tr></thead>
           <tbody>
-            <tr><td><code>pattern name(a, b):</code></td><td>Declares a reusable cue template</td></tr>
-            <tr><td><code>$a</code></td><td>A parameter placeholder, replaced on <code>use</code></td></tr>
-            <tr><td><code>use name(API, DB)</code></td><td>Expands the pattern with positional args</td></tr>
+            <tr><td>Definition</td><td><code>pattern lookup(client, store):</code></td><td>Declares reusable cue lines.</td></tr>
+            <tr><td>Placeholder</td><td><code>$client</code>, <code>$store</code></td><td>Marks values to substitute later.</td></tr>
+            <tr><td>Call site</td><td><code>use lookup(Api, Db)</code></td><td>Expands the pattern with concrete ids.</td></tr>
           </tbody>
         </table>
+        <p>Patterns should be small and meaningful. If the repeated action has a name people use in architecture reviews, it is a good pattern candidate.</p>
+        <p><strong>Ready task:</strong> Add a second pattern called <code>publish(app, queue)</code> with one <code>~&gt;</code> event edge, then use it from <code>CheckoutApi</code> to the declared <code>OrderEvents</code> queue. Then move to Level 7.</p>
       </article>
 
-      <!-- Step 7: Styles -->
+      <!-- Level 7: Styling and emphasis -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">7</div>
-          <h3>Styles</h3>
+          <h3>Level 7: Styling &amp; Emphasis</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Override a node's look with a named <code>style</code>. Attach it with <code>style=name</code> to highlight a primary, a hot path, or a deprecated component.</p>
+        <p class="ref-intro"><strong>Objective:</strong> tune visual meaning without changing the architecture: choose a theme, set direction, and style the path the viewer should remember.</p>
         <div class="ref-code-wrap">
         <pre><code>style hot = fill=#f59e0b
 
-database Primary "Primary DB" style=hot</code></pre>
+service CheckoutApi style=hot</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene "Styles" theme=midnight
-layout LR
+scene "Styled Hot Path" theme=paper
+layout TB
 
 style hot = fill=#f59e0b
 
-service API
-database Primary "Primary DB" style=hot
-database Replica "Read Replica"
+browser WebApp
+gateway ApiGateway
+service CheckoutApi style=hot
+database OrdersDb
+queue OrderEvents
 
 beat main:
   show $nodes stagger=80ms
-  API -> Primary "write"
-  API -> Replica "read"
+  WebApp -> ApiGateway "POST /checkout" -> CheckoutApi
+  CheckoutApi -> OrdersDb "persist"
+  CheckoutApi ~> OrderEvents "order.created"
+
+beat finish:
+  glow CheckoutApi color=#f59e0b & focus OrdersDb
         </script>
         </div>
         <table>
-          <thead><tr><th>Form</th><th>Meaning</th></tr></thead>
+          <thead><tr><th>Control</th><th>Use it for</th><th>Example</th></tr></thead>
           <tbody>
-            <tr><td><code>style name = k=v</code></td><td>Declares a reusable style with key/value props</td></tr>
-            <tr><td><code>&lt;kind&gt; Id style=name</code></td><td>Applies the style to a node</td></tr>
+            <tr><td><code>theme</code></td><td>Overall palette.</td><td><code>midnight</code>, <code>paper</code></td></tr>
+            <tr><td><code>layout</code></td><td>Scene reading direction.</td><td><code>LR</code>, <code>TB</code></td></tr>
+            <tr><td><code>style</code></td><td>Persistent node styling.</td><td><code>style hot = fill=#f59e0b</code></td></tr>
+            <tr><td><code>glow</code></td><td>Timeline emphasis.</td><td><code>glow CheckoutApi</code></td></tr>
           </tbody>
         </table>
+        <p>Use styles sparingly. One persistent highlight plus one final glow usually reads cleaner than styling every node.</p>
+        <p><strong>Ready task:</strong> Switch the scene between <code>paper</code>/<code>midnight</code> and <code>TB</code>/<code>LR</code>. If the story still reads clearly in both layouts, move to Level 8.</p>
       </article>
 
-      <!-- Step 8: Themes & Direction -->
+      <!-- Level 8: Production composition -->
       <article class="ref-card">
         <div class="ref-card-header">
           <div class="step-badge">8</div>
-          <h3>Themes &amp; Direction</h3>
+          <h3>Level 8: Production Scene</h3>
           <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
         </div>
-        <p class="ref-intro">Pick a semantic <code>theme</code> and a <code>layout</code> direction. Themes set consistent colors per node role; direction controls how auto-layout flows the ranks.</p>
+        <p class="ref-intro"><strong>Objective:</strong> combine semantic nodes, groups, beats, flows, patterns, and emphasis into a real architecture explainer that can survive review.</p>
         <div class="ref-code-wrap">
-        <pre><code>scene "Pipeline" theme=paper
-layout TB</code></pre>
+        <pre><code>scene "URL Shortener Production Flow" theme=midnight width=1280 height=760
+layout LR
+
+group ingress: Visitor WebClient ApiGateway
+group app: UrlShortener RedirectService
+group data: HotUrlCache UrlMappingDb</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene "Themes & Direction" theme=paper
-layout TB
+scene "URL Shortener Production Flow" theme=midnight width=1280 height=760
+layout LR
 
-client User
-service API
-queue Jobs
-worker Worker
+style hot = fill=#22c55e
 
-beat main:
-  show $nodes stagger=80ms
-  User -> API "request"
-  API ~> Jobs "enqueue" -> Worker "process"
+user Visitor
+browser WebClient
+gateway ApiGateway
+service UrlShortener style=hot
+service RedirectService
+cache HotUrlCache
+database UrlMappingDb
+queue AnalyticsEvents
+worker AnalyticsWorker
+monitor Metrics
+
+group ingress: Visitor WebClient ApiGateway
+group app: UrlShortener RedirectService
+group data: HotUrlCache UrlMappingDb
+group async: AnalyticsEvents AnalyticsWorker Metrics
+
+pattern resolve(app, store):
+  $app -> $store "lookup"
+  $app <- $store "result"
+
+beat layout:
+  show ingress stagger=40ms & show app stagger=40ms & show data stagger=40ms & show async stagger=40ms
+
+beat create:
+  WebClient -> ApiGateway "POST /shorten"
+  ApiGateway -> UrlShortener "validate"
+  UrlShortener -> UrlMappingDb "store slug" & UrlShortener ~> HotUrlCache "warm cache"
+  WebClient <- UrlShortener "short.ly/a7"
+
+beat redirect:
+  Visitor -> WebClient "open link"
+  WebClient -> ApiGateway "GET /a7"
+  ApiGateway -> RedirectService "resolve"
+  use resolve(RedirectService, HotUrlCache)
+  RedirectService -> UrlMappingDb "fallback"
+  WebClient <- RedirectService "301 redirect"
+
+beat telemetry:
+  RedirectService ~> AnalyticsEvents "click event"
+  AnalyticsEvents ~> AnalyticsWorker "process"
+  AnalyticsWorker -- Metrics "publish metrics"
+
+beat finish:
+  glow app color=#22c55e & glow data color=#38bdf8
         </script>
         </div>
         <table>
-          <thead><tr><th>Setting</th><th>Values</th><th>Description</th></tr></thead>
+          <thead><tr><th>Production habit</th><th>Why it matters</th></tr></thead>
           <tbody>
-            <tr><td><code>theme</code></td><td><code>midnight</code>, <code>paper</code></td><td>Dark or light semantic palette</td></tr>
-            <tr><td><code>layout</code></td><td><code>LR</code>, <code>RL</code>, <code>TB</code>, <code>BT</code></td><td>Auto-layout flow direction</td></tr>
+            <tr><td>Declare nodes first</td><td>Makes every later flow, group, and cue easy to validate.</td></tr>
+            <tr><td>Group by subsystem</td><td>Lets readers see ingress, app, data, and async tiers before traffic starts.</td></tr>
+            <tr><td>Use beats as story chapters</td><td>Keeps create, redirect, telemetry, and finish concerns separate.</td></tr>
+            <tr><td>End with emphasis</td><td>Confirms the main path and persistent state after the animation completes.</td></tr>
           </tbody>
         </table>
+        <p>When prompting an LLM, ask for this same order: scene metadata, nodes, groups, patterns, beats, then validation against declared ids.</p>
+        <p><strong>Final task:</strong> Build a scene for one real system with at least eight nodes, three groups, four beats, one request, one response, one async event, one pattern, and one final glow. If it validates and a teammate can explain the architecture from the animation, you are ready for independent use.</p>
       </article>
 
     </div>

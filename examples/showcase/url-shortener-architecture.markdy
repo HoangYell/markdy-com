@@ -2,34 +2,34 @@ scene "URL Shortener Architecture" theme=midnight width=1280 height=760
 layout LR
 
 user Visitor
-browser Browser
-gateway Gateway "API Gateway"
-service Shortener "URL Shortener"
-service Redirector "Redirect Service"
-cache Redis "Hot URL Cache"
-db UrlDB "URL Mapping DB"
+browser WebClient
+gateway ApiGateway
+service UrlShortener
+service RedirectService
+cache HotUrlCache
+db UrlMappingDb
 
-group storage: Redis UrlDB
-group ingress: Visitor Browser Gateway
-group app: Shortener Redirector
+group storage: HotUrlCache UrlMappingDb
+group ingress: Visitor WebClient ApiGateway
+group app: UrlShortener RedirectService
 
 beat layout:
   show ingress stagger=45ms & show app stagger=45ms & show storage stagger=45ms
 
 beat create:
-  Browser -> Gateway "POST /shorten"
-  Gateway -> Shortener "forward request"
-  Shortener -> UrlDB "store slug" & Shortener ~> Redis "warm cache"
-  Browser <- Shortener "short.ly/a7"
+  WebClient -> ApiGateway "POST /shorten"
+  ApiGateway -> UrlShortener "forward request"
+  UrlShortener -> UrlMappingDb "store slug" & UrlShortener ~> HotUrlCache "warm cache"
+  WebClient <- UrlShortener "short.ly/a7"
 
 beat redirect:
-  Visitor -> Browser "open short link"
-  Browser -> Gateway "GET /a7"
-  Gateway -> Redirector "resolve slug"
-  Redirector -> Redis "cache lookup"
-  Redis <- Redirector "target URL"
-  Redirector -> UrlDB "miss fallback"
-  Browser <- Redirector "301 redirect"
+  Visitor -> WebClient "open short link"
+  WebClient -> ApiGateway "GET /a7"
+  ApiGateway -> RedirectService "resolve slug"
+  RedirectService -> HotUrlCache "cache lookup"
+  HotUrlCache <- RedirectService "target URL"
+  RedirectService -> UrlMappingDb "miss fallback"
+  WebClient <- RedirectService "301 redirect"
 
 beat finish:
-  glow storage color=#22c55e & glow UrlDB color=#38bdf8
+  glow storage color=#22c55e & glow UrlMappingDb color=#38bdf8

@@ -2,49 +2,49 @@ scene "Kubernetes Platform Blueprint" theme=midnight width=1320 height=780
 layout LR
 
 user Operator
-cli Kubectl "kubectl"
-api APIServer "API Server"
+cli kubectl
+api ApiServer
 scheduler Scheduler
-controller Controller "Controller Manager"
-database Etcd "etcd"
-load_balancer LB "Load Balancer"
-ingress Ingress "Ingress Gateway"
-service KubeService "Cluster Service"
-pod AppPod "App API Pod"
-pod JobPod "Worker Job Pod"
+controller ControllerManager
+database etcd
+load_balancer LoadBalancer
+ingress IngressGateway
+service ClusterService
+pod AppApiPod
+pod WorkerJobPod
 configmap Config
 secret Secret
-volume PV "Persistent Volume"
+volume PersistentVolume
 
-group control_plane: Operator Kubectl APIServer Scheduler Controller Etcd
-group entry_lane: LB Ingress KubeService
-group workloads: AppPod JobPod
-group runtime_config: Config Secret PV
+group control_plane: Operator kubectl ApiServer Scheduler ControllerManager etcd
+group entry_lane: LoadBalancer IngressGateway ClusterService
+group workloads: AppApiPod WorkerJobPod
+group runtime_config: Config Secret PersistentVolume
 
 beat layout:
   show control_plane stagger=45ms & show entry_lane stagger=45ms & show workloads stagger=45ms & show runtime_config stagger=45ms
 
 beat control:
-  Operator -> Kubectl "kubectl apply"
-  Kubectl -> APIServer "submit manifest"
-  APIServer -> Etcd "persist state"
-  APIServer ~> Scheduler "pending pod"
-  APIServer ~> Controller "reconcile"
+  Operator -> kubectl "kubectl apply"
+  kubectl -> ApiServer "submit manifest"
+  ApiServer -> etcd "persist state"
+  ApiServer ~> Scheduler "pending pod"
+  ApiServer ~> ControllerManager "reconcile"
 
 beat scheduling:
-  Scheduler ~> AppPod "schedule pod"
-  Controller ~> JobPod "scale workers"
+  Scheduler ~> AppApiPod "schedule pod"
+  ControllerManager ~> WorkerJobPod "scale workers"
 
 beat config:
-  Config ~> AppPod "inject env"
-  Secret ~> JobPod "mount secret"
-  PV ~> JobPod "storage"
+  Config ~> AppApiPod "inject env"
+  Secret ~> WorkerJobPod "mount secret"
+  PersistentVolume ~> WorkerJobPod "storage"
 
 beat traffic:
-  LB -> Ingress "external traffic"
-  Ingress -> KubeService "route to service"
-  KubeService -> AppPod "cluster IP"
-  AppPod ~> JobPod "dispatch background job"
+  LoadBalancer -> IngressGateway "external traffic"
+  IngressGateway -> ClusterService "route to service"
+  ClusterService -> AppApiPod "cluster IP"
+  AppApiPod ~> WorkerJobPod "dispatch background job"
 
 beat finish:
-  glow APIServer color=#38bdf8 & glow AppPod color=#22c55e
+  glow ApiServer color=#38bdf8 & glow AppApiPod color=#22c55e

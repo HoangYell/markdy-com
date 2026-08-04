@@ -1,40 +1,40 @@
-scene "YouTube Processing Pipeline" theme=midnight width=1280 height=760
+scene "YouTube Processing Pipeline" theme=midnight width=1360 height=760
 layout LR
 
 user Creator
-browser Studio "Creator Studio"
-gateway Gateway "API Gateway"
-service UploadSvc "Upload Service"
-queue TranscodeQueue "Transcode Queue"
-worker Transcoder "Transcoder Workers"
-service CatalogSvc "Catalog Service"
-database VideoDB "Video Metadata DB"
-bucket ObjectStore "Object Storage"
-cdn CDN "CDN Edge"
+browser CreatorStudio
+gateway UploadGateway
+service UploadService
+queue TranscodeJobs
+worker Transcoder
+service VideoCatalog
+database MetadataDb
+bucket ObjectStorage
+cdn CdnEdge
 
-group ingest: Creator Studio Gateway UploadSvc
-group processing: TranscodeQueue Transcoder ObjectStore
-group delivery: CatalogSvc VideoDB CDN
+group ingest: Creator CreatorStudio UploadGateway UploadService TranscodeJobs
+group processing: Transcoder ObjectStorage
+group delivery: VideoCatalog MetadataDb CdnEdge
 
 beat layout:
-  show ingest stagger=45ms & show processing stagger=45ms & show delivery stagger=45ms
+  show ingest stagger=40ms & show processing stagger=40ms & show delivery stagger=40ms
 
 beat upload:
-  Creator -> Studio "upload video" -> Gateway "POST /videos"
-  Gateway -> UploadSvc "accept upload"
-  UploadSvc -> ObjectStore "store raw"
-  UploadSvc ~> TranscodeQueue "enqueue job"
+  Creator -> CreatorStudio "upload"
+  CreatorStudio -> UploadGateway "POST /videos"
+  UploadGateway -> UploadService "accept"
+  UploadService -> ObjectStorage "raw"
+  UploadService ~> TranscodeJobs "enqueue"
 
 beat transcode:
-  TranscodeQueue ~> Transcoder "pick job"
-  Transcoder -> ObjectStore "read raw"
-  Transcoder -> ObjectStore "write renditions"
-  Transcoder -> CatalogSvc "register renditions"
+  TranscodeJobs ~> Transcoder "start"
+  Transcoder -> ObjectStorage "read"
+  Transcoder -> ObjectStorage "write"
+  Transcoder -> VideoCatalog "register"
 
 beat publish:
-  CatalogSvc -> VideoDB "persist metadata"
-  CatalogSvc ~> CDN "warm edge cache"
-  Studio <- CatalogSvc "video ready"
+  VideoCatalog -> MetadataDb "meta"
+  VideoCatalog ~> CdnEdge "warm cache"
 
 beat finish:
-  glow Transcoder color=#38bdf8 & glow CDN color=#22c55e
+  glow Transcoder color=#38bdf8 & glow CdnEdge color=#22c55e

@@ -3,39 +3,39 @@ layout LR
 
 user Author
 user Reader
-gateway Gateway "API Gateway"
-service TweetSvc "Tweet Service"
-queue TweetQueue "Tweet Queue"
-worker Fanout "Fan-out Workers"
-service TimelineSvc "Timeline Service"
-cache Redis "Redis Timeline Cache"
-database TimelineDB "Timeline DB"
-service Notify "Notification Service"
+gateway ApiGateway
+service TweetService
+queue TweetQueue
+worker FanoutWorkers
+service TimelineService
+cache RedisTimelineCache
+database TimelineDb
+service NotificationService
 
-group write: Author Gateway TweetSvc TweetQueue Fanout
-group read: Reader Gateway TimelineSvc Redis TimelineDB
-group realtime: Fanout Notify
+group write: Author ApiGateway TweetService TweetQueue FanoutWorkers
+group read: Reader ApiGateway TimelineService RedisTimelineCache TimelineDb
+group realtime: FanoutWorkers NotificationService
 
 beat layout:
   show write stagger=45ms & show read stagger=45ms & show realtime stagger=45ms
 
 beat post:
-  Author -> Gateway "POST tweet"
-  Gateway -> TweetSvc "validate + store"
-  TweetSvc ~> TweetQueue "publish tweet"
-  TweetQueue ~> Fanout "fan-out job"
+  Author -> ApiGateway "POST tweet"
+  ApiGateway -> TweetService "validate + store"
+  TweetService ~> TweetQueue "publish tweet"
+  TweetQueue ~> FanoutWorkers "fan-out job"
 
 beat fanout:
-  Fanout ~> Redis "home timelines" & Fanout ~> TimelineDB "persist entries"
-  Fanout ~> Notify "mentions"
-  glow Fanout color=#a78bfa
+  FanoutWorkers ~> RedisTimelineCache "home timelines" & FanoutWorkers ~> TimelineDb "persist entries"
+  FanoutWorkers ~> NotificationService "mentions"
+  glow FanoutWorkers color=#a78bfa
 
 beat read:
-  Reader -> Gateway "GET timeline"
-  Gateway -> TimelineSvc "hydrate feed"
-  TimelineSvc -> Redis "read hot"
-  TimelineSvc -> TimelineDB "page miss"
-  Reader <- TimelineSvc "ranked feed"
+  Reader -> ApiGateway "GET timeline"
+  ApiGateway -> TimelineService "hydrate feed"
+  TimelineService -> RedisTimelineCache "read hot"
+  TimelineService -> TimelineDb "page miss"
+  Reader <- TimelineService "ranked feed"
 
 beat finish:
-  glow Redis color=#22c55e & glow TimelineDB color=#38bdf8
+  glow RedisTimelineCache color=#22c55e & glow TimelineDb color=#38bdf8

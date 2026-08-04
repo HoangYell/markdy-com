@@ -9,22 +9,22 @@ scene "URL Shortener Architecture" theme=midnight
 layout LR
 
 user Visitor
-browser Browser
-gateway Gateway "API Gateway"
-service Shortener "URL Shortener"
-service Redirector "Redirect Service"
-cache Redis "Hot URL Cache"
-db UrlDB "URL Mapping DB"
+browser WebClient
+gateway ApiGateway
+service UrlShortener
+service RedirectService
+cache HotUrlCache
+db UrlMappingDb
 
-group storage: Redis UrlDB
+group storage: HotUrlCache UrlMappingDb
 
 beat layout:
   show $nodes stagger=60ms
 
 beat create:
-  Browser -> Gateway "POST /shorten" -> Shortener
-  Shortener -> UrlDB "store slug" & Shortener ~> Redis "warm cache"
-  Browser <- Shortener "short.ly/a7"
+  WebClient -> ApiGateway "POST /shorten" -> UrlShortener
+  UrlShortener -> UrlMappingDb "store slug" & UrlShortener ~> HotUrlCache "warm cache"
+  WebClient <- UrlShortener "short.ly/a7"
 
 beat finish:
   glow storage color=#22c55e
@@ -37,13 +37,29 @@ describe("diagram parser", () => {
     expect(ast.meta.theme).toBe("midnight");
     expect(ast.meta.direction).toBe("LR");
     expect(Object.keys(ast.nodes)).toHaveLength(7);
-    expect(ast.nodes.Browser.kind).toBe("browser");
-    expect(ast.nodes.UrlDB.label).toBe("URL Mapping DB");
+    expect(ast.nodes.WebClient.kind).toBe("browser");
+    expect(ast.nodes.ApiGateway.label).toBe("API Gateway");
+    expect(ast.nodes.UrlMappingDb.label).toBe("URL Mapping DB");
+  });
+
+  it("humanizes unlabeled node ids while preserving technical casing", () => {
+    const ast = parse(`
+scene theme=midnight
+cli kubectl
+database etcd
+service ApiServer
+cdn CdnEdge
+`);
+
+    expect(ast.nodes.kubectl.label).toBe("kubectl");
+    expect(ast.nodes.etcd.label).toBe("etcd");
+    expect(ast.nodes.ApiServer.label).toBe("API Server");
+    expect(ast.nodes.CdnEdge.label).toBe("CDN Edge");
   });
 
   it("parses groups and beats", () => {
     const ast = parse(URL_SHORTENER);
-    expect(ast.groups.storage.members).toEqual(["Redis", "UrlDB"]);
+    expect(ast.groups.storage.members).toEqual(["HotUrlCache", "UrlMappingDb"]);
     expect(ast.beats.map((b) => b.name)).toEqual(["layout", "create", "finish"]);
     expect(ast.beats[1].cues[0].kind).toBe("flow");
   });
@@ -66,8 +82,8 @@ describe("diagram parser", () => {
     const ast = parse(URL_SHORTENER);
     const create = ast.beats.find((b) => b.name === "create")!;
     const firstFlow = create.cues.filter(isFlow)[0];
-    expect(firstFlow.segments[0]).toMatchObject({ from: "Browser", to: "Gateway", label: "POST /shorten" });
-    expect(firstFlow.segments[1]).toMatchObject({ from: "Gateway", to: "Shortener" });
+    expect(firstFlow.segments[0]).toMatchObject({ from: "WebClient", to: "ApiGateway", label: "POST /shorten" });
+    expect(firstFlow.segments[1]).toMatchObject({ from: "ApiGateway", to: "UrlShortener" });
   });
 
   it("reverses response edges while keeping their label", () => {
@@ -77,7 +93,7 @@ describe("diagram parser", () => {
       .filter(isFlow)
       .flatMap((c) => c.segments)
       .find((s) => s.op === "response");
-    expect(response).toMatchObject({ from: "Shortener", to: "Browser", label: "short.ly/a7" });
+    expect(response).toMatchObject({ from: "UrlShortener", to: "WebClient", label: "short.ly/a7" });
   });
 
   it("only references declared nodes in compiled flow cues", () => {

@@ -4,6 +4,7 @@ MDX integration for MarkdyScript with Lighthouse-safe defaults:
 
 - `remarkMarkdy` converts fenced code blocks (` ```markdy `) into a player component.
 - `MarkdyPlayer` hydrates only when visible and lazy-loads `@markdy/renderer-dom`.
+- Rendered diagrams use the same semantic SVG node cards as `@markdy/renderer-dom`.
 
 ## Install
 
@@ -48,7 +49,7 @@ export const mdxComponents = {
 Then write Markdown:
 
 ````md
-```markdy width=800 height=400 bg="#07111f" autoplay=false loop=false
+```markdy width=800 height=400 bg="#07111f" autoplay=false loop=false playback_rate=0.5 scene_boundary_progress=false
 scene "Request" theme=midnight width=800 height=400
 browser Web
 service API
@@ -63,3 +64,13 @@ beat main:
 - Default transform options set `autoplay=false`, `loop=false`, `progressBar=false`.
 - Runtime player does not import renderer code until the block enters viewport.
 - Placeholder is SSR-safe and keeps stable layout ratio to avoid CLS.
+
+## Fence Metadata
+
+Fenced block metadata is passed as props to `MarkdyPlayer`. Snake-case aliases are normalized for renderer options:
+
+| Metadata | Prop | Description |
+|---|---|---|
+| `progress_bar=false` | `progressBar={false}` | Deprecated compatibility flag for the scene-boundary progress bar |
+| `scene_boundary_progress=false` | `sceneBoundaryProgress={false}` | Preferred flag for the scene-boundary progress bar |
+| `playback_rate=0.5` | `playbackRate={0.5}` | Timeline speed multiplier |

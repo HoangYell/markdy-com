@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.2] — 2026-08-04
+
+### Added
+- **Playback controls for embedded previews** — Added playback-rate support across the DOM renderer, Astro, and MDX integrations, plus YouTube-style speed buttons in the homepage playground.
+- **Semantic node cards** — Replaced visible node-kind text with compact, role-aware SVG icons while preserving semantic metadata, accessible labels, and role coloring.
+- **Scene-boundary progress control** — Added `sceneBoundaryProgress` as the preferred option for hiding or showing the rainbow scene-boundary progress indicator.
+
+### Changed
+- **Showcase readability** — Rebalanced curated showcase scenes with cleaner spacing, smaller default node cards, and simpler source ids that render readable labels automatically.
+- **MarkdyScript onboarding** — Reworked the homepage learning path into progressive how-to tutorials that build from the smallest scene shell to a production architecture explainer.
+- **Scene-first documentation** — Updated the landing page, README, and getting-started guide so `.markdy` files and CLI validation are the primary authoring path, with `createPlayer` positioned as a custom embed API.
+
+### Fixed
+- **Technical label casing** — Improved generated labels for ids such as `ApiGateway`, `UrlMappingDb`, `CdnEdge`, `kubectl`, and `etcd` so examples can avoid redundant quoted labels.
+
 ## [0.8.1] — 2026-08-03
 
 ### Fixed

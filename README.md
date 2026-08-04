@@ -51,6 +51,7 @@ beat main:
 | **Auto-layout + routing** | Rank-based layout and orthogonal edge routing are built in — no coordinates required |
 | **Flow operators** | `->` request, `<-` response, `~>` event, `--` dependency, each with its own edge style |
 | **Beats + cues** | Sequence reveals with `beat` blocks and `show`/`hide`/`glow`/`focus` cues; run cues together with `&` |
+| **Semantic node cards** | Kind-aware SVG glyphs for browsers, services, gateways, queues, workers, databases, storage, CDN, security, platform, and more |
 | **Patterns, styles, groups** | Reusable `pattern name(...)` + `use`, per-node `style`, and `group` fan-out with `stagger` |
 | **Semantic themes** | `midnight` (dark) and `paper` (light) — consistent colors per node role and edge kind |
 | **Technical diagram vocabulary** | Optional systems pack adds architecture nodes, visual primitives, and labeled flows for software-engineering diagrams |
@@ -148,33 +149,30 @@ npx markdy render examples/showcase/url-shortener-architecture.markdy --out scen
 
 ## Quick Start
 
-### Vanilla JS / TypeScript
+### Write a `.markdy` scene
 
-```sh
-pnpm add @markdy/core @markdy/renderer-dom
+Create `architecture.markdy`:
+
+```markdy
+scene "Request" theme=midnight
+layout LR
+
+browser WebApp
+service CheckoutApi
+database OrdersDb
+
+beat main:
+  show $nodes stagger=80ms
+  WebApp -> CheckoutApi "GET /orders" -> OrdersDb "query"
+  WebApp <- CheckoutApi "200 OK"
 ```
 
-```ts
-import { createPlayer } from "@markdy/renderer-dom";
+Preview or validate it with the CLI:
 
-const player = createPlayer({
-  container: document.getElementById("scene")!,
-  code: `
-    scene "Request" theme=midnight
-    browser Web
-    service API
-    beat main:
-      show $nodes
-      Web -> API "GET /users"
-  `,
-  autoplay: true,
-});
-
-// Control playback
-player.pause();
-player.seek(1.5);   // jump to 1.5 s
-player.play();
-player.destroy();    // clean up
+```sh
+pnpm add -D @markdy/cli
+pnpm markdy lint architecture.markdy
+pnpm markdy render architecture.markdy --out architecture.html
 ```
 
 ### Astro / MDX
@@ -189,11 +187,11 @@ import { Markdy } from "@markdy/astro";
 
 const code = `
   scene "Request" theme=midnight width=800 height=400
-  browser Web
-  service API
+  browser WebApp
+  service CheckoutApi
   beat main:
     show $nodes
-    Web -> API "GET /users"
+    WebApp -> CheckoutApi "GET /users"
 `;
 ---
 
@@ -228,27 +226,27 @@ Full reference: **[docs/SYNTAX.md](docs/SYNTAX.md)** · Step-by-step tutorial: *
 scene "Order Flow" theme=midnight
 layout LR
 
-browser Browser
-service API "Order Service"
-database DB "Orders DB"
+browser WebApp
+service OrderService
+database OrdersDb
 
 beat main:
   show $nodes stagger=80ms
-  Browser -> API "POST /order" -> DB "persist"
-  Browser <- API "201 Created"
+  WebApp -> OrderService "POST /order" -> OrdersDb "persist"
+  WebApp <- OrderService "201 Created"
 ```
 
 ### Groups + Patterns
 
 ```markdy
-group storage: Redis DB
+group storage: Redis OrdersDb
 
 pattern lookup(client, store):
   $client -> $store "lookup"
   $client <- $store "result"
 
 beat read:
-  use lookup(API, Redis)
+  use lookup(OrderService, Redis)
 ```
 
 ### Flow operators
@@ -301,7 +299,9 @@ interface PlayerOptions {
   autoplay?: boolean;       // Start immediately (default: true)
   loop?: boolean;           // Loop at end (default: true)
   copyright?: boolean;      // "Powered by Markdy" badge (default: true)
-  progressBar?: boolean;    // Rainbow border progress bar (default: true)
+  progressBar?: boolean;    // Deprecated: use sceneBoundaryProgress
+  sceneBoundaryProgress?: boolean; // Rainbow border progress bar (default: true)
+  playbackRate?: number;    // Timeline speed multiplier (default: 1)
   onWarning?: (w: Diagnostic) => void;                 // Soft parse warnings
   onTimeUpdate?: (seconds: number, duration: number) => void;
   onPlayStateChange?: (playing: boolean) => void;
@@ -311,6 +311,8 @@ interface Player {
   play(): void;             // Start / resume
   pause(): void;            // Pause at current position
   seek(seconds: number): void;  // Jump to time
+  setPlaybackRate(rate: number): void; // Set timeline speed, e.g. 0.5 or 2
+  playbackRate(): number;    // Current timeline speed multiplier
   seekToBeat(name: string): void;  // Jump to a named beat
   destroy(): void;          // Remove DOM + cancel animations
 }
@@ -329,6 +331,8 @@ interface Player {
 | `loop` | `boolean` | `true` | Loop the animation when it ends |
 | `copyright` | `boolean` | `true` | Show a "Powered by Markdy" badge below the animation |
 | `progressBar` | `boolean` | `true` | Show a rainbow progress bar around the viewport border |
+| `sceneBoundaryProgress` | `boolean` | `progressBar` | Preferred flag for the rainbow scene-boundary progress bar |
+| `playbackRate` | `number` | `1` | Timeline speed multiplier |
 | `class` | `string` | — | CSS class for outer wrapper |
 
 ---

@@ -4,45 +4,47 @@ Markdy is an open-source text-to-animation DSL for animated diagrams, architectu
 
 Use this guide when you want to answer: "How do I turn a text description into an animated developer diagram?"
 
-## 1. Install the core packages
+## 1. Write a scene file
 
-```sh
-npm i @markdy/core @markdy/renderer-dom
-```
+Create `architecture.markdy`:
 
-The full architecture node vocabulary ships inside `@markdy/core`, so no registration step is needed. `@markdy/stdlib-systems` is an optional re-export/manifest of that vocabulary for tooling.
-
-## 2. Render a scene in the browser
-
-```ts
-import { createPlayer } from "@markdy/renderer-dom";
-
-createPlayer({
-  container: document.getElementById("scene")!,
-  code: `
+```markdy
 scene "Request" theme=midnight
 layout LR
 
-browser Browser
-service API
-database Postgres "Postgres"
+browser WebApp
+service ApiServer
+database Postgres
 
 beat main:
   show $nodes stagger=80ms
-  Browser -> API "GET /users" -> Postgres "query"
-  Browser <- API "200 OK"
-`,
-});
+  WebApp -> ApiServer "GET /users" -> Postgres "query"
+  WebApp <- ApiServer "200 OK"
 ```
+
+Node labels are optional. IDs like `ApiServer` and `OrdersDb` render as readable labels such as `API Server` and `Orders DB`.
+
+## 2. Preview and validate it
+
+```sh
+npm i -D @markdy/cli
+npx markdy lint architecture.markdy
+npx markdy render architecture.markdy --out architecture.html
+```
+
+The full architecture node vocabulary ships inside Markdy, so no registration step is needed. `@markdy/stdlib-systems` is an optional re-export/manifest of that vocabulary for tooling.
 
 ## 3. Pick the right integration
 
+Use the scene file directly when you can. Reach for package APIs only when you need to embed or automate it.
+
 | Goal | Use |
 |---|---|
-| Render in a web app | `@markdy/core` + `@markdy/renderer-dom` |
+| Preview, lint, format, or render files | `@markdy/cli` |
 | Embed in Astro docs | `@markdy/astro` |
 | Write fenced code blocks in MDX | `@markdy/mdx` |
-| Lint, format, render, or preview files | `@markdy/cli` |
+| Build a custom browser player | `@markdy/renderer-dom` |
+| Parse or inspect scenes in tooling | `@markdy/core` |
 | Autocomplete and diagnostics in editors | `@markdy/language-server` |
 | Architecture node vocabulary manifest | `@markdy/stdlib-systems` (optional) |
 
