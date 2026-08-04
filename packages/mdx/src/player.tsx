@@ -12,6 +12,8 @@ type CreatePlayerInput = {
   loop: boolean;
   copyright: boolean;
   progressBar: boolean;
+  sceneBoundaryProgress: boolean;
+  playbackRate: number;
 };
 
 export type MarkdyPlayerProps = {
@@ -24,6 +26,8 @@ export type MarkdyPlayerProps = {
   loop?: boolean | string;
   copyright?: boolean | string;
   progressBar?: boolean | string;
+  sceneBoundaryProgress?: boolean | string;
+  playbackRate?: number | string;
   className?: string;
   title?: string;
   description?: string;
@@ -74,6 +78,8 @@ export function MarkdyPlayer({
   loop = false,
   copyright = false,
   progressBar = false,
+  sceneBoundaryProgress,
+  playbackRate = 1,
   className,
   title = "Markdy animation",
   description,
@@ -84,6 +90,8 @@ export function MarkdyPlayer({
   const resolvedLoop = coerceBoolean(loop, false);
   const resolvedCopyright = coerceBoolean(copyright, false);
   const resolvedProgressBar = coerceBoolean(progressBar, false);
+  const resolvedSceneBoundaryProgress = coerceBoolean(sceneBoundaryProgress, resolvedProgressBar);
+  const resolvedPlaybackRate = coerceNumber(playbackRate, 1);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const playerRef = useRef<PlayerInstance | null>(null);
@@ -116,6 +124,8 @@ export function MarkdyPlayer({
               loop: resolvedLoop,
               copyright: resolvedCopyright,
               progressBar: resolvedProgressBar,
+              sceneBoundaryProgress: resolvedSceneBoundaryProgress,
+              playbackRate: resolvedPlaybackRate > 0 ? resolvedPlaybackRate : 1,
             });
             root.dataset.markdyInit = "done";
             root.removeAttribute("aria-busy");
@@ -160,7 +170,16 @@ export function MarkdyPlayer({
       playerRef.current?.destroy();
       playerRef.current = null;
     };
-  }, [assets, code, resolvedAutoplay, resolvedCopyright, resolvedLoop, resolvedProgressBar]);
+  }, [
+    assets,
+    code,
+    resolvedAutoplay,
+    resolvedCopyright,
+    resolvedLoop,
+    resolvedProgressBar,
+    resolvedSceneBoundaryProgress,
+    resolvedPlaybackRate,
+  ]);
 
   return (
     <div

@@ -433,7 +433,7 @@ markdy <span class="u-fn">check-all</span> examples`;
 
       <div class="preview-col">
         <div class="panel-label">
-          <span>Preview</span>
+          <span>Embedded Preview</span>
           <div class="preview-toolbar">
             <span id="status" class="status ok"></span>
             <button id="rewind-btn" class="btn-share" title="Back 1 second" aria-label="Back 1 second">
@@ -449,6 +449,13 @@ markdy <span class="u-fn">check-all</span> examples`;
               <svg id="pause-icon" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
               <span id="play-label">Play</span>
             </button>
+            <div class="speed-controls" role="group" aria-label="Playback speed">
+              <button class="speed-btn" type="button" data-speed="0.25" aria-pressed="false" title="Playback speed 0.25x">0.25x</button>
+              <button class="speed-btn" type="button" data-speed="0.5" aria-pressed="false" title="Playback speed 0.5x">0.5x</button>
+              <button class="speed-btn" type="button" data-speed="1" aria-pressed="true" title="Playback speed 1x">1x</button>
+              <button class="speed-btn" type="button" data-speed="1.5" aria-pressed="false" title="Playback speed 1.5x">1.5x</button>
+              <button class="speed-btn" type="button" data-speed="2" aria-pressed="false" title="Playback speed 2x">2x</button>
+            </div>
             <button id="expand-preview-btn" class="btn-share" title="Expand preview" aria-label="Expand preview" aria-pressed="false">
               <svg id="expand-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
               <span id="expand-preview-label">Expand View</span>
@@ -1178,6 +1185,7 @@ beat main:
   const rewindBtn = document.getElementById("rewind-btn") as HTMLButtonElement;
   const restartBtn = document.getElementById("restart-btn") as HTMLButtonElement;
   const playBtn   = document.getElementById("play-btn")   as HTMLButtonElement;
+  const speedBtns = document.querySelectorAll<HTMLButtonElement>(".speed-btn");
   const playIcon  = document.getElementById("play-icon")  as SVGElement;
   const pauseIcon = document.getElementById("pause-icon") as SVGElement;
   const playLabel = document.getElementById("play-label") as HTMLSpanElement;
@@ -1197,6 +1205,21 @@ beat main:
   let currentPreviewStart = 0;
   let isScrubbing = false;
   let isPreviewExpanded = false;
+  let selectedPlaybackRate = 1;
+
+  function setSelectedPlaybackRate(rate: number) {
+    if (!Number.isFinite(rate) || rate <= 0) return;
+    selectedPlaybackRate = rate;
+    for (const btn of speedBtns) {
+      const btnRate = Number(btn.dataset.speed ?? "1");
+      const isActive = Math.abs(btnRate - rate) < 0.001;
+      btn.classList.toggle("active", isActive);
+      btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+    }
+    player?.setPlaybackRate(rate);
+  }
+
+  setSelectedPlaybackRate(1);
 
   function formatTime(seconds: number): string {
     if (!Number.isFinite(seconds) || seconds <= 0) return "0:00";
@@ -1333,6 +1356,8 @@ beat main:
         code: adaptCodeToTheme(code),
         autoplay: true,
         copyright: false,
+        sceneBoundaryProgress: false,
+        playbackRate: selectedPlaybackRate,
         onTimeUpdate: setTimeline,
         onPlayStateChange: setPlayState,
       });
@@ -1542,6 +1567,13 @@ beat main:
     if (!player) return;
     player.seek(0);
     if (!player.isPlaying()) player.play();
+  });
+
+  speedBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const rate = Number(btn.dataset.speed ?? "1");
+      setSelectedPlaybackRate(rate);
+    });
   });
 
   timelineRange.addEventListener("input", () => {
@@ -2348,6 +2380,37 @@ f
     gap: 0.5rem;
     min-width: 0;
     flex-wrap: wrap;
+  }
+
+  .speed-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .speed-btn {
+    font-family: inherit;
+    font-size: 0.64rem;
+    font-weight: 700;
+    padding: 0.18rem 0.38rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    line-height: 1.2;
+    transition: all 0.18s ease;
+  }
+
+  .speed-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .speed-btn.active {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
   }
 
   .editor-hint {
@@ -3206,6 +3269,17 @@ f
 
     .preview-toolbar {
       gap: 0.35rem;
+    }
+
+    .speed-controls {
+      gap: 0.2rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .speed-btn {
+      font-size: 0.62rem;
+      padding: 0.14rem 0.33rem;
     }
 
     .preview-toolbar .btn-share span {
