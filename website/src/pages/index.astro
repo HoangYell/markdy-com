@@ -2346,7 +2346,7 @@ f
     border: 1px solid var(--border);
     border-radius: 12px;
     overflow: hidden;
-    height: clamp(560px, 68vh, 680px);
+    height: clamp(420px, 52vh, 520px);
     background: var(--bg-secondary);
     box-shadow: 0 4px 24px var(--shadow-sm);
     transition: all 0.3s ease;
@@ -2577,16 +2577,16 @@ f
   }
 
   .stage-wrap {
-    flex: 0 0 auto;
+    flex: 1 1 auto;
     width: 100%;
     align-self: stretch;
     box-sizing: border-box;
-    aspect-ratio: var(--preview-aspect, 16 / 9);
-    margin: auto 0;
+    min-height: 0;
+    margin: 0;
     position: relative;
     background: var(--bg-tertiary);
     overflow: hidden;
-    --stage-pad: 1rem;
+    --stage-pad: 0px;
     transition: background 0.3s ease;
   }
 
