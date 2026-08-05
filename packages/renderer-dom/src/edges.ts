@@ -49,13 +49,13 @@ function ensureDefs(svg: SVGSVGElement, theme: ThemeTokens, id: string): void {
     const arrow = document.createElementNS("http://www.w3.org/2000/svg", "marker");
     arrow.setAttribute("id", `${id}-arrow-${kind}`);
     arrow.setAttribute("viewBox", "0 0 10 10");
-    arrow.setAttribute("refX", "8");
+    arrow.setAttribute("refX", "8.5");
     arrow.setAttribute("refY", "5");
-    arrow.setAttribute("markerWidth", "6");
-    arrow.setAttribute("markerHeight", "6");
+    arrow.setAttribute("markerWidth", "7");
+    arrow.setAttribute("markerHeight", "7");
     arrow.setAttribute("orient", "auto-start-reverse");
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", "M 1 1 L 9 5 L 1 9 z");
+    path.setAttribute("d", "M 1.5 1.6 L 9 5 L 1.5 8.4 L 3.4 5 Z");
     path.setAttribute("fill", color);
     arrow.appendChild(path);
     defs.appendChild(arrow);
@@ -101,20 +101,22 @@ export function createEdgeRuntime(
   path.setAttribute("d", d);
   path.setAttribute("fill", "none");
   path.setAttribute("stroke", color);
-  path.setAttribute("stroke-width", kind === "dependency" ? "1.5" : "2.5");
+  path.setAttribute("stroke-width", kind === "dependency" ? "1.5" : "2");
   path.setAttribute("stroke-linejoin", "round");
   path.setAttribute("stroke-linecap", "round");
   if (style.dash) path.setAttribute("stroke-dasharray", style.dash);
   if (style.marker !== "none") {
     path.setAttribute("marker-end", `url(#${sceneId}-arrow-${kind})`);
   }
-  path.style.filter = `drop-shadow(0 0 4px ${color}55)`;
+  if (kind !== "dependency") {
+    path.style.filter = `drop-shadow(0 0 3px ${color}33)`;
+  }
 
   const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  dot.setAttribute("r", "4");
+  dot.setAttribute("r", "3.5");
   dot.setAttribute("fill", color);
   dot.style.opacity = "0";
-  dot.style.filter = `drop-shadow(0 0 6px ${color})`;
+  dot.style.filter = `drop-shadow(0 0 4px ${color}aa)`;
 
   group.append(path, dot);
 
@@ -124,6 +126,20 @@ export function createEdgeRuntime(
     const textWidth = label.length * 6.6 + 10;
     const placement = placeFlowLabel(points, textWidth, labelObstacles, bounds);
     labelRect = placement.rect;
+    const plate = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    const padX = 7;
+    const halfW = textWidth / 2;
+    plate.setAttribute("x", String(placement.x - halfW - padX));
+    plate.setAttribute("y", String(placement.y - 9));
+    plate.setAttribute("width", String(textWidth + padX * 2));
+    plate.setAttribute("height", "18");
+    plate.setAttribute("rx", "6");
+    plate.setAttribute("fill", theme.labelPlate ?? theme.surface);
+    plate.setAttribute("fill-opacity", "0.9");
+    plate.setAttribute("stroke", theme.hairline ?? `color-mix(in srgb, ${theme.border} 60%, transparent)`);
+    plate.setAttribute("stroke-width", "1");
+    plate.style.opacity = "0";
+    group.appendChild(plate);
     labelEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
     labelEl.setAttribute("x", String(placement.x));
     labelEl.setAttribute("y", String(placement.y));
@@ -131,15 +147,12 @@ export function createEdgeRuntime(
     labelEl.setAttribute("dominant-baseline", "middle");
     labelEl.setAttribute("font-size", "11");
     labelEl.setAttribute("font-family", "ui-monospace, SFMono-Regular, Menlo, monospace");
-    labelEl.setAttribute("fill", theme.textMuted);
-    // Halo so labels stay readable over grid lines and edges.
-    labelEl.setAttribute("stroke", theme.canvas);
-    labelEl.setAttribute("stroke-width", "3");
-    labelEl.setAttribute("paint-order", "stroke");
-    labelEl.setAttribute("stroke-linejoin", "round");
+    labelEl.setAttribute("fill", theme.text);
     labelEl.textContent = label;
     labelEl.style.opacity = "0";
     group.appendChild(labelEl);
+    // Reveal the plate together with the label text.
+    (labelEl as unknown as { __plate?: SVGRectElement }).__plate = plate;
   }
 
   svg.appendChild(group);
@@ -183,6 +196,10 @@ export function animateEdgeReveal(runtime: EdgeRuntime, startMs: number, durMs: 
 
   if (label) {
     anims.push(label.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, delay: startMs + 80, fill: "forwards" }));
+    const plate = (label as unknown as { __plate?: SVGRectElement }).__plate;
+    if (plate) {
+      anims.push(plate.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, delay: startMs + 80, fill: "forwards" }));
+    }
   }
 
   if (points.length >= 2) {

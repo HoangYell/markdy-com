@@ -77,4 +77,61 @@ describe("diagram render plan", () => {
     expect(codeNode.dataset.icon).toBe("code");
     expect(distributedNode.dataset.icon).toBe("distributed");
   });
+
+  it("honors an explicit icon= override from node props", () => {
+    const theme = { roles: { data: "#22c55e" }, accent: "#38bdf8" } as any;
+    const el = createNodeEl({
+      id: "Redis",
+      kind: "cache",
+      role: "data",
+      label: "Redis",
+      x: 0,
+      y: 0,
+      width: 168,
+      height: 72,
+      opacity: 0,
+      props: { icon: "database" },
+    }, theme);
+    expect(el.dataset.icon).toBe("database");
+  });
+
+  it("renders an <img> for image= and applies the assets override", () => {
+    const theme = { roles: { data: "#22c55e" }, accent: "#38bdf8" } as any;
+    const el = createNodeEl({
+      id: "Store",
+      kind: "bucket",
+      role: "data",
+      label: "Object Storage",
+      x: 0,
+      y: 0,
+      width: 168,
+      height: 72,
+      opacity: 0,
+      props: { image: "s3-logo", imageFit: "cover" },
+    }, theme, { "s3-logo": "https://cdn.example/s3.svg" });
+    const media = el.querySelector<HTMLElement>(".markdy-node__icon");
+    const img = media?.querySelector("img");
+    expect(media?.dataset.media).toBe("image");
+    expect(media?.dataset.fit).toBe("cover");
+    expect(img?.getAttribute("src")).toBe("https://cdn.example/s3.svg");
+  });
+
+  it("uses the raw image value when no asset override matches", () => {
+    const theme = { roles: { data: "#22c55e" }, accent: "#38bdf8" } as any;
+    const el = createNodeEl({
+      id: "Logo",
+      kind: "service",
+      role: "compute",
+      label: "API",
+      x: 0,
+      y: 0,
+      width: 168,
+      height: 72,
+      opacity: 0,
+      props: { logo: "/logos/api.svg" },
+    }, theme);
+    const img = el.querySelector<HTMLImageElement>(".markdy-node__icon img");
+    expect(img?.getAttribute("src")).toBe("/logos/api.svg");
+    expect(el.querySelector(".markdy-node__icon svg")).toBeNull();
+  });
 });

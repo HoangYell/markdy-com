@@ -12,6 +12,12 @@ export interface PlayerOptions {
   autoplay?: boolean;
   loop?: boolean;
   copyright?: boolean;
+  /**
+   * Maps node `image=`/`logo=` values to resolved URLs. Lets a host (Astro,
+   * MDX) remap DSL asset references to CDN/data URLs. Values not present here
+   * are used verbatim as the image `src`.
+   */
+  assets?: Record<string, string>;
   /** @deprecated Prefer sceneBoundaryProgress. */
   progressBar?: boolean;
   /** Show rainbow progress around scene boundary. Defaults to true. */
@@ -44,6 +50,7 @@ export function createPlayer(opts: PlayerOptions): Player {
     autoplay = true,
     loop = true,
     copyright = true,
+    assets,
     progressBar,
     sceneBoundaryProgress,
     playbackRate: initialPlaybackRate = 1,
@@ -152,7 +159,7 @@ export function createPlayer(opts: PlayerOptions): Player {
 
   const nodeEls = new Map<string, HTMLElement>();
   for (const node of plan.nodes) {
-    const el = createNodeEl(node, plan.theme);
+    const el = createNodeEl(node, plan.theme, assets);
     actorLayer.appendChild(el);
     nodeEls.set(node.id, el);
   }

@@ -146,6 +146,7 @@ function layoutNodes(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
         width: NODE_W,
         height: NODE_H,
         style,
+        props: decl.props,
         opacity: 0,
       });
     });

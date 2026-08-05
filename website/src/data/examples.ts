@@ -23,7 +23,7 @@ export interface ExampleMeta {
   /** Architecture pattern label for gallery filtering. */
   pattern?: string;
   /** Semantic theme used by the scene. */
-  theme?: "midnight" | "paper";
+  theme?: "midnight" | "paper" | "blueprint" | "graphite";
   /** Path relative to the repo's `examples/` directory. */
   file: string;
   playback?: {
@@ -66,7 +66,7 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
     description: "An upload-to-playback video pipeline with object storage, queueing, transcode workers, thumbnails, metadata, renditions, and CDN delivery.",
     category: "architecture",
     pattern: "pipeline",
-    theme: "midnight",
+    theme: "graphite",
     file: "showcase/youtube-processing-pipeline.markdy",
   },
   {
@@ -84,7 +84,7 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
     description: "A Kubernetes architecture diagram showing control plane, data plane, scheduling, service discovery, config, secrets, storage, and ingress traffic.",
     category: "architecture",
     pattern: "platform",
-    theme: "midnight",
+    theme: "blueprint",
     file: "showcase/kubernetes-cluster-architecture.markdy",
   },
 ];

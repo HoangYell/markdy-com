@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Markdy renderer — visual harness</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "@markdy/core": "/pkg/core/index.js",
+          "@markdy/renderer-dom": "/pkg/renderer-dom/index.js"
+        }
+      }
+    </script>
+    <style>
+      :root { color-scheme: dark; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+        background: #05070d;
+        color: #e6edf6;
+      }
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 16px;
+        padding: 14px 20px;
+        background: rgba(5, 7, 13, 0.92);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid #1b2436;
+      }
+      header strong { font-size: 15px; letter-spacing: 0.01em; }
+      header .spacer { flex: 1; }
+      label { font-size: 12px; color: #9fb0c6; display: inline-flex; align-items: center; gap: 6px; }
+      select, button {
+        font: inherit;
+        font-size: 13px;
+        color: #e6edf6;
+        background: #10192b;
+        border: 1px solid #24314a;
+        border-radius: 8px;
+        padding: 6px 10px;
+        cursor: pointer;
+      }
+      input[type="range"] { width: 220px; accent-color: #38bdf8; }
+      main {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(520px, 1fr));
+        gap: 20px;
+        padding: 20px;
+      }
+      .card {
+        border: 1px solid #1b2436;
+        border-radius: 14px;
+        overflow: hidden;
+        background: #0a0f1a;
+      }
+      .card__bar {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 14px;
+        border-bottom: 1px solid #141c2c;
+      }
+      .card__title { font-size: 13px; font-weight: 600; }
+      .card__group { font-size: 11px; color: #6b7d95; font-family: ui-monospace, monospace; }
+      .card__stage { padding: 14px; }
+      .card__viewport { width: 100%; }
+      .status { padding: 40px; text-align: center; color: #6b7d95; }
+      .warn { color: #f0b866; font-size: 11px; padding: 0 14px 10px; font-family: ui-monospace, monospace; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <strong>Markdy renderer — visual harness</strong>
+      <label>
+        Theme
+        <select id="theme">
+          <option value="">(scene default)</option>
+          <option value="midnight">midnight</option>
+          <option value="paper">paper</option>
+          <option value="blueprint">blueprint</option>
+          <option value="graphite">graphite</option>
+        </select>
+      </label>
+      <label>
+        Frame
+        <input id="frame" type="range" min="0" max="1" step="0.01" value="0.6" />
+        <span id="frameVal" style="font-variant-numeric: tabular-nums">60%</span>
+      </label>
+      <label><input id="freeze" type="checkbox" checked /> Freeze</label>
+      <div class="spacer"></div>
+      <button id="play" type="button">Play all</button>
+      <button id="pause" type="button">Pause all</button>
+    </header>
+    <div id="status" class="status">Loading examples…</div>
+    <main id="grid"></main>
+
+    <script type="module">
+      import { createPlayer } from "@markdy/renderer-dom";
+
+      const grid = document.getElementById("grid");
+      const status = document.getElementById("status");
+      const themeSel = document.getElementById("theme");
+      const frame = document.getElementById("frame");
+      const frameVal = document.getElementById("frameVal");
+      const freeze = document.getElementById("freeze");
+
+      /** @type {{id:string,group:string,name:string,code:string}[]} */
+      let examples = [];
+      /** @type {{player:any}[]} */
+      let players = [];
+
+      /** Apply a theme override by rewriting the scene's `theme=` token. */
+      function withTheme(code, theme) {
+        if (!theme) return code;
+        if (/\btheme=\S+/.test(code)) return code.replace(/\btheme=\S+/, `theme=${theme}`);
+        return code.replace(/^scene\b.*$/m, (line) => `${line} theme=${theme}`);
+      }
+
+      function frozenSeek(p) {
+        if (!freeze.checked) return;
+        const frac = Number(frame.value);
+        p.seek(p.duration() * frac);
+      }
+
+      function build() {
+        for (const { player } of players) player?.destroy?.();
+        players = [];
+        grid.innerHTML = "";
+        for (const ex of examples) {
+          const card = document.createElement("section");
+          card.className = "card";
+          card.innerHTML = `
+            <div class="card__bar">
+              <span class="card__title"></span>
+              <span class="card__group"></span>
+            </div>
+            <div class="card__stage"><div class="card__viewport"></div></div>`;
+          card.querySelector(".card__title").textContent = ex.name;
+          card.querySelector(".card__group").textContent = ex.group;
+          const viewport = card.querySelector(".card__viewport");
+          grid.appendChild(card);
+          try {
+            const player = createPlayer({
+              container: viewport,
+              code: withTheme(ex.code, themeSel.value),
+              autoplay: false,
+              loop: false,
+              copyright: false,
+              sceneBoundaryProgress: false,
+              onWarning: (w) => {
+                const el = document.createElement("div");
+                el.className = "warn";
+                el.textContent = `line ${w.line}: ${w.message}`;
+                card.appendChild(el);
+              },
+            });
+            players.push({ player });
+            requestAnimationFrame(() => frozenSeek(player));
+          } catch (err) {
+            const el = document.createElement("div");
+            el.className = "warn";
+            el.textContent = String(err && err.message ? err.message : err);
+            card.appendChild(el);
+          }
+        }
+      }
+
+      frame.addEventListener("input", () => {
+        frameVal.textContent = `${Math.round(Number(frame.value) * 100)}%`;
+        for (const { player } of players) frozenSeek(player);
+      });
+      freeze.addEventListener("change", () => {
+        for (const { player } of players) frozenSeek(player);
+      });
+      themeSel.addEventListener("change", build);
+      document.getElementById("play").addEventListener("click", () => {
+        freeze.checked = false;
+        for (const { player } of players) player.play();
+      });
+      document.getElementById("pause").addEventListener("click", () => {
+        for (const { player } of players) player.pause();
+      });
+
+      try {
+        examples = await (await fetch("/examples.json")).json();
+        status.remove();
+        build();
+      } catch (err) {
+        status.textContent = `Failed to load examples: ${err}`;
+      }
+    </script>
+  </body>
+</html>

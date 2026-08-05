@@ -8,6 +8,7 @@ dist/
 
 # Temporary / generated files
 .npmrc-temp
+tmp/
 
 # Environment
 .env
