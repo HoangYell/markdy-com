@@ -100,6 +100,56 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "data",
     },
   ],
+  "examples/showcase/cicd-delivery-pipeline.markdy": [
+    {
+      "icon": "user",
+      "id": "Developer",
+      "kind": "user",
+      "role": "client",
+    },
+    {
+      "icon": "delivery",
+      "id": "CodeRepo",
+      "kind": "repo",
+      "role": "delivery",
+    },
+    {
+      "icon": "delivery",
+      "id": "Pipeline",
+      "kind": "pipeline",
+      "role": "delivery",
+    },
+    {
+      "icon": "worker",
+      "id": "Builder",
+      "kind": "worker",
+      "role": "compute",
+    },
+    {
+      "icon": "registry",
+      "id": "Registry",
+      "kind": "registry",
+      "role": "platform",
+    },
+    {
+      "icon": "delivery",
+      "id": "Deployer",
+      "kind": "deploy",
+      "role": "delivery",
+    },
+    {
+      "icon": "delivery",
+      "id": "Production",
+      "kind": "environment",
+      "role": "delivery",
+    },
+    {
+      "icon": "metrics",
+      "id": "Monitor",
+      "kind": "monitor",
+      "role": "observability",
+    },
+  ],
   "examples/showcase/kubernetes-cluster-architecture.markdy": [
     {
       "icon": "platform",

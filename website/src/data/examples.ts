@@ -87,6 +87,15 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
     theme: "blueprint",
     file: "showcase/kubernetes-cluster-architecture.markdy",
   },
+  {
+    id: "cicd-delivery-pipeline",
+    title: "CI/CD Delivery Pipeline",
+    description: "A light-theme delivery pipeline: commit triggers CI, build and tests publish an artifact, then a canary rollout promotes to production with release monitoring.",
+    category: "reliability",
+    pattern: "ci-cd",
+    theme: "paper",
+    file: "showcase/cicd-delivery-pipeline.markdy",
+  },
 ];
 
 /** Loads every registry entry's DSL source from disk. `root` is the repo root (parent of `website/`). */
