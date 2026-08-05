@@ -47,7 +47,7 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
     description: "A production URL shortener diagram showing short-link creation, redirect resolution, cache lookup, and database fallback paths.",
     category: "architecture",
     pattern: "cache-aside",
-    theme: "midnight",
+    theme: "paper",
     file: "showcase/url-shortener-architecture.markdy",
     playback: { previewStart: 0 },
   },
