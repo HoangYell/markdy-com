@@ -843,7 +843,7 @@ function describeError(error: unknown): string {
 
 function defaultSceneTemplate(): string {
   return [
-    'scene "My Architecture" theme=midnight',
+    'scene "My Architecture" theme=paper',
     "layout LR",
     "",
     "browser Client",

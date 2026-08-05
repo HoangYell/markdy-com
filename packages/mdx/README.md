@@ -50,7 +50,7 @@ Then write Markdown:
 
 ````md
 ```markdy width=800 height=400 bg="#07111f" autoplay=false loop=false playback_rate=0.5 scene_boundary_progress=false
-scene "Request" theme=midnight width=800 height=400
+scene "Request" theme=paper width=800 height=400
 browser Web
 service API
 beat main:

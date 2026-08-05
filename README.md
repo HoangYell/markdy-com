@@ -28,7 +28,7 @@
 > If you are searching for a **Mermaid alternative with animation**, **animated architecture diagrams**, **diagram as code**, **AI-generated diagrams**, **text-to-diagram**, **architecture as code**, or **docs-as-code motion graphics**, Markdy is designed for that workflow.
 
 ```markdy
-scene "Request path" theme=midnight
+scene "Request path" theme=paper
 layout LR
 
 browser Client
@@ -154,7 +154,7 @@ npx markdy render examples/showcase/url-shortener-architecture.markdy --out scen
 Create `architecture.markdy`:
 
 ```markdy
-scene "Request" theme=midnight
+scene "Request" theme=paper
 layout LR
 
 browser WebApp
@@ -186,7 +186,7 @@ pnpm add @markdy/astro
 import { Markdy } from "@markdy/astro";
 
 const code = `
-  scene "Request" theme=midnight width=800 height=400
+  scene "Request" theme=paper width=800 height=400
   browser WebApp
   service CheckoutApi
   beat main:
@@ -223,7 +223,7 @@ Full reference: **[docs/SYNTAX.md](docs/SYNTAX.md)** · Step-by-step tutorial: *
 ### Nodes + Beats + Flows
 
 ```markdy
-scene "Order Flow" theme=midnight
+scene "Order Flow" theme=paper
 layout LR
 
 browser WebApp

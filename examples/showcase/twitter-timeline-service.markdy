@@ -1,4 +1,4 @@
-scene "Twitter Timeline Fan-out" theme=midnight width=1280 height=760
+scene "Twitter Timeline Fan-out" theme=paper width=1280 height=760
 layout LR
 
 user Author

@@ -1,6 +1,6 @@
 // First diagram — declare nodes and connect them with a flow.
 // Node syntax: <kind> <Id> ["Label"]. Omit the label to humanize the id.
-scene "First Diagram" theme=midnight
+scene "First Diagram" theme=paper
 layout LR
 
 browser WebApp

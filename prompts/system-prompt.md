@@ -11,7 +11,7 @@ You write **diagram-native MarkdyScript** for animated software architecture dia
 ## Minimal example
 
 ```markdy
-scene "Request path" theme=midnight
+scene "Request path" theme=paper
 layout LR
 
 browser Client

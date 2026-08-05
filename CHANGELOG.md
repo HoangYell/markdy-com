@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Paper-first renderer themes** — Added polished paper, blueprint, and graphite theme families alongside the existing dark theme, with upgraded node cards, role-aware icons, softer shadows, cleaner edge labels, and image/logo support for richer architecture scenes.
+- **CI/CD delivery showcase** — Added a curated paper-theme pipeline example that demonstrates grouped reveals, request/dependency/event edges, focus cues, and production-style delivery storytelling.
+
+### Changed
+- **Paper is now the default theme** — New scenes, fallback theme resolution, homepage examples, Learn MarkdyScript tutorials, public prompts, docs, and article snippets now lead with the light `paper` theme instead of `midnight`.
+- **Homepage playground uses more of the stage** — The embedded scene preview now fills the available width and keeps a tighter landscape frame to reduce wasted blank space.
+- **Canvas auto-layout breathing room** — Reduced conservative safe margins and title band reservation so generated diagrams have more usable space and fewer cramped node boxes.
+
+### Fixed
+- **Node text readability** — Simplified node labels, removed redundant type copy, and tightened wrapping so longer system names fit better without cheap-looking borders or cramped icons.
+
 ## [0.8.2] — 2026-08-04
 
 ### Added

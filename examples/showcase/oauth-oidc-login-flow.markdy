@@ -1,4 +1,4 @@
-scene "OAuth / OIDC Login Flow" theme=midnight width=1280 height=760
+scene "OAuth / OIDC Login Flow" theme=paper width=1280 height=760
 layout LR
 
 user User

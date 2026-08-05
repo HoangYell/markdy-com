@@ -11,7 +11,7 @@ const FEATURES = [
     id: "scene",
     name: "scene",
     summary: "Declare canvas, title, theme, and defaults.",
-    example: 'scene "Checkout" theme=midnight',
+    example: 'scene "Checkout" theme=paper',
   },
   {
     id: "nodes",
@@ -41,7 +41,7 @@ MarkdyScript is now diagram-first. Declare nodes, groups, and beats — the engi
 ### Scene
 
 \`\`\`markdy
-scene "URL Shortener" theme=midnight
+scene "URL Shortener" theme=paper
 layout LR
 \`\`\`
 
@@ -87,8 +87,10 @@ beat main:
 
 ### Themes
 
-- \`midnight\` — dark developer canvas (default)
-- \`paper\` — light documentation canvas
+- \`paper\` — light documentation canvas (default)
+- \`midnight\` — dark developer canvas
+- \`blueprint\` — technical blueprint canvas
+- \`graphite\` — restrained dark graphite canvas
 `;
 
 const SYSTEM_PROMPT = `# MarkdyScript 0.8 Agent Instructions
@@ -104,7 +106,7 @@ You write **diagram-native MarkdyScript** for animated software architecture dia
 ## Minimal example
 
 \`\`\`markdy
-scene "Request path" theme=midnight
+scene "Request path" theme=paper
 layout LR
 
 browser Client

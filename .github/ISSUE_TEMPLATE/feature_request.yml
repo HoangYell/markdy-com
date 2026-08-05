@@ -20,7 +20,7 @@ body:
       description: "How would this look in MarkdyScript? Please provide a code example."
       render: markdyscript
       placeholder: |
-        scene "Example" theme=midnight
+        scene "Example" theme=paper
         service API
         database DB
         beat main:

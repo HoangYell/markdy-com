@@ -28,7 +28,7 @@ const PACKAGES = [
     badge: "Grammar",
     desc: "Parser + AST types for tools that need to inspect, validate, or compile MarkdyScript.",
     size: "~12 KB",
-    snippet: `<span class="u-kw">scene</span> <span class="u-str">"Checkout Flow"</span> theme=midnight`,
+    snippet: `<span class="u-kw">scene</span> <span class="u-str">"Checkout Flow"</span> theme=paper`,
   },
   {
     name: "@markdy/renderer-dom",
@@ -186,7 +186,7 @@ const homepageStructuredData = [
 
 /* ── Usage code snippets (pre-formatted HTML to avoid Astro expression parsing) ── */
 const USAGE_SCENE = `<span class="u-comment">// architecture.markdy</span>
-<span class="u-kw">scene</span> <span class="u-str">"Checkout Request"</span> theme=midnight
+<span class="u-kw">scene</span> <span class="u-str">"Checkout Request"</span> theme=paper
 layout LR
 
 browser WebApp
@@ -202,7 +202,7 @@ const USAGE_ASTRO = `<span class="u-comment">---</span>
 <span class="u-kw">import</span> { Markdy } <span class="u-kw">from</span> <span class="u-str">"@markdy/astro"</span>;
 
 <span class="u-kw">const</span> code = <span class="u-str">\`
-  scene "Request" theme=midnight width=800 height=400
+  scene "Request" theme=paper width=800 height=400
   browser WebApp
   service CheckoutApi
   beat main:
@@ -222,7 +222,7 @@ const USAGE_MDX = `<span class="u-comment">// mdx.config.mjs — one-time setup<
 
 <span class="u-comment">// content.mdx — no imports, just write markdown</span>
 \`\`\`markdy
-scene <span class="u-str">"Request"</span> theme=midnight
+scene <span class="u-str">"Request"</span> theme=paper
 browser WebApp
 service CheckoutApi
 beat main:
@@ -496,7 +496,7 @@ markdy <span class="u-fn">check-all</span> examples`;
         </div>
         <p class="ref-intro"><strong>Objective:</strong> create the smallest complete MarkdyScript scene: a title, a layout direction, declared nodes, and one reveal beat.</p>
         <div class="ref-code-wrap">
-        <pre><code>scene "Request Path" theme=midnight
+        <pre><code>scene "Request Path" theme=paper
 layout LR
 
 browser WebApp
@@ -505,7 +505,7 @@ service ApiServer
 beat reveal:
   show $nodes stagger=60ms</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene "Request Path" theme=midnight
+scene "Request Path" theme=paper
 layout LR
 
 browser WebApp
@@ -543,7 +543,7 @@ service CheckoutApi
 database OrdersDb
 queue OrderEvents</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene "Checkout Roles" theme=midnight
+scene "Checkout Roles" theme=paper
 layout LR
 
 user Customer
@@ -583,7 +583,7 @@ beat main:
 CheckoutApi ~> OrderEvents "order.created"
 WebApp <- CheckoutApi "201 Created"</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene "Flow Edges" theme=midnight
+scene "Flow Edges" theme=paper
 layout LR
 
 client WebApp
@@ -623,7 +623,7 @@ beat flow:
         <pre><code>beat highlight:
   glow data color=#22c55e & focus CheckoutApi zoom=1.1</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene "Checkout Beats" theme=midnight
+scene "Checkout Beats" theme=paper
 layout LR
 
 browser WebApp
@@ -676,7 +676,7 @@ group data: RedisCache OrdersDb
 beat layout:
   show ingress & show data stagger=70ms</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene "Grouped Checkout" theme=midnight
+scene "Grouped Checkout" theme=paper
 layout LR
 
 browser WebApp
@@ -729,7 +729,7 @@ beat highlight:
   $client -> $store "lookup"
   $client <- $store "result"</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene "Lookup Pattern" theme=midnight
+scene "Lookup Pattern" theme=paper
 layout LR
 
 service CheckoutApi
@@ -795,14 +795,14 @@ beat finish:
         <table>
           <thead><tr><th>Control</th><th>Use it for</th><th>Example</th></tr></thead>
           <tbody>
-            <tr><td><code>theme</code></td><td>Overall palette.</td><td><code>midnight</code>, <code>paper</code></td></tr>
+            <tr><td><code>theme</code></td><td>Overall palette.</td><td><code>paper</code>, <code>midnight</code></td></tr>
             <tr><td><code>layout</code></td><td>Scene reading direction.</td><td><code>LR</code>, <code>TB</code></td></tr>
             <tr><td><code>style</code></td><td>Persistent node styling.</td><td><code>style hot = fill=#f59e0b</code></td></tr>
             <tr><td><code>glow</code></td><td>Timeline emphasis.</td><td><code>glow CheckoutApi</code></td></tr>
           </tbody>
         </table>
         <p>Use styles sparingly. One persistent highlight plus one final glow usually reads cleaner than styling every node.</p>
-        <p><strong>Ready task:</strong> Switch the scene between <code>paper</code>/<code>midnight</code> and <code>TB</code>/<code>LR</code>. If the story still reads clearly in both layouts, move to Level 8.</p>
+        <p><strong>Ready task:</strong> Switch the scene between <code>paper</code>/<code>midnight</code>/<code>blueprint</code>/<code>graphite</code> and <code>TB</code>/<code>LR</code>. If the story still reads clearly in both layouts, move to Level 8.</p>
       </article>
 
       <!-- Level 8: Production composition -->
@@ -814,14 +814,14 @@ beat finish:
         </div>
         <p class="ref-intro"><strong>Objective:</strong> combine semantic nodes, groups, beats, flows, patterns, and emphasis into a real architecture explainer that can survive review.</p>
         <div class="ref-code-wrap">
-        <pre><code>scene "URL Shortener Production Flow" theme=midnight width=1280 height=760
+        <pre><code>scene "URL Shortener Production Flow" theme=paper width=1280 height=760
 layout LR
 
 group ingress: Visitor WebClient ApiGateway
 group app: UrlShortener RedirectService
 group data: HotUrlCache UrlMappingDb</code></pre>
         <script type="text/plain" class="ref-code-data">
-scene "URL Shortener Production Flow" theme=midnight width=1280 height=760
+scene "URL Shortener Production Flow" theme=paper width=1280 height=760
 layout LR
 
 style hot = fill=#22c55e
