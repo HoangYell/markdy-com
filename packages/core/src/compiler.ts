@@ -1,8 +1,8 @@
 import type { DiagramAST, FlowSegment, PositionedNode, RenderPlan, RoutedEdge, ThemeTokens, TimedCue, BeatRange } from "./ast.js";
 import { nodeRole } from "./registry.js";
 
-const SAFE = 64;
-const TITLE_BAND = 96;
+const SAFE = 44;
+const TITLE_BAND = 76;
 const NODE_W = 168;
 const NODE_H = 72;
 const RANK_GAP = 96;

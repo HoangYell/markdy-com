@@ -121,9 +121,9 @@ export function ensureNodeStyles(doc: Document): void {
 .markdy-node[data-role="data"] { border-radius: 12px 12px 20px 20px; }
 .markdy-scene-title {
   position: absolute;
-  left: 64px;
-  top: 28px;
-  right: 64px;
+  left: 44px;
+  top: 26px;
+  right: 44px;
   font-size: 32px;
   font-weight: 700;
   line-height: 1.2;
