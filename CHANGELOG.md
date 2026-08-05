@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.3] — 2026-08-05
+
 ### Added
 - **Paper-first renderer themes** — Added polished paper, blueprint, and graphite theme families alongside the existing dark theme, with upgraded node cards, role-aware icons, softer shadows, cleaner edge labels, and image/logo support for richer architecture scenes.
 - **CI/CD delivery showcase** — Added a curated paper-theme pipeline example that demonstrates grouped reveals, request/dependency/event edges, focus cues, and production-style delivery storytelling.

@@ -1,6 +1,6 @@
 {
   "name": "@markdy/stdlib-systems",
-  "version": "0.8.2",
+  "version": "0.8.3",
   "description": "System-diagram node vocabulary for Markdy (re-exported from @markdy/core).",
   "license": "MIT",
   "type": "module",
