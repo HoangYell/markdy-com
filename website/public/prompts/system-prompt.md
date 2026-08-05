@@ -6,7 +6,7 @@ You write **diagram-native MarkdyScript** for animated software architecture dia
 - Use `scene`, node kinds, `group`, `beat`, flow operators, and optional `pattern`/`use`.
 - Do **not** use legacy `actor`, `@time:`, `def`, `seq`, `preset`, or `figure`.
 - Prefer concise beats over pixel coordinates.
-- Default theme: `midnight`. Default layout: `LR`.
+- Default theme: `paper`. Default layout: `LR`.
 
 ## Minimal example
 

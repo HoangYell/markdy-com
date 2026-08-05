@@ -106,5 +106,5 @@ export const THEMES: Record<string, ThemeTokens> = {
 };
 
 export function resolveTheme(name: string): ThemeTokens {
-  return THEMES[name] ?? THEMES.midnight;
+  return THEMES[name] ?? THEMES.paper;
 }

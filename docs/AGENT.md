@@ -7,7 +7,7 @@ MarkdyScript 0.8 is **diagram-native**: you declare nodes, groups, and beats, an
 - Use `scene`, node declarations, `group`, `beat`, flow operators, and optionally `style`, `pattern`/`use`.
 - Do **not** use the removed pre-0.8 syntax: `actor`, `@time:` events, `def`, `seq`, `preset`, `figure()`, `caption()`, `import`, `asset`, or pixel coordinates (`at (x, y)`).
 - Prefer concise beats over manual positioning — layout is automatic.
-- Default theme is `midnight`; default layout direction is `LR`.
+- Default theme is `paper`; default layout direction is `LR`.
 - Keep flow labels short (≤ ~28 chars) so they stay readable.
 
 ## Minimal example
