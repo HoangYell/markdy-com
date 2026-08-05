@@ -1,4 +1,4 @@
-scene "YouTube Processing Pipeline" theme=midnight width=1360 height=760
+scene "YouTube Processing Pipeline" theme=graphite width=1360 height=760
 layout LR
 
 user Creator

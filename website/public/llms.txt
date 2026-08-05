@@ -39,7 +39,7 @@ npm i @markdy/core @markdy/renderer-dom
 ## Minimal Scene
 
 ```markdy
-scene "Hello Markdy" theme=midnight
+scene "Hello Markdy" theme=paper
 layout LR
 
 browser Web

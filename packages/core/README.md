@@ -36,7 +36,7 @@ import { parse, ParseError } from "@markdy/core";
 import type { DiagramAST } from "@markdy/core";
 
 const source = `
-  scene "Request" theme=midnight
+  scene "Request" theme=paper
   browser Web
   service API
   beat main:

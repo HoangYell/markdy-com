@@ -8,7 +8,7 @@ MarkdyScript is now diagram-first. Declare nodes, groups, and beats — the engi
 ### Scene
 
 ```markdy
-scene "URL Shortener" theme=midnight
+scene "URL Shortener" theme=paper
 layout LR
 ```
 
@@ -57,5 +57,7 @@ beat main:
 
 ### Themes
 
-- `midnight` — dark developer canvas (default)
-- `paper` — light documentation canvas
+- `paper` — light documentation canvas (default)
+- `midnight` — dark developer canvas
+- `blueprint` — technical blueprint canvas
+- `graphite` — restrained dark graphite canvas

@@ -7,13 +7,13 @@ MarkdyScript 0.8 is **diagram-native**: you declare nodes, groups, and beats, an
 - Use `scene`, node declarations, `group`, `beat`, flow operators, and optionally `style`, `pattern`/`use`.
 - Do **not** use the removed pre-0.8 syntax: `actor`, `@time:` events, `def`, `seq`, `preset`, `figure()`, `caption()`, `import`, `asset`, or pixel coordinates (`at (x, y)`).
 - Prefer concise beats over manual positioning — layout is automatic.
-- Default theme is `midnight`; default layout direction is `LR`.
+- Default theme is `paper`; default layout direction is `LR`.
 - Keep flow labels short (≤ ~28 chars) so they stay readable.
 
 ## Minimal example
 
 ```markdy
-scene "Request path" theme=midnight
+scene "Request path" theme=paper
 layout LR
 
 browser Client
@@ -31,13 +31,13 @@ beat main:
 ### `scene` — configuration (first line)
 
 ```markdy
-scene "Title" theme=midnight width=1280 height=720 fps=60 duration=8
+scene "Title" theme=paper width=1280 height=720 fps=60 duration=8
 ```
 
 | Property | Default | Description |
 |---|---|---|
 | title (bare string) | — | Optional scene title, shown top-left |
-| `theme` | `midnight` | Semantic palette: `midnight` (dark) or `paper` (light) |
+| `theme` | `paper` | Semantic palette: `paper` (light), `midnight` (dark), `blueprint`, or `graphite` |
 | `width` / `height` | `1280` / `720` | Canvas size in px |
 | `fps` | `60` | Frame rate hint |
 | `duration` | auto | Force total seconds (otherwise derived from cues) |
@@ -168,7 +168,7 @@ Aliases: `db`→`database`, `api`→`service`, `gateway`→`api_gateway`, `mq`�
 ### Architecture diagram (recommended default)
 
 ```markdy
-scene "URL Shortener" theme=midnight
+scene "URL Shortener" theme=paper
 layout LR
 
 user Visitor
@@ -200,7 +200,7 @@ beat finish:
 ### Sequence / request lifecycle
 
 ```markdy
-scene "Auth Flow" theme=midnight
+scene "Auth Flow" theme=paper
 layout LR
 
 browser Client
@@ -246,7 +246,7 @@ beat main:
 - [ ] Every node used in a flow/cue is declared.
 - [ ] Flow operators are one of `->`, `<-`, `~>`, `--`.
 - [ ] Cues and flows are inside `beat` blocks.
-- [ ] Theme is `midnight` or `paper`; layout is `LR`/`RL`/`TB`/`BT`.
+- [ ] Theme is `paper`, `midnight`, `blueprint`, or `graphite`; layout is `LR`/`RL`/`TB`/`BT`.
 
 ## Integration code
 

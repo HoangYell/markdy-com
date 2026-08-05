@@ -111,6 +111,15 @@ export type ThemeTokens = {
   gridMajor: string;
   vignette: string;
   accent: string;
+  /** Node card fill (falls back to surface derivations when omitted). */
+  nodeSurface?: string;
+  nodeSurfaceRaised?: string;
+  /** Node hairline / inset ring color. */
+  hairline?: string;
+  /** Ambient drop-shadow color (rgba). */
+  shadow?: string;
+  /** Edge label pill fill. */
+  labelPlate?: string;
   roles: Record<string, string>;
   edges: Record<EdgeKind, string>;
 };
@@ -125,6 +134,7 @@ export type PositionedNode = {
   width: number;
   height: number;
   style?: Record<string, unknown>;
+  props?: Record<string, unknown>;
   opacity: number;
 };
 

@@ -50,7 +50,7 @@ AI prompt starter:
 Every scene starts with a `scene` line, then node declarations. A node is `<kind> <Id> ["Label"]`.
 
 ```markdy
-scene "First Diagram" theme=midnight
+scene "First Diagram" theme=paper
 layout LR
 
 browser Client
@@ -162,7 +162,7 @@ database Primary "Primary DB" style=hot
 database Replica "Read Replica"
 ```
 
-- Themes: `midnight` (dark, default) and `paper` (light).
+- Themes: `paper` (light, default), `midnight` (dark), `blueprint`, and `graphite`.
 - Directions: `LR` (default), `RL`, `TB`, `BT`.
 
 ---
@@ -170,7 +170,7 @@ database Replica "Read Replica"
 ## 7. Putting It All Together
 
 ```markdy
-scene "URL Shortener" theme=midnight
+scene "URL Shortener" theme=paper
 layout LR
 
 user Visitor
@@ -207,7 +207,7 @@ beat finish:
 
 | Statement | Example |
 |---|---|
-| Scene | `scene "Title" theme=midnight` |
+| Scene | `scene "Title" theme=paper` |
 | Layout | `layout LR` |
 | Node | `service API "Checkout API"` |
 | Group | `group storage: DB Redis` |

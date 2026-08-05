@@ -24,15 +24,15 @@ export function ensureSceneStyles(doc: Document): void {
     linear-gradient(90deg, var(--md-grid-minor) 1px, transparent 1px) 0 0 / 32px 32px,
     linear-gradient(var(--md-grid-major) 1px, transparent 1px) 0 0 / 160px 160px,
     linear-gradient(90deg, var(--md-grid-major) 1px, transparent 1px) 0 0 / 160px 160px;
-  mask-image: linear-gradient(to bottom, transparent, #000 10%, #000 90%, transparent);
-  opacity: 0.82;
+  mask-image: radial-gradient(ellipse at 50% 42%, #000 55%, transparent 100%);
+  opacity: 0.5;
 }
 .markdy-scene-root::after {
   z-index: 1;
   background:
-    radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--md-accent) 16%, transparent), transparent 42%),
-    linear-gradient(180deg, transparent 0%, rgba(2, 6, 23, 0.08) 58%, var(--md-vignette) 100%);
-  opacity: 0.8;
+    radial-gradient(ellipse at 50% -8%, color-mix(in srgb, var(--md-accent) 10%, transparent), transparent 46%),
+    linear-gradient(180deg, transparent 0%, rgba(2, 6, 23, 0.05) 62%, var(--md-vignette) 100%);
+  opacity: 0.62;
 }
 .markdy-scene-content { z-index: 2; }
 .markdy-scene-actor-layer {
@@ -57,5 +57,9 @@ export function applyThemeToScene(scene: HTMLElement, theme: ThemeTokens): void 
   scene.style.setProperty("--md-grid-major", theme.gridMajor);
   scene.style.setProperty("--md-vignette", theme.vignette);
   scene.style.setProperty("--md-accent", theme.accent);
+  scene.style.setProperty("--md-node-surface", theme.nodeSurface ?? theme.surface);
+  scene.style.setProperty("--md-node-surface-raised", theme.nodeSurfaceRaised ?? theme.surfaceRaised);
+  scene.style.setProperty("--md-hairline", theme.hairline ?? `color-mix(in srgb, ${theme.border} 50%, transparent)`);
+  scene.style.setProperty("--md-shadow", theme.shadow ?? "rgba(2, 6, 23, 0.55)");
   scene.dataset.markdyTheme = theme.name;
 }

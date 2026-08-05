@@ -42,7 +42,7 @@ import { createPlayer } from "@markdy/renderer-dom";
 const player = createPlayer({
   container: document.getElementById("scene")!,
   code: `
-    scene "Request" theme=midnight
+    scene "Request" theme=paper
     browser Web
     service API
     beat main:

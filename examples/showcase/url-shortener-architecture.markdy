@@ -1,4 +1,4 @@
-scene "URL Shortener Architecture" theme=midnight width=1280 height=760
+scene "URL Shortener Architecture" theme=paper width=1280 height=760
 layout LR
 
 user Visitor

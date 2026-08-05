@@ -15,7 +15,7 @@ This guide focuses on real problems developers search for: animated architecture
 
 - Keep edge labels under 28 characters when possible.
 - Avoid overlapping nodes; leave room for routed edges.
-- Use the `midnight` theme for complex architecture diagrams and `paper` for simple onboarding examples.
+- Use the `paper` theme for default docs and onboarding examples; use `midnight`, `blueprint`, or `graphite` when the surrounding page needs a darker or more technical canvas.
 - Prefer `group name: ...` plus `show name stagger=...` for clean reveals.
 - Add emphasis (`glow`, `focus`) only after the viewer understands the full layout.
 

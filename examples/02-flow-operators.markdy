@@ -1,5 +1,5 @@
 // The four flow operators, each rendered with its own edge style.
-scene "Flow Operators" theme=midnight
+scene "Flow Operators" theme=paper
 layout LR
 
 client WebApp

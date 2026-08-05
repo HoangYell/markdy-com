@@ -339,7 +339,7 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
     width: 1280,
     height: 720,
     fps: 60,
-    theme: "midnight",
+    theme: "paper",
     direction: "LR",
   };
   const styles: Record<string, StyleDecl> = {};

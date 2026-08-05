@@ -23,7 +23,7 @@ export interface ExampleMeta {
   /** Architecture pattern label for gallery filtering. */
   pattern?: string;
   /** Semantic theme used by the scene. */
-  theme?: "midnight" | "paper";
+  theme?: "midnight" | "paper" | "blueprint" | "graphite";
   /** Path relative to the repo's `examples/` directory. */
   file: string;
   playback?: {
@@ -47,7 +47,7 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
     description: "A production URL shortener diagram showing short-link creation, redirect resolution, cache lookup, and database fallback paths.",
     category: "architecture",
     pattern: "cache-aside",
-    theme: "midnight",
+    theme: "paper",
     file: "showcase/url-shortener-architecture.markdy",
     playback: { previewStart: 0 },
   },
@@ -66,7 +66,7 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
     description: "An upload-to-playback video pipeline with object storage, queueing, transcode workers, thumbnails, metadata, renditions, and CDN delivery.",
     category: "architecture",
     pattern: "pipeline",
-    theme: "midnight",
+    theme: "graphite",
     file: "showcase/youtube-processing-pipeline.markdy",
   },
   {
@@ -84,8 +84,17 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
     description: "A Kubernetes architecture diagram showing control plane, data plane, scheduling, service discovery, config, secrets, storage, and ingress traffic.",
     category: "architecture",
     pattern: "platform",
-    theme: "midnight",
+    theme: "blueprint",
     file: "showcase/kubernetes-cluster-architecture.markdy",
+  },
+  {
+    id: "cicd-delivery-pipeline",
+    title: "CI/CD Delivery Pipeline",
+    description: "A light-theme delivery pipeline: commit triggers CI, build and tests publish an artifact, then a canary rollout promotes to production with release monitoring.",
+    category: "reliability",
+    pattern: "ci-cd",
+    theme: "paper",
+    file: "showcase/cicd-delivery-pipeline.markdy",
   },
 ];
 
