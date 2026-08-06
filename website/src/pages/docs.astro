@@ -113,7 +113,7 @@ const docStructuredData = [
           <a class="doc-card" href={ex.sourceUrl} target="_blank" rel="noopener noreferrer">
             <span>{ex.category}</span>
             <h2>{ex.title}</h2>
-            <p>{ex.description}</p>
+            {ex.pattern && <code>{ex.pattern}</code>}
           </a>
         ))}
       </div>
@@ -230,6 +230,16 @@ const docStructuredData = [
     color: var(--text-secondary, #64748b);
     font-size: 0.84rem;
     line-height: 1.6;
+  }
+
+  .doc-card code {
+    align-self: flex-start;
+    padding: 0.16rem 0.45rem;
+    border-radius: 999px;
+    background: var(--accent-light, rgba(5, 150, 105, 0.12));
+    color: var(--accent, #047857);
+    font-size: 0.72rem;
+    font-weight: 700;
   }
 
   .quickstart {

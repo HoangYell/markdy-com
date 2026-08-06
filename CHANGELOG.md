@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.5] — 2026-08-06
+
+### Changed
+- **Cleaner playground examples** — Removed long example descriptions from the homepage picker and shared registry, leaving a compact example list with source links; docs showcase cards now use concise architecture-pattern chips instead of paragraphs.
+- **Responsive embedded preview** — Stacked the playground layout earlier on tablet and short landscape screens so the embedded preview no longer gets clipped horizontally.
+- **Refreshed preview asset** — Regenerated `markdy-output-preview.webp` from the latest preview image for smaller social/docs imagery.
+
+### Fixed
+- **Playground syntax colors** — Restored CodeMirror token highlighting in the homepage editor by wiring MarkdyScript stream tokens to highlight tags correctly.
+
 ## [0.8.4] — 2026-08-06
 
 ### Changed

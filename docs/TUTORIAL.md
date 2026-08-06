@@ -24,7 +24,7 @@ A step-by-step guide to creating animated architecture diagrams, system explaine
 
 Use this path when learning Markdy for animated diagrams, architecture visualization, and AI-generated technical explainers:
 
-1. **Quick Start** — install `@markdy/core` and `@markdy/renderer-dom`.
+1. **Quick Start** — try a shipped scene in the homepage playground, then install `@markdy/core` and `@markdy/renderer-dom` when you are ready to embed.
 2. **Core Concepts** — understand scenes, node kinds, flow operators, beats, and cues.
 3. **Basic Examples** — declare nodes, connect them, and reveal them beat by beat.
 4. **Real-World Examples** — study URL shorteners, OAuth, Kubernetes, video pipelines, and timeline services in `examples/showcase/`.
@@ -38,6 +38,8 @@ Quick install:
 ```sh
 npm i @markdy/core @markdy/renderer-dom
 ```
+
+The playground is the fastest feedback loop: it keeps the editor syntax-highlighted, links each curated example to its source `.markdy` file, and scales the embedded preview for narrow or landscape viewports.
 
 AI prompt starter:
 

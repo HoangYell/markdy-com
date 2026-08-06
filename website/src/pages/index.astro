@@ -409,13 +409,12 @@ markdy <span class="u-fn">check-all</span> examples`;
         </div>
         <div class="examples-list">
           {EXAMPLES.map((ex, i) => (
-            <button class="example-btn" data-index={i} title={ex.description}>
+            <button class="example-btn" data-index={i}>
               <strong>{ex.title}</strong>
               <span>{ex.sourcePath}</span>
             </button>
           ))}
         </div>
-        <p id="example-description" class="example-description">{EXAMPLES[0].description}</p>
       </aside>
 
       <div class="editor-col">
@@ -1202,7 +1201,7 @@ beat finish:
 <script>
   import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from "@codemirror/view";
   import { EditorState } from "@codemirror/state";
-  import { syntaxHighlighting, bracketMatching, indentOnInput } from "@codemirror/language";
+  import { bracketMatching, indentOnInput } from "@codemirror/language";
   import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
   import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
   import { closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
@@ -1233,7 +1232,6 @@ beat finish:
   const timelineTime = document.getElementById("timeline-time") as HTMLSpanElement;
   const sceneJump = document.getElementById("scene-jump") as HTMLSelectElement;
   const exBtns    = document.querySelectorAll<HTMLButtonElement>(".example-btn");
-  const exampleDescription = document.getElementById("example-description") as HTMLParagraphElement;
   const exampleSourceLink = document.getElementById("example-source-link") as HTMLAnchorElement;
 
   let diagram: Diagram | null = null;
@@ -1424,16 +1422,14 @@ beat finish:
     exBtns.forEach((b, i) => b.classList.toggle("active", i === index));
   }
 
-  function setExampleMeta(index: number) {
+  function setExampleSourceLink(index: number) {
     const example = examples[index];
     if (!example) {
-      exampleDescription.textContent = "Custom scene";
       exampleSourceLink.href = "https://github.com/HoangYell/markdy-com/tree/main/examples";
       exampleSourceLink.textContent = "Browse examples ↗";
       return;
     }
 
-    exampleDescription.textContent = example.description;
     exampleSourceLink.href = example.sourceUrl;
     exampleSourceLink.textContent = "View source ↗";
   }
@@ -1462,7 +1458,7 @@ beat finish:
       highlightSelectionMatches(),
       markdyLanguage,
       markdyAutocomplete,
-      syntaxHighlighting(dark ? markdyHighlightDark : markdyHighlightLight),
+      dark ? markdyHighlightDark : markdyHighlightLight,
       baseTheme,
       dark ? darkTheme : lightTheme,
       keymap.of([
@@ -1542,12 +1538,12 @@ beat finish:
       currentPreviewStart = examples[0].playback?.previewStart ?? 0;
       render(initialCode, currentPreviewStart);
       setActiveBtn(0);
-      setExampleMeta(0);
+      setExampleSourceLink(0);
     } else {
       currentPreviewStart = 0;
       render(initialCode, 0);
       setActiveBtn(-1);
-      setExampleMeta(-1);
+      setExampleSourceLink(-1);
     }
   };
 
@@ -1570,7 +1566,7 @@ beat finish:
     btn.addEventListener("click", () => {
       const idx = Number(btn.dataset.index);
       setActiveBtn(idx);
-      setExampleMeta(idx);
+      setExampleSourceLink(idx);
       createEditor(examples[idx].code);
       render(examples[idx].code, examples[idx].playback?.previewStart ?? 0);
     });
@@ -1648,7 +1644,7 @@ beat finish:
     currentPreviewStart = 0;
     render(code, 0);
     setActiveBtn(-1); // Remove active state
-    setExampleMeta(-1);
+    setExampleSourceLink(-1);
     // scrollIntoView respects scroll-margin-top (set to 68px to clear the sticky nav)
     document.getElementById("playground")?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
@@ -1720,7 +1716,7 @@ beat finish:
     --ref-code-bg: #161b22;
     --ref-code-text: #c9d1d9;
   }
-f 
+
   /* ── Global overflow guard ────────────────────────────────────────── */
   /* Prevent any single wide element from producing a horizontal scrollbar */
   html, body { overflow-x: hidden; }
@@ -2345,6 +2341,8 @@ f
     flex-direction: column;
     gap: 0.55rem;
     padding: 0.9rem;
+    flex: 1 1 auto;
+    min-height: 0;
     overflow-y: auto;
   }
 
@@ -2360,14 +2358,6 @@ f
 
   .example-source-link:hover {
     text-decoration: underline;
-  }
-
-  .example-description {
-    padding: 0 0.9rem 0.9rem;
-    margin: 0;
-    font-size: 0.76rem;
-    line-height: 1.5;
-    color: var(--text-primary);
   }
 
   .editor-col {
@@ -3208,6 +3198,41 @@ f
     .pkg-card:last-child {
       grid-column: auto;
     }
+
+    .playground {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    .editor-layout {
+      grid-template-columns: 1fr;
+      height: auto;
+      min-height: 0;
+    }
+
+    .playground.is-theater .editor-layout {
+      height: min(72vh, 560px);
+      min-height: 360px;
+    }
+
+    .examples-col { border-right: none; border-bottom: 1px solid var(--border); }
+    .editor-col { border-right: none; border-bottom: 1px solid var(--border); }
+    .examples-list { max-height: 180px; }
+    .code-editor-wrap { min-height: 260px; }
+    .stage-wrap {
+      flex: 0 0 auto;
+      width: 100%;
+      margin: 0;
+      aspect-ratio: var(--preview-aspect, 16 / 9);
+      min-height: 0;
+      --stage-pad: 0.5rem;
+    }
+
+    .playground.is-theater .stage-wrap {
+      flex: 1 1 auto;
+      aspect-ratio: auto;
+      --stage-pad: 0.75rem;
+    }
   }
 
   @media (max-width: 768px) {
@@ -3243,40 +3268,8 @@ f
     .features-grid { grid-template-columns: repeat(2, 1fr); }
     .pkg-grid { grid-template-columns: minmax(0, 1fr); max-width: none; }
 
-    .playground {
-      padding-left: 1rem;
-      padding-right: 1rem;
-    }
-
-    .editor-layout {
-      grid-template-columns: 1fr;
-      height: auto;
-      min-height: 0;
-    }
-
-    .playground.is-theater .editor-layout {
-      height: min(72vh, 560px);
-      min-height: 360px;
-    }
-
-    .examples-col { border-right: none; border-bottom: 1px solid var(--border); }
-    .editor-col { border-right: none; border-bottom: 1px solid var(--border); }
     .examples-list { max-height: 220px; }
     .code-editor-wrap { min-height: 220px; }
-    .stage-wrap {
-      flex: 0 0 auto;
-      width: 100%;
-      margin: 0;
-      aspect-ratio: var(--preview-aspect, 16 / 9);
-      min-height: 0;
-      --stage-pad: 0.5rem;
-    }
-
-    .playground.is-theater .stage-wrap {
-      flex: 1 1 auto;
-      aspect-ratio: auto;
-      --stage-pad: 0.75rem;
-    }
 
     .preview-toolbar {
       gap: 0.3rem 0.5rem;

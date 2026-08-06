@@ -141,6 +141,8 @@ npm i -g @markdy/cli
   <img src="website/public/images/markdy-output-preview.webp" alt="Markdy output preview" width="1100" />
 </p>
 
+The homepage playground mirrors this workflow: choose a shipped `.markdy` scene, edit syntax-highlighted MarkdyScript, and watch the embedded architecture preview update in the browser.
+
 To preview a full scene result locally, run:
 
 ```sh
