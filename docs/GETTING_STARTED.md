@@ -43,7 +43,7 @@ Use the scene file directly when you can. Reach for package APIs only when you n
 | Preview, lint, format, or render files | `@markdy/cli` |
 | Embed in Astro docs | `@markdy/astro` |
 | Write fenced code blocks in MDX | `@markdy/mdx` |
-| Build a custom browser player | `@markdy/renderer-dom` |
+| Build a custom browser embed | `@markdy/renderer-dom` |
 | Parse or inspect scenes in tooling | `@markdy/core` |
 | Autocomplete and diagnostics in editors | `@markdy/language-server` |
 | Architecture node vocabulary manifest | `@markdy/stdlib-systems` (optional) |

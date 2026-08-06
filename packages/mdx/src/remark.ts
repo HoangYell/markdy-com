@@ -81,7 +81,7 @@ function toCodeAttribute(code: string): MdxAttribute {
 }
 
 export function remarkMarkdy(opts: RemarkMarkdyOptions = {}) {
-  const componentName = opts.componentName ?? "MarkdyPlayer";
+  const componentName = opts.componentName ?? "MarkdyDiagram";
   const defaultProps: MarkdyFenceDefaults = {
     autoplay: false,
     loop: false,

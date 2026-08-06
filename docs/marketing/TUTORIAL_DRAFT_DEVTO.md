@@ -23,7 +23,7 @@ I wanted something in between. I use [Mermaid.js](https://mermaid.js.org/) to ge
 ### Introducing Markdy
 I decided to build [Markdy](https://markdy.com) — an open-source, framework-agnostic Animation Domain Specific Language (DSL). 
 
-It allows you to define scenes, actors, and timelines completely in text. The parser reads your DSL string, builds a strict Abstract Syntax Tree (AST), and the engine renders it natively using the Web Animations API (WAAPI). 
+It allows you to define architecture scenes, nodes, groups, beats, and routed flows completely in text. The parser reads your DSL string, builds a strict Abstract Syntax Tree (AST), and the engine renders it natively using the Web Animations API (WAAPI).
 
 **No Canvas. No React. Zero external dependencies.**
 

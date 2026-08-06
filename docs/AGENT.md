@@ -5,7 +5,7 @@ MarkdyScript 0.8 is **diagram-native**: you declare nodes, groups, and beats, an
 ## Rules
 
 - Use `scene`, node declarations, `group`, `beat`, flow operators, and optionally `style`, `pattern`/`use`.
-- Do **not** use the removed pre-0.8 syntax: `actor`, `@time:` events, `def`, `seq`, `preset`, `figure()`, `caption()`, `import`, `asset`, or pixel coordinates (`at (x, y)`).
+- Use architecture node declarations directly: `service API`, `database DB`, `queue Events`, `cache Redis`, `cloud Aws`.
 - Prefer concise beats over manual positioning — layout is automatic.
 - Default theme is `paper`; default layout direction is `LR`.
 - Keep flow labels short (≤ ~28 chars) so they stay readable.
@@ -234,11 +234,10 @@ beat main:
 
 ## Common mistakes to avoid
 
-- ❌ `actor x = box() at (10, 20)` — no `actor`, no coordinates. ✅ `service X "Label"`.
-- ❌ `@0.5: A.request(to=B)` — no `@time:` events. ✅ put `A -> B "label"` inside a `beat`.
-- ❌ `caption("...")`, `figure(...)`, `preset ...`, `def`, `seq`, `import`, `asset` — all removed.
-- ❌ Flow at top level. ✅ Flows/cues belong inside a `beat` (or use `edge id: A -> B`).
-- ❌ Referencing an undeclared node id in a flow — declare the node first.
+- Put animated flows/cues inside a `beat` (or use `edge id: A -> B` for static structure).
+- Declare every node id before referencing it in a flow, group, or cue.
+- Let layout infer positions; use `layout LR|RL|TB|BT` instead of coordinates.
+- Keep repeated paths in `pattern` blocks and call them with `use`.
 
 ## Validation checklist
 
@@ -253,9 +252,9 @@ beat main:
 ### Browser (Vanilla)
 
 ```typescript
-import { createPlayer } from "@markdy/renderer-dom";
+import { createDiagram } from "@markdy/renderer-dom";
 
-const player = createPlayer({
+const diagram = createDiagram({
   container: document.getElementById("scene")!,
   code: generatedMarkdyScript,
   autoplay: true,

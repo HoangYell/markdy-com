@@ -1,12 +1,12 @@
 /**
- * Diagram-native Markdy player — renders RenderPlan via WAAPI.
+ * Markdy diagram runtime — renders a RenderPlan via WAAPI.
  */
 import { parseAndCompile, type BeatRange, type Diagnostic } from "@markdy/core";
 import { buildCueAnimations } from "./edges.js";
 import { createNodeEl, createTitleEl, ensureNodeStyles } from "./nodes.js";
 import { applyThemeToScene, ensureSceneStyles } from "./theme.js";
 
-export interface PlayerOptions {
+export interface DiagramOptions {
   container: HTMLElement;
   code: string;
   autoplay?: boolean;
@@ -29,7 +29,7 @@ export interface PlayerOptions {
   onPlayStateChange?: (playing: boolean) => void;
 }
 
-export interface Player {
+export interface Diagram {
   play(): void;
   pause(): void;
   seek(seconds: number): void;
@@ -43,7 +43,7 @@ export interface Player {
   destroy(): void;
 }
 
-export function createPlayer(opts: PlayerOptions): Player {
+export function createDiagram(opts: DiagramOptions): Diagram {
   const {
     container,
     code,
@@ -150,17 +150,17 @@ export function createPlayer(opts: PlayerOptions): Player {
   Object.assign(sceneContent.style, { position: "absolute", inset: "0" });
   scene.appendChild(sceneContent);
 
-  const actorLayer = document.createElement("div");
-  actorLayer.className = "markdy-scene-actor-layer";
-  sceneContent.appendChild(actorLayer);
+  const nodeLayer = document.createElement("div");
+  nodeLayer.className = "markdy-scene-node-layer";
+  sceneContent.appendChild(nodeLayer);
 
   const titleEl = createTitleEl(plan.title);
-  actorLayer.appendChild(titleEl);
+  nodeLayer.appendChild(titleEl);
 
   const nodeEls = new Map<string, HTMLElement>();
   for (const node of plan.nodes) {
     const el = createNodeEl(node, plan.theme, assets);
-    actorLayer.appendChild(el);
+    nodeLayer.appendChild(el);
     nodeEls.set(node.id, el);
   }
 
@@ -214,7 +214,7 @@ export function createPlayer(opts: PlayerOptions): Player {
     rafId = requestAnimationFrame(rafTick);
   }
 
-  const player: Player = {
+  const diagram: Diagram = {
     play() {
       if (isPlaying) return;
       isPlaying = true;
@@ -256,10 +256,10 @@ export function createPlayer(opts: PlayerOptions): Player {
     },
     seekToBeat(name: string) {
       const beat = plan.beats.find((b) => b.name === name);
-      if (beat) player.seek(beat.start);
+      if (beat) diagram.seek(beat.start);
     },
     destroy() {
-      player.pause();
+      diagram.pause();
       for (const anim of allAnims) anim.cancel();
       resizeObserver.disconnect();
       if (progressEl?.parentNode === viewport) viewport.removeChild(progressEl);
@@ -270,13 +270,13 @@ export function createPlayer(opts: PlayerOptions): Player {
 
   viewport.style.cursor = "pointer";
   viewport.addEventListener("click", () => {
-    if (isPlaying) player.pause();
+    if (isPlaying) diagram.pause();
     else {
       if (!loop && sceneMs >= totalDurationMs) sceneMs = 0;
-      player.play();
+      diagram.play();
     }
   });
 
-  if (autoplay) player.play();
-  return player;
+  if (autoplay) diagram.play();
+  return diagram;
 }

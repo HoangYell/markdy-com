@@ -1,12 +1,12 @@
 # @markdy/core
 
-The parser and AST types for [MarkdyScript](../../docs/SYNTAX.md) — a DSL for describing 2D animated scenes.
+The parser and AST types for [MarkdyScript](../../docs/SYNTAX.md) — an AI-first DSL for animated architecture diagrams.
 
 ## Features
 
 - **Zero runtime dependencies** — pure TypeScript, no DOM or platform APIs
 - **Single-pass parser** — line-by-line state machine with strict `ParseError` diagnostics
-- **Rich type system** — `var`, `def`, `seq` expanded at parse time for composable scene authoring
+- **Diagram-native grammar** — scene metadata, architecture nodes, groups, styles, beats, flow chains, and reusable patterns
 - **Isomorphic** — runs in Node.js, Deno, Bun, edge runtimes, and the browser
 
 ## Installation
@@ -47,7 +47,7 @@ const source = `
 try {
   const ast: DiagramAST = parse(source);
 
-  console.log(ast.meta);   // { width: 1280, height: 720, fps: 60, theme: "midnight", direction: "LR", title: "Request" }
+  console.log(ast.meta);   // { width: 1280, height: 720, fps: 60, theme: "paper", direction: "LR", title: "Request" }
   console.log(ast.nodes);  // { Web: { kind: "browser", ... }, API: { kind: "service", ... } }
   console.log(ast.beats);  // [{ name: "main", cues: [...] }]
 } catch (e) {
@@ -71,7 +71,7 @@ try {
 | `NodeDecl` | type | Node declaration (kind, id, label, style) |
 | `EdgeDecl` | type | Edge declaration (kind, from, to, label) |
 | `BeatDecl` | type | Named beat with cues |
-| `THEMES` / `resolveTheme` | tokens | Semantic theme palettes (`midnight`, `paper`) |
+| `THEMES` / `resolveTheme` | tokens | Semantic theme palettes (`paper`, `midnight`, `blueprint`, `graphite`) |
 
 ## Documentation
 

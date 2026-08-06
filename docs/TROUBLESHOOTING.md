@@ -12,7 +12,7 @@ Fix: use a kind from the vocabulary (it ships inside `@markdy/core` — no regis
 
 Common causes:
 
-- legacy syntax: `actor`, `@time:`, `figure()`, `caption()`, `preset`, `def`, `seq` were removed in 0.8
+- syntax outside the diagram grammar: use `scene`, architecture node declarations, `group`, `beat`, flow operators, and optional `pattern`/`use`
 - a flow (`A -> B`) or cue (`show`, `glow`) written outside a `beat` block
 - referencing a node id that was never declared
 - a missing `"` around a label
@@ -21,7 +21,7 @@ Fix by checking the line number in the `ParseError`.
 
 ## Parse warnings
 
-Non-fatal issues (like an unknown `scene` property) are reported as warnings in `ast.diagnostics` rather than throwing. Inspect them via the `onWarning` callback on `createPlayer`, or run `markdy lint`.
+Non-fatal issues (like an unknown `scene` property) are reported as warnings in `ast.diagnostics` rather than throwing. Inspect them via the `onWarning` callback on `createDiagram`, or run `markdy lint`.
 
 ## Nodes overlap or edges are hard to read
 
@@ -39,7 +39,7 @@ Non-fatal issues (like an unknown `scene` property) are reported as warnings in 
 
 ## Scene works locally but not in a website
 
-Check that package versions are aligned, assets are reachable, the container exists before `createPlayer`, and SSR code does not access `document` before hydration.
+Check that package versions are aligned, assets are reachable, the container exists before `createDiagram`, and SSR code does not access `document` before hydration.
 
 ## AI-generated MarkdyScript fails
 

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.4] — 2026-08-06
+
+### Changed
+- **Diagram-native runtime naming** — Renamed the DOM runtime API to `createDiagram`/`Diagram`/`DiagramOptions` to match the animated-architecture-diagram direction, and removed the old `createPlayer`/`Player`/`PlayerOptions` compatibility aliases. Updated the internal scene node layer/dataset naming (`markdy-scene-node`) accordingly.
+- **AI-first architecture docs** — Refreshed README, package READMEs, agent prompts, website copy, and marketing drafts so Markdy is described as a concise DSL for animated architecture diagrams from plain text.
+- **MDX diagram component** — Renamed the MDX runtime component to `MarkdyDiagram`, with `remarkMarkdy` now emitting that component name by default.
+- **Migration map** — Use `createDiagram` instead of `createPlayer`, `Diagram` instead of `Player`, `DiagramOptions` instead of `PlayerOptions`, `MarkdyDiagram` instead of `MarkdyPlayer`, and `SYSTEM_NODE_TYPES` instead of `SYSTEM_ACTOR_TYPES`.
+
+### Removed
+- **Legacy compatibility exports** — Removed `SYSTEM_ACTOR_TYPES` from `@markdy/stdlib-systems` and removed custom parser recognizers for old syntax; statements outside the diagram grammar now fail through the strict parser path.
+- **Pre-0.8 cartoon docs** — Deleted the historical actor/figure/timeline material (`.github/AI_Instructions.md`, `PLAN.md`, `RESEARCH.md`, `docs/ANIMATION_SYSTEMS_ROADMAP.md`) and rewrote the stale renderer-internals, docs-page, and language-server copy that still described sprites, figures, and face-swaps.
+
 ## [0.8.3] — 2026-08-05
 
 ### Added

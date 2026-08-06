@@ -369,8 +369,8 @@ function createNodeMediaEl(doc: Document, node: PositionedNode, assets?: Record<
 
 export function createNodeEl(node: PositionedNode, theme: ThemeTokens, assets?: Record<string, string>): HTMLElement {
   const el = document.createElement("div");
-  el.className = "markdy-node markdy-scene-actor";
-  el.dataset.actor = node.id;
+  el.className = "markdy-node markdy-scene-node";
+  el.dataset.node = node.id;
   el.dataset.role = node.role;
   el.style.left = `${node.x}px`;
   el.style.top = `${node.y}px`;

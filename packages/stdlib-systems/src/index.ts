@@ -13,9 +13,6 @@ export const SYSTEM_NODE_TYPES = [
   ...VISUAL_PRIMITIVE_TYPES,
 ] as const;
 
-/** Backwards-compatible alias for the pre-0.8 export name. */
-export const SYSTEM_ACTOR_TYPES = SYSTEM_NODE_TYPES;
-
 export const SYSTEM_FLOW_ACTIONS = ["request", "response", "event", "dependency"] as const;
 
 export interface SystemsPack {

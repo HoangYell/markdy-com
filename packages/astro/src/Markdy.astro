@@ -255,13 +255,13 @@ const {
     const playbackRate = Number(el.dataset.markdyPlaybackRate ?? "1");
 
     // Code-split: renderer-dom is NOT part of the initial page bundle.
-    const { createPlayer } = await import("@markdy/renderer-dom");
+    const { createDiagram } = await import("@markdy/renderer-dom");
 
     // Clear the SSR placeholder and mount the canvas atomically after the
     // async import resolves, so there is no flash of empty content.
     el.innerHTML = "";
 
-    createPlayer({
+    createDiagram({
       container: el,
       code,
       assets,

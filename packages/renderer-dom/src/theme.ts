@@ -35,7 +35,7 @@ export function ensureSceneStyles(doc: Document): void {
   opacity: 0.62;
 }
 .markdy-scene-content { z-index: 2; }
-.markdy-scene-actor-layer {
+.markdy-scene-node-layer {
   position: absolute;
   inset: 0;
   overflow: visible;

@@ -52,7 +52,7 @@ describe("markdy cli", () => {
     expect(result.exitCode).toBe(0);
     const content = await readFile(file, "utf8");
     expect(content).toContain("beat intro:");
-    expect(content).not.toContain("actor ");
+    expect(content).toContain("service API");
   });
 
   it("formats idempotently and preserves response-edge direction", async () => {

@@ -99,7 +99,7 @@ You write **diagram-native MarkdyScript** for animated software architecture dia
 
 ## Rules
 - Use \`scene\`, node kinds, \`group\`, \`beat\`, flow operators, and optional \`pattern\`/\`use\`.
-- Do **not** use legacy \`actor\`, \`@time:\`, \`def\`, \`seq\`, \`preset\`, or \`figure\`.
+- Use architecture node declarations directly: \`service API\`, \`database DB\`, \`queue Events\`.
 - Prefer concise beats over pixel coordinates.
 - Default theme: \`paper\`. Default layout: \`LR\`.
 

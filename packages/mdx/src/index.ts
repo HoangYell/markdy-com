@@ -1,2 +1,2 @@
-export { MarkdyPlayer, type MarkdyPlayerProps } from "./player";
+export { MarkdyDiagram, type MarkdyDiagramProps } from "./diagram";
 export { remarkMarkdy, type RemarkMarkdyOptions } from "./remark";

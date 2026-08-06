@@ -2,8 +2,8 @@
 
 MDX integration for MarkdyScript with Lighthouse-safe defaults:
 
-- `remarkMarkdy` converts fenced code blocks (` ```markdy `) into a player component.
-- `MarkdyPlayer` hydrates only when visible and lazy-loads `@markdy/renderer-dom`.
+- `remarkMarkdy` converts fenced code blocks (` ```markdy `) into a diagram component.
+- `MarkdyDiagram` hydrates only when visible and lazy-loads `@markdy/renderer-dom`.
 - Rendered diagrams use the same semantic SVG node cards as `@markdy/renderer-dom`.
 
 ## Install
@@ -17,7 +17,7 @@ pnpm add @markdy/mdx react react-dom
 ```text
 @markdy/core -> @markdy/renderer-dom -> @markdy/mdx
 
-MDX integration transforms fenced markdy blocks into lazy player components.
+MDX integration transforms fenced markdy blocks into lazy diagram components.
 ```
 
 ## Output preview
@@ -33,16 +33,16 @@ MDX integration transforms fenced markdy blocks into lazy player components.
 import { remarkMarkdy } from "@markdy/mdx";
 
 export default {
-  remarkPlugins: [[remarkMarkdy, { componentName: "MarkdyPlayer" }]],
+  remarkPlugins: [[remarkMarkdy, { componentName: "MarkdyDiagram" }]],
 };
 ```
 
 ```tsx
 // shared MDX components map
-import { MarkdyPlayer } from "@markdy/mdx";
+import { MarkdyDiagram } from "@markdy/mdx";
 
 export const mdxComponents = {
-  MarkdyPlayer,
+  MarkdyDiagram,
 };
 ```
 
@@ -62,12 +62,12 @@ beat main:
 ## Performance Notes
 
 - Default transform options set `autoplay=false`, `loop=false`, `progressBar=false`.
-- Runtime player does not import renderer code until the block enters viewport.
+- Runtime diagram component does not import renderer code until the block enters viewport.
 - Placeholder is SSR-safe and keeps stable layout ratio to avoid CLS.
 
 ## Fence Metadata
 
-Fenced block metadata is passed as props to `MarkdyPlayer`. Snake-case aliases are normalized for renderer options:
+Fenced block metadata is passed as props to `MarkdyDiagram`. Snake-case aliases are normalized for renderer options:
 
 | Metadata | Prop | Description |
 |---|---|---|

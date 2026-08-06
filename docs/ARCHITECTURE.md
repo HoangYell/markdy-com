@@ -36,14 +36,14 @@ Technical deep dive into Markdy's design, data flow, and renderer internals.
   ┌─────────────────────────────────────────────┐
   │          @markdy/renderer-dom                │
   │                                              │
-  │  createPlayer(opts) ──────► Player           │
+  │  createDiagram(opts) ─────► Diagram         │
   │                                              │
   │  1. Creates scene <div> (root element)       │
   │  2. Creates node + edge (SVG) elements       │
   │  3. Builds WAAPI Animations from cues        │
   │  4. Runs rAF loop to drive currentTime       │
-  └───────────────────┬─────────────────────────┘
-                      │ Player { play, pause, seek, destroy }
+  └───────────────────┬─────────────────┘
+                      │ Diagram { play, pause, seek, destroy }
                       ▼
   ┌─────────────────────────────────────────────┐
   │            @markdy/astro                     │
@@ -77,7 +77,7 @@ for each block in source:
 
 **Key implementation details:**
 
-- **Legacy detection:** Removed pre-0.8 syntax (`actor`, `@time:`, `def`, `seq`, `preset`, `figure`) raises a helpful `ParseError`
+- **Strict grammar:** Statements outside the diagram grammar raise a line-numbered `ParseError`
 - **Comment stripping:** `//` line comments are removed before parsing
 - **Flow labels:** A trailing quoted string on a flow target becomes the edge label; response (`<-`) segments are stored in data-flow direction
 - **Pattern expansion:** `use name(args)` expands a `pattern` body with `$param` substitution
@@ -114,8 +114,8 @@ src/
   edges.ts        — Flow-edge SVG runtime, routing, cue animations
   geometry/       — Pure rect/point + obstacle-aware routing helpers
   theme.ts        — Scene ambience styles + theme-token application
-  player.ts       — Public API, rAF loop, progress bar, responsive scaling
-  index.ts        — Barrel exports (PlayerOptions, Player, createPlayer)
+  diagram.ts      — Public API, rAF loop, progress bar, responsive scaling
+  index.ts        — Barrel exports (DiagramOptions, Diagram, createDiagram)
 ```
 
 #### Playback Architecture
@@ -128,71 +128,35 @@ Two browser-specific issues forced this design:
 
 1. **`startTime` unreliability:** Setting `startTime` on a paused animation does not reliably change the play state to `"running"` across all browsers.
 
-2. **`fill:"both"` cascade conflict:** With `fill:"both"`, later-created animations (e.g., `move`) win the WAAPI cascade during their *before-phase*, overriding earlier animations' (e.g., `enter`) backward fill. This caused actors to appear at their final positions immediately instead of starting off-screen.
+2. **`fill:"both"` cascade conflict:** With `fill:"both"`, later-created animations win the WAAPI cascade during their *before-phase*, overriding earlier animations' backward fill. This caused nodes to jump to their final state immediately instead of revealing progressively.
 
-**Solution:** `fill:"forwards"` only + pre-initialised inline styles. Each actor's before-phase falls through to the inline style set during setup, which gives correct initial positions and opacity values.
+**Solution:** `fill:"forwards"` only + pre-initialised inline styles. Each node's before-phase falls through to the inline style set during setup, which gives correct initial positions and opacity values.
 
 ```
 Frame loop:
   1. sceneMs += (now - lastTimestamp)
   2. for each animation: anim.currentTime = sceneMs
-  3. Apply face swaps (last-swap-before-sceneMs wins per element)
+  3. updateProgressBar(sceneMs / totalDurationMs)
   4. requestAnimationFrame(next frame)
 ```
 
-#### Actor Element Creation
+#### Node & Edge Element Creation
 
-| Type | DOM Output |
+| Source | DOM Output |
 |---|---|
-| `sprite` (image) | `<img>` with `src` from asset def or override |
-| `sprite` (icon) | `<span data-icon="set:name">` |
-| `text` | `<div>` with `textContent` |
-| `box` | `<div>` with fixed 100×100 dimensions |
-| `figure` | Flexbox column: face → neck → shirt row (with arms) → legs row |
+| Node (`nodes.ts`) | `<div class="markdy-node markdy-scene-node" data-node data-role>` with a role-aware SVG glyph (or an `image=`/`logo=` `<img>`) plus a label |
+| Scene title | `<div>` positioned at the top-left of the scene |
+| Edge (`edges.ts`) | `<svg>` overlay with a routed `<path>`, arrowhead marker, animated dash reveal, a moving packet dot, and an optional rounded label pill |
 
-#### Figure DOM Structure
+Node kind → semantic role → colour + icon mapping lives in `@markdy/core` (`system-vocabulary.ts`) and in `nodes.ts` (`iconKeyForNode`).
 
-```
-<div>  (flex column, 80px wide)
-  ├── <span data-fig-face data-fig-head>  emoji face (40px)
-  ├── <div>  neck (8px skin-coloured bridge)
-  ├── <div>  shirt row (relative positioned)
-  │     ├── <span data-fig-body>  torso emoji (👕/👗)
-  │     ├── <div data-fig-arm-l>  left arm
-  │     │     ├── <div>  skin-coloured stick
-  │     │     └── <span>  hand emoji (🤜/💅)
-  │     └── <div data-fig-arm-r>  right arm
-  │           ├── <div>  skin-coloured stick
-  │           └── <span>  hand emoji
-  └── <div>  legs row (flex, centered, 10px gap)
-        ├── <div data-fig-leg-l>  left leg
-        │     ├── <div>  ink stick
-        │     └── <span>  shoe emoji (👟/👠)
-        └── <div data-fig-leg-r>  right leg
-              ├── <div>  ink stick
-              └── <span>  shoe emoji
-```
+#### Cue Animations
 
-Arms pivot at the shoulder (left arm: `transform-origin: right center`; right arm: `transform-origin: left center`). Legs pivot at the hip (`transform-origin: top center`).
-
-#### Face-Swap Engine
-
-Face changes (`face("😡")`) are **not** WAAPI animations — they're instant `textContent` swaps. To make them **seek-safe** (work correctly when scrubbing backward), they're stored in a `FaceSwap[]` array:
-
-```typescript
-interface FaceSwap { timeMs: number; el: HTMLElement; emoji: string; }
-```
-
-Each frame, the rAF loop scans all swaps and applies the last one whose `timeMs <= sceneMs` for each face element. Initial face text is stored in `data-fig-face-initial` for seek-back restoration.
+Beat cues (`show`, `hide`, `glow`, `focus`) and flow edges compile to WAAPI keyframes in `buildCueAnimations` (`edges.ts`). `show`/`hide` fade and lift nodes (with optional `stagger`); `glow`/`focus` add emphasis; the flow operators (`->`, `<-`, `~>`, `--`) drive the edge dash + packet reveal.
 
 #### Animation Pre-Initialisation
 
-Before building animations, the renderer pre-processes inline styles:
-
-- Actors whose **first action is `enter`** → inline transform set to off-screen position
-- Actors whose **first action is `fade_in`** and declared `opacity > 0` → inline `opacity: 0`
-
-This ensures correct visual state at `t=0` without needing `fill:"both"`.
+Before building animations, the renderer pre-sets inline styles so the first frame is correct without `fill:"both"`: nodes revealed by a later `show` cue start hidden (`opacity: 0`) and slightly offset, then animate in when their cue begins.
 
 ---
 
@@ -207,7 +171,7 @@ IntersectionObserver (threshold: 1.0) watches .markdy-root
            ↓ (element fully visible in viewport)
 observer.unobserve(el) → hydrate(el)
            ↓
-createPlayer({ container: el, code, assets, autoplay, loop, copyright, progressBar })
+createDiagram({ container: el, code, assets, autoplay, loop, copyright, progressBar })
 ```
 
 - `data-markdy-code` — MarkdyScript source stored on the DOM element

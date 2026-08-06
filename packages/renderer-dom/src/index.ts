@@ -1,2 +1,2 @@
-export type { PlayerOptions, Player } from "./player.js";
-export { createPlayer } from "./player.js";
+export type { DiagramOptions, Diagram } from "./diagram.js";
+export { createDiagram } from "./diagram.js";
