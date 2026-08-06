@@ -51,16 +51,6 @@ export type ParseOptions = {
   parseOnly?: boolean;
 };
 
-const LEGACY_PATTERNS: Array<{ re: RegExp; message: string }> = [
-  { re: /^\s*actor\s+/i, message: "MarkdyScript 0.8 removed `actor` declarations. Use node kinds instead: `service API \"Label\"`." },
-  { re: /^\s*@\d/, message: "MarkdyScript 0.8 removed `@time:` events. Use `beat` blocks with flow chains and cues." },
-  { re: /^\s*def\s+/i, message: "MarkdyScript 0.8 removed `def`. Use `pattern name(...):` for reusable flows." },
-  { re: /^\s*seq\s+/i, message: "MarkdyScript 0.8 removed `seq`. Use `pattern` + `use` inside beats." },
-  { re: /^\s*preset\s+/i, message: "MarkdyScript 0.8 removed presets. Use `scene` + `beat` composition." },
-  { re: /^\s*asset\s+/i, message: "MarkdyScript 0.8 is diagram-only; `asset` declarations are not supported." },
-  { re: /figure\s*\(/i, message: "MarkdyScript 0.8 is diagram-only; `figure` actors were removed." },
-];
-
 const FLOW_OP_RE = /(->|<-|~>|--)/;
 const PROP_RE = /(\w[\w.-]*)=(\S+)/g;
 
@@ -325,15 +315,6 @@ function readIndentedBody(blocks: Block[], startIdx: number, parentIndent: numbe
 
 export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
   const lines = source.replace(/\r\n/g, "\n").split("\n");
-  for (let i = 0; i < lines.length; i++) {
-    const line = stripComment(lines[i]);
-    for (const legacy of LEGACY_PATTERNS) {
-      if (legacy.re.test(line)) {
-        throw new ParseError(legacy.message, i + 1);
-      }
-    }
-  }
-
   const diagnostics: Diagnostic[] = [];
   const meta: SceneMeta = {
     width: 1280,

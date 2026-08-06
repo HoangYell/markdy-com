@@ -15,7 +15,7 @@ Like Mermaid, but for motion — open-source animation DSL
 
 **Description (max 260 chars):**
 ```
-Write declarative animations in plain text. Markdy parses your script into actors, timelines, and scenes — and renders them natively with the Web Animations API. No GSAP, no Canvas, no bloated dependencies.
+Write declarative architecture flows in plain text. Markdy parses your script into nodes, groups, beats, and routed flows, then renders them natively with the Web Animations API. No GSAP, no Canvas, no bloated dependencies.
 ```
 
 **Topics / Categories:**

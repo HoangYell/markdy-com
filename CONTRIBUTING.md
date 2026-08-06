@@ -24,7 +24,7 @@ packages/
   core/            @markdy/core         — Parser, AST types (zero deps)
   renderer-dom/    @markdy/renderer-dom — Web Animations API renderer
   astro/           @markdy/astro        — <Markdy /> Astro island
-  mdx/             @markdy/mdx          — MDX plugin + lazy React player
+   mdx/             @markdy/mdx          — MDX plugin + lazy React diagram component
   stdlib-systems/  @markdy/stdlib-systems — System-diagram node vocabulary
   markdy-language-server/ @markdy/language-server — Shared LSP server
 examples/

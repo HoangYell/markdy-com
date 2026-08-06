@@ -69,7 +69,7 @@ beat main:
 | [`@markdy/cli`](packages/cli) | CLI for linting, formatting, explaining, rendering, and local previews | Node package |
 | [`@markdy/language-server`](packages/markdy-language-server) | Shared LSP server for editors and IDE integrations | Node package |
 | [`@markdy/astro`](packages/astro) | Astro island component | ~2 KB |
-| [`@markdy/mdx`](packages/mdx) | MDX remark plugin + lazy React player | ~4 KB |
+| [`@markdy/mdx`](packages/mdx) | MDX remark plugin + lazy React diagram component | ~4 KB |
 | [`@markdy/stdlib-systems`](packages/stdlib-systems) | Architecture nodes, visual primitives, and request/response/emit flows for animated diagrams | <1 KB |
 
 ---
@@ -91,7 +91,7 @@ Developers usually discover this problem through many names:
 Use Markdy when you want a diagram or explainer that is:
 
 - **Text-first** — reviewable in pull requests and easy for AI agents to edit.
-- **Time-based** — requests, responses, events, camera movement, reveals, and emphasis happen in sequence.
+- **Time-based** — requests, responses, events, phased reveals, and emphasis happen in sequence.
 - **Browser-native** — rendered with DOM/CSS/Web Animations instead of screenshots or video exports.
 - **Documentation-friendly** — works in Astro, MDX, static sites, and package READMEs.
 
@@ -288,12 +288,12 @@ interface ParseOptions {
 
 `DiagramAST` exposes `ast.meta`, `ast.nodes`, `ast.edges`, `ast.groups`, `ast.patterns`, `ast.beats`, and `ast.diagnostics[]` (soft warnings such as unknown scene properties). Call `compile(ast)` to produce a `RenderPlan` with positioned nodes, routed edges, and scheduled cues. See [docs/AGENT.md](docs/AGENT.md) for the full shape.
 
-### `createPlayer(options: PlayerOptions): Player`
+### `createDiagram(options: DiagramOptions): Diagram`
 
-Creates a DOM-based animation player.
+Creates a DOM-based animated diagram.
 
 ```ts
-interface PlayerOptions {
+interface DiagramOptions {
   container: HTMLElement;    // Mount point
   code: string;             // MarkdyScript source
   autoplay?: boolean;       // Start immediately (default: true)
@@ -307,7 +307,7 @@ interface PlayerOptions {
   onPlayStateChange?: (playing: boolean) => void;
 }
 
-interface Player {
+interface Diagram {
   play(): void;             // Start / resume
   pause(): void;            // Pause at current position
   seek(seconds: number): void;  // Jump to time
@@ -352,10 +352,10 @@ See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for technical details.
          │ DiagramAST
          ▼
   ┌──────────────────┐
-  │ @markdy/renderer  │  createPlayer() → Player
+  │ @markdy/renderer  │  createDiagram() → Diagram
   │  -dom             │  WAAPI + rAF loop
   └──────┬───────────┘
-         │ Player
+         │ Diagram
          ▼
   ┌──────────────────┐
   │ @markdy/astro     │  <Markdy /> island
@@ -385,7 +385,7 @@ packages/
   renderer-dom/      @markdy/renderer-dom — WAAPI renderer
   cli/               @markdy/cli          — CLI for local authoring workflows
   astro/             @markdy/astro        — Astro island component
-  mdx/               @markdy/mdx          — MDX plugin + React player with viewport hydration
+  mdx/               @markdy/mdx          — MDX plugin + React diagram component with viewport hydration
   stdlib-systems/    @markdy/stdlib-systems — System-diagram node vocabulary
   markdy-language-server/ @markdy/language-server — Shared LSP server for editors
 website/               Official markdy.com playground & website (Astro)

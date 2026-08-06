@@ -89,7 +89,7 @@ export const code = `
 
 1. **Server:** renders a sized placeholder `<div>` with a `▶ markdy` label
 2. **Client:** an `IntersectionObserver` watches all `.markdy-root` elements
-3. **On viewport entry:** the observer fires, clears the placeholder, and calls `createPlayer()` from `@markdy/renderer-dom`
+3. **On viewport entry:** the observer fires, clears the placeholder, and calls `createDiagram()` from `@markdy/renderer-dom`
 4. **View Transitions:** listens for `astro:page-load` to re-observe newly added elements
 
 ## Documentation

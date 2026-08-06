@@ -37,9 +37,9 @@ This package consumes parsed AST and drives DOM + Web Animations API timelines.
 ## Usage
 
 ```typescript
-import { createPlayer } from "@markdy/renderer-dom";
+import { createDiagram } from "@markdy/renderer-dom";
 
-const player = createPlayer({
+const diagram = createDiagram({
   container: document.getElementById("scene")!,
   code: `
     scene "Request" theme=paper
@@ -53,15 +53,15 @@ const player = createPlayer({
 });
 
 // Playback control
-player.pause();
-player.seek(1.5);   // jump to 1.5 seconds
-player.play();
-player.destroy();    // clean up DOM + cancel animations
+diagram.pause();
+diagram.seek(1.5);   // jump to 1.5 seconds
+diagram.play();
+diagram.destroy();    // clean up DOM + cancel animations
 ```
 
 ## API
 
-### `createPlayer(options: PlayerOptions): Player`
+### `createDiagram(options: DiagramOptions): Diagram`
 
 | Option | Type | Default | Description |
 |---|---|---|---|
@@ -77,7 +77,7 @@ player.destroy();    // clean up DOM + cancel animations
 | `onTimeUpdate` | `(seconds: number, durationSeconds: number) => void` | — | Called whenever playback or seek changes the current time |
 | `onPlayStateChange` | `(playing: boolean) => void` | — | Called when playback starts or pauses |
 
-### `Player`
+### `Diagram`
 
 | Method | Description |
 |---|---|
@@ -97,8 +97,8 @@ player.destroy();    // clean up DOM + cancel animations
 
 ```
 src/
-  index.ts        — Barrel exports (createPlayer)
-  player.ts       — Public API, rAF loop, progress bar, responsive scaling
+  index.ts        — Barrel exports (createDiagram)
+  diagram.ts      — Public API, rAF loop, progress bar, responsive scaling
   nodes.ts        — Node element factory + scene title
   edges.ts        — Flow-edge SVG runtime, routing, and cue animations
   geometry/

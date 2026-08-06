@@ -4,9 +4,9 @@ Language Server Protocol (LSP) server for MarkdyScript.
 
 Current capabilities:
 - parse diagnostics from `@markdy/core`
-- actor-aware action completion
-- hover docs for common actions
-- document symbols for scenes, actors, defs, and seqs
+- completion for scene/layout/group/beat keywords, node kinds, cues, and declared node ids
+- hover docs for beats and flow operators
+- document symbols for declared nodes
 
 ## Package position (text)
 

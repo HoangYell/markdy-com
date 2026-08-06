@@ -34,7 +34,7 @@ const PACKAGES = [
     name: "@markdy/renderer-dom",
     required: false,
     badge: "Runtime",
-    desc: "Browser playback runtime behind Astro, MDX, the CLI preview, and custom embeds.",
+    desc: "Browser diagram runtime behind Astro, MDX, the CLI preview, and custom embeds.",
     size: "~22 KB",
     snippet: `<span class="u-fn">seek</span>(1.5) · <span class="u-fn">play</span>() · <span class="u-fn">pause</span>()`,
   },
@@ -83,7 +83,7 @@ const PACKAGES = [
 const USE_CASES = [
   {
     title: "Animated developer documentation",
-    desc: "Turn docs-as-code tutorials, onboarding flows, and release notes into small timeline scenes that stay readable in source control.",
+    desc: "Turn docs-as-code tutorials, onboarding flows, and release notes into compact architecture scenes that stay readable in source control.",
   },
   {
     title: "Architecture visualization",
@@ -1209,8 +1209,8 @@ beat finish:
 
   import { markdyLanguage, markdyAutocomplete, markdyHighlightLight, markdyHighlightDark } from "../editor/markdy-language";
   import { baseTheme, lightTheme, darkTheme } from "../editor/editor-theme";
-  import { createPlayer } from "@markdy/renderer-dom";
-  import type { Player } from "@markdy/renderer-dom";
+  import { createDiagram } from "@markdy/renderer-dom";
+  import type { Diagram } from "@markdy/renderer-dom";
   import type { ExampleEntry } from "../data/examples";
 
   const examples: ExampleEntry[]  = (window as any).__MARKDY_EXAMPLES;
@@ -1236,7 +1236,7 @@ beat finish:
   const exampleDescription = document.getElementById("example-description") as HTMLParagraphElement;
   const exampleSourceLink = document.getElementById("example-source-link") as HTMLAnchorElement;
 
-  let player: Player | null = null;
+  let diagram: Diagram | null = null;
   let isAnimPlaying = false;
   let debounce: ReturnType<typeof setTimeout> | null = null;
   let editorView: EditorView | null = null;
@@ -1254,7 +1254,7 @@ beat finish:
       btn.classList.toggle("active", isActive);
       btn.setAttribute("aria-pressed", isActive ? "true" : "false");
     }
-    player?.setPlaybackRate(rate);
+    diagram?.setPlaybackRate(rate);
   }
 
   setSelectedPlaybackRate(1);
@@ -1386,10 +1386,10 @@ beat finish:
 
   function render(code: string, previewStart = currentPreviewStart) {
     currentPreviewStart = previewStart;
-    if (player) { player.destroy(); player = null; }
+    if (diagram) { diagram.destroy(); diagram = null; }
     stage.innerHTML = "";
     try {
-      player = createPlayer({
+      diagram = createDiagram({
         container: stage,
         code: adaptCodeToTheme(code),
         autoplay: true,
@@ -1400,11 +1400,11 @@ beat finish:
         onPlayStateChange: setPlayState,
       });
       if (previewStart > 0) {
-        player.seek(previewStart);
+        diagram.seek(previewStart);
       }
       setPlayState(true);
-      setTimeline(player.currentTime(), player.duration());
-      populateSceneJump(player.beats());
+      setTimeline(diagram.currentTime(), diagram.duration());
+      populateSceneJump(diagram.beats());
       setStatus(true);
       if ((window as any).Iconify) {
         (window as any).Iconify.scan(stage);
@@ -1578,17 +1578,17 @@ beat finish:
 
   // Play / Pause button
   playBtn.addEventListener("click", () => {
-    if (!player) return;
+    if (!diagram) return;
     if (isAnimPlaying) {
-      player.pause();
+      diagram.pause();
     } else {
-      player.play();
+      diagram.play();
     }
   });
 
   rewindBtn.addEventListener("click", () => {
-    if (!player) return;
-    player.seek(player.currentTime() - 1);
+    if (!diagram) return;
+    diagram.seek(diagram.currentTime() - 1);
   });
 
   expandPreviewBtn.addEventListener("click", () => {
@@ -1602,9 +1602,9 @@ beat finish:
   });
 
   restartBtn.addEventListener("click", () => {
-    if (!player) return;
-    player.seek(0);
-    if (!player.isPlaying()) player.play();
+    if (!diagram) return;
+    diagram.seek(0);
+    if (!diagram.isPlaying()) diagram.play();
   });
 
   speedBtns.forEach((btn) => {
@@ -1615,20 +1615,20 @@ beat finish:
   });
 
   timelineRange.addEventListener("input", () => {
-    if (!player) return;
+    if (!diagram) return;
     isScrubbing = true;
-    player.seek(Number(timelineRange.value));
+    diagram.seek(Number(timelineRange.value));
   });
 
   timelineRange.addEventListener("change", () => {
     isScrubbing = false;
-    if (!player) return;
-    player.seek(Number(timelineRange.value));
+    if (!diagram) return;
+    diagram.seek(Number(timelineRange.value));
   });
 
   sceneJump.addEventListener("change", () => {
-    if (!player || !sceneJump.value) return;
-    player.seekToBeat(sceneJump.value);
+    if (!diagram || !sceneJump.value) return;
+    diagram.seekToBeat(sceneJump.value);
   });
 
   // Run button

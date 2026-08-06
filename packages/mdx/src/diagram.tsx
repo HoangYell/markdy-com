@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 
-type PlayerInstance = {
+type DiagramInstance = {
   destroy: () => void;
 };
 
-type CreatePlayerInput = {
+type CreateDiagramInput = {
   container: HTMLElement;
   code: string;
   assets: Record<string, string>;
@@ -16,7 +16,7 @@ type CreatePlayerInput = {
   playbackRate: number;
 };
 
-export type MarkdyPlayerProps = {
+export type MarkdyDiagramProps = {
   code: string;
   width?: number | string;
   height?: number | string;
@@ -68,7 +68,7 @@ function coerceNumber(value: number | string | undefined, fallback: number): num
   return fallback;
 }
 
-export function MarkdyPlayer({
+export function MarkdyDiagram({
   code,
   width = 800,
   height = 400,
@@ -83,7 +83,7 @@ export function MarkdyPlayer({
   className,
   title = "Markdy animation",
   description,
-}: MarkdyPlayerProps) {
+}: MarkdyDiagramProps) {
   const resolvedWidth = coerceNumber(width, 800);
   const resolvedHeight = coerceNumber(height, 400);
   const resolvedAutoplay = coerceBoolean(autoplay, false);
@@ -94,7 +94,7 @@ export function MarkdyPlayer({
   const resolvedPlaybackRate = coerceNumber(playbackRate, 1);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const playerRef = useRef<PlayerInstance | null>(null);
+  const diagramRef = useRef<DiagramInstance | null>(null);
   const hydratedRef = useRef(false);
 
   useEffect(() => {
@@ -114,9 +114,9 @@ export function MarkdyPlayer({
           try {
             const renderer = await import("@markdy/renderer-dom");
             if (disposed) return;
-            const createPlayer = renderer.createPlayer as (input: CreatePlayerInput) => PlayerInstance;
+            const createDiagram = renderer.createDiagram as (input: CreateDiagramInput) => DiagramInstance;
             root.innerHTML = "";
-            playerRef.current = createPlayer({
+            diagramRef.current = createDiagram({
               container: root,
               code,
               assets,
@@ -133,7 +133,7 @@ export function MarkdyPlayer({
             hydratedRef.current = false;
             root.dataset.markdyInit = "error";
             root.removeAttribute("aria-busy");
-            console.error("Failed to hydrate MarkdyPlayer", error);
+            console.error("Failed to hydrate MarkdyDiagram", error);
           }
         })();
       });
@@ -167,8 +167,8 @@ export function MarkdyPlayer({
       disposed = true;
       observer?.disconnect();
       root.removeEventListener("click", onClick);
-      playerRef.current?.destroy();
-      playerRef.current = null;
+      diagramRef.current?.destroy();
+      diagramRef.current = null;
     };
   }, [
     assets,

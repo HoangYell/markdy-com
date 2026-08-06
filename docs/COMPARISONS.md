@@ -6,7 +6,7 @@ Developers often find Markdy while searching for a Mermaid alternative, animated
 
 Use Mermaid when you need static flowcharts, sequence diagrams, class diagrams, or simple diagrams embedded in Markdown.
 
-Use Markdy when you need animated diagrams, timeline choreography, camera movement, browser-native motion, AI-generated technical explainers, or architecture flows that reveal in phases.
+Use Markdy when you need animated diagrams, phased reveals, browser-native motion, AI-generated technical explainers, or architecture flows that unfold step by step.
 
 Short version: **Mermaid is great for static diagrams; Markdy is closer to Mermaid for animation.**
 

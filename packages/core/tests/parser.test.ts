@@ -64,9 +64,15 @@ cdn CdnEdge
     expect(ast.beats[1].cues[0].kind).toBe("flow");
   });
 
-  it("rejects legacy actor syntax", () => {
+  it("rejects statements outside the diagram grammar", () => {
+    expect(() => parse("unknown Api")).toThrow(ParseError);
+    expect(() => parse("Client => API")).toThrow(ParseError);
     expect(() => parse('actor x = box() at (0,0)')).toThrow(ParseError);
     expect(() => parse("@0.0: x.fade_in()")).toThrow(ParseError);
+    expect(() => parse("def path(a, b):")).toThrow(ParseError);
+    expect(() => parse("seq main:")).toThrow(ParseError);
+    expect(() => parse('asset logo = "logo.svg"')).toThrow(ParseError);
+    expect(() => parse("service API\nbeat main:\n  figure(API)")).toThrow(ParseError);
   });
 
   it("compiles to render plan", () => {

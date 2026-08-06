@@ -580,7 +580,7 @@ function buildPlaygroundHtml(code: string, sourcePath?: string): string {
       </section>
     </main>
     <script type="module">
-      import { createPlayer } from "@markdy/renderer-dom";
+      import { createDiagram } from "@markdy/renderer-dom";
 
       const textarea = document.getElementById("code");
       const viewport = document.getElementById("viewport");
@@ -588,14 +588,14 @@ function buildPlaygroundHtml(code: string, sourcePath?: string): string {
       const runButton = document.getElementById("run");
       const pauseButton = document.getElementById("pause");
       const playButton = document.getElementById("play");
-      let player;
+      let diagram;
 
       function render() {
         warnings.innerHTML = "";
         viewport.innerHTML = "";
-        player?.destroy?.();
+        diagram?.destroy?.();
         try {
-          player = createPlayer({
+          diagram = createDiagram({
             container: viewport,
             code: textarea.value,
             onWarning(warning) {
@@ -612,8 +612,8 @@ function buildPlaygroundHtml(code: string, sourcePath?: string): string {
       }
 
       runButton.addEventListener("click", render);
-      pauseButton.addEventListener("click", () => player?.pause?.());
-      playButton.addEventListener("click", () => player?.play?.());
+      pauseButton.addEventListener("click", () => diagram?.pause?.());
+      playButton.addEventListener("click", () => diagram?.play?.());
       render();
     </script>
   </body>
@@ -659,9 +659,9 @@ export async function buildStandaloneHtml(scene: LoadedScene): Promise<string> {
       }
     </script>
     <script type="module">
-      import { createPlayer } from "@markdy/renderer-dom";
+      import { createDiagram } from "@markdy/renderer-dom";
 
-      createPlayer({
+      createDiagram({
         container: document.getElementById("app"),
         code: ${JSON.stringify(scene.source)},
         onWarning(warning) {

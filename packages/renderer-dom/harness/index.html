@@ -103,7 +103,7 @@
     <main id="grid"></main>
 
     <script type="module">
-      import { createPlayer } from "@markdy/renderer-dom";
+      import { createDiagram } from "@markdy/renderer-dom";
 
       const grid = document.getElementById("grid");
       const status = document.getElementById("status");
@@ -114,8 +114,8 @@
 
       /** @type {{id:string,group:string,name:string,code:string}[]} */
       let examples = [];
-      /** @type {{player:any}[]} */
-      let players = [];
+      /** @type {{diagram:any}[]} */
+      let diagrams = [];
 
       /** Apply a theme override by rewriting the scene's `theme=` token. */
       function withTheme(code, theme) {
@@ -131,8 +131,8 @@
       }
 
       function build() {
-        for (const { player } of players) player?.destroy?.();
-        players = [];
+        for (const { diagram } of diagrams) diagram?.destroy?.();
+        diagrams = [];
         grid.innerHTML = "";
         for (const ex of examples) {
           const card = document.createElement("section");
@@ -148,7 +148,7 @@
           const viewport = card.querySelector(".card__viewport");
           grid.appendChild(card);
           try {
-            const player = createPlayer({
+            const diagram = createDiagram({
               container: viewport,
               code: withTheme(ex.code, themeSel.value),
               autoplay: false,
@@ -162,8 +162,8 @@
                 card.appendChild(el);
               },
             });
-            players.push({ player });
-            requestAnimationFrame(() => frozenSeek(player));
+            diagrams.push({ diagram });
+            requestAnimationFrame(() => frozenSeek(diagram));
           } catch (err) {
             const el = document.createElement("div");
             el.className = "warn";
@@ -175,18 +175,18 @@
 
       frame.addEventListener("input", () => {
         frameVal.textContent = `${Math.round(Number(frame.value) * 100)}%`;
-        for (const { player } of players) frozenSeek(player);
+        for (const { diagram } of diagrams) frozenSeek(diagram);
       });
       freeze.addEventListener("change", () => {
-        for (const { player } of players) frozenSeek(player);
+        for (const { diagram } of diagrams) frozenSeek(diagram);
       });
       themeSel.addEventListener("change", build);
       document.getElementById("play").addEventListener("click", () => {
         freeze.checked = false;
-        for (const { player } of players) player.play();
+        for (const { diagram } of diagrams) diagram.play();
       });
       document.getElementById("pause").addEventListener("click", () => {
-        for (const { player } of players) player.pause();
+        for (const { diagram } of diagrams) diagram.pause();
       });
 
       try {
