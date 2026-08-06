@@ -4,12 +4,13 @@
 import { BEAT_CUE_KEYWORDS, NODE_KINDS } from "@markdy/core";
 import { StreamLanguage, type StreamParser, HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { autocompletion, type CompletionContext, type CompletionResult } from "@codemirror/autocomplete";
-import { tags } from "@lezer/highlight";
+import { tags, type Tag } from "@lezer/highlight";
 
-const TOKEN_TAG: Record<string, typeof tags.keyword> = {
+const TOKEN_TAG: Record<string, Tag> = {
   keyword: tags.keyword,
   type: tags.typeName,
   string: tags.string,
+  number: tags.number,
   comment: tags.comment,
   identifier: tags.variableName,
   operator: tags.operator,
@@ -26,6 +27,7 @@ const NODE_KIND_SET = new Set<string>(NODE_KINDS);
 
 const markdyParser: StreamParser<null> = {
   startState: () => null,
+  tokenTable: TOKEN_TAG,
   token(stream) {
     if (stream.match(/\/\/.*/)) return "comment";
     if (stream.match(/"([^"\\]|\\.)*"/)) return "string";

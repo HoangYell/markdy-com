@@ -26,6 +26,8 @@ Node labels are optional. IDs like `ApiServer` and `OrdersDb` render as readable
 
 ## 2. Preview and validate it
 
+For a quick visual pass, open the homepage playground and start from one of the shipped architecture examples. It uses the same `.markdy` files from `examples/showcase/`, shows syntax-highlighted MarkdyScript, and links back to each source file.
+
 ```sh
 npm i -D @markdy/cli
 npx markdy lint architecture.markdy
@@ -59,6 +61,8 @@ Start from `examples/showcase/` when building architecture visualization:
 - Kubernetes cluster architecture
 
 Start from top-level `examples/*.markdy` when learning one syntax feature at a time.
+
+The docs showcase uses compact pattern labels (`cache-aside`, `fan-out`, `pipeline`, `auth-flow`, `platform`, `ci-cd`) so you can pick examples by architecture shape instead of reading long descriptions.
 
 ## 5. Validate scenes before publishing
 

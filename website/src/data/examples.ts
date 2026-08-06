@@ -17,10 +17,8 @@ export type ExampleCategory = "product" | "system" | "architecture" | "chart" | 
 export interface ExampleMeta {
   id: string;
   title: string;
-  /** One-line description shown in the playground list and docs cards. */
-  description: string;
   category: ExampleCategory;
-  /** Architecture pattern label for gallery filtering. */
+  /** Architecture pattern label for docs/gallery filtering. */
   pattern?: string;
   /** Semantic theme used by the scene. */
   theme?: "midnight" | "paper" | "blueprint" | "graphite";
@@ -44,7 +42,6 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
   {
     id: "url-shortener-architecture",
     title: "URL Shortener Architecture",
-    description: "A production URL shortener diagram showing short-link creation, redirect resolution, cache lookup, and database fallback paths.",
     category: "architecture",
     pattern: "cache-aside",
     theme: "paper",
@@ -54,7 +51,6 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
   {
     id: "twitter-timeline-service",
     title: "Twitter Timeline Service",
-    description: "A timeline service architecture covering tweet writes, fan-out workers, Redis timeline cache, durable storage, notifications, and reads.",
     category: "architecture",
     pattern: "fan-out",
     theme: "midnight",
@@ -63,7 +59,6 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
   {
     id: "youtube-processing-pipeline",
     title: "YouTube Processing Pipeline",
-    description: "An upload-to-playback video pipeline with object storage, queueing, transcode workers, thumbnails, metadata, renditions, and CDN delivery.",
     category: "architecture",
     pattern: "pipeline",
     theme: "graphite",
@@ -72,7 +67,6 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
   {
     id: "oauth-oidc-login-flow",
     title: "OAuth / OIDC Login Flow",
-    description: "A clear authorization-code flow diagram with redirects, authorization endpoint, token exchange, access/refresh tokens, and protected API access.",
     category: "architecture",
     pattern: "auth-flow",
     theme: "midnight",
@@ -81,7 +75,6 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
   {
     id: "kubernetes-cluster-architecture",
     title: "Kubernetes Cluster Architecture",
-    description: "A Kubernetes architecture diagram showing control plane, data plane, scheduling, service discovery, config, secrets, storage, and ingress traffic.",
     category: "architecture",
     pattern: "platform",
     theme: "blueprint",
@@ -90,7 +83,6 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
   {
     id: "cicd-delivery-pipeline",
     title: "CI/CD Delivery Pipeline",
-    description: "A light-theme delivery pipeline: commit triggers CI, build and tests publish an artifact, then a canary rollout promotes to production with release monitoring.",
     category: "reliability",
     pattern: "ci-cd",
     theme: "paper",
