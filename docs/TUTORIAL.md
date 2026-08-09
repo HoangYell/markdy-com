@@ -24,12 +24,12 @@ A step-by-step guide to creating animated architecture diagrams, system explaine
 
 Use this path when learning Markdy for animated diagrams, architecture visualization, and AI-generated technical explainers:
 
-1. **Quick Start** — try a shipped scene in the homepage playground, then install `@markdy/core` and `@markdy/renderer-dom` when you are ready to embed.
+1. **Quick Start** — try a shipped scene in the dedicated playground at <https://markdy.com/playground/>, then install `@markdy/core` and `@markdy/renderer-dom` when you are ready to embed.
 2. **Core Concepts** — understand scenes, node kinds, flow operators, beats, and cues.
 3. **Basic Examples** — declare nodes, connect them, and reveal them beat by beat.
 4. **Real-World Examples** — study URL shorteners, OAuth, Kubernetes, video pipelines, and timeline services in `examples/showcase/`.
 5. **Best Practices** — keep labels short, avoid overlap, use semantic node kinds, and split long flows across beats.
-6. **Advanced Features** — use `group`, `pattern`/`use`, and `style`.
+6. **Advanced Features** — use `group`, `pattern`/`use`, `style`, beat captions, and `frame`.
 7. **AI Agent Workflow** — give `docs/AGENT.md` to the model, ask for MarkdyScript, lint it, and iterate on layout/timing.
 8. **Production Use Cases** — embed in Astro/MDX docs, launch posts, onboarding, architecture reviews, and internal platform docs.
 
@@ -39,11 +39,11 @@ Quick install:
 npm i @markdy/core @markdy/renderer-dom
 ```
 
-The playground is the fastest feedback loop: it keeps the editor syntax-highlighted, links each curated example to its source `.markdy` file, and scales the embedded preview for narrow or landscape viewports.
+The playground is the fastest feedback loop: it keeps the editor syntax-highlighted, links each curated example to its source `.markdy` file, gives the editor and preview an adjustable split, and surfaces parse warnings before you copy a scene into your project.
 
 AI prompt starter:
 
-> Use `docs/AGENT.md`. Create a 1280x720 animated architecture diagram for an OAuth login flow. Use semantic node kinds, beats, labeled flow edges (`->`, `<-`, `~>`), short labels, and a final `focus` on the token exchange.
+> Use `docs/AGENT.md`. Create a 1280x720 animated architecture diagram for an OAuth login flow. Use semantic node kinds, labeled beats, `frame` cues for attention, flow edges (`->`, `<-`, `~>`), short labels, and a final `focus` on the token exchange.
 
 ---
 
@@ -97,7 +97,8 @@ Edges route automatically around other nodes, and labels place themselves clear 
 A `beat` groups cues that play in order; beats run one after another. Besides `show`, cues let you direct attention.
 
 ```markdy
-beat highlight:
+beat highlight "Inspect the database path":
+  frame API DB zoom=1.15
   glow API color=#22c55e
   focus DB zoom=1.1
 ```
@@ -108,6 +109,7 @@ beat highlight:
 | `hide` | `dur` | Fade nodes out |
 | `glow` | `color`, `strength`, `dur` | Colored emphasis glow |
 | `focus` | `zoom`, `dur` | Pulse-scale a node |
+| `frame` | `zoom`, `dur` | Move the camera to nodes or a group (`frame $nodes` resets the view) |
 
 Run two cues together by putting `&` between them:
 
@@ -166,6 +168,7 @@ database Replica "Read Replica"
 
 - Themes: `paper` (light, default), `midnight` (dark), `blueprint`, and `graphite`.
 - Directions: `LR` (default), `RL`, `TB`, `BT`.
+- Named styles currently support visual props such as `fill`, `stroke`, `text`, and `accent`.
 
 ---
 
@@ -184,20 +187,23 @@ database UrlDB "URL Mapping DB"
 
 group storage: Redis UrlDB
 
-beat layout:
+beat layout "Reveal the architecture":
   show $nodes stagger=60ms
 
-beat create:
+beat create "Create a short URL":
+  frame Browser Gateway Shortener zoom=1.12
   Browser -> Gateway "POST /shorten" -> Shortener
   Shortener -> UrlDB "store slug" & Shortener ~> Redis "warm cache"
   Browser <- Shortener "short.ly/a7"
 
-beat redirect:
+beat redirect "Resolve the link":
+  frame Visitor Browser Gateway Shortener zoom=1.08
   Visitor -> Browser "open link" -> Gateway "GET /a7" -> Shortener
   Shortener -> Redis "cache lookup"
   Browser <- Shortener "301 redirect"
 
-beat finish:
+beat finish "Storage keeps it fast":
+  frame storage zoom=1.18
   glow storage color=#22c55e
 ```
 
@@ -234,6 +240,7 @@ beat finish:
 | `show` / `hide` | reveal / hide nodes |
 | `glow` | colored emphasis |
 | `focus` | attention pulse |
+| `frame` | camera move to nodes/groups |
 | `use` | expand a pattern |
 | `&` | run two cues in parallel |
 

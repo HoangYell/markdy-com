@@ -35,10 +35,45 @@ export function ensureSceneStyles(doc: Document): void {
   opacity: 0.62;
 }
 .markdy-scene-content { z-index: 2; }
+.markdy-camera-layer {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+  transform-origin: 0 0;
+  transform: translate(0px, 0px) scale(1);
+}
 .markdy-scene-node-layer {
   position: absolute;
   inset: 0;
   overflow: visible;
+}
+.markdy-beat-caption-layer {
+  position: absolute;
+  left: 44px;
+  right: 44px;
+  bottom: 30px;
+  z-index: 140;
+  display: grid;
+  justify-items: center;
+  align-items: end;
+  pointer-events: none;
+}
+.markdy-beat-caption {
+  grid-area: 1 / 1;
+  max-width: min(720px, 100%);
+  padding: 10px 16px;
+  border-radius: 999px;
+  color: var(--md-text);
+  background: color-mix(in srgb, var(--md-surface-raised) 88%, transparent);
+  backdrop-filter: blur(6px);
+  box-shadow:
+    0 14px 32px -20px var(--md-shadow, rgba(2, 6, 23, 0.55)),
+    inset 0 0 0 1px var(--md-hairline, color-mix(in srgb, var(--md-border) 50%, transparent));
+  font: 600 14px/1.3 Inter, ui-sans-serif, system-ui, sans-serif;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(8px);
+  will-change: opacity, transform;
 }
 `;
   doc.head.appendChild(style);

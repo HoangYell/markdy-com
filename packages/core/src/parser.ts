@@ -23,7 +23,7 @@ import {
   EDGE_OPERATORS,
   humanizeId,
   NODE_KINDS,
-  nodeRole,
+  RESERVED_SELECTORS,
   SCENE_KEYS,
 } from "./registry.js";
 import { compilePlan } from "./compiler.js";
@@ -147,8 +147,7 @@ function splitTargetLabel(token: string, lineNo: number): { node: string; label?
 
 function parseCueLine(line: string, lineNo: number): Cue {
   const trimmed = line.trim();
-  const propsMatch = trimmed.match(/\s+(?:dur|stagger|color|strength|zoom|after)=\S+/);
-  const props = propsMatch ? parseProps(propsMatch[0]) : {};
+  const props = parseProps(trimmed);
 
   if (trimmed.includes(" & ")) {
     const parts = trimmed.split(/\s+&\s+/);
@@ -206,6 +205,19 @@ function parseCueLine(line: string, lineNo: number): Cue {
     };
   }
 
+  if (keyword === "frame") {
+    const targetRaw = rest.join(" ").split(/\s+(?:zoom|dur)=/)[0];
+    const targets = splitTargets(targetRaw);
+    if (targets.length === 0) throw new ParseError(`expected frame target`, lineNo);
+    return {
+      kind: "frame",
+      targets,
+      zoom: typeof props.zoom === "number" ? props.zoom : undefined,
+      dur: typeof props.dur === "number" ? props.dur : undefined,
+      line: lineNo,
+    };
+  }
+
   if (keyword === "use") {
     const call = rest.join(" ");
     const m = call.match(/^(\w+)\s*\((.*)\)\s*$/);
@@ -257,10 +269,9 @@ function substitutePatternCue(cue: Cue, params: string[], args: Record<string, s
   params.forEach((p, i) => {
     if (resolvedArgs[p] === undefined && positional[i]) resolvedArgs[p] = positional[i];
   });
-  delete resolvedArgs.__pos_0;
-  delete resolvedArgs.__pos_1;
-  delete resolvedArgs.__pos_2;
-  delete resolvedArgs.__pos_3;
+  for (const key of Object.keys(resolvedArgs)) {
+    if (key.startsWith("__pos_")) delete resolvedArgs[key];
+  }
 
   const sub = (s: string) => {
     for (const p of params) {
@@ -280,7 +291,7 @@ function substitutePatternCue(cue: Cue, params: string[], args: Record<string, s
       })),
     };
   }
-  if (cue.kind === "show" || cue.kind === "hide" || cue.kind === "glow" || cue.kind === "focus") {
+  if (cue.kind === "show" || cue.kind === "hide" || cue.kind === "glow" || cue.kind === "focus" || cue.kind === "frame") {
     return { ...cue, targets: cue.targets.map(sub) };
   }
   if (cue.kind === "parallel") {
@@ -311,6 +322,75 @@ function readIndentedBody(blocks: Block[], startIdx: number, parentIndent: numbe
     i++;
   }
   return { body, nextIdx: i };
+}
+
+function pushWarning(diagnostics: Diagnostic[], seen: Set<string>, line: number, message: string): void {
+  const key = `${line}:${message}`;
+  if (seen.has(key)) return;
+  seen.add(key);
+  diagnostics.push({ severity: "warning", message, line });
+}
+
+function visitCues(cues: Cue[], visit: (cue: Cue) => void): void {
+  for (const cue of cues) {
+    visit(cue);
+    if (cue.kind === "parallel") visitCues(cue.cues, visit);
+  }
+}
+
+function validateReferences(ast: DiagramAST): void {
+  const seen = new Set<string>();
+  const hasNode = (id: string) => Boolean(ast.nodes[id]);
+  const hasGroup = (id: string) => Boolean(ast.groups[id]);
+  const isKnownTarget = (target: string) => {
+    if (RESERVED_SELECTORS.has(target)) return true;
+    if (target.startsWith("$")) return hasGroup(target.slice(1));
+    return hasNode(target) || hasGroup(target);
+  };
+
+  for (const group of Object.values(ast.groups)) {
+    for (const member of group.members) {
+      if (!hasNode(member)) {
+        pushWarning(ast.diagnostics, seen, group.line, `group '${group.id}' references unknown node '${member}'`);
+      }
+    }
+  }
+
+  for (const node of Object.values(ast.nodes)) {
+    if (node.style && !ast.styles[node.style]) {
+      pushWarning(ast.diagnostics, seen, node.line, `node '${node.id}' references unknown style '${node.style}'`);
+    }
+  }
+
+  const validateFlowEndpoint = (line: number, endpoint: string) => {
+    if (!hasNode(endpoint)) {
+      pushWarning(ast.diagnostics, seen, line, `flow references unknown node '${endpoint}'`);
+    }
+  };
+
+  for (const edge of ast.edges) {
+    validateFlowEndpoint(edge.line, edge.from);
+    validateFlowEndpoint(edge.line, edge.to);
+  }
+
+  for (const beat of ast.beats) {
+    visitCues(beat.cues, (cue) => {
+      if (cue.kind === "flow") {
+        for (const segment of cue.segments) {
+          validateFlowEndpoint(cue.line, segment.from);
+          validateFlowEndpoint(cue.line, segment.to);
+        }
+        return;
+      }
+      if (cue.kind === "show" || cue.kind === "hide" || cue.kind === "glow" || cue.kind === "focus" || cue.kind === "frame") {
+        for (const target of cue.targets) {
+          if (!isKnownTarget(target)) {
+            pushWarning(ast.diagnostics, seen, cue.line, `${cue.kind} references unknown target '${target}'`);
+          }
+        }
+      }
+    });
+  }
 }
 
 export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
@@ -469,11 +549,6 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
     throw new ParseError(`unexpected statement`, lineNo);
   }
 
-  const errors = diagnostics.filter((d) => d.severity === "error");
-  if (errors.length) {
-    throw new ParseError(errors[0].message, errors[0].line, errors[0].column);
-  }
-
   const ast: DiagramAST = {
     meta: { ...meta, title: title || undefined },
     styles,
@@ -484,6 +559,13 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
     beats,
     diagnostics,
   };
+
+  validateReferences(ast);
+
+  const errors = ast.diagnostics.filter((d) => d.severity === "error");
+  if (errors.length) {
+    throw new ParseError(errors[0].message, errors[0].line, errors[0].column);
+  }
 
   if (!opts.parseOnly && Object.keys(nodes).length === 0 && beats.length === 0) {
     // Allow empty parse for tooling

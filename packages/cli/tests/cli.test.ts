@@ -72,4 +72,18 @@ describe("markdy cli", () => {
     const second = await runCli(["fmt", file, "--check"], new BufferIo(), { openBrowser: async () => {} });
     expect(second.exitCode).toBe(0);
   });
+
+  it("formats frame cues and preserves node props", async () => {
+    const dir = await tempDir();
+    const file = join(dir, "story.markdy");
+    await writeFile(file, `scene "Story" theme=paper\nservice API icon=server\nbeat main "Inspect API":\n  frame API zoom=1.2 dur=500ms\n`, "utf8");
+    const io = new BufferIo();
+
+    const result = await runCli(["fmt", file, "--write"], io, { openBrowser: async () => {} });
+    expect(result.exitCode).toBe(0);
+    const formatted = await readFile(file, "utf8");
+    expect(formatted).toContain("service API icon=server");
+    expect(formatted).toContain("beat main \"Inspect API\":");
+    expect(formatted).toContain("frame API zoom=1.2 dur=0.5s");
+  });
 });

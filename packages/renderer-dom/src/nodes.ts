@@ -124,6 +124,7 @@ export function ensureNodeStyles(doc: Document): void {
   left: 44px;
   top: 26px;
   right: 44px;
+  z-index: 130;
   font-size: 32px;
   font-weight: 700;
   line-height: 1.2;
@@ -367,6 +368,28 @@ function createNodeMediaEl(doc: Document, node: PositionedNode, assets?: Record<
   return wrap;
 }
 
+function applyDeclaredNodeStyle(el: HTMLElement, style?: Record<string, unknown>): void {
+  if (!style) return;
+  const fill = typeof style.fill === "string" ? style.fill : undefined;
+  const surface = typeof style.surface === "string" ? style.surface : fill;
+  // Derive a slightly lighter top tone so custom fills keep the premium card gradient.
+  const surfaceRaised =
+    typeof style.surfaceRaised === "string"
+      ? style.surfaceRaised
+      : surface
+        ? `color-mix(in srgb, ${surface} 90%, #ffffff 10%)`
+        : undefined;
+  const stroke = typeof style.stroke === "string" ? style.stroke : undefined;
+  const text = typeof style.text === "string" ? style.text : undefined;
+  const accent = typeof style.accent === "string" ? style.accent : undefined;
+
+  if (surface) el.style.setProperty("--md-node-surface", surface);
+  if (surfaceRaised) el.style.setProperty("--md-node-surface-raised", surfaceRaised);
+  if (stroke) el.style.setProperty("--md-hairline", stroke);
+  if (text) el.style.color = text;
+  if (accent) el.style.setProperty("--md-role-color", accent);
+}
+
 export function createNodeEl(node: PositionedNode, theme: ThemeTokens, assets?: Record<string, string>): HTMLElement {
   const el = document.createElement("div");
   el.className = "markdy-node markdy-scene-node";
@@ -378,6 +401,7 @@ export function createNodeEl(node: PositionedNode, theme: ThemeTokens, assets?: 
   el.style.setProperty("--md-node-h", `${node.height}px`);
   const roleColor = theme.roles[node.role] ?? theme.accent;
   el.style.setProperty("--md-role-color", roleColor);
+  applyDeclaredNodeStyle(el, node.style);
   const typeText = node.kind.replace(/_/g, " ");
   el.dataset.kind = node.kind;
   el.dataset.icon = iconKeyForNode(node);

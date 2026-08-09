@@ -9,6 +9,7 @@ MarkdyScript 0.8 is **diagram-native**: you declare nodes, groups, and beats, an
 - Prefer concise beats over manual positioning — layout is automatic.
 - Default theme is `paper`; default layout direction is `LR`.
 - Keep flow labels short (≤ ~28 chars) so they stay readable.
+- Use beat labels and `frame` when the scene should guide attention through a large diagram.
 
 ## Minimal example
 
@@ -85,11 +86,14 @@ database Primary "Primary DB" style=hot
 Cues inside a beat are scheduled in order. Beats run one after another.
 
 ```markdy
-beat checkout:
+beat checkout "Process checkout":
   show $nodes stagger=80ms
+  frame API DB zoom=1.15
   Client -> API "POST /order" -> DB "persist"
   glow API color=#22c55e & focus DB zoom=1.1
 ```
+
+The optional quoted beat label is rendered as a caption during the beat.
 
 ### Flow operators
 
@@ -120,6 +124,7 @@ Cues live inside a beat. Put `&` between two cues to run them in parallel.
 | `hide` | `dur` | Fade nodes out |
 | `glow` | `color`, `strength`, `dur` | Colored emphasis glow |
 | `focus` | `zoom`, `dur` | Pulse-scale a node to draw attention |
+| `frame` | `zoom`, `dur` | Move the scene camera to a node or group (`frame $nodes` resets to the whole diagram) |
 | `use` | pattern args | Expand a `pattern` |
 
 Selectors: `$nodes` targets every node; a group name targets its members.
@@ -180,20 +185,23 @@ database UrlDB "URL Mapping DB"
 
 group storage: Redis UrlDB
 
-beat layout:
+beat layout "Reveal the architecture":
   show $nodes stagger=60ms
 
-beat create:
+beat create "Create a short URL":
+  frame Browser Gateway Shortener zoom=1.12
   Browser -> Gateway "POST /shorten" -> Shortener
   Shortener -> UrlDB "store slug" & Shortener ~> Redis "warm cache"
   Browser <- Shortener "short.ly/a7"
 
-beat redirect:
+beat redirect "Resolve a short link":
+  frame Visitor Browser Gateway Shortener zoom=1.08
   Visitor -> Browser "open link" -> Gateway "GET /a7" -> Shortener
   Shortener -> Redis "cache lookup"
   Browser <- Shortener "301 redirect"
 
-beat finish:
+beat finish "Storage keeps it fast":
+  frame storage zoom=1.18
   glow storage color=#22c55e
 ```
 
@@ -238,6 +246,8 @@ beat main:
 - Declare every node id before referencing it in a flow, group, or cue.
 - Let layout infer positions; use `layout LR|RL|TB|BT` instead of coordinates.
 - Keep repeated paths in `pattern` blocks and call them with `use`.
+- Use `frame groupName zoom=...` for attention, not manual coordinates or extra duplicate nodes.
+- Reset the camera with `frame $nodes` before a loop so the diagram returns to the full view.
 
 ## Validation checklist
 

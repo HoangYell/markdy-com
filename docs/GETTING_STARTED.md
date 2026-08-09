@@ -26,7 +26,7 @@ Node labels are optional. IDs like `ApiServer` and `OrdersDb` render as readable
 
 ## 2. Preview and validate it
 
-For a quick visual pass, open the homepage playground and start from one of the shipped architecture examples. It uses the same `.markdy` files from `examples/showcase/`, shows syntax-highlighted MarkdyScript, and links back to each source file.
+For a quick visual pass, open the dedicated playground at <https://markdy.com/playground/> and start from one of the shipped architecture examples. It uses the same `.markdy` files from `examples/showcase/`, shows syntax-highlighted MarkdyScript, offers an adjustable editor/preview split, and links back to each source file.
 
 ```sh
 npm i -D @markdy/cli
@@ -79,4 +79,3 @@ Use `docs/AGENT.md` as the full grammar reference and ask for MarkdyScript direc
 Example prompt:
 
 > Use the Markdy agent guide. Create a 1280x720 animated architecture diagram for a URL shortener. Include short-link creation, redirect resolution, Redis cache lookup, database fallback, beats, labeled flow edges (`->`, `<-`, `~>`), and a final `glow` on the hot path.
-

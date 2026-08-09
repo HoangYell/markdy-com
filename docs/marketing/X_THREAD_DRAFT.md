@@ -46,5 +46,5 @@ Instead of dragging nodes around in Figma or coding keyframes by hand, you can j
 Try the interactive playground and see the source code here! 
 Star it if you hate writing UI animation code yourself 🌟
 
-**Playground:** [https://markdy.com](https://markdy.com)
+**Playground:** [https://markdy.com/playground/](https://markdy.com/playground/)
 **GitHub:** [https://github.com/HoangYell/markdy-com](https://github.com/HoangYell/markdy-com)

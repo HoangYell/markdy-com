@@ -1,0 +1,138 @@
+---
+/*
+  SEO BRIEF — product/article page for: "Markdy playground"
+  Target keywords: Markdy playground, animated diagram playground,
+    architecture diagram playground, diagram as code playground,
+    Mermaid alternative playground, MarkdyScript editor
+  Search intent: users who want to try Markdy before installing it, learn the
+    DSL interactively, validate AI-generated scenes, or share runnable examples.
+*/
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+
+const canonicalURL = "https://markdy.com/blog/markdy-playground/";
+const structuredData = [
+  {
+    "@type": "BlogPosting",
+    "@id": `${canonicalURL}#article`,
+    headline: "Markdy Playground: Learn, Test, and Share Animated Architecture Diagrams",
+    description:
+      "Use the Markdy playground to edit MarkdyScript, preview animated architecture diagrams, jump between beats, inspect diagnostics, and share runnable scenes.",
+    inLanguage: "en",
+    url: canonicalURL,
+    mainEntityOfPage: canonicalURL,
+    isPartOf: { "@id": "https://markdy.com/#website" },
+    about: [
+      { "@id": "https://markdy.com/#software" },
+      { "@id": "https://markdy.com/playground/#webpage" },
+    ],
+    author: { "@id": "https://markdy.com/#hoang-yell" },
+    publisher: { "@id": "https://markdy.com/#organization" },
+    keywords:
+      "Markdy playground, animated diagram playground, architecture diagram playground, diagram as code playground, MarkdyScript editor",
+  },
+  {
+    "@type": "HowTo",
+    "@id": `${canonicalURL}#howto`,
+    name: "How to use the Markdy playground",
+    step: [
+      { "@type": "HowToStep", name: "Choose an example", text: "Start from a shipped Markdy architecture scene." },
+      { "@type": "HowToStep", name: "Edit MarkdyScript", text: "Use the CodeMirror editor with MarkdyScript highlighting and autocomplete." },
+      { "@type": "HowToStep", name: "Preview and inspect", text: "Watch the animation, jump between beats, scrub the timeline, and fix diagnostics." },
+      { "@type": "HowToStep", name: "Share or copy", text: "Copy the scene source or share a URL with the encoded runnable diagram." },
+    ],
+  },
+];
+---
+
+<ArticleLayout
+  title="Markdy Playground — Learn, Test, and Share Animated Diagrams"
+  description="Use the Markdy playground to edit MarkdyScript, preview animated architecture diagrams, jump between beats, inspect diagnostics, and share runnable scenes."
+  keywords="Markdy playground, animated diagram playground, architecture diagram playground, diagram as code playground, Mermaid alternative playground, MarkdyScript editor"
+  canonicalURL={canonicalURL}
+  headline="Markdy Playground: Learn, Test, and Share Animated Architecture Diagrams"
+  dek="The dedicated Markdy playground is the fastest way to try animated diagrams as code: edit MarkdyScript, preview the motion, inspect diagnostics, and share runnable scenes without installing anything."
+  structuredData={structuredData}
+>
+  <p>
+    The <a href="/playground/">Markdy playground</a> is a browser workspace for learning and testing
+    <strong>animated architecture diagrams as code</strong>. It is built for the practical loop most developers
+    need: start from a real scene, edit the text, watch the animation, fix warnings, and share a link.
+  </p>
+
+  <h2>Why a dedicated playground?</h2>
+  <p>
+    A small homepage demo is useful for a first impression, but serious authoring needs room. The dedicated
+    playground gives the editor and preview the full width of the page, with an adjustable split so you can make
+    the code pane wider while learning syntax or make the preview larger while checking motion and labels.
+  </p>
+
+  <ul>
+    <li><strong>More space to read code.</strong> The MarkdyScript editor is one of the two main panes, not a sidebar.</li>
+    <li><strong>More space to inspect motion.</strong> The animated preview can be expanded by dragging the split.</li>
+    <li><strong>Examples stay nearby.</strong> Curated scenes live in a top strip so they do not steal editor or preview space.</li>
+    <li><strong>Learning snippets are one click away.</strong> Insert common patterns for reveal beats, frame cues, request/response flows, and loop resets.</li>
+  </ul>
+
+  <h2>What you can do in the playground</h2>
+  <p>
+    The playground is not just a static text box. It is a full MarkdyScript feedback loop:
+  </p>
+  <table>
+    <thead><tr><th>Task</th><th>How the playground helps</th></tr></thead>
+    <tbody>
+      <tr><td>Learn the DSL</td><td>Use syntax highlighting, autocomplete, examples, and insertable snippets.</td></tr>
+      <tr><td>Test AI-generated diagrams</td><td>Paste generated MarkdyScript and inspect parse errors or reference warnings.</td></tr>
+      <tr><td>Review animation timing</td><td>Play, pause, restart, scrub the timeline, and jump directly to named beats.</td></tr>
+      <tr><td>Share a scene</td><td>Copy a shareable URL with the scene encoded in the hash.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>A small scene to try</h2>
+  <p>
+    Paste this into the <a href="/playground/">playground</a>. It demonstrates nodes, a group, a labeled beat,
+    a camera <code>frame</code>, a request flow, a response flow, and a clean reset back to the full diagram.
+  </p>
+  <pre><code>scene "Checkout Path" theme=paper
+layout LR
+
+browser Client
+service API
+database OrdersDb
+
+group backend: API OrdersDb
+
+beat reveal "Reveal the system":
+  show $nodes stagger=60ms
+
+beat request "Trace the request":
+  frame backend zoom=1.18 dur=600ms
+  Client -&gt; API "POST /orders" -&gt; OrdersDb "persist"
+  Client &lt;- API "201 Created"
+
+beat reset "Return to overview":
+  frame $nodes dur=600ms</code></pre>
+
+  <h2>Best practices while experimenting</h2>
+  <ol>
+    <li><strong>Keep labels short.</strong> Edge labels are easiest to read when they are specific but compact.</li>
+    <li><strong>Use beat labels.</strong> A beat label becomes a caption that explains what the viewer is seeing.</li>
+    <li><strong>Frame attention.</strong> Use <code>frame groupName</code> to guide the viewer through a complex system.</li>
+    <li><strong>Reset before looping.</strong> Add <code>frame $nodes</code> near the end so the next loop starts from the whole diagram.</li>
+    <li><strong>Fix diagnostics before sharing.</strong> Unknown node or group warnings usually mean a typo in a flow, group, or cue target.</li>
+  </ol>
+
+  <h2>How it fits with docs and local development</h2>
+  <p>
+    Use the playground for fast iteration. Once the scene feels right, copy the source into a <code>.markdy</code>
+    file and validate it with the CLI:
+  </p>
+  <pre><code>pnpm add -D @markdy/cli
+pnpm markdy lint architecture.markdy
+pnpm markdy render architecture.markdy --out architecture.html</code></pre>
+  <p>
+    For deeper syntax details, open the <a href="/docs/">docs</a> or the
+    <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md" target="_blank" rel="noopener noreferrer">AI agent guide</a>.
+    For comparisons, read <a href="/blog/markdy-vs-mermaid/">Markdy vs Mermaid</a> and
+    <a href="/blog/diagram-as-code-guide/">Diagram as Code: The Complete Guide</a>.
+  </p>
+</ArticleLayout>

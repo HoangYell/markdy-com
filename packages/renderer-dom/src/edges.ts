@@ -11,6 +11,11 @@ const EDGE_STYLES: Record<EdgeKind, { dash: string; marker: string }> = {
   dependency: { dash: "4 4", marker: "none" },
 };
 
+const INITIAL_CAMERA_TRANSFORM = "translate(0px, 0px) scale(1)";
+const DEFAULT_FRAME_ZOOM = 1.18;
+const MAX_FRAME_ZOOM = 1.75;
+const FRAME_PADDING = 88;
+
 /** Drops consecutive duplicate points so path data and dot offsets stay valid. */
 function dedupePoints(points: Point[]): Point[] {
   const out: Point[] = [];
@@ -215,6 +220,37 @@ export function animateEdgeReveal(runtime: EdgeRuntime, startMs: number, durMs: 
   return anims;
 }
 
+export function computeFrameTransform(
+  targetIds: string[],
+  nodes: PositionedNode[],
+  bounds: { width: number; height: number },
+  requestedZoom = DEFAULT_FRAME_ZOOM,
+): string | undefined {
+  const targets = new Set(targetIds);
+  const selected = nodes.filter((node) => targets.has(node.id));
+  if (selected.length === 0) return undefined;
+
+  // Framing every node means "show the whole diagram", so reset the camera.
+  const framesEveryNode = selected.length === nodes.length && nodes.every((node) => targets.has(node.id));
+  if (framesEveryNode) return INITIAL_CAMERA_TRANSFORM;
+
+  const zoom = Number.isFinite(requestedZoom) && requestedZoom > 0 ? requestedZoom : DEFAULT_FRAME_ZOOM;
+
+  const minX = Math.min(...selected.map((node) => node.x));
+  const minY = Math.min(...selected.map((node) => node.y));
+  const maxX = Math.max(...selected.map((node) => node.x + node.width));
+  const maxY = Math.max(...selected.map((node) => node.y + node.height));
+  const frameWidth = Math.max(1, maxX - minX + FRAME_PADDING * 2);
+  const frameHeight = Math.max(1, maxY - minY + FRAME_PADDING * 2);
+  const fitScale = Math.min(bounds.width / frameWidth, bounds.height / frameHeight);
+  const scale = Math.max(1, Math.min(zoom, fitScale, MAX_FRAME_ZOOM));
+  const centerX = (minX + maxX) / 2;
+  const centerY = (minY + maxY) / 2;
+  const tx = Math.round((bounds.width / 2 - centerX * scale) * 10) / 10;
+  const ty = Math.round((bounds.height / 2 - centerY * scale) * 10) / 10;
+  return `translate(${tx}px, ${ty}px) scale(${Math.round(scale * 1000) / 1000})`;
+}
+
 export function buildCueAnimations(
   cues: TimedCue[],
   nodeEls: Map<string, HTMLElement>,
@@ -232,6 +268,9 @@ export function buildCueAnimations(
   const laneByPair = new Map<string, number>();
   const svg = ensureEdgeLayer(scene);
   const sceneId = `md-${Math.random().toString(36).slice(2, 8)}`;
+  let cameraTransform = scene.style.transform || INITIAL_CAMERA_TRANSFORM;
+  scene.style.transformOrigin = "0 0";
+  scene.style.transform = cameraTransform;
 
   // Title reveal at start
   anims.push(
@@ -286,17 +325,36 @@ export function buildCueAnimations(
     }
 
     if (cue.kind === "focus") {
+      const zoom = typeof cue.params.zoom === "number" && cue.params.zoom > 0 ? cue.params.zoom : 1.03;
       for (const id of cue.targets) {
         const el = nodeEls.get(id);
         if (!el) continue;
         el.dataset.focused = "1";
         anims.push(
           el.animate(
-            [{ transform: "scale(1)" }, { transform: "scale(1.03)" }, { transform: "scale(1)" }],
+            [{ transform: "scale(1)" }, { transform: `scale(${zoom})` }, { transform: "scale(1)" }],
             { duration: durMs, delay: startMs, fill: "forwards" },
           ),
         );
       }
+      continue;
+    }
+
+    if (cue.kind === "frame") {
+      const nextTransform = computeFrameTransform(
+        cue.targets,
+        nodes,
+        bounds,
+        typeof cue.params.zoom === "number" ? cue.params.zoom : DEFAULT_FRAME_ZOOM,
+      );
+      if (!nextTransform) continue;
+      anims.push(
+        scene.animate(
+          [{ transform: cameraTransform }, { transform: nextTransform }],
+          { duration: durMs, delay: startMs, fill: "forwards", easing: "ease-in-out" },
+        ),
+      );
+      cameraTransform = nextTransform;
       continue;
     }
 

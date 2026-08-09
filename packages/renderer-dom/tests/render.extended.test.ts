@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { parseAndCompile } from "@markdy/core";
+import { computeFrameTransform } from "../src/edges";
+import { createBeatCaptionLayer } from "../src/diagram";
 import { createNodeEl } from "../src/nodes";
 
 const SAMPLE = `
@@ -95,6 +97,27 @@ describe("diagram render plan", () => {
     expect(el.dataset.icon).toBe("database");
   });
 
+  it("applies declared style props to node CSS variables", () => {
+    const theme = { roles: { data: "#22c55e" }, accent: "#38bdf8" } as any;
+    const el = createNodeEl({
+      id: "Primary",
+      kind: "database",
+      role: "data",
+      label: "Primary",
+      x: 0,
+      y: 0,
+      width: 168,
+      height: 72,
+      opacity: 0,
+      style: { fill: "#f59e0b", stroke: "#92400e", text: "#111827", accent: "#ef4444" },
+    }, theme);
+    expect(el.style.getPropertyValue("--md-node-surface")).toBe("#f59e0b");
+    expect(el.style.getPropertyValue("--md-node-surface-raised")).toBe("color-mix(in srgb, #f59e0b 90%, #ffffff 10%)");
+    expect(el.style.getPropertyValue("--md-hairline")).toBe("#92400e");
+    expect(el.style.getPropertyValue("--md-role-color")).toBe("#ef4444");
+    expect(el.style.color).toBe("rgb(17, 24, 39)");
+  });
+
   it("renders an <img> for image= and applies the assets override", () => {
     const theme = { roles: { data: "#22c55e" }, accent: "#38bdf8" } as any;
     const el = createNodeEl({
@@ -133,5 +156,29 @@ describe("diagram render plan", () => {
     const img = el.querySelector<HTMLImageElement>(".markdy-node__icon img");
     expect(img?.getAttribute("src")).toBe("/logos/api.svg");
     expect(el.querySelector(".markdy-node__icon svg")).toBeNull();
+  });
+
+  it("computes deterministic camera transforms for frame cues", () => {
+    const nodes = [
+      { id: "A", kind: "service", role: "compute", label: "A", x: 100, y: 120, width: 168, height: 72, opacity: 1 },
+      { id: "B", kind: "database", role: "data", label: "B", x: 520, y: 340, width: 168, height: 72, opacity: 1 },
+    ];
+
+    expect(computeFrameTransform(["A", "B"], nodes, { width: 1280, height: 720 }, 1)).toBe("translate(0px, 0px) scale(1)");
+    expect(computeFrameTransform(["A", "B"], nodes, { width: 1280, height: 720 }, 1.4)).toBe("translate(0px, 0px) scale(1)");
+    expect(computeFrameTransform(["A"], nodes, { width: 1280, height: 720 }, 1.25)).toBe("translate(410px, 165px) scale(1.25)");
+    expect(computeFrameTransform(["Missing"], nodes, { width: 1280, height: 720 }, 1.25)).toBeUndefined();
+  });
+
+  it("builds beat captions only for labeled beats", () => {
+    const layer = createBeatCaptionLayer(document, [
+      { name: "intro", label: "Reveal the system", start: 0, end: 1 },
+      { name: "silent", start: 1, end: 2 },
+      { name: "finish", label: "Wrap up", start: 2, end: 3 },
+    ]);
+    const captions = layer.querySelectorAll(".markdy-beat-caption");
+    expect(captions).toHaveLength(2);
+    expect([...captions].map((c) => c.textContent)).toEqual(["Reveal the system", "Wrap up"]);
+    expect([...captions].map((c) => (c as HTMLElement).dataset.beat)).toEqual(["intro", "finish"]);
   });
 });

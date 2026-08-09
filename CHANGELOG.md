@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Dedicated playground page** — Added `/playground/`, a spacious browser workspace for learning and testing MarkdyScript with curated examples moved outside the main work area, adjustable editor/preview split panes, CodeMirror editing, diagnostics, beat jumping, timeline scrubbing, playback speed controls, snippet insertion, and shareable scene URLs.
+- **Playground SEO article** — Added `/blog/markdy-playground/`, a search-focused guide for learning, testing, validating, and sharing animated architecture diagrams in the browser.
+- **Camera framing cues** — Added `frame` cues for guiding attention through large architecture diagrams. Authors can frame nodes, groups, or `frame $nodes` to reset smoothly back to the full diagram for loop-friendly scenes.
+- **Beat captions** — Optional beat labels such as `beat trace "Follow the request":` now render as timed caption pills over the scene, making architecture walkthroughs easier to follow without extra overlay code.
+- **Reference diagnostics** — The parser now warns about unresolved flow endpoints, cue targets, group members, and named styles, giving AI-generated MarkdyScript faster and more actionable validation feedback.
+
+### Changed
+- **More expressive storytelling examples** — Refreshed the URL shortener showcase and beats/groups tutorial example with camera framing, captions, and full-diagram reset cues while keeping the homepage example set curated.
+- **Styled node rendering** — Named node styles now affect rendered cards (`fill`, `stroke`, `text`, and `accent`) while preserving the premium gradient treatment for custom fills.
+- **Example quality gate** — `verify:examples` now treats warnings as failures so shipped examples stay parse-clean, diagnostic-clean, and safe for users or LLMs to copy.
+
+### Fixed
+- **Focus zoom parameter** — `focus ... zoom=` now controls the rendered pulse scale instead of always using the same hard-coded emphasis.
+- **Formatter round-tripping** — `markdy fmt` now preserves non-style node props such as `icon=`, `image=`, and `logo=` instead of dropping them.
+- **Cue property parsing** — Cues with multiple properties, such as `frame API zoom=1.2 dur=500ms`, now parse every property instead of only the first one.
+
 ## [0.8.5] — 2026-08-06
 
 ### Changed

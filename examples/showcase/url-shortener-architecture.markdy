@@ -13,16 +13,18 @@ group storage: HotUrlCache UrlMappingDb
 group ingress: Visitor WebClient ApiGateway
 group app: UrlShortener RedirectService
 
-beat layout:
+beat layout "Reveal the moving parts":
   show ingress stagger=45ms & show app stagger=45ms & show storage stagger=45ms
 
-beat create:
+beat create "Create a short URL":
+  frame WebClient ApiGateway UrlShortener UrlMappingDb zoom=1.1 dur=500ms
   WebClient -> ApiGateway "POST /shorten"
   ApiGateway -> UrlShortener "forward request"
   UrlShortener -> UrlMappingDb "store slug" & UrlShortener ~> HotUrlCache "warm cache"
   WebClient <- UrlShortener "short.ly/a7"
 
-beat redirect:
+beat redirect "Resolve a short link":
+  frame ingress app zoom=1.06 dur=500ms
   Visitor -> WebClient "open short link"
   WebClient -> ApiGateway "GET /a7"
   ApiGateway -> RedirectService "resolve slug"
@@ -31,5 +33,7 @@ beat redirect:
   RedirectService -> UrlMappingDb "miss fallback"
   WebClient <- RedirectService "301 redirect"
 
-beat finish:
+beat finish "Storage keeps redirects fast":
+  frame storage zoom=1.18 dur=600ms
   glow storage color=#22c55e & glow UrlMappingDb color=#38bdf8
+  frame $nodes dur=600ms

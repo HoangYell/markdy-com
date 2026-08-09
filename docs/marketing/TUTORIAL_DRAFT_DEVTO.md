@@ -79,7 +79,7 @@ I wrote an [AGENT.md instructions file](https://github.com/HoangYell/markdy-com/
 
 ### Give it a spin
 If you build interactive docs or just want to play around with bringing code scenes to life:
-1. Try the online playground: [markdy.com](https://markdy.com)
+1. Try the online playground: [markdy.com/playground](https://markdy.com/playground/)
 2. You can check out the engine's source code on GitHub: [HoangYell/markdy-com](https://github.com/HoangYell/markdy-com)
 
 Would love to hear what developers think of the syntax design!

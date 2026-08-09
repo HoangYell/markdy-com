@@ -9,6 +9,7 @@ const DIRS = ["examples", "examples/showcase"];
 
 async function verify(): Promise<number> {
   const failures: string[] = [];
+  const warnings: string[] = [];
   let total = 0;
 
   for (const dir of DIRS) {
@@ -21,19 +22,25 @@ async function verify(): Promise<number> {
         const ast = parse(source);
         const errors = ast.diagnostics.filter((d) => d.severity === "error");
         if (errors.length) failures.push(`${dir}/${file}: ${errors.map((e) => e.message).join("; ")}`);
+        for (const w of ast.diagnostics.filter((d) => d.severity === "warning")) {
+          warnings.push(`${dir}/${file}:${w.line} ${w.message}`);
+        }
       } catch (error) {
         failures.push(`${dir}/${file}: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
   }
 
-  if (failures.length) {
-    console.error(`verify-examples: FAIL — ${failures.length} problem(s):`);
-    for (const f of failures) console.error(`  • ${f}`);
+  // Shipped examples are curated: they must parse cleanly with zero warnings so
+  // the reference diagnostics stay meaningful and copy-paste friendly.
+  if (failures.length || warnings.length) {
+    const problems = [...failures, ...warnings];
+    console.error(`verify-examples: FAIL — ${problems.length} problem(s):`);
+    for (const p of problems) console.error(`  • ${p}`);
     return 1;
   }
 
-  console.log(`verify-examples: PASS — ${total} example file(s).`);
+  console.log(`verify-examples: PASS — ${total} example file(s), 0 warnings.`);
   return 0;
 }
 

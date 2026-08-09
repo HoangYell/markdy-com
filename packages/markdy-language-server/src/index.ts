@@ -38,6 +38,7 @@ const KEYWORDS = [
   "hide",
   "glow",
   "focus",
+  "frame",
   ...BEAT_CUE_KEYWORDS,
   ...NODE_KINDS,
 ];
@@ -131,6 +132,7 @@ connection.onHover((params) => {
   if (!doc) return null;
   const line = doc.getText().split(/\r?\n/)[params.position.line]?.trim() ?? "";
   if (line.startsWith("beat ")) return { contents: { kind: "markdown", value: "Named narrative beat with indented cues." } };
+  if (line.startsWith("frame ")) return { contents: { kind: "markdown", value: "Camera cue that frames one or more nodes or groups." } };
   if (line.includes("->")) return { contents: { kind: "markdown", value: "Request/call flow edge." } };
   return null;
 });

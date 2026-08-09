@@ -34,4 +34,24 @@ beat two:
     expect(plan.beats.map((b) => b.name)).toEqual(["one", "two"]);
     expect(plan.cues.some((c) => c.kind === "flow")).toBe(true);
   });
+
+  it("resolves frame cue targets and keeps zoom parameters", () => {
+    const source = `
+scene theme=paper
+service API
+database DB
+group backend: API DB
+
+beat inspect:
+  frame backend zoom=1.3 dur=1s
+`;
+    const plan = compile(parse(source));
+    const frame = plan.cues.find((cue) => cue.kind === "frame");
+    expect(frame).toMatchObject({
+      kind: "frame",
+      targets: ["API", "DB"],
+      duration: 1,
+      params: { zoom: 1.3 },
+    });
+  });
 });
