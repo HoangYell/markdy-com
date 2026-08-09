@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.11] — 2026-08-09
+
+### Changed
+- **Homepage crawl paths** — Added curated featured article links and matching JSON-LD so search crawlers can reach the strongest diagram-as-code guides directly from the homepage.
+- **Privacy disclosure accuracy** — Updated the privacy policy to disclose cookie-free Cloudflare Web Analytics metrics and refreshed the privacy metadata.
+
+### Fixed
+- **Canonical privacy URL** — Normalized the homepage footer privacy link to `/privacy/` to avoid sending crawlers through the non-canonical redirect.
+- **Unused third-party script** — Removed the unused Iconify CDN script and obsolete runtime scan hook from the website shell.
+
 ## [0.8.10] — 2026-08-09
 
 ### Added
