@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.6] — 2026-08-09
+
 ### Added
 - **Dedicated playground page** — Added `/playground/`, a spacious browser workspace for learning and testing MarkdyScript with curated examples moved outside the main work area, adjustable editor/preview split panes, CodeMirror editing, diagnostics, beat jumping, timeline scrubbing, playback speed controls, snippet insertion, and shareable scene URLs.
 - **Playground SEO article** — Added `/blog/markdy-playground/`, a search-focused guide for learning, testing, validating, and sharing animated architecture diagrams in the browser.
