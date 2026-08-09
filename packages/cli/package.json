@@ -1,6 +1,6 @@
 {
   "name": "@markdy/cli",
-  "version": "0.8.7",
+  "version": "0.8.8",
   "description": "First-party CLI for MarkdyScript diagrams: lint, format, explain, render, and a local playground.",
   "license": "MIT",
   "type": "module",
