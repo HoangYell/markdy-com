@@ -1,6 +1,6 @@
 {
   "name": "@markdy/mdx",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "description": "MDX plugin and lightweight React diagram component for animated Markdy diagrams.",
   "license": "MIT",
   "type": "module",

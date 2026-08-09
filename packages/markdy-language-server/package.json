@@ -1,6 +1,6 @@
 {
   "name": "@markdy/language-server",
-  "version": "0.8.5",
+  "version": "0.8.6",
   "description": "Language Server Protocol implementation for MarkdyScript diagrams.",
   "license": "MIT",
   "type": "module",
