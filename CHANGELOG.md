@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.9] — 2026-08-09
+
 ### Added
 - **`var` named constants** — Top-level `var name = value` declarations (colors, durations, etc.) can be referenced with `$name` and are substituted deterministically at parse time, so AI-generated scenes that reach for color variables now work.
 - **Multi-line group members** — `group name:` can list members on indented lines in addition to the inline `group name: A B C` form.
