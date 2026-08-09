@@ -136,6 +136,13 @@ const PROMOTION_LINKS = [
   { label: "Read the agent guide", href: "/agent/", desc: "Give AI tools the current hosted grammar and cue reference." },
 ] as const;
 
+const FEATURED_ARTICLES = [
+  { href: "/blog/diagram-as-code-guide/", label: "Diagram-as-code guide" },
+  { href: "/blog/markdy-vs-mermaid/", label: "Markdy vs Mermaid" },
+  { href: "/blog/system-design-diagrams/", label: "System design use case" },
+  { href: "/blog/markdy-playground/", label: "Playground walkthrough" },
+] as const;
+
 const homepageStructuredData = [
   {
     "@type": "WebPage",
@@ -180,6 +187,17 @@ const homepageStructuredData = [
       position: index + 1,
       name: item.title,
       description: item.desc,
+    })),
+  },
+  {
+    "@type": "ItemList",
+    "@id": "https://markdy.com/#featured-articles",
+    name: "Featured Markdy articles",
+    itemListElement: FEATURED_ARTICLES.map((article, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: `https://markdy.com${article.href}`,
+      name: article.label,
     })),
   },
 ];
@@ -299,6 +317,17 @@ markdy <span class="u-fn">check-all</span> examples`;
       <a href="/playground/" class="btn-primary">Try the Playground</a>
       <a href="#learn" class="btn-secondary">Learn the Syntax</a>
     </div>
+    <p class="hero-crawl-links" aria-label="Featured articles">
+      <span>Featured guides:</span>
+      {FEATURED_ARTICLES.map((article, index) => (
+        <>
+          {index > 0 && <span aria-hidden="true"> · </span>}
+          <a href={article.href}>{article.label}</a>
+        </>
+      ))}
+      <span aria-hidden="true"> · </span>
+      <a href="/blog/">All articles</a>
+    </p>
 
     <!-- ─── Usage tabs ──────────────────────────────────────────────── -->
     <div class="usage-section">
@@ -1038,7 +1067,7 @@ beat finish:
       <div class="footer-bottom">
         <span>MIT License</span>
         <span class="dot">&middot;</span>
-        <a href="/privacy">Privacy Policy</a>
+        <a href="/privacy/">Privacy Policy</a>
         <span class="dot">&middot;</span>
         <span>Built by <a href="https://hoangyell.com" target="_blank" rel="noopener noreferrer">Hoang Yell</a></span>
       </div>
@@ -1405,9 +1434,6 @@ beat finish:
       setTimeline(diagram.currentTime(), diagram.duration());
       populateSceneJump(diagram.beats());
       setStatus(true);
-      if ((window as any).Iconify) {
-        (window as any).Iconify.scan(stage);
-      }
       resizeStage();
     } catch (e) {
       const msg = (e as Error).message ?? String(e);
@@ -1904,6 +1930,25 @@ beat finish:
     justify-content: center;
     gap: 0.75rem;
     flex-wrap: wrap;
+  }
+
+  .hero-crawl-links {
+    margin: 1rem auto 0;
+    max-width: 680px;
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+
+  .hero-crawl-links a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .hero-crawl-links a:hover {
+    text-decoration: underline;
+    text-underline-offset: 2px;
   }
 
   .btn-primary {
@@ -3261,6 +3306,7 @@ beat finish:
     .hero { padding: 3rem 1rem 1.75rem; }
     .hero h1 { font-size: 2rem; line-height: 1.06; }
     .hero-sub { font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem; }
+    .hero-crawl-links { font-size: 0.8rem; margin-top: 0.85rem; }
     .usage-section { max-width: none; }
     .usage-tabs { overflow-x: auto; scrollbar-width: none; }
     .usage-tabs::-webkit-scrollbar { display: none; }
@@ -3345,6 +3391,12 @@ beat finish:
       align-items: stretch;
       max-width: 320px;
       margin: 0 auto;
+    }
+    .hero-crawl-links {
+      font-size: 0.74rem;
+      line-height: 1.5;
+      max-width: 340px;
+      margin-top: 0.75rem;
     }
     .btn-primary,
     .btn-secondary {
