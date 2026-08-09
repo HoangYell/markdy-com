@@ -43,7 +43,7 @@ The playground is the fastest feedback loop: it keeps the editor syntax-highligh
 
 AI prompt starter:
 
-> Use `docs/AGENT.md`. Create a 1280x720 animated architecture diagram for an OAuth login flow. Use semantic node kinds, labeled beats, `frame` cues for attention, flow edges (`->`, `<-`, `~>`), short labels, and a final `focus` on the token exchange.
+> Use `docs/AGENT.md` to write one complete MarkdyScript scene. I want to explain OAuth login to frontend and backend engineers: the user clicks sign in, the app redirects to the identity provider, the provider returns a code, the backend exchanges it for tokens, then the app shows the signed-in session. Make it clear, presentation-friendly, and easy to paste into the Markdy playground.
 
 ---
 

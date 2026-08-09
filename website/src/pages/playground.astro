@@ -753,7 +753,7 @@ const playgroundStructuredData = [
     display: grid;
     grid-template-columns: minmax(360px, var(--editor-pane, 50%)) 14px minmax(420px, 1fr);
     gap: 0.75rem;
-    align-items: stretch;
+    align-items: start;
     width: 100%;
     max-width: none;
     margin: 0;
@@ -882,6 +882,16 @@ const playgroundStructuredData = [
   .preview-panel {
     min-width: 0;
     padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .preview-panel {
+    position: sticky;
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+    z-index: 2;
   }
 
   .splitter {
@@ -929,7 +939,8 @@ const playgroundStructuredData = [
   }
 
   .code-editor {
-    min-height: min(68vh, 760px);
+    height: clamp(560px, calc(100vh - 14rem), 920px);
+    min-height: 0;
     overflow: hidden;
     border: 1px solid var(--border);
     border-radius: 1rem;
@@ -937,11 +948,14 @@ const playgroundStructuredData = [
   }
 
   :global(.code-editor .cm-editor) {
-    min-height: min(68vh, 760px);
+    height: 100%;
+    min-height: 0;
   }
 
   :global(.code-editor .cm-scroller) {
-    min-height: min(68vh, 760px);
+    height: 100%;
+    min-height: 0;
+    overflow: auto;
   }
 
   .hint {
@@ -982,7 +996,8 @@ const playgroundStructuredData = [
   }
 
   .stage {
-    min-height: min(68vh, 760px);
+    height: clamp(420px, calc(100vh - 15.25rem), 820px);
+    min-height: 0;
     display: grid;
     place-items: center;
     overflow: auto;
@@ -1090,7 +1105,13 @@ const playgroundStructuredData = [
 
     .stage,
     .code-editor {
+      height: auto;
       min-height: 58vh;
+    }
+
+    .preview-panel {
+      position: static;
+      max-height: none;
     }
 
     .learn-card .snippet-list,

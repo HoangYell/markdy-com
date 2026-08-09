@@ -10,6 +10,7 @@ MarkdyScript 0.8 is **diagram-native**: you declare nodes, groups, and beats, an
 - Default theme is `paper`; default layout direction is `LR`.
 - Keep flow labels short (≤ ~28 chars) so they stay readable.
 - Use beat labels and `frame` when the scene should guide attention through a large diagram.
+- Canonical blocks use `beat name "Label":` with indented cues. The parser also accepts `{ ... }` beat/pattern blocks and `#` comments because many LLMs generate them, but prefer the canonical colon style in final docs.
 
 ## Minimal example
 
@@ -42,6 +43,8 @@ scene "Title" theme=paper width=1280 height=720 fps=60 duration=8
 | `width` / `height` | `1280` / `720` | Canvas size in px |
 | `fps` | `60` | Frame rate hint |
 | `duration` | auto | Force total seconds (otherwise derived from cues) |
+
+`layout LR` may be a separate statement (preferred) or inline on the `scene` line for AI-generated compatibility.
 
 ### `layout` — auto-layout direction
 
@@ -95,6 +98,8 @@ beat checkout "Process checkout":
 
 The optional quoted beat label is rendered as a caption during the beat.
 
+AI compatibility: `beat checkout "Process checkout" { ... }` is accepted and normalized internally, but `beat checkout "Process checkout":` is the recommended style.
+
 ### Flow operators
 
 Connect nodes with directed edges. Chain multiple hops on one line and add a `"label"` after any target.
@@ -117,6 +122,7 @@ Flows may appear inside a `beat` (animated) or at the top level as `edge id: A -
 ### Cues
 
 Cues live inside a beat. Put `&` between two cues to run them in parallel.
+You may put `&` at the start of the next line as a continuation when an AI generates that style.
 
 | Cue | Parameters | Description |
 |---|---|---|
@@ -248,6 +254,7 @@ beat main:
 - Keep repeated paths in `pattern` blocks and call them with `use`.
 - Use `frame groupName zoom=...` for attention, not manual coordinates or extra duplicate nodes.
 - Reset the camera with `frame $nodes` before a loop so the diagram returns to the full view.
+- Do not rely on Mermaid syntax. Markdy accepts brace blocks and `#` comments for compatibility, but flow/cue statements still need Markdy node ids, operators, and cue names.
 
 ## Validation checklist
 

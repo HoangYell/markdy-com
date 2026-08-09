@@ -12,6 +12,8 @@ scene "URL Shortener" theme=paper
 layout LR
 ```
 
+Canonical scenes put `layout LR|RL|TB|BT` on its own line. For AI-generated compatibility, the parser also accepts `layout LR` or `layout=LR` on the `scene` line.
+
 ### Nodes
 
 ```markdy
@@ -40,6 +42,8 @@ beat create "Create a short URL":
 ```
 
 The optional beat label is rendered as a short caption during that beat.
+
+Canonical beat and pattern blocks end with `:` and use indentation. The parser also accepts `{ ... }` block delimiters and `#` comments because LLMs often emit that style, but generated documentation should prefer the colon form above.
 
 Flow operators:
 - `->` — request
@@ -77,3 +81,5 @@ beat main:
 | `use` | Expand a pattern | pattern args |
 
 `frame $nodes` returns the camera to the full diagram — a good final cue for looping scenes.
+
+For parallel cues, prefer `cue A & cue B` on one line. A leading `& cue B` continuation on the next line is accepted for AI-generated compatibility.

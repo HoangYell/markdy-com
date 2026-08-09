@@ -52,26 +52,82 @@ export type ParseOptions = {
 };
 
 const FLOW_OP_RE = /(->|<-|~>|--)/;
-const PROP_RE = /(\w[\w.-]*)=(\S+)/g;
 
 function stripComment(line: string): string {
-  const idx = line.indexOf("//");
-  return idx >= 0 ? line.slice(0, idx) : line;
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (inString && ch === "\\") {
+      escaped = true;
+      continue;
+    }
+    if (ch === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString) continue;
+    if (ch === "/" && line[i + 1] === "/") return line.slice(0, i);
+    if (ch === "#" && (i === 0 || /\s/.test(line[i - 1]))) return line.slice(0, i);
+  }
+  return line;
+}
+
+function parsePropValue(raw: string): unknown {
+  let val: unknown = raw;
+  if (raw.startsWith('"')) {
+    const parsed = parseStringToken(raw);
+    if (parsed && parsed.rest === "") val = parsed.value;
+  }
+  if (typeof val === "string") {
+    if (/^\d+(\.\d+)?$/.test(val)) val = Number(val);
+    else if (val === "true") val = true;
+    else if (val === "false") val = false;
+    else if (/^\d+ms$/.test(val)) val = Number(val.slice(0, -2)) / 1000;
+    else if (/^\d+(\.\d+)?s$/.test(val)) val = Number(val.slice(0, -1));
+  }
+  return val;
 }
 
 function parseProps(raw: string): Record<string, unknown> {
   const props: Record<string, unknown> = {};
-  for (const match of raw.matchAll(PROP_RE)) {
-    const key = match[1];
-    let val: unknown = match[2];
-    if (typeof val === "string") {
-      if (/^\d+(\.\d+)?$/.test(val)) val = Number(val);
-      else if (val === "true") val = true;
-      else if (val === "false") val = false;
-      else if (/^\d+ms$/.test(val)) val = Number(val.slice(0, -2)) / 1000;
-      else if (/^\d+(\.\d+)?s$/.test(val)) val = Number(val.slice(0, -1));
+  let i = 0;
+  while (i < raw.length) {
+    const ch = raw[i];
+    if (ch === '"') {
+      const parsed = parseStringToken(raw.slice(i));
+      if (!parsed) break;
+      i = raw.length - parsed.rest.length;
+      continue;
     }
-    props[key] = val;
+    const keyMatch = raw.slice(i).match(/^(\w[\w.-]*)=/);
+    if (!keyMatch) {
+      i++;
+      continue;
+    }
+    const key = keyMatch[1];
+    i += key.length + 1;
+    let value = "";
+    if (raw[i] === '"') {
+      const start = i;
+      const parsed = parseStringToken(raw.slice(i));
+      if (!parsed) {
+        value = raw.slice(i);
+        i = raw.length;
+      } else {
+        i = raw.length - parsed.rest.length;
+        value = raw.slice(start, i).trim();
+      }
+    } else {
+      const start = i;
+      while (i < raw.length && !/\s/.test(raw[i])) i++;
+      value = raw.slice(start, i);
+    }
+    props[key] = parsePropValue(value);
   }
   return props;
 }
@@ -100,6 +156,58 @@ function splitTargets(raw: string): string[] {
     .split(/[\s,]+/)
     .map((t) => t.trim())
     .filter(Boolean);
+}
+
+function splitOutsideQuotes(raw: string, separator: "&"): string[] {
+  const parts: string[] = [];
+  let start = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < raw.length; i++) {
+    const ch = raw[i];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (inString && ch === "\\") {
+      escaped = true;
+      continue;
+    }
+    if (ch === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (!inString && ch === separator && /\s/.test(raw[i - 1] ?? "") && /\s/.test(raw[i + 1] ?? "")) {
+      parts.push(raw.slice(start, i).trim());
+      start = i + 1;
+    }
+  }
+  parts.push(raw.slice(start).trim());
+  return parts.filter(Boolean);
+}
+
+function stripCueProps(raw: string, keys: string[]): string {
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < raw.length; i++) {
+    const ch = raw[i];
+    if (escaped) {
+      escaped = false;
+      continue;
+    }
+    if (inString && ch === "\\") {
+      escaped = true;
+      continue;
+    }
+    if (ch === '"') {
+      inString = !inString;
+      continue;
+    }
+    if (inString || !/\s/.test(ch)) continue;
+    const rest = raw.slice(i + 1);
+    if (keys.some((key) => rest.startsWith(`${key}=`))) return raw.slice(0, i).trim();
+  }
+  return raw.trim();
 }
 
 function parseFlowChain(line: string, lineNo: number): FlowSegment[] {
@@ -149,17 +257,17 @@ function parseCueLine(line: string, lineNo: number): Cue {
   const trimmed = line.trim();
   const props = parseProps(trimmed);
 
-  if (trimmed.includes(" & ")) {
-    const parts = trimmed.split(/\s+&\s+/);
+  const parallelParts = splitOutsideQuotes(trimmed, "&");
+  if (parallelParts.length > 1) {
     return {
       kind: "parallel",
-      cues: parts.map((p, idx) => parseCueLine(p, lineNo + idx * 0.001)),
+      cues: parallelParts.map((p, idx) => parseCueLine(p, lineNo + idx * 0.001)),
       line: lineNo,
     };
   }
 
   if (FLOW_OP_RE.test(trimmed)) {
-    const chainPart = trimmed.split(/\s+(?:dur|stagger|color|strength|zoom|after)=/)[0].trim();
+    const chainPart = stripCueProps(trimmed, ["dur", "stagger", "color", "strength", "zoom", "after"]);
     return {
       kind: "flow",
       segments: parseFlowChain(chainPart, lineNo),
@@ -172,7 +280,7 @@ function parseCueLine(line: string, lineNo: number): Cue {
   const keyword = head.toLowerCase();
 
   if (keyword === "show" || keyword === "hide") {
-    const targetRaw = rest.join(" ").split(/\s+(?:dur|stagger)=/)[0];
+    const targetRaw = stripCueProps(rest.join(" "), ["dur", "stagger"]);
     return {
       kind: keyword,
       targets: splitTargets(targetRaw),
@@ -183,7 +291,7 @@ function parseCueLine(line: string, lineNo: number): Cue {
   }
 
   if (keyword === "glow") {
-    const targetRaw = rest.join(" ").split(/\s+(?:color|strength|dur)=/)[0];
+    const targetRaw = stripCueProps(rest.join(" "), ["color", "strength", "dur"]);
     return {
       kind: "glow",
       targets: splitTargets(targetRaw),
@@ -195,7 +303,7 @@ function parseCueLine(line: string, lineNo: number): Cue {
   }
 
   if (keyword === "focus") {
-    const targetRaw = rest.join(" ").split(/\s+(?:zoom|dur)=/)[0];
+    const targetRaw = stripCueProps(rest.join(" "), ["zoom", "dur"]);
     return {
       kind: "focus",
       targets: splitTargets(targetRaw),
@@ -206,7 +314,7 @@ function parseCueLine(line: string, lineNo: number): Cue {
   }
 
   if (keyword === "frame") {
-    const targetRaw = rest.join(" ").split(/\s+(?:zoom|dur)=/)[0];
+    const targetRaw = stripCueProps(rest.join(" "), ["zoom", "dur"]);
     const targets = splitTargets(targetRaw);
     if (targets.length === 0) throw new ParseError(`expected frame target`, lineNo);
     return {
@@ -324,6 +432,32 @@ function readIndentedBody(blocks: Block[], startIdx: number, parentIndent: numbe
   return { body, nextIdx: i };
 }
 
+function readBody(blocks: Block[], startIdx: number, parentIndent: number, braceDelimited: boolean): { body: Block[]; nextIdx: number } {
+  if (!braceDelimited) return readIndentedBody(blocks, startIdx, parentIndent);
+  const body: Block[] = [];
+  let i = startIdx;
+  while (i < blocks.length) {
+    if (blocks[i].text === "}") return { body, nextIdx: i + 1 };
+    body.push(blocks[i]);
+    i++;
+  }
+  return { body, nextIdx: i };
+}
+
+function normalizeCueBlocks(blocks: Block[]): Block[] {
+  const normalized: Block[] = [];
+  for (const block of blocks) {
+    if (block.text.startsWith("& ")) {
+      const prev = normalized[normalized.length - 1];
+      if (!prev) throw new ParseError(`parallel continuation must follow a cue`, block.line);
+      prev.text = `${prev.text} ${block.text}`;
+      continue;
+    }
+    normalized.push({ ...block });
+  }
+  return normalized;
+}
+
 function pushWarning(diagnostics: Diagnostic[], seen: Set<string>, line: number, message: string): void {
   const key = `${line}:${message}`;
   if (seen.has(key)) return;
@@ -428,6 +562,11 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
         title = str.value;
         remainder = str.rest;
       }
+      const inlineLayout = remainder.match(/\blayout\s+(LR|RL|TB|BT)\b/i);
+      if (inlineLayout) {
+        meta.direction = inlineLayout[1].toUpperCase() as LayoutDirection;
+        remainder = remainder.replace(/\blayout\s+(LR|RL|TB|BT)\b/i, " ");
+      }
       const props = parseProps(remainder);
       for (const [k, v] of Object.entries(props)) {
         if (!SCENE_KEYS.has(k)) {
@@ -437,7 +576,7 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
         if (k === "width" || k === "height" || k === "fps") (meta as Record<string, unknown>)[k] = Number(v);
         else if (k === "duration") meta.duration = Number(v);
         else if (k === "theme") meta.theme = String(v);
-        else if (k === "direction") meta.direction = String(v).toUpperCase() as LayoutDirection;
+        else if (k === "direction" || k === "layout") meta.direction = String(v).toUpperCase() as LayoutDirection;
       }
       i++;
       continue;
@@ -458,11 +597,11 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
     }
 
     if (line.startsWith("pattern ")) {
-      const m = line.match(/^pattern\s+(\w+)\s*\(([^)]*)\)\s*:\s*$/);
+      const m = line.match(/^pattern\s+(\w+)\s*\(([^)]*)\)\s*(?::|\{)\s*$/);
       if (!m) throw new ParseError(`expected pattern name(params):`, lineNo);
       const params = m[2].trim() ? m[2].split(",").map((p) => p.trim()) : [];
-      const { body, nextIdx } = readIndentedBody(blocks, i + 1, block.indent);
-      const cues = body.map((b) => parseCueLine(b.text, b.line));
+      const { body, nextIdx } = readBody(blocks, i + 1, block.indent, line.endsWith("{"));
+      const cues = normalizeCueBlocks(body).map((b) => parseCueLine(b.text, b.line));
       patterns[m[1]] = { name: m[1], params, body: cues, line: lineNo };
       i = nextIdx;
       continue;
@@ -502,10 +641,10 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
     }
 
     if (line.startsWith("beat ")) {
-      const m = line.match(/^beat\s+(\w+)(?:\s+"([^"]*)")?\s*:\s*$/);
+      const m = line.match(/^beat\s+(\w+)(?:\s+"([^"]*)")?\s*(?::|\{)\s*$/);
       if (!m) throw new ParseError(`expected beat name:`, lineNo);
-      const { body, nextIdx } = readIndentedBody(blocks, i + 1, block.indent);
-      let cues = body.map((b) => parseCueLine(b.text, b.line));
+      const { body, nextIdx } = readBody(blocks, i + 1, block.indent, line.endsWith("{"));
+      let cues = normalizeCueBlocks(body).map((b) => parseCueLine(b.text, b.line));
       cues = expandPatternCues(cues, patterns, lineNo);
       beats.push({ name: m[1], label: m[2], cues, line: lineNo });
       i = nextIdx;
