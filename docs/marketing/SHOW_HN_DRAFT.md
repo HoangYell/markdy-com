@@ -18,7 +18,7 @@ https://markdy.com
 
 Hi HN! I got tired of writing 80-line GSAP timelines for simple animated diagrams on my Astro blog. Mermaid lets you write a sequence diagram in 5 lines of text. I wanted the same text-first workflow for small animations in docs and product explainers.
 
-So I built Markdy: a text-based DSL where you declare nodes, connect them with flow operators, and sequence reveals in beats, then render it using the browser-native Web Animations API.
+So I built Markdy: a diagram-native DSL where you declare semantic nodes, connect them with flow operators, and sequence reveals in beats, then render it using the browser-native Web Animations API.
 
 ```
 scene "Request path" theme=paper

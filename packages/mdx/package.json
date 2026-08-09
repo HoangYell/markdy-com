@@ -1,7 +1,7 @@
 {
   "name": "@markdy/mdx",
   "version": "0.8.9",
-  "description": "MDX plugin and lightweight React diagram component for animated Markdy diagrams.",
+  "description": "MDX plugin and lightweight React component for diagram-native animated Markdy diagrams.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -21,6 +21,7 @@
   "keywords": [
     "markdy",
     "mdx",
+    "diagram-native",
     "remark",
     "diagram-as-code",
     "architecture-diagram",

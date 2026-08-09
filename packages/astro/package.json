@@ -1,7 +1,7 @@
 {
   "name": "@markdy/astro",
   "version": "0.8.9",
-  "description": "Astro island component for animated MarkdyScript architecture diagrams.",
+  "description": "Astro island component for diagram-native animated MarkdyScript architecture diagrams.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -16,6 +16,7 @@
   "keywords": [
     "markdy",
     "astro",
+    "diagram-native",
     "astro-component",
     "diagram-as-code",
     "architecture-diagram",

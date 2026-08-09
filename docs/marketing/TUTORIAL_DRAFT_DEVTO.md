@@ -74,8 +74,8 @@ beat main:
 ```
 
 ### AI Generation (Vibe Coding)
-Because MarkdyScript is a strict DSL, it is **incredibly easy for LLMs to write**.
-I wrote an [AGENT.md instructions file](https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md) for the project. You feed that link to Claude or Cursor, and simply say: *"Animate an API request moving from browser to edge cache to database"* — and the AI handles the timing and outputs clean MarkdyScript.
+Because MarkdyScript is a strict, diagram-native DSL, it is **incredibly easy for LLMs to write**.
+I wrote an [AGENT.md instructions file](https://markdy.com/AGENT.md) for the project. You feed that link to Claude or Cursor, and simply say: *"Animate an API request moving from browser to edge cache to database"* — and the AI handles the timing and outputs clean MarkdyScript.
 
 ### Give it a spin
 If you build interactive docs or just want to play around with bringing code scenes to life:

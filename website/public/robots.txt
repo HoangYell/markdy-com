@@ -3,6 +3,10 @@ User-agent: *
 Allow: /
 Allow: /images/
 Allow: /prompts/
+Allow: /agent/
+Allow: /AGENT.md
+Allow: /llms.txt
+Allow: /llms-full.txt
 
 User-agent: GPTBot
 Allow: /

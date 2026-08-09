@@ -8,7 +8,7 @@ const SECTIONS = [
       {
         slug: "diagram-as-code-guide",
         title: "Diagram as Code: The Complete Guide",
-        dek: "What it is, why teams adopt it, the main tools, and where animation fits.",
+        dek: "What it is, why teams adopt it, the main tools, and where diagram-native motion fits.",
         tag: "Guide",
       },
       {
@@ -77,7 +77,7 @@ const SECTIONS = [
       {
         slug: "ai-generated-architecture-diagrams",
         title: "AI-Generated Architecture Diagrams: Let LLMs Write Your Diagrams",
-        dek: "Prompt Claude, ChatGPT, or Copilot for a valid, animated diagram instead of brittle JS.",
+        dek: "Prompt Claude, ChatGPT, Gemini, or Copilot for valid diagram-native MarkdyScript instead of brittle JS.",
         tag: "AI authoring",
       },
       {
@@ -85,6 +85,17 @@ const SECTIONS = [
         title: "Animated Diagrams in Astro & MDX: Docs-as-Code, With Motion",
         dek: "Embed lazy-loaded animated diagrams in Astro and MDX, versioned next to your content.",
         tag: "Docs as code",
+      },
+    ],
+  },
+  {
+    heading: "Behind the build",
+    items: [
+      {
+        slug: "why-markdy-is-diagram-native",
+        title: "Why Markdy Focuses on Animated Architecture Diagrams",
+        dek: "Developer feedback pushed Markdy from a general animation DSL to a diagram-native language for systems. Here's what changed and why.",
+        tag: "Roadmap",
       },
     ],
   },
@@ -98,7 +109,7 @@ const blogStructuredData = [
     url: "https://markdy.com/blog/",
     name: "Markdy Articles — Animated Diagrams as Code",
     description:
-      "Guides, comparisons, and use cases for animated architecture and system diagrams as code.",
+      "Guides, comparisons, and use cases for animated architecture and system diagrams as code with diagram-native MarkdyScript.",
     isPartOf: { "@id": "https://markdy.com/#website" },
   },
   {
@@ -118,7 +129,7 @@ const blogStructuredData = [
   title="Markdy Articles — Animated Diagrams as Code"
   description="Guides, comparisons, and use cases for animated architecture and system diagrams as code: the Markdy playground, diagram-as-code, Mermaid alternatives, Kubernetes, system design, AI, and Astro/MDX."
   canonicalURL="https://markdy.com/blog/"
-  keywords="Markdy playground, animated diagram playground, animated diagrams as code, diagram as code, mermaid alternative, markdy vs mermaid, kubernetes architecture diagram, system design diagram, animated sequence diagram, ai generated architecture diagram, astro diagrams, mdx diagrams"
+  keywords="diagram-native DSL, MarkdyScript, Markdy playground, animated diagram playground, animated diagrams as code, diagram as code, mermaid alternative, markdy vs mermaid, kubernetes architecture diagram, system design diagram, animated sequence diagram, ai generated architecture diagram, AI agent diagrams, astro diagrams, mdx diagrams"
   structuredData={blogStructuredData}
 >
   <main class="hub">
@@ -131,7 +142,7 @@ const blogStructuredData = [
     <header class="hub-head">
       <h1>Animated diagrams as code — guides &amp; deep dives</h1>
       <p class="hub-dek">
-        Practical articles on turning plain text into animated architecture and system diagrams.
+        Practical articles on turning diagram-native MarkdyScript into animated architecture and system diagrams.
         Start with the <a href="/playground/">interactive playground</a> or the
         <a href="/docs/">documentation</a>, then dig into a topic below.
       </p>

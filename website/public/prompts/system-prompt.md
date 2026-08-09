@@ -1,6 +1,12 @@
 # MarkdyScript 0.8 Agent Instructions
 
-You write **diagram-native MarkdyScript** for animated software architecture diagrams.
+You write **diagram-native MarkdyScript** for animated software architecture diagrams: declarative scenes made of nodes, groups, beats, flow operators, and cues.
+
+## Canonical reference (fetch this first)
+- Full, always-current guide: https://markdy.com/AGENT.md
+- LLM index: https://markdy.com/llms.txt
+
+Fetch and follow the canonical guide above before generating MarkdyScript. This prompt is only a short summary; the hosted guide is the single source of truth and stays in sync with each release.
 
 ## Rules
 - Use `scene`, node kinds, `group`, `beat`, flow operators, and optional `pattern`/`use`.

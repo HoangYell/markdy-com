@@ -3,7 +3,7 @@
 
 ## MarkdyScript 0.8 — Diagram-Native Grammar
 
-MarkdyScript is now diagram-first. Declare nodes, groups, and beats — the engine handles layout, routing, timing, and rendering.
+MarkdyScript is diagram-native. Declare semantic nodes, groups, beats, flow operators, and cues — the engine handles layout, routing, timing, and rendering.
 
 ### Scene
 

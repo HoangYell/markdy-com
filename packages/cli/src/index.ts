@@ -244,8 +244,10 @@ async function docsCommand(parsed: ParsedArgs, io: CliIo, runtime: CliRuntime): 
   const links = [
     "Markdy docs",
     "  Website: https://markdy.com",
+    "  Docs:    https://markdy.com/docs/",
     "  Syntax:  https://github.com/HoangYell/markdy-com/blob/main/docs/SYNTAX.md",
-    "  Agent:   https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md",
+    "  Agent:   https://markdy.com/AGENT.md",
+    "  LLMs:    https://markdy.com/llms.txt",
     "  Tutorial:https://github.com/HoangYell/markdy-com/blob/main/docs/TUTORIAL.md",
   ];
   io.stdout(links.join("\n"));
@@ -256,14 +258,14 @@ async function docsCommand(parsed: ParsedArgs, io: CliIo, runtime: CliRuntime): 
 }
 
 async function aiCommand(parsed: ParsedArgs, io: CliIo, runtime: CliRuntime): Promise<RunResult> {
-  const agentUrl = "https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md";
+  const agentUrl = "https://markdy.com/AGENT.md";
   io.stdout(
     [
       "Share this with your AI agent:",
       agentUrl,
       "",
       "Starter prompt:",
-      'Write a Markdy scene for a short explainer video. Use the AGENT.md grammar exactly and keep the result self-contained.',
+      "Read the guide above, then write one complete MarkdyScript scene for a short explainer video. Use the current grammar exactly and keep the result self-contained.",
     ].join("\n"),
   );
   if (hasFlag(parsed, "open")) {

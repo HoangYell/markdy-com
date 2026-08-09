@@ -1,0 +1,9 @@
+import { buildFullLlmsTxt, getAgentReference, textHeaders } from "../lib/agent-reference";
+
+export async function GET() {
+  const reference = await getAgentReference();
+
+  return new Response(buildFullLlmsTxt(reference), {
+    headers: textHeaders("text/plain", reference.version),
+  });
+}

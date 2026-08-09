@@ -33,69 +33,20 @@ const FEATURES = [
   },
 ];
 
-const SYNTAX_ADDENDUM = `
-## MarkdyScript 0.8 — Diagram-Native Grammar
-
-MarkdyScript is now diagram-first. Declare nodes, groups, and beats — the engine handles layout, routing, timing, and rendering.
-
-### Scene
-
-\`\`\`markdy
-scene "URL Shortener" theme=paper
-layout LR
-\`\`\`
-
-### Nodes
-
-\`\`\`markdy
-browser Browser
-service API "API Gateway"
-database UrlDB "URL Store"
-\`\`\`
-
-Supported node kinds include: ${[...NODE_KINDS].slice(0, 12).join(", ")}, and more.
-
-### Groups
-
-\`\`\`markdy
-group storage: Redis UrlDB
-\`\`\`
-
-### Beats and flows
-
-\`\`\`markdy
-beat create:
-  show $nodes stagger=60ms
-  Browser -> API "POST /shorten" -> Shortener
-  Shortener ~> Redis "warm cache"
-  Browser <- Shortener "short.ly/a7"
-\`\`\`
-
-Flow operators:
-${Object.entries(EDGE_OPERATORS).map(([op, kind]) => `- \`${op}\` — ${kind}`).join("\n")}
-
-### Patterns
-
-\`\`\`markdy
-pattern lookup(client, store):
-  $client -> $store "lookup"
-  $client <- $store "result"
-
-beat main:
-  use lookup(API, DB)
-\`\`\`
-
-### Themes
-
-- \`paper\` — light documentation canvas (default)
-- \`midnight\` — dark developer canvas
-- \`blueprint\` — technical blueprint canvas
-- \`graphite\` — restrained dark graphite canvas
-`;
+// The canonical, always-current reference for AI tools. The website serves this
+// from docs/AGENT.md, so agents should fetch it instead of relying on this short prompt alone.
+const CANONICAL_AGENT_URL = "https://markdy.com/AGENT.md";
+const CANONICAL_LLMS_URL = "https://markdy.com/llms.txt";
 
 const SYSTEM_PROMPT = `# MarkdyScript 0.8 Agent Instructions
 
-You write **diagram-native MarkdyScript** for animated software architecture diagrams.
+You write **diagram-native MarkdyScript** for animated software architecture diagrams: declarative scenes made of nodes, groups, beats, flow operators, and cues.
+
+## Canonical reference (fetch this first)
+- Full, always-current guide: ${CANONICAL_AGENT_URL}
+- LLM index: ${CANONICAL_LLMS_URL}
+
+Fetch and follow the canonical guide above before generating MarkdyScript. This prompt is only a short summary; the hosted guide is the single source of truth and stays in sync with each release.
 
 ## Rules
 - Use \`scene\`, node kinds, \`group\`, \`beat\`, flow operators, and optional \`pattern\`/\`use\`.
@@ -127,19 +78,20 @@ ${Object.entries(EDGE_OPERATORS).map(([op, k]) => `- ${op} = ${k}`).join("\n")}
 `;
 
 async function main() {
-  const syntaxPath = join(ROOT, "docs/SYNTAX.md");
   const promptMd = join(ROOT, "prompts/system-prompt.md");
   const promptJson = join(ROOT, "prompts/system-prompt.json");
   const webPromptMd = join(ROOT, "website/public/prompts/system-prompt.md");
   const webPromptJson = join(ROOT, "website/public/prompts/system-prompt.json");
 
-  await writeFile(syntaxPath, `# MarkdyScript Syntax Reference\n\n${SYNTAX_ADDENDUM}`);
+  // docs/SYNTAX.md is now hand-maintained; the canonical AI reference lives in
+  // docs/AGENT.md (served at https://markdy.com/AGENT.md). These short prompts stay
+  // vocabulary-accurate by deriving node kinds and operators from @markdy/core.
   await writeFile(promptMd, SYSTEM_PROMPT);
   await writeFile(promptJson, JSON.stringify({ version: "0.8", features: FEATURES, prompt: SYSTEM_PROMPT }, null, 2));
   await mkdir(dirname(webPromptMd), { recursive: true });
   await writeFile(webPromptMd, SYSTEM_PROMPT);
   await writeFile(webPromptJson, JSON.stringify({ version: "0.8", features: FEATURES, prompt: SYSTEM_PROMPT }, null, 2));
-  console.log("regen: wrote SYNTAX.md and system prompts for MarkdyScript 0.8");
+  console.log("regen: wrote system prompts for MarkdyScript 0.8 (SYNTAX.md is hand-maintained; AGENT.md is the canonical AI source)");
 }
 
 main().catch((err) => {

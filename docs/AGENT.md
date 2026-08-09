@@ -2,6 +2,15 @@
 
 MarkdyScript 0.8 is **diagram-native**: you declare nodes, groups, and beats, and the engine handles layout, edge routing, timing, and rendering. This is the complete grammar and pattern reference for generating scenes.
 
+## Canonical URLs for AI tools
+
+- Source of truth: <https://markdy.com/AGENT.md>
+- Human-readable mirror: <https://markdy.com/agent/>
+- LLM index: <https://markdy.com/llms.txt>
+- Full LLM context bundle: <https://markdy.com/llms-full.txt>
+
+When generating MarkdyScript, fetch the current hosted guide instead of relying on older model memory or cached third-party snippets.
+
 ## Rules
 
 - Use `scene`, node declarations, `group`, `beat`, flow operators, and optionally `style`, `pattern`/`use`.

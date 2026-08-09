@@ -1,0 +1,136 @@
+---
+/*
+  SEO BRIEF — narrative/roadmap article: "Why Markdy focuses on architecture diagrams"
+  Target keywords: animated architecture diagrams, diagram-native, diagram as code roadmap,
+    system architecture animation, why diagram as code
+  Search intent: informational / brand — developers evaluating Markdy who want to understand
+    what it is for and why it changed direction toward semantic architecture diagrams.
+  Meta title: Why Markdy Focuses on Animated Architecture Diagrams | Markdy
+  Meta description: Markdy started as a general animation DSL and refocused on animated
+    architecture and system diagrams as code, driven by developer feedback. Here's what
+    changed and why.
+  Primary CTA: Open the Playground. Secondary: Read the Docs / Star on GitHub.
+*/
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+
+const canonicalURL = "https://markdy.com/blog/why-markdy-is-diagram-native/";
+const structuredData = [
+  {
+    "@type": "BlogPosting",
+    "@id": `${canonicalURL}#article`,
+    headline: "Why Markdy Focuses on Animated Architecture Diagrams",
+    description:
+      "Markdy started as a general animation DSL and refocused on animated architecture and system diagrams as code, driven by developer feedback. Here's what changed and why.",
+    inLanguage: "en",
+    url: canonicalURL,
+    mainEntityOfPage: canonicalURL,
+    isPartOf: { "@id": "https://markdy.com/#website" },
+    about: { "@id": "https://markdy.com/#software" },
+    author: { "@id": "https://markdy.com/#hoang-yell" },
+    publisher: { "@id": "https://markdy.com/#organization" },
+    keywords:
+      "animated architecture diagrams, diagram-native, diagram as code, system architecture animation, markdy roadmap",
+  },
+];
+---
+
+<ArticleLayout
+  title="Why Markdy Focuses on Animated Architecture Diagrams | Markdy"
+  description="Markdy started as a general animation DSL and refocused on animated architecture and system diagrams as code, driven by developer feedback. Here's what changed and why the diagram-native design won."
+  keywords="animated architecture diagrams, diagram-native, diagram as code, system architecture animation, markdy roadmap, why diagram as code, animated system diagrams"
+  canonicalURL={canonicalURL}
+  headline="Why Markdy Focuses on Animated Architecture Diagrams"
+  dek="Markdy began as a general-purpose animation DSL. Developers told us what they actually wanted to draw — systems, not stick-figure stories — so we rebuilt the language around semantic architecture diagrams. Here's the reasoning behind the pivot."
+  structuredData={structuredData}
+>
+  <p>
+    The first version of Markdy was a general-purpose animation language. You could place actors, move them around
+    with imperative commands, and time everything by hand. It was flexible — and that flexibility was the problem.
+    The most memorable early demos were little character vignettes, and while they proved the engine could animate
+    <em>anything</em>, they didn't show what the tool was actually <strong>for</strong>.
+  </p>
+
+  <h2>The feedback that reshaped the roadmap</h2>
+  <p>
+    When Markdy reached a wider developer audience, the signal came back loud and consistent. People liked the idea
+    of text that turns into motion, but the reaction to the demos was blunt: <em>show me something I'd actually
+    animate.</em> Over and over, the concrete requests pointed at the same thing:
+  </p>
+  <ul>
+    <li><strong>System diagrams, not skits.</strong> "I was hoping for diagrams of actors in the systems sense."</li>
+    <li><strong>Real infrastructure flows.</strong> A browser talking to a server; a request walking through an API,
+      a cache, and a database.</li>
+    <li><strong>Dataflow paths.</strong> Client → API → edge → business layer → datastore, animated step by step.</li>
+    <li><strong>Boxes and components,</strong> not emoji characters, as the primary building blocks.</li>
+  </ul>
+  <p>
+    Taken together, that feedback wasn't asking for a better skit engine. It was asking for a different product: a
+    focused way to draw and <strong>animate architecture</strong>. So we changed direction.
+  </p>
+
+  <h2>What "diagram-native" means now</h2>
+  <p>
+    Today Markdy is <strong>diagram-native</strong>. Instead of positioning shapes by pixel and scripting every
+    movement, you declare the <em>meaning</em> of your system — its nodes, groups, and the flows between them — and
+    the engine handles layout, edge routing, and timing. The old imperative, hand-placed syntax is gone; the
+    language now only speaks in architecture.
+  </p>
+  <pre><code>scene "URL Shortener" theme=midnight
+layout LR
+
+browser Web
+service API "Gateway"
+cache Redis
+database DB "PostgreSQL"
+
+beat create:
+  show $nodes stagger=80ms
+  Web -&gt; API "POST /shorten" -&gt; DB "store slug"
+  API -&gt; Redis "warm cache"
+
+beat visit:
+  Web -&gt; API "GET /a7Xk9" -&gt; Redis "GET slug"
+  focus Redis zoom=1.15
+  Redis -&gt; Web "302 redirect"</code></pre>
+  <p>
+    That's a complete, runnable scene. There are no coordinates, no per-frame commands, and no timeline to
+    micromanage. You describe the system once and get an <strong>animated architecture diagram</strong> that lays
+    itself out and plays the request path. Paste it into the <a href="/playground/">interactive playground</a> to
+    see it move.
+  </p>
+
+  <h2>Why the constraint is the feature</h2>
+  <p>
+    Narrowing the language sounds like giving something up, but it's what makes the rest work:
+  </p>
+  <ul>
+    <li><strong>Layout is automatic.</strong> Because nodes carry semantic types — <code>service</code>,
+      <code>cache</code>, <code>database</code>, <code>browser</code> — the engine can place and route them without
+      you tuning pixels.</li>
+    <li><strong>Diffs stay readable.</strong> A change to the architecture is a one-line change to the text, so it
+      reviews cleanly in a pull request instead of as a re-exported image.</li>
+    <li><strong>LLMs get it right.</strong> A small, semantic vocabulary is far easier for Claude, ChatGPT, Gemini,
+      or Copilot to generate correctly than freeform drawing commands — see
+      <a href="/blog/ai-generated-architecture-diagrams/">AI-generated architecture diagrams</a>.</li>
+    <li><strong>The output is honest.</strong> The tool now demonstrates exactly what it's good at: walking a viewer
+      through a real system, one beat at a time.</li>
+  </ul>
+
+  <h2>Where it fits</h2>
+  <p>
+    Static diagram-as-code tools like Mermaid, PlantUML, D2, and Graphviz remain excellent for still charts in a
+    README. Markdy is for the moment a single frame isn't enough — when you need to <em>play</em> a request path, a
+    cache-miss fallback, or a deploy pipeline. If you're weighing the two, the
+    <a href="/blog/markdy-vs-mermaid/">Markdy vs Mermaid comparison</a> lays out when to reach for motion, and
+    <a href="/blog/animated-diagrams-as-code/">animated diagrams as code</a> covers the version-control story.
+  </p>
+
+  <h2>The takeaway</h2>
+  <p>
+    Good feedback is rarely comfortable, but it's clarifying. Developers didn't want a toy that could animate
+    anything — they wanted a sharp tool for the thing they draw every week: systems. Markdy is built around that
+    now, and the whole language is better for the focus. The fastest way to feel the difference is to
+    <a href="/playground/">open the playground</a>, pick an architecture scene, and watch your system explain
+    itself.
+  </p>
+</ArticleLayout>

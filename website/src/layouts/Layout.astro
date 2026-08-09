@@ -1,5 +1,6 @@
 ---
 import type { HTMLAttributes } from "astro/types";
+import { getProjectVersion } from "../lib/agent-reference";
 
 export interface Props extends HTMLAttributes<"html"> {
   title: string;
@@ -13,11 +14,11 @@ export interface Props extends HTMLAttributes<"html"> {
 
 const {
   title,
-  description = "Markdy turns plain text into animated architecture and system diagrams in the browser — an open-source, AI-friendly, Mermaid-style diagram-as-code tool with motion.",
+  description = "Markdy is a diagram-as-code DSL for animated architecture and system diagrams — an open-source, AI-friendly way to turn MarkdyScript into browser-native motion diagrams.",
   canonicalURL = "https://markdy.com/",
   ogImage = "https://markdy.com/og-image.png",
   ogImageAlt = "Markdy playground with MarkdyScript code and an animated architecture diagram",
-  keywords = "animated architecture diagram, diagram as code, animated diagrams, mermaid alternative, animated mermaid, system design diagram, sequence diagram, flowchart, infrastructure diagram, architecture as code, text to diagram, AI diagram generator, docs as code, software architecture visualization, animated system diagram, developer diagrams",
+  keywords = "diagram-native DSL, MarkdyScript, animated architecture diagram, diagram as code, animated diagrams, mermaid alternative, animated mermaid, system design diagram, sequence diagram, flowchart, infrastructure diagram, architecture as code, text to diagram, AI diagram generator, AI agent diagrams, docs as code, software architecture visualization, animated system diagram, developer diagrams",
   structuredData = [],
 } = Astro.props;
 
@@ -28,6 +29,7 @@ const sameAs = [
   "https://hoangyell.com",
 ];
 
+const softwareVersion = await getProjectVersion();
 const baseStructuredData = [
   {
     "@type": "WebSite",
@@ -64,6 +66,7 @@ const baseStructuredData = [
     applicationSubCategory: "Diagramming Tool, Architecture Visualization, Developer Documentation Tool",
     operatingSystem: "Web",
     programmingLanguage: "TypeScript",
+    softwareVersion,
     codeRepository: "https://github.com/HoangYell/markdy-com",
     license: "https://github.com/HoangYell/markdy-com/blob/main/LICENSE",
     isAccessibleForFree: true,
@@ -83,7 +86,6 @@ const baseStructuredData = [
     about: { "@id": "https://markdy.com/#software" },
   },
 ];
-
 const pageStructuredData = Array.isArray(structuredData) ? structuredData : [structuredData];
 const jsonLd = {
   "@context": "https://schema.org",
@@ -106,6 +108,9 @@ const jsonLd = {
     <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
     <title>{title}</title>
     <link rel="canonical" href={canonicalURL} />
+    <link rel="alternate" type="text/markdown" title="MarkdyScript AI Agent Reference" href="/AGENT.md" />
+    <link rel="alternate" type="text/plain" title="Markdy llms.txt" href="/llms.txt" />
+    <link rel="alternate" type="text/plain" title="Markdy full LLM context" href="/llms-full.txt" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />

@@ -12,7 +12,7 @@ const docStructuredData = [
     "@id": "https://markdy.com/docs/#webpage",
     url: "https://markdy.com/docs/",
     name: "Markdy Documentation",
-    description: "Learn MarkdyScript for animated architecture and system diagrams as code: nodes, groups, beats, flow operators, docs-as-code workflows, and AI-generated diagrams.",
+    description: "Learn MarkdyScript for animated architecture and system diagrams as code: semantic nodes, groups, beats, flow operators, cues, docs-as-code workflows, and AI-generated diagrams.",
     isPartOf: { "@id": "https://markdy.com/#website" },
     about: { "@id": "https://markdy.com/#software" },
   },
@@ -31,7 +31,7 @@ const docStructuredData = [
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "MarkdyScript Tutorial", url: "https://github.com/HoangYell/markdy-com/blob/main/docs/TUTORIAL.md" },
       { "@type": "ListItem", position: 2, name: "MarkdyScript Syntax", url: "https://github.com/HoangYell/markdy-com/blob/main/docs/SYNTAX.md" },
-      { "@type": "ListItem", position: 3, name: "AI Agent Reference", url: "https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md" },
+      { "@type": "ListItem", position: 3, name: "AI Agent Reference", url: "https://markdy.com/agent/" },
       { "@type": "ListItem", position: 4, name: "Markdy Playground", url: "https://markdy.com/playground/" },
       { "@type": "ListItem", position: 5, name: "Getting Started", url: "https://github.com/HoangYell/markdy-com/blob/main/docs/GETTING_STARTED.md" },
       { "@type": "ListItem", position: 6, name: "Comparisons", url: "https://github.com/HoangYell/markdy-com/blob/main/docs/COMPARISONS.md" },
@@ -41,10 +41,10 @@ const docStructuredData = [
 ---
 
 <Layout
-  title="Markdy Docs — MarkdyScript for Animated Diagrams"
-  description="Learn MarkdyScript: declare nodes, groups, beats, and flow operators to build animated architecture and system diagrams as code — for docs, Astro, MDX, and AI generation."
+  title="Markdy Docs — MarkdyScript for Animated Diagrams as Code"
+  description="Learn MarkdyScript for animated architecture and system diagrams as code: declare semantic nodes, groups, beats, flow operators, and cues — for docs, Astro, MDX, and AI generation."
   canonicalURL="https://markdy.com/docs/"
-  keywords="MarkdyScript tutorial, animated architecture diagram, diagram as code, mermaid alternative, system design diagram, sequence diagram, flowchart, architecture as code, AI diagram generator, docs as code"
+  keywords="diagram-native MarkdyScript, MarkdyScript tutorial, animated architecture diagram, diagram as code, mermaid alternative, system design diagram, sequence diagram, flowchart, architecture as code, AI diagram generator, AI agent diagrams, docs as code"
   structuredData={docStructuredData}
 >
   <main class="docs-page">
@@ -52,7 +52,7 @@ const docStructuredData = [
     <header class="docs-hero">
       <span class="docs-kicker">Documentation</span>
       <h1>Learn MarkdyScript for animated diagrams</h1>
-      <p>Start with a scene, add architecture nodes, group systems, choreograph beats, and render browser-native animated diagrams from plain text.</p>
+      <p>MarkdyScript is diagram-native: start with a scene, declare semantic architecture nodes, group systems, choreograph beats, and render browser-native animated diagrams from reviewable text.</p>
     </header>
 
     <section class="docs-grid" aria-label="Documentation resources">
@@ -66,10 +66,10 @@ const docStructuredData = [
         <h2>MarkdyScript Syntax</h2>
         <p>The language reference for scene declarations, node kinds, groups, beats, flow operators, patterns, and themes.</p>
       </a>
-      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md" target="_blank" rel="noopener noreferrer">
+      <a class="doc-card" href="/agent/">
         <span>AI Agents</span>
         <h2>Agent Generation Guide</h2>
-        <p>A machine-readable reference optimized for Claude, ChatGPT, GitHub Copilot, Cursor, Windsurf, and other LLM coding agents.</p>
+        <p>A crawlable reference and machine-readable Markdown bundle optimized for ChatGPT, Gemini, GitHub Copilot, Cursor, Windsurf, and other LLM coding agents.</p>
       </a>
       <a class="doc-card" href="/playground/">
         <span>Playground</span>
@@ -99,12 +99,12 @@ const docStructuredData = [
       <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/TROUBLESHOOTING.md" target="_blank" rel="noopener noreferrer">
         <span>Troubleshooting</span>
         <h2>Fix Common Issues</h2>
-        <p>Parse errors, unknown actions, overlapping nodes, animation timing, imports, packages, and rendering problems.</p>
+        <p>Parse errors, unknown cues, overlapping nodes, animation timing, imports, packages, and rendering problems.</p>
       </a>
       <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/CONTENT_ROADMAP.md" target="_blank" rel="noopener noreferrer">
         <span>Roadmap</span>
         <h2>Future Content Strategy</h2>
-        <p>High-value docs and comparison pages for developers searching around Mermaid, architecture diagrams, AI agents, and animation DSLs.</p>
+        <p>High-value docs and comparison pages for developers searching around Mermaid, architecture diagrams, AI agents, and diagram-native DSLs.</p>
       </a>
     </section>
 

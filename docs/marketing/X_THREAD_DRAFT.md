@@ -7,8 +7,8 @@
 ### Tweet 1
 I got so tired of writing massive `useEffect` blocks and downloading 100kb+ of GSAP just to animate a simple diagram on my Astro blog.
 
-So I built a framework-agnostic Animation DSL.
-It’s like Mermaid.js, but for motion. 
+So I built a framework-agnostic, diagram-native DSL.
+It’s like Mermaid.js, but for animated architecture flows.
 
 Meet Markdy 🎬👇
 
@@ -18,10 +18,10 @@ Meet Markdy 🎬👇
 
 ### Tweet 2
 **The Problem:**
-Adding simple choreographic animations (text fading in, diagrams moving, API handoffs) to documentation or blogs takes hours of precise `<canvas>` math or messy DOM refs. 
+Adding animated architecture walkthroughs (API handoffs, cache hits, async events, deploy paths) to documentation or blogs takes hours of precise `<canvas>` math or messy DOM refs.
 
 **The Solution:**
-With Markdy, you just write text:
+With Markdy, you declare semantic nodes, beats, and flows:
 ```text
 beat main:
   show $nodes stagger=80ms
@@ -41,7 +41,7 @@ Since it renders purely to browser-native Web Animations API (WAAPI), the AST pa
 ---
 
 ### Tweet 4 (The Call To Action)
-Instead of dragging nodes around in Figma or coding keyframes by hand, you can just tell an LLM: "Write a Markdy script showing an API request through the edge cache" and paste the text block directly into your MDX files.
+Instead of dragging nodes around in Figma or coding keyframes by hand, you can tell an LLM to follow https://markdy.com/AGENT.md and write a MarkdyScript scene showing an API request through the edge cache, then paste the text block directly into your MDX files.
 
 Try the interactive playground and see the source code here! 
 Star it if you hate writing UI animation code yourself 🌟

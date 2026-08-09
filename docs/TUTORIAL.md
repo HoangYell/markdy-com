@@ -30,7 +30,7 @@ Use this path when learning Markdy for animated diagrams, architecture visualiza
 4. **Real-World Examples** — study URL shorteners, OAuth, Kubernetes, video pipelines, and timeline services in `examples/showcase/`.
 5. **Best Practices** — keep labels short, avoid overlap, use semantic node kinds, and split long flows across beats.
 6. **Advanced Features** — use `group`, `pattern`/`use`, `style`, beat captions, and `frame`.
-7. **AI Agent Workflow** — give `docs/AGENT.md` to the model, ask for MarkdyScript, lint it, and iterate on layout/timing.
+7. **AI Agent Workflow** — give <https://markdy.com/AGENT.md> to the model, ask for MarkdyScript, lint it, and iterate on layout/timing.
 8. **Production Use Cases** — embed in Astro/MDX docs, launch posts, onboarding, architecture reviews, and internal platform docs.
 
 Quick install:
@@ -43,7 +43,7 @@ The playground is the fastest feedback loop: it keeps the editor syntax-highligh
 
 AI prompt starter:
 
-> Use `docs/AGENT.md` to write one complete MarkdyScript scene. I want to explain OAuth login to frontend and backend engineers: the user clicks sign in, the app redirects to the identity provider, the provider returns a code, the backend exchanges it for tokens, then the app shows the signed-in session. Make it clear, presentation-friendly, and easy to paste into the Markdy playground.
+> Follow <https://markdy.com/AGENT.md> and write one complete MarkdyScript scene. I want to explain OAuth login to frontend and backend engineers: the user clicks sign in, the app redirects to the identity provider, the provider returns a code, the backend exchanges it for tokens, then the app shows the signed-in session. Make it clear, presentation-friendly, and easy to paste into the Markdy playground.
 
 ---
 
