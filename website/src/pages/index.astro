@@ -12,7 +12,7 @@ const FLOWER_ASSET: Record<string, string> = {
 };
 
 const FEATURES = [
-  { icon: "🧭", title: "Animated diagrams as code", desc: "Script system architecture diagrams, sequence flows, and product walkthroughs in reviewable text." },
+  { icon: "🧭", title: "Diagram-native MarkdyScript", desc: "Declare architecture nodes, groups, beats, and flows in reviewable text — no manual drawing layer." },
   { icon: "🌐", title: "Browser-native motion", desc: "Web Animations API + CSS transforms. No Canvas, video export pipeline, GSAP, or heavy runtime." },
   { icon: "🤖", title: "AI-agent friendly", desc: "Constrained MarkdyScript is easier for LLMs to generate, validate, diff, and revise than raw JavaScript." },
   { icon: "🧩", title: "Docs-first integrations", desc: "Use it in Astro, MDX, content sites, docs portals, and internal developer education." },
@@ -102,19 +102,19 @@ const USE_CASES = [
 const FAQS = [
   {
     question: "What is Markdy?",
-    answer: "Markdy is an open-source animation DSL and animated diagram scripting language. You declare architecture nodes, groups, and flow edges in MarkdyScript and sequence them with beats, then render the result in the browser.",
+    answer: "Markdy is an open-source, diagram-native DSL for animated architecture and system diagrams. You declare semantic nodes, groups, beats, flow operators, and cues in MarkdyScript; Markdy handles layout, routing, timing, and browser rendering.",
   },
   {
     question: "Is Markdy a Mermaid alternative?",
-    answer: "Markdy overlaps with Mermaid when you want text-based diagrams, but it focuses on animated diagrams, cinematic data flows, and timeline-driven technical explainers. Use Mermaid for static charts; use Markdy when motion and sequence matter.",
+    answer: "Markdy overlaps with Mermaid when you want text-based diagrams, but it focuses on diagram-native animated architecture walkthroughs: request paths, cache hits, async events, deployment flows, and technical explainers. Use Mermaid for static charts; use Markdy when motion and sequence matter.",
   },
   {
     question: "How is Markdy different from PlantUML, D2, Graphviz, Excalidraw, or draw.io?",
-    answer: "Those tools are excellent for static UML, graphs, whiteboards, or architecture diagrams. Markdy is designed for browser-rendered motion: labeled requests, responses, emits, camera direction, glow, reveal, and timed choreography in a text file.",
+    answer: "Those tools are excellent for static UML, graphs, whiteboards, or architecture diagrams. Markdy is designed for browser-rendered motion from a constrained diagram DSL: labeled requests, responses, async events, framing, glow, reveal, and timed beats in a text file.",
   },
   {
     question: "Is Markdy an alternative to GSAP or Framer Motion?",
-    answer: "Markdy is not a general UI animation framework replacement. It is focused on declarative, scriptable 2D scenes for documentation, explainers, animated architecture diagrams, demos, and AI-generated animation snippets.",
+    answer: "Markdy is not a general UI animation framework replacement. It is focused on declarative architecture scenes for documentation, explainers, animated system diagrams, demos, and AI-generated diagram-as-code snippets.",
   },
   {
     question: "Does Markdy require Canvas or a video renderer?",
@@ -142,7 +142,7 @@ const homepageStructuredData = [
     "@id": "https://markdy.com/#webpage",
     url: "https://markdy.com/",
     name: "Markdy — Animated Architecture Diagrams as Code",
-    description: "Markdy is a framework-agnostic DSL for animated architecture and system diagrams: write plain text and get browser-native, versionable, AI-friendly motion diagrams for docs, Astro sites, and MDX.",
+    description: "Markdy is a framework-agnostic, diagram-native DSL for animated architecture and system diagrams: write semantic nodes, groups, beats, flows, and cues to get browser-native, versionable, AI-friendly motion diagrams for docs, Astro sites, and MDX.",
     isPartOf: { "@id": "https://markdy.com/#website" },
     about: { "@id": "https://markdy.com/#software" },
     primaryImageOfPage: {
@@ -240,8 +240,8 @@ markdy <span class="u-fn">check-all</span> examples`;
 
 <Layout 
   title="Markdy — Animated Architecture Diagrams as Code"
-  description="Markdy turns plain text into animated architecture and system diagrams in the browser — an open-source, AI-friendly, Mermaid-style diagram-as-code tool with motion."
-  keywords="animated architecture diagram, diagram as code, animated diagrams, mermaid alternative, animated mermaid, system design diagram, sequence diagram, flowchart, infrastructure diagram, architecture as code, text to diagram, AI diagram generator, docs as code, software architecture visualization, animated system diagram, developer diagrams"
+  description="Markdy is a diagram-as-code DSL for animated architecture and system diagrams — write MarkdyScript with semantic nodes, beats, flows, and cues, and render browser-native, AI-friendly motion in the browser."
+  keywords="diagram-native DSL, MarkdyScript, animated architecture diagram, diagram as code, animated diagrams, mermaid alternative, animated mermaid, system design diagram, sequence diagram, flowchart, infrastructure diagram, architecture as code, text to diagram, AI diagram generator, AI agent diagrams, docs as code, software architecture visualization, animated system diagram, developer diagrams"
   ogImageAlt="Markdy playground showing MarkdyScript code and an animated architecture diagram"
   structuredData={homepageStructuredData}
 >
@@ -289,10 +289,10 @@ markdy <span class="u-fn">check-all</span> examples`;
 
   <!-- ─── Hero ─────────────────────────────────────────────────────────── -->
   <header class="hero">
-    <div class="hero-badge">Open-source diagrams as code · Mermaid-style, with motion</div>
+    <div class="hero-badge">Open-source diagram-as-code DSL · Mermaid-style, with motion</div>
     <h1>Animated architecture diagrams from <span class="gradient-text">plain text</span>.</h1>
     <p class="hero-sub">
-      Write architecture flows, sequence diagrams, infrastructure explainers, and product walkthroughs in MarkdyScript.
+      Write semantic nodes, groups, beats, flows, and cues in MarkdyScript.
       Markdy renders browser-native motion graphics that stay reviewable, versioned, and AI-friendly.
     </p>
     <div class="hero-actions">

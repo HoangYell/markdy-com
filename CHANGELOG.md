@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - **AI documentation discovery** — Publish the canonical agent guide at `/AGENT.md`, a crawlable `/agent/` mirror, and generated `/llms.txt` plus `/llms-full.txt` endpoints from `docs/AGENT.md` so ChatGPT, Gemini, crawlers, and coding agents can find the latest MarkdyScript syntax without duplicate manual docs. Website, README, package docs, and the CLI `docs`/`ai` output now point AI tools at these hosted canonical URLs.
+- **Diagram-native roadmap article** — Added a “Why Markdy focuses on animated architecture diagrams” article that explains the shift from general animation syntax toward semantic system diagrams, using developer feedback as the product narrative without amplifying the original discussion thread.
 
 ### Changed
 - **Single-source AI prompts** — The generated `prompts/system-prompt.*` now direct agents to the canonical hosted guide first, keeping every AI surface pointed at one source of truth.
+- **Diagram-native public positioning** — Refreshed homepage, docs, article, package, prompt, and marketing copy around Markdy’s diagram-native path (`scene`, semantic nodes, groups, beats, flows, and cues), and reshaped `/llms.txt` into a concise LLM-friendly index with canonical links and descriptions.
 
 ### Fixed
 - **`regen` no longer clobbers `docs/SYNTAX.md`** — `scripts/regenerate-all.ts` previously overwrote the hand-maintained syntax reference with a stale stub; it now only regenerates the vocabulary-derived system prompts.

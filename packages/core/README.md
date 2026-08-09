@@ -1,6 +1,6 @@
 # @markdy/core
 
-The parser and AST types for [MarkdyScript](../../docs/SYNTAX.md) — an AI-first DSL for animated architecture diagrams.
+The parser and AST types for [MarkdyScript](../../docs/SYNTAX.md) — a diagram-native DSL for animated architecture diagrams that AI agents can generate reliably.
 
 ## Features
 

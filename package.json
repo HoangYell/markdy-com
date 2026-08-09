@@ -2,7 +2,7 @@
   "name": "markdy",
   "version": "0.8.9",
   "private": true,
-  "description": "Open-source DSL for animated architecture & system diagrams. Write MarkdyScript, get browser-native animated diagrams.",
+  "description": "Open-source diagram-as-code DSL for animated architecture and system diagrams. Write diagram-native MarkdyScript, get browser-native motion diagrams.",
   "license": "MIT",
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
   "repository": {
@@ -21,6 +21,7 @@
     "markdy",
     "markdyscript",
     "diagram-as-code",
+    "diagram-native",
     "animated-diagram",
     "architecture-diagram",
     "mermaid-alternative",

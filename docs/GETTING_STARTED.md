@@ -1,8 +1,8 @@
 # Getting Started with Markdy
 
-Markdy is an open-source text-to-animation DSL for animated diagrams, architecture visualization, docs-as-code workflows, and AI-generated technical explainers.
+Markdy is an open-source, diagram-as-code DSL for animated architecture diagrams, system visualization, docs-as-code workflows, and AI-generated technical explainers. MarkdyScript is diagram-native: you declare semantic nodes, groups, beats, flows, and cues instead of drawing shapes by hand.
 
-Use this guide when you want to answer: "How do I turn a text description into an animated developer diagram?"
+Use this guide when you want to answer: "How do I turn semantic nodes, groups, beats, and flows into an animated developer diagram?"
 
 ## 1. Write a scene file
 

@@ -1,7 +1,7 @@
 <p align="center">
   <strong>Markdy</strong><br>
   Open-source DSL for animated architecture & system diagrams.<br>
-  Write MarkdyScript → get browser-native animated diagrams.
+  Write diagram-native MarkdyScript → get browser-native animated architecture diagrams.
 </p>
 
 <p align="center">
@@ -20,7 +20,7 @@
 
 ## What is Markdy?
 
-**Markdy is a framework-agnostic DSL for animated architecture and system diagrams.** Write your diagram as plain text — Markdy handles layout, edge routing, timing, and browser-native rendering with the Web Animations API. No Canvas, no GSAP, no bloated dependencies.
+**Markdy is a framework-agnostic, diagram-native DSL for animated architecture and system diagrams.** Declare semantic nodes, groups, beats, flows, and cues in MarkdyScript — Markdy handles layout, edge routing, timing, and browser-native rendering with the Web Animations API. No Canvas, no GSAP, no bloated dependencies.
 
 > Markdy is built for **animated architecture diagrams and system-design explainers**.
 > The built-in vocabulary expresses architecture, cloud, Kubernetes, CI/CD, auth, data, messaging, state-machine, and flow diagrams.

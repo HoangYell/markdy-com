@@ -1,7 +1,7 @@
 {
   "name": "@markdy/core",
   "version": "0.8.9",
-  "description": "MarkdyScript parser and diagram compiler (auto-layout, edge routing, cue scheduling) — zero runtime dependencies.",
+  "description": "Diagram-native MarkdyScript parser and compiler (auto-layout, edge routing, cue scheduling) — zero runtime dependencies.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -21,6 +21,7 @@
   "keywords": [
     "markdy",
     "markdyscript",
+    "diagram-native",
     "diagram-as-code",
     "architecture-diagram",
     "mermaid-alternative",

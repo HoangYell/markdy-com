@@ -1,7 +1,7 @@
 {
   "name": "@markdy/stdlib-systems",
   "version": "0.8.9",
-  "description": "System-diagram node vocabulary for Markdy (re-exported from @markdy/core).",
+  "description": "Diagram-native system node vocabulary for MarkdyScript architecture diagrams.",
   "license": "MIT",
   "type": "module",
   "sideEffects": false,
@@ -20,6 +20,7 @@
   },
   "keywords": [
     "markdy",
+    "diagram-native",
     "system-diagram",
     "architecture-diagram",
     "mermaid-alternative",

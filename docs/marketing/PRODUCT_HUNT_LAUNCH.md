@@ -10,12 +10,12 @@
 
 **Tagline (max 60 chars):**
 ```
-Like Mermaid, but for motion — open-source animation DSL
+Like Mermaid, but animated — diagram-native DSL
 ```
 
 **Description (max 260 chars):**
 ```
-Write declarative architecture flows in plain text. Markdy parses your script into nodes, groups, beats, and routed flows, then renders them natively with the Web Animations API. No GSAP, no Canvas, no bloated dependencies.
+Write diagram-native architecture flows in plain text. Markdy parses semantic nodes, groups, beats, routed flows, and cues, then renders them natively with the Web Animations API. No GSAP, no Canvas, no bloated dependencies.
 ```
 
 **Topics / Categories:**
@@ -34,10 +34,10 @@ I write a lot of technical blog posts and documentation. The biggest frustration
 
 CSS animations are painful to coordinate. GSAP is powerful but overkill and expensive. Framer Motion is React-only. Lottie requires After Effects.
 
-So I took inspiration from Mermaid.js (which turns text into sequence diagrams) and built the same concept for motion.
+So I took inspiration from Mermaid.js (which turns text into diagrams) and built a diagram-native version for animated architecture walkthroughs.
 
 **What makes Markdy different:**
-- 🔤 Text-first: Write choreography, not imperative code
+- 🔤 Diagram-native: Declare nodes, groups, beats, flows, and cues
 - ⚡ ~34kb total (parser + renderer) — no Canvas, no GSAP
 - 🤖 AI-friendly: LLMs reliably generate valid MarkdyScript from natural language
 - 🟡 Astro-native: Drop-in `<Markdy />` component that hydrates on scroll
@@ -45,7 +45,7 @@ So I took inspiration from Mermaid.js (which turns text into sequence diagrams) 
 
 **Try it instantly → https://markdy.com**
 
-Would love your feedback on the DSL syntax — what actions are you missing? What would make it useful in your workflow?
+Would love your feedback on the MarkdyScript grammar — which node kinds, cues, or architecture patterns would make it more useful in your workflow?
 
 ---
 

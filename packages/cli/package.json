@@ -1,7 +1,7 @@
 {
   "name": "@markdy/cli",
   "version": "0.8.9",
-  "description": "First-party CLI for MarkdyScript diagrams: lint, format, explain, render, and a local playground.",
+  "description": "First-party CLI for diagram-native MarkdyScript diagrams: lint, format, explain, render, and preview.",
   "license": "MIT",
   "type": "module",
   "files": [
@@ -23,6 +23,7 @@
   "keywords": [
     "markdy",
     "cli",
+    "diagram-native",
     "diagram-as-code",
     "architecture-diagram",
     "dsl"
