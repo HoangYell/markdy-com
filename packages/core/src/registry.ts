@@ -11,7 +11,7 @@ export const EDGE_OPERATORS: Record<string, "request" | "response" | "event" | "
 
 export const RESERVED_SELECTORS = new Set(["$title", "$nodes", "$edges"]);
 
-export const BEAT_CUE_KEYWORDS = new Set(["show", "hide", "glow", "focus", "use"]);
+export const BEAT_CUE_KEYWORDS = new Set(["show", "hide", "glow", "focus", "frame", "use"]);
 
 export const SCENE_KEYS = new Set(["width", "height", "fps", "theme", "duration", "direction"]);
 

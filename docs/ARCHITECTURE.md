@@ -144,15 +144,17 @@ Frame loop:
 
 | Source | DOM Output |
 |---|---|
-| Node (`nodes.ts`) | `<div class="markdy-node markdy-scene-node" data-node data-role>` with a role-aware SVG glyph (or an `image=`/`logo=` `<img>`) plus a label |
+| Node (`nodes.ts`) | `<div class="markdy-node markdy-scene-node" data-node data-role>` with a role-aware SVG glyph (or an `image=`/`logo=` `<img>`) plus a label; named `style` props map to CSS variables such as node fill, stroke, text, and accent |
 | Scene title | `<div>` positioned at the top-left of the scene |
 | Edge (`edges.ts`) | `<svg>` overlay with a routed `<path>`, arrowhead marker, animated dash reveal, a moving packet dot, and an optional rounded label pill |
+| Camera layer | A transformed content layer used by `frame` cues to guide attention without changing compiled node coordinates |
+| Beat captions | Optional beat labels rendered as timed caption pills over the scene |
 
 Node kind → semantic role → colour + icon mapping lives in `@markdy/core` (`system-vocabulary.ts`) and in `nodes.ts` (`iconKeyForNode`).
 
 #### Cue Animations
 
-Beat cues (`show`, `hide`, `glow`, `focus`) and flow edges compile to WAAPI keyframes in `buildCueAnimations` (`edges.ts`). `show`/`hide` fade and lift nodes (with optional `stagger`); `glow`/`focus` add emphasis; the flow operators (`->`, `<-`, `~>`, `--`) drive the edge dash + packet reveal.
+Beat cues (`show`, `hide`, `glow`, `focus`, `frame`) and flow edges compile to WAAPI keyframes in `buildCueAnimations` (`edges.ts`). `show`/`hide` fade and lift nodes (with optional `stagger`); `glow`/`focus` add emphasis; `frame` transforms the camera layer around selected nodes or groups; the flow operators (`->`, `<-`, `~>`, `--`) drive the edge dash + packet reveal. Optional beat labels compile to caption animations in the renderer.
 
 #### Animation Pre-Initialisation
 

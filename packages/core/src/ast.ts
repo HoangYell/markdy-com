@@ -63,6 +63,7 @@ export type Cue =
   | { kind: "hide"; targets: string[]; dur?: number; line: number }
   | { kind: "glow"; targets: string[]; color?: string; strength?: number; dur?: number; line: number }
   | { kind: "focus"; targets: string[]; zoom?: number; dur?: number; line: number }
+  | { kind: "frame"; targets: string[]; zoom?: number; dur?: number; line: number }
   | { kind: "use"; pattern: string; args: Record<string, string>; line: number }
   | { kind: "parallel"; cues: Cue[]; line: number };
 
@@ -149,7 +150,7 @@ export type RoutedEdge = {
 export type TimedCue = {
   start: number;
   duration: number;
-  kind: "show" | "hide" | "flow" | "glow" | "focus";
+  kind: "show" | "hide" | "flow" | "glow" | "focus" | "frame";
   targets: string[];
   edgeId?: string;
   segments?: FlowSegment[];

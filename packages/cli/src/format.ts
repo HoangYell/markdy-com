@@ -59,6 +59,10 @@ function formatNode(node: NodeDecl): string {
   let line = `${node.kind} ${node.id}`;
   if (node.label !== node.id && node.label) line += ` ${JSON.stringify(node.label)}`;
   if (node.style) line += ` style=${node.style}`;
+  const extraProps = Object.entries(node.props).filter(([key]) => key !== "style");
+  for (const [key, value] of extraProps) {
+    line += ` ${key}=${formatValue(value)}`;
+  }
   return line;
 }
 
@@ -118,6 +122,12 @@ function formatCue(cue: Cue): string {
   }
   if (cue.kind === "focus") {
     let line = `focus ${cue.targets.join(" ")}`;
+    if (cue.zoom !== undefined) line += ` zoom=${cue.zoom}`;
+    if (cue.dur !== undefined) line += ` dur=${cue.dur}s`;
+    return line;
+  }
+  if (cue.kind === "frame") {
+    let line = `frame ${cue.targets.join(" ")}`;
     if (cue.zoom !== undefined) line += ` zoom=${cue.zoom}`;
     if (cue.dur !== undefined) line += ` dur=${cue.dur}s`;
     return line;

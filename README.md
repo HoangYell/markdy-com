@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://markdy.com"><b>✨ Try the Interactive Playground</b></a>
+  <a href="https://markdy.com/playground/"><b>✨ Try the Interactive Playground</b></a>
 </p>
 
 <p align="center">
@@ -35,8 +35,9 @@ browser Client
 service API
 database DB
 
-beat main:
+beat main "Trace the request":
   show $nodes
+  frame Client API zoom=1.12
   Client -> API "GET /items" -> DB "query"
   Client <- API "200 OK"
 ```
@@ -50,7 +51,7 @@ beat main:
 | **Diagram-native DSL** | Declare nodes, `group`s, and `beat`s; the engine handles layout, routing, timing, and rendering |
 | **Auto-layout + routing** | Rank-based layout and orthogonal edge routing are built in — no coordinates required |
 | **Flow operators** | `->` request, `<-` response, `~>` event, `--` dependency, each with its own edge style |
-| **Beats + cues** | Sequence reveals with `beat` blocks and `show`/`hide`/`glow`/`focus` cues; run cues together with `&` |
+| **Beats + cues** | Sequence reveals with `beat` blocks, captions, and `show`/`hide`/`glow`/`focus`/`frame` cues; run cues together with `&` |
 | **Semantic node cards** | Kind-aware SVG glyphs for browsers, services, gateways, queues, workers, databases, storage, CDN, security, platform, and more |
 | **Patterns, styles, groups** | Reusable `pattern name(...)` + `use`, per-node `style`, and `group` fan-out with `stagger` |
 | **Semantic themes** | `midnight` (dark) and `paper` (light) — consistent colors per node role and edge kind |
@@ -141,7 +142,7 @@ npm i -g @markdy/cli
   <img src="website/public/images/markdy-output-preview.webp" alt="Markdy output preview" width="1100" />
 </p>
 
-The homepage playground mirrors this workflow: choose a shipped `.markdy` scene, edit syntax-highlighted MarkdyScript, and watch the embedded architecture preview update in the browser.
+The dedicated playground mirrors this workflow: choose a shipped `.markdy` scene, edit syntax-highlighted MarkdyScript, resize the editor/preview split, and watch the embedded architecture preview update in the browser.
 
 To preview a full scene result locally, run:
 
@@ -270,6 +271,7 @@ Cues live inside a `beat` and are scheduled in order; put `&` between two cues t
 | `hide` | Fade nodes out | `dur` |
 | `glow` | Emphasize with a colored glow | `color`, `strength`, `dur` |
 | `focus` | Pulse-scale to draw attention | `zoom`, `dur` |
+| `frame` | Move the scene camera to nodes or groups | `zoom`, `dur` |
 | `use` | Expand a `pattern` | pattern args |
 
 Selectors: `$nodes` targets every node; a group name targets its members. Themes: `midnight` (dark, default) and `paper` (light).

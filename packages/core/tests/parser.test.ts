@@ -110,4 +110,68 @@ cdn CdnEdge
       for (const id of cue.targets) expect(nodeIds.has(id)).toBe(true);
     }
   });
+
+  it("parses frame cues and beat labels for camera-guided storytelling", () => {
+    const ast = parse(`
+scene "Framed Story" theme=paper
+layout LR
+service API
+database DB
+group backend: API DB
+
+beat inspect "Zoom into backend":
+  frame backend zoom=1.25 dur=500ms
+`);
+    expect(ast.beats[0].label).toBe("Zoom into backend");
+    expect(ast.beats[0].cues[0]).toMatchObject({
+      kind: "frame",
+      targets: ["backend"],
+      zoom: 1.25,
+      dur: 0.5,
+    });
+  });
+
+  it("emits warnings for unresolved references without accepting invalid syntax", () => {
+    const ast = parse(`
+scene "Diagnostics" theme=paper
+style hot = fill=#f59e0b
+service API style=missing
+group backend: API Worker
+
+beat main:
+  show Worker
+  frame backend
+  API -> Missing "call"
+`);
+
+    expect(ast.diagnostics.map((d) => d.message)).toEqual(expect.arrayContaining([
+      "node 'API' references unknown style 'missing'",
+      "group 'backend' references unknown node 'Worker'",
+      "show references unknown target 'Worker'",
+      "flow references unknown node 'Missing'",
+    ]));
+  });
+
+  it("substitutes all positional pattern arguments without leaking internal keys", () => {
+    const ast = parse(`
+scene "Pattern Args" theme=paper
+service A
+service B
+service C
+service D
+service E
+
+pattern five(a, b, c, d, e):
+  $a -> $b "one"
+  $c -> $d "two"
+  frame $e
+
+beat main:
+  use five(A, B, C, D, E)
+`);
+    const cues = ast.beats[0].cues;
+    expect(cues[0]).toMatchObject({ kind: "flow", segments: [{ from: "A", to: "B" }] });
+    expect(cues[1]).toMatchObject({ kind: "flow", segments: [{ from: "C", to: "D" }] });
+    expect(cues[2]).toMatchObject({ kind: "frame", targets: ["E"] });
+  });
 });

@@ -43,6 +43,44 @@ export interface Diagram {
   destroy(): void;
 }
 
+export function createBeatCaptionLayer(doc: Document, beats: BeatRange[]): HTMLElement {
+  const layer = doc.createElement("div");
+  layer.className = "markdy-beat-caption-layer";
+  for (const beat of beats) {
+    if (!beat.label) continue;
+    const caption = doc.createElement("div");
+    caption.className = "markdy-beat-caption";
+    caption.textContent = beat.label;
+    caption.dataset.beat = beat.name;
+    layer.appendChild(caption);
+  }
+  return layer;
+}
+
+function buildBeatCaptionAnimations(beats: BeatRange[], layer: HTMLElement): Animation[] {
+  const anims: Animation[] = [];
+  const captions = Array.from(layer.querySelectorAll<HTMLElement>(".markdy-beat-caption"));
+  for (const beat of beats) {
+    if (!beat.label) continue;
+    const caption = captions.find((item) => item.dataset.beat === beat.name);
+    if (!caption) continue;
+    const startMs = beat.start * 1000;
+    const durMs = Math.max((beat.end - beat.start) * 1000, 650);
+    anims.push(
+      caption.animate(
+        [
+          { opacity: 0, transform: "translateY(8px)" },
+          { opacity: 1, transform: "translateY(0)", offset: 0.16 },
+          { opacity: 1, transform: "translateY(0)", offset: 0.82 },
+          { opacity: 0, transform: "translateY(-4px)" },
+        ],
+        { duration: durMs, delay: startMs, fill: "forwards", easing: "ease-out" },
+      ),
+    );
+  }
+  return anims;
+}
+
 export function createDiagram(opts: DiagramOptions): Diagram {
   const {
     container,
@@ -150,12 +188,19 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   Object.assign(sceneContent.style, { position: "absolute", inset: "0" });
   scene.appendChild(sceneContent);
 
+  const titleEl = createTitleEl(plan.title);
+  sceneContent.appendChild(titleEl);
+
+  const cameraLayer = document.createElement("div");
+  cameraLayer.className = "markdy-camera-layer";
+  sceneContent.appendChild(cameraLayer);
+
   const nodeLayer = document.createElement("div");
   nodeLayer.className = "markdy-scene-node-layer";
-  sceneContent.appendChild(nodeLayer);
+  cameraLayer.appendChild(nodeLayer);
 
-  const titleEl = createTitleEl(plan.title);
-  nodeLayer.appendChild(titleEl);
+  const captionLayer = createBeatCaptionLayer(document, plan.beats);
+  sceneContent.appendChild(captionLayer);
 
   const nodeEls = new Map<string, HTMLElement>();
   for (const node of plan.nodes) {
@@ -172,10 +217,13 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   const resizeObserver = new ResizeObserver(scaleScene);
   resizeObserver.observe(viewport);
 
-  const allAnims = buildCueAnimations(plan.cues, nodeEls, plan.nodes, plan.theme, sceneContent, titleEl, {
-    width: plan.meta.width,
-    height: plan.meta.height,
-  });
+  const allAnims = [
+    ...buildCueAnimations(plan.cues, nodeEls, plan.nodes, plan.theme, cameraLayer, titleEl, {
+      width: plan.meta.width,
+      height: plan.meta.height,
+    }),
+    ...buildBeatCaptionAnimations(plan.beats, captionLayer),
+  ];
   for (const anim of allAnims) {
     anim.pause();
     anim.currentTime = 0;

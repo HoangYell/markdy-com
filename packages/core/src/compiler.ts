@@ -14,6 +14,7 @@ const DEFAULTS = {
   flow: 0.55,
   glow: 0.45,
   focus: 0.6,
+  frame: 0.7,
   beatGap: 0.14,
   cueGap: 0.08,
   stagger: 0.06,
@@ -234,7 +235,7 @@ function scheduleBeats(ast: DiagramAST, edges: RoutedEdge[]): { cues: TimedCue[]
         return;
       }
 
-      if (cue.kind !== "show" && cue.kind !== "hide" && cue.kind !== "glow" && cue.kind !== "focus") return;
+      if (cue.kind !== "show" && cue.kind !== "hide" && cue.kind !== "glow" && cue.kind !== "focus" && cue.kind !== "frame") return;
 
       const targets = resolveTargets(cue.targets, ast, Object.fromEntries(Object.entries(ast.groups).map(([k, g]) => [k, g.members])));
 
@@ -247,7 +248,7 @@ function scheduleBeats(ast: DiagramAST, edges: RoutedEdge[]): { cues: TimedCue[]
           stagger: cue.kind === "show" ? (cue.stagger ?? DEFAULTS.stagger) : undefined,
           color: cue.kind === "glow" ? cue.color : undefined,
           strength: cue.kind === "glow" ? cue.strength : undefined,
-          zoom: cue.kind === "focus" ? cue.zoom : undefined,
+          zoom: cue.kind === "focus" || cue.kind === "frame" ? cue.zoom : undefined,
         },
         beat: beat.name,
       });
