@@ -238,4 +238,29 @@ beat hot_path "Hot Path Optimization" {
       ],
     });
   });
+
+  it("rejects unsupported drawing/timeline syntax with actionable guidance", () => {
+    expect(() => parse(`
+scene width=1000 height=520
+var bg_color = "#0f172a"
+`)).toThrow("unsupported variable declaration");
+
+    expect(() => parse(`
+scene width=1000 height=520
+actor Alice = figure(#ffdbac, f, "dev") at (80, 200)
+`)).toThrow("unsupported manual drawing syntax");
+
+    expect(() => parse(`
+scene "Legacy Chapter" {
+  @0.0: header.say("Step 1")
+}
+`)).toThrow("nested scene blocks are not supported");
+
+    expect(() => parse(`
+scene "Demo"
+service API
+beat main:
+  @+1.0: camera.pan(to=(500, 260), dur=1.0)
+`)).toThrow("unsupported timeline command");
+  });
 });

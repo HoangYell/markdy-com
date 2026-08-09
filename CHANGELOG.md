@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Human-first AI prompt examples** — Simplified public AI prompt examples so users describe the diagram idea in natural language while the agent guide handles Markdy-specific syntax choices.
 
 ### Fixed
+- **Unsupported AI syntax diagnostics** — Non-Markdy drawing, timeline, and imperative camera output now fails with actionable guidance instead of misleading node-kind errors.
 - **AI-generated syntax tolerance** — The parser now accepts common LLM variants such as `#` comments, quote-safe `//` handling inside URLs, brace-delimited beat/pattern blocks, inline scene layout, quoted property values, and leading-`&` parallel cue continuations.
 - **Playground editor/preview visibility** — The dedicated playground editor now scrolls internally while the preview pane stays sticky beside it, so authors can keep watching the animation while typing longer MarkdyScript scenes.
 
