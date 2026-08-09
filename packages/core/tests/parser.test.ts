@@ -102,6 +102,27 @@ cdn CdnEdge
     expect(response).toMatchObject({ from: "UrlShortener", to: "WebClient", label: "short.ly/a7" });
   });
 
+  it("keeps flow operators inside quoted labels out of the chain split", () => {
+    const ast = parse(`
+scene "Arrows in labels" theme=midnight
+layout LR
+service API
+database DB
+
+beat main:
+  API -> DB "STORE xyz123 -> long URL"
+  API <- DB "301 -> redirect"
+  API -> DB "a -> b" -> DB "next"
+`);
+    const beat = ast.beats[0];
+    const segments = beat.cues.filter(isFlow).flatMap((c) => c.segments);
+    expect(ast.diagnostics).toEqual([]);
+    expect(segments[0]).toMatchObject({ from: "API", op: "request", to: "DB", label: "STORE xyz123 -> long URL" });
+    expect(segments[1]).toMatchObject({ from: "DB", op: "response", to: "API", label: "301 -> redirect" });
+    expect(segments[2]).toMatchObject({ from: "API", op: "request", to: "DB", label: "a -> b" });
+    expect(segments[3]).toMatchObject({ from: "DB", op: "request", to: "DB", label: "next" });
+  });
+
   it("only references declared nodes in compiled flow cues", () => {
     const plan = compile(parse(URL_SHORTENER));
     const nodeIds = new Set(plan.nodes.map((n) => n.id));
@@ -242,11 +263,6 @@ beat hot_path "Hot Path Optimization" {
   it("rejects unsupported drawing/timeline syntax with actionable guidance", () => {
     expect(() => parse(`
 scene width=1000 height=520
-var bg_color = "#0f172a"
-`)).toThrow("unsupported variable declaration");
-
-    expect(() => parse(`
-scene width=1000 height=520
 actor Alice = figure(#ffdbac, f, "dev") at (80, 200)
 `)).toThrow("unsupported manual drawing syntax");
 
@@ -262,5 +278,87 @@ service API
 beat main:
   @+1.0: camera.pan(to=(500, 260), dur=1.0)
 `)).toThrow("unsupported timeline command");
+  });
+
+  it("supports var declarations with $name substitution", () => {
+    const ast = parse(`
+scene "Vars" theme=midnight
+var hot = "#a6e3a1"
+var cool = #3b82f6
+
+service API
+cache Redis
+database DB
+
+beat main:
+  show $nodes
+  API -> Redis "lookup"
+  glow Redis color=$hot & focus Redis
+  glow DB color=$cool
+`);
+    expect(ast.diagnostics).toEqual([]);
+    const cues = ast.beats[0].cues;
+    const parallel = cues.find((c) => c.kind === "parallel") as Extract<Cue, { kind: "parallel" }>;
+    const glowHot = parallel.cues.find((c) => c.kind === "glow") as Extract<Cue, { kind: "glow" }>;
+    expect(glowHot.color).toBe("#a6e3a1");
+    const glowCool = cues.find((c) => c.kind === "glow" && c.color === "#3b82f6");
+    expect(glowCool).toBeTruthy();
+  });
+
+  it("maps natural emphasis synonyms to real cues", () => {
+    const ast = parse(`
+scene "Aliases" theme=midnight
+service API
+cache Redis
+
+beat main:
+  pulse API
+  highlight Redis color=#22c55e
+  emphasize API
+`);
+    expect(ast.diagnostics).toEqual([]);
+    const cues = ast.beats[0].cues;
+    expect(cues[0]).toMatchObject({ kind: "focus", targets: ["API"] });
+    expect(cues[1]).toMatchObject({ kind: "glow", targets: ["Redis"], color: "#22c55e" });
+    expect(cues[2]).toMatchObject({ kind: "glow", targets: ["API"] });
+  });
+
+  it("supports multi-line group members", () => {
+    const ast = parse(`
+scene "Groups" theme=midnight
+user Creator
+browser Web
+service API
+database DB
+
+group client:
+  Creator Web
+
+group backend "Backend tier":
+  API
+  DB
+
+beat main:
+  show client
+  show backend
+`);
+    expect(ast.diagnostics).toEqual([]);
+    expect(ast.groups.client.members).toEqual(["Creator", "Web"]);
+    expect(ast.groups.backend.members).toEqual(["API", "DB"]);
+    expect(ast.groups.backend.label).toBe("Backend tier");
+  });
+
+  it("warns and ignores a var that shadows a reserved selector", () => {
+    const ast = parse(`
+scene "Shadow" theme=midnight
+var nodes = "#fff"
+service API
+
+beat main:
+  show $nodes
+`);
+    expect(ast.diagnostics.some((d) => d.message.includes("reserved selector"))).toBe(true);
+    // The var was ignored, so `$nodes` stays the all-nodes selector (not "#fff").
+    expect(ast.beats[0].cues[0]).toMatchObject({ kind: "show", targets: ["$nodes"] });
   });
 });

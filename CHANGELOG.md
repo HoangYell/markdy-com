@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`var` named constants** — Top-level `var name = value` declarations (colors, durations, etc.) can be referenced with `$name` and are substituted deterministically at parse time, so AI-generated scenes that reach for color variables now work.
+- **Multi-line group members** — `group name:` can list members on indented lines in addition to the inline `group name: A B C` form.
+- **Natural cue synonyms** — `pulse`, `highlight`, and `emphasize` are accepted and map to `focus`/`glow`, so common AI emphasis verbs produce valid scenes.
+
+### Fixed
+- **Flow labels with arrows** — Flow labels containing `->`, `<-`, `~>`, or `--` (for example `"STORE key -> value"`) no longer break the flow-chain parser; operators inside quoted labels are ignored when splitting.
+- **Hash comments vs hex colors** — `#` only starts a comment in the conventional `# text` form, so bare hex values like `var c = #3b82f6` are no longer mistaken for comments.
+- **Clearer AI-syntax errors** — `camera ...` statements and unknown cues now report actionable messages (pointing to `frame` and the valid cue list), and beat names may include digits/dots so timestamp-style names parse.
+
 ## [0.8.8] — 2026-08-09
 
 ### Changed

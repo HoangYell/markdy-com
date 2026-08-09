@@ -20,6 +20,7 @@ import type {
 import {
   BEAT_CUE_KEYWORDS,
   canonicalNodeKind,
+  CUE_ALIASES,
   EDGE_OPERATORS,
   humanizeId,
   NODE_KINDS,
@@ -72,7 +73,15 @@ function stripComment(line: string): string {
     }
     if (inString) continue;
     if (ch === "/" && line[i + 1] === "/") return line.slice(0, i);
-    if (ch === "#" && (i === 0 || /\s/.test(line[i - 1]))) return line.slice(0, i);
+    // `#` starts a comment only in the conventional `# text` form (space/EOL
+    // after it), so bare hex colors like `= #3b82f6` are never eaten.
+    if (
+      ch === "#" &&
+      (i === 0 || /\s/.test(line[i - 1])) &&
+      (i + 1 >= line.length || /\s/.test(line[i + 1]))
+    ) {
+      return line.slice(0, i);
+    }
   }
   return line;
 }
@@ -210,9 +219,42 @@ function stripCueProps(raw: string, keys: string[]): string {
   return raw.trim();
 }
 
+function tokenizeFlowChain(line: string): string[] {
+  const parts: string[] = [];
+  let current = "";
+  let inString = false;
+  let escaped = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inString) {
+      current += ch;
+      if (escaped) escaped = false;
+      else if (ch === "\\") escaped = true;
+      else if (ch === '"') inString = false;
+      continue;
+    }
+    if (ch === '"') {
+      inString = true;
+      current += ch;
+      continue;
+    }
+    const op = line.slice(i, i + 2);
+    if (op === "->" || op === "<-" || op === "~>" || op === "--") {
+      if (current.trim()) parts.push(current.trim());
+      parts.push(op);
+      current = "";
+      i += 1;
+      continue;
+    }
+    current += ch;
+  }
+  if (current.trim()) parts.push(current.trim());
+  return parts;
+}
+
 function parseFlowChain(line: string, lineNo: number): FlowSegment[] {
   const segments: FlowSegment[] = [];
-  const parts = line.split(FLOW_OP_RE).map((p) => p.trim()).filter(Boolean);
+  const parts = tokenizeFlowChain(line);
   if (parts.length < 3) {
     throw new ParseError(`expected flow chain like A -> B "label"`, lineNo);
   }
@@ -284,7 +326,8 @@ function parseCueLine(line: string, lineNo: number): Cue {
   }
 
   const [head, ...rest] = trimmed.split(/\s+/);
-  const keyword = head.toLowerCase();
+  const rawKeyword = head.toLowerCase();
+  const keyword = CUE_ALIASES[rawKeyword] ?? rawKeyword;
 
   if (keyword === "show" || keyword === "hide") {
     const targetRaw = stripCueProps(rest.join(" "), ["dur", "stagger"]);
@@ -353,7 +396,7 @@ function parseCueLine(line: string, lineNo: number): Cue {
     return { kind: "use", pattern: m[1], args, line: lineNo };
   }
 
-  throw new ParseError(`unknown cue '${head}'`, lineNo);
+  throw new ParseError(`unknown cue '${head}'; use show, hide, glow, focus, frame, or use`, lineNo);
 }
 
 function expandPatternCues(cues: Cue[], patterns: Record<string, PatternDecl>, line: number): Cue[] {
@@ -466,19 +509,56 @@ function normalizeCueBlocks(blocks: Block[]): Block[] {
 }
 
 function unsupportedSyntaxMessage(line: string): string | null {
-  if (/^var\s+/.test(line)) {
-    return "unsupported variable declaration; use scene properties and style declarations instead";
-  }
   if (/^actor\s+/.test(line) || /\bfigure\s*\(/.test(line) || /\bbox\s*\(/.test(line) || /\bat\s*\(/.test(line)) {
     return "unsupported manual drawing syntax; declare architecture nodes like service API, cache Redis, and database DB";
   }
   if (/^@\+?\d/.test(line)) {
     return "unsupported timeline command; put flow and cue lines inside beat blocks";
   }
-  if (/^camera\./.test(line)) {
+  if (/^camera\b/.test(line)) {
     return "unsupported camera command; use frame NodeOrGroup zoom=... inside a beat";
   }
   return null;
+}
+
+const RESERVED_VAR_NAMES = new Set(["nodes", "title", "edges"]);
+
+/**
+ * Pulls top-level `var name = value` declarations out of the block stream so
+ * their `$name` references can be substituted before parsing. Keeps AI-friendly
+ * named constants (colors, durations) DRY without a runtime.
+ */
+function extractVars(blocks: Block[], diagnostics: Diagnostic[]): { vars: Map<string, string>; rest: Block[] } {
+  const vars = new Map<string, string>();
+  const rest: Block[] = [];
+  for (const block of blocks) {
+    if (!/^var\b/.test(block.text)) {
+      rest.push(block);
+      continue;
+    }
+    const m = block.text.match(/^var\s+([A-Za-z_]\w*)\s*=\s*(.+)$/);
+    if (!m) throw new ParseError("expected var name = value", block.line);
+    const name = m[1];
+    if (RESERVED_VAR_NAMES.has(name)) {
+      diagnostics.push({ severity: "warning", message: `var '${name}' shadows a reserved selector and was ignored`, line: block.line });
+      continue;
+    }
+    const raw = m[2].trim();
+    const str = parseStringToken(raw);
+    vars.set(name, str && str.rest === "" ? str.value : raw);
+  }
+  return { vars, rest };
+}
+
+function applyVars(blocks: Block[], vars: Map<string, string>): Block[] {
+  if (vars.size === 0) return blocks;
+  return blocks.map((block) => {
+    let text = block.text;
+    for (const [name, value] of vars) {
+      text = text.replace(new RegExp(`\\$${name}(?![\\w])`, "g"), value);
+    }
+    return { ...block, text };
+  });
 }
 
 function pushWarning(diagnostics: Diagnostic[], seen: Set<string>, line: number, message: string): void {
@@ -569,7 +649,9 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
   let title = "";
   let edgeCounter = 0;
 
-  const blocks = readBlocks(lines.map(stripComment));
+  const rawBlocks = readBlocks(lines.map(stripComment));
+  const { vars, rest } = extractVars(rawBlocks, diagnostics);
+  const blocks = applyVars(rest, vars);
   let i = 0;
 
   while (i < blocks.length) {
@@ -637,16 +719,32 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
     }
 
     if (line.startsWith("group ")) {
-      const m = line.match(/^group\s+(\w+)(?:\s+"([^"]*)")?\s*:\s*(.+)$/);
-      if (!m) throw new ParseError(`expected group name: A B C`, lineNo);
-      groups[m[1]] = {
-        id: m[1],
-        label: m[2],
-        members: splitTargets(m[3]),
+      const inline = line.match(/^group\s+(\w+)(?:\s+"([^"]*)")?\s*:\s*(.+)$/);
+      if (inline) {
+        groups[inline[1]] = {
+          id: inline[1],
+          label: inline[2],
+          members: splitTargets(inline[3]),
+          props: {},
+          line: lineNo,
+        };
+        i++;
+        continue;
+      }
+      // Multi-line form: `group name ["Label"]:` followed by indented members.
+      const header = line.match(/^group\s+(\w+)(?:\s+"([^"]*)")?\s*:\s*$/);
+      if (!header) throw new ParseError(`expected group name: A B C`, lineNo);
+      const { body, nextIdx } = readIndentedBody(blocks, i + 1, block.indent);
+      const members = body.flatMap((b) => splitTargets(b.text));
+      if (members.length === 0) throw new ParseError(`group '${header[1]}' has no members`, lineNo);
+      groups[header[1]] = {
+        id: header[1],
+        label: header[2],
+        members,
         props: {},
         line: lineNo,
       };
-      i++;
+      i = nextIdx;
       continue;
     }
 
@@ -670,7 +768,7 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
     }
 
     if (line.startsWith("beat ")) {
-      const m = line.match(/^beat\s+(\w+)(?:\s+"([^"]*)")?\s*(?::|\{)\s*$/);
+      const m = line.match(/^beat\s+([\w.-]+)(?:\s+"([^"]*)")?\s*(?::|\{)\s*$/);
       if (!m) throw new ParseError(`expected beat name:`, lineNo);
       const { body, nextIdx } = readBody(blocks, i + 1, block.indent, line.endsWith("{"));
       let cues = normalizeCueBlocks(body).map((b) => parseCueLine(b.text, b.line));
