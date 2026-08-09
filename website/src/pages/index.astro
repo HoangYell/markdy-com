@@ -133,7 +133,7 @@ const FAQS = [
 const PROMOTION_LINKS = [
   { label: "Star on GitHub", href: "https://github.com/HoangYell/markdy-com", desc: "Follow releases, open issues, and contribute examples." },
   { label: "Install from npm", href: "https://www.npmjs.com/package/@markdy/core", desc: "Use the parser and renderer packages in your app." },
-  { label: "Read the agent guide", href: "https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md", desc: "Give AI tools the complete grammar and action reference." },
+  { label: "Read the agent guide", href: "/agent/", desc: "Give AI tools the current hosted grammar and cue reference." },
 ] as const;
 
 const homepageStructuredData = [
@@ -901,7 +901,7 @@ beat finish:
         <ol class="ai-steps">
           <li>
             <strong>Point your AI to the docs</strong>
-            <p>Share the <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md" target="_blank" rel="noopener noreferrer">AGENT.md</a> — a single all-in-one reference with grammar, actions, patterns and examples.</p>
+            <p>Share the hosted <a href="/AGENT.md">AGENT.md</a> — a single all-in-one reference with grammar, cues, patterns and examples.</p>
           </li>
           <li>
             <strong>Describe your scene in plain English</strong>
@@ -921,7 +921,7 @@ beat finish:
             <span class="ai-prompt-label">You → Claude / ChatGPT / Copilot</span>
           </div>
           <blockquote class="ai-prompt-text">
-            Follow <code>https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md</code> and return one complete MarkdyScript scene:
+            Follow <code>https://markdy.com/AGENT.md</code> and return one complete MarkdyScript scene:
             <br /><br />
             <em>"Animate a URL shortener: a user creates a short link, then another user opens it and gets redirected via the API, cache, and database. Use beats for each step and highlight the fast cache path."</em>
           </blockquote>
@@ -1022,7 +1022,7 @@ beat finish:
             <a href="/blog/">Articles</a>
             <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/TUTORIAL.md" target="_blank" rel="noopener noreferrer">Tutorial</a>
             <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/SYNTAX.md" target="_blank" rel="noopener noreferrer">Syntax Reference</a>
-            <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md" target="_blank" rel="noopener noreferrer">AI Agent Guide</a>
+            <a href="/agent/">AI Agent Guide</a>
             <a href="https://github.com/HoangYell/markdy-com/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">Contributing</a>
           </div>
           <div class="footer-col">
@@ -1030,6 +1030,7 @@ beat finish:
             <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">GitHub</a>
             <a href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener noreferrer">npm</a>
             <a href="/llms.txt">llms.txt</a>
+            <a href="/llms-full.txt">llms-full.txt</a>
             <a href="https://github.com/HoangYell/markdy-com/issues" target="_blank" rel="noopener noreferrer">Report a Bug</a>
           </div>
         </div>

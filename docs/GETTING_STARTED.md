@@ -74,7 +74,7 @@ markdy render path/to/scene.markdy --out preview.html
 
 ## 6. Prompt an AI coding agent
 
-Use `docs/AGENT.md` as the full grammar reference, but prompt with your idea in normal product or architecture language. The AI should translate that idea into valid MarkdyScript.
+Use <https://markdy.com/AGENT.md> as the full grammar reference, but prompt with your idea in normal product or architecture language. The AI should translate that idea into valid MarkdyScript.
 
 Example prompt:
 

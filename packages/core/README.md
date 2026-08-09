@@ -77,7 +77,7 @@ try {
 
 - **[Syntax Reference](../../docs/SYNTAX.md)** — complete DSL language spec
 - **[Tutorial](../../docs/TUTORIAL.md)** — step-by-step guide
-- **[Agent Guide](../../docs/AGENT.md)** — structured reference for AI/LLM code generation
+- **[Agent Guide](https://markdy.com/agent/)** — structured reference for AI/LLM code generation
 - **[Architecture](../../docs/ARCHITECTURE.md)** — parser internals and design decisions
 
 ## License

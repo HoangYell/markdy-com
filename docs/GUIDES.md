@@ -25,7 +25,7 @@ This guide focuses on real problems developers search for: animated architecture
 - Review scene changes in pull requests like code.
 - Render previews in CI or during docs builds.
 - Keep examples small enough to load quickly in documentation pages.
-- Use `docs/AGENT.md` as the source for AI-generated scenes.
+- Use <https://markdy.com/AGENT.md> as the source for AI-generated scenes.
 
 ## Use Markdy with AI agents
 
@@ -41,7 +41,7 @@ Ask AI agents for concrete scenes:
 
 > Create a Markdy scene for a Kubernetes ingress request. Use a browser, ingress, service, pod, Redis cache, and Postgres database. Animate the request path and cache miss path in separate beats.
 
-Then ask the agent to shorten labels, avoid overlapping nodes, split phases into beats, add a final `glow`, and validate against `docs/AGENT.md`.
+Then ask the agent to shorten labels, avoid overlapping nodes, split phases into beats, add a final `glow`, and validate against <https://markdy.com/AGENT.md>.
 
 ## Production embedding checklist
 
@@ -51,4 +51,3 @@ Then ask the agent to shorten labels, avoid overlapping nodes, split phases into
 - Avoid loading remote assets without cache control.
 - Keep parser and renderer package versions aligned.
 - Run `markdy lint` or `pnpm run verify:examples` before publishing.
-

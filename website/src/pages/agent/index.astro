@@ -1,0 +1,255 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getAgentReference } from "../../lib/agent-reference";
+
+const reference = await getAgentReference();
+
+const prompt = `Before generating MarkdyScript, read and follow ${reference.canonicalMarkdownUrl}. Use the current syntax from that page, not older examples from model memory.`;
+
+const structuredData = [
+  {
+    "@type": "TechArticle",
+    "@id": "https://markdy.com/agent/#article",
+    headline: "MarkdyScript AI Agent Reference",
+    description: "Canonical AI-facing MarkdyScript reference for ChatGPT, Gemini, coding agents, crawlers, and other LLM tools.",
+    url: reference.humanUrl,
+    inLanguage: "en",
+    isPartOf: { "@id": "https://markdy.com/#website" },
+    about: { "@id": "https://markdy.com/#software" },
+    encodingFormat: "text/html",
+    mainEntityOfPage: reference.humanUrl,
+    sameAs: [reference.canonicalMarkdownUrl, reference.githubUrl, reference.fullContextUrl],
+  },
+  {
+    "@type": "CreativeWork",
+    "@id": "https://markdy.com/AGENT.md#markdown",
+    name: "MarkdyScript AI Agent Reference Markdown",
+    url: reference.canonicalMarkdownUrl,
+    encodingFormat: "text/markdown",
+    version: reference.version,
+    isBasedOn: reference.githubUrl,
+    about: { "@id": "https://markdy.com/#software" },
+  },
+];
+---
+
+<Layout
+  title="MarkdyScript AI Agent Reference — Current Syntax for LLMs"
+  description="Canonical, crawlable MarkdyScript reference for ChatGPT, Gemini, coding agents, and search crawlers. Generated from docs/AGENT.md so every public AI surface stays in sync."
+  canonicalURL={reference.humanUrl}
+  keywords="MarkdyScript AI agent reference, llms.txt, ChatGPT Markdy, Gemini Markdy, AI generated architecture diagrams, diagram DSL syntax"
+  structuredData={structuredData}
+>
+  <main class="agent-page">
+    <a href="/docs/" class="back-link">Back to docs</a>
+
+    <header class="hero">
+      <span class="kicker">AI agent reference</span>
+      <h1>Current MarkdyScript syntax for AI tools</h1>
+      <p>
+        This page is generated from the same source as the repository guide:
+        <a href={reference.githubUrl} target="_blank" rel="noopener noreferrer">docs/AGENT.md</a>.
+        The raw Markdown, LLM index, and full context bundle are rebuilt from that file so agents do not drift across releases.
+      </p>
+    </header>
+
+    <section class="surface-grid" aria-label="AI documentation entry points">
+      <a class="surface-card primary" href="/AGENT.md">
+        <span>Canonical Markdown</span>
+        <strong>/AGENT.md</strong>
+        <p>Best URL to give ChatGPT, Gemini, Copilot, Cursor, Windsurf, and other agents before they generate MarkdyScript.</p>
+      </a>
+      <a class="surface-card" href="/llms.txt">
+        <span>LLM index</span>
+        <strong>/llms.txt</strong>
+        <p>Short machine-readable entry point that points tools to the latest canonical Markdy syntax guide.</p>
+      </a>
+      <a class="surface-card" href="/llms-full.txt">
+        <span>Full context</span>
+        <strong>/llms-full.txt</strong>
+        <p>A single text bundle that includes the complete agent reference for tools that prefer one fetch.</p>
+      </a>
+    </section>
+
+    <section class="prompt-box" aria-labelledby="prompt-title">
+      <div>
+        <span class="kicker">Recommended instruction</span>
+        <h2 id="prompt-title">Tell AI tools to fetch the guide first</h2>
+      </div>
+      <pre><code>{prompt}</code></pre>
+    </section>
+
+    <section class="source-panel" aria-labelledby="source-title">
+      <div class="source-heading">
+        <div>
+          <span class="kicker">Generated from source</span>
+          <h2 id="source-title">docs/AGENT.md</h2>
+        </div>
+        <span class="version">Markdy v{reference.version}</span>
+      </div>
+      <pre class="agent-source"><code>{reference.content}</code></pre>
+    </section>
+  </main>
+</Layout>
+
+<style>
+  .agent-page {
+    width: min(1120px, calc(100% - 2rem));
+    margin: 0 auto;
+    padding: 5rem 0;
+  }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 2rem;
+    color: var(--accent, #047857);
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  .hero {
+    max-width: 820px;
+    margin-bottom: 2rem;
+  }
+
+  .hero h1 {
+    margin: 0.4rem 0 1rem;
+    color: var(--text-primary, #0f172a);
+    font-size: clamp(2.4rem, 5vw, 4.75rem);
+    line-height: 0.98;
+    letter-spacing: -0.06em;
+  }
+
+  .hero p,
+  .surface-card p {
+    color: var(--text-secondary, #475569);
+  }
+
+  .hero a {
+    color: var(--accent, #047857);
+    font-weight: 700;
+  }
+
+  .kicker {
+    color: var(--accent, #047857);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .surface-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+  }
+
+  .surface-card,
+  .prompt-box,
+  .source-panel {
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 24px;
+    background: var(--surface, #ffffff);
+    box-shadow: 0 20px 60px rgba(15, 23, 42, 0.06);
+  }
+
+  .surface-card {
+    display: flex;
+    min-height: 210px;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 1.35rem;
+  }
+
+  .surface-card.primary {
+    border-color: rgba(4, 120, 87, 0.35);
+    background:
+      radial-gradient(circle at top right, rgba(16, 185, 129, 0.14), transparent 42%),
+      var(--surface, #ffffff);
+  }
+
+  .surface-card span {
+    color: var(--accent, #047857);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .surface-card strong {
+    color: var(--text-primary, #0f172a);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 1.35rem;
+  }
+
+  .prompt-box {
+    display: grid;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 1.5rem;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1.35rem;
+  }
+
+  .prompt-box h2,
+  .source-heading h2 {
+    margin-top: 0.35rem;
+    color: var(--text-primary, #0f172a);
+    line-height: 1.1;
+  }
+
+  pre {
+    overflow: auto;
+    margin: 0;
+    border-radius: 18px;
+    background: #0f172a;
+    color: #e2e8f0;
+  }
+
+  .prompt-box pre {
+    padding: 1rem;
+    white-space: pre-wrap;
+  }
+
+  .source-panel {
+    padding: 1.35rem;
+  }
+
+  .source-heading {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .version {
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 999px;
+    padding: 0.45rem 0.75rem;
+    color: var(--text-secondary, #475569);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  .agent-source {
+    max-height: 72vh;
+    padding: 1.2rem;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 860px) {
+    .surface-grid,
+    .prompt-box {
+      grid-template-columns: 1fr;
+    }
+
+    .source-heading {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+</style>

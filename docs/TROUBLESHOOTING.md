@@ -43,7 +43,7 @@ Check that package versions are aligned, assets are reachable, the container exi
 
 ## AI-generated MarkdyScript fails
 
-Give the model `docs/AGENT.md` and ask it to fix the exact line number, keep all nodes declared before flows, use only documented cues and flow operators, and shorten labels.
+Give the model <https://markdy.com/AGENT.md> and ask it to fix the exact line number, keep all nodes declared before flows, use only documented cues and flow operators, and shorten labels.
 
 If the model generates manual drawing, timestamp timeline, or imperative camera commands, ask it to translate the idea into Markdy 0.8:
 

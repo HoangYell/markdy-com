@@ -57,7 +57,7 @@ beat main "Trace the request":
 | **Semantic themes** | `midnight` (dark) and `paper` (light) — consistent colors per node role and edge kind |
 | **Technical diagram vocabulary** | Optional systems pack adds architecture nodes, visual primitives, and labeled flows for software-engineering diagrams |
 | **Astro-ready** | `<Markdy />` island that hydrates on viewport entry |
-| **AI-agent friendly** | Structured DSL that LLMs can generate, validate, and iterate on ([Agent Guide](docs/AGENT.md)) |
+| **AI-agent friendly** | Structured DSL that LLMs can generate, validate, and iterate on ([Agent Guide](https://markdy.com/agent/)) |
 
 ---
 
@@ -221,7 +221,7 @@ try {
 
 ## DSL at a Glance
 
-Full reference: **[docs/SYNTAX.md](docs/SYNTAX.md)** · Step-by-step tutorial: **[docs/TUTORIAL.md](docs/TUTORIAL.md)** · Getting started: **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** · Guides: **[docs/GUIDES.md](docs/GUIDES.md)** · Comparisons: **[docs/COMPARISONS.md](docs/COMPARISONS.md)** · Troubleshooting: **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** · AI agent guide: **[docs/AGENT.md](docs/AGENT.md)**
+Full reference: **[docs/SYNTAX.md](docs/SYNTAX.md)** · Step-by-step tutorial: **[docs/TUTORIAL.md](docs/TUTORIAL.md)** · Getting started: **[docs/GETTING_STARTED.md](docs/GETTING_STARTED.md)** · Guides: **[docs/GUIDES.md](docs/GUIDES.md)** · Comparisons: **[docs/COMPARISONS.md](docs/COMPARISONS.md)** · Troubleshooting: **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** · AI agent guide: **[markdy.com/agent](https://markdy.com/agent/)**
 
 ### Nodes + Beats + Flows
 
@@ -426,7 +426,7 @@ The project is deployed via Cloudflare Pages (Workers Assets).
 |---|---|---|
 | **[SYNTAX.md](docs/SYNTAX.md)** | All users | Complete DSL language reference |
 | **[TUTORIAL.md](docs/TUTORIAL.md)** | Humans | Step-by-step guide from zero to animated scenes |
-| **[AGENT.md](docs/AGENT.md)** | AI agents / LLMs | Structured prompt-ready reference for code generation |
+| **[AGENT.md](docs/AGENT.md)** | AI agents / LLMs | Maintained source for the hosted [agent guide](https://markdy.com/agent/) and [LLM context bundle](https://markdy.com/llms-full.txt) |
 | **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** | Contributors | Technical design, renderer internals, AST shape |
 | **[CONTRIBUTING.md](CONTRIBUTING.md)** | Contributors | Dev setup, code style, PR guidelines |
 
