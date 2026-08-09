@@ -45,3 +45,11 @@ Check that package versions are aligned, assets are reachable, the container exi
 
 Give the model `docs/AGENT.md` and ask it to fix the exact line number, keep all nodes declared before flows, use only documented cues and flow operators, and shorten labels.
 
+If the model generates manual drawing, timestamp timeline, or imperative camera commands, ask it to translate the idea into Markdy 0.8:
+
+- one `scene` line
+- architecture nodes such as `browser`, `gateway`, `service`, `cache`, and `database`
+- multiple `beat name "Caption":` blocks
+- `frame` for camera-like attention
+- `glow` / `focus` for emphasis
+- flow lines with `->`, `<-`, `~>`

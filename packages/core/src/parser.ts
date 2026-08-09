@@ -257,6 +257,13 @@ function parseCueLine(line: string, lineNo: number): Cue {
   const trimmed = line.trim();
   const props = parseProps(trimmed);
 
+  if (/^@\+?\d/.test(trimmed) || /^\w[\w.-]*\.\w+\(/.test(trimmed) || /^camera\./.test(trimmed)) {
+    throw new ParseError(
+      "unsupported timeline command; use beat cues like show, frame, focus, glow, and flow lines",
+      lineNo,
+    );
+  }
+
   const parallelParts = splitOutsideQuotes(trimmed, "&");
   if (parallelParts.length > 1) {
     return {
@@ -458,6 +465,22 @@ function normalizeCueBlocks(blocks: Block[]): Block[] {
   return normalized;
 }
 
+function unsupportedSyntaxMessage(line: string): string | null {
+  if (/^var\s+/.test(line)) {
+    return "unsupported variable declaration; use scene properties and style declarations instead";
+  }
+  if (/^actor\s+/.test(line) || /\bfigure\s*\(/.test(line) || /\bbox\s*\(/.test(line) || /\bat\s*\(/.test(line)) {
+    return "unsupported manual drawing syntax; declare architecture nodes like service API, cache Redis, and database DB";
+  }
+  if (/^@\+?\d/.test(line)) {
+    return "unsupported timeline command; put flow and cue lines inside beat blocks";
+  }
+  if (/^camera\./.test(line)) {
+    return "unsupported camera command; use frame NodeOrGroup zoom=... inside a beat";
+  }
+  return null;
+}
+
 function pushWarning(diagnostics: Diagnostic[], seen: Set<string>, line: number, message: string): void {
   const key = `${line}:${message}`;
   if (seen.has(key)) return;
@@ -554,8 +577,14 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
     const line = block.text;
     const lineNo = block.line;
 
+    const unsupportedMessage = unsupportedSyntaxMessage(line);
+    if (unsupportedMessage) throw new ParseError(unsupportedMessage, lineNo);
+
     if (line.startsWith("scene")) {
       const rest = line.slice(5).trim();
+      if (line.endsWith("{")) {
+        throw new ParseError(`nested scene blocks are not supported; use one scene with multiple beat blocks`, lineNo);
+      }
       let remainder = rest;
       const str = parseStringToken(rest);
       if (str) {

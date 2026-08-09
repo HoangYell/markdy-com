@@ -10,7 +10,22 @@ MarkdyScript 0.8 is **diagram-native**: you declare nodes, groups, and beats, an
 - Default theme is `paper`; default layout direction is `LR`.
 - Keep flow labels short (≤ ~28 chars) so they stay readable.
 - Use beat labels and `frame` when the scene should guide attention through a large diagram.
-- Canonical blocks use `beat name "Label":` with indented cues. The parser also accepts `{ ... }` beat/pattern blocks and `#` comments because many LLMs generate them, but prefer the canonical colon style in final docs.
+- Canonical blocks use `beat name "Label":` with indented cues. The parser also accepts `{ ... }` beat/pattern blocks and `#` comments for compatibility, but prefer the canonical colon style in final docs.
+
+## Translate plain-English ideas into Markdy
+
+When the user describes an idea, infer a clean architecture scene and output one complete `.markdy` file. Do not require the user to know Markdy terms.
+
+| User asks for... | Generate MarkdyScript as... |
+|---|---|
+| people, browser, visitor | `user`, `client`, or `browser` nodes |
+| API gateway / service / cache / database | `gateway`, `service`, `cache`, `database` nodes |
+| steps, chapters, phases | multiple `beat name "Caption":` blocks |
+| camera zoom / focus on part of the system | `frame groupOrNodes zoom=...` |
+| emphasis / highlight | `glow target color=#...` or `focus target` |
+| messages, API calls, redirects | flow lines with `->`, `<-`, `~>` |
+
+If the user prompt is broad, choose sensible nodes, split the story into 3–5 labeled beats, keep labels short, and output only the completed scene unless asked for explanation.
 
 ## Minimal example
 
