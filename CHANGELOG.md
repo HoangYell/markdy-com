@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.7] — 2026-08-09
+
 ### Changed
 - **Human-first AI prompt examples** — Simplified public AI prompt examples so users describe the diagram idea in natural language while the agent guide handles Markdy-specific syntax choices.
 
