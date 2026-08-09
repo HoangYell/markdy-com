@@ -1,6 +1,6 @@
 {
   "name": "@markdy/core",
-  "version": "0.8.7",
+  "version": "0.8.8",
   "description": "MarkdyScript parser and diagram compiler (auto-layout, edge routing, cue scheduling) — zero runtime dependencies.",
   "license": "MIT",
   "type": "module",
