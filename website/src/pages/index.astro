@@ -905,7 +905,7 @@ beat finish:
           </li>
           <li>
             <strong>Describe your scene in plain English</strong>
-            <p>Tell the AI what you want to visualize: architecture flows, product steps, training scenarios, or tutorial sequences.</p>
+            <p>Tell the AI the story you want to explain. You do not need to know node kinds, cue names, or flow operators.</p>
           </li>
           <li>
             <strong>Get valid MarkdyScript back</strong>
@@ -921,12 +921,12 @@ beat finish:
             <span class="ai-prompt-label">You → Claude / ChatGPT / Copilot</span>
           </div>
           <blockquote class="ai-prompt-text">
-            Use <code>https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md</code> as a complete reference (grammar, actions, patterns, examples), then write a Markdy scene:
+            Use <code>https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md</code> to turn this idea into one complete, valid MarkdyScript scene:
             <br /><br />
-            <em>"Create a presentation-quality 1280x720, 60fps system architecture diagram for a URL shortener. Use systems nodes like <code>client</code>, <code>api_gateway</code>, <code>service</code>, <code>cache</code>, and <code>database</code>; set <code>layout LR</code> so auto-layout spreads them left→right; reveal them with <code>show $nodes stagger=60ms</code>; then narrate the write path and read/redirect path across named <code>beat</code> blocks using labeled <code>-&gt;</code>, <code>&lt;-</code>, and <code>~&gt;</code> flow edges; finish with a <code>glow</code> on the hot path and a <code>focus</code> on the cache."</em>
+            <em>"I run a URL shortener. Show how a user creates a short link, then how another user opens that short link and gets redirected. Include the API, URL service, Redis cache, and database. Make it presentation-friendly for a short engineering demo, with clear steps and attention on the fast cache path."</em>
           </blockquote>
         </div>
-        <p class="ai-hint">The AI reads the docs, understands the grammar, and outputs a complete <code>.markdy</code> scene with nodes, groups, routed flow edges, and beat-by-beat choreography — ready to render.</p>
+        <p class="ai-hint">The AI reads the agent guide, chooses the right Markdy node kinds, beats, frame cues, and flow operators, then outputs a complete <code>.markdy</code> scene — ready to paste into the playground.</p>
       </div>
     </div>
 

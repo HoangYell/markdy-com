@@ -174,4 +174,68 @@ beat main:
     expect(cues[1]).toMatchObject({ kind: "flow", segments: [{ from: "C", to: "D" }] });
     expect(cues[2]).toMatchObject({ kind: "frame", targets: ["E"] });
   });
+
+  it("accepts common AI-generated brace blocks, hash comments, and inline scene layout", () => {
+    const ast = parse(`
+scene "URL Shortener Architecture" width=1280 height=720 fps=60 layout LR theme=midnight
+
+# System Nodes
+client Client "Client / Browser"
+api_gateway Gateway "API Gateway"
+service URLService "URL Shortener Service"
+cache Cache "Redis Cache"
+database DB "Primary Database"
+
+# Beat 1: Initial Reveal
+beat reveal "System Initialization" {
+  show $nodes stagger=60ms
+}
+
+# Beat 2: Write Path (Shortening a URL)
+beat write_path "Write Path: Shorten URL" {
+  Client -> Gateway "POST /api/v1/shorten"
+  Gateway -> URLService "Route request"
+  URLService -> DB "Insert original URL & generate hash"
+  URLService ~> Cache "Async write-through / cache populate"
+  Gateway <- URLService "201 Created (shortCode)"
+  Client <- Gateway "201 Created (https://short.url/xyz)"
+}
+
+# Beat 4: Hot Path Emphasis & Focus
+beat hot_path "Hot Path Optimization" {
+  glow Cache color="#00E5FF" strength=1.5 dur=0.8s
+  & focus Cache zoom=1.15 dur=0.8s
+}
+`);
+
+    expect(ast.meta).toMatchObject({
+      title: "URL Shortener Architecture",
+      width: 1280,
+      height: 720,
+      fps: 60,
+      direction: "LR",
+      theme: "midnight",
+    });
+    expect(ast.diagnostics).toEqual([]);
+    expect(ast.beats.map((beat) => beat.name)).toEqual(["reveal", "write_path", "hot_path"]);
+    const writePath = ast.beats.find((beat) => beat.name === "write_path")!;
+    const dbFlow = writePath.cues
+      .filter(isFlow)
+      .flatMap((cue) => cue.segments)
+      .find((segment) => segment.to === "DB");
+    expect(dbFlow?.label).toBe("Insert original URL & generate hash");
+    const response = writePath.cues
+      .filter(isFlow)
+      .flatMap((cue) => cue.segments)
+      .find((segment) => segment.to === "Client");
+    expect(response?.label).toBe("201 Created (https://short.url/xyz)");
+    const hotPath = ast.beats.find((beat) => beat.name === "hot_path")!;
+    expect(hotPath.cues[0]).toMatchObject({
+      kind: "parallel",
+      cues: [
+        { kind: "glow", targets: ["Cache"], color: "#00E5FF", strength: 1.5, dur: 0.8 },
+        { kind: "focus", targets: ["Cache"], zoom: 1.15, dur: 0.8 },
+      ],
+    });
+  });
 });

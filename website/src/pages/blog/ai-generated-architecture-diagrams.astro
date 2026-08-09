@@ -59,12 +59,13 @@ const structuredData = [
   <h2>How to prompt for a Markdy diagram</h2>
   <p>
     Point the model at the <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/AGENT.md" target="_blank" rel="noopener noreferrer">Markdy agent guide</a>
-    (grammar, node kinds, examples) and describe the system in plain English:
+    (grammar, node kinds, examples), then describe the system in plain English. You should not need to mention
+    Markdy cue names, node kinds, or flow operators:
   </p>
   <blockquote>
-    Use the Markdy agent guide. Create a 1280×720 animated architecture diagram for a URL shortener. Use semantic
-    node kinds, beats, labeled flow edges (<code>-&gt;</code>, <code>&lt;-</code>, <code>~&gt;</code>), short labels,
-    and a final <code>glow</code> on the hot path.
+    Use the Markdy agent guide to write one complete MarkdyScript scene. I want to explain a URL shortener to my
+    engineering team: first a user creates a short link, then someone opens that short link and gets redirected.
+    Include the API, URL service, Redis cache, and database. Make it clear enough for a short demo.
   </blockquote>
   <p>You get back a complete, runnable scene:</p>
   <pre><code>scene "URL Shortener" theme=paper

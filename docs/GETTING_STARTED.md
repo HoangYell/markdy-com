@@ -74,8 +74,8 @@ markdy render path/to/scene.markdy --out preview.html
 
 ## 6. Prompt an AI coding agent
 
-Use `docs/AGENT.md` as the full grammar reference and ask for MarkdyScript directly.
+Use `docs/AGENT.md` as the full grammar reference, but prompt with your idea in normal product or architecture language. The AI should translate that idea into valid MarkdyScript.
 
 Example prompt:
 
-> Use the Markdy agent guide. Create a 1280x720 animated architecture diagram for a URL shortener. Include short-link creation, redirect resolution, Redis cache lookup, database fallback, beats, labeled flow edges (`->`, `<-`, `~>`), and a final `glow` on the hot path.
+> Use the Markdy agent guide to write one complete MarkdyScript scene. I want to explain a URL shortener: first a user creates a short link, then someone opens the short link and gets redirected. Show the API, URL service, Redis cache, and database. Make the animation clear enough for a short engineering demo.
