@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.10] — 2026-08-09
+
 ### Added
 - **AI documentation discovery** — Publish the canonical agent guide at `/AGENT.md`, a crawlable `/agent/` mirror, and generated `/llms.txt` plus `/llms-full.txt` endpoints from `docs/AGENT.md` so ChatGPT, Gemini, crawlers, and coding agents can find the latest MarkdyScript syntax without duplicate manual docs. Website, README, package docs, and the CLI `docs`/`ai` output now point AI tools at these hosted canonical URLs.
 - **Diagram-native roadmap article** — Added a “Why Markdy focuses on animated architecture diagrams” article that explains the shift from general animation syntax toward semantic system diagrams, using developer feedback as the product narrative without amplifying the original discussion thread.
