@@ -23,6 +23,7 @@ const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 const KEYWORDS = [
   "scene",
   "layout",
+  "var",
   "group",
   "beat",
   "style",
@@ -50,7 +51,7 @@ function extractNodes(text: string): Array<{ name: string; kind: string; line: n
     const raw = lines[i].trim();
     const m = /^(\w[\w.-]*)\s+(\w[\w.-]*)/.exec(raw);
     if (!m) continue;
-    if (["scene", "layout", "group", "beat", "style", "pattern", "edge", "use"].includes(m[1])) continue;
+    if (["scene", "layout", "var", "group", "beat", "style", "pattern", "edge", "use"].includes(m[1])) continue;
     if (NODE_KINDS.has(m[1].toLowerCase())) {
       nodes.push({ kind: m[1], name: m[2], line: i });
     }

@@ -67,6 +67,21 @@ scene "Title" theme=paper width=1280 height=720 fps=60 duration=8
 layout LR   # LR (default), RL, TB, BT
 ```
 
+### `var` — named constants (optional)
+
+Declare reusable values (colors, durations) and reference them with `$name`. Substitution happens at parse time, so it stays deterministic.
+
+```markdy
+var hot = "#a6e3a1"
+var cool = #3b82f6
+
+beat main:
+  glow Redis color=$hot
+  glow DB color=$cool
+```
+
+Var names must not shadow reserved selectors (`nodes`, `title`, `edges`).
+
 ### Node declaration
 
 ```markdy
@@ -90,6 +105,14 @@ group storage: DB Redis
 group storage "Storage tier": DB Redis   # optional label
 ```
 
+Members may also be listed on indented lines:
+
+```markdy
+group storage "Storage tier":
+  DB
+  Redis
+```
+
 Target a group anywhere a node id is accepted (`show storage`, `glow storage`).
 
 ### `style` — reusable node styling
@@ -101,7 +124,7 @@ database Primary "Primary DB" style=hot
 
 ### `beat` — a named block of cues
 
-Cues inside a beat are scheduled in order. Beats run one after another.
+Cues inside a beat are scheduled in order. Beats run one after another. Beats are **sequential, not timestamped** — do not try to set absolute start times; ordering and cue durations determine timing. Use a short word name plus an optional caption label.
 
 ```markdy
 beat checkout "Process checkout":
@@ -147,6 +170,8 @@ You may put `&` at the start of the next line as a continuation when an AI gener
 | `focus` | `zoom`, `dur` | Pulse-scale a node to draw attention |
 | `frame` | `zoom`, `dur` | Move the scene camera to a node or group (`frame $nodes` resets to the whole diagram) |
 | `use` | pattern args | Expand a `pattern` |
+
+This is the **complete** cue set — do not invent others (no `pulse`, `caption`, `dim`, `trail`, `camera`, `shake`, `say`, `walk`, …). Natural synonyms `pulse`, `highlight`, and `emphasize` are accepted and map to `focus`/`glow`. For attention use `frame`; for emphasis use `glow`/`focus`; to de-emphasize, reveal the important node with `glow` rather than dimming others.
 
 Selectors: `$nodes` targets every node; a group name targets its members.
 

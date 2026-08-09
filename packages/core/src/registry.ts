@@ -11,7 +11,22 @@ export const EDGE_OPERATORS: Record<string, "request" | "response" | "event" | "
 
 export const RESERVED_SELECTORS = new Set(["$title", "$nodes", "$edges"]);
 
-export const BEAT_CUE_KEYWORDS = new Set(["show", "hide", "glow", "focus", "frame", "use"]);
+/** Natural-language cue synonyms that AIs reach for, mapped to real cues. */
+export const CUE_ALIASES: Record<string, string> = {
+  pulse: "focus",
+  highlight: "glow",
+  emphasize: "glow",
+};
+
+export const BEAT_CUE_KEYWORDS = new Set([
+  "show",
+  "hide",
+  "glow",
+  "focus",
+  "frame",
+  "use",
+  ...Object.keys(CUE_ALIASES),
+]);
 
 export const SCENE_KEYS = new Set(["width", "height", "fps", "theme", "duration", "direction", "layout"]);
 

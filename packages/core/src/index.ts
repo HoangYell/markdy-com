@@ -29,6 +29,7 @@ export {
   NODE_KINDS,
   EDGE_OPERATORS,
   NODE_ALIASES,
+  CUE_ALIASES,
   BEAT_CUE_KEYWORDS,
   SCENE_KEYS,
   canonicalNodeKind,
