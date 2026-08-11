@@ -82,7 +82,6 @@ Focused modes keep the same grammar while changing composition:
 | `state` | Cycle-safe state transitions and self-loops |
 | `sequence` | Participant columns, lifelines, ordered messages, and activation spans |
 | `constellation` | Radial focal node, orbit rings, and deterministic star field |
-
 **Size the canvas for how dense the diagram is.** The default 1280×720 only comfortably fits small diagrams. Auto-layout spaces nodes evenly across ranks (columns in `LR`/`RL`, rows in `TB`/`BT`) and rows within a rank — it does not grow the canvas or shrink nodes to make room. Before finalizing a scene, count (a) the number of distinct ranks (roughly the longest chain of forward edges from any source node) and (b) the busiest rank (the most nodes sharing the same depth, e.g. one service fanning out to many dependents). Nodes are ~168×72px, so as a rule of thumb pick:
 
 - `width` ≳ 180px × (rank count)
