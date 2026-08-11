@@ -442,7 +442,7 @@ beat main:
     expect(compile(ast).annotations).toHaveLength(2);
   });
 
-  it("recovers multi-line groups and colon beats when indentation is stripped", () => {
+  it("recovers multi-line groups and colon beats when indentation is stripped without warnings", () => {
     // Hosts like MDX/JSX template literals often strip leading whitespace.
     // Simulate that loss: members/cues sit at the same indent as headers.
     const ast = parse(`
@@ -479,9 +479,7 @@ Core -> LLM "stream"
     expect(ast.beats).toHaveLength(2);
     expect(ast.beats[0].cues.length).toBeGreaterThan(0);
     expect(ast.beats[1].cues.length).toBeGreaterThan(0);
-    expect(
-      ast.diagnostics.some((d) => d.message.includes("had no indentation")),
-    ).toBe(true);
+    expect(ast.diagnostics).toEqual([]);
   });
 
   it("still errors when a de-indented group has no members before the next statement", () => {

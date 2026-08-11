@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.14] — 2026-08-11
+
+### Fixed
+- **Silent MDX/JSX indent recovery** — `@markdy/core` now treats successful recovery from host-stripped colon-body indentation as normal parsing behavior instead of emitting browser-visible warnings through `@markdy/renderer-dom`.
+
 ## [0.8.13] — 2026-08-11
 
 ### Fixed
