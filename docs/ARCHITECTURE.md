@@ -72,13 +72,16 @@ The parser reads indentation-aware blocks:
 ```
 for each block in source:
   1. Match against statement patterns (scene, layout, style, node, group, edge, pattern, beat)
-  2. Collect indented cue lines for beat/pattern blocks
-  3. Throw ParseError(lineNumber) on any unrecognised input
+  2. Collect indented cue/member lines for beat/pattern/group colon bodies
+  3. If a colon body has no indented children (MDX/JSX often strips whitespace),
+     recover by reading same-indent lines until the next top-level statement
+  4. Throw ParseError(lineNumber) on any unrecognised input
 ```
 
 **Key implementation details:**
 
 - **Strict grammar:** Statements outside the diagram grammar raise a line-numbered `ParseError`
+- **Indent recovery:** Soft-body fallback for de-indented colon groups/beats/patterns emits a diagnostic warning instead of failing empty
 - **Comment stripping:** `//` line comments are removed before parsing
 - **Flow labels:** A trailing quoted string on a flow target becomes the edge label; response (`<-`) segments are stored in data-flow direction
 - **Pattern expansion:** `use name(args)` expands a `pattern` body with `$param` substitution
@@ -183,7 +186,8 @@ observer.unobserve(el) → hydrate(el)
 createDiagram({ container: el, code, assets, autoplay, loop, copyright, progressBar })
 ```
 
-- `data-markdy-code` — MarkdyScript source stored on the DOM element
+- `data-markdy-code-b64` — MarkdyScript source, base64-encoded so HTML attribute whitespace normalization cannot strip indentation required by colon bodies
+- `data-markdy-code` — legacy raw MarkdyScript attribute (still read as a fallback for older builds)
 - `data-markdy-assets` — JSON-serialised asset overrides
 - `data-markdy-autoplay` — `"true"` / `"false"`
 - `data-markdy-loop` — `"true"` / `"false"`

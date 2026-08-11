@@ -76,11 +76,18 @@ const {
   title = "Markdy animation",
   description,
 } = Astro.props;
+
+// Base64 avoids HTML attribute whitespace normalization, which strips the
+// leading indentation MarkdyScript uses for colon bodies (groups/beats).
+const codeB64 =
+  typeof Buffer !== "undefined"
+    ? Buffer.from(code, "utf8").toString("base64")
+    : btoa(unescape(encodeURIComponent(code)));
 ---
 
 <div
   class:list={["markdy-root", className]}
-  data-markdy-code={code}
+  data-markdy-code-b64={codeB64}
   data-markdy-assets={JSON.stringify(assets)}
   data-markdy-autoplay={String(autoplay)}
   data-markdy-loop={String(loop)}
@@ -233,8 +240,19 @@ const {
   // host-page bundle.  The browser only downloads it when an element is
   // about to enter the viewport, keeping Time-to-Interactive low.
 
+  function readMarkdyCode(el: HTMLElement): string | undefined {
+    const b64 = el.dataset.markdyCodeB64;
+    if (b64) {
+      const binary = atob(b64);
+      const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    }
+    // Legacy pages built before base64 encoding.
+    return el.dataset.markdyCode;
+  }
+
   async function hydrate(el: HTMLElement, forcePlay = false): Promise<void> {
-    const code = el.dataset.markdyCode;
+    const code = readMarkdyCode(el);
     if (!code) return;
 
     let assets: Record<string, string> = {};

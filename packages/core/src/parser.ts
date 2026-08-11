@@ -483,8 +483,78 @@ function readIndentedBody(blocks: Block[], startIdx: number, parentIndent: numbe
   return { body, nextIdx: i };
 }
 
-function readBody(blocks: Block[], startIdx: number, parentIndent: number, braceDelimited: boolean): { body: Block[]; nextIdx: number } {
-  if (!braceDelimited) return readIndentedBody(blocks, startIdx, parentIndent);
+const TOP_LEVEL_KEYWORDS_RE =
+  /^(scene|layout|pattern|group|annotation|edge|beat|var|style)\b/;
+
+/**
+ * True for statements that open a new top-level construct. Used to recover
+ * colon bodies when a host (MDX/JSX template literals, HTML attribute
+ * serialization) strips the indentation that normally delimits them.
+ */
+function isTopLevelStatement(line: string): boolean {
+  if (line === "}") return true;
+  if (TOP_LEVEL_KEYWORDS_RE.test(line)) return true;
+  const nodeMatch = line.match(/^(\w[\w.-]*)\s+(\w[\w.-]*)/);
+  if (!nodeMatch) return false;
+  const kind = canonicalNodeKind(nodeMatch[1].toLowerCase());
+  return NODE_KINDS.has(kind);
+}
+
+/**
+ * Colon bodies are normally indentation-delimited. When indentation is lost,
+ * fall back to consuming same-indent lines until the next structural
+ * top-level statement so diagrams still parse in MDX/blog hosts.
+ */
+function readColonBody(
+  blocks: Block[],
+  startIdx: number,
+  parentIndent: number,
+  diagnostics: Diagnostic[],
+  context: string,
+  headerLine: number,
+): { body: Block[]; nextIdx: number } {
+  const indented = readIndentedBody(blocks, startIdx, parentIndent);
+  if (indented.body.length > 0 || startIdx >= blocks.length) {
+    return indented;
+  }
+
+  if (isTopLevelStatement(blocks[startIdx].text)) {
+    return indented;
+  }
+
+  const body: Block[] = [];
+  let i = startIdx;
+  while (i < blocks.length) {
+    const block = blocks[i];
+    if (block.indent < parentIndent) break;
+    if (block.indent === parentIndent && isTopLevelStatement(block.text)) break;
+    body.push(block);
+    i++;
+  }
+
+  if (body.length > 0) {
+    diagnostics.push({
+      severity: "warning",
+      message: `${context} body had no indentation; parsed until the next top-level statement (hosts like MDX/JSX often strip indent from template literals)`,
+      line: headerLine,
+    });
+  }
+
+  return { body, nextIdx: i };
+}
+
+function readBody(
+  blocks: Block[],
+  startIdx: number,
+  parentIndent: number,
+  braceDelimited: boolean,
+  diagnostics: Diagnostic[] = [],
+  context = "block",
+  headerLine = 1,
+): { body: Block[]; nextIdx: number } {
+  if (!braceDelimited) {
+    return readColonBody(blocks, startIdx, parentIndent, diagnostics, context, headerLine);
+  }
   const body: Block[] = [];
   let i = startIdx;
   while (i < blocks.length) {
@@ -800,7 +870,15 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
       const m = line.match(/^pattern\s+(\w+)\s*\(([^)]*)\)\s*(?::|\{)\s*$/);
       if (!m) throw new ParseError(`expected pattern name(params):`, lineNo);
       const params = m[2].trim() ? m[2].split(",").map((p) => p.trim()) : [];
-      const { body, nextIdx } = readBody(blocks, i + 1, block.indent, line.endsWith("{"));
+      const { body, nextIdx } = readBody(
+        blocks,
+        i + 1,
+        block.indent,
+        line.endsWith("{"),
+        diagnostics,
+        `pattern '${m[1]}'`,
+        lineNo,
+      );
       const cues = normalizeCueBlocks(body).map((b) => parseCueLine(b.text, b.line));
       patterns[m[1]] = { name: m[1], params, body: cues, line: lineNo };
       i = nextIdx;
@@ -820,10 +898,18 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
         i++;
         continue;
       }
-      // Multi-line form: `group name ["Label"]:` followed by indented members.
+      // Multi-line form: `group name ["Label"]:` followed by members.
+      // Prefer indented members; recover when hosts strip indentation.
       const header = line.match(/^group\s+(\w+)(?:\s+"([^"]*)")?\s*:\s*$/);
       if (!header) throw new ParseError(`expected group name: A B C`, lineNo);
-      const { body, nextIdx } = readIndentedBody(blocks, i + 1, block.indent);
+      const { body, nextIdx } = readColonBody(
+        blocks,
+        i + 1,
+        block.indent,
+        diagnostics,
+        `group '${header[1]}'`,
+        lineNo,
+      );
       const members = body.flatMap((b) => splitTargets(b.text));
       if (members.length === 0) throw new ParseError(`group '${header[1]}' has no members`, lineNo);
       groups[header[1]] = {
@@ -877,7 +963,15 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
     if (line.startsWith("beat ")) {
       const m = line.match(/^beat\s+([\w.-]+)(?:\s+"([^"]*)")?\s*(?::|\{)\s*$/);
       if (!m) throw new ParseError(`expected beat name:`, lineNo);
-      const { body, nextIdx } = readBody(blocks, i + 1, block.indent, line.endsWith("{"));
+      const { body, nextIdx } = readBody(
+        blocks,
+        i + 1,
+        block.indent,
+        line.endsWith("{"),
+        diagnostics,
+        `beat '${m[1]}'`,
+        lineNo,
+      );
       let cues = normalizeCueBlocks(body).map((b) => parseCueLine(b.text, b.line));
       cues = expandPatternCues(cues, patterns, lineNo);
       beats.push({ name: m[1], label: m[2], cues, line: lineNo });
