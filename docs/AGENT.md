@@ -70,6 +70,13 @@ scene "Title" theme=paper width=1280 height=720 fps=60 duration=8
 
 `layout LR` may be a separate statement (preferred) or inline on the `scene` line for AI-generated compatibility.
 
+**Size the canvas for how dense the diagram is.** The default 1280×720 only comfortably fits small diagrams. Auto-layout spaces nodes evenly across ranks (columns in `LR`/`RL`, rows in `TB`/`BT`) and rows within a rank — it does not grow the canvas or shrink nodes to make room. Before finalizing a scene, count (a) the number of distinct ranks (roughly the longest chain of forward edges from any source node) and (b) the busiest rank (the most nodes sharing the same depth, e.g. one service fanning out to many dependents). Nodes are ~168×72px, so as a rule of thumb pick:
+
+- `width` ≳ 180px × (rank count)
+- `height` ≳ 100px × (max nodes in the busiest rank)
+
+For anything beyond ~4 ranks or ~5 nodes in one rank, bump `width`/`height` well past the default (e.g. `width=1600-1800 height=850-960`) rather than leaving it implicit.
+
 ### `layout` — auto-layout direction
 
 ```markdy
@@ -165,6 +172,21 @@ Web <- API "201 Created"
 ```
 
 Flows may appear inside a `beat` (animated) or at the top level as `edge id: A -> B "label"` (static declaration).
+
+**Layout is derived from `->`/`~>`/`--` edges, so getting the direction wrong causes overlapping nodes.** The auto-layout ranks nodes by longest path through forward edges (`->`, `~>`, `--`); `<-` edges are excluded from ranking because they represent a reply, not a new hop. If you model a reply, callback, or return value with `->` instead of `<-` — even several beats later, even between nodes that already have a forward edge the other way — you create a cycle. The layout engine has no cycle detection: it will keep pushing the looped nodes (and everything downstream of them) to a deeper and deeper rank until most of the diagram is crushed into one or two columns and every node overlaps. Always use `<-` for anything that is conceptually "handing a result back," no matter how far downstream:
+
+```markdy
+# WRONG — Store -> Runner here closes a loop with the earlier Runner -> Store,
+# so Runner and Store (and everything after them) collapse onto each other.
+beat prompt:
+  Runner -> Store "get_prompt"
+  Store -> Runner "compiled prompt"
+
+# RIGHT — the reply uses <-, so it's excluded from ranking and the cycle never forms.
+beat prompt:
+  Runner -> Store "get_prompt"
+  Runner <- Store "compiled prompt"
+```
 
 ### Cues
 
@@ -304,6 +326,8 @@ beat main:
 - Use `frame groupName zoom=...` for attention, not manual coordinates or extra duplicate nodes.
 - Reset the camera with `frame $nodes` before a loop so the diagram returns to the full view.
 - Do not rely on Mermaid syntax. Markdy accepts brace blocks and `#` comments for compatibility, but flow/cue statements still need Markdy node ids, operators, and cue names.
+- Never write a reply/callback/return value as `->`. If B already led to A (directly or through a chain), the edge back to A must be `<-`, or you create a cycle that collapses the layout and overlaps nodes.
+- For dense diagrams (roughly >4 ranks deep or >5 nodes at the same depth), explicitly set a larger `width`/`height` — don't leave the 1280×720 default to a diagram it can't fit.
 
 ## Validation checklist
 
@@ -312,6 +336,8 @@ beat main:
 - [ ] Flow operators are one of `->`, `<-`, `~>`, `--`.
 - [ ] Cues and flows are inside `beat` blocks.
 - [ ] Theme is `paper`, `midnight`, `blueprint`, or `graphite`; layout is `LR`/`RL`/`TB`/`BT`.
+- [ ] No pair of nodes is connected by `->`/`~>`/`--` in both directions, directly or through a longer chain (that's a cycle — the reply leg must be `<-`).
+- [ ] Canvas is sized for the diagram's depth/fan-out (see sizing rule of thumb above), not left at the 1280×720 default for a large scene.
 
 ## Integration code
 

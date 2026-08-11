@@ -108,11 +108,12 @@ scene "Arrows in labels" theme=midnight
 layout LR
 service API
 database DB
+cache Cache
 
 beat main:
   API -> DB "STORE xyz123 -> long URL"
   API <- DB "301 -> redirect"
-  API -> DB "a -> b" -> DB "next"
+  API -> DB "a -> b" -> Cache "next"
 `);
     const beat = ast.beats[0];
     const segments = beat.cues.filter(isFlow).flatMap((c) => c.segments);
@@ -120,7 +121,38 @@ beat main:
     expect(segments[0]).toMatchObject({ from: "API", op: "request", to: "DB", label: "STORE xyz123 -> long URL" });
     expect(segments[1]).toMatchObject({ from: "DB", op: "response", to: "API", label: "301 -> redirect" });
     expect(segments[2]).toMatchObject({ from: "API", op: "request", to: "DB", label: "a -> b" });
-    expect(segments[3]).toMatchObject({ from: "DB", op: "request", to: "DB", label: "next" });
+    expect(segments[3]).toMatchObject({ from: "DB", op: "request", to: "Cache", label: "next" });
+  });
+
+  it("warns when a forward edge closes a cycle instead of using a response arrow", () => {
+    const ast = parse(`
+scene "Mislabeled reply" theme=paper
+layout LR
+service Runner
+module Store
+
+beat main:
+  Runner -> Store "get_prompt"
+  Store -> Runner "compile(**vars)"
+`);
+    expect(ast.diagnostics).toHaveLength(1);
+    expect(ast.diagnostics[0]).toMatchObject({ severity: "warning" });
+    expect(ast.diagnostics[0].message).toMatch(/flow cycle detected: Runner -> Store -> Runner/);
+    expect(ast.diagnostics[0].message).toMatch(/use '<-'/);
+  });
+
+  it("does not flag a correctly marked request/response pair as a cycle", () => {
+    const ast = parse(`
+scene "Request response" theme=paper
+layout LR
+service Runner
+module Store
+
+beat main:
+  Runner -> Store "get_prompt"
+  Runner <- Store "compile(**vars)"
+`);
+    expect(ast.diagnostics).toEqual([]);
   });
 
   it("only references declared nodes in compiled flow cues", () => {
