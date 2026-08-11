@@ -68,17 +68,67 @@ beat main:
 - `midnight` — dark developer canvas
 - `blueprint` — technical blueprint canvas
 - `graphite` — restrained dark graphite canvas
+- `editorial` — flat editorial paper with serif titles and semantic ink/accent roles (opt-in for documentation-style diagrams)
+
+### Diagram types (opt-in)
+
+Add `type=` on the scene line to tune layout and node shapes without changing the core grammar:
+
+| Type | Layout behavior |
+|---|---|
+| `architecture` | Default ranked graph (LR/TB from `layout`) |
+| `flowchart` | Top-down process/decision shapes |
+| `tree` | Parent/child tiers with shared sibling buses |
+| `state` | Cycle-safe state placement and transition routing |
+| `sequence` | Participant columns, lifelines, ordered messages, and activations |
+
+```markdy
+scene "Checkout" theme=editorial type=flowchart
+layout TB
+start Start
+decision Valid "Valid cart?"
+end End
+```
+
+### Visual primitives
+
+Optional visual primitives parse as nodes and reuse semantic styling. `stat`/`metric` accept `value=...`:
+
+`surface`/`panel`, `terminal`, `stat`/`metric`, `matrix`/`grid`, `track`/`lane`, `dot`/`marker`, `chips`/`token_strip`, `glyph`/`glyph_card`
+
+```markdy
+stat P95Latency "P95 latency" value="142 ms"
+matrix Regions "Deployment matrix"
+```
+
+### Structural edges
+
+Declare persistent topology outside beats; renderer draws it behind animated flow edges. `$edges` can target persistent or animated edges for `show`, `hide`, `glow`, `focus`, and `frame`:
+
+```markdy
+edge backbone: Client -> Gateway -> API
+```
+
+### Annotations
+
+Up to two editorial callouts anchor to a node (default position `top-right`):
+
+```markdy
+annotation "Hot path" target=Redis position=top-right
+```
 
 ### Cues
 
 | Cue | Description | Parameters |
 |---|---|---|
-| `show` | Reveal nodes or groups | `stagger`, `dur` |
-| `hide` | Fade nodes out | `dur` |
+| `show` | Reveal nodes, groups, or edges | `stagger`, `dur` |
+| `hide` | Fade nodes or edges out | `dur` |
 | `glow` | Emphasize with a colored glow | `color`, `strength`, `dur` |
 | `focus` | Pulse-scale nodes to draw attention | `zoom`, `dur` |
 | `frame` | Move the scene camera to a node or group | `zoom`, `dur` |
 | `use` | Expand a pattern | pattern args |
+
+Selectors: `$nodes`, `$edges`, `$groupName`, and declared `group` ids.
 
 `frame $nodes` returns the camera to the full diagram — a good final cue for looping scenes.
 

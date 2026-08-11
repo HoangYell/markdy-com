@@ -12,8 +12,58 @@ export function round1(n: number): number {
   return Math.round(n * 10) / 10;
 }
 
-export function toPathD(points: Point[]): string {
-  return points.map((p, i) => `${i === 0 ? "M" : "L"} ${round1(p.x)} ${round1(p.y)}`).join(" ");
+export function toPathD(points: Point[], cornerRadius = 8): string {
+  if (points.length < 2) return "";
+  if (points.length === 2) {
+    const [a, b] = points;
+    return `M ${round1(a.x)} ${round1(a.y)} L ${round1(b.x)} ${round1(b.y)}`;
+  }
+  if (cornerRadius <= 0) {
+    return points.map((p, i) => (i === 0 ? `M ${round1(p.x)} ${round1(p.y)}` : `L ${round1(p.x)} ${round1(p.y)}`)).join(" ");
+  }
+
+  const parts: string[] = [`M ${round1(points[0].x)} ${round1(points[0].y)}`];
+  for (let i = 1; i < points.length; i++) {
+    const prev = points[i - 1];
+    const cur = points[i];
+    const next = points[i + 1];
+    if (!next) {
+      parts.push(`L ${round1(cur.x)} ${round1(cur.y)}`);
+      continue;
+    }
+    const dx1 = cur.x - prev.x;
+    const dy1 = cur.y - prev.y;
+    const dx2 = next.x - cur.x;
+    const dy2 = next.y - cur.y;
+    const len1 = Math.hypot(dx1, dy1);
+    const len2 = Math.hypot(dx2, dy2);
+    if (len1 < 0.01 || len2 < 0.01) {
+      parts.push(`L ${round1(cur.x)} ${round1(cur.y)}`);
+      continue;
+    }
+    const r = Math.min(cornerRadius, len1 / 2, len2 / 2);
+    const bx = cur.x - (dx1 / len1) * r;
+    const by = cur.y - (dy1 / len1) * r;
+    const ax = cur.x + (dx2 / len2) * r;
+    const ay = cur.y + (dy2 / len2) * r;
+    parts.push(`L ${round1(bx)} ${round1(by)}`);
+    parts.push(`Q ${round1(cur.x)} ${round1(cur.y)} ${round1(ax)} ${round1(ay)}`);
+  }
+  return parts.join(" ");
+}
+
+/** Self-loop arc above a node card. */
+export function selfLoopPath(rect: { x: number; y: number; width: number; height: number }): Point[] {
+  const top = rect.y;
+  const left = rect.x + rect.width * 0.25;
+  const right = rect.x + rect.width * 0.75;
+  const apex = top - 36;
+  return [
+    { x: left, y: top },
+    { x: left, y: apex },
+    { x: right, y: apex },
+    { x: right, y: top },
+  ];
 }
 
 export function polylineLength(points: Point[]): number {
@@ -166,6 +216,12 @@ function clampPointToScene(point: Point, bounds: { width: number; height: number
   };
 }
 
+function laneOffset(lane: number): number {
+  if (lane <= 0) return 0;
+  const step = Math.ceil(lane / 2);
+  return (lane % 2 === 1 ? 1 : -1) * step * 18;
+}
+
 function routeLength(points: Point[]): number {
   let total = 0;
   for (let i = 0; i < points.length - 1; i++) total += segmentLength(points[i], points[i + 1]);
@@ -203,7 +259,7 @@ export function routeOrthogonal(
   bounds: { width: number; height: number },
   lane = 0,
 ): Point[] {
-  const laneShift = lane * 18;
+  const laneShift = laneOffset(lane);
   const sourceCenter = rectCenter(sourceRect);
   const targetCenter = rectCenter(targetRect);
 
@@ -213,12 +269,24 @@ export function routeOrthogonal(
     Math.abs(targetCenter.x - sourceCenter.x) >= Math.abs(targetCenter.y - sourceCenter.y);
 
   const source: Point = horizontalPrimary
-    ? { x: targetCenter.x >= sourceCenter.x ? sourceRect.x2 : sourceRect.x1, y: sourceCenter.y }
-    : { x: sourceCenter.x, y: targetCenter.y >= sourceCenter.y ? sourceRect.y2 : sourceRect.y1 };
+    ? {
+        x: targetCenter.x >= sourceCenter.x ? sourceRect.x2 : sourceRect.x1,
+        y: clamp(sourceCenter.y + laneShift, sourceRect.y1 + 12, sourceRect.y2 - 12),
+      }
+    : {
+        x: clamp(sourceCenter.x + laneShift, sourceRect.x1 + 12, sourceRect.x2 - 12),
+        y: targetCenter.y >= sourceCenter.y ? sourceRect.y2 : sourceRect.y1,
+      };
 
   const target: Point = horizontalPrimary
-    ? { x: targetCenter.x >= sourceCenter.x ? targetRect.x1 : targetRect.x2, y: targetCenter.y }
-    : { x: targetCenter.x, y: targetCenter.y >= sourceCenter.y ? targetRect.y1 : targetRect.y2 };
+    ? {
+        x: targetCenter.x >= sourceCenter.x ? targetRect.x1 : targetRect.x2,
+        y: clamp(targetCenter.y + laneShift, targetRect.y1 + 12, targetRect.y2 - 12),
+      }
+    : {
+        x: clamp(targetCenter.x + laneShift, targetRect.x1 + 12, targetRect.x2 - 12),
+        y: targetCenter.y >= sourceCenter.y ? targetRect.y1 : targetRect.y2,
+      };
 
   const infl = obstacles.map((o) => inflateRect(o, 8));
   const candidates: Point[][] = [];

@@ -44,6 +44,7 @@ beat main:
 ```
 
 The coolest part is that layout and edge routing are automatic — you never place a node or draw a line by hand.
+For focused stories, the same syntax supports `type=flowchart`, `type=tree`, `type=state`, and `type=sequence`; `theme=editorial` is available for flat documentation scenes.
 
 ### Why WAAPI over GSAP?
 A huge focus for Markdy was keeping the bundle size microscopic. Because Markdy compiles down to CSS Transforms and the browser-native Web Animations API, the parser and renderer combined are less than `35kb` (compared to GSAP's massive core).

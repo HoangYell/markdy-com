@@ -88,13 +88,30 @@ export function applyThemeToScene(scene: HTMLElement, theme: ThemeTokens): void 
   scene.style.setProperty("--md-border", theme.border);
   scene.style.setProperty("--md-text", theme.text);
   scene.style.setProperty("--md-text-muted", theme.textMuted);
+  scene.style.setProperty("--md-paper", theme.paper ?? theme.canvas);
+  scene.style.setProperty("--md-ink", theme.ink ?? theme.text);
+  scene.style.setProperty("--md-muted", theme.muted ?? theme.textMuted);
+  scene.style.setProperty("--md-rule", theme.rule ?? theme.border);
   scene.style.setProperty("--md-grid-minor", theme.gridMinor);
   scene.style.setProperty("--md-grid-major", theme.gridMajor);
   scene.style.setProperty("--md-vignette", theme.vignette);
   scene.style.setProperty("--md-accent", theme.accent);
+  if (theme.link) scene.style.setProperty("--md-link", theme.link);
+  if (theme.soft) scene.style.setProperty("--md-soft", theme.soft);
+  if (theme.accentTint) scene.style.setProperty("--md-accent-tint", theme.accentTint);
   scene.style.setProperty("--md-node-surface", theme.nodeSurface ?? theme.surface);
   scene.style.setProperty("--md-node-surface-raised", theme.nodeSurfaceRaised ?? theme.surfaceRaised);
   scene.style.setProperty("--md-hairline", theme.hairline ?? `color-mix(in srgb, ${theme.border} 50%, transparent)`);
   scene.style.setProperty("--md-shadow", theme.shadow ?? "rgba(2, 6, 23, 0.55)");
+  if (theme.fonts?.title) scene.style.setProperty("--md-font-title", theme.fonts.title);
+  if (theme.fonts?.nodeName) scene.style.setProperty("--md-font-node", theme.fonts.nodeName);
+  if (theme.fonts?.mono) scene.style.setProperty("--md-font-mono", theme.fonts.mono);
+  if (theme.radiusMd) scene.style.setProperty("--md-radius-md", `${theme.radiusMd}px`);
+  if (theme.spacing) {
+    for (const [key, value] of Object.entries(theme.spacing)) {
+      scene.style.setProperty(`--md-space-${key}`, `${value}px`);
+    }
+  }
   scene.dataset.markdyTheme = theme.name;
+  if (theme.flatCards) scene.dataset.flat = "1";
 }

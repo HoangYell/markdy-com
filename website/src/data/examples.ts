@@ -21,7 +21,7 @@ export interface ExampleMeta {
   /** Architecture pattern label for docs/gallery filtering. */
   pattern?: string;
   /** Semantic theme used by the scene. */
-  theme?: "midnight" | "paper" | "blueprint" | "graphite";
+  theme?: "midnight" | "paper" | "blueprint" | "graphite" | "editorial";
   /** Path relative to the repo's `examples/` directory. */
   file: string;
   playback?: {
@@ -87,6 +87,46 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
     pattern: "ci-cd",
     theme: "paper",
     file: "showcase/cicd-delivery-pipeline.markdy",
+  },
+  {
+    id: "editorial-architecture",
+    title: "API Platform Architecture",
+    category: "architecture",
+    pattern: "tiered-platform",
+    theme: "editorial",
+    file: "showcase/editorial-architecture.markdy",
+  },
+  {
+    id: "editorial-flowchart",
+    title: "Checkout Flowchart",
+    category: "education",
+    pattern: "decision-flow",
+    theme: "editorial",
+    file: "showcase/editorial-flowchart.markdy",
+  },
+  {
+    id: "editorial-tree",
+    title: "Engineering Org Tree",
+    category: "architecture",
+    pattern: "hierarchy",
+    theme: "editorial",
+    file: "showcase/editorial-tree.markdy",
+  },
+  {
+    id: "editorial-state",
+    title: "Order Lifecycle State",
+    category: "ui-state",
+    pattern: "lifecycle",
+    theme: "editorial",
+    file: "showcase/editorial-state.markdy",
+  },
+  {
+    id: "editorial-sequence",
+    title: "Login Sequence",
+    category: "architecture",
+    pattern: "request-sequence",
+    theme: "editorial",
+    file: "showcase/editorial-sequence.markdy",
   },
 ];
 

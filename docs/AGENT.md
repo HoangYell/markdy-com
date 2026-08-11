@@ -17,6 +17,7 @@ When generating MarkdyScript, fetch the current hosted guide instead of relying 
 - Use architecture node declarations directly: `service API`, `database DB`, `queue Events`, `cache Redis`, `cloud Aws`.
 - Prefer concise beats over manual positioning — layout is automatic.
 - Default theme is `paper`; default layout direction is `LR`.
+- Use `theme=editorial` for flat documentation-style scenes, or choose `midnight`, `blueprint`, or `graphite` for darker technical canvases.
 - Keep flow labels short (≤ ~28 chars) so they stay readable.
 - Use beat labels and `frame` when the scene should guide attention through a large diagram.
 - Canonical blocks use `beat name "Label":` with indented cues. The parser also accepts `{ ... }` beat/pattern blocks and `#` comments for compatibility, but prefer the canonical colon style in final docs.
@@ -63,12 +64,23 @@ scene "Title" theme=paper width=1280 height=720 fps=60 duration=8
 | Property | Default | Description |
 |---|---|---|
 | title (bare string) | — | Optional scene title, shown top-left |
-| `theme` | `paper` | Semantic palette: `paper` (light), `midnight` (dark), `blueprint`, or `graphite` |
+| `theme` | `paper` | Semantic palette: `paper` (light), `midnight` (dark), `blueprint`, `graphite`, or `editorial` |
 | `width` / `height` | `1280` / `720` | Canvas size in px |
 | `fps` | `60` | Frame rate hint |
 | `duration` | auto | Force total seconds (otherwise derived from cues) |
+| `type` | `architecture` | Focused layout: `architecture`, `flowchart`, `tree`, `state`, or `sequence` |
 
 `layout LR` may be a separate statement (preferred) or inline on the `scene` line for AI-generated compatibility.
+
+Focused modes keep the same grammar while changing composition:
+
+| Mode | Best for |
+|---|---|
+| `architecture` | Ranked systems and platform topology |
+| `flowchart` | Top-down steps, decisions, and merges |
+| `tree` | Parent/child hierarchies with shared sibling buses |
+| `state` | Cycle-safe state transitions and self-loops |
+| `sequence` | Participant columns, lifelines, ordered messages, and activation spans |
 
 **Size the canvas for how dense the diagram is.** The default 1280×720 only comfortably fits small diagrams. Auto-layout spaces nodes evenly across ranks (columns in `LR`/`RL`, rows in `TB`/`BT`) and rows within a rank — it does not grow the canvas or shrink nodes to make room. Before finalizing a scene, count (a) the number of distinct ranks (roughly the longest chain of forward edges from any source node) and (b) the busiest rank (the most nodes sharing the same depth, e.g. one service fanning out to many dependents). Nodes are ~168×72px, so as a rule of thumb pick:
 
@@ -173,7 +185,7 @@ Web <- API "201 Created"
 
 Flows may appear inside a `beat` (animated) or at the top level as `edge id: A -> B "label"` (static declaration).
 
-**Layout is derived from `->`/`~>`/`--` edges, so getting the direction wrong causes overlapping nodes.** The auto-layout ranks nodes by longest path through forward edges (`->`, `~>`, `--`); `<-` edges are excluded from ranking because they represent a reply, not a new hop. If you model a reply, callback, or return value with `->` instead of `<-` — even several beats later, even between nodes that already have a forward edge the other way — you create a cycle. The layout engine has no cycle detection: it will keep pushing the looped nodes (and everything downstream of them) to a deeper and deeper rank until most of the diagram is crushed into one or two columns and every node overlaps. Always use `<-` for anything that is conceptually "handing a result back," no matter how far downstream:
+**Layout is derived from `->`/`~>`/`--` edges, so getting the direction wrong can make a ranked architecture layout harder to read.** The parser warns about forward cycles, and the compiler uses bounded, cycle-safe placement for `type=state`. For ordinary ranked architecture layouts, model replies, callbacks, and return values with `<-` so they do not create extra layout hops:
 
 ```markdy
 # WRONG — Store -> Runner here closes a loop with the earlier Runner -> Store,
@@ -195,8 +207,8 @@ You may put `&` at the start of the next line as a continuation when an AI gener
 
 | Cue | Parameters | Description |
 |---|---|---|
-| `show` | `stagger`, `dur` | Reveal nodes or a group |
-| `hide` | `dur` | Fade nodes out |
+| `show` | `stagger`, `dur` | Reveal nodes, groups, or edges |
+| `hide` | `dur` | Fade nodes or edges out |
 | `glow` | `color`, `strength`, `dur` | Colored emphasis glow |
 | `focus` | `zoom`, `dur` | Pulse-scale a node to draw attention |
 | `frame` | `zoom`, `dur` | Move the scene camera to a node or group (`frame $nodes` resets to the whole diagram) |
@@ -204,7 +216,25 @@ You may put `&` at the start of the next line as a continuation when an AI gener
 
 This is the **complete** cue set — do not invent others (no `pulse`, `caption`, `dim`, `trail`, `camera`, `shake`, `say`, `walk`, …). Natural synonyms `pulse`, `highlight`, and `emphasize` are accepted and map to `focus`/`glow`. For attention use `frame`; for emphasis use `glow`/`focus`; to de-emphasize, reveal the important node with `glow` rather than dimming others.
 
-Selectors: `$nodes` targets every node; a group name targets its members.
+Selectors: `$nodes` targets every node, `$edges` targets structural and animated edges, and a group name targets its members. Edge selectors work with `show`, `hide`, `glow`, `focus`, and `frame`.
+
+### Focused visuals
+
+Use structural edges, annotations, and visual primitives when a scene needs more editorial structure:
+
+```markdy
+scene "Checkout" theme=editorial type=flowchart
+layout TB
+
+annotation "Decision gate" target=Valid position=top-right
+start Start
+decision Valid "Cart valid?"
+end End
+
+edge path: Start -> Valid -> End
+```
+
+Supported primitives include `surface`/`panel`, `terminal`, `stat`/`metric`, `matrix`/`grid`, `track`/`lane`, `dot`/`marker`, `chips`/`token_strip`, and `glyph`/`glyph_card`. `stat`/`metric` nodes can use `value=...`.
 
 ### `pattern` / `use` — reusable flows
 
@@ -236,7 +266,7 @@ Every kind maps to a semantic role that determines its color.
 - **flow**: `start`, `end`, `state`, `decision`, `condition`, `step`, `loop`, `sequence`, `participant`
 - **distributed**: `replica`, `shard`, `leader`, `follower`, `quorum`, `consensus`, `lock`
 
-Aliases: `db`→`database`, `api`→`service`, `gateway`→`api_gateway`, `mq`→`queue`, `k8s`→`cluster`, `lb`→`load_balancer`.
+Aliases: `db`→`database`, `api`→`service`, `gateway`→`api_gateway`, `mq`→`queue`, `k8s`→`cluster`, `lb`→`load_balancer`, `panel`→`surface`, `metric`→`stat`, `grid`→`matrix`, `lane`→`track`, `marker`→`dot`, `chips`→`token_strip`, `glyph`→`glyph_card`.
 
 ## Ordering rules
 
@@ -285,12 +315,12 @@ beat finish "Storage keeps it fast":
 ### Sequence / request lifecycle
 
 ```markdy
-scene "Auth Flow" theme=paper
+scene "Auth Flow" theme=editorial type=sequence
 layout LR
 
-browser Client
-service API
-auth OIDC "OIDC Provider"
+participant Client
+participant API
+participant OIDC "OIDC Provider"
 
 beat main:
   show $nodes stagger=80ms
@@ -335,8 +365,9 @@ beat main:
 - [ ] Every node used in a flow/cue is declared.
 - [ ] Flow operators are one of `->`, `<-`, `~>`, `--`.
 - [ ] Cues and flows are inside `beat` blocks.
-- [ ] Theme is `paper`, `midnight`, `blueprint`, or `graphite`; layout is `LR`/`RL`/`TB`/`BT`.
-- [ ] No pair of nodes is connected by `->`/`~>`/`--` in both directions, directly or through a longer chain (that's a cycle — the reply leg must be `<-`).
+- [ ] Theme is `paper`, `editorial`, `midnight`, `blueprint`, or `graphite`; layout is `LR`/`RL`/`TB`/`BT`.
+- [ ] For ranked non-state modes, no pair of nodes is connected by `->`/`~>`/`--` in both directions, directly or through a longer chain (the reply leg should be `<-`).
+- [ ] For `type=state`, model legitimate lifecycle cycles directly; use `<-` only for responses.
 - [ ] Canvas is sized for the diagram's depth/fan-out (see sizing rule of thumb above), not left at the 1280×720 default for a large scene.
 
 ## Integration code

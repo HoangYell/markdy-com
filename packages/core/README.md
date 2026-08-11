@@ -6,7 +6,8 @@ The parser and AST types for [MarkdyScript](../../docs/SYNTAX.md) — a diagram-
 
 - **Zero runtime dependencies** — pure TypeScript, no DOM or platform APIs
 - **Single-pass parser** — line-by-line state machine with strict `ParseError` diagnostics
-- **Diagram-native grammar** — scene metadata, architecture nodes, groups, styles, beats, flow chains, and reusable patterns
+- **Diagram-native grammar** — scene metadata, architecture nodes, groups, styles, beats, flow chains, annotations, visual primitives, and reusable patterns
+- **Focused modes** — `architecture`, `flowchart`, `tree`, `state`, and `sequence` compile into deterministic render-plan metadata
 - **Isomorphic** — runs in Node.js, Deno, Bun, edge runtimes, and the browser
 
 ## Installation
@@ -66,12 +67,12 @@ try {
 | `parseAndCompile` | `(source) => { ast, plan }` | Parse and compile in one call |
 | `ParseError` | class | Error with `.line` number for diagnostics |
 | `DiagramAST` | type | Parsed scene: meta, nodes, edges, groups, patterns, beats |
-| `RenderPlan` | type | Positioned nodes, routed edges, timed cues, beat ranges |
+| `RenderPlan` | type | Positioned nodes, routed edges, group zones, sequence messages, timed cues, beat ranges |
 | `SceneMeta` | type | Scene configuration (width, height, fps, theme, direction) |
 | `NodeDecl` | type | Node declaration (kind, id, label, style) |
 | `EdgeDecl` | type | Edge declaration (kind, from, to, label) |
 | `BeatDecl` | type | Named beat with cues |
-| `THEMES` / `resolveTheme` | tokens | Semantic theme palettes (`paper`, `midnight`, `blueprint`, `graphite`) |
+| `THEMES` / `resolveTheme` | tokens | Semantic theme palettes (`paper`, `editorial`, `midnight`, `blueprint`, `graphite`) |
 
 ## Documentation
 

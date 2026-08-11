@@ -2,8 +2,17 @@
  * Markdy diagram runtime — renders a RenderPlan via WAAPI.
  */
 import { parseAndCompile, type BeatRange, type Diagnostic } from "@markdy/core";
-import { buildCueAnimations } from "./edges.js";
+import {
+  buildCueAnimations,
+  buildStructuralEdgeAnimations,
+  createEdgeSceneId,
+  type EdgeRuntimeMap,
+} from "./edges.js";
+import { mountAnnotations } from "./annotations.js";
+import { mountGroupBoundaries } from "./groups.js";
 import { createNodeEl, createTitleEl, ensureNodeStyles } from "./nodes.js";
+import { mountSequenceLayer } from "./sequence.js";
+import { mountTreeBuses } from "./tree.js";
 import { applyThemeToScene, ensureSceneStyles } from "./theme.js";
 
 export interface DiagramOptions {
@@ -195,9 +204,44 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   cameraLayer.className = "markdy-camera-layer";
   sceneContent.appendChild(cameraLayer);
 
+  const structuralEdgeHost = document.createElement("div");
+  structuralEdgeHost.className = "markdy-structural-edge-host";
+  Object.assign(structuralEdgeHost.style, {
+    position: "absolute",
+    inset: "0",
+    zIndex: "45",
+    pointerEvents: "none",
+  });
+  cameraLayer.appendChild(structuralEdgeHost);
+
+  const treeLayer = document.createElement("div");
+  treeLayer.className = "markdy-tree-layer";
+  cameraLayer.appendChild(treeLayer);
+  mountTreeBuses(treeLayer, plan.treeBuses, plan.theme);
+
+  const groupLayer = document.createElement("div");
+  groupLayer.className = "markdy-group-layer";
+  Object.assign(groupLayer.style, {
+    position: "absolute",
+    inset: "0",
+    zIndex: "48",
+    pointerEvents: "none",
+  });
+  cameraLayer.appendChild(groupLayer);
+  mountGroupBoundaries(groupLayer, plan.groupBoundaries, plan.theme);
+
+  const sequenceLayer = document.createElement("div");
+  sequenceLayer.className = "markdy-sequence-layer";
+  cameraLayer.appendChild(sequenceLayer);
+
   const nodeLayer = document.createElement("div");
   nodeLayer.className = "markdy-scene-node-layer";
+  Object.assign(nodeLayer.style, { position: "absolute", inset: "0", zIndex: "60" });
   cameraLayer.appendChild(nodeLayer);
+
+  const annotationLayer = document.createElement("div");
+  annotationLayer.className = "markdy-annotation-layer";
+  cameraLayer.appendChild(annotationLayer);
 
   const captionLayer = createBeatCaptionLayer(document, plan.beats);
   sceneContent.appendChild(captionLayer);
@@ -217,13 +261,40 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   const resizeObserver = new ResizeObserver(scaleScene);
   resizeObserver.observe(viewport);
 
+  const edgeRuntimes: EdgeRuntimeMap = new Map();
+  const edgeSceneId = createEdgeSceneId();
+  const sequenceAnims = plan.diagramType === "sequence"
+    ? mountSequenceLayer(
+      sequenceLayer,
+      plan.nodes,
+      plan.sequenceMessages,
+      plan.sequenceActivations,
+      plan.theme,
+      { width: plan.meta.width, height: plan.meta.height },
+    )
+    : [];
   const allAnims = [
+    ...sequenceAnims,
+    ...buildStructuralEdgeAnimations(
+      plan.edges,
+      plan.nodes,
+      plan.theme,
+      structuralEdgeHost,
+      { width: plan.meta.width, height: plan.meta.height },
+      edgeRuntimes,
+      edgeSceneId,
+      plan.diagramType,
+    ),
     ...buildCueAnimations(plan.cues, nodeEls, plan.nodes, plan.theme, cameraLayer, titleEl, {
       width: plan.meta.width,
       height: plan.meta.height,
-    }),
+    }, plan.edges, edgeRuntimes, edgeSceneId, plan.diagramType),
     ...buildBeatCaptionAnimations(plan.beats, captionLayer),
   ];
+  mountAnnotations(annotationLayer, plan.annotations, plan.nodes, plan.theme, {
+    width: plan.meta.width,
+    height: plan.meta.height,
+  });
   for (const anim of allAnims) {
     anim.pause();
     anim.currentTime = 0;

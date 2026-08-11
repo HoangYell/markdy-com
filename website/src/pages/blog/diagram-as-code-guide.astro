@@ -91,6 +91,11 @@ beat main:
   show $nodes stagger=80ms
   Web -&gt; API "GET /users" -&gt; DB "query"
   Web &lt;- API "200 OK"</code></pre>
+  <p>
+    The same source model supports focused compositions: use <code>type=flowchart</code> for decisions,
+    <code>type=tree</code> for hierarchy, <code>type=state</code> for lifecycles, and <code>type=sequence</code>
+    for ordered participant messages. Use <code>theme=editorial</code> when the result is headed for a docs page.
+  </p>
 
   <h2>How to start</h2>
   <ol>

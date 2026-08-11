@@ -2,6 +2,7 @@
  * Diagram-native MarkdyScript parser and compiler.
  */
 import type {
+  AnnotationDecl,
   BeatDecl,
   Cue,
   DiagramAST,
@@ -20,6 +21,7 @@ import {
   BEAT_CUE_KEYWORDS,
   canonicalNodeKind,
   CUE_ALIASES,
+  DIAGRAM_TYPES,
   EDGE_OPERATORS,
   humanizeId,
   NODE_KINDS,
@@ -609,6 +611,16 @@ function validateReferences(ast: DiagramAST): void {
     validateFlowEndpoint(edge.line, edge.to);
   }
 
+  for (const ann of ast.annotations) {
+    if (ann.target && !hasNode(ann.target)) {
+      pushWarning(ast.diagnostics, seen, ann.line, `annotation references unknown target '${ann.target}'`);
+    }
+  }
+
+  if (ast.annotations.length > 2) {
+    pushWarning(ast.diagnostics, seen, ast.annotations[2].line, "more than 2 annotation callouts; editorial diagrams should use ≤2");
+  }
+
   for (const beat of ast.beats) {
     visitCues(beat.cues, (cue) => {
       if (cue.kind === "flow") {
@@ -637,6 +649,7 @@ function validateReferences(ast: DiagramAST): void {
  * until the diagram collapses into a couple of overlapping columns. Surface it early.
  */
 function detectFlowCycles(ast: DiagramAST): void {
+  if (ast.meta.type === "state") return;
   const seen = new Set<string>();
   const adj = new Map<string, { to: string; line: number }[]>();
   const ensure = (id: string) => {
@@ -645,6 +658,7 @@ function detectFlowCycles(ast: DiagramAST): void {
   for (const id of Object.keys(ast.nodes)) ensure(id);
 
   const addEdge = (from: string, to: string, line: number) => {
+    if (from === to) return;
     if (!ast.nodes[from] || !ast.nodes[to]) return;
     ensure(from);
     adj.get(from)!.push({ to, line });
@@ -711,8 +725,10 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
   const groups: Record<string, GroupDecl> = {};
   const patterns: Record<string, PatternDecl> = {};
   const beats: BeatDecl[] = [];
+  const annotations: AnnotationDecl[] = [];
   let title = "";
   let edgeCounter = 0;
+  let annotationCounter = 0;
 
   const rawBlocks = readBlocks(lines.map(stripComment));
   const { vars, rest } = extractVars(rawBlocks, diagnostics);
@@ -753,6 +769,14 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
         else if (k === "duration") meta.duration = Number(v);
         else if (k === "theme") meta.theme = String(v);
         else if (k === "direction" || k === "layout") meta.direction = String(v).toUpperCase() as LayoutDirection;
+        else if (k === "type") {
+          const t = String(v).toLowerCase();
+          if (!DIAGRAM_TYPES.has(t)) {
+            diagnostics.push({ severity: "warning", message: `unknown diagram type '${v}'`, line: lineNo });
+          } else {
+            meta.type = t as SceneMeta["type"];
+          }
+        }
       }
       i++;
       continue;
@@ -810,6 +834,24 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
         line: lineNo,
       };
       i = nextIdx;
+      continue;
+    }
+
+    if (line.startsWith("annotation ")) {
+      const str = parseStringToken(line.slice("annotation ".length).trim());
+      if (!str) throw new ParseError(`expected annotation "text" with optional target= position=`, lineNo);
+      const props = parseProps(str.rest);
+      const target = typeof props.target === "string" ? props.target : undefined;
+      const position = typeof props.position === "string" ? props.position : undefined;
+      annotations.push({
+        id: `ann_${++annotationCounter}`,
+        text: str.value,
+        target,
+        position,
+        props,
+        line: lineNo,
+      });
+      i++;
       continue;
     }
 
@@ -886,6 +928,7 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
     nodes,
     edges,
     groups,
+    annotations,
     patterns,
     beats,
     diagnostics,

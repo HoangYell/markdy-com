@@ -141,7 +141,8 @@ describe("polyline measurement", () => {
   });
 
   it("emits compact SVG path data", () => {
-    expect(toPathD(path)).toBe("M 0 0 L 30 0 L 30 40");
+    expect(toPathD(path, 0)).toBe("M 0 0 L 30 0 L 30 40");
+    expect(toPathD(path)).toMatch(/^M 0 0 L 22 0 Q 30 0 30 8 L 30 40$/);
     expect(round1(12.349)).toBe(12.3);
   });
 
@@ -180,5 +181,14 @@ describe("routeOrthogonal", () => {
       expect(point.y).toBeGreaterThanOrEqual(0);
       expect(point.y).toBeLessThanOrEqual(BOUNDS.height);
     }
+  });
+
+  it("uses distinct attach points for concurrent lanes", () => {
+    const from = boxRect({ x: 0, y: 100, width: 100, height: 40 });
+    const to = boxRect({ x: 300, y: 100, width: 100, height: 40 });
+    const first = routeOrthogonal(from, to, [], BOUNDS, 0);
+    const second = routeOrthogonal(from, to, [], BOUNDS, 1);
+    expect(second[0].y).not.toBe(first[0].y);
+    expect(second[1].y).not.toBe(first[1].y);
   });
 });

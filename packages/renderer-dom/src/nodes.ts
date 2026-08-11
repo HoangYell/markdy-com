@@ -23,7 +23,7 @@ export function ensureNodeStyles(doc: Document): void {
     0 10px 22px -12px var(--md-shadow, rgba(2, 6, 23, 0.55)),
     inset 0 0 0 1px var(--md-hairline, color-mix(in srgb, var(--md-border) 50%, transparent)),
     inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--md-font-node, Inter, ui-sans-serif, system-ui, sans-serif);
   overflow: hidden;
   opacity: 0;
   transform: translateY(8px);
@@ -117,6 +117,13 @@ export function ensureNodeStyles(doc: Document): void {
   word-break: break-word;
   text-wrap: balance;
 }
+.markdy-node__value {
+  flex: 0 0 auto;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--md-ink, var(--md-text));
+  font-variant-numeric: tabular-nums;
+}
 .markdy-node[data-role="client"] { border-radius: 15px 15px 9px 9px; }
 .markdy-node[data-role="data"] { border-radius: 12px 12px 20px 20px; }
 .markdy-scene-title {
@@ -131,22 +138,79 @@ export function ensureNodeStyles(doc: Document): void {
   color: var(--md-text);
   opacity: 0;
   transform: translateY(-6px);
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--md-font-title, Inter, ui-sans-serif, system-ui, sans-serif);
 }
 .markdy-scene-title[data-visible="1"] {
   opacity: 1;
   transform: translateY(0);
+}
+.markdy-node[data-shape="diamond"] {
+  border-radius: 4px;
+  transform: rotate(0deg);
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+.markdy-node[data-shape="pill"] {
+  border-radius: 999px;
+  min-height: 56px;
+}
+.markdy-node[data-shape="circle"],
+.markdy-node[data-kind="dot"] {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+}
+.markdy-node[data-kind="matrix"] {
+  background-image:
+    linear-gradient(var(--md-hairline) 1px, transparent 1px),
+    linear-gradient(90deg, var(--md-hairline) 1px, transparent 1px);
+  background-size: 12px 12px;
+}
+.markdy-node[data-kind="track"] {
+  border-left: 4px solid var(--md-role-color, var(--md-accent));
+  border-radius: var(--md-radius-md, 8px);
+}
+.markdy-node[data-kind="token_strip"] {
+  border-radius: 999px;
+}
+.markdy-node[data-shape="rounded"] {
+  border-radius: 16px;
+}
+.markdy-node[data-shape="terminal"] {
+  border-radius: 6px;
+  font-family: var(--md-font-mono, ui-monospace, monospace);
+  box-shadow: none;
+  background: var(--md-node-surface, var(--md-surface));
+}
+.markdy-node[data-focal="1"] {
+  background: color-mix(in srgb, var(--md-accent-tint, var(--md-accent)) 100%, transparent);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--md-accent) 55%, transparent);
+}
+.markdy-scene-root[data-flat="1"] .markdy-node {
+  box-shadow: inset 0 0 0 1px var(--md-hairline, color-mix(in srgb, var(--md-border) 50%, transparent));
+}
+.markdy-scene-root[data-flat="1"] .markdy-node[data-visible="1"] {
+  box-shadow: inset 0 0 0 1px var(--md-hairline, color-mix(in srgb, var(--md-border) 50%, transparent));
 }
 `;
   doc.head.appendChild(style);
 }
 
 type SvgSpec = Array<[string, Record<string, string>]>;
+export type IconSpec = SvgSpec;
 
 const ICONS: Record<string, SvgSpec> = {
   compute: [
     ["rect", { x: "5", y: "5", width: "14", height: "14", rx: "3" }],
     ["path", { d: "M9 9h6v6H9zM9 2.5v2.5M15 2.5v2.5M9 19v2.5M15 19v2.5M2.5 9h2.5M2.5 15h2.5M19 9h2.5M19 15h2.5" }],
+  ],
+  laptop: [
+    ["path", { d: "M3 19l18 0" }],
+    ["path", { d: "M5 7a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v8a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1l0 -8" }],
+  ],
+  phone: [
+    ["path", { d: "M6 5a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2v-14" }],
+    ["path", { d: "M10.5 18h3" }],
   ],
   user: [
     ["circle", { cx: "12", cy: "8", r: "3.4" }],
@@ -288,6 +352,9 @@ const ICONS: Record<string, SvgSpec> = {
   ],
 };
 
+/** Read-only monochrome glyph registry; callers can inspect or choose keys without injecting markup. */
+export const ICON_REGISTRY: Readonly<Record<string, IconSpec>> = Object.freeze(ICONS);
+
 function iconKeyForNode(node: PositionedNode): string {
   const override = typeof node.props?.icon === "string" ? node.props.icon.toLowerCase() : undefined;
   if (override && ICONS[override]) return override;
@@ -307,6 +374,7 @@ function iconKeyForNode(node: PositionedNode): string {
   if (node.kind === "monitor" || node.kind === "metrics" || node.kind === "dashboard" || node.kind === "slo" || node.kind === "probe") return "metrics";
   if (node.kind === "registry" || node.kind === "artifact") return "registry";
   if (node.kind === "mobile") return "mobile";
+  if (node.kind === "laptop" || node.kind === "desktop") return node.kind;
   if (node.kind === "api" || node.kind === "service" || node.kind === "microservice" || node.kind === "backend" || node.kind === "server" || node.kind === "handler" || node.kind === "controller") return "server";
   if (node.kind === "browser" || node.kind === "web" || node.kind === "frontend" || node.kind === "app") return "browser";
   if (node.kind === "user" || node.kind === "client") return "user";
@@ -399,12 +467,18 @@ export function createNodeEl(node: PositionedNode, theme: ThemeTokens, assets?: 
   el.style.top = `${node.y}px`;
   el.style.setProperty("--md-node-w", `${node.width}px`);
   el.style.setProperty("--md-node-h", `${node.height}px`);
+  if (theme.flatCards) {
+    el.style.setProperty("--md-shadow", "transparent");
+  }
+  if (theme.accentTint) el.style.setProperty("--md-accent-tint", theme.accentTint);
   const roleColor = theme.roles[node.role] ?? theme.accent;
   el.style.setProperty("--md-role-color", roleColor);
   applyDeclaredNodeStyle(el, node.style);
   const typeText = node.kind.replace(/_/g, " ");
   el.dataset.kind = node.kind;
   el.dataset.icon = iconKeyForNode(node);
+  if (node.shape) el.dataset.shape = node.shape;
+  if (node.focal) el.dataset.focal = "1";
   el.title = `${node.label} (${typeText})`;
   el.setAttribute("aria-label", el.title);
 
@@ -415,6 +489,13 @@ export function createNodeEl(node: PositionedNode, theme: ThemeTokens, assets?: 
   label.className = "markdy-node__label";
   label.textContent = node.label;
   body.append(icon, label);
+  const value = node.props?.value ?? node.props?.metric;
+  if (value !== undefined && value !== null) {
+    const valueEl = document.createElement("div");
+    valueEl.className = "markdy-node__value";
+    valueEl.textContent = String(value);
+    body.appendChild(valueEl);
+  }
   el.append(body);
   return el;
 }

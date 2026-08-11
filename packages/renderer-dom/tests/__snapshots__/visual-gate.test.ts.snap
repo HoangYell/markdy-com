@@ -150,6 +150,148 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "observability",
     },
   ],
+  "examples/showcase/editorial-architecture.markdy": [
+    {
+      "icon": "browser",
+      "id": "WebClient",
+      "kind": "browser",
+      "role": "client",
+    },
+    {
+      "icon": "gateway",
+      "id": "Gateway",
+      "kind": "api_gateway",
+      "role": "network",
+    },
+    {
+      "icon": "server",
+      "id": "API",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
+      "icon": "database",
+      "id": "PrimaryDB",
+      "kind": "database",
+      "role": "data",
+    },
+    {
+      "icon": "cache",
+      "id": "Redis",
+      "kind": "cache",
+      "role": "data",
+    },
+  ],
+  "examples/showcase/editorial-flowchart.markdy": [
+    {
+      "icon": "flow",
+      "id": "Start",
+      "kind": "start",
+      "role": "flow",
+    },
+    {
+      "icon": "decision",
+      "id": "Valid",
+      "kind": "decision",
+      "role": "flow",
+    },
+    {
+      "icon": "server",
+      "id": "Process",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
+      "icon": "flow",
+      "id": "End",
+      "kind": "end",
+      "role": "flow",
+    },
+  ],
+  "examples/showcase/editorial-sequence.markdy": [
+    {
+      "icon": "flow",
+      "id": "Browser",
+      "kind": "participant",
+      "role": "flow",
+    },
+    {
+      "icon": "flow",
+      "id": "API",
+      "kind": "participant",
+      "role": "flow",
+    },
+    {
+      "icon": "flow",
+      "id": "Auth",
+      "kind": "participant",
+      "role": "flow",
+    },
+    {
+      "icon": "database",
+      "id": "SessionDB",
+      "kind": "database",
+      "role": "data",
+    },
+  ],
+  "examples/showcase/editorial-state.markdy": [
+    {
+      "icon": "flow",
+      "id": "Pending",
+      "kind": "state",
+      "role": "flow",
+    },
+    {
+      "icon": "flow",
+      "id": "Paid",
+      "kind": "state",
+      "role": "flow",
+    },
+    {
+      "icon": "flow",
+      "id": "Shipped",
+      "kind": "state",
+      "role": "flow",
+    },
+    {
+      "icon": "flow",
+      "id": "Closed",
+      "kind": "state",
+      "role": "flow",
+    },
+  ],
+  "examples/showcase/editorial-tree.markdy": [
+    {
+      "icon": "server",
+      "id": "CEO",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
+      "icon": "server",
+      "id": "Eng",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
+      "icon": "server",
+      "id": "Sales",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
+      "icon": "server",
+      "id": "Backend",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
+      "icon": "server",
+      "id": "Frontend",
+      "kind": "service",
+      "role": "compute",
+    },
+  ],
   "examples/showcase/kubernetes-cluster-architecture.markdy": [
     {
       "icon": "platform",

@@ -73,9 +73,9 @@ const structuredData = [
     Today Markdy is <strong>diagram-native</strong>. Instead of positioning shapes by pixel and scripting every
     movement, you declare the <em>meaning</em> of your system — its nodes, groups, and the flows between them — and
     the engine handles layout, edge routing, and timing. The old imperative, hand-placed syntax is gone; the
-    language now only speaks in architecture.
+    language now speaks in semantic diagram modes rather than pixel coordinates.
   </p>
-  <pre><code>scene "URL Shortener" theme=midnight
+  <pre><code>scene "URL Shortener" theme=editorial type=architecture
 layout LR
 
 browser Web
@@ -95,8 +95,9 @@ beat visit:
   <p>
     That's a complete, runnable scene. There are no coordinates, no per-frame commands, and no timeline to
     micromanage. You describe the system once and get an <strong>animated architecture diagram</strong> that lays
-    itself out and plays the request path. Paste it into the <a href="/playground/">interactive playground</a> to
-    see it move.
+    itself out and plays the request path. For process, hierarchy, lifecycle, and call-order stories, switch the
+    scene to <code>flowchart</code>, <code>tree</code>, <code>state</code>, or <code>sequence</code>. Paste it into the
+    <a href="/playground/">interactive playground</a> to see it move.
   </p>
 
   <h2>Why the constraint is the feature</h2>

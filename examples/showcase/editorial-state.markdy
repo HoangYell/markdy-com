@@ -1,0 +1,18 @@
+scene "Order Lifecycle" theme=editorial type=state width=1100 height=720
+layout LR
+
+state Pending "Pending"
+state Paid "Paid"
+state Shipped "Shipped"
+state Closed "Closed"
+
+edge flow1: Pending -> Paid
+edge flow2: Paid -> Shipped
+edge flow3: Shipped -> Closed
+edge loop: Pending -> Pending
+
+beat lifecycle "State transitions":
+  show $nodes stagger=50ms
+  Pending -> Paid "payment captured"
+  Paid -> Shipped "carrier pickup"
+  Shipped -> Closed "delivered"

@@ -27,7 +27,8 @@ Technical deep dive into Markdy's design, data flow, and renderer internals.
   │  compile(ast) ──────────► RenderPlan         │
   │                                              │
   │  • Indentation-aware block parser            │
-  │  • patterns expanded; layout + edge routing  │
+  │  • patterns expanded; mode-specific layout   │
+  │  • edge routing, zones, and cue scheduling    │
   │  • Strict validation with ParseError(line)   │
   │  • Pure functions, no side effects           │
   └───────────────────┬─────────────────────────┘
@@ -39,7 +40,7 @@ Technical deep dive into Markdy's design, data flow, and renderer internals.
   │  createDiagram(opts) ─────► Diagram         │
   │                                              │
   │  1. Creates scene <div> (root element)       │
-  │  2. Creates node + edge (SVG) elements       │
+  │  2. Creates node, zone, and edge (SVG) elements│
   │  3. Builds WAAPI Animations from cues        │
   │  4. Runs rAF loop to drive currentTime       │
   └───────────────────┬─────────────────┘
@@ -87,18 +88,19 @@ for each block in source:
 
 ```typescript
 interface DiagramAST {
-  meta: SceneMeta;                        // width, height, fps, theme, direction, title?, duration?
+  meta: SceneMeta;                        // width, height, fps, theme, direction, type?, title?, duration?
   styles: Record<string, StyleDecl>;      // named node styles
   nodes: Record<string, NodeDecl>;        // { kind, id, label, style? }
   edges: EdgeDecl[];                       // static `edge` declarations
   groups: Record<string, GroupDecl>;       // named node sets
   patterns: Record<string, PatternDecl>;   // reusable cue templates
+  annotations: AnnotationDecl[];           // optional editorial callouts
   beats: BeatDecl[];                       // [{ name, cues, ... }]
   diagnostics: Diagnostic[];               // non-fatal warnings
 }
 ```
 
-`compile(ast)` turns this into a `RenderPlan` with positioned nodes, routed edges, timed cues, and beat ranges — the shape the renderer consumes.
+`compile(ast)` turns this into a `RenderPlan` with positioned nodes, routed edges, group boundaries, mode-specific sequence/tree geometry, timed cues, and beat ranges — the shape the renderer consumes.
 
 ---
 
@@ -112,6 +114,10 @@ interface DiagramAST {
 src/
   nodes.ts        — Node element factory + scene title
   edges.ts        — Flow-edge SVG runtime, routing, cue animations
+  sequence.ts     — Participant lifelines, messages, activation spans
+  tree.ts         — Shared tree-bus geometry
+  groups.ts       — Group boundary zones
+  annotations.ts  — Anchored editorial callouts
   geometry/       — Pure rect/point + obstacle-aware routing helpers
   theme.ts        — Scene ambience styles + theme-token application
   diagram.ts      — Public API, rAF loop, progress bar, responsive scaling

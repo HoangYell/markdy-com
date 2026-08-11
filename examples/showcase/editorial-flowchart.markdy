@@ -1,0 +1,16 @@
+scene "Checkout Flow" theme=editorial type=flowchart width=960 height=720
+layout TB
+annotation "Decision gate" target=Valid position=top-left
+
+start Start "Begin checkout"
+decision Valid "Cart valid?"
+service Process "Process payment"
+end End "Complete"
+
+edge path: Start -> Valid -> Process -> End
+
+beat main "Walk the flow":
+  show $nodes stagger=60ms
+  Start -> Valid "scan cart"
+  Valid -> Process "charge card"
+  Process -> End "send receipt"

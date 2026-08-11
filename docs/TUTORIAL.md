@@ -166,8 +166,9 @@ database Primary "Primary DB" style=hot
 database Replica "Read Replica"
 ```
 
-- Themes: `paper` (light, default), `midnight` (dark), `blueprint`, and `graphite`.
+- Themes: `paper` (light, default), `editorial` (flat documentation canvas), `midnight` (dark), `blueprint`, and `graphite`.
 - Directions: `LR` (default), `RL`, `TB`, `BT`.
+- Focused modes: `type=architecture` (default), `flowchart`, `tree`, `state`, and `sequence`.
 - Named styles currently support visual props such as `fill`, `stroke`, `text`, and `accent`.
 
 ---

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Focused diagram modes** — Added opt-in `architecture`, `flowchart`, `tree`, `state`, and `sequence` layouts with cycle-safe state placement, tree buses, sequence lifelines, activation spans, and self-loop routing.
+- **Editorial scene system** — Added the `editorial` theme, semantic visual primitives, structural edge selectors, annotations, group zones, shape-aware nodes, and a read-only icon registry.
+
+### Changed
+- **Renderer composition** — Structural and animated edges now remain addressable during playback; fan-out routing uses distinct attachment lanes and emphasis cues resolve `$edges`.
+- **Documentation surfaces** — Updated the homepage, playground registry, agent prompts, package READMEs, tutorials, guides, and related articles with the new themes and focused modes.
+
+### Removed
+- **Repository cleanup** — Removed unused internal design reference material from `docs/`.
+
 ## [0.8.11] — 2026-08-09
 
 ### Changed

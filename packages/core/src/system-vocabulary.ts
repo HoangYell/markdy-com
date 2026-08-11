@@ -24,6 +24,24 @@ export const VISUAL_PRIMITIVE_TYPES = [
   "glyph_card", "glyph",
 ] as const;
 
+export const VISUAL_PRIMITIVE_KINDS: Record<(typeof VISUAL_PRIMITIVE_TYPES)[number], string> = {
+  panel: "flow",
+  surface: "flow",
+  terminal: "flow",
+  metric: "observability",
+  stat: "observability",
+  grid: "flow",
+  matrix: "flow",
+  lane: "flow",
+  track: "flow",
+  marker: "flow",
+  dot: "flow",
+  token_strip: "flow",
+  chips: "flow",
+  glyph_card: "flow",
+  glyph: "flow",
+};
+
 export const TECHNICAL_NODE_KINDS: Record<(typeof TECHNICAL_NODE_TYPES)[number], string> = {
   service: "compute", api: "compute", microservice: "compute", backend: "compute", server: "compute", worker: "compute", job: "compute", scheduler: "compute", cron: "compute", batch: "compute", function: "compute", lambda: "compute", edge: "compute", controller: "compute", handler: "compute", repository: "compute", runtime: "compute", process: "compute",
   module: "code", package: "code", library: "code", sdk: "code", cli: "code", class: "code", interface: "code", method: "code", object: "code", enum: "code", type: "code",

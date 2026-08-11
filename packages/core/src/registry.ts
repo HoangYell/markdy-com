@@ -1,6 +1,22 @@
-import { TECHNICAL_NODE_KINDS, TECHNICAL_NODE_TYPES } from "./system-vocabulary.js";
+import {
+  TECHNICAL_NODE_KINDS,
+  TECHNICAL_NODE_TYPES,
+  VISUAL_PRIMITIVE_KINDS,
+  VISUAL_PRIMITIVE_TYPES,
+} from "./system-vocabulary.js";
 
-export const NODE_KINDS = new Set<string>(TECHNICAL_NODE_TYPES);
+export const NODE_KINDS = new Set<string>([
+  ...TECHNICAL_NODE_TYPES,
+  ...VISUAL_PRIMITIVE_TYPES,
+]);
+
+export const DIAGRAM_TYPES = new Set<string>([
+  "architecture",
+  "flowchart",
+  "tree",
+  "state",
+  "sequence",
+]);
 
 export const EDGE_OPERATORS: Record<string, "request" | "response" | "event" | "dependency"> = {
   "->": "request",
@@ -28,10 +44,24 @@ export const BEAT_CUE_KEYWORDS = new Set([
   ...Object.keys(CUE_ALIASES),
 ]);
 
-export const SCENE_KEYS = new Set(["width", "height", "fps", "theme", "duration", "direction", "layout"]);
+export const SCENE_KEYS = new Set([
+  "width",
+  "height",
+  "fps",
+  "theme",
+  "duration",
+  "direction",
+  "layout",
+  "type",
+]);
 
 export function nodeRole(kind: string): string {
-  return (TECHNICAL_NODE_KINDS as Record<string, string>)[kind] ?? "compute";
+  const canonical = canonicalNodeKind(kind);
+  return (
+    (TECHNICAL_NODE_KINDS as Record<string, string>)[canonical as keyof typeof TECHNICAL_NODE_KINDS] ??
+    (VISUAL_PRIMITIVE_KINDS as Record<string, string>)[canonical] ??
+    "compute"
+  );
 }
 
 export function humanizeId(id: string): string {
@@ -64,6 +94,13 @@ export const NODE_ALIASES: Record<string, string> = {
   mq: "queue",
   k8s: "cluster",
   lb: "load_balancer",
+  panel: "surface",
+  metric: "stat",
+  grid: "matrix",
+  lane: "track",
+  marker: "dot",
+  chips: "token_strip",
+  glyph: "glyph_card",
 };
 
 export function canonicalNodeKind(kind: string): string {
