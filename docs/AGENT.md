@@ -21,7 +21,7 @@ When generating MarkdyScript, fetch the current hosted guide instead of relying 
 - Keep flow labels short (≤ ~28 chars) so they stay readable.
 - Use beat labels and `frame` when the scene should guide attention through a large diagram.
 - Canonical blocks use `beat name "Label":` with indented cues. The parser also accepts `{ ... }` beat/pattern blocks and `#` comments for compatibility, but prefer the canonical colon style in final docs.
-- If a host strips indentation (MDX/JSX template literals), the parser recovers colon bodies until the next top-level statement and emits a warning. Prefer real indentation, brace blocks, or a raw `.markdy` import when you control the embed.
+- If a host strips indentation (MDX/JSX template literals), the parser recovers colon bodies until the next top-level statement. Prefer real indentation or a raw `.markdy` import when you control the embed; use brace blocks only when the host cannot preserve indentation.
 
 ## Translate plain-English ideas into Markdy
 
