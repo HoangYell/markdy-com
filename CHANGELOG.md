@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.12] — 2026-08-11
+
 ### Added
 - **Focused diagram modes** — Added opt-in `architecture`, `flowchart`, `tree`, `state`, and `sequence` layouts with cycle-safe state placement, tree buses, sequence lifelines, activation spans, and self-loop routing.
 - **Editorial scene system** — Added the `editorial` theme, semantic visual primitives, structural edge selectors, annotations, group zones, shape-aware nodes, and a read-only icon registry.
