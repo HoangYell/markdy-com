@@ -9,6 +9,7 @@
 - **View Transition compatible** — re-observes elements on `astro:page-load`
 - **Semantic node cards** — inherits renderer SVG glyphs for technical node kinds
 - **Zero config** — pass your MarkdyScript code as a prop
+- **Indent-safe transport** — encodes MarkdyScript as base64 on the DOM so HTML attribute normalization cannot destroy colon-body indentation before hydration
 
 ## Installation
 

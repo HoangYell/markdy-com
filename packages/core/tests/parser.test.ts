@@ -441,4 +441,59 @@ beat main:
     expect(ast.diagnostics.some((d) => d.message.includes("more than 2 annotation"))).toBe(true);
     expect(compile(ast).annotations).toHaveLength(2);
   });
+
+  it("recovers multi-line groups and colon beats when indentation is stripped", () => {
+    // Hosts like MDX/JSX template literals often strip leading whitespace.
+    // Simulate that loss: members/cues sit at the same indent as headers.
+    const ast = parse(`
+scene "Deindented Host" theme=editorial width=800 height=400
+layout TB
+user Dev "Developer"
+cli Agent "agent"
+service Core "core"
+cloud LLM "llm"
+
+group product "Product":
+Agent
+
+group runtime "Runtime":
+Core
+LLM
+
+edge e1: Dev -- Agent
+edge e2: Agent -- Core
+edge e3: Core -- LLM
+
+beat stack "Stack":
+show $nodes stagger=40ms
+glow product color=#22c55e & glow runtime color=#3b82f6
+
+beat loop "Loop":
+frame Agent Core LLM zoom=1.1
+Agent -> Core "loop"
+Core -> LLM "stream"
+`);
+
+    expect(ast.groups.product.members).toEqual(["Agent"]);
+    expect(ast.groups.runtime.members).toEqual(["Core", "LLM"]);
+    expect(ast.beats).toHaveLength(2);
+    expect(ast.beats[0].cues.length).toBeGreaterThan(0);
+    expect(ast.beats[1].cues.length).toBeGreaterThan(0);
+    expect(
+      ast.diagnostics.some((d) => d.message.includes("had no indentation")),
+    ).toBe(true);
+  });
+
+  it("still errors when a de-indented group has no members before the next statement", () => {
+    expect(() =>
+      parse(`
+scene "Empty group" theme=paper
+service API
+group empty:
+edge e1: API -- API
+beat main:
+  show API
+`),
+    ).toThrow(/group 'empty' has no members/);
+  });
 });

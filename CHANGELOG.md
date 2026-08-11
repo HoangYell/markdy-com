@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.13] — 2026-08-11
+
+### Fixed
+- **Colon-body indent loss** — `@markdy/core` now recovers `group` / `beat` / `pattern` colon bodies when hosts (MDX/JSX template literals) strip leading indentation, instead of failing with empty groups or top-level cue errors. A diagnostic warning is emitted when the soft-body fallback runs.
+- **Astro HTML attribute stripping** — `@markdy/astro` encodes MarkdyScript as `data-markdy-code-b64` so HTML attribute whitespace normalization cannot destroy indented diagram source before hydration.
+
 ## [0.8.12] — 2026-08-11
 
 ### Added
