@@ -54,7 +54,8 @@ beat main "Trace the request":
 | **Beats + cues** | Sequence reveals with `beat` blocks, captions, and `show`/`hide`/`glow`/`focus`/`frame` cues; run cues together with `&` |
 | **Semantic node cards** | Kind-aware SVG glyphs for browsers, services, gateways, queues, workers, databases, storage, CDN, security, platform, and more |
 | **Patterns, styles, groups** | Reusable `pattern name(...)` + `use`, per-node `style`, and `group` fan-out with `stagger` |
-| **Semantic themes** | `midnight` (dark) and `paper` (light) — consistent colors per node role and edge kind |
+| **Semantic themes** | `paper`, `editorial`, `nebula`, `midnight`, `blueprint`, and `graphite` — consistent colors per node role and edge kind |
+| **Focused diagram modes** | Opt-in `architecture`, `flowchart`, `tree`, `state`, `sequence`, and `constellation` layouts |
 | **Technical diagram vocabulary** | Optional systems pack adds architecture nodes, visual primitives, and labeled flows for software-engineering diagrams |
 | **Astro-ready** | `<Markdy />` island that hydrates on viewport entry |
 | **AI-agent friendly** | Structured DSL that LLMs can generate, validate, and iterate on ([Agent Guide](https://markdy.com/agent/)) |
@@ -274,7 +275,7 @@ Cues live inside a `beat` and are scheduled in order; put `&` between two cues t
 | `frame` | Move the scene camera to nodes or groups | `zoom`, `dur` |
 | `use` | Expand a `pattern` | pattern args |
 
-Selectors: `$nodes` targets every node; a group name targets its members. Themes: `midnight` (dark, default) and `paper` (light).
+Selectors: `$nodes` targets every node, `$edges` targets structural and animated edges, and a group name targets its members. Themes: `paper` (light default), `editorial`, `nebula`, `midnight`, `blueprint`, and `graphite`.
 
 ---
 

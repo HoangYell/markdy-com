@@ -13,6 +13,8 @@ Fetch and follow the canonical guide above before generating MarkdyScript. This 
 - Use architecture node declarations directly: `service API`, `database DB`, `queue Events`.
 - Prefer concise beats over pixel coordinates.
 - Default theme: `paper`. Default layout: `LR`.
+- Optional modes: `architecture`, `flowchart`, `tree`, `state`, `sequence`, and `constellation`.
+- Use `theme=editorial` for flat documentation scenes or `theme=nebula` for radial/surreal scenes; other themes are `paper`, `midnight`, `blueprint`, and `graphite`.
 
 ## Minimal example
 

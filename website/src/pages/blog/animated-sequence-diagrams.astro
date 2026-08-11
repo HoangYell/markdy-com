@@ -45,16 +45,20 @@ const structuredData = [
     which buries the very thing you're trying to explain: the <em>order</em>. With <strong>Markdy</strong> you script
     the steps as a timeline, so each call and return appears when it happens.
   </p>
+  <p>
+    Set <code>type=sequence</code> to get participant columns, lifelines, ordered messages, and lightweight activation
+    spans. Pair it with <code>theme=editorial</code> when the scene belongs in documentation or an architecture review.
+  </p>
 
   <h2>1. Declare the participants</h2>
   <p>Sequence "participants" are just nodes. Use whatever kind fits — <code>client</code>, <code>service</code>, <code>database</code>, <code>auth</code>:</p>
-  <pre><code>scene "Login sequence" theme=paper
+  <pre><code>scene "Login sequence" theme=editorial type=sequence
 layout LR
 
-client User
-service API "Auth API"
-auth OIDC "OIDC Provider"
-database DB "User DB"</code></pre>
+participant User
+participant API "Auth API"
+participant OIDC "OIDC Provider"
+participant DB "User DB"</code></pre>
 
   <h2>2. Reveal them, then play the calls</h2>
   <p>

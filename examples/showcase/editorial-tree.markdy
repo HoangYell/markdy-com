@@ -1,0 +1,19 @@
+scene "Org Chart" theme=editorial type=tree width=1280 height=720
+layout TB
+
+service CEO "Chief Executive"
+service Eng "Engineering"
+service Sales "Sales"
+service Backend "Backend"
+service Frontend "Frontend"
+
+edge e1: CEO -> Eng
+edge e2: CEO -> Sales
+edge e3: Eng -> Backend
+edge e4: Eng -> Frontend
+
+group company: CEO Eng Sales Backend Frontend
+
+beat reveal:
+  show $nodes stagger=45ms
+  frame company zoom=1.05 dur=600ms

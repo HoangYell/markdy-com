@@ -7,6 +7,10 @@ export type LayoutDirection = "LR" | "RL" | "TB" | "BT";
 
 export type EdgeKind = "request" | "response" | "event" | "dependency";
 
+export type DiagramType = "architecture" | "flowchart" | "tree" | "state" | "sequence" | "constellation";
+
+export type NodeShape = "card" | "rounded" | "diamond" | "circle" | "pill" | "terminal";
+
 export type SceneMeta = {
   title?: string;
   width: number;
@@ -15,6 +19,8 @@ export type SceneMeta = {
   theme: string;
   direction: LayoutDirection;
   duration?: number;
+  /** Opt-in diagram mode; defaults to architecture. */
+  type?: DiagramType;
 };
 
 export type NodeDecl = {
@@ -40,6 +46,15 @@ export type GroupDecl = {
   id: string;
   label?: string;
   members: string[];
+  props: Record<string, unknown>;
+  line: number;
+};
+
+export type AnnotationDecl = {
+  id: string;
+  text: string;
+  target?: string;
+  position?: string;
   props: Record<string, unknown>;
   line: number;
 };
@@ -95,6 +110,7 @@ export type DiagramAST = {
   nodes: Record<string, NodeDecl>;
   edges: EdgeDecl[];
   groups: Record<string, GroupDecl>;
+  annotations: AnnotationDecl[];
   patterns: Record<string, PatternDecl>;
   beats: BeatDecl[];
   diagnostics: Diagnostic[];
@@ -112,6 +128,17 @@ export type ThemeTokens = {
   gridMajor: string;
   vignette: string;
   accent: string;
+  /** HTTP / external link accent (editorial skin). */
+  link?: string;
+  /** Semantic editorial aliases for canvas/text/muted/border roles. */
+  paper?: string;
+  ink?: string;
+  muted?: string;
+  rule?: string;
+  /** Tertiary caption color. */
+  soft?: string;
+  /** Focal node fill tint. */
+  accentTint?: string;
   /** Node card fill (falls back to surface derivations when omitted). */
   nodeSurface?: string;
   nodeSurfaceRaised?: string;
@@ -121,8 +148,23 @@ export type ThemeTokens = {
   shadow?: string;
   /** Edge label pill fill. */
   labelPlate?: string;
+  /** Editorial: flat cards without drop shadows. */
+  flatCards?: boolean;
   roles: Record<string, string>;
   edges: Record<EdgeKind, string>;
+  fonts?: {
+    title?: string;
+    nodeName?: string;
+    mono?: string;
+  };
+  radiusMd?: number;
+  spacing?: {
+    xs: number;
+    sm: number;
+    md: number;
+    lg: number;
+    xl: number;
+  };
 };
 
 export type PositionedNode = {
@@ -137,6 +179,10 @@ export type PositionedNode = {
   style?: Record<string, unknown>;
   props?: Record<string, unknown>;
   opacity: number;
+  shape?: NodeShape;
+  focal?: boolean;
+  /** Sequence mode column index. */
+  column?: number;
 };
 
 export type RoutedEdge = {
@@ -145,6 +191,52 @@ export type RoutedEdge = {
   from: string;
   to: string;
   label?: string;
+  /** Declared via top-level `edge` (not only flow cues). */
+  structural?: boolean;
+  selfLoop?: boolean;
+};
+
+export type GroupBoundary = {
+  id: string;
+  label?: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  memberIds: string[];
+  props?: Record<string, unknown>;
+};
+
+export type SequenceMessage = {
+  id: string;
+  from: string;
+  to: string;
+  kind: EdgeKind;
+  label?: string;
+  y: number;
+  start: number;
+  duration: number;
+  beat: string;
+};
+
+export type SequenceActivation = {
+  id: string;
+  participant: string;
+  y: number;
+  height: number;
+  start: number;
+  duration: number;
+};
+
+export type TreeBus = {
+  id: string;
+  parentId: string;
+  childIds: string[];
+  parentX: number;
+  parentY: number;
+  branchY: number;
+  childXs: number[];
+  childY: number;
 };
 
 export type TimedCue = {
@@ -169,10 +261,16 @@ export type RenderPlan = {
   meta: SceneMeta;
   theme: ThemeTokens;
   title: string;
+  diagramType: DiagramType;
   nodes: PositionedNode[];
   edges: RoutedEdge[];
+  groupBoundaries: GroupBoundary[];
+  annotations: AnnotationDecl[];
   cues: TimedCue[];
   beats: BeatRange[];
   groups: Record<string, string[]>;
+  treeBuses: TreeBus[];
+  sequenceMessages: SequenceMessage[];
+  sequenceActivations: SequenceActivation[];
   duration: number;
 };

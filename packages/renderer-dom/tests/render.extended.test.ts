@@ -1,8 +1,19 @@
 import { describe, it, expect } from "vitest";
-import { parseAndCompile } from "@markdy/core";
-import { computeFrameTransform } from "../src/edges";
+import { parseAndCompile, THEMES } from "@markdy/core";
+import {
+  buildCueAnimations,
+  buildStructuralEdgeAnimations,
+  computeFrameTransform,
+  createEdgeRuntime,
+  ensureEdgeLayer,
+} from "../src/edges";
 import { createBeatCaptionLayer } from "../src/diagram";
-import { createNodeEl } from "../src/nodes";
+import { mountAnnotations } from "../src/annotations";
+import { mountGroupBoundaries } from "../src/groups";
+import { createNodeEl, ICON_REGISTRY } from "../src/nodes";
+import { selfLoopPath } from "../src/geometry/path";
+import { mountConstellationLayer } from "../src/constellation";
+import { mountSequenceLayer } from "../src/sequence";
 
 const SAMPLE = `
 scene "Test" theme=midnight
@@ -180,5 +191,209 @@ describe("diagram render plan", () => {
     expect(captions).toHaveLength(2);
     expect([...captions].map((c) => c.textContent)).toEqual(["Reveal the system", "Wrap up"]);
     expect([...captions].map((c) => (c as HTMLElement).dataset.beat)).toEqual(["intro", "finish"]);
+  });
+
+  it("renders shape metadata and editorial flat-card styling", () => {
+    const el = createNodeEl({
+      id: "Check",
+      kind: "decision",
+      role: "flow",
+      label: "Valid?",
+      x: 0,
+      y: 0,
+      width: 168,
+      height: 72,
+      opacity: 0,
+      shape: "diamond",
+      focal: true,
+    }, THEMES.editorial);
+    expect(el.dataset.shape).toBe("diamond");
+    expect(el.dataset.focal).toBe("1");
+    expect(THEMES.editorial.flatCards).toBe(true);
+    expect(THEMES.editorial.accent).toBe("#047857");
+    expect(THEMES.editorial.spacing?.md).toBe(16);
+  });
+
+  it("mounts group boundaries and annotation callouts", () => {
+    const groupLayer = document.createElement("div");
+    mountGroupBoundaries(groupLayer, [{
+      id: "backend",
+      label: "Backend",
+      x: 40,
+      y: 120,
+      width: 400,
+      height: 200,
+      memberIds: ["API"],
+    }], THEMES.editorial);
+    expect(groupLayer.querySelector(".markdy-group-boundary")).not.toBeNull();
+    expect(groupLayer.querySelector(".markdy-group-boundary__label")?.textContent).toBe("Backend");
+
+    const annLayer = document.createElement("div");
+    mountAnnotations(annLayer, [{
+      id: "a1",
+      text: "Hot path",
+      target: "API",
+      position: "top-right",
+      line: 1,
+    }], [{
+      id: "API",
+      kind: "service",
+      role: "compute",
+      label: "API",
+      x: 200,
+      y: 200,
+      width: 168,
+      height: 72,
+      opacity: 1,
+    }], THEMES.editorial, { width: 1280, height: 720 });
+    expect(annLayer.querySelector(".markdy-annotation")?.textContent).toBe("Hot path");
+    expect(annLayer.querySelector("path")).not.toBeNull();
+  });
+
+  it("creates structural edge paths in the SVG layer", () => {
+    const host = document.createElement("div");
+    Object.assign(host.style, { position: "relative", width: "1280px", height: "720px" });
+    const nodes = [
+      { id: "A", kind: "service", role: "compute", label: "A", x: 100, y: 200, width: 168, height: 72, opacity: 1 },
+      { id: "B", kind: "service", role: "compute", label: "B", x: 400, y: 200, width: 168, height: 72, opacity: 1 },
+    ];
+    const svg = ensureEdgeLayer(host);
+    createEdgeRuntime(
+      svg,
+      nodes[0],
+      nodes[1],
+      "dependency",
+      undefined,
+      THEMES.editorial,
+      "test-scene",
+      [],
+      [],
+      { width: 1280, height: 720 },
+      0,
+    );
+    expect(host.querySelector("svg path")).not.toBeNull();
+    expect(host.querySelector("[data-edge-kind='dependency']")).not.toBeNull();
+  });
+
+  it("keeps structural edges visible and resolves `$edges` emphasis", () => {
+    const host = document.createElement("div");
+    const title = document.createElement("div");
+    const nodes = [
+      { id: "A", kind: "service", role: "compute", label: "A", x: 100, y: 200, width: 168, height: 72, opacity: 1 },
+      { id: "B", kind: "service", role: "compute", label: "B", x: 400, y: 200, width: 168, height: 72, opacity: 1 },
+    ];
+    const edge = { id: "edge_1", kind: "dependency" as const, from: "A", to: "B", structural: true, selfLoop: false };
+    const runtimes = new Map();
+    expect(buildStructuralEdgeAnimations(
+      [edge],
+      nodes,
+      THEMES.editorial,
+      host,
+      { width: 1280, height: 720 },
+      runtimes,
+      "test-edge",
+    )).toEqual([]);
+    expect(runtimes.get("edge_1")?.group.style.opacity).toBe("1");
+
+    const fakeAnimate = () => ({ pause() {} }) as unknown as Animation;
+    (title as unknown as { animate: typeof fakeAnimate }).animate = fakeAnimate;
+    (runtimes.get("edge_1")!.path as unknown as { animate: typeof fakeAnimate }).animate = fakeAnimate;
+    const animations = buildCueAnimations(
+      [{
+        start: 0,
+        duration: 0.5,
+        kind: "glow",
+        targets: ["edge_1"],
+        params: { color: "#047857", strength: 1 },
+        beat: "main",
+      }],
+      new Map(),
+      nodes,
+      THEMES.editorial,
+      host,
+      title,
+      { width: 1280, height: 720 },
+      [edge],
+      runtimes,
+      "test-edge",
+    );
+    expect(animations.length).toBeGreaterThan(1);
+    expect(runtimes.get("edge_1")?.path).toBeDefined();
+  });
+
+  it("renders sequence lifelines, messages, and activation spans", () => {
+    const layer = document.createElement("div");
+    const nodes = [
+      { id: "Client", kind: "participant", role: "flow", label: "Client", x: 100, y: 124, width: 168, height: 72, opacity: 1 },
+      { id: "API", kind: "participant", role: "flow", label: "API", x: 500, y: 124, width: 168, height: 72, opacity: 1 },
+    ];
+    const originalAnimate = (SVGElement.prototype as unknown as { animate?: unknown }).animate;
+    (SVGElement.prototype as unknown as { animate: () => Animation }).animate = () => ({ pause() {} }) as unknown as Animation;
+    let animations: Animation[];
+    try {
+      animations = mountSequenceLayer(
+        layer,
+        nodes,
+        [{
+          id: "sequence_1",
+          from: "Client",
+          to: "API",
+          kind: "request",
+          label: "request",
+          y: 240,
+          start: 0,
+          duration: 0.5,
+          beat: "main",
+        }],
+        [{
+          id: "sequence_1_Client",
+          participant: "Client",
+          y: 222,
+          height: 36,
+          start: 0,
+          duration: 0.5,
+        }],
+        THEMES.editorial,
+        { width: 1280, height: 720 },
+      );
+    } finally {
+      if (originalAnimate) {
+        (SVGElement.prototype as unknown as { animate: unknown }).animate = originalAnimate;
+      } else {
+        delete (SVGElement.prototype as unknown as { animate?: unknown }).animate;
+      }
+    }
+    expect(layer.querySelectorAll(".markdy-sequence-lifeline")).toHaveLength(2);
+    expect(layer.querySelectorAll(".markdy-sequence-message")).toHaveLength(1);
+    expect(layer.querySelectorAll(".markdy-sequence-activation")).toHaveLength(1);
+    expect(animations.length).toBe(2);
+  });
+
+  it("renders deterministic nebula constellation decoration", () => {
+    const layer = document.createElement("div");
+    mountConstellationLayer(
+      layer,
+      [
+        { id: "Core", kind: "service", role: "compute", label: "Core", x: 500, y: 300, width: 168, height: 72, opacity: 1, focal: true },
+        { id: "North", kind: "service", role: "compute", label: "North", x: 200, y: 120, width: 168, height: 72, opacity: 1 },
+        { id: "South", kind: "service", role: "compute", label: "South", x: 800, y: 480, width: 168, height: 72, opacity: 1 },
+      ],
+      THEMES.nebula,
+      { width: 1280, height: 720 },
+    );
+    expect(layer.querySelectorAll(".markdy-constellation-star")).toHaveLength(28);
+    expect(layer.querySelectorAll(".markdy-constellation-link")).toHaveLength(2);
+    expect(layer.querySelector("circle[fill^='url(#md-constellation-']")).not.toBeNull();
+  });
+
+  it("exposes a read-only icon registry", () => {
+    expect(ICON_REGISTRY.database).toBeDefined();
+    expect(ICON_REGISTRY.security).toBeDefined();
+  });
+
+  it("routes self-loop edges with dedicated geometry", () => {
+    const node = { id: "Loop", kind: "state", role: "flow", label: "Loop", x: 200, y: 200, width: 168, height: 72, opacity: 1 };
+    const points = selfLoopPath(node);
+    expect(points.length).toBeGreaterThan(3);
   });
 });

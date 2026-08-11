@@ -1,0 +1,15 @@
+scene "Login Sequence" theme=editorial type=sequence width=1280 height=720
+layout LR
+
+participant Browser
+participant API
+participant Auth
+database SessionDB
+
+beat auth "Authenticate user":
+  show $nodes stagger=40ms
+  Browser -> API "POST /login"
+  API -> Auth "verify credentials"
+  Auth -> SessionDB "create session"
+  API <- Auth "token"
+  Browser <- API "200 OK"

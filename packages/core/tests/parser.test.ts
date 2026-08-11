@@ -393,4 +393,52 @@ beat main:
     // The var was ignored, so `$nodes` stays the all-nodes selector (not "#fff").
     expect(ast.beats[0].cues[0]).toMatchObject({ kind: "show", targets: ["$nodes"] });
   });
+
+  it("parses diagram type, annotations, primitives, and structural edges", () => {
+    const ast = parse(`
+scene "Editorial Flow" theme=editorial type=flowchart width=1280 height=720
+layout TB
+annotation "Critical path" target=Check position=top-right
+surface Panel "Checkout panel"
+terminal Shell
+stat Latency
+edge backbone: Start -> Check -> End
+
+start Start
+decision Check "Valid?"
+end End
+
+beat main:
+  show $nodes
+`);
+    expect(ast.meta.type).toBe("flowchart");
+    expect(ast.meta.theme).toBe("editorial");
+    expect(ast.annotations).toHaveLength(1);
+    expect(ast.annotations[0]).toMatchObject({
+      text: "Critical path",
+      target: "Check",
+      position: "top-right",
+    });
+    expect(ast.nodes.Panel.kind).toBe("surface");
+    expect(ast.nodes.Shell.kind).toBe("terminal");
+    expect(ast.nodes.Latency.kind).toBe("stat");
+    expect(ast.edges).toHaveLength(2);
+    expect(ast.edges[0]).toMatchObject({ from: "Start", to: "Check", kind: "request" });
+    expect(ast.edges[1]).toMatchObject({ from: "Check", to: "End", kind: "request" });
+  });
+
+  it("warns when more than two annotations are declared", () => {
+    const ast = parse(`
+scene type=architecture theme=paper
+service API
+annotation "one"
+annotation "two"
+annotation "three"
+beat main:
+  show API
+`);
+    expect(ast.annotations).toHaveLength(3);
+    expect(ast.diagnostics.some((d) => d.message.includes("more than 2 annotation"))).toBe(true);
+    expect(compile(ast).annotations).toHaveLength(2);
+  });
 });

@@ -31,6 +31,18 @@ const FEATURES = [
     summary: "Chain request, response, event, and dependency edges.",
     example: 'API -> DB "persist" & API ~> Queue "enqueue"',
   },
+  {
+    id: "modes",
+    name: "diagram modes",
+    summary: "Choose architecture, flowchart, tree, state, or sequence composition.",
+    example: 'scene "Signal" theme=nebula type=constellation',
+  },
+  {
+    id: "visuals",
+    name: "visual primitives",
+    summary: "Add structural edges, annotations, zones, and semantic surface primitives.",
+    example: 'annotation "Hot path" target=API position=top-right',
+  },
 ];
 
 // The canonical, always-current reference for AI tools. The website serves this
@@ -53,6 +65,8 @@ Fetch and follow the canonical guide above before generating MarkdyScript. This 
 - Use architecture node declarations directly: \`service API\`, \`database DB\`, \`queue Events\`.
 - Prefer concise beats over pixel coordinates.
 - Default theme: \`paper\`. Default layout: \`LR\`.
+- Optional modes: \`architecture\`, \`flowchart\`, \`tree\`, \`state\`, \`sequence\`, and \`constellation\`.
+- Use \`theme=editorial\` for flat documentation scenes or \`theme=nebula\` for radial/surreal scenes; other themes are \`paper\`, \`midnight\`, \`blueprint\`, and \`graphite\`.
 
 ## Minimal example
 

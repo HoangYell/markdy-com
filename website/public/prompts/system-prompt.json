@@ -24,7 +24,19 @@
       "name": "flow operators",
       "summary": "Chain request, response, event, and dependency edges.",
       "example": "API -> DB \"persist\" & API ~> Queue \"enqueue\""
+    },
+    {
+      "id": "modes",
+      "name": "diagram modes",
+      "summary": "Choose architecture, flowchart, tree, state, or sequence composition.",
+      "example": "scene \"Signal\" theme=nebula type=constellation"
+    },
+    {
+      "id": "visuals",
+      "name": "visual primitives",
+      "summary": "Add structural edges, annotations, zones, and semantic surface primitives.",
+      "example": "annotation \"Hot path\" target=API position=top-right"
     }
   ],
-  "prompt": "# MarkdyScript 0.8 Agent Instructions\n\nYou write **diagram-native MarkdyScript** for animated software architecture diagrams: declarative scenes made of nodes, groups, beats, flow operators, and cues.\n\n## Canonical reference (fetch this first)\n- Full, always-current guide: https://markdy.com/AGENT.md\n- LLM index: https://markdy.com/llms.txt\n\nFetch and follow the canonical guide above before generating MarkdyScript. This prompt is only a short summary; the hosted guide is the single source of truth and stays in sync with each release.\n\n## Rules\n- Use `scene`, node kinds, `group`, `beat`, flow operators, and optional `pattern`/`use`.\n- Use architecture node declarations directly: `service API`, `database DB`, `queue Events`.\n- Prefer concise beats over pixel coordinates.\n- Default theme: `paper`. Default layout: `LR`.\n\n## Minimal example\n\n```markdy\nscene \"Request path\" theme=paper\nlayout LR\n\nbrowser Client\nservice API\ndatabase DB\n\nbeat main:\n  show $nodes\n  Client -> API \"GET /items\" -> DB \"query\"\n  Client <- API \"200 OK\"\n```\n\n## Node kinds\nservice, api, microservice, backend, server, worker, job, scheduler, cron, batch, function, lambda, edge, controller, handler, repository, module, package, library, sdk, ...\n\n## Flow operators\n- -> = request\n- <- = response\n- ~> = event\n- -- = dependency\n"
+  "prompt": "# MarkdyScript 0.8 Agent Instructions\n\nYou write **diagram-native MarkdyScript** for animated software architecture diagrams: declarative scenes made of nodes, groups, beats, flow operators, and cues.\n\n## Canonical reference (fetch this first)\n- Full, always-current guide: https://markdy.com/AGENT.md\n- LLM index: https://markdy.com/llms.txt\n\nFetch and follow the canonical guide above before generating MarkdyScript. This prompt is only a short summary; the hosted guide is the single source of truth and stays in sync with each release.\n\n## Rules\n- Use `scene`, node kinds, `group`, `beat`, flow operators, and optional `pattern`/`use`.\n- Use architecture node declarations directly: `service API`, `database DB`, `queue Events`.\n- Prefer concise beats over pixel coordinates.\n- Default theme: `paper`. Default layout: `LR`.\n- Optional modes: `architecture`, `flowchart`, `tree`, `state`, `sequence`, and `constellation`.\n- Use `theme=editorial` for flat documentation scenes or `theme=nebula` for radial/surreal scenes; other themes are `paper`, `midnight`, `blueprint`, and `graphite`.\n\n## Minimal example\n\n```markdy\nscene \"Request path\" theme=paper\nlayout LR\n\nbrowser Client\nservice API\ndatabase DB\n\nbeat main:\n  show $nodes\n  Client -> API \"GET /items\" -> DB \"query\"\n  Client <- API \"200 OK\"\n```\n\n## Node kinds\nservice, api, microservice, backend, server, worker, job, scheduler, cron, batch, function, lambda, edge, controller, handler, repository, module, package, library, sdk, ...\n\n## Flow operators\n- -> = request\n- <- = response\n- ~> = event\n- -- = dependency\n"
 }

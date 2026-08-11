@@ -35,6 +35,30 @@ export function ensureSceneStyles(doc: Document): void {
   opacity: 0.62;
 }
 .markdy-scene-content { z-index: 2; }
+.markdy-scene-root[data-markdy-theme="nebula"]::before {
+  background:
+    radial-gradient(circle at 18% 18%, color-mix(in srgb, var(--md-soft) 16%, transparent), transparent 32%),
+    radial-gradient(circle at 84% 72%, color-mix(in srgb, var(--md-accent) 18%, transparent), transparent 36%),
+    linear-gradient(var(--md-grid-minor) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(90deg, var(--md-grid-minor) 1px, transparent 1px) 0 0 / 32px 32px;
+  mask-image: none;
+  opacity: 0.9;
+}
+.markdy-scene-root[data-markdy-theme="nebula"]::after {
+  background:
+    radial-gradient(ellipse at 50% 42%, color-mix(in srgb, var(--md-accent) 12%, transparent), transparent 56%),
+    linear-gradient(180deg, transparent 0%, var(--md-vignette) 100%);
+  opacity: 0.8;
+}
+@keyframes markdy-star-twinkle {
+  from { opacity: 0.24; transform: scale(0.85); }
+  to { opacity: 0.9; transform: scale(1.15); }
+}
+.markdy-constellation-star {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: markdy-star-twinkle 5s ease-in-out infinite alternate;
+}
 .markdy-camera-layer {
   position: absolute;
   inset: 0;
@@ -88,13 +112,30 @@ export function applyThemeToScene(scene: HTMLElement, theme: ThemeTokens): void 
   scene.style.setProperty("--md-border", theme.border);
   scene.style.setProperty("--md-text", theme.text);
   scene.style.setProperty("--md-text-muted", theme.textMuted);
+  scene.style.setProperty("--md-paper", theme.paper ?? theme.canvas);
+  scene.style.setProperty("--md-ink", theme.ink ?? theme.text);
+  scene.style.setProperty("--md-muted", theme.muted ?? theme.textMuted);
+  scene.style.setProperty("--md-rule", theme.rule ?? theme.border);
   scene.style.setProperty("--md-grid-minor", theme.gridMinor);
   scene.style.setProperty("--md-grid-major", theme.gridMajor);
   scene.style.setProperty("--md-vignette", theme.vignette);
   scene.style.setProperty("--md-accent", theme.accent);
+  if (theme.link) scene.style.setProperty("--md-link", theme.link);
+  if (theme.soft) scene.style.setProperty("--md-soft", theme.soft);
+  if (theme.accentTint) scene.style.setProperty("--md-accent-tint", theme.accentTint);
   scene.style.setProperty("--md-node-surface", theme.nodeSurface ?? theme.surface);
   scene.style.setProperty("--md-node-surface-raised", theme.nodeSurfaceRaised ?? theme.surfaceRaised);
   scene.style.setProperty("--md-hairline", theme.hairline ?? `color-mix(in srgb, ${theme.border} 50%, transparent)`);
   scene.style.setProperty("--md-shadow", theme.shadow ?? "rgba(2, 6, 23, 0.55)");
+  if (theme.fonts?.title) scene.style.setProperty("--md-font-title", theme.fonts.title);
+  if (theme.fonts?.nodeName) scene.style.setProperty("--md-font-node", theme.fonts.nodeName);
+  if (theme.fonts?.mono) scene.style.setProperty("--md-font-mono", theme.fonts.mono);
+  if (theme.radiusMd) scene.style.setProperty("--md-radius-md", `${theme.radiusMd}px`);
+  if (theme.spacing) {
+    for (const [key, value] of Object.entries(theme.spacing)) {
+      scene.style.setProperty(`--md-space-${key}`, `${value}px`);
+    }
+  }
   scene.dataset.markdyTheme = theme.name;
+  if (theme.flatCards) scene.dataset.flat = "1";
 }
