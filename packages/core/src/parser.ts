@@ -7,7 +7,6 @@ import type {
   DiagramAST,
   Diagnostic,
   EdgeDecl,
-  EdgeKind,
   FlowSegment,
   GroupDecl,
   LayoutDirection,
@@ -630,6 +629,72 @@ function validateReferences(ast: DiagramAST): void {
   }
 }
 
+/**
+ * Auto-layout ranks nodes by longest path through forward edges (`->`, `~>`, `--`);
+ * `<-` is excluded because it represents a reply, not a new hop. A forward edge that
+ * closes a loop (often a reply/return value mislabeled as `->` instead of `<-`) has no
+ * bound in the ranking pass, so it keeps pushing the looped nodes to a deeper rank
+ * until the diagram collapses into a couple of overlapping columns. Surface it early.
+ */
+function detectFlowCycles(ast: DiagramAST): void {
+  const seen = new Set<string>();
+  const adj = new Map<string, { to: string; line: number }[]>();
+  const ensure = (id: string) => {
+    if (!adj.has(id)) adj.set(id, []);
+  };
+  for (const id of Object.keys(ast.nodes)) ensure(id);
+
+  const addEdge = (from: string, to: string, line: number) => {
+    if (!ast.nodes[from] || !ast.nodes[to]) return;
+    ensure(from);
+    adj.get(from)!.push({ to, line });
+  };
+
+  for (const edge of ast.edges) {
+    if (edge.kind !== "response") addEdge(edge.from, edge.to, edge.line);
+  }
+  for (const beat of ast.beats) {
+    visitCues(beat.cues, (cue) => {
+      if (cue.kind !== "flow") return;
+      for (const segment of cue.segments) {
+        if (segment.op !== "response") addEdge(segment.from, segment.to, cue.line);
+      }
+    });
+  }
+
+  const WHITE = 0;
+  const GRAY = 1;
+  const BLACK = 2;
+  const color = new Map<string, number>();
+  for (const id of adj.keys()) color.set(id, WHITE);
+  const stack: string[] = [];
+
+  const dfs = (node: string) => {
+    color.set(node, GRAY);
+    stack.push(node);
+    for (const { to, line } of adj.get(node) ?? []) {
+      if (color.get(to) === GRAY) {
+        const idx = stack.indexOf(to);
+        const cyclePath = [...stack.slice(idx), to].join(" -> ");
+        pushWarning(
+          ast.diagnostics,
+          seen,
+          line,
+          `flow cycle detected: ${cyclePath} — if '${to}' is receiving a reply/return value here, use '<-' for this edge instead of '->'/'~>'/'--' (an unmarked cycle can crush the ranked layout and overlap nodes)`,
+        );
+      } else if (color.get(to) === WHITE) {
+        dfs(to);
+      }
+    }
+    stack.pop();
+    color.set(node, BLACK);
+  };
+
+  for (const id of adj.keys()) {
+    if (color.get(id) === WHITE) dfs(id);
+  }
+}
+
 export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
   const lines = source.replace(/\r\n/g, "\n").split("\n");
   const diagnostics: Diagnostic[] = [];
@@ -827,6 +892,7 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
   };
 
   validateReferences(ast);
+  detectFlowCycles(ast);
 
   const errors = ast.diagnostics.filter((d) => d.severity === "error");
   if (errors.length) {
