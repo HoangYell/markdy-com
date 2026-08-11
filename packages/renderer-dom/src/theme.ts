@@ -35,6 +35,30 @@ export function ensureSceneStyles(doc: Document): void {
   opacity: 0.62;
 }
 .markdy-scene-content { z-index: 2; }
+.markdy-scene-root[data-markdy-theme="nebula"]::before {
+  background:
+    radial-gradient(circle at 18% 18%, color-mix(in srgb, var(--md-soft) 16%, transparent), transparent 32%),
+    radial-gradient(circle at 84% 72%, color-mix(in srgb, var(--md-accent) 18%, transparent), transparent 36%),
+    linear-gradient(var(--md-grid-minor) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(90deg, var(--md-grid-minor) 1px, transparent 1px) 0 0 / 32px 32px;
+  mask-image: none;
+  opacity: 0.9;
+}
+.markdy-scene-root[data-markdy-theme="nebula"]::after {
+  background:
+    radial-gradient(ellipse at 50% 42%, color-mix(in srgb, var(--md-accent) 12%, transparent), transparent 56%),
+    linear-gradient(180deg, transparent 0%, var(--md-vignette) 100%);
+  opacity: 0.8;
+}
+@keyframes markdy-star-twinkle {
+  from { opacity: 0.24; transform: scale(0.85); }
+  to { opacity: 0.9; transform: scale(1.15); }
+}
+.markdy-constellation-star {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: markdy-star-twinkle 5s ease-in-out infinite alternate;
+}
 .markdy-camera-layer {
   position: absolute;
   inset: 0;

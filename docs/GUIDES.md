@@ -15,8 +15,8 @@ This guide focuses on real problems developers search for: animated architecture
 
 - Keep edge labels under 28 characters when possible.
 - Avoid overlapping nodes; leave room for routed edges.
-- Use the `paper` theme for default docs and onboarding examples; use `editorial` for flat, documentation-style scenes, or `midnight`, `blueprint`, and `graphite` when the surrounding page needs a darker or more technical canvas.
-- Choose `type=flowchart`, `tree`, `state`, or `sequence` when the story is a process, hierarchy, lifecycle, or ordered interaction rather than a general architecture graph.
+- Use the `paper` theme for default docs and onboarding examples; use `editorial` for flat documentation scenes, `nebula` for radial/surreal scenes, or `midnight`, `blueprint`, and `graphite` for darker technical canvases.
+- Choose `type=flowchart`, `tree`, `state`, `sequence`, or `constellation` when the story is a process, hierarchy, lifecycle, ordered interaction, or radial signal map rather than a general architecture graph.
 - Prefer `group name: ...` plus `show name stagger=...` for clean reveals.
 - Add emphasis (`glow`, `focus`) only after the viewer understands the full layout.
 

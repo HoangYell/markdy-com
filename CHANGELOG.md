@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Focused diagram modes** — Added opt-in `architecture`, `flowchart`, `tree`, `state`, and `sequence` layouts with cycle-safe state placement, tree buses, sequence lifelines, activation spans, and self-loop routing.
 - **Editorial scene system** — Added the `editorial` theme, semantic visual primitives, structural edge selectors, annotations, group zones, shape-aware nodes, and a read-only icon registry.
+- **Nebula constellation mode** — Added an opt-in `nebula` theme and `constellation` layout with focal-node halos, orbit rings, deterministic stars, and radial signal examples.
 
 ### Changed
 - **Renderer composition** — Structural and animated edges now remain addressable during playback; fan-out routing uses distinct attachment lanes and emphasis cues resolve `$edges`.

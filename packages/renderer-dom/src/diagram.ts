@@ -9,6 +9,7 @@ import {
   type EdgeRuntimeMap,
 } from "./edges.js";
 import { mountAnnotations } from "./annotations.js";
+import { mountConstellationLayer } from "./constellation.js";
 import { mountGroupBoundaries } from "./groups.js";
 import { createNodeEl, createTitleEl, ensureNodeStyles } from "./nodes.js";
 import { mountSequenceLayer } from "./sequence.js";
@@ -218,6 +219,18 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   treeLayer.className = "markdy-tree-layer";
   cameraLayer.appendChild(treeLayer);
   mountTreeBuses(treeLayer, plan.treeBuses, plan.theme);
+
+  const constellationLayer = document.createElement("div");
+  constellationLayer.className = "markdy-constellation-layer";
+  cameraLayer.appendChild(constellationLayer);
+  if (plan.diagramType === "constellation") {
+    mountConstellationLayer(
+      constellationLayer,
+      plan.nodes,
+      plan.theme,
+      { width: plan.meta.width, height: plan.meta.height },
+    );
+  }
 
   const groupLayer = document.createElement("div");
   groupLayer.className = "markdy-group-layer";

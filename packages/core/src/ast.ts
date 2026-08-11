@@ -7,7 +7,7 @@ export type LayoutDirection = "LR" | "RL" | "TB" | "BT";
 
 export type EdgeKind = "request" | "response" | "event" | "dependency";
 
-export type DiagramType = "architecture" | "flowchart" | "tree" | "state" | "sequence";
+export type DiagramType = "architecture" | "flowchart" | "tree" | "state" | "sequence" | "constellation";
 
 export type NodeShape = "card" | "rounded" | "diamond" | "circle" | "pill" | "terminal";
 

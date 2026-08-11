@@ -16,6 +16,7 @@ export const DIAGRAM_TYPES = new Set<string>([
   "tree",
   "state",
   "sequence",
+  "constellation",
 ]);
 
 export const EDGE_OPERATORS: Record<string, "request" | "response" | "event" | "dependency"> = {

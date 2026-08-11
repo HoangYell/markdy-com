@@ -12,6 +12,7 @@ import { mountAnnotations } from "../src/annotations";
 import { mountGroupBoundaries } from "../src/groups";
 import { createNodeEl, ICON_REGISTRY } from "../src/nodes";
 import { selfLoopPath } from "../src/geometry/path";
+import { mountConstellationLayer } from "../src/constellation";
 import { mountSequenceLayer } from "../src/sequence";
 
 const SAMPLE = `
@@ -366,6 +367,23 @@ describe("diagram render plan", () => {
     expect(layer.querySelectorAll(".markdy-sequence-message")).toHaveLength(1);
     expect(layer.querySelectorAll(".markdy-sequence-activation")).toHaveLength(1);
     expect(animations.length).toBe(2);
+  });
+
+  it("renders deterministic nebula constellation decoration", () => {
+    const layer = document.createElement("div");
+    mountConstellationLayer(
+      layer,
+      [
+        { id: "Core", kind: "service", role: "compute", label: "Core", x: 500, y: 300, width: 168, height: 72, opacity: 1, focal: true },
+        { id: "North", kind: "service", role: "compute", label: "North", x: 200, y: 120, width: 168, height: 72, opacity: 1 },
+        { id: "South", kind: "service", role: "compute", label: "South", x: 800, y: 480, width: 168, height: 72, opacity: 1 },
+      ],
+      THEMES.nebula,
+      { width: 1280, height: 720 },
+    );
+    expect(layer.querySelectorAll(".markdy-constellation-star")).toHaveLength(28);
+    expect(layer.querySelectorAll(".markdy-constellation-link")).toHaveLength(2);
+    expect(layer.querySelector("circle[fill^='url(#md-constellation-']")).not.toBeNull();
   });
 
   it("exposes a read-only icon registry", () => {

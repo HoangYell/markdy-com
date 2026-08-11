@@ -100,7 +100,7 @@ interface DiagramAST {
 }
 ```
 
-`compile(ast)` turns this into a `RenderPlan` with positioned nodes, routed edges, group boundaries, mode-specific sequence/tree geometry, timed cues, and beat ranges — the shape the renderer consumes.
+`compile(ast)` turns this into a `RenderPlan` with positioned nodes, routed edges, group boundaries, mode-specific sequence/tree/constellation geometry, timed cues, and beat ranges — the shape the renderer consumes.
 
 ---
 
@@ -118,6 +118,7 @@ src/
   tree.ts         — Shared tree-bus geometry
   groups.ts       — Group boundary zones
   annotations.ts  — Anchored editorial callouts
+  constellation.ts — Nebula halos, orbit rings, deterministic stars
   geometry/       — Pure rect/point + obstacle-aware routing helpers
   theme.ts        — Scene ambience styles + theme-token application
   diagram.ts      — Public API, rAF loop, progress bar, responsive scaling

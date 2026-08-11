@@ -42,6 +42,7 @@ function nodeShape(kind: string, dtype: DiagramType): PositionedNode["shape"] {
   if (kind === "dot" || kind === "marker") return "circle";
   if (kind === "token_strip" || kind === "chips") return "pill";
   if (kind === "surface" || kind === "stat" || kind === "matrix" || kind === "track" || kind === "glyph_card") return "rounded";
+  if (dtype === "constellation") return "rounded";
   if (dtype === "flowchart") {
     if (kind === "start" || kind === "end") return "pill";
     if (kind === "decision" || kind === "condition") return "diamond";
@@ -298,6 +299,53 @@ function cycleSafeEdges(nodeIds: string[], edges: RoutedEdge[]): RoutedEdge[] {
   return safe;
 }
 
+function layoutConstellation(ast: DiagramAST): PositionedNode[] {
+  const nodeIds = Object.keys(ast.nodes);
+  if (nodeIds.length === 0) return [];
+
+  const incoming = new Set<string>();
+  for (const edge of ast.edges) {
+    if (edge.kind !== "response" && edge.from !== edge.to && ast.nodes[edge.to]) incoming.add(edge.to);
+  }
+  const focalId =
+    nodeIds.find((id) => ast.nodes[id].props.focal === true || ast.nodes[id].props.accent === true) ??
+    nodeIds.find((id) => !incoming.has(id)) ??
+    nodeIds[0];
+  const contentW = ast.meta.width - SAFE * 2;
+  const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const centerX = SAFE + contentW / 2 - NODE_W / 2;
+  const centerY = TITLE_BAND + contentH / 2 - NODE_H / 2;
+  const orbitIds = nodeIds.filter((id) => id !== focalId);
+  const radiusX = Math.max(140, contentW / 2 - NODE_W / 2 - SAFE);
+  const radiusY = Math.max(120, contentH / 2 - NODE_H / 2 - SAFE);
+  const nodes: PositionedNode[] = [];
+
+  for (const id of nodeIds) {
+    const decl = ast.nodes[id];
+    const isFocal = id === focalId;
+    const index = orbitIds.indexOf(id);
+    const angle = orbitIds.length > 0 ? -Math.PI / 2 + (index * Math.PI * 2) / orbitIds.length : 0;
+    const x = isFocal ? centerX : SAFE + contentW / 2 + Math.cos(angle) * radiusX - NODE_W / 2;
+    const y = isFocal ? centerY : TITLE_BAND + contentH / 2 + Math.sin(angle) * radiusY - NODE_H / 2;
+    nodes.push({
+      id,
+      kind: decl.kind,
+      role: nodeRole(decl.kind),
+      label: decl.label,
+      x: snapGrid(x),
+      y: snapGrid(y),
+      width: NODE_W,
+      height: NODE_H,
+      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      props: decl.props,
+      opacity: 0,
+      shape: nodeShape(decl.kind, "constellation"),
+      focal: isFocal || decl.props.focal === true || decl.props.accent === true,
+    });
+  }
+  return nodes;
+}
+
 function layoutNodes(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
   const dtype = diagramType(ast);
   switch (dtype) {
@@ -307,6 +355,8 @@ function layoutNodes(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
       return layoutTree(ast, edges.some((edge) => edge.structural) ? edges.filter((edge) => edge.structural) : edges);
     case "sequence":
       return layoutRanked(ast, [], { columnLayout: true });
+    case "constellation":
+      return layoutConstellation(ast);
     case "state":
       return layoutRanked(ast, cycleSafeEdges(Object.keys(ast.nodes), edges), { forceVertical: false });
     default:

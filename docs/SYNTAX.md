@@ -69,6 +69,7 @@ beat main:
 - `blueprint` — technical blueprint canvas
 - `graphite` — restrained dark graphite canvas
 - `editorial` — flat editorial paper with serif titles and semantic ink/accent roles (opt-in for documentation-style diagrams)
+- `nebula` — deep-space canvas with orbit rings, signal halos, and constellation decoration
 
 ### Diagram types (opt-in)
 
@@ -81,6 +82,7 @@ Add `type=` on the scene line to tune layout and node shapes without changing th
 | `tree` | Parent/child tiers with shared sibling buses |
 | `state` | Cycle-safe state placement and transition routing |
 | `sequence` | Participant columns, lifelines, ordered messages, and activations |
+| `constellation` | Radial focal-node layout with deterministic orbit decoration |
 
 ```markdy
 scene "Checkout" theme=editorial type=flowchart

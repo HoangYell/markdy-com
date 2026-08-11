@@ -1,0 +1,30 @@
+scene "Signal Constellation" theme=nebula type=constellation width=1280 height=760
+layout LR
+
+annotation "The signal finds its center" target=SignalCore position=top-right
+
+service SignalCore "Signal Core" focal=true
+gateway Aurora "Aurora Gateway"
+database Memory "Memory Lake"
+queue Echoes "Echo Queue"
+worker Dreamer "Dream Worker"
+monitor Watcher "Observability"
+
+edge orbit_a: SignalCore -> Aurora
+edge orbit_b: SignalCore -> Memory
+edge orbit_c: SignalCore -> Echoes
+edge orbit_d: SignalCore -> Dreamer
+edge orbit_e: SignalCore -> Watcher
+
+beat arrival "Wake the constellation":
+  show $nodes stagger=55ms
+
+beat pulse "Send one signal":
+  frame SignalCore Aurora zoom=1.08 dur=500ms
+  SignalCore -> Aurora "open a path"
+  Aurora ~> Echoes "echo the pulse"
+  Echoes -> Dreamer "shape a response"
+
+beat drift "Let the edges glow":
+  glow $edges color=#67e8f9 strength=1.2
+  focus SignalCore zoom=1.08

@@ -378,6 +378,44 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "platform",
     },
   ],
+  "examples/showcase/nebula-constellation.markdy": [
+    {
+      "icon": "server",
+      "id": "SignalCore",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
+      "icon": "gateway",
+      "id": "Aurora",
+      "kind": "api_gateway",
+      "role": "network",
+    },
+    {
+      "icon": "database",
+      "id": "Memory",
+      "kind": "database",
+      "role": "data",
+    },
+    {
+      "icon": "queue",
+      "id": "Echoes",
+      "kind": "queue",
+      "role": "messaging",
+    },
+    {
+      "icon": "worker",
+      "id": "Dreamer",
+      "kind": "worker",
+      "role": "compute",
+    },
+    {
+      "icon": "metrics",
+      "id": "Watcher",
+      "kind": "monitor",
+      "role": "observability",
+    },
+  ],
   "examples/showcase/oauth-oidc-login-flow.markdy": [
     {
       "icon": "user",

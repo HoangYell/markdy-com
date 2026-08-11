@@ -7,7 +7,7 @@ The parser and AST types for [MarkdyScript](../../docs/SYNTAX.md) — a diagram-
 - **Zero runtime dependencies** — pure TypeScript, no DOM or platform APIs
 - **Single-pass parser** — line-by-line state machine with strict `ParseError` diagnostics
 - **Diagram-native grammar** — scene metadata, architecture nodes, groups, styles, beats, flow chains, annotations, visual primitives, and reusable patterns
-- **Focused modes** — `architecture`, `flowchart`, `tree`, `state`, and `sequence` compile into deterministic render-plan metadata
+- **Focused modes** — `architecture`, `flowchart`, `tree`, `state`, `sequence`, and `constellation` compile into deterministic render-plan metadata
 - **Isomorphic** — runs in Node.js, Deno, Bun, edge runtimes, and the browser
 
 ## Installation
@@ -72,7 +72,7 @@ try {
 | `NodeDecl` | type | Node declaration (kind, id, label, style) |
 | `EdgeDecl` | type | Edge declaration (kind, from, to, label) |
 | `BeatDecl` | type | Named beat with cues |
-| `THEMES` / `resolveTheme` | tokens | Semantic theme palettes (`paper`, `editorial`, `midnight`, `blueprint`, `graphite`) |
+| `THEMES` / `resolveTheme` | tokens | Semantic theme palettes (`paper`, `editorial`, `nebula`, `midnight`, `blueprint`, `graphite`) |
 
 ## Documentation
 

@@ -8,11 +8,11 @@ Web Animations API renderer for [MarkdyScript](../../docs/SYNTAX.md) scenes. Tra
 - **Auto-layout diagrams** — renders positioned nodes and orthogonal, obstacle-aware edges from a compiled `RenderPlan`
 - **Flow edges** — `->` request, `<-` response, `~>` event, `--` dependency, each with its own stroke, plus a pulse that travels the edge as it draws
 - **Beat-driven cues** — `show`, `hide`, `glow`, and `focus`, sequenced by named beats
-- **Focused diagram visuals** — flowchart shapes, tree buses, state self-loops, sequence lifelines/messages, group zones, and annotations
+- **Focused diagram visuals** — flowchart shapes, tree buses, state self-loops, sequence lifelines/messages, constellation orbits, group zones, and annotations
 - **Semantic node cards** — compact SVG glyphs for browsers, services, gateways, queues, workers, databases, storage, CDN, security, platform, and more
 - **Seek-safe** — manual `currentTime` control enables reliable `seek()` in any direction
 - **Playback-rate controls** — set timeline speed to slow down or speed up diagrams without rebuilding animations
-- **Semantic themes** — `paper`, `editorial`, `midnight`, `blueprint`, and `graphite`, with per-role node and edge colors
+- **Semantic themes** — `paper`, `editorial`, `nebula`, `midnight`, `blueprint`, and `graphite`, with per-role node and edge colors
 - **Single dependency** — only `@markdy/core`
 
 ## Installation
@@ -106,6 +106,7 @@ src/
   tree.ts         — Shared parent/child bus connectors
   groups.ts       — Group boundary zones
   annotations.ts  — Editorial callouts and leader lines
+  constellation.ts — Nebula halos, orbit rings, and deterministic stars
   geometry/
     rect.ts       — Rects, points, and hit-testing (DOM-free, unit tested)
     path.ts       — Polyline measurement + obstacle-aware orthogonal routing

@@ -21,7 +21,7 @@ export interface ExampleMeta {
   /** Architecture pattern label for docs/gallery filtering. */
   pattern?: string;
   /** Semantic theme used by the scene. */
-  theme?: "midnight" | "paper" | "blueprint" | "graphite" | "editorial";
+  theme?: "midnight" | "paper" | "blueprint" | "graphite" | "editorial" | "nebula";
   /** Path relative to the repo's `examples/` directory. */
   file: string;
   playback?: {
@@ -127,6 +127,14 @@ export const EXAMPLE_REGISTRY: ExampleMeta[] = [
     pattern: "request-sequence",
     theme: "editorial",
     file: "showcase/editorial-sequence.markdy",
+  },
+  {
+    id: "nebula-constellation",
+    title: "Signal Constellation",
+    category: "architecture",
+    pattern: "radial-signal",
+    theme: "nebula",
+    file: "showcase/nebula-constellation.markdy",
   },
 ];
 

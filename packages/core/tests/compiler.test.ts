@@ -163,4 +163,25 @@ edge right: Root -> Right
     });
     expect(plan.treeBuses[0].childXs[0]).toBeLessThan(plan.treeBuses[0].childXs[1]);
   });
+
+  it("places constellation scenes around a focal node", () => {
+    const source = `
+scene type=constellation theme=nebula width=1200 height=720
+service Core focal=true
+service North
+service South
+edge north: Core -> North
+edge south: Core -> South
+`;
+    const plan = compile(parse(source));
+    const core = plan.nodes.find((node) => node.id === "Core")!;
+    const north = plan.nodes.find((node) => node.id === "North")!;
+    const south = plan.nodes.find((node) => node.id === "South")!;
+    expect(plan.diagramType).toBe("constellation");
+    expect(plan.theme.name).toBe("nebula");
+    expect(core.focal).toBe(true);
+    expect(core.shape).toBe("rounded");
+    expect(north.x !== core.x || north.y !== core.y).toBe(true);
+    expect(south.x !== core.x || south.y !== core.y).toBe(true);
+  });
 });
