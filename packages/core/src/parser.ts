@@ -502,7 +502,7 @@ function isTopLevelStatement(line: string): boolean {
 
 /**
  * Colon bodies are normally indentation-delimited. When indentation is lost,
- * fall back to consuming same-indent lines until the next structural
+ * fall back silently to consuming same-indent lines until the next structural
  * top-level statement so diagrams still parse in MDX/blog hosts.
  */
 function readColonBody(
@@ -530,14 +530,6 @@ function readColonBody(
     if (block.indent === parentIndent && isTopLevelStatement(block.text)) break;
     body.push(block);
     i++;
-  }
-
-  if (body.length > 0) {
-    diagnostics.push({
-      severity: "warning",
-      message: `${context} body had no indentation; parsed until the next top-level statement (hosts like MDX/JSX often strip indent from template literals)`,
-      line: headerLine,
-    });
   }
 
   return { body, nextIdx: i };
