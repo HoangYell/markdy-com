@@ -81,7 +81,7 @@ for each block in source:
 **Key implementation details:**
 
 - **Strict grammar:** Statements outside the diagram grammar raise a line-numbered `ParseError`
-- **Indent recovery:** Soft-body fallback for de-indented colon groups/beats/patterns emits a diagnostic warning instead of failing empty
+- **Indent recovery:** Soft-body fallback silently recovers de-indented colon groups/beats/patterns instead of failing empty
 - **Comment stripping:** `//` line comments are removed before parsing
 - **Flow labels:** A trailing quoted string on a flow target becomes the edge label; response (`<-`) segments are stored in data-flow direction
 - **Pattern expansion:** `use name(args)` expands a `pattern` body with `$param` substitution
