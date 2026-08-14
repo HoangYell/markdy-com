@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.15] — 2026-08-14
+
+### Added
+- **Interactive diagram viewport** — `@markdy/renderer-dom` now supports opt-in wheel zoom and drag pan through `interactiveViewport`, with website demos enabling the Figma-like viewport controls while preserving click-to-pause.
+
+### Changed
+- **Calmer normal playback** — `1x` is now Markdy's normal playback speed, so `0.5x` is half of the new normal and `2x` is twice the new normal.
+
 ## [0.8.14] — 2026-08-11
 
 ### Fixed

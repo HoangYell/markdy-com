@@ -14,6 +14,7 @@ type CreateDiagramInput = {
   progressBar: boolean;
   sceneBoundaryProgress: boolean;
   playbackRate: number;
+  interactiveViewport?: boolean;
 };
 
 export type MarkdyDiagramProps = {
@@ -28,6 +29,7 @@ export type MarkdyDiagramProps = {
   progressBar?: boolean | string;
   sceneBoundaryProgress?: boolean | string;
   playbackRate?: number | string;
+  interactiveViewport?: boolean | string;
   className?: string;
   title?: string;
   description?: string;
@@ -80,6 +82,7 @@ export function MarkdyDiagram({
   progressBar = false,
   sceneBoundaryProgress,
   playbackRate = 1,
+  interactiveViewport = false,
   className,
   title = "Markdy animation",
   description,
@@ -92,6 +95,7 @@ export function MarkdyDiagram({
   const resolvedProgressBar = coerceBoolean(progressBar, false);
   const resolvedSceneBoundaryProgress = coerceBoolean(sceneBoundaryProgress, resolvedProgressBar);
   const resolvedPlaybackRate = coerceNumber(playbackRate, 1);
+  const resolvedInteractiveViewport = coerceBoolean(interactiveViewport, false);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const diagramRef = useRef<DiagramInstance | null>(null);
@@ -126,6 +130,7 @@ export function MarkdyDiagram({
               progressBar: resolvedProgressBar,
               sceneBoundaryProgress: resolvedSceneBoundaryProgress,
               playbackRate: resolvedPlaybackRate > 0 ? resolvedPlaybackRate : 1,
+              interactiveViewport: resolvedInteractiveViewport,
             });
             root.dataset.markdyInit = "done";
             root.removeAttribute("aria-busy");
@@ -179,6 +184,7 @@ export function MarkdyDiagram({
     resolvedProgressBar,
     resolvedSceneBoundaryProgress,
     resolvedPlaybackRate,
+    resolvedInteractiveViewport,
   ]);
 
   return (

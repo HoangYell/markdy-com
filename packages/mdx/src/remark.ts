@@ -24,6 +24,8 @@ type MarkdyFenceDefaults = Partial<{
   loop: boolean;
   copyright: boolean;
   progressBar: boolean;
+  playbackRate: number;
+  interactiveViewport: boolean;
   title: string;
   description: string;
 }>;
@@ -51,6 +53,7 @@ function normalizeMetaKey(key: string): string {
   if (key === "progress_bar") return "progressBar";
   if (key === "scene_boundary_progress") return "sceneBoundaryProgress";
   if (key === "playback_rate") return "playbackRate";
+  if (key === "interactive_viewport") return "interactiveViewport";
   return key;
 }
 

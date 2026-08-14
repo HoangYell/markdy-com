@@ -81,7 +81,8 @@ export const code = `
 | `copyright` | `boolean` | `true` | Show a "Powered by Markdy" badge below the animation |
 | `progressBar` | `boolean` | `true` | Deprecated compatibility flag for the rainbow scene-boundary progress bar |
 | `sceneBoundaryProgress` | `boolean` | `progressBar` | Preferred flag for the rainbow scene-boundary progress bar |
-| `playbackRate` | `number` | `1` | Timeline speed multiplier |
+| `playbackRate` | `number` | `1` | Normalized timeline speed multiplier; `1` is Markdy's normal pace |
+| `interactiveViewport` | `boolean` | `false` | Enable wheel zoom and drag pan after hydration |
 | `class` | `string` | — | CSS class for the outer wrapper |
 
 > **Tip:** Match `width`, `height`, and `bg` props to your `scene` declaration values to avoid a visual flash on hydration.
