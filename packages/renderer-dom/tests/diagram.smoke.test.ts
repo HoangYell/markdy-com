@@ -16,6 +16,19 @@ const animateStub = vi.fn(function animate(this: Element) {
   } as unknown as Animation;
 });
 
+let animationFrameCallbacks: FrameRequestCallback[] = [];
+
+function pointerEvent(type: string, props: { pointerId?: number; clientX: number; clientY: number; button?: number }): Event {
+  const event = new Event(type, { bubbles: true, cancelable: true });
+  Object.defineProperties(event, {
+    pointerId: { value: props.pointerId ?? 1 },
+    clientX: { value: props.clientX },
+    clientY: { value: props.clientY },
+    button: { value: props.button ?? 0 },
+  });
+  return event;
+}
+
 const SCENE = `
 scene "Smoke" theme=paper
 layout LR
@@ -41,7 +54,16 @@ beat finish:
 
 describe("createDiagram integration", () => {
   beforeEach(() => {
+    animationFrameCallbacks = [];
     (Element.prototype as unknown as { animate: typeof animateStub }).animate = animateStub;
+    (HTMLElement.prototype as unknown as { setPointerCapture: (pointerId: number) => void }).setPointerCapture = vi.fn();
+    (HTMLElement.prototype as unknown as { releasePointerCapture: (pointerId: number) => void }).releasePointerCapture = vi.fn();
+    (HTMLElement.prototype as unknown as { hasPointerCapture: (pointerId: number) => boolean }).hasPointerCapture = vi.fn(() => true);
+    vi.stubGlobal("requestAnimationFrame", vi.fn((callback: FrameRequestCallback) => {
+      animationFrameCallbacks.push(callback);
+      return animationFrameCallbacks.length;
+    }));
+    vi.stubGlobal("cancelAnimationFrame", vi.fn());
     (globalThis as unknown as { ResizeObserver: unknown }).ResizeObserver = class {
       observe() {}
       unobserve() {}
@@ -53,6 +75,10 @@ describe("createDiagram integration", () => {
   afterEach(() => {
     document.body.innerHTML = "";
     delete (Element.prototype as unknown as { animate?: unknown }).animate;
+    delete (HTMLElement.prototype as unknown as { setPointerCapture?: unknown }).setPointerCapture;
+    delete (HTMLElement.prototype as unknown as { releasePointerCapture?: unknown }).releasePointerCapture;
+    delete (HTMLElement.prototype as unknown as { hasPointerCapture?: unknown }).hasPointerCapture;
+    vi.unstubAllGlobals();
     delete (globalThis as unknown as { ResizeObserver?: unknown }).ResizeObserver;
   });
 
@@ -80,5 +106,71 @@ describe("createDiagram integration", () => {
     expect(() => diagram.seek(diagram.duration() / 2)).not.toThrow();
     diagram.destroy();
     expect(container.querySelector(".markdy-scene-root")).toBeNull();
+  });
+
+  it("defaults playback to normalized 1x and falls back to 1x for invalid initial rates", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const diagram = createDiagram({ container, code: SCENE, autoplay: false, copyright: false });
+    expect(diagram.playbackRate()).toBe(1);
+    diagram.destroy();
+
+    const invalidRateDiagram = createDiagram({ container, code: SCENE, autoplay: false, copyright: false, playbackRate: -1 });
+    expect(invalidRateDiagram.playbackRate()).toBe(1);
+    invalidRateDiagram.destroy();
+  });
+
+  it("treats normalized 1x as Markdy's normal pace", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const diagram = createDiagram({ container, code: SCENE, autoplay: false, copyright: false });
+
+    diagram.play();
+    animationFrameCallbacks[0](1000);
+    animationFrameCallbacks[1](2000);
+    expect(diagram.currentTime()).toBeCloseTo(4 / 5);
+
+    diagram.seek(0);
+    diagram.setPlaybackRate(0.5);
+    animationFrameCallbacks = [];
+    diagram.pause();
+    diagram.play();
+    animationFrameCallbacks[0](1000);
+    animationFrameCallbacks[1](2000);
+    expect(diagram.currentTime()).toBeCloseTo(0.4);
+
+    diagram.destroy();
+  });
+
+  it("keeps click-to-pause but suppresses the click produced by dragging the interactive viewport", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const diagram = createDiagram({
+      container,
+      code: SCENE,
+      autoplay: false,
+      copyright: false,
+      interactiveViewport: true,
+    });
+    const viewport = container.firstElementChild as HTMLElement;
+
+    viewport.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(diagram.isPlaying()).toBe(true);
+
+    viewport.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(diagram.isPlaying()).toBe(false);
+
+    viewport.dispatchEvent(pointerEvent("pointerdown", { clientX: 20, clientY: 20 }));
+    viewport.dispatchEvent(pointerEvent("pointermove", { clientX: 40, clientY: 25 }));
+    viewport.dispatchEvent(pointerEvent("pointerup", { clientX: 40, clientY: 25 }));
+    viewport.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+
+    expect(diagram.isPlaying()).toBe(false);
+    expect(container.querySelector<HTMLElement>(".markdy-viewport-transform")?.style.transform).toContain("translate(20px, 5px)");
+
+    diagram.destroy();
   });
 });

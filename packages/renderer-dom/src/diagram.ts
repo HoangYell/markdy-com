@@ -16,6 +16,13 @@ import { mountSequenceLayer } from "./sequence.js";
 import { mountTreeBuses } from "./tree.js";
 import { applyThemeToScene, ensureSceneStyles } from "./theme.js";
 
+const NORMAL_PLAYBACK_RATE = 4 / 5;
+const DEFAULT_PLAYBACK_RATE = 1;
+const MIN_VIEWPORT_ZOOM = 0.5;
+const MAX_VIEWPORT_ZOOM = 3;
+const VIEWPORT_ZOOM_STEP = 0.0015;
+const DRAG_CLICK_THRESHOLD_PX = 4;
+
 export interface DiagramOptions {
   container: HTMLElement;
   code: string;
@@ -32,8 +39,10 @@ export interface DiagramOptions {
   progressBar?: boolean;
   /** Show rainbow progress around scene boundary. Defaults to true. */
   sceneBoundaryProgress?: boolean;
-  /** Playback speed multiplier. Defaults to 1. */
+  /** Playback speed multiplier. Defaults to 1, where 1 is Markdy's normal pace. */
   playbackRate?: number;
+  /** Enable wheel zoom and drag pan on the rendered viewport. Defaults to false. */
+  interactiveViewport?: boolean;
   onWarning?: (warning: Diagnostic) => void;
   onTimeUpdate?: (seconds: number, durationSeconds: number) => void;
   onPlayStateChange?: (playing: boolean) => void;
@@ -101,7 +110,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     assets,
     progressBar,
     sceneBoundaryProgress,
-    playbackRate: initialPlaybackRate = 1,
+    playbackRate: initialPlaybackRate = DEFAULT_PLAYBACK_RATE,
+    interactiveViewport = false,
     onWarning = (w) => console.warn(`[markdy] line ${w.line}: ${w.message}`),
     onTimeUpdate,
     onPlayStateChange,
@@ -178,6 +188,16 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   ensureSceneStyles(document);
   ensureNodeStyles(document);
 
+  const viewportTransform = document.createElement("div");
+  viewportTransform.className = "markdy-viewport-transform";
+  Object.assign(viewportTransform.style, {
+    position: "absolute",
+    inset: "0",
+    transformOrigin: "0 0",
+    willChange: interactiveViewport ? "transform" : "auto",
+  });
+  viewport.appendChild(viewportTransform);
+
   const scene = document.createElement("div");
   scene.className = "markdy-scene-root";
   Object.assign(scene.style, {
@@ -191,7 +211,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     transformOrigin: "0 0",
   });
   applyThemeToScene(scene, plan.theme);
-  viewport.appendChild(scene);
+  viewportTransform.appendChild(scene);
 
   const sceneContent = document.createElement("div");
   sceneContent.className = "markdy-scene-content";
@@ -314,10 +334,79 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   }
 
   let sceneMs = 0;
-  let playbackRate = Number.isFinite(initialPlaybackRate) && initialPlaybackRate > 0 ? initialPlaybackRate : 1;
+  let playbackRate = Number.isFinite(initialPlaybackRate) && initialPlaybackRate > 0 ? initialPlaybackRate : DEFAULT_PLAYBACK_RATE;
   let lastRafTs: number | null = null;
   let isPlaying = false;
   let rafId: number | null = null;
+
+  let viewportScale = 1;
+  let viewportPanX = 0;
+  let viewportPanY = 0;
+  let activePointerId: number | null = null;
+  let dragStartX = 0;
+  let dragStartY = 0;
+  let dragLastX = 0;
+  let dragLastY = 0;
+  let dragMoved = false;
+  let suppressNextClick = false;
+
+  function applyViewportTransform(): void {
+    viewportTransform.style.transform = `translate(${viewportPanX}px, ${viewportPanY}px) scale(${viewportScale})`;
+  }
+
+  function handleViewportWheel(event: WheelEvent): void {
+    event.preventDefault();
+
+    const rect = viewport.getBoundingClientRect();
+    const pointerX = event.clientX - rect.left;
+    const pointerY = event.clientY - rect.top;
+    const nextScale = Math.min(MAX_VIEWPORT_ZOOM, Math.max(MIN_VIEWPORT_ZOOM, viewportScale * Math.exp(-event.deltaY * VIEWPORT_ZOOM_STEP)));
+    if (nextScale === viewportScale) return;
+
+    const sceneX = (pointerX - viewportPanX) / viewportScale;
+    const sceneY = (pointerY - viewportPanY) / viewportScale;
+    viewportScale = nextScale;
+    viewportPanX = pointerX - sceneX * viewportScale;
+    viewportPanY = pointerY - sceneY * viewportScale;
+    applyViewportTransform();
+  }
+
+  function handleViewportPointerDown(event: PointerEvent): void {
+    if (event.button !== 0 || activePointerId !== null) return;
+    activePointerId = event.pointerId;
+    dragStartX = event.clientX;
+    dragStartY = event.clientY;
+    dragLastX = event.clientX;
+    dragLastY = event.clientY;
+    dragMoved = false;
+    viewport.setPointerCapture(event.pointerId);
+    viewport.style.cursor = "grabbing";
+  }
+
+  function handleViewportPointerMove(event: PointerEvent): void {
+    if (event.pointerId !== activePointerId) return;
+
+    const deltaX = event.clientX - dragLastX;
+    const deltaY = event.clientY - dragLastY;
+    const totalX = event.clientX - dragStartX;
+    const totalY = event.clientY - dragStartY;
+    if (!dragMoved && Math.hypot(totalX, totalY) >= DRAG_CLICK_THRESHOLD_PX) dragMoved = true;
+
+    dragLastX = event.clientX;
+    dragLastY = event.clientY;
+    viewportPanX += deltaX;
+    viewportPanY += deltaY;
+    applyViewportTransform();
+  }
+
+  function handleViewportPointerEnd(event: PointerEvent): void {
+    if (event.pointerId !== activePointerId) return;
+    if (dragMoved) suppressNextClick = true;
+    if (viewport.hasPointerCapture(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
+    activePointerId = null;
+    dragMoved = false;
+    viewport.style.cursor = interactiveViewport ? "grab" : "pointer";
+  }
 
   function applyCurrentTime(): void {
     for (const anim of allAnims) anim.currentTime = sceneMs;
@@ -325,7 +414,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   }
 
   function rafTick(timestamp: number): void {
-    if (lastRafTs !== null) sceneMs += (timestamp - lastRafTs) * playbackRate;
+    if (lastRafTs !== null) sceneMs += (timestamp - lastRafTs) * playbackRate * NORMAL_PLAYBACK_RATE;
     lastRafTs = timestamp;
 
     if (totalDurationMs > 0 && sceneMs >= totalDurationMs) {
@@ -400,8 +489,20 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     },
   };
 
-  viewport.style.cursor = "pointer";
+  viewport.style.cursor = interactiveViewport ? "grab" : "pointer";
+  if (interactiveViewport) {
+    viewport.style.touchAction = "none";
+    viewport.addEventListener("wheel", handleViewportWheel, { passive: false });
+    viewport.addEventListener("pointerdown", handleViewportPointerDown);
+    viewport.addEventListener("pointermove", handleViewportPointerMove);
+    viewport.addEventListener("pointerup", handleViewportPointerEnd);
+    viewport.addEventListener("pointercancel", handleViewportPointerEnd);
+  }
   viewport.addEventListener("click", () => {
+    if (suppressNextClick) {
+      suppressNextClick = false;
+      return;
+    }
     if (isPlaying) diagram.pause();
     else {
       if (!loop && sceneMs >= totalDurationMs) sceneMs = 0;

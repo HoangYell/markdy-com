@@ -11,7 +11,8 @@ Web Animations API renderer for [MarkdyScript](../../docs/SYNTAX.md) scenes. Tra
 - **Focused diagram visuals** — flowchart shapes, tree buses, state self-loops, sequence lifelines/messages, constellation orbits, group zones, and annotations
 - **Semantic node cards** — compact SVG glyphs for browsers, services, gateways, queues, workers, databases, storage, CDN, security, platform, and more
 - **Seek-safe** — manual `currentTime` control enables reliable `seek()` in any direction
-- **Playback-rate controls** — set timeline speed to slow down or speed up diagrams without rebuilding animations
+- **Playback-rate controls** — set normalized timeline speed to slow down or speed up diagrams without rebuilding animations
+- **Interactive viewport** — opt into wheel zoom and drag pan while click-to-pause stays available
 - **Semantic themes** — `paper`, `editorial`, `nebula`, `midnight`, `blueprint`, and `graphite`, with per-role node and edge colors
 - **Single dependency** — only `@markdy/core`
 
@@ -73,7 +74,8 @@ diagram.destroy();    // clean up DOM + cancel animations
 | `copyright` | `boolean` | `true` | Show a small "Powered by Markdy" badge below the animation |
 | `progressBar` | `boolean` | `true` | Deprecated compatibility flag for the rainbow scene-boundary progress bar |
 | `sceneBoundaryProgress` | `boolean` | `progressBar ?? true` | Preferred flag for the rainbow scene-boundary progress bar |
-| `playbackRate` | `number` | `1` | Timeline speed multiplier |
+| `playbackRate` | `number` | `1` | Normalized timeline speed multiplier; `1` is Markdy's normal pace |
+| `interactiveViewport` | `boolean` | `false` | Enable wheel zoom and drag pan on the rendered viewport |
 | `onWarning` | `(warning: Diagnostic) => void` | `console.warn` | Called for each soft parse warning |
 | `onTimeUpdate` | `(seconds: number, durationSeconds: number) => void` | — | Called whenever playback or seek changes the current time |
 | `onPlayStateChange` | `(playing: boolean) => void` | — | Called when playback starts or pauses |
