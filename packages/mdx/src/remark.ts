@@ -26,6 +26,7 @@ type MarkdyFenceDefaults = Partial<{
   progressBar: boolean;
   playbackRate: number;
   interactiveViewport: boolean;
+  controls: boolean;
   title: string;
   description: string;
 }>;

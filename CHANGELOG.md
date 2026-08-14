@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.17] — 2026-08-14
+
+### Added
+- **Embedded diagram controls** — Added an opt-in `controls` flag for renderer, Astro, and MDX embeds that shows play/pause, restart, speed, and view reset controls.
+
 ## [0.8.16] — 2026-08-14
 
 ### Fixed

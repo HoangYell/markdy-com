@@ -172,6 +172,52 @@ describe("createDiagram integration", () => {
     expect(container.querySelector<HTMLElement>(".markdy-scene-root")?.style.transform).not.toContain("translate");
     expect(container.querySelector<HTMLElement>(".markdy-viewport-transform")?.style.transform).toContain("translate(20px, 5px)");
 
+    viewport.dispatchEvent(new MouseEvent("dblclick", { bubbles: true, cancelable: true }));
+    expect(container.querySelector<HTMLElement>(".markdy-viewport-transform")?.style.transform).toBe("translate(0px, 0px) scale(1)");
+
+    diagram.destroy();
+  });
+
+  it("mounts optional controls for playback, speed, and viewport reset", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const diagram = createDiagram({
+      container,
+      code: SCENE,
+      autoplay: false,
+      copyright: false,
+      controls: true,
+      interactiveViewport: true,
+    });
+    const viewport = container.firstElementChild as HTMLElement;
+    const toolbar = container.querySelector<HTMLElement>(".markdy-controls");
+    const playButton = container.querySelector<HTMLButtonElement>(".markdy-control-play")!;
+    const restartButton = container.querySelector<HTMLButtonElement>(".markdy-control-restart")!;
+    const halfSpeedButton = [...container.querySelectorAll<HTMLButtonElement>(".markdy-control-rate")].find((button) => button.dataset.rate === "0.5")!;
+    const resetButton = container.querySelector<HTMLButtonElement>(".markdy-control-reset-view")!;
+
+    expect(toolbar).not.toBeNull();
+    playButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(diagram.isPlaying()).toBe(true);
+    expect(playButton.textContent).toBe("Pause");
+
+    halfSpeedButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(diagram.playbackRate()).toBe(0.5);
+    expect(halfSpeedButton.getAttribute("aria-pressed")).toBe("true");
+
+    viewport.dispatchEvent(pointerEvent("pointerdown", { clientX: 20, clientY: 20 }));
+    viewport.dispatchEvent(pointerEvent("pointermove", { clientX: 40, clientY: 25 }));
+    viewport.dispatchEvent(pointerEvent("pointerup", { clientX: 40, clientY: 25 }));
+    expect(container.querySelector<HTMLElement>(".markdy-viewport-transform")?.style.transform).toContain("translate(20px, 5px)");
+    resetButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(container.querySelector<HTMLElement>(".markdy-viewport-transform")?.style.transform).toBe("translate(0px, 0px) scale(1)");
+
+    diagram.seek(1);
+    restartButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(diagram.currentTime()).toBe(0);
+    expect(diagram.isPlaying()).toBe(true);
+
     diagram.destroy();
   });
 });

@@ -83,6 +83,7 @@ export const code = `
 | `sceneBoundaryProgress` | `boolean` | `progressBar` | Preferred flag for the rainbow scene-boundary progress bar |
 | `playbackRate` | `number` | `1` | Normalized timeline speed multiplier; `1` is Markdy's normal pace |
 | `interactiveViewport` | `boolean` | `false` | Enable wheel zoom and drag pan after hydration |
+| `controls` | `boolean` | `false` | Show a compact toolbar with play/pause, restart, speed, and view reset controls when viewport interaction is enabled |
 | `class` | `string` | — | CSS class for the outer wrapper |
 
 > **Tip:** Match `width`, `height`, and `bg` props to your `scene` declaration values to avoid a visual flash on hydration.
