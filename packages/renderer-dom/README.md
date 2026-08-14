@@ -13,6 +13,7 @@ Web Animations API renderer for [MarkdyScript](../../docs/SYNTAX.md) scenes. Tra
 - **Seek-safe** — manual `currentTime` control enables reliable `seek()` in any direction
 - **Playback-rate controls** — set normalized timeline speed to slow down or speed up diagrams without rebuilding animations
 - **Interactive viewport** — opt into wheel zoom and drag pan while click-to-pause stays available
+- **Embed controls** — opt into a compact playback toolbar with restart, speed, and view reset controls
 - **Semantic themes** — `paper`, `editorial`, `nebula`, `midnight`, `blueprint`, and `graphite`, with per-role node and edge colors
 - **Single dependency** — only `@markdy/core`
 
@@ -76,6 +77,7 @@ diagram.destroy();    // clean up DOM + cancel animations
 | `sceneBoundaryProgress` | `boolean` | `progressBar ?? true` | Preferred flag for the rainbow scene-boundary progress bar |
 | `playbackRate` | `number` | `1` | Normalized timeline speed multiplier; `1` is Markdy's normal pace |
 | `interactiveViewport` | `boolean` | `false` | Enable wheel zoom and drag pan on the rendered viewport |
+| `controls` | `boolean` | `false` | Show a compact toolbar with play/pause, restart, speed, and view reset controls when viewport interaction is enabled |
 | `onWarning` | `(warning: Diagnostic) => void` | `console.warn` | Called for each soft parse warning |
 | `onTimeUpdate` | `(seconds: number, durationSeconds: number) => void` | — | Called whenever playback or seek changes the current time |
 | `onPlayStateChange` | `(playing: boolean) => void` | — | Called when playback starts or pauses |

@@ -48,6 +48,8 @@ export interface Props {
   playbackRate?: number;
   /** Enable wheel zoom and drag pan after hydration. Defaults to false. */
   interactiveViewport?: boolean;
+  /** Show built-in playback and viewport controls. Defaults to false. */
+  controls?: boolean;
   class?: string;
   /**
    * Short human-readable title for the animation.
@@ -75,6 +77,7 @@ const {
   sceneBoundaryProgress,
   playbackRate = 1,
   interactiveViewport = false,
+  controls = false,
   class: className,
   title = "Markdy animation",
   description,
@@ -99,6 +102,7 @@ const codeB64 =
   data-markdy-scene-boundary-progress={String(sceneBoundaryProgress ?? progressBar)}
   data-markdy-playback-rate={String(playbackRate)}
   data-markdy-interactive-viewport={String(interactiveViewport)}
+  data-markdy-controls={String(controls)}
   role="img"
   aria-label={title}
   aria-busy="true"
@@ -276,6 +280,7 @@ const codeB64 =
     const sceneBoundaryProgress = el.dataset.markdySceneBoundaryProgress !== "false";
     const playbackRate = Number(el.dataset.markdyPlaybackRate ?? "1");
     const interactiveViewport = el.dataset.markdyInteractiveViewport === "true";
+    const controls = el.dataset.markdyControls === "true";
 
     // Code-split: renderer-dom is NOT part of the initial page bundle.
     const { createDiagram } = await import("@markdy/renderer-dom");
@@ -295,6 +300,7 @@ const codeB64 =
       sceneBoundaryProgress,
       playbackRate: Number.isFinite(playbackRate) && playbackRate > 0 ? playbackRate : 1,
       interactiveViewport,
+      controls,
     });
 
     el.dataset.markdyInit = "done";

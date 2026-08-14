@@ -43,6 +43,8 @@ export interface DiagramOptions {
   playbackRate?: number;
   /** Enable wheel zoom and drag pan on the rendered viewport. Defaults to false. */
   interactiveViewport?: boolean;
+  /** Show built-in playback and viewport controls. Defaults to false. */
+  controls?: boolean;
   onWarning?: (warning: Diagnostic) => void;
   onTimeUpdate?: (seconds: number, durationSeconds: number) => void;
   onPlayStateChange?: (playing: boolean) => void;
@@ -112,6 +114,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     sceneBoundaryProgress,
     playbackRate: initialPlaybackRate = DEFAULT_PLAYBACK_RATE,
     interactiveViewport = false,
+    controls = false,
     onWarning = (w) => console.warn(`[markdy] line ${w.line}: ${w.message}`),
     onTimeUpdate,
     onPlayStateChange,
@@ -352,9 +355,18 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   let dragLastY = 0;
   let dragMoved = false;
   let suppressNextClick = false;
+  let controlsPlayButton: HTMLButtonElement | null = null;
+  let controlsRateButtons: HTMLButtonElement[] = [];
 
   function applyViewportTransform(): void {
     viewportTransform.style.transform = `translate(${viewportPanX}px, ${viewportPanY}px) scale(${viewportScale})`;
+  }
+
+  function resetViewportTransform(): void {
+    viewportScale = 1;
+    viewportPanX = 0;
+    viewportPanY = 0;
+    applyViewportTransform();
   }
 
   function handleViewportWheel(event: WheelEvent): void {
@@ -411,6 +423,31 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     viewport.style.cursor = interactiveViewport ? "grab" : "pointer";
   }
 
+  function handleViewportDoubleClick(event: MouseEvent): void {
+    event.preventDefault();
+    suppressNextClick = false;
+    resetViewportTransform();
+  }
+
+  function syncControls(): void {
+    if (controlsPlayButton) {
+      controlsPlayButton.textContent = isPlaying ? "Pause" : "Play";
+      controlsPlayButton.setAttribute("aria-label", isPlaying ? "Pause diagram" : "Play diagram");
+    }
+    for (const button of controlsRateButtons) {
+      const rate = Number(button.dataset.rate ?? "1");
+      const active = Math.abs(rate - playbackRate) < 0.001;
+      button.setAttribute("aria-pressed", active ? "true" : "false");
+      button.style.background = active ? "rgba(15, 23, 42, 0.92)" : "rgba(255, 255, 255, 0.92)";
+      button.style.color = active ? "#ffffff" : "#111827";
+    }
+  }
+
+  function emitPlayStateChange(playing: boolean): void {
+    onPlayStateChange?.(playing);
+    syncControls();
+  }
+
   function applyCurrentTime(): void {
     for (const anim of allAnims) anim.currentTime = sceneMs;
     onTimeUpdate?.(sceneMs / 1000, durationSeconds);
@@ -426,7 +463,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
         sceneMs = totalDurationMs;
         applyCurrentTime();
         isPlaying = false;
-        onPlayStateChange?.(false);
+        emitPlayStateChange(false);
         lastRafTs = null;
         rafId = null;
         return;
@@ -442,14 +479,14 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     play() {
       if (isPlaying) return;
       isPlaying = true;
-      onPlayStateChange?.(true);
+      emitPlayStateChange(true);
       lastRafTs = null;
       rafId = requestAnimationFrame(rafTick);
     },
     pause() {
       if (!isPlaying) return;
       isPlaying = false;
-      onPlayStateChange?.(false);
+      emitPlayStateChange(false);
       if (rafId !== null) cancelAnimationFrame(rafId);
       rafId = null;
       lastRafTs = null;
@@ -462,6 +499,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     setPlaybackRate(rate: number) {
       if (!Number.isFinite(rate) || rate <= 0) return;
       playbackRate = rate;
+      syncControls();
     },
     playbackRate() {
       return playbackRate;
@@ -492,6 +530,99 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     },
   };
 
+  function togglePlayback(): void {
+    if (isPlaying) diagram.pause();
+    else {
+      if (!loop && sceneMs >= totalDurationMs) sceneMs = 0;
+      diagram.play();
+    }
+  }
+
+  function makeControlButton(label: string, ariaLabel: string): HTMLButtonElement {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.textContent = label;
+    button.setAttribute("aria-label", ariaLabel);
+    button.title = ariaLabel;
+    Object.assign(button.style, {
+      appearance: "none",
+      border: "1px solid rgba(15, 23, 42, 0.16)",
+      borderRadius: "6px",
+      background: "rgba(255, 255, 255, 0.92)",
+      color: "#111827",
+      cursor: "pointer",
+      font: "600 11px/1.2 system-ui, sans-serif",
+      padding: "6px 8px",
+      minWidth: "34px",
+      whiteSpace: "nowrap",
+      boxShadow: "0 1px 2px rgba(15, 23, 42, 0.08)",
+    });
+    return button;
+  }
+
+  function mountControls(): void {
+    const toolbar = document.createElement("div");
+    toolbar.className = "markdy-controls";
+    toolbar.setAttribute("role", "toolbar");
+    toolbar.setAttribute("aria-label", "Diagram controls");
+    Object.assign(toolbar.style, {
+      position: "absolute",
+      left: "50%",
+      bottom: "10px",
+      zIndex: "10000",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      flexWrap: "wrap",
+      gap: "6px",
+      maxWidth: "calc(100% - 20px)",
+      padding: "6px",
+      border: "1px solid rgba(15, 23, 42, 0.12)",
+      borderRadius: "8px",
+      background: "rgba(255, 255, 255, 0.78)",
+      boxShadow: "0 10px 28px rgba(15, 23, 42, 0.16)",
+      backdropFilter: "blur(10px)",
+      transform: "translateX(-50%)",
+      pointerEvents: "auto",
+    });
+    for (const eventName of ["click", "dblclick", "pointerdown", "pointermove", "pointerup", "wheel"]) {
+      toolbar.addEventListener(eventName, (event) => event.stopPropagation());
+    }
+
+    controlsPlayButton = makeControlButton("Play", "Play diagram");
+    controlsPlayButton.className = "markdy-control-play";
+    controlsPlayButton.addEventListener("click", togglePlayback);
+    toolbar.appendChild(controlsPlayButton);
+
+    const restartButton = makeControlButton("Restart", "Restart diagram");
+    restartButton.className = "markdy-control-restart";
+    restartButton.addEventListener("click", () => {
+      diagram.seek(0);
+      diagram.play();
+    });
+    toolbar.appendChild(restartButton);
+
+    controlsRateButtons = [0.5, 1, 2].map((rate) => {
+      const button = makeControlButton(`${rate}x`, `Set playback speed to ${rate}x`);
+      button.className = "markdy-control-rate";
+      button.dataset.rate = String(rate);
+      button.setAttribute("aria-pressed", "false");
+      button.addEventListener("click", () => diagram.setPlaybackRate(rate));
+      toolbar.appendChild(button);
+      return button;
+    });
+
+    if (interactiveViewport) {
+      const resetButton = makeControlButton("Reset", "Reset diagram view");
+      resetButton.className = "markdy-control-reset-view";
+      resetButton.addEventListener("click", resetViewportTransform);
+      toolbar.appendChild(resetButton);
+    }
+
+    viewport.appendChild(toolbar);
+    syncControls();
+  }
+
   viewport.style.cursor = interactiveViewport ? "grab" : "pointer";
   if (interactiveViewport) {
     viewport.style.touchAction = "none";
@@ -500,17 +631,15 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     viewport.addEventListener("pointermove", handleViewportPointerMove);
     viewport.addEventListener("pointerup", handleViewportPointerEnd);
     viewport.addEventListener("pointercancel", handleViewportPointerEnd);
+    viewport.addEventListener("dblclick", handleViewportDoubleClick);
   }
+  if (controls) mountControls();
   viewport.addEventListener("click", () => {
     if (suppressNextClick) {
       suppressNextClick = false;
       return;
     }
-    if (isPlaying) diagram.pause();
-    else {
-      if (!loop && sceneMs >= totalDurationMs) sceneMs = 0;
-      diagram.play();
-    }
+    togglePlayback();
   });
 
   if (autoplay) diagram.play();
