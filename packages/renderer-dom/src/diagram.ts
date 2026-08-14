@@ -188,16 +188,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   ensureSceneStyles(document);
   ensureNodeStyles(document);
 
-  const viewportTransform = document.createElement("div");
-  viewportTransform.className = "markdy-viewport-transform";
-  Object.assign(viewportTransform.style, {
-    position: "absolute",
-    inset: "0",
-    transformOrigin: "0 0",
-    willChange: interactiveViewport ? "transform" : "auto",
-  });
-  viewport.appendChild(viewportTransform);
-
   const scene = document.createElement("div");
   scene.className = "markdy-scene-root";
   Object.assign(scene.style, {
@@ -211,12 +201,22 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     transformOrigin: "0 0",
   });
   applyThemeToScene(scene, plan.theme);
-  viewportTransform.appendChild(scene);
+  viewport.appendChild(scene);
+
+  const viewportTransform = document.createElement("div");
+  viewportTransform.className = "markdy-viewport-transform";
+  Object.assign(viewportTransform.style, {
+    position: "absolute",
+    inset: "0",
+    transformOrigin: "0 0",
+    willChange: interactiveViewport ? "transform" : "auto",
+  });
+  scene.appendChild(viewportTransform);
 
   const sceneContent = document.createElement("div");
   sceneContent.className = "markdy-scene-content";
   Object.assign(sceneContent.style, { position: "absolute", inset: "0" });
-  scene.appendChild(sceneContent);
+  viewportTransform.appendChild(sceneContent);
 
   const titleEl = createTitleEl(plan.title);
   sceneContent.appendChild(titleEl);
@@ -286,9 +286,12 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     nodeEls.set(node.id, el);
   }
 
+  let fitScale = 1;
+
   function scaleScene(): void {
-    const s = viewport.clientWidth / plan.meta.width;
-    scene.style.transform = `scale(${s})`;
+    const width = viewport.clientWidth || plan.meta.width;
+    fitScale = width / plan.meta.width;
+    scene.style.transform = `scale(${fitScale})`;
   }
   scaleScene();
   const resizeObserver = new ResizeObserver(scaleScene);
@@ -358,8 +361,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     event.preventDefault();
 
     const rect = viewport.getBoundingClientRect();
-    const pointerX = event.clientX - rect.left;
-    const pointerY = event.clientY - rect.top;
+    const pointerX = (event.clientX - rect.left) / fitScale;
+    const pointerY = (event.clientY - rect.top) / fitScale;
     const nextScale = Math.min(MAX_VIEWPORT_ZOOM, Math.max(MIN_VIEWPORT_ZOOM, viewportScale * Math.exp(-event.deltaY * VIEWPORT_ZOOM_STEP)));
     if (nextScale === viewportScale) return;
 
@@ -386,8 +389,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   function handleViewportPointerMove(event: PointerEvent): void {
     if (event.pointerId !== activePointerId) return;
 
-    const deltaX = event.clientX - dragLastX;
-    const deltaY = event.clientY - dragLastY;
+    const deltaX = (event.clientX - dragLastX) / fitScale;
+    const deltaY = (event.clientY - dragLastY) / fitScale;
     const totalX = event.clientX - dragStartX;
     const totalY = event.clientY - dragStartY;
     if (!dragMoved && Math.hypot(totalX, totalY) >= DRAG_CLICK_THRESHOLD_PX) dragMoved = true;

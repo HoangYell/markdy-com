@@ -169,6 +169,7 @@ describe("createDiagram integration", () => {
     viewport.dispatchEvent(new MouseEvent("click", { bubbles: true }));
 
     expect(diagram.isPlaying()).toBe(false);
+    expect(container.querySelector<HTMLElement>(".markdy-scene-root")?.style.transform).not.toContain("translate");
     expect(container.querySelector<HTMLElement>(".markdy-viewport-transform")?.style.transform).toContain("translate(20px, 5px)");
 
     diagram.destroy();
