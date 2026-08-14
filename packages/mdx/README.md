@@ -75,4 +75,4 @@ Fenced block metadata is passed as props to `MarkdyDiagram`. Snake-case aliases 
 | `scene_boundary_progress=false` | `sceneBoundaryProgress={false}` | Preferred flag for the scene-boundary progress bar |
 | `playback_rate=0.5` | `playbackRate={0.5}` | Normalized timeline speed multiplier; `1` is Markdy's normal pace |
 | `interactive_viewport=true` | `interactiveViewport={true}` | Enable wheel zoom and drag pan on the rendered viewport |
-| `controls=true` | `controls={true}` | Show a compact toolbar with play/pause, restart, speed, and view reset controls when viewport interaction is enabled |
+| `controls=true` | `controls={true}` | Show a compact toolbar with play/pause, restart, speed, and view reset controls; also enables viewport interaction |

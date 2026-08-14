@@ -77,7 +77,7 @@ diagram.destroy();    // clean up DOM + cancel animations
 | `sceneBoundaryProgress` | `boolean` | `progressBar ?? true` | Preferred flag for the rainbow scene-boundary progress bar |
 | `playbackRate` | `number` | `1` | Normalized timeline speed multiplier; `1` is Markdy's normal pace |
 | `interactiveViewport` | `boolean` | `false` | Enable wheel zoom and drag pan on the rendered viewport |
-| `controls` | `boolean` | `false` | Show a compact toolbar with play/pause, restart, speed, and view reset controls when viewport interaction is enabled |
+| `controls` | `boolean` | `false` | Show a compact toolbar with play/pause, restart, speed, and view reset controls; also enables viewport interaction |
 | `onWarning` | `(warning: Diagnostic) => void` | `console.warn` | Called for each soft parse warning |
 | `onTimeUpdate` | `(seconds: number, durationSeconds: number) => void` | — | Called whenever playback or seek changes the current time |
 | `onPlayStateChange` | `(playing: boolean) => void` | — | Called when playback starts or pauses |
