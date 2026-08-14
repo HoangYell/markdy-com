@@ -43,7 +43,7 @@ export interface DiagramOptions {
   playbackRate?: number;
   /** Enable wheel zoom and drag pan on the rendered viewport. Defaults to false. */
   interactiveViewport?: boolean;
-  /** Show built-in playback and viewport controls. Defaults to false. */
+  /** Show built-in playback and viewport controls. Also enables viewport interaction. Defaults to false. */
   controls?: boolean;
   onWarning?: (warning: Diagnostic) => void;
   onTimeUpdate?: (seconds: number, durationSeconds: number) => void;
@@ -113,8 +113,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     progressBar,
     sceneBoundaryProgress,
     playbackRate: initialPlaybackRate = DEFAULT_PLAYBACK_RATE,
-    interactiveViewport = false,
     controls = false,
+    interactiveViewport = controls,
     onWarning = (w) => console.warn(`[markdy] line ${w.line}: ${w.message}`),
     onTimeUpdate,
     onPlayStateChange,

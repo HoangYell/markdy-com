@@ -84,8 +84,8 @@ export function MarkdyDiagram({
   progressBar = false,
   sceneBoundaryProgress,
   playbackRate = 1,
-  interactiveViewport = false,
   controls = false,
+  interactiveViewport = controls,
   className,
   title = "Markdy animation",
   description,
@@ -98,8 +98,8 @@ export function MarkdyDiagram({
   const resolvedProgressBar = coerceBoolean(progressBar, false);
   const resolvedSceneBoundaryProgress = coerceBoolean(sceneBoundaryProgress, resolvedProgressBar);
   const resolvedPlaybackRate = coerceNumber(playbackRate, 1);
-  const resolvedInteractiveViewport = coerceBoolean(interactiveViewport, false);
   const resolvedControls = coerceBoolean(controls, false);
+  const resolvedInteractiveViewport = resolvedControls || coerceBoolean(interactiveViewport, false);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const diagramRef = useRef<DiagramInstance | null>(null);

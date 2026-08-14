@@ -188,7 +188,6 @@ describe("createDiagram integration", () => {
       autoplay: false,
       copyright: false,
       controls: true,
-      interactiveViewport: true,
     });
     const viewport = container.firstElementChild as HTMLElement;
     const toolbar = container.querySelector<HTMLElement>(".markdy-controls");
@@ -209,6 +208,8 @@ describe("createDiagram integration", () => {
     viewport.dispatchEvent(pointerEvent("pointerdown", { clientX: 20, clientY: 20 }));
     viewport.dispatchEvent(pointerEvent("pointermove", { clientX: 40, clientY: 25 }));
     viewport.dispatchEvent(pointerEvent("pointerup", { clientX: 40, clientY: 25 }));
+    viewport.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(diagram.isPlaying()).toBe(true);
     expect(container.querySelector<HTMLElement>(".markdy-viewport-transform")?.style.transform).toContain("translate(20px, 5px)");
     resetButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(container.querySelector<HTMLElement>(".markdy-viewport-transform")?.style.transform).toBe("translate(0px, 0px) scale(1)");
