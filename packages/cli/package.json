@@ -1,6 +1,6 @@
 {
   "name": "@markdy/cli",
-  "version": "0.8.20",
+  "version": "0.8.21",
   "description": "First-party CLI for diagram-native MarkdyScript diagrams: lint, format, explain, render, and preview.",
   "license": "MIT",
   "type": "module",
@@ -48,6 +48,7 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@markdy/compat": "workspace:*",
     "@markdy/core": "workspace:*",
     "@markdy/renderer-dom": "workspace:*",
     "@markdy/stdlib-systems": "workspace:*"

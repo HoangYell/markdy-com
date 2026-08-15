@@ -1,0 +1,25 @@
+# 14-fanin-queue-bottleneck.markdy
+# Demonstrates Fan-In Concurrency & Constrained Bottleneck Queue Pattern.
+
+scene "High-Throughput Fan-In Batch Pipeline" theme=paper width=1200 height=800
+
+service ProducerA "Payment Ingestion Worker"
+service ProducerB "Webhook Receiver"
+service ProducerC "Mobile Event Producer"
+
+queue PriorityQueue "Constrained Buffer Queue (depth=10k)" focal=true
+worker BatchProcessor "Worker Pool (concurrency=4)"
+database AnalyticsLake "Delta Lakehouse"
+queue DeadLetterQueue "Dead Letter DLQ"
+
+beat fanin_convergence "1. High-Concurrency Fan-In":
+  show ProducerA ProducerB ProducerC PriorityQueue stagger=30ms
+  ProducerA ~> PriorityQueue "5,000 tx/sec"
+  ProducerB ~> PriorityQueue "3,200 events/sec"
+  ProducerC ~> PriorityQueue "8,000 hits/sec"
+
+beat constrained_dispatch "2. Rate-Limited Worker Consumption":
+  show BatchProcessor AnalyticsLake DeadLetterQueue stagger=30ms
+  PriorityQueue -> BatchProcessor "pull batch (size=500)"
+  BatchProcessor -> AnalyticsLake "bulk write parquet"
+  BatchProcessor ~> DeadLetterQueue "failed payloads"

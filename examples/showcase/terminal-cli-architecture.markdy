@@ -1,0 +1,20 @@
+# showcase/terminal-cli-architecture.markdy
+# Demonstrates Terminal Theme (CLI/TUI aesthetics, dark paper, monospace typography, neon accents).
+
+scene "Terminal Infrastructure Topology" theme=terminal type=architecture width=1200 height=700
+
+terminal EdgeGateway "gateway.internal" focal=true
+terminal AuthProxy "auth-proxy:8080"
+terminal CoreDaemon "systemd:core-service"
+terminal StorageEngine "nvme-pool:storage"
+terminal AuditLog "/var/log/audit.log"
+
+beat init_services "Spawn Daemons":
+  show $nodes stagger=50ms
+  glow EdgeGateway "Ingress listener bound on :443"
+
+beat dispatch_traffic "RPC Pipeline":
+  EdgeGateway -> AuthProxy "verify mTLS"
+  AuthProxy -> CoreDaemon "ipc:dispatch"
+  CoreDaemon -> StorageEngine "fsync block"
+  CoreDaemon -> AuditLog "append record"

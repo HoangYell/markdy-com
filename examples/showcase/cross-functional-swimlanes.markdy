@@ -1,0 +1,40 @@
+# cross-functional-swimlanes.markdy
+# Demonstrates Cross-Functional Responsibility Swimlanes (Client -> Edge -> Domain -> Persistence).
+
+scene "E-Commerce Checkout Swimlanes" theme=paper type=swimlane width=1300 height=850
+
+group client_lane "Client Tier": WebApp MobileApp
+group edge_lane "Edge & Security Tier": CloudflareWAF KongGateway
+group domain_lane "Domain Microservices Tier": OrderService PaymentService InventoryService
+group data_lane "Persistence Tier": OrdersDB PaymentVault RedisCluster
+
+browser WebApp "Next.js Web Client"
+browser MobileApp "React Native App"
+
+gateway CloudflareWAF "Cloudflare Edge WAF"
+gateway KongGateway "Kong API Gateway"
+
+service OrderService "Order Orchestrator"
+service PaymentService "Payment Gateway Client"
+service InventoryService "Inventory Allocator"
+
+database OrdersDB "Aurora PostgreSQL"
+database PaymentVault "Encrypted Vault DB"
+cache RedisCluster "Distributed Session Cache"
+
+beat ingress_flow "1. Client Ingress across Lanes":
+  show client_lane edge_lane stagger=30ms
+  WebApp -> CloudflareWAF "POST /checkout" -> KongGateway "mTLS"
+  MobileApp -> CloudflareWAF "POST /checkout" -> KongGateway "mTLS"
+
+beat domain_dispatch "2. Cross-Lane Domain Processing":
+  show domain_lane stagger=30ms
+  KongGateway -> OrderService "route order payload"
+  OrderService -> PaymentService "authorize credit charge"
+  OrderService -> InventoryService "reserve item stock"
+
+beat persistence_commit "3. Persistence & State Commit":
+  show data_lane stagger=30ms
+  OrderService -> OrdersDB "commit order record"
+  PaymentService -> PaymentVault "store masked token"
+  InventoryService -> RedisCluster "decrement real-time inventory"

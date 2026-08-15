@@ -1,0 +1,20 @@
+# showcase/sketchy-whiteboard-flow.markdy
+# Demonstrates Sketchy Editorial Theme (hand-drawn displacement filter, offset drop shadow, organic borders).
+
+scene "Whiteboard Product Discovery" theme=sketchy type=flowchart width=1100 height=650
+
+service UserInterview "User Research"
+service ProblemDef "Define Core Pain" focal=true
+service Prototype "Rapid Prototype"
+service Validation "Customer Testing"
+service Decision "Ship or Pivot?"
+
+beat discovery_flow "Research Phases":
+  show $nodes stagger=60ms
+  glow ProblemDef "Highest leverage bottleneck"
+
+beat validation_loop "Feedback Cycle":
+  UserInterview -> ProblemDef "synthesize notes"
+  ProblemDef -> Prototype "build wireframe"
+  Prototype -> Validation "observe user tests"
+  Validation -> Decision "qualitative signal"

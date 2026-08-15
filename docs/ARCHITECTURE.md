@@ -14,47 +14,48 @@ Technical deep dive into Markdy's design, data flow, and renderer internals.
 
 ---
 
-## Data Flow
+## System Architecture
 
 ```
-  MarkdyScript source (string)
-        │
-        ▼
-  ┌─────────────────────────────────────────────┐
-  │              @markdy/core                    │
-  │                                              │
-  │  parse(source) ─────────► DiagramAST         │
-  │  compile(ast) ──────────► RenderPlan         │
-  │                                              │
-  │  • Indentation-aware block parser            │
-  │  • patterns expanded; mode-specific layout   │
-  │  • edge routing, zones, and cue scheduling    │
-  │  • Strict validation with ParseError(line)   │
-  │  • Pure functions, no side effects           │
-  └───────────────────┬─────────────────────────┘
-                      │ RenderPlan
-                      ▼
-  ┌─────────────────────────────────────────────┐
-  │          @markdy/renderer-dom                │
-  │                                              │
-  │  createDiagram(opts) ─────► Diagram         │
-  │                                              │
-  │  1. Creates scene <div> (root element)       │
-  │  2. Creates node, zone, and edge (SVG) elements│
-  │  3. Builds WAAPI Animations from cues        │
-  │  4. Runs rAF loop to drive currentTime       │
-  └───────────────────┬─────────────────┘
-                      │ Diagram { play, pause, seek, destroy }
-                      ▼
-  ┌─────────────────────────────────────────────┐
-  │            @markdy/astro                     │
-  │                                              │
-  │  <Markdy /> island component                 │
-  │                                              │
-  │  • SSR: sized placeholder <div>              │
-  │  • Client: IntersectionObserver → hydrate    │
-  │  • View Transition compatible                │
-  └─────────────────────────────────────────────┘
+  ┌────────────────────────────────────────────────────────┐
+  │  Universal Ingestion & Transpilers (@markdy/compat)    │
+  │  • Mermaid (Flowchart & Sequence)                      │
+  │  • Draw.io (.drawio / .xml)                            │
+  │  • Docker Compose                                      │
+  │  • Kubernetes Manifests                                │
+  │  • Terraform State (.tfstate)                          │
+  └──────────────────────────┬─────────────────────────────┘
+                             │ MarkdyScript Source
+                             ▼
+  ┌────────────────────────────────────────────────────────┐
+  │                    @markdy/core                        │
+  │                                                        │
+  │  • parse(source) ──────────────► DiagramAST            │
+  │  • compilePlan(ast) ───────────► RenderPlan            │
+  │  • validateArchitecture(ast) ──► Governance Violations │
+  │  • diffDiagramASTs(ast1, ast2) ─► Evolution Plan & AST  │
+  │  • classifyTechnology(name) ───► Semantic Profile      │
+  │  • compressMarkdyToUrlHash() ──► Compressed State URL  │
+  │  • routeOrthogonalEdge() ──────► Obstacle Clearance    │
+  │  • analyzeAndBuildRepairPrompt()► Self-Healing Prompt  │
+  └──────────────────────────┬─────────────────────────────┘
+                             │ RenderPlan
+                             ▼
+  ┌────────────────────────────────────────────────────────┐
+  │                @markdy/renderer-dom                    │
+  │                                                        │
+  │  • createDiagram(opts) ────────► Live DOM Scene        │
+  │  • encodeGifSequence(frames) ──► Animated GIF89a File  │
+  │  • exportDiagramAsVectorSvg() ─► Figma-ready SVG       │
+  │  • DiagramPresentationController► Interactive KeyNav  │
+  └──────────────────────────┬─────────────────────────────┘
+                             │ Integrations
+            ┌────────────────┼────────────────┐
+            ▼                ▼                ▼
+  ┌─────────────────┐ ┌─────────────┐ ┌───────────────────┐
+  │  @markdy/astro  │ │ @markdy/cli │ │ @markdy/mcp-server│
+  │  Island Hydrate │ │ Dev Tooling │ │ Claude / AI Tools │
+  └─────────────────┘ └─────────────┘ └───────────────────┘
 ```
 
 ---

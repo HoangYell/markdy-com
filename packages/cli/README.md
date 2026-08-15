@@ -35,16 +35,20 @@ npx markdy render examples/showcase/bullet-reveal.markdy --out examples/xscene.h
 ## Commands
 
 ```bash
-markdy                 # launch a local browser playground on http://127.0.0.1:4242
-markdy lint scene.markdy
-markdy fmt scene.markdy
-markdy fmt scene.markdy --write
-markdy render scene.markdy --out dist/scene.html
-markdy explain scene.markdy
-markdy new explainer demo.markdy
-markdy docs
-markdy ai
-markdy check-all .
+markdy                                   # launch a local browser playground on http://127.0.0.1:4242
+markdy lint scene.markdy                 # syntax validation
+markdy lint scene.markdy --arch-rules    # run Well-Architected governance & cycle rules
+markdy fmt scene.markdy --write          # format MarkdyScript file
+markdy import flow.mmd --out scene.markdy # import Mermaid, draw.io, Compose, K8s, or Terraform
+markdy diff v1.markdy v2.markdy          # semantic AST diff summary table
+markdy diff v1.markdy v2.markdy --evolution # generate animated migration scene
+markdy share scene.markdy                # create compressed playground link
+markdy render scene.markdy --out dist/scene.html # export self-contained HTML preview
+markdy explain scene.markdy              # display AST structure and stats
+markdy new demo.markdy                   # scaffold fresh starter scene
+markdy docs                              # display docs and tutorial links
+markdy ai                                # generate prompt context for LLMs
+markdy check-all . --arch-rules          # batch lint entire workspace
 ```
 
 ## Notes

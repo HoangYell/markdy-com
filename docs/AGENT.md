@@ -70,11 +70,11 @@ layout LR
 | Directives / `scene` Properties | Default | Description |
 |---|---|---|
 | title (bare string) | — | Optional scene title, shown top-left |
-| `theme` | `paper` | Semantic palette: `paper` (light), `editorial`, `nebula`, `midnight`, `blueprint`, or `graphite` |
+| `theme` | `paper` | Semantic palette: `paper` (light), `editorial`, `terminal` (CLI dark), `sketchy` (whiteboard), `nebula`, `midnight`, `blueprint`, or `graphite` |
 | `width` / `height` | `1280` / `720` | Canvas size in px |
 | `fps` | `60` | Frame rate hint |
 | `duration` | auto | Force total seconds (otherwise derived from cues) |
-| `type` | `architecture` | Focused layout: `architecture`, `flowchart`, `tree`, `state`, `sequence`, or `constellation` |
+| `type` | `architecture` | Focused layout: `architecture`, `flowchart`, `tree`, `state`, `sequence`, `constellation`, `loop`/`flywheel`, `medallion`, `quadrant`, `swimlane`, `pyramid`, `radar`, `timeline`, `gantt`, `venn`, `layers`, `nested` |
 | `controls` | `false` | Mount playback, speed, and reset view buttons in footer |
 | `interactive` / `interactiveViewport` | `false` | Enable wheel zoom and drag pan (enabled automatically when `controls true`) |
 | `progressColor` | `rainbow` | Custom progress bar color (e.g. `"#3b82f6"`) or gradient (e.g. `"#ec4899, #8b5cf6"`) |
@@ -87,13 +87,24 @@ layout LR
 
 Focused modes keep the same grammar while changing composition:
 
-| Mode | Best for |
+| Mode (`type=`) | Best for |
 |---|---|
-| `architecture` | Ranked systems and platform topology |
-| `flowchart` | Top-down steps, decisions, and merges |
-| `tree` | Parent/child hierarchies with shared sibling buses |
-| `state` | Cycle-safe state transitions and self-loops |
-| `sequence` | Participant columns, lifelines, ordered messages, and activation spans |
+| `architecture` | Ranked systems, cloud tiers, and platform topology (default) |
+| `flowchart` | Top-down decision trees, pipelines, and workflows |
+| `tree` | Parent/child hierarchies, org charts, and taxonomy trees |
+| `state` | Cycle-safe state transitions, life cycles, and self-loops |
+| `sequence` | Protocol exchanges, lifelines, ordered messages, and activation spans |
+| `timeline` | Release history, engineering milestones, and chronological events |
+| `gantt` | Project roadmaps and phase-based task schedules (`phase=`, `span=`) |
+| `venn` | 2–3 set intersections, concept overlaps, and sweet-spot domains |
+| `layers` | Full-width horizontal stacked abstraction bands (OSI, CSS cascade, memory models) |
+| `nested` | Concentric rounded boundaries with stepped insets for defense-in-depth and security scopes |
+| `radar` | Multi-axis capability spider charts and technology benchmarks |
+| `medallion` | Multi-tier Bronze → Silver → Gold data lakehouse architectures |
+| `flywheel` / `loop` | Circular compounding cycles and reinforcement engines |
+| `quadrant` | 2×2 decision matrix and strategic technology positioning |
+| `swimlane` | Cross-functional team lanes and multi-actor handoffs |
+| `pyramid` | Value pyramids, testing hierarchies, and maslow stacks |
 | `constellation` | Radial focal node, orbit rings, and deterministic star field |
 **Size the canvas for how dense the diagram is.** The default 1280×720 only comfortably fits small diagrams. Auto-layout spaces nodes evenly across ranks (columns in `LR`/`RL`, rows in `TB`/`BT`) and rows within a rank — it does not grow the canvas or shrink nodes to make room. Before finalizing a scene, count (a) the number of distinct ranks (roughly the longest chain of forward edges from any source node) and (b) the busiest rank (the most nodes sharing the same depth, e.g. one service fanning out to many dependents). Nodes are ~168×72px, so as a rule of thumb pick:
 
@@ -460,3 +471,24 @@ npx @markdy/language-server
 ```
 
 Runs on stdio as an LSP server, providing parser diagnostics, node-aware completions, hover docs, and document symbols for Markdy editors/IDE integrations.
+
+### Model Context Protocol (MCP) Server
+
+AI tools like Claude Desktop, Cursor, Antigravity, and autonomous agents can interface directly with Markdy through `@markdy/mcp-server`:
+
+```json
+{
+  "mcpServers": {
+    "markdy": {
+      "command": "npx",
+      "args": ["-y", "@markdy/mcp-server"]
+    }
+  }
+}
+```
+
+#### MCP Tools Provided:
+- `validate_markdy_code`: Validates syntax and tests Well-Architected governance rules (layer boundaries, cycle detection, gateway checks).
+- `transpile_to_markdy`: Converts Mermaid, Docker Compose, Kubernetes manifests, and Terraform state into animated MarkdyScript scenes.
+- `explain_architecture`: Generates structured topology summaries, role breakdowns, and governance health metrics.
+- `generate_markdy_prompt`: Builds optimal system prompt constraints for LLM architecture generation.

@@ -16,11 +16,25 @@ export function ensureAnnotationStyles(doc: Document): void {
 .markdy-annotation {
   position: absolute;
   max-width: 220px;
-  font-family: var(--md-font-title, Georgia, serif);
+  font-family: var(--md-font-title, Georgia, "Times New Roman", serif);
   font-size: 14px;
   font-style: italic;
   color: var(--md-text);
-  line-height: 1.35;
+  line-height: 1.4;
+  letter-spacing: 0.01em;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.markdy-annotation[data-visible="1"] {
+  opacity: 1;
+  transform: none;
+}
+.markdy-annotation[data-intent="accent"] {
+  color: var(--md-accent);
+}
+.markdy-annotation[data-intent="muted"] {
+  color: var(--md-text-muted);
 }
 .markdy-annotation__leader {
   position: absolute;
@@ -81,10 +95,13 @@ export function mountAnnotations(
     const path = doc.createElementNS("http://www.w3.org/2000/svg", "path");
     path.setAttribute("d", `M ${ax} ${ay} Q ${(ax + tx) / 2} ${(ay + ty) / 2 - 20} ${tx} ${ty}`);
     path.setAttribute("fill", "none");
-    path.setAttribute("stroke", theme.textMuted);
+    const intent = typeof ann.intent === "string" ? ann.intent : "neutral";
+    const leaderColor = intent === "accent" ? theme.accent : intent === "muted" ? (theme.soft ?? theme.textMuted) : theme.textMuted;
+    const leaderOpacity = intent === "accent" ? "0.60" : intent === "muted" ? "0.40" : "0.50";
+    path.setAttribute("stroke", leaderColor);
     path.setAttribute("stroke-width", "1");
     path.setAttribute("stroke-dasharray", "4 3");
-    path.setAttribute("opacity", "0.55");
+    path.setAttribute("opacity", leaderOpacity);
     svg.appendChild(path);
 
     const dot = doc.createElementNS("http://www.w3.org/2000/svg", "circle");

@@ -1,0 +1,37 @@
+# 05-universal-ingestion.markdy
+# Demonstrates a microservice architecture transpiled from Docker Compose / Kubernetes.
+
+scene "Container Mesh & Ingress" theme=paper
+layout TB
+
+group ingress_layer "Public Edge": alb edge_gw
+group app_mesh "Microservice Cluster": auth_svc orders_svc payment_svc
+group data_layer "Persistence Tier": orders_db redis_cache
+
+browser Client "Mobile / Web App"
+gateway alb "AWS ALB / Ingress"
+gateway edge_gw "API Gateway :8080"
+
+service auth_svc "Auth Service (Go)"
+service orders_svc "Orders API (Node.js)"
+service payment_svc "Payment Worker (Rust)"
+
+database orders_db "PostgreSQL 16"
+cache redis_cache "Redis Cluster"
+
+beat ingress "1. Client Ingress & Authentication":
+  show $nodes stagger=40ms
+  Client -> alb "HTTPS Request" -> edge_gw "forward"
+  edge_gw -> auth_svc "verify token"
+  edge_gw <- auth_svc "claims valid"
+
+beat order_process "2. Order Lifecycle & Cache Sync":
+  edge_gw -> orders_svc "POST /orders"
+  orders_svc -> redis_cache "check inventory"
+  orders_svc -> orders_db "INSERT order"
+  orders_svc ~> payment_svc "OrderCreated Event"
+
+beat settlement "3. Settlement & Final Response":
+  payment_svc -> orders_db "UPDATE status=PAID"
+  orders_svc <- edge_gw "201 Created"
+  Client <- alb "Order Confirmation"

@@ -13,9 +13,11 @@ const FLOWER_ASSET: Record<string, string> = {
 
 const FEATURES = [
   { icon: "🧭", title: "Diagram-native MarkdyScript", desc: "Declare architecture nodes, groups, beats, and flows in reviewable text — no manual drawing layer." },
-  { icon: "🌐", title: "Browser-native motion", desc: "Web Animations API + CSS transforms. No Canvas, video export pipeline, GSAP, or heavy runtime." },
-  { icon: "🤖", title: "AI-agent friendly", desc: "Constrained MarkdyScript is easier for LLMs to generate, validate, diff, and revise than raw JavaScript." },
-  { icon: "🧩", title: "Docs-first integrations", desc: "Use it in Astro, MDX, content sites, docs portals, and internal developer education." },
+  { icon: "🛡️", title: "Architecture Governance", desc: "Enforce Well-Architected principles: layer boundaries, deadlock cycle detection, and gateway isolation." },
+  { icon: "🔄", title: "Universal Ingestion", desc: "Instant conversion from Mermaid, Docker Compose, Kubernetes manifests, and Terraform state into animated scenes." },
+  { icon: "📊", title: "Semantic AST Diffing", desc: "Compare architecture versions with Markdown audit tables and animated evolutionary migration scenes." },
+  { icon: "🌐", title: "Browser-native & GIF export", desc: "Zero-dependency Web Animations API runtime + GIF89a LZW encoder for animated README demos." },
+  { icon: "🤖", title: "Model Context Protocol", desc: "Official MCP server equips Claude, Cursor, Antigravity, and autonomous coding agents with diagram tools." },
 ];
 
 /* ── Packages: one card per published package, each with a real usage line ──
@@ -25,18 +27,42 @@ const PACKAGES = [
   {
     name: "@markdy/core",
     required: false,
-    badge: "Grammar",
-    desc: "Parser + AST types for tools that need to inspect, validate, or compile MarkdyScript.",
-    size: "~12 KB",
-    snippet: `<span class="u-kw">scene</span> <span class="u-str">"Checkout Flow"</span> theme=paper`,
+    badge: "Core Engine",
+    desc: "Zero-dep parser, AST semantic diff, architecture governance linter, classifier, and URL codec.",
+    size: "~14 KB",
+    snippet: `<span class="u-kw">validateArchitecture</span>(ast) · <span class="u-kw">diffDiagramASTs</span>(a, b)`,
+  },
+  {
+    name: "@markdy/compat",
+    required: false,
+    badge: "Ingestion",
+    desc: "Universal transpilers for Mermaid, Docker Compose, Kubernetes, and Terraform state.",
+    size: "~8 KB",
+    snippet: `<span class="u-fn">transpileDockerComposeToMarkdy</span>(yaml)`,
   },
   {
     name: "@markdy/renderer-dom",
     required: false,
-    badge: "Runtime",
-    desc: "Browser diagram runtime behind Astro, MDX, the CLI preview, and custom embeds.",
-    size: "~22 KB",
-    snippet: `<span class="u-fn">seek</span>(1.5) · <span class="u-fn">play</span>() · <span class="u-fn">pause</span>()`,
+    badge: "Runtime & Media",
+    desc: "Browser WAAPI runtime, zero-dep GIF89a encoder, SVG vector exporter, and presenter.",
+    size: "~24 KB",
+    snippet: `<span class="u-fn">encodeGifSequence</span>(frames) · <span class="u-fn">exportDiagramAsVectorSvg</span>()`,
+  },
+  {
+    name: "@markdy/cli",
+    required: false,
+    badge: "Dev Tooling",
+    desc: "CLI for linting, architecture rules, formatting, importing, diffing, explaining, and sharing.",
+    size: "Node",
+    snippet: `markdy <span class="u-fn">import</span> docker-compose.yml · markdy <span class="u-fn">lint</span> --arch-rules`,
+  },
+  {
+    name: "@markdy/mcp-server",
+    required: false,
+    badge: "MCP / AI",
+    desc: "Official Model Context Protocol server connecting Claude Desktop, Cursor, and AI agents.",
+    size: "Node",
+    snippet: `npx <span class="u-str">@markdy/mcp-server</span>`,
   },
   {
     name: "@markdy/astro",
@@ -53,14 +79,6 @@ const PACKAGES = [
     desc: "Write fenced markdy code blocks straight in Markdown/MDX — no component imports needed.",
     size: "~8 KB",
     snippet: `remarkPlugins: [<span class="u-fn">remarkMarkdy</span>]`,
-  },
-  {
-    name: "@markdy/cli",
-    required: false,
-    badge: "Tooling",
-    desc: "Lint, format, render, and preview .markdy files from your terminal — no browser needed.",
-    size: "Node",
-    snippet: `markdy <span class="u-fn">render</span> scene.markdy --out out.html`,
   },
   {
     name: "@markdy/language-server",
@@ -87,7 +105,7 @@ const USE_CASES = [
   },
   {
     title: "Architecture visualization",
-    desc: "Show APIs, queues, databases, caches, Kubernetes services, and infrastructure diagrams as animated architecture-as-code, or switch to focused flowchart, tree, state, sequence, and constellation modes.",
+    desc: "Show APIs, queues, databases, caches, Kubernetes services, and infrastructure diagrams as animated architecture-as-code, or switch to focused layout modes: timeline, gantt, venn, radar, medallion, flywheel, quadrant, swimlane, pyramid, flowchart, tree, state, sequence, and constellation.",
   },
   {
     title: "Mermaid-style text diagrams with motion",
@@ -400,28 +418,6 @@ markdy <span class="u-fn">check-all</span> examples`;
     </div>
   </section>
 
-  <!-- ─── Packages ─────────────────────────────────────────────────────── -->
-  <section id="packages" class="packages" aria-label="Packages">
-    <div class="section-header">
-      <span class="section-tag">Ecosystem</span>
-      <h2>Lightweight Packages for Docs-as-Code Animation</h2>
-      <p>Write portable <code>.markdy</code> scenes first. Use packages for validation, docs embeds, editor tooling, previews, and custom playback.</p>
-    </div>
-    <div class="pkg-grid">
-      {PACKAGES.map((pkg) => (
-        <a class="pkg-card" href={`https://www.npmjs.com/package/${pkg.name}`} target="_blank" rel="noopener noreferrer">
-          <div class="pkg-card-top">
-            <div class="pkg-name">{pkg.name}</div>
-            {pkg.required && <span class="pkg-required">Required</span>}
-          </div>
-          <div class="pkg-desc">{pkg.desc}</div>
-          <pre class="pkg-snippet"><code set:html={pkg.snippet} /></pre>
-          <div class="pkg-meta"><span class="pkg-size">{pkg.size}</span><span class="pkg-badge">{pkg.badge}</span></div>
-        </a>
-      ))}
-    </div>
-  </section>
-
   <!-- ─── Playground ───────────────────────────────────────────────────── -->
   <section id="playground" class="playground" aria-label="Interactive playground">
     <div class="section-header">
@@ -502,6 +498,28 @@ markdy <span class="u-fn">check-all</span> examples`;
           <span id="timeline-time" class="timeline-time">0:00 / 0:00</span>
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- ─── Packages ─────────────────────────────────────────────────────── -->
+  <section id="packages" class="packages" aria-label="Packages">
+    <div class="section-header">
+      <span class="section-tag">Ecosystem</span>
+      <h2>Lightweight Packages for Docs-as-Code Animation</h2>
+      <p>Write portable <code>.markdy</code> scenes first. Use packages for validation, docs embeds, editor tooling, previews, and custom playback.</p>
+    </div>
+    <div class="pkg-grid">
+      {PACKAGES.map((pkg) => (
+        <a class="pkg-card" href={`https://www.npmjs.com/package/${pkg.name}`} target="_blank" rel="noopener noreferrer">
+          <div class="pkg-card-top">
+            <div class="pkg-name">{pkg.name}</div>
+            {pkg.required && <span class="pkg-required">Required</span>}
+          </div>
+          <div class="pkg-desc">{pkg.desc}</div>
+          <pre class="pkg-snippet"><code set:html={pkg.snippet} /></pre>
+          <div class="pkg-meta"><span class="pkg-size">{pkg.size}</span><span class="pkg-badge">{pkg.badge}</span></div>
+        </a>
+      ))}
     </div>
   </section>
 
@@ -823,15 +841,15 @@ beat finish:
         <table>
           <thead><tr><th>Control</th><th>Use it for</th><th>Example</th></tr></thead>
           <tbody>
-            <tr><td><code>theme</code></td><td>Overall palette.</td><td><code>paper</code>, <code>editorial</code>, <code>nebula</code>, <code>midnight</code>, <code>blueprint</code>, <code>graphite</code></td></tr>
-            <tr><td><code>type</code></td><td>Focused composition.</td><td><code>architecture</code>, <code>flowchart</code>, <code>tree</code>, <code>state</code>, <code>sequence</code>, <code>constellation</code></td></tr>
+            <tr><td><code>theme</code></td><td>Overall palette.</td><td><code>paper</code>, <code>editorial</code>, <code>terminal</code>, <code>sketchy</code>, <code>nebula</code>, <code>midnight</code>, <code>blueprint</code>, <code>graphite</code></td></tr>
+            <tr><td><code>type</code></td><td>Focused composition.</td><td><code>architecture</code>, <code>flowchart</code>, <code>tree</code>, <code>state</code>, <code>sequence</code>, <code>timeline</code>, <code>gantt</code>, <code>venn</code>, <code>layers</code>, <code>nested</code>, <code>radar</code>, <code>medallion</code>, <code>flywheel</code>, <code>quadrant</code>, <code>swimlane</code>, <code>pyramid</code>, <code>constellation</code></td></tr>
             <tr><td><code>layout</code></td><td>Scene reading direction.</td><td><code>LR</code>, <code>TB</code></td></tr>
             <tr><td><code>style</code></td><td>Persistent node styling.</td><td><code>style hot = fill=#f59e0b</code></td></tr>
             <tr><td><code>glow</code></td><td>Timeline emphasis.</td><td><code>glow CheckoutApi</code></td></tr>
           </tbody>
         </table>
         <p>Use styles sparingly. One persistent highlight plus one final glow usually reads cleaner than styling every node.</p>
-        <p><strong>Ready task:</strong> Switch the scene between <code>paper</code>/<code>editorial</code>/<code>nebula</code> and <code>TB</code>/<code>LR</code>. Then try <code>type=flowchart</code>, <code>type=sequence</code>, or <code>type=constellation</code>. If the story still reads clearly, move to Level 8.</p>
+        <p><strong>Ready task:</strong> Switch the scene between <code>paper</code>/<code>editorial</code>/<code>terminal</code>/<code>sketchy</code> and <code>TB</code>/<code>LR</code>. Then try <code>type=timeline</code>, <code>type=gantt</code>, <code>type=venn</code>, <code>type=layers</code>, <code>type=nested</code>, or <code>type=radar</code>. If the story still reads clearly, move to Level 8.</p>
       </article>
 
       <!-- Level 8: Production composition -->

@@ -82,6 +82,27 @@ function ensureDefs(svg: SVGSVGElement, theme: ThemeTokens, id: string): void {
     arrow.appendChild(path);
     defs.appendChild(arrow);
   }
+
+  const filter = document.createElementNS("http://www.w3.org/2000/svg", "filter");
+  filter.setAttribute("id", `${id}-sketchy`);
+  filter.setAttribute("x", "-4%");
+  filter.setAttribute("y", "-4%");
+  filter.setAttribute("width", "108%");
+  filter.setAttribute("height", "108%");
+  const turb = document.createElementNS("http://www.w3.org/2000/svg", "feTurbulence");
+  turb.setAttribute("type", "fractalNoise");
+  turb.setAttribute("baseFrequency", "0.02");
+  turb.setAttribute("numOctaves", "2");
+  turb.setAttribute("seed", "4");
+  turb.setAttribute("result", "noise");
+  const disp = document.createElementNS("http://www.w3.org/2000/svg", "feDisplacementMap");
+  disp.setAttribute("in", "SourceGraphic");
+  disp.setAttribute("in2", "noise");
+  disp.setAttribute("scale", "1.8");
+  filter.appendChild(turb);
+  filter.appendChild(disp);
+  defs.appendChild(filter);
+
   svg.prepend(defs);
 }
 

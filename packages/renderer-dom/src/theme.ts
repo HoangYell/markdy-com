@@ -50,6 +50,26 @@ export function ensureSceneStyles(doc: Document): void {
     linear-gradient(180deg, transparent 0%, var(--md-vignette) 100%);
   opacity: 0.8;
 }
+.markdy-scene-root[data-markdy-theme="terminal"]::before {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.06) 1px, transparent 1px) 0 0 / 22px 22px;
+  mask-image: none;
+  opacity: 0.4;
+}
+.markdy-scene-root[data-markdy-theme="terminal"]::after {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(255, 90, 54, 0.08), transparent 50%),
+    linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.5) 100%);
+  opacity: 0.7;
+}
+.markdy-scene-root[data-markdy-theme="sketchy"]::before {
+  background: none;
+  opacity: 0;
+}
+.markdy-scene-root[data-markdy-theme="sketchy"]::after {
+  background: none;
+  opacity: 0;
+}
 @keyframes markdy-star-twinkle {
   from { opacity: 0.24; transform: scale(0.85); }
   to { opacity: 0.9; transform: scale(1.15); }
@@ -126,6 +146,21 @@ export function ensureSceneStyles(doc: Document): void {
 .markdy-footer a:hover {
   opacity: 1 !important;
   color: #64748b !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .markdy-node,
+  .markdy-beat-caption,
+  .markdy-constellation-star {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .markdy-node { opacity: 1 !important; transform: none !important; }
+  .markdy-constellation-star { animation: none !important; opacity: 0.7 !important; }
+}
+@media print {
+  .markdy-node { opacity: 1 !important; transform: none !important; }
+  .markdy-scene-root::before, .markdy-scene-root::after { display: none !important; }
 }
 `;
   doc.head.appendChild(style);

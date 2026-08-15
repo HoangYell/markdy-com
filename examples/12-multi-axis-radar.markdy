@@ -1,0 +1,19 @@
+# 12-multi-axis-radar.markdy
+# Demonstrates 5-Axis Multi-Dimensional System Benchmark Radar Topology.
+
+scene "Distributed Database Architecture Benchmark" theme=paper type=radar width=1100 height=900
+
+metric Latency "Read/Write Latency"
+metric Scalability "Horizontal Scalability" focal=true
+metric ACID "Strong ACID Consistency"
+metric OperationalSimplicity "Operational Simplicity"
+metric GlobalReplication "Multi-Region Replication"
+
+beat benchmark_reveal "1. Evaluation Axes":
+  show $nodes stagger=50ms
+  glow Scalability "Max Priority Criterion"
+
+beat capability_mesh "2. Architecture Trade-Offs":
+  Latency -> Scalability "p99 < 5ms"
+  Scalability -> GlobalReplication "active-active multi-region"
+  GlobalReplication -> ACID "Raft consensus quorum"

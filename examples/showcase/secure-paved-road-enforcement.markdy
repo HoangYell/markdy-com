@@ -1,0 +1,33 @@
+# secure-paved-road-enforcement.markdy
+# Demonstrates Secure Paved Road Architectural Pattern with Trust Boundaries & Permitted vs Blocked Egress.
+
+scene "Zero-Trust Secure Paved Road" theme=editorial width=1300 height=800
+
+group untrusted_zone "Untrusted Public Perimeter": UntrustedClient PublicInternet
+group ingress_security "Identity & Perimeter WAF": EdgeWAF OIDCGateway
+group trusted_mesh "Protected Service Mesh": CoreBanking LedgerDB
+group audit_sink "Immutable Audit Lake": AuditStorage SIEMAlerts
+
+browser UntrustedClient "External Client"
+cloud PublicInternet "Public Internet / Direct Bypass"
+
+gateway EdgeWAF "Cloudflare Zero-Trust WAF"
+auth OIDCGateway "mTLS & OIDC Token Validator"
+
+service CoreBanking "Core Banking Engine" focal=true
+database LedgerDB "Encrypted Ledger Aurora"
+
+storage AuditStorage "WORM S3 Audit Bucket"
+monitor SIEMAlerts "SecOps SIEM & Anomaly Engine"
+
+beat ingress_enforcement "1. Validated Paved Ingress":
+  show untrusted_zone ingress_security trusted_mesh stagger=30ms
+  UntrustedClient -> EdgeWAF "POST /transfer (Signed TLS)"
+  EdgeWAF -> OIDCGateway "validate JWT & claims"
+  OIDCGateway -> CoreBanking "mTLS verified RPC"
+  CoreBanking -> LedgerDB "atomic ACID write"
+
+beat audit_and_alert "2. Real-Time Immutable Audit Logging":
+  show audit_sink stagger=30ms
+  CoreBanking ~> AuditStorage "audit log: TradeExecuted"
+  OIDCGateway ~> SIEMAlerts "telemetry: AuthSuccess"

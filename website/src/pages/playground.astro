@@ -123,6 +123,8 @@ const playgroundStructuredData = [
             <h2>MarkdyScript</h2>
           </div>
           <div class="toolbar">
+            <button id="import-btn" class="tool-btn" type="button" title="Import from Mermaid, Docker Compose, Kubernetes, or Terraform">Import</button>
+            <button id="audit-btn" class="tool-btn" type="button" title="Run Architecture Governance Audit">Audit</button>
             <button id="copy-code-btn" class="tool-btn" type="button">Copy</button>
             <button id="reset-btn" class="tool-btn" type="button">Reset</button>
             <button id="run-btn" class="tool-btn tool-btn-primary" type="button">Run</button>
@@ -131,6 +133,13 @@ const playgroundStructuredData = [
         <div id="code-editor" class="code-editor" aria-label="MarkdyScript editor"></div>
         <p class="hint">Auto-runs after typing. Use Cmd/Ctrl+Enter to run immediately.</p>
         <div id="diagnostics" class="diagnostics" aria-live="polite"></div>
+        <div id="audit-panel" class="audit-panel" hidden>
+          <div class="audit-head">
+            <strong>🛡️ Architecture Governance Audit</strong>
+            <button id="close-audit-btn" class="audit-close" type="button" aria-label="Close audit panel">✕</button>
+          </div>
+          <div id="audit-results" class="audit-results"></div>
+        </div>
       </section>
 
       <button
@@ -155,6 +164,7 @@ const playgroundStructuredData = [
             <h2>Animated diagram</h2>
           </div>
           <div class="toolbar">
+            <button id="export-svg-btn" class="tool-btn" type="button" title="Export clean Vector SVG">SVG</button>
             <button id="share-btn" class="tool-btn" type="button">Share</button>
             <button id="restart-btn" class="tool-btn" type="button">Restart</button>
             <button id="play-btn" class="tool-btn tool-btn-primary" type="button">Pause</button>
@@ -179,6 +189,36 @@ const playgroundStructuredData = [
         </div>
       </section>
     </section>
+
+    <!-- ── Ingestion Transpiler Modal ── -->
+    <dialog id="import-modal" class="import-modal" aria-labelledby="import-modal-title">
+      <div class="modal-backdrop"></div>
+      <div class="modal-box">
+        <div class="modal-header">
+          <div>
+            <span class="panel-kicker">Universal Ingestion</span>
+            <h3 id="import-modal-title">Import Existing Architecture</h3>
+          </div>
+          <button id="close-modal-btn" class="modal-close" type="button" aria-label="Close modal">✕</button>
+        </div>
+        <p class="modal-desc">Convert Mermaid diagrams, Draw.io XML graphs, Docker Compose services, Kubernetes manifests, or Terraform state files directly into animated MarkdyScript scenes.</p>
+
+        <div class="format-tabs" role="tablist">
+          <button class="format-tab active" type="button" data-format="mermaid">Mermaid</button>
+          <button class="format-tab" type="button" data-format="compose">Docker Compose</button>
+          <button class="format-tab" type="button" data-format="k8s">Kubernetes</button>
+          <button class="format-tab" type="button" data-format="terraform">Terraform</button>
+          <button class="format-tab" type="button" data-format="drawio">Draw.io</button>
+        </div>
+
+        <textarea id="import-source" class="import-textarea" placeholder="Paste source code here..."></textarea>
+
+        <div class="modal-footer">
+          <button id="load-sample-btn" class="tool-btn" type="button">Load Sample</button>
+          <button id="do-import-btn" class="tool-btn tool-btn-primary" type="button">Transpile & Open</button>
+        </div>
+      </div>
+    </dialog>
   </main>
 </Layout>
 
@@ -196,9 +236,22 @@ const playgroundStructuredData = [
 
   import { markdyLanguage, markdyAutocomplete, markdyHighlightLight, markdyHighlightDark } from "../editor/markdy-language";
   import { baseTheme, lightTheme, darkTheme } from "../editor/editor-theme";
-  import { createDiagram } from "@markdy/renderer-dom";
+  import { createDiagram, exportDiagramAsVectorSvg } from "@markdy/renderer-dom";
   import type { Diagram } from "@markdy/renderer-dom";
-  import type { Diagnostic } from "@markdy/core";
+  import {
+    parse,
+    validateArchitecture,
+    compressMarkdyToUrlHash,
+    decompressMarkdyFromUrlHash,
+    type Diagnostic,
+  } from "@markdy/core";
+  import {
+    transpileMermaidToMarkdy,
+    transpileDockerComposeToMarkdy,
+    transpileKubernetesManifestsToMarkdy,
+    transpileTerraformStateToMarkdy,
+    transpileDrawioToMarkdy,
+  } from "@markdy/compat";
   import type { ExampleEntry } from "../data/examples";
 
   const STORAGE_KEY = "markdy-theme";
@@ -207,6 +260,19 @@ const playgroundStructuredData = [
   const editorHost = document.getElementById("code-editor") as HTMLDivElement;
   const stage = document.getElementById("stage") as HTMLDivElement;
   const diagnostics = document.getElementById("diagnostics") as HTMLDivElement;
+  const auditPanel = document.getElementById("audit-panel") as HTMLDivElement;
+  const auditResults = document.getElementById("audit-results") as HTMLDivElement;
+  const importModal = document.getElementById("import-modal") as HTMLDialogElement;
+  const importSource = document.getElementById("import-source") as HTMLTextAreaElement;
+  const importBtn = document.getElementById("import-btn") as HTMLButtonElement;
+  const auditBtn = document.getElementById("audit-btn") as HTMLButtonElement;
+  const closeAuditBtn = document.getElementById("close-audit-btn") as HTMLButtonElement;
+  const closeModalBtn = document.getElementById("close-modal-btn") as HTMLButtonElement;
+  const loadSampleBtn = document.getElementById("load-sample-btn") as HTMLButtonElement;
+  const doImportBtn = document.getElementById("do-import-btn") as HTMLButtonElement;
+  const exportSvgBtn = document.getElementById("export-svg-btn") as HTMLButtonElement;
+  const formatTabs = document.querySelectorAll<HTMLButtonElement>(".format-tab");
+
   const runBtn = document.getElementById("run-btn") as HTMLButtonElement;
   const resetBtn = document.getElementById("reset-btn") as HTMLButtonElement;
   const copyCodeBtn = document.getElementById("copy-code-btn") as HTMLButtonElement;
@@ -223,6 +289,8 @@ const playgroundStructuredData = [
   const themeToggle = document.getElementById("theme-toggle") as HTMLButtonElement;
   const workspace = document.getElementById("workspace") as HTMLElement;
   const splitter = document.getElementById("splitter") as HTMLButtonElement;
+
+  let activeImportFormat = "mermaid";
 
   let editor: EditorView | null = null;
   let diagram: Diagram | null = null;
@@ -401,11 +469,22 @@ const playgroundStructuredData = [
     render(example.code);
   }
 
-  function encodeShare(code: string): string {
-    return btoa(encodeURIComponent(code));
+  async function encodeShare(code: string): Promise<string> {
+    try {
+      return await compressMarkdyToUrlHash(code);
+    } catch {
+      return btoa(encodeURIComponent(code));
+    }
   }
 
-  function decodeShare(value: string): string | null {
+  async function decodeShare(value: string): Promise<string | null> {
+    if (value.startsWith("~m")) {
+      try {
+        return await decompressMarkdyFromUrlHash(value);
+      } catch {
+        return null;
+      }
+    }
     try {
       return decodeURIComponent(atob(value));
     } catch {
@@ -437,18 +516,25 @@ const playgroundStructuredData = [
   }
 
   const params = new URLSearchParams(window.location.hash.slice(1));
-  const sharedCode = params.get("code");
-  const initialCode = sharedCode ? decodeShare(sharedCode) ?? examples[0].code : examples[0].code;
+  const sharedCodeParam = params.get("code");
 
-  const savedTheme = localStorage.getItem(STORAGE_KEY);
-  applyTheme(
-    savedTheme === "dark" || savedTheme === "light"
-      ? savedTheme
-      : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light",
-  );
-  createEditor(initialCode);
-  render(initialCode);
-  setActiveExample(sharedCode ? -1 : 0);
+  (async () => {
+    let initialCode = examples[0].code;
+    if (sharedCodeParam) {
+      const decoded = await decodeShare(sharedCodeParam);
+      if (decoded) initialCode = decoded;
+    }
+
+    const savedTheme = localStorage.getItem(STORAGE_KEY);
+    applyTheme(
+      savedTheme === "dark" || savedTheme === "light"
+        ? savedTheme
+        : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light",
+    );
+    createEditor(initialCode);
+    render(initialCode);
+    setActiveExample(sharedCodeParam ? -1 : 0);
+  })();
 
   exampleBtns.forEach((btn) => {
     btn.addEventListener("click", () => loadExample(Number(btn.dataset.index ?? "0")));
@@ -469,11 +555,133 @@ const playgroundStructuredData = [
     });
   });
 
+  const SAMPLES: Record<string, string> = {
+    mermaid: `flowchart LR\n  Client[Web Client] --> Gateway[Kong API Gateway]\n  Gateway --> OrdersSvc[Orders Microservice]\n  OrdersSvc --> OrdersDB[(PostgreSQL 16)]\n  OrdersSvc --> Cache[(Redis Cluster)]`,
+    compose: `services:\n  web:\n    image: nginx:alpine\n    ports: ["80:80"]\n    depends_on: ["api"]\n  api:\n    image: node:20\n    depends_on: ["db", "cache"]\n  db:\n    image: postgres:16\n  cache:\n    image: redis:7`,
+    k8s: `apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: payment-service\n  namespace: fintech\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: payment-svc\n  namespace: fintech\n---\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: payment-ingress\n  namespace: fintech`,
+    terraform: `{\n  "version": 4,\n  "resources": [\n    {\n      "type": "aws_lb",\n      "name": "public_alb",\n      "instances": [{ "attributes": { "name": "prod-alb", "vpc_id": "vpc_prod" } }]\n    },\n    {\n      "type": "aws_rds_cluster",\n      "name": "aurora_postgres",\n      "instances": [{ "attributes": { "name": "prod-db", "vpc_id": "vpc_prod" } }]\n    }\n  ]\n}`,
+    drawio: `<mxGraphModel>\n  <root>\n    <mxCell id="0"/>\n    <mxCell id="1" parent="0"/>\n    <mxCell id="2" value="Web Client" vertex="1" parent="1"/>\n    <mxCell id="3" value="API Gateway" style="shape=hexagon;" vertex="1" parent="1"/>\n    <mxCell id="4" value="PostgreSQL" style="shape=cylinder;" vertex="1" parent="1"/>\n    <mxCell id="5" value="HTTPS Request" edge="1" source="2" target="3" parent="1"/>\n    <mxCell id="6" value="SQL Query" edge="1" source="3" target="4" parent="1"/>\n  </root>\n</mxGraphModel>`,
+  };
+
+  importBtn.addEventListener("click", () => {
+    importModal.showModal();
+    if (!importSource.value) {
+      importSource.value = SAMPLES[activeImportFormat];
+    }
+  });
+
+  closeModalBtn.addEventListener("click", () => importModal.close());
+  importModal.addEventListener("click", (e) => {
+    if (e.target === importModal) importModal.close();
+  });
+
+  formatTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      formatTabs.forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+      activeImportFormat = tab.dataset.format ?? "mermaid";
+      importSource.value = SAMPLES[activeImportFormat] ?? "";
+    });
+  });
+
+  loadSampleBtn.addEventListener("click", () => {
+    importSource.value = SAMPLES[activeImportFormat] ?? "";
+  });
+
+  doImportBtn.addEventListener("click", () => {
+    const raw = importSource.value.trim();
+    if (!raw) return;
+    let transpiled = "";
+    try {
+      if (activeImportFormat === "mermaid") {
+        transpiled = transpileMermaidToMarkdy(raw, "Imported Mermaid").code;
+      } else if (activeImportFormat === "compose") {
+        transpiled = transpileDockerComposeToMarkdy(raw, "Imported Docker Compose");
+      } else if (activeImportFormat === "k8s") {
+        transpiled = transpileKubernetesManifestsToMarkdy(raw, "Imported Kubernetes");
+      } else if (activeImportFormat === "terraform") {
+        transpiled = transpileTerraformStateToMarkdy(raw, "Imported Terraform");
+      } else if (activeImportFormat === "drawio") {
+        transpiled = transpileDrawioToMarkdy(raw, "Imported Draw.io").code;
+      }
+      createEditor(transpiled);
+      render(transpiled);
+      setActiveExample(-1);
+      importModal.close();
+    } catch (err) {
+      alert(`Import failed: ${(err as Error).message}`);
+    }
+  });
+
+  auditBtn.addEventListener("click", () => {
+    const isHidden = auditPanel.hidden;
+    if (!isHidden) {
+      auditPanel.hidden = true;
+      return;
+    }
+    auditPanel.hidden = false;
+    auditResults.innerHTML = "";
+    try {
+      const ast = parse(getCode());
+      const violations = validateArchitecture(ast);
+      if (violations.length === 0) {
+        auditResults.innerHTML = `
+          <div class="audit-pass">
+            <span class="audit-badge pass">PASS</span>
+            <strong>Well-Architected Rules Satisfied</strong>
+            <p>No layer boundary violations, cyclic deadlocks, or unprotected persistence access detected.</p>
+          </div>
+        `;
+      } else {
+        const list = document.createElement("ul");
+        list.className = "audit-list";
+        for (const v of violations) {
+          const item = document.createElement("li");
+          item.className = `audit-item ${v.severity}`;
+          item.innerHTML = `
+            <span class="audit-badge ${v.severity}">${v.severity.toUpperCase()}</span>
+            <strong>${v.ruleName}</strong> (line ${v.line ?? 1}):
+            <span>${v.message}</span>
+          `;
+          list.appendChild(item);
+        }
+        auditResults.appendChild(list);
+      }
+    } catch (err) {
+      auditResults.innerHTML = `<div class="audit-error">Cannot audit: syntax errors present. Fix parser errors first.</div>`;
+    }
+  });
+
+  closeAuditBtn.addEventListener("click", () => {
+    auditPanel.hidden = true;
+  });
+
+  exportSvgBtn.addEventListener("click", () => {
+    try {
+      const svgXml = exportDiagramAsVectorSvg(stage, { includeThemeStyles: true });
+      const blob = new Blob([svgXml], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "markdy-diagram.svg";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      const old = exportSvgBtn.textContent;
+      exportSvgBtn.textContent = "Saved";
+      setTimeout(() => { exportSvgBtn.textContent = old; }, 1800);
+    } catch (err) {
+      alert("SVG export error: " + (err as Error).message);
+    }
+  });
+
   runBtn.addEventListener("click", () => render(getCode()));
   resetBtn.addEventListener("click", () => loadExample(selectedExample >= 0 ? selectedExample : 0));
   copyCodeBtn.addEventListener("click", () => writeClipboard(getCode(), copyCodeBtn, "Copied"));
-  shareBtn.addEventListener("click", () => {
-    const url = `${window.location.origin}${window.location.pathname}#code=${encodeShare(getCode())}`;
+  shareBtn.addEventListener("click", async () => {
+    const hash = await encodeShare(getCode());
+    const url = `${window.location.origin}${window.location.pathname}#code=${hash}`;
     writeClipboard(url, shareBtn, "Copied");
   });
 
@@ -1119,5 +1327,155 @@ const playgroundStructuredData = [
     .checklist ol {
       grid-template-columns: 1fr;
     }
+  }
+
+  /* ── Ingestion Modal & Audit Panel Styles ── */
+  .audit-panel {
+    margin-top: 0.75rem;
+    padding: 0.9rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+
+  .audit-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+    font-size: 0.88rem;
+  }
+
+  .audit-close, .modal-close {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--text-muted);
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+  }
+  .audit-close:hover, .modal-close:hover {
+    color: var(--text);
+    background: var(--surface-muted);
+  }
+
+  .audit-pass {
+    padding: 0.6rem;
+    border-radius: var(--radius-sm);
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    font-size: 0.84rem;
+  }
+
+  .audit-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .audit-item {
+    padding: 0.5rem 0.7rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.82rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .audit-item.error {
+    background: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+  }
+  .audit-item.warning {
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+  }
+
+  .audit-badge {
+    display: inline-block;
+    padding: 0.12rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+  .audit-badge.pass { background: #10b981; color: #fff; }
+  .audit-badge.error { background: #ef4444; color: #fff; }
+  .audit-badge.warning { background: #f59e0b; color: #fff; }
+
+  .import-modal {
+    border: none;
+    padding: 0;
+    background: transparent;
+    max-width: 640px;
+    width: 90vw;
+  }
+  .import-modal::backdrop {
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(4px);
+  }
+  .modal-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 1.5rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    color: var(--text);
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.6rem;
+  }
+  .modal-desc {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    line-height: 1.4;
+  }
+  .format-tabs {
+    display: flex;
+    gap: 0.35rem;
+    margin-bottom: 0.8rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.5rem;
+  }
+  .format-tab {
+    padding: 0.35rem 0.8rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .format-tab.active {
+    background: var(--surface-muted);
+    color: var(--text);
+    border-color: var(--border);
+  }
+  .import-textarea {
+    width: 100%;
+    height: 180px;
+    background: var(--surface-muted);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 0.8rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.82rem;
+    resize: vertical;
+    box-sizing: border-box;
+  }
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: 1rem;
   }
 </style>

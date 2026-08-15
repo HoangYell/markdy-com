@@ -17,6 +17,18 @@ export const DIAGRAM_TYPES = new Set<string>([
   "state",
   "sequence",
   "constellation",
+  "loop",
+  "flywheel",
+  "medallion",
+  "quadrant",
+  "swimlane",
+  "pyramid",
+  "radar",
+  "timeline",
+  "gantt",
+  "venn",
+  "layers",
+  "nested",
 ]);
 
 export const EDGE_OPERATORS: Record<string, "request" | "response" | "event" | "dependency"> = {

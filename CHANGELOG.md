@@ -5,6 +5,17 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.21] — 2026-08-15
+
+### Added
+- **Expanded architecture example library** — Added new numbered examples (`05` through `19`) and a broadened showcase set covering ingestion, governance, swimlanes, pyramids, radar comparisons, fan-in bottlenecks, timelines, Gantt roadmaps, Venn overlap, and containment scenarios.
+- **Compatibility toolkit foundation (`@markdy/compat`)** — Introduced a dedicated compatibility package with source modules, tests, and release gate wiring to improve cross-format and integration workflows.
+- **MCP server package scaffold** — Added a new `@markdy/mcp-server` workspace package to support model-context protocol integration work.
+
+### Changed
+- **Core compiler and renderer capabilities** — Updated core compiler/runtime modules and renderer-dom behavior, including new utilities and extended feature coverage in tests and snapshots.
+- **CLI and docs refresh** — Expanded CLI implementation/tests and refreshed docs, tutorials, and website content to reflect the richer architecture-focused examples and workflows.
+
 ## [0.8.20] — 2026-08-15
 
 ### Added

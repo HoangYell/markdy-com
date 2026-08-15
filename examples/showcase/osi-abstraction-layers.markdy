@@ -1,0 +1,14 @@
+# showcase/osi-abstraction-layers.markdy
+# Demonstrates Layer Stack Layout for Abstraction / Context Hierarchy.
+
+scene "OSI Abstraction Layers" theme=editorial type=layers width=1200 height=700
+
+service AppLayer "Application Layer (HTTP / TLS / gRPC)"
+service TransportLayer "Transport Layer (TCP / UDP)" focal=true
+service NetworkLayer "Network Layer (IP / Routing / BGP)"
+service DataLinkLayer "Data Link Layer (Ethernet / Frames)"
+service PhysicalLayer "Physical Layer (Fiber / Radio)"
+
+beat stack_reveal "Abstraction Stack":
+  show $nodes stagger=50ms
+  glow TransportLayer "Flow control and packet reliability"

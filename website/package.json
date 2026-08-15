@@ -24,6 +24,7 @@
     "@lezer/highlight": "^1.2.3",
     "@lezer/lr": "^1.4.10",
     "@markdy/astro": "workspace:*",
+    "@markdy/compat": "workspace:*",
     "@markdy/core": "workspace:*",
     "@markdy/renderer-dom": "workspace:*",
     "@markdy/stdlib-systems": "workspace:*",

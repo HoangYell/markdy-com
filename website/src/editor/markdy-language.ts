@@ -1,7 +1,14 @@
 /**
  * MarkdyScript 0.8 diagram language support for CodeMirror 6.
  */
-import { BEAT_CUE_KEYWORDS, NODE_KINDS } from "@markdy/core";
+import {
+  BEAT_CUE_KEYWORDS,
+  NODE_KINDS,
+  TECHNICAL_NODE_KINDS,
+  TECHNICAL_NODE_TYPES,
+  VISUAL_PRIMITIVE_TYPES,
+  classifyTechnology,
+} from "@markdy/core";
 import { StreamLanguage, type StreamParser, HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { autocompletion, type CompletionContext, type CompletionResult } from "@codemirror/autocomplete";
 import { tags, type Tag } from "@lezer/highlight";
@@ -18,12 +25,24 @@ const TOKEN_TAG: Record<string, Tag> = {
 };
 
 const KEYWORDS = new Set([
-  "scene", "layout", "group", "beat", "style", "pattern", "use", "theme", "edge",
-  "LR", "RL", "TB", "BT", "midnight", "paper",
+  "scene", "layout", "group", "beat", "style", "pattern", "use", "theme", "edge", "annotation",
+  "LR", "RL", "TB", "BT",
+  "midnight", "paper", "blueprint", "nebula", "editorial", "graphite", "terminal", "sketchy",
+  "architecture", "flowchart", "tree", "state", "sequence", "constellation", "loop", "flywheel",
+  "medallion", "quadrant", "swimlane", "pyramid", "radar", "timeline", "gantt", "venn", "layers", "nested",
   ...BEAT_CUE_KEYWORDS,
 ]);
 
-const NODE_KIND_SET = new Set<string>(NODE_KINDS);
+const ALL_NODE_KINDS = Array.from(
+  new Set([
+    ...NODE_KINDS,
+    ...TECHNICAL_NODE_KINDS,
+    ...TECHNICAL_NODE_TYPES,
+    ...VISUAL_PRIMITIVE_TYPES,
+  ])
+);
+
+const NODE_KIND_SET = new Set<string>(ALL_NODE_KINDS);
 
 const markdyParser: StreamParser<null> = {
   startState: () => null,
@@ -60,12 +79,45 @@ const highlight = HighlightStyle.define([
   { tag: tags.special(tags.variableName), color: "#db2777" },
 ]);
 
+
+const COMMON_TECHS = [
+  "postgres", "mysql", "mongodb", "redis", "memcached", "kafka", "rabbitmq",
+  "sqs", "nginx", "envoy", "traefik", "kong", "aws", "gcp", "azure", "docker",
+  "k8s", "lambda", "s3", "dynamodb", "graphql", "grpc", "stripe", "auth0",
+  "cloudflare", "elasticsearch", "clickhouse", "snowflake", "neo4j", "vault"
+];
+
 function completions(context: CompletionContext): CompletionResult | null {
   const word = context.matchBefore(/[\w$.-]*/);
   if (!word || (word.from === word.to && !context.explicit)) return null;
-  const options = [
-    ...KEYWORDS,
-  ].map((label) => ({ label, type: "keyword" as const }));
+
+  const keywordOptions = Array.from(KEYWORDS).map((label) => ({
+    label,
+    type: "keyword" as const,
+    boost: 2,
+  }));
+
+  const kindOptions = ALL_NODE_KINDS.map((label) => ({
+    label,
+    type: "type" as const,
+    detail: "node kind",
+    boost: 3,
+  }));
+
+  const techOptions = COMMON_TECHS.map((tech) => {
+    const profile = classifyTechnology(tech);
+    const capitalized = tech.charAt(0).toUpperCase() + tech.slice(1);
+    return {
+      label: tech,
+      type: "class" as const,
+      detail: `→ ${profile.kind}`,
+      info: `Inserts semantic ${profile.kind} for ${tech}`,
+      apply: `${profile.kind} ${capitalized} "${capitalized}"`,
+      boost: 1,
+    };
+  });
+
+  const options = [...keywordOptions, ...kindOptions, ...techOptions];
   return { from: word.from, options };
 }
 

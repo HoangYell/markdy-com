@@ -1,0 +1,132 @@
+---
+/*
+  SEO BRIEF — feature article: "13 Diagram Layouts & Editorial Aesthetics"
+  Target keywords: timeline diagram as code, gantt chart as code, venn diagram code,
+    radar chart as code, medallion architecture diagram, flywheel diagram, architecture themes
+  Search intent: engineering leaders, architects, and technical writers wanting rich diagram topologies
+    (timelines, gantt, radar, medallion, flywheel) with publication-quality editorial and terminal themes.
+*/
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+
+const canonicalURL = "https://markdy.com/blog/advanced-diagram-layouts-and-editorial-themes/";
+const structuredData = [
+  {
+    "@type": "BlogPosting",
+    "@id": `${canonicalURL}#article`,
+    headline: "Advanced Diagram Layouts & Editorial Themes in Markdy",
+    description:
+      "Explore 13 diagram layout engines—from Timelines, Gantt charts, and Venn diagrams to Radars, Medallion pipelines, and Flywheels—paired with 8 publication-grade themes.",
+    inLanguage: "en",
+    url: canonicalURL,
+    mainEntityOfPage: canonicalURL,
+    isPartOf: { "@id": "https://markdy.com/#website" },
+    about: { "@id": "https://markdy.com/#software" },
+    author: { "@id": "https://markdy.com/#hoang-yell" },
+    publisher: { "@id": "https://markdy.com/#organization" },
+    keywords:
+      "timeline diagram as code, gantt chart as code, venn diagram code, radar chart diagram, medallion lakehouse diagram, flywheel diagram, diagram themes, terminal theme, sketchy theme",
+  },
+];
+---
+
+<ArticleLayout
+  title="Advanced Diagram Layouts & Editorial Themes | Markdy"
+  description="Explore 13 diagram layout engines—from Timelines, Gantt charts, and Venn diagrams to Radars, Medallion pipelines, and Flywheels—paired with 8 publication-grade themes."
+  keywords="timeline diagram as code, gantt chart as code, venn diagram code, radar chart diagram, medallion lakehouse diagram, flywheel diagram, diagram themes, terminal theme, sketchy theme"
+  canonicalURL={canonicalURL}
+  headline="Advanced Diagram Layouts & Editorial Themes"
+  dek="Move beyond simple box-and-arrow graphs. Markdy now supports 13 specialized layout engines—including Timelines, Gantt charts, Venn diagrams, Radars, Medallion lakehouse tiers, and Flywheels—styled with 8 publication-grade themes."
+  structuredData={structuredData}
+>
+  <p>
+    System diagrams come in many shapes. An engineering roadmap requires a temporal timeline or Gantt schedule;
+    a data platform requires a multi-tier Bronze &rarr; Silver &rarr; Gold medallion pipeline; an algorithm benchmark requires
+    a multi-axis radar chart; and a product discovery workshop thrives on hand-drawn whiteboard aesthetics.
+  </p>
+  <p>
+    Markdy's compiler provides <strong>13 specialized layout engines</strong> and <strong>8 publication themes</strong>
+    while maintaining a single, unified MarkdyScript grammar.
+  </p>
+
+  <h2>1. Temporal Layouts: Timeline & Gantt</h2>
+  <p>
+    For roadmaps, milestone releases, and engineering phase sequencing, Markdy provides first-class temporal layouts:
+  </p>
+
+  <h3>Horizontal Timeline (<code>type=timeline</code>)</h3>
+  <p>
+    Lays out milestones along a central hairline baseline, alternating node placements above and below to eliminate label collision.
+  </p>
+  <pre><code>scene "Platform Roadmap" theme=editorial type=timeline width=1200 height=600
+
+service AlphaRelease "v0.1 Alpha Launch"
+service BetaRelease "v0.5 Public Beta" focal=true
+service GARelease "v1.0 General Availability"
+service EnterpriseTier "v2.0 Enterprise Tier"
+
+beat timeline_reveal "Platform Evolution":
+  show $nodes stagger=60ms
+  glow BetaRelease "First paying customers"</code></pre>
+
+  <h3>Gantt Chart (<code>type=gantt</code>)</h3>
+  <p>
+    Stacks task rows vertically while positioning horizontal bar spans along the timeline based on <code>phase=</code> and <code>span=</code> properties.
+  </p>
+  <pre><code>scene "Q3-Q4 Engineering Roadmap" theme=paper type=gantt width=1200 height=600
+
+service CoreRefactor "Core Architecture Refactor" phase=0 span=3
+service APIDesign "API Design & Review" phase=1 span=2 focal=true
+service FrontendRevamp "Frontend Revamp" phase=2 span=3
+service SecurityAudit "SOC2 Security Audit" phase=4 span=2
+
+beat roadmap_reveal "Engineering Phases":
+  show $nodes stagger=40ms
+  glow APIDesign "Critical path"</code></pre>
+
+  <h2>2. Conceptual & Metric Topologies: Venn & Radar</h2>
+
+  <h3>Venn Diagram (<code>type=venn</code>)</h3>
+  <p>
+    Places 2&ndash;3 intersecting circles with automatic proximity scaling and compounding opacity tints, highlighting the focal sweet spot.
+  </p>
+  <pre><code>scene "Product-Market Fit" theme=editorial type=venn width=1000 height=800
+
+service Desirability "Customer Desirability"
+service Feasibility "Technical Feasibility" focal=true
+service Viability "Business Viability"
+
+beat reveal "Finding the Sweet Spot":
+  show $nodes stagger=80ms
+  glow Feasibility "Core differentiator"</code></pre>
+
+  <h3>Multi-Axis Radar (<code>type=radar</code>)</h3>
+  <p>
+    Renders polygon radar charts with equi-angular radial axes and a 5-color desaturated series palette (sage, dusty-blue, mustard, rust-brown, slate).
+  </p>
+
+  <h2>3. Domain-Specific Topologies: Medallion, Flywheel, & Pyramid</h2>
+  <ul>
+    <li><strong>Medallion (<code>type=medallion</code>):</strong> Three-stage data lakehouse pipeline with Bronze raw ingestion, Silver cleansed tables, and Gold aggregate data products.</li>
+    <li><strong>Flywheel (<code>type=flywheel</code> / <code>type=loop</code>):</strong> Circular compounding loop with tangential flow paths for AI training cycles and data flywheels.</li>
+    <li><strong>Quadrant (<code>type=quadrant</code>):</strong> 2&times;2 strategic decision matrix for technology radar assessments.</li>
+    <li><strong>Pyramid (<code>type=pyramid</code>):</strong> Hierarchical value pyramid with step-proportional width scaling.</li>
+    <li><strong>Swimlane (<code>type=swimlane</code>):</strong> Multi-tier cross-functional horizontal lane partitions.</li>
+  </ul>
+
+  <h2>4. Publication Themes: Terminal & Sketchy</h2>
+  <p>
+    Markdy includes 8 built-in themes for every documentation context:
+  </p>
+  <ul>
+    <li><code>paper</code>: Clean light documentation canvas with subtle hairline grid.</li>
+    <li><code>editorial</code>: Warm cream paper with serif headings, flat cards, and ink/accent contrast.</li>
+    <li><code>terminal</code>: Dark CLI/TUI canvas with dot grid, monospace typography, and neon red glow.</li>
+    <li><code>sketchy</code>: Hand-drawn whiteboard theme with organic displacement filters and offset shadows.</li>
+    <li><code>nebula</code>: Deep space canvas with constellation twinkling stars and orbit rings.</li>
+    <li><code>midnight</code>, <code>blueprint</code>, and <code>graphite</code>: Developer dark canvases.</li>
+  </ul>
+
+  <p>
+    Ready to create your next diagram? Try the <a href="/playground/">Markdy Playground</a> or explore all patterns in the <a href="/docs/">Documentation</a>.
+  </p>
+</ArticleLayout>

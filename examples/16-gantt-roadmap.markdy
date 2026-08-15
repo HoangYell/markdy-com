@@ -1,0 +1,15 @@
+# 16-gantt-roadmap.markdy
+# Demonstrates Gantt Chart Layout for Engineering Roadmap.
+
+scene "Q3-Q4 Engineering Roadmap" theme=paper type=gantt width=1200 height=600
+
+service CoreRefactor "Core Architecture Refactor" phase=0 span=3
+service APIDesign "API Design & Review" phase=1 span=2 focal=true
+service FrontendRevamp "Frontend Component Library" phase=2 span=3
+service LoadTesting "Load & Chaos Testing" phase=3 span=2
+service SecurityAudit "SOC2 Security Audit" phase=4 span=2
+service GALaunch "Production GA Launch" phase=5 span=1
+
+beat roadmap_reveal "Engineering Phases":
+  show $nodes stagger=40ms
+  glow APIDesign "Critical path deliverable"
