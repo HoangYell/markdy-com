@@ -1,6 +1,6 @@
 {
   "name": "@markdy/renderer-dom",
-  "version": "0.8.21",
+  "version": "0.8.22",
   "description": "Browser renderer for diagram-native animated MarkdyScript architecture diagrams, built on the Web Animations API.",
   "license": "MIT",
   "type": "module",
