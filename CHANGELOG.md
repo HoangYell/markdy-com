@@ -5,6 +5,11 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.25] — 2026-08-15
+
+### Fixed
+- **MCP server npm publishing** — The Release workflow now builds, publishes, and lists `@markdy/mcp-server` so its npm package page resolves after release.
+
 ## [0.8.24] — 2026-08-15
 
 ### Changed
