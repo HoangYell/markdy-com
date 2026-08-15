@@ -19,6 +19,7 @@ const SAFE = 44;
 const TITLE_BAND = 76;
 const NODE_W = 168;
 const NODE_H = 72;
+const VENN_NODE_SIZE = 136;
 const GROUP_PAD = 24;
 
 const DEFAULTS = {
@@ -718,17 +719,17 @@ function layoutVenn(ast: DiagramAST): PositionedNode[] {
     const decl = ast.nodes[id];
     let x: number, y: number;
     if (N === 2) {
-      x = centerX + (idx === 0 ? -radius * 0.55 : radius * 0.55) - NODE_W / 2;
-      y = centerY - NODE_H / 2;
+      x = centerX + (idx === 0 ? -radius * 0.55 : radius * 0.55) - VENN_NODE_SIZE / 2;
+      y = centerY - VENN_NODE_SIZE / 2;
     } else {
       const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / N;
-      x = centerX + radius * 0.6 * Math.cos(angle) - NODE_W / 2;
-      y = centerY + radius * 0.6 * Math.sin(angle) - NODE_H / 2;
+      x = centerX + radius * 0.6 * Math.cos(angle) - VENN_NODE_SIZE / 2;
+      y = centerY + radius * 0.6 * Math.sin(angle) - VENN_NODE_SIZE / 2;
     }
     const focal = decl.props.focal === true || decl.props.accent === true;
     nodes.push({
       id, kind: decl.kind, role: nodeRole(decl.kind), label: decl.label,
-      x: snapGrid(x), y: snapGrid(y), width: NODE_W, height: NODE_H,
+      x: snapGrid(x), y: snapGrid(y), width: VENN_NODE_SIZE, height: VENN_NODE_SIZE,
       style: decl.style ? ast.styles[decl.style]?.props : undefined,
       props: decl.props, opacity: 0, shape: "circle", focal,
     });
