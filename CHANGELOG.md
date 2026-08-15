@@ -5,6 +5,11 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.23] — 2026-08-15
+
+### Fixed
+- **Homepage editor startup** — Removed an invalid spread of the `TECHNICAL_NODE_KINDS` role lookup object so the homepage playground script initializes and rendered Markdy scenes hydrate locally and in production.
+
 ## [0.8.22] — 2026-08-15
 
 ### Changed
