@@ -5,6 +5,15 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.20] — 2026-08-15
+
+### Added
+- **In-script controls & presentation directives** — MarkdyScript now supports declaring runtime and embed directives directly in code (e.g. `controls true`, `interactive true`, `progressColor "#3b82f6"`, `speed 1.5`, `loop false`), both as top-level directives and inline `scene` properties, making scenes self-contained across the CLI, Astro, and MDX.
+- **Custom progress bar colors & gradients** — Support solid colors (`progressColor="#3b82f6"`) or multi-stop gradients (`progressColor="#ec4899, #8b5cf6"`) in both MarkdyScript and renderer options, with rainbow remaining as the default.
+
+### Changed
+- **Left-aligned diagram controls in footer** — The built-in toolbar now sits on the left of the footer with active press tactile feedback, while the "Powered by Markdy" badge is aligned to the far right.
+
 ## [0.8.19] — 2026-08-15
 
 ### Changed

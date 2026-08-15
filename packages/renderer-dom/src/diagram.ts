@@ -36,9 +36,13 @@ export interface DiagramOptions {
    */
   assets?: Record<string, string>;
   /** @deprecated Prefer sceneBoundaryProgress. */
-  progressBar?: boolean;
-  /** Show rainbow progress around scene boundary. Defaults to true. */
-  sceneBoundaryProgress?: boolean;
+  progressBar?: boolean | string;
+  /** Show rainbow progress around scene boundary, or specify a custom color/gradient. Defaults to true. */
+  sceneBoundaryProgress?: boolean | string;
+  /** Custom progress bar color or gradient. Defaults to rainbow. */
+  progressColor?: string;
+  /** @deprecated Prefer progressColor. */
+  progressBarColor?: string;
   /** Playback speed multiplier. Defaults to 1, where 1 is Markdy's normal pace. */
   playbackRate?: number;
   /** Enable wheel zoom and drag pan on the rendered viewport. Defaults to false. */
@@ -106,26 +110,58 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   const {
     container,
     code,
-    autoplay = true,
-    loop = true,
-    copyright = true,
     assets,
     progressBar,
     sceneBoundaryProgress,
-    playbackRate: initialPlaybackRate = DEFAULT_PLAYBACK_RATE,
-    controls = false,
-    interactiveViewport = controls,
+    progressColor,
+    progressBarColor,
+    playbackRate: initialPlaybackRate,
+    controls: explicitControls,
+    interactiveViewport: explicitInteractiveViewport,
+    autoplay: explicitAutoplay,
+    loop: explicitLoop,
+    copyright: explicitCopyright,
     onWarning = (w) => console.warn(`[markdy] line ${w.line}: ${w.message}`),
     onTimeUpdate,
     onPlayStateChange,
   } = opts;
 
-  const showSceneBoundaryProgress = sceneBoundaryProgress ?? progressBar ?? true;
-
   const { ast, plan } = parseAndCompile(code);
   for (const w of ast.diagnostics) {
     if (w.severity === "warning") onWarning(w);
   }
+
+  const controls = explicitControls ?? plan.meta.controls ?? false;
+  const interactiveViewport =
+    explicitInteractiveViewport ??
+    (explicitControls !== undefined ? explicitControls : (plan.meta.interactiveViewport ?? plan.meta.controls ?? false));
+  const autoplay = explicitAutoplay ?? plan.meta.autoplay ?? true;
+  const loop = explicitLoop ?? plan.meta.loop ?? true;
+  const copyright = explicitCopyright ?? plan.meta.copyright ?? true;
+
+  const rawPlaybackRate = initialPlaybackRate ?? plan.meta.playbackRate ?? DEFAULT_PLAYBACK_RATE;
+  let playbackRate = Number.isFinite(rawPlaybackRate) && rawPlaybackRate > 0 ? rawPlaybackRate : DEFAULT_PLAYBACK_RATE;
+
+  const showSceneBoundaryProgress =
+    sceneBoundaryProgress === false || (sceneBoundaryProgress === undefined && progressBar === false)
+      ? false
+      : plan.meta.progressColor === "none"
+        ? false
+        : true;
+
+  const rawColor =
+    progressColor ??
+    progressBarColor ??
+    (typeof sceneBoundaryProgress === "string" && sceneBoundaryProgress !== "true" && sceneBoundaryProgress !== "false"
+      ? sceneBoundaryProgress
+      : typeof progressBar === "string" && progressBar !== "true" && progressBar !== "false"
+        ? progressBar
+        : undefined) ??
+    (plan.meta.progressColor && plan.meta.progressColor !== "none" ? plan.meta.progressColor : undefined);
+
+  const customColor = rawColor && rawColor.trim() !== "rainbow" ? rawColor.trim() : null;
+  const DEFAULT_RAINBOW =
+    "hsl(0,90%,60%), hsl(45,90%,55%), hsl(90,80%,50%), hsl(180,80%,50%), hsl(270,80%,55%), hsl(330,90%,60%)";
 
   const totalDurationMs = plan.duration * 1000;
   const durationSeconds = plan.duration;
@@ -158,8 +194,12 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   function updateProgressBar(pct: number): void {
     if (!progressEl) return;
     const deg = pct * 360;
-    const rainbow = "hsl(0,90%,60%), hsl(45,90%,55%), hsl(90,80%,50%), hsl(180,80%,50%), hsl(270,80%,55%), hsl(330,90%,60%)";
-    progressEl.style.background = `conic-gradient(from ${tlAngleNorm}deg, ${rainbow} ${deg}deg, transparent ${deg}deg)`;
+    const colorStops = customColor
+      ? customColor.includes(",")
+        ? customColor
+        : `${customColor} 0deg, ${customColor}`
+      : DEFAULT_RAINBOW;
+    progressEl.style.background = `conic-gradient(from ${tlAngleNorm}deg, ${colorStops} ${deg}deg, transparent ${deg}deg)`;
     progressEl.style.mask = "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)";
     progressEl.style.webkitMask = progressEl.style.mask;
     progressEl.style.maskComposite = "exclude";
@@ -175,7 +215,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     Object.assign(footer.style, {
       display: "flex",
       alignItems: "center",
-      justifyContent: "flex-end",
+      justifyContent: "space-between",
       flexWrap: "wrap",
       gap: "6px",
       width: "100%",
@@ -204,6 +244,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       textDecoration: "none",
       padding: "0",
       opacity: "0.7",
+      marginLeft: "auto",
     });
     ensureFooter().appendChild(badge);
   }
@@ -360,7 +401,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   }
 
   let sceneMs = 0;
-  let playbackRate = Number.isFinite(initialPlaybackRate) && initialPlaybackRate > 0 ? initialPlaybackRate : DEFAULT_PLAYBACK_RATE;
   let lastRafTs: number | null = null;
   let isPlaying = false;
   let rafId: number | null = null;
@@ -451,15 +491,19 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
   function syncControls(): void {
     if (controlsPlayButton) {
-      controlsPlayButton.textContent = isPlaying ? "Pause" : "Play";
-      controlsPlayButton.setAttribute("aria-label", isPlaying ? "Pause diagram" : "Play diagram");
+      const playing = isPlaying;
+      controlsPlayButton.textContent = playing ? "Pause" : "Play";
+      const playLabel = playing ? "Pause diagram" : "Play diagram";
+      controlsPlayButton.setAttribute("aria-label", playLabel);
+      controlsPlayButton.title = playLabel;
     }
     for (const button of controlsRateButtons) {
       const rate = Number(button.dataset.rate ?? "1");
       const active = Math.abs(rate - playbackRate) < 0.001;
       button.setAttribute("aria-pressed", active ? "true" : "false");
-      button.style.background = active ? "rgba(15, 23, 42, 0.92)" : "rgba(255, 255, 255, 0.92)";
-      button.style.color = active ? "#ffffff" : "#111827";
+      button.style.background = active ? "#1e293b" : "rgba(248, 250, 252, 0.92)";
+      button.style.color = active ? "#ffffff" : "#475569";
+      button.style.borderColor = active ? "#0f172a" : "rgba(148, 163, 184, 0.55)";
     }
   }
 
@@ -590,7 +634,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       position: "static",
       display: "flex",
       alignItems: "center",
-      justifyContent: "flex-end",
+      justifyContent: "flex-start",
       flexWrap: "wrap",
       gap: "4px",
       maxWidth: "100%",

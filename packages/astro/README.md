@@ -76,16 +76,19 @@ export const code = `
 | `height` | `number` | `400` | Placeholder height in pixels |
 | `bg` | `string` | `"white"` | Placeholder background colour |
 | `assets` | `Record<string, string>` | `{}` | Asset URL overrides |
-| `autoplay` | `boolean` | `true` | Start playing on hydration |
-| `loop` | `boolean` | `true` | Loop the animation when it ends |
-| `copyright` | `boolean` | `true` | Show a "Powered by Markdy" badge below the animation |
-| `progressBar` | `boolean` | `true` | Deprecated compatibility flag for the rainbow scene-boundary progress bar |
-| `sceneBoundaryProgress` | `boolean` | `progressBar` | Preferred flag for the rainbow scene-boundary progress bar |
-| `playbackRate` | `number` | `1` | Normalized timeline speed multiplier; `1` is Markdy's normal pace |
-| `interactiveViewport` | `boolean` | `false` | Enable wheel zoom and drag pan after hydration |
-| `controls` | `boolean` | `false` | Show a compact toolbar with play/pause, restart, speed, and view reset controls; also enables viewport interaction |
+| `autoplay` | `boolean` | `plan.meta.autoplay ?? true` | Start playing on hydration |
+| `loop` | `boolean` | `plan.meta.loop ?? true` | Loop the animation when it ends |
+| `copyright` | `boolean` | `plan.meta.copyright ?? true` | Show a "Powered by Markdy" badge below the animation |
+| `progressBar` | `boolean \| string` | `true` | Deprecated compatibility flag for the scene-boundary progress bar |
+| `sceneBoundaryProgress` | `boolean \| string` | `true` | Show boundary progress bar, or pass a custom color/gradient string |
+| `progressColor` | `string` | `plan.meta.progressColor ?? "rainbow"` | Custom progress bar color (e.g. `"#3b82f6"`) or gradient (e.g. `"#ec4899, #8b5cf6"`) |
+| `playbackRate` | `number` | `plan.meta.playbackRate ?? 1` | Normalized timeline speed multiplier; `1` is Markdy's normal pace |
+| `interactiveViewport` | `boolean` | `controls \|\| plan.meta.interactiveViewport` | Enable wheel zoom and drag pan after hydration |
+| `controls` | `boolean` | `plan.meta.controls ?? false` | Show left-aligned footer controls toolbar (play/pause, restart, speed, reset view); also enables viewport interaction |
 | `class` | `string` | — | CSS class for the outer wrapper |
 
+> **Self-Contained MarkdyScript:** You can declare `controls true`, `interactive true`, `progressColor "#3b82f6"`, `loop false`, etc. directly inside the `.markdy` code so you only need `<Markdy code={code} />`. Explicit props passed to `<Markdy />` will override in-script directives.
+>
 > **Tip:** Match `width`, `height`, and `bg` props to your `scene` declaration values to avoid a visual flash on hydration.
 
 ## How It Works

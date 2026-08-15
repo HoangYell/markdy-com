@@ -7,13 +7,14 @@ type DiagramInstance = {
 type CreateDiagramInput = {
   container: HTMLElement;
   code: string;
-  assets: Record<string, string>;
-  autoplay: boolean;
-  loop: boolean;
-  copyright: boolean;
-  progressBar: boolean;
-  sceneBoundaryProgress: boolean;
-  playbackRate: number;
+  assets?: Record<string, string>;
+  autoplay?: boolean;
+  loop?: boolean;
+  copyright?: boolean;
+  progressBar?: boolean | string;
+  sceneBoundaryProgress?: boolean | string;
+  progressColor?: string;
+  playbackRate?: number;
   interactiveViewport?: boolean;
   controls?: boolean;
 };
@@ -29,6 +30,8 @@ export type MarkdyDiagramProps = {
   copyright?: boolean | string;
   progressBar?: boolean | string;
   sceneBoundaryProgress?: boolean | string;
+  progressColor?: string;
+  progressBarColor?: string;
   playbackRate?: number | string;
   interactiveViewport?: boolean | string;
   controls?: boolean | string;
@@ -54,22 +57,22 @@ function scheduleBackgroundTask(work: () => void): void {
   globalThis.setTimeout(work, 0);
 };
 
-function coerceBoolean(value: boolean | string | undefined, fallback: boolean): boolean {
+function coerceOptionalBoolean(value: boolean | string | undefined): boolean | undefined {
   if (typeof value === "boolean") return value;
   if (typeof value === "string") {
-    if (value.toLowerCase() === "true") return true;
-    if (value.toLowerCase() === "false") return false;
+    if (value.toLowerCase() === "true" || value.toLowerCase() === "on") return true;
+    if (value.toLowerCase() === "false" || value.toLowerCase() === "off") return false;
   }
-  return fallback;
+  return undefined;
 }
 
-function coerceNumber(value: number | string | undefined, fallback: number): number {
+function coerceOptionalNumber(value: number | string | undefined): number | undefined {
   if (typeof value === "number") return value;
   if (typeof value === "string") {
     const parsed = Number(value);
-    if (!Number.isNaN(parsed)) return parsed;
+    if (!Number.isNaN(parsed) && parsed > 0) return parsed;
   }
-  return fallback;
+  return undefined;
 }
 
 export function MarkdyDiagram({
@@ -78,28 +81,46 @@ export function MarkdyDiagram({
   height = 400,
   bg = "#ffffff",
   assets = {},
-  autoplay = false,
-  loop = false,
-  copyright = false,
-  progressBar = false,
+  autoplay,
+  loop,
+  copyright,
+  progressBar,
   sceneBoundaryProgress,
-  playbackRate = 1,
-  controls = false,
-  interactiveViewport = controls,
+  progressColor,
+  progressBarColor,
+  playbackRate,
+  controls,
+  interactiveViewport,
   className,
   title = "Markdy animation",
   description,
 }: MarkdyDiagramProps) {
-  const resolvedWidth = coerceNumber(width, 800);
-  const resolvedHeight = coerceNumber(height, 400);
-  const resolvedAutoplay = coerceBoolean(autoplay, false);
-  const resolvedLoop = coerceBoolean(loop, false);
-  const resolvedCopyright = coerceBoolean(copyright, false);
-  const resolvedProgressBar = coerceBoolean(progressBar, false);
-  const resolvedSceneBoundaryProgress = coerceBoolean(sceneBoundaryProgress, resolvedProgressBar);
-  const resolvedPlaybackRate = coerceNumber(playbackRate, 1);
-  const resolvedControls = coerceBoolean(controls, false);
-  const resolvedInteractiveViewport = resolvedControls || coerceBoolean(interactiveViewport, false);
+  const resolvedWidth = typeof width === "number" ? width : Number(width) || 800;
+  const resolvedHeight = typeof height === "number" ? height : Number(height) || 400;
+  const resolvedAutoplay = coerceOptionalBoolean(autoplay);
+  const resolvedLoop = coerceOptionalBoolean(loop);
+  const resolvedCopyright = coerceOptionalBoolean(copyright);
+  const resolvedProgressBar =
+    typeof progressBar === "string" && progressBar !== "true" && progressBar !== "false"
+      ? progressBar
+      : coerceOptionalBoolean(progressBar);
+  const resolvedSceneBoundaryProgress =
+    typeof sceneBoundaryProgress === "string" && sceneBoundaryProgress !== "true" && sceneBoundaryProgress !== "false"
+      ? sceneBoundaryProgress
+      : coerceOptionalBoolean(sceneBoundaryProgress);
+  const resolvedProgressColor =
+    typeof progressColor === "string"
+      ? progressColor
+      : typeof progressBarColor === "string"
+        ? progressBarColor
+        : typeof resolvedSceneBoundaryProgress === "string"
+          ? resolvedSceneBoundaryProgress
+          : typeof resolvedProgressBar === "string"
+            ? resolvedProgressBar
+            : undefined;
+  const resolvedPlaybackRate = coerceOptionalNumber(playbackRate);
+  const resolvedControls = coerceOptionalBoolean(controls);
+  const resolvedInteractiveViewport = coerceOptionalBoolean(interactiveViewport);
 
   const rootRef = useRef<HTMLDivElement | null>(null);
   const diagramRef = useRef<DiagramInstance | null>(null);
@@ -128,12 +149,13 @@ export function MarkdyDiagram({
               container: root,
               code,
               assets,
-              autoplay: forceAutoplay || resolvedAutoplay,
+              autoplay: forceAutoplay ? true : resolvedAutoplay,
               loop: resolvedLoop,
               copyright: resolvedCopyright,
               progressBar: resolvedProgressBar,
               sceneBoundaryProgress: resolvedSceneBoundaryProgress,
-              playbackRate: resolvedPlaybackRate > 0 ? resolvedPlaybackRate : 1,
+              progressColor: resolvedProgressColor,
+              playbackRate: resolvedPlaybackRate,
               interactiveViewport: resolvedInteractiveViewport,
               controls: resolvedControls,
             });
@@ -188,6 +210,7 @@ export function MarkdyDiagram({
     resolvedLoop,
     resolvedProgressBar,
     resolvedSceneBoundaryProgress,
+    resolvedProgressColor,
     resolvedPlaybackRate,
     resolvedInteractiveViewport,
     resolvedControls,

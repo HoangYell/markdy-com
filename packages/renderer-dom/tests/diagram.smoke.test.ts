@@ -200,6 +200,8 @@ describe("createDiagram integration", () => {
     expect(container.querySelector(".markdy-controls")).toBeNull();
     expect(footer).not.toBeNull();
     expect(toolbar).not.toBeNull();
+    expect(footer?.style.justifyContent).toBe("space-between");
+    expect(toolbar?.style.justifyContent).toBe("flex-start");
     playButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(diagram.isPlaying()).toBe(true);
     expect(playButton.textContent).toBe("Pause");
@@ -223,5 +225,122 @@ describe("createDiagram integration", () => {
     expect(diagram.isPlaying()).toBe(true);
 
     diagram.destroy();
+  });
+
+  it("aligns controls on left and copyright badge on right when both are present", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const diagram = createDiagram({
+      container,
+      code: SCENE,
+      autoplay: false,
+      copyright: true,
+      controls: true,
+    });
+    const footer = document.body.querySelector<HTMLElement>(".markdy-footer");
+    const toolbar = footer?.querySelector<HTMLElement>(".markdy-controls") ?? null;
+    const badge = footer?.querySelector<HTMLAnchorElement>("a") ?? null;
+
+    expect(footer).not.toBeNull();
+    expect(toolbar).not.toBeNull();
+    expect(badge).not.toBeNull();
+    expect(footer?.style.justifyContent).toBe("space-between");
+    expect(toolbar?.style.justifyContent).toBe("flex-start");
+    expect(badge?.style.marginLeft).toBe("auto");
+    expect(footer?.firstElementChild).toBe(toolbar);
+    expect(footer?.lastElementChild).toBe(badge);
+
+    diagram.destroy();
+  });
+
+  it("renders default rainbow progress bar and supports custom color defined in code or options", () => {
+    const container1 = document.createElement("div");
+    document.body.appendChild(container1);
+    const diagram1 = createDiagram({
+      container: container1,
+      code: SCENE,
+      autoplay: false,
+      copyright: false,
+    });
+    const progressEl1 = container1.firstElementChild?.querySelector<HTMLElement>("div[style*='z-index: 9999']") ?? null;
+    expect(progressEl1).not.toBeNull();
+    diagram1.seek(1);
+    expect(progressEl1?.style.background).toContain("conic-gradient");
+    expect(progressEl1?.style.background).toContain("rgb(245, 61, 61)");
+    diagram1.destroy();
+
+    const container2 = document.createElement("div");
+    document.body.appendChild(container2);
+    const diagram2 = createDiagram({
+      container: container2,
+      code: `scene "Custom" theme=paper progressColor="#3b82f6"\nservice A\nbeat b1:\n  show A\n`,
+      autoplay: false,
+      copyright: false,
+    });
+    const progressEl2 = container2.firstElementChild?.querySelector<HTMLElement>("div[style*='z-index: 9999']") ?? null;
+    expect(progressEl2).not.toBeNull();
+    diagram2.seek(0.5);
+    expect(progressEl2?.style.background).toContain("rgb(59, 130, 246)");
+    diagram2.destroy();
+
+    const container3 = document.createElement("div");
+    document.body.appendChild(container3);
+    const diagram3 = createDiagram({
+      container: container3,
+      code: SCENE,
+      autoplay: false,
+      copyright: false,
+      progressColor: "#ec4899, #8b5cf6",
+    });
+    const progressEl3 = container3.firstElementChild?.querySelector<HTMLElement>("div[style*='z-index: 9999']") ?? null;
+    expect(progressEl3).not.toBeNull();
+    diagram3.seek(0.5);
+    expect(progressEl3?.style.background).toContain("rgb(236, 72, 153)");
+    expect(progressEl3?.style.background).toContain("rgb(139, 92, 246)");
+    diagram3.destroy();
+  });
+
+  it("activates controls, interactivity, and playback settings declared directly in MarkdyScript", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const code = `
+controls true
+interactive true
+autoplay false
+loop false
+speed 2
+
+scene "Self Contained" theme=paper
+service A
+beat b1:
+  show A
+`;
+    const diagram = createDiagram({
+      container,
+      code,
+    });
+
+    const footer = document.body.querySelector<HTMLElement>(".markdy-footer");
+    const toolbar = footer?.querySelector<HTMLElement>(".markdy-controls") ?? null;
+    expect(toolbar).not.toBeNull();
+    expect(diagram.playbackRate()).toBe(2);
+    expect(diagram.isPlaying()).toBe(false);
+
+    diagram.destroy();
+
+    // Verify explicit option overrides in-script directive
+    const container2 = document.createElement("div");
+    document.body.appendChild(container2);
+    const diagram2 = createDiagram({
+      container: container2,
+      code,
+      controls: false,
+    });
+    const footer2 = document.body.querySelector<HTMLElement>(".markdy-footer");
+    const toolbar2 = footer2?.querySelector<HTMLElement>(".markdy-controls") ?? null;
+    expect(toolbar2).toBeNull();
+    diagram2.destroy();
   });
 });

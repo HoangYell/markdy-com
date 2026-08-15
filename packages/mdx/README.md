@@ -73,6 +73,9 @@ Fenced block metadata is passed as props to `MarkdyDiagram`. Snake-case aliases 
 |---|---|---|
 | `progress_bar=false` | `progressBar={false}` | Deprecated compatibility flag for the scene-boundary progress bar |
 | `scene_boundary_progress=false` | `sceneBoundaryProgress={false}` | Preferred flag for the scene-boundary progress bar |
+| `progress_color="#3b82f6"` | `progressColor="#3b82f6"` | Custom progress bar color or gradient |
 | `playback_rate=0.5` | `playbackRate={0.5}` | Normalized timeline speed multiplier; `1` is Markdy's normal pace |
 | `interactive_viewport=true` | `interactiveViewport={true}` | Enable wheel zoom and drag pan on the rendered viewport |
 | `controls=true` | `controls={true}` | Show a compact toolbar with play/pause, restart, speed, and view reset controls; also enables viewport interaction |
+
+> **Self-Contained MarkdyScript:** You can also declare `controls true`, `interactive true`, `progressColor "#3b82f6"`, `loop false`, etc. directly inside the Markdy code block without needing fence metadata attributes. Fence attributes act as explicit overrides.

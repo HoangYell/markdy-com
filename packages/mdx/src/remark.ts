@@ -53,6 +53,7 @@ function parseMetaValue(raw: string): MetaValue {
 function normalizeMetaKey(key: string): string {
   if (key === "progress_bar") return "progressBar";
   if (key === "scene_boundary_progress") return "sceneBoundaryProgress";
+  if (key === "progress_color" || key === "progress_bar_color") return "progressColor";
   if (key === "playback_rate") return "playbackRate";
   if (key === "interactive_viewport") return "interactiveViewport";
   return key;

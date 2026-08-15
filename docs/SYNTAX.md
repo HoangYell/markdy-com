@@ -5,14 +5,33 @@
 
 MarkdyScript is diagram-native. Declare semantic nodes, groups, beats, flow operators, and cues — the engine handles layout, routing, timing, and rendering.
 
-### Scene
+### Scene & Directives
 
 ```markdy
+controls true
+interactive true
+progressColor "#3b82f6"
+loop false
+
 scene "URL Shortener" theme=paper
 layout LR
 ```
 
 Canonical scenes put `layout LR|RL|TB|BT` on its own line. For AI-generated compatibility, the parser also accepts `layout LR` or `layout=LR` on the `scene` line.
+
+You can declare diagram runtime and presentation settings directly at the top of the file as standalone directives or inline on the `scene` line:
+
+| Top-Level Directive | `scene` Prop | Description |
+|---|---|---|
+| `controls [true\|false\|on\|off]` | `controls=true` | Mount playback, speed, and reset view buttons in footer |
+| `interactive [true\|false\|on\|off]` | `interactive=true` | Enable wheel zoom and drag pan |
+| `progressColor <color>` | `progressColor="#3b82f6"` | Custom progress bar color or gradient (e.g. `progressColor="#ec4899, #8b5cf6"`) |
+| `speed <number>` | `playbackRate=1.5` | Timeline speed multiplier |
+| `autoplay [true\|false\|on\|off]` | `autoplay=true` | Start playback automatically on load |
+| `loop [true\|false\|on\|off]` | `loop=false` | Loop timeline playback when reaching the end |
+| `copyright [true\|false\|on\|off]` | `copyright=false` | Show/hide "Powered by Markdy" badge |
+
+Directives support space, colon (`controls: true`), and equals (`controls = true`) syntax. Directives defined in the script allow `<Markdy code={code} />` embeds to be completely self-contained without needing wrapper props.
 
 ### Nodes
 

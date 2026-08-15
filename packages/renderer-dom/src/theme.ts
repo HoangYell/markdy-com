@@ -99,6 +99,34 @@ export function ensureSceneStyles(doc: Document): void {
   transform: translateY(8px);
   will-change: opacity, transform;
 }
+.markdy-footer {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.markdy-controls button {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.05s ease;
+}
+.markdy-controls button:hover:not([aria-pressed="true"]) {
+  background: rgba(241, 245, 249, 1);
+  color: #1e293b;
+  border-color: rgba(100, 116, 139, 0.6);
+}
+.markdy-controls button:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 1px;
+}
+.markdy-controls button:active {
+  transform: scale(0.96);
+}
+.markdy-footer a {
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+.markdy-footer a:hover {
+  opacity: 1 !important;
+  color: #64748b !important;
+}
 `;
   doc.head.appendChild(style);
 }

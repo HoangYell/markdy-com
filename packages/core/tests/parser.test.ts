@@ -494,4 +494,73 @@ beat main:
 `),
     ).toThrow(/group 'empty' has no members/);
   });
+
+  it("parses progressColor and aliases on scene declarations without warnings", () => {
+    const ast1 = parse(`scene "Custom Color" theme=paper progressColor="#3b82f6"`);
+    expect(ast1.meta.progressColor).toBe("#3b82f6");
+    expect(ast1.diagnostics).toEqual([]);
+
+    const ast2 = parse(`scene "Gradient" theme=paper progressBarColor="#ec4899, #8b5cf6"`);
+    expect(ast2.meta.progressColor).toBe("#ec4899, #8b5cf6");
+    expect(ast2.diagnostics).toEqual([]);
+
+    const ast3 = parse(`scene "Shorthand" progress=emerald`);
+    expect(ast3.meta.progressColor).toBe("emerald");
+    expect(ast3.diagnostics).toEqual([]);
+  });
+
+  it("parses top-level directives and inline scene presentation properties", () => {
+    const ast1 = parse(`
+controls true
+interactive true
+autoplay false
+loop false
+copyright false
+speed 1.5
+progressColor "#3b82f6"
+
+scene "Top-Level Directives" theme=paper
+service API
+beat main:
+  show API
+`);
+    expect(ast1.meta.controls).toBe(true);
+    expect(ast1.meta.interactiveViewport).toBe(true);
+    expect(ast1.meta.autoplay).toBe(false);
+    expect(ast1.meta.loop).toBe(false);
+    expect(ast1.meta.copyright).toBe(false);
+    expect(ast1.meta.playbackRate).toBe(1.5);
+    expect(ast1.meta.progressColor).toBe("#3b82f6");
+    expect(ast1.diagnostics).toEqual([]);
+
+    const ast2 = parse(`
+scene "Inline Props" controls=true interactive=true autoplay=false loop=false copyright=false playbackRate=2
+service API
+beat main:
+  show API
+`);
+    expect(ast2.meta.controls).toBe(true);
+    expect(ast2.meta.interactiveViewport).toBe(true);
+    expect(ast2.meta.autoplay).toBe(false);
+    expect(ast2.meta.loop).toBe(false);
+    expect(ast2.meta.copyright).toBe(false);
+    expect(ast2.meta.playbackRate).toBe(2);
+    expect(ast2.diagnostics).toEqual([]);
+
+    const ast3 = parse(`
+controls: true
+interactive: on
+speed = 0.5
+progressColor = "#10b981"
+scene "Colon and Equals"
+service API
+beat main:
+  show API
+`);
+    expect(ast3.meta.controls).toBe(true);
+    expect(ast3.meta.interactiveViewport).toBe(true);
+    expect(ast3.meta.playbackRate).toBe(0.5);
+    expect(ast3.meta.progressColor).toBe("#10b981");
+    expect(ast3.diagnostics).toEqual([]);
+  });
 });
