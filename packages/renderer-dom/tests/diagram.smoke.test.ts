@@ -190,12 +190,15 @@ describe("createDiagram integration", () => {
       controls: true,
     });
     const viewport = container.firstElementChild as HTMLElement;
-    const toolbar = container.querySelector<HTMLElement>(".markdy-controls");
-    const playButton = container.querySelector<HTMLButtonElement>(".markdy-control-play")!;
-    const restartButton = container.querySelector<HTMLButtonElement>(".markdy-control-restart")!;
-    const halfSpeedButton = [...container.querySelectorAll<HTMLButtonElement>(".markdy-control-rate")].find((button) => button.dataset.rate === "0.5")!;
-    const resetButton = container.querySelector<HTMLButtonElement>(".markdy-control-reset-view")!;
+    const footer = document.body.querySelector<HTMLElement>(".markdy-footer");
+    const toolbar = footer?.querySelector<HTMLElement>(".markdy-controls") ?? null;
+    const playButton = footer?.querySelector<HTMLButtonElement>(".markdy-control-play")!;
+    const restartButton = footer?.querySelector<HTMLButtonElement>(".markdy-control-restart")!;
+    const halfSpeedButton = [...footer!.querySelectorAll<HTMLButtonElement>(".markdy-control-rate")].find((button) => button.dataset.rate === "0.5")!;
+    const resetButton = footer?.querySelector<HTMLButtonElement>(".markdy-control-reset-view")!;
 
+    expect(container.querySelector(".markdy-controls")).toBeNull();
+    expect(footer).not.toBeNull();
     expect(toolbar).not.toBeNull();
     playButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(diagram.isPlaying()).toBe(true);
