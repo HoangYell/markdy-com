@@ -56,13 +56,18 @@ beat main:
 
 ## Grammar
 
-### `scene` — configuration (first line)
+### Directives & `scene` configuration
 
 ```markdy
+controls true
+interactive true
+progressColor "#3b82f6"
+
 scene "Title" theme=paper width=1280 height=720 fps=60 duration=8
+layout LR
 ```
 
-| Property | Default | Description |
+| Directives / `scene` Properties | Default | Description |
 |---|---|---|
 | title (bare string) | — | Optional scene title, shown top-left |
 | `theme` | `paper` | Semantic palette: `paper` (light), `editorial`, `nebula`, `midnight`, `blueprint`, or `graphite` |
@@ -70,8 +75,15 @@ scene "Title" theme=paper width=1280 height=720 fps=60 duration=8
 | `fps` | `60` | Frame rate hint |
 | `duration` | auto | Force total seconds (otherwise derived from cues) |
 | `type` | `architecture` | Focused layout: `architecture`, `flowchart`, `tree`, `state`, `sequence`, or `constellation` |
+| `controls` | `false` | Mount playback, speed, and reset view buttons in footer |
+| `interactive` / `interactiveViewport` | `false` | Enable wheel zoom and drag pan (enabled automatically when `controls true`) |
+| `progressColor` | `rainbow` | Custom progress bar color (e.g. `"#3b82f6"`) or gradient (e.g. `"#ec4899, #8b5cf6"`) |
+| `speed` / `playbackRate` | `1` | Default timeline speed multiplier |
+| `autoplay` | `true` | Start playback automatically on load |
+| `loop` | `true` | Loop playback when reaching the end |
+| `copyright` | `true` | Show/hide "Powered by Markdy" badge |
 
-`layout LR` may be a separate statement (preferred) or inline on the `scene` line for AI-generated compatibility.
+`layout LR` and directives like `controls true`, `interactive true`, `progressColor "#3b82f6"` can be written on their own lines before/after `scene` or inline on the `scene` line for AI-generated compatibility. Directives allow `.markdy` files to be completely self-contained across the CLI, Astro, and MDX.
 
 Focused modes keep the same grammar while changing composition:
 

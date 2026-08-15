@@ -54,6 +54,23 @@ export const SCENE_KEYS = new Set([
   "direction",
   "layout",
   "type",
+  "progressColor",
+  "progressBarColor",
+  "progress_color",
+  "progress_bar_color",
+  "progress",
+  "progressBar",
+  "sceneBoundaryProgress",
+  "controls",
+  "interactive",
+  "interactiveViewport",
+  "interactive_viewport",
+  "autoplay",
+  "loop",
+  "copyright",
+  "playbackRate",
+  "playback_rate",
+  "speed",
 ]);
 
 export function nodeRole(kind: string): string {

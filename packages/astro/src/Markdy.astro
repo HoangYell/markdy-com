@@ -40,10 +40,14 @@ export interface Props {
   loop?: boolean;
   /** Show a small "Powered by Markdy" badge below the animation. Defaults to true. */
   copyright?: boolean;
-  /** Show a rainbow progress bar around the viewport border. Defaults to true. */
-  progressBar?: boolean;
-  /** Preferred flag to show/hide rainbow progress at scene boundary. Defaults to true. */
-  sceneBoundaryProgress?: boolean;
+  /** Show a rainbow progress bar around the viewport border, or specify a custom color/gradient. Defaults to true. */
+  progressBar?: boolean | string;
+  /** Preferred flag to show/hide or set a custom color/gradient for the scene-boundary progress bar. Defaults to true. */
+  sceneBoundaryProgress?: boolean | string;
+  /** Custom progress bar color or gradient (e.g. "#3b82f6", "emerald", "#ec4899, #8b5cf6"). */
+  progressColor?: string;
+  /** @deprecated Prefer progressColor. */
+  progressBarColor?: string;
   /** Playback speed multiplier. Defaults to 1, where 1 is Markdy's normal pace. */
   playbackRate?: number;
   /** Enable wheel zoom and drag pan after hydration. Defaults to false. */
@@ -70,18 +74,29 @@ const {
   height = 400,
   bg = "white",
   assets = {},
-  autoplay = true,
-  loop = true,
-  copyright = true,
-  progressBar = true,
+  autoplay,
+  loop,
+  copyright,
+  progressBar,
   sceneBoundaryProgress,
-  playbackRate = 1,
-  controls = false,
-  interactiveViewport = controls,
+  progressColor,
+  progressBarColor,
+  playbackRate,
+  controls,
+  interactiveViewport,
   class: className,
   title = "Markdy animation",
   description,
 } = Astro.props;
+
+const resolvedProgressColor =
+  progressColor ??
+  progressBarColor ??
+  (typeof sceneBoundaryProgress === "string" && sceneBoundaryProgress !== "true" && sceneBoundaryProgress !== "false"
+    ? sceneBoundaryProgress
+    : typeof progressBar === "string" && progressBar !== "true" && progressBar !== "false"
+      ? progressBar
+      : undefined);
 
 // Base64 avoids HTML attribute whitespace normalization, which strips the
 // leading indentation MarkdyScript uses for colon bodies (groups/beats).
@@ -95,14 +110,15 @@ const codeB64 =
   class:list={["markdy-root", className]}
   data-markdy-code-b64={codeB64}
   data-markdy-assets={JSON.stringify(assets)}
-  data-markdy-autoplay={String(autoplay)}
-  data-markdy-loop={String(loop)}
-  data-markdy-copyright={String(copyright)}
-  data-markdy-progress-bar={String(progressBar)}
-  data-markdy-scene-boundary-progress={String(sceneBoundaryProgress ?? progressBar)}
-  data-markdy-playback-rate={String(playbackRate)}
-  data-markdy-interactive-viewport={String(interactiveViewport)}
-  data-markdy-controls={String(controls)}
+  data-markdy-autoplay={autoplay !== undefined ? String(autoplay) : undefined}
+  data-markdy-loop={loop !== undefined ? String(loop) : undefined}
+  data-markdy-copyright={copyright !== undefined ? String(copyright) : undefined}
+  data-markdy-progress-bar={progressBar !== undefined ? String(progressBar) : undefined}
+  data-markdy-scene-boundary-progress={sceneBoundaryProgress !== undefined ? String(sceneBoundaryProgress) : undefined}
+  data-markdy-progress-color={resolvedProgressColor ?? undefined}
+  data-markdy-playback-rate={playbackRate !== undefined ? String(playbackRate) : undefined}
+  data-markdy-interactive-viewport={interactiveViewport !== undefined ? String(interactiveViewport) : undefined}
+  data-markdy-controls={controls !== undefined ? String(controls) : undefined}
   role="img"
   aria-label={title}
   aria-busy="true"
@@ -273,14 +289,48 @@ const codeB64 =
       // Leave assets empty on parse failure — renderer falls back to DSL paths.
     }
 
-    const autoplay = forcePlay || el.dataset.markdyAutoplay !== "false";
-    const loop = el.dataset.markdyLoop !== "false";
-    const copyright = el.dataset.markdyCopyright !== "false";
-    const progressBar = el.dataset.markdyProgressBar !== "false";
-    const sceneBoundaryProgress = el.dataset.markdySceneBoundaryProgress !== "false";
-    const playbackRate = Number(el.dataset.markdyPlaybackRate ?? "1");
-    const controls = el.dataset.markdyControls === "true";
-    const interactiveViewport = controls || el.dataset.markdyInteractiveViewport === "true";
+    const autoplay = forcePlay
+      ? true
+      : el.dataset.markdyAutoplay !== undefined
+        ? el.dataset.markdyAutoplay === "true"
+        : undefined;
+    const loop =
+      el.dataset.markdyLoop !== undefined
+        ? el.dataset.markdyLoop === "true"
+        : undefined;
+    const copyright =
+      el.dataset.markdyCopyright !== undefined
+        ? el.dataset.markdyCopyright === "true"
+        : undefined;
+    const progressBar =
+      el.dataset.markdyProgressBar !== undefined
+        ? el.dataset.markdyProgressBar !== "false"
+        : undefined;
+    const rawSceneBoundaryProgress = el.dataset.markdySceneBoundaryProgress;
+    const sceneBoundaryProgress =
+      rawSceneBoundaryProgress === undefined
+        ? undefined
+        : rawSceneBoundaryProgress === "false"
+          ? false
+          : rawSceneBoundaryProgress !== "true"
+            ? rawSceneBoundaryProgress
+            : true;
+    const progressColor = el.dataset.markdyProgressColor || undefined;
+    const rawPlaybackRate = el.dataset.markdyPlaybackRate
+      ? Number(el.dataset.markdyPlaybackRate)
+      : undefined;
+    const playbackRate =
+      rawPlaybackRate !== undefined && Number.isFinite(rawPlaybackRate) && rawPlaybackRate > 0
+        ? rawPlaybackRate
+        : undefined;
+    const controls =
+      el.dataset.markdyControls !== undefined
+        ? el.dataset.markdyControls === "true"
+        : undefined;
+    const interactiveViewport =
+      el.dataset.markdyInteractiveViewport !== undefined
+        ? el.dataset.markdyInteractiveViewport === "true"
+        : undefined;
 
     // Code-split: renderer-dom is NOT part of the initial page bundle.
     const { createDiagram } = await import("@markdy/renderer-dom");
@@ -298,7 +348,8 @@ const codeB64 =
       copyright,
       progressBar,
       sceneBoundaryProgress,
-      playbackRate: Number.isFinite(playbackRate) && playbackRate > 0 ? playbackRate : 1,
+      progressColor,
+      playbackRate,
       interactiveViewport,
       controls,
     });

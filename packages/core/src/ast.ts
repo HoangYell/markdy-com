@@ -21,6 +21,20 @@ export type SceneMeta = {
   duration?: number;
   /** Opt-in diagram mode; defaults to architecture. */
   type?: DiagramType;
+  /** Optional custom progress bar color or gradient. Defaults to rainbow. */
+  progressColor?: string;
+  /** Enable playback and view reset controls toolbar. */
+  controls?: boolean;
+  /** Enable wheel zoom and drag pan. */
+  interactiveViewport?: boolean;
+  /** Autoplay timeline on load. */
+  autoplay?: boolean;
+  /** Loop playback when reaching the end. */
+  loop?: boolean;
+  /** Show copyright badge. */
+  copyright?: boolean;
+  /** Default playback speed multiplier. */
+  playbackRate?: number;
 };
 
 export type NodeDecl = {

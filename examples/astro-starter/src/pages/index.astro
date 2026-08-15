@@ -2,6 +2,10 @@
 import { Markdy } from "@markdy/astro";
 
 const code = `
+controls true
+interactive true
+progressColor "#3b82f6"
+
 scene "Markdy + Astro" theme=paper width=800 height=400
 layout LR
 
@@ -33,7 +37,7 @@ beat response:
     <h1>Markdy + Astro Sandbox</h1>
     <p>Wait for the component to hydrate and see the animated diagram run!</p>
     <div class="container">
-      <Markdy code={code} width={800} height={400} bg="#07111f" autoplay controls />
+      <Markdy code={code} width={800} height={400} bg="#07111f" />
     </div>
   </body>
 </html>
