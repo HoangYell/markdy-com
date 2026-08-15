@@ -275,6 +275,30 @@ describe("diagram render plan", () => {
     expect(host.querySelector("[data-edge-kind='dependency']")).not.toBeNull();
   });
 
+  it("routes circle-to-circle edges between circular boundaries", () => {
+    const host = document.createElement("div");
+    const nodes = [
+      { id: "A", kind: "service", role: "compute", label: "A", x: 100, y: 100, width: 136, height: 136, opacity: 1, shape: "circle" as const },
+      { id: "B", kind: "service", role: "compute", label: "B", x: 300, y: 100, width: 136, height: 136, opacity: 1, shape: "circle" as const },
+    ];
+    const svg = ensureEdgeLayer(host);
+    createEdgeRuntime(
+      svg,
+      nodes[0],
+      nodes[1],
+      "request",
+      undefined,
+      THEMES.editorial,
+      "circle-route",
+      [],
+      [],
+      { width: 600, height: 360 },
+      0,
+    );
+
+    expect(host.querySelector<SVGPathElement>("g[data-edge-kind='request'] path")?.getAttribute("d")).toBe("M 236 168 L 300 168");
+  });
+
   it("keeps structural edges visible and resolves `$edges` emphasis", () => {
     const host = document.createElement("div");
     const title = document.createElement("div");

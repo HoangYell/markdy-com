@@ -385,6 +385,7 @@ service SetC "Viability"
     const plan = compile(parse(source));
     expect(plan.diagramType).toBe("venn");
     expect(plan.nodes).toHaveLength(3);
+    expect(plan.nodes.every((n) => n.shape === "circle" && n.width === n.height)).toBe(true);
     expect(plan.nodes.find((n) => n.id === "SetB")!.focal).toBe(true);
   });
 

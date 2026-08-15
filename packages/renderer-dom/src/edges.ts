@@ -33,6 +33,33 @@ function dedupePoints(points: Point[]): Point[] {
   return out.length >= 2 ? out : points;
 }
 
+function circleBoundaryRoute(from: PositionedNode, to: PositionedNode): Point[] {
+  const fromCenter = { x: from.x + from.width / 2, y: from.y + from.height / 2 };
+  const toCenter = { x: to.x + to.width / 2, y: to.y + to.height / 2 };
+  const dx = toCenter.x - fromCenter.x;
+  const dy = toCenter.y - fromCenter.y;
+  const distance = Math.hypot(dx, dy) || 1;
+  const ux = dx / distance;
+  const uy = dy / distance;
+  const fromRadius = Math.min(from.width, from.height) / 2;
+  const toRadius = Math.min(to.width, to.height) / 2;
+  return dedupePoints([
+    { x: fromCenter.x + ux * fromRadius, y: fromCenter.y + uy * fromRadius },
+    { x: toCenter.x - ux * toRadius, y: toCenter.y - uy * toRadius },
+  ]);
+}
+
+function routeEdgePoints(
+  from: PositionedNode,
+  to: PositionedNode,
+  routeObstacles: Rect[],
+  bounds: { width: number; height: number },
+  lane: number,
+): Point[] {
+  if (from.shape === "circle" && to.shape === "circle") return circleBoundaryRoute(from, to);
+  return routeOrthogonal(boxRect(from), boxRect(to), routeObstacles, bounds, lane);
+}
+
 export function ensureEdgeLayer(scene: HTMLElement): SVGSVGElement {
   const existing = scene.querySelector<SVGSVGElement>(`svg[${EDGE_LAYER_ATTR}='1']`);
   if (existing) return existing;
@@ -141,7 +168,7 @@ export function createEdgeRuntime(
   const isSelfLoop = from.id === to.id;
   const points = isSelfLoop
     ? dedupePoints(selfLoopPath(from))
-    : dedupePoints(routeOrthogonal(boxRect(from), boxRect(to), routeObstacles, bounds, lane));
+    : dedupePoints(routeEdgePoints(from, to, routeObstacles, bounds, lane));
   const d = toPathD(points);
   const len = polylineLength(points);
 

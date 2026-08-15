@@ -1,4 +1,4 @@
-scene "High-Throughput Fintech Governance" theme=blueprint
+scene "High-Throughput Fintech Governance" theme=blueprint width=1760 height=900
 layout LR
 
 group edge_perimeter "Edge Security Zone": WAF CloudflareEdge

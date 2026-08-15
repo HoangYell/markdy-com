@@ -155,9 +155,11 @@ export function ensureNodeStyles(doc: Document): void {
 }
 .markdy-node[data-shape="circle"],
 .markdy-node[data-kind="dot"] {
+  border-radius: 50%;
+}
+.markdy-node[data-kind="dot"] {
   width: 64px;
   height: 64px;
-  border-radius: 50%;
 }
 .markdy-node[data-kind="matrix"] {
   background-image:
