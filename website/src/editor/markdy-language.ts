@@ -4,7 +4,6 @@
 import {
   BEAT_CUE_KEYWORDS,
   NODE_KINDS,
-  TECHNICAL_NODE_KINDS,
   TECHNICAL_NODE_TYPES,
   VISUAL_PRIMITIVE_TYPES,
   classifyTechnology,
@@ -36,7 +35,6 @@ const KEYWORDS = new Set([
 const ALL_NODE_KINDS = Array.from(
   new Set([
     ...NODE_KINDS,
-    ...TECHNICAL_NODE_KINDS,
     ...TECHNICAL_NODE_TYPES,
     ...VISUAL_PRIMITIVE_TYPES,
   ])
