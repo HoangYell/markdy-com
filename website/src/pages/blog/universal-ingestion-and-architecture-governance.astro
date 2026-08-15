@@ -1,0 +1,109 @@
+---
+/*
+  SEO BRIEF — feature article: "Universal Ingestion & Architecture Governance"
+  Target keywords: mermaid to animated diagram, docker compose to diagram, terraform state diagram,
+    architecture governance as code, well architected linter, mcp diagram server
+  Search intent: developers & DevOps engineers wanting to import existing infrastructure / Mermaid charts
+    and enforce architectural governance rules in CI/CD.
+*/
+import ArticleLayout from "../../layouts/ArticleLayout.astro";
+
+const canonicalURL = "https://markdy.com/blog/universal-ingestion-and-architecture-governance/";
+const structuredData = [
+  {
+    "@type": "BlogPosting",
+    "@id": `${canonicalURL}#article`,
+    headline: "Universal Ingestion & Architecture Governance in Markdy",
+    description:
+      "Transpile Mermaid, Docker Compose, Kubernetes, and Terraform state into animated architecture diagrams. Enforce Well-Architected governance rules and semantic diffs in CI/CD.",
+    inLanguage: "en",
+    url: canonicalURL,
+    mainEntityOfPage: canonicalURL,
+    isPartOf: { "@id": "https://markdy.com/#website" },
+    about: { "@id": "https://markdy.com/#software" },
+    author: { "@id": "https://markdy.com/#hoang-yell" },
+    publisher: { "@id": "https://markdy.com/#organization" },
+    keywords:
+      "mermaid to markdy, docker compose diagram, terraform state visualization, architecture governance, well architected linter, diagram as code, mcp server",
+  },
+];
+---
+
+<ArticleLayout
+  title="Universal Ingestion & Architecture Governance | Markdy"
+  description="Transpile Mermaid, Docker Compose, Kubernetes, and Terraform state into animated architecture diagrams. Enforce Well-Architected governance rules and semantic diffs in CI/CD."
+  keywords="mermaid to markdy, docker compose diagram, terraform state visualization, architecture governance, well architected linter, diagram as code, mcp server, ast diff"
+  canonicalURL={canonicalURL}
+  headline="Universal Ingestion & Architecture Governance"
+  dek="Turn your static Mermaid charts, docker-compose.yml files, Kubernetes manifests, and Terraform state files into animated architecture scenes. Enforce Well-Architected governance and deadlock checks directly in CI/CD."
+  structuredData={structuredData}
+>
+  <p>
+    Architecture diagrams are only as good as their accuracy. When diagrams are drawn by hand on virtual whiteboards,
+    they drift from production within weeks. With the new <strong>Universal Ingestion</strong> engine and <strong>Architecture Governance Linter</strong>,
+    Markdy bridges the gap between infrastructure configuration and animated architectural documentation.
+  </p>
+
+  <h2>1. Universal Ingestion: From Compose, K8s, Terraform, and Mermaid</h2>
+  <p>
+    You no longer need to write MarkdyScript from scratch. The <code>@markdy/compat</code> package and <code>markdy import</code> CLI command
+    automatically ingest your existing configurations and transpile them into animated scenes with semantic node types,
+    port allocations, and sequential traffic flow beats.
+  </p>
+
+  <pre><code># Ingest Mermaid flowchart or sequence diagram
+markdy import ./architecture.mmd --out ./scenes/arch.markdy
+
+# Ingest Docker Compose microservices
+markdy import ./docker-compose.yml --out ./scenes/containers.markdy
+
+# Ingest multi-document Kubernetes manifests
+markdy import ./k8s-manifests.yaml --out ./scenes/k8s.markdy
+
+# Ingest Terraform cloud state
+markdy import ./terraform.tfstate --out ./scenes/cloud.markdy</code></pre>
+
+  <h2>2. Architecture Governance & Well-Architected Linting</h2>
+  <p>
+    Can a browser client bypass the API gateway to talk directly to your PostgreSQL database? Are there circular request chains
+    that risk cascading deadlocks during outages?
+  </p>
+  <p>
+    The <code>markdy lint --arch-rules</code> command runs static AST topology verification against AWS Well-Architected and Clean Architecture rules:
+  </p>
+  <ul>
+    <li><strong>Clean Architecture Enforcement:</strong> Prohibits presentation nodes from directly opening connections to persistence tiers without an intermediary service.</li>
+    <li><strong>Synchronous Cycle Detection:</strong> Graph analysis identifies cyclic request paths (<code>A -&gt; B -&gt; C -&gt; A</code>) that cause distributed deadlocks.</li>
+    <li><strong>Gateway Isolation:</strong> Ensures all external traffic passes through configured API gateways and WAF perimeters.</li>
+    <li><strong>Gateway Requirement:</strong> Mandates API gateway declaration for distributed systems with 3 or more microservices.</li>
+  </ul>
+
+  <pre><code># Run governance checks in your GitHub Actions CI/CD pipeline
+markdy lint ./scenes/ --arch-rules --strict</code></pre>
+
+  <h2>3. Semantic AST Diffing & Architecture Evolution</h2>
+  <p>
+    Architecture changes over time. When proposing changes in a Pull Request, <code>markdy diff</code> compares the AST of the current diagram against the new version:
+  </p>
+  <pre><code># Output Markdown summary table for Pull Request descriptions
+markdy diff ./scenes/v1.markdy ./scenes/v2.markdy
+
+# Generate an animated evolutionary migration scene
+markdy diff ./scenes/v1.markdy ./scenes/v2.markdy --evolution</code></pre>
+
+  <h2>4. Model Context Protocol (MCP) Server for AI Assistants</h2>
+  <p>
+    Through <code>@markdy/mcp-server</code>, AI assistants in <strong>Claude Desktop</strong>, <strong>Cursor</strong>, and <strong>Antigravity</strong> can
+    inspect, validate, transpile, and self-heal MarkdyScript diagrams natively through standardized MCP tools.
+  </p>
+
+  <pre><code>// claude_desktop_config.json
+&#123;
+  "mcpServers": &#123;
+    "markdy": &#123;
+      "command": "npx",
+      "args": ["-y", "@markdy/mcp-server"]
+    &#125;
+  &#125;
+&#125;</code></pre>
+</ArticleLayout>

@@ -1,0 +1,13 @@
+# 19-nested-containment.markdy
+# Demonstrates Nested Containment Hierarchy for Scope & Security Boundaries.
+
+scene "Zero-Trust Security Perimeter" theme=paper type=nested width=1100 height=750
+
+security PublicInternet "External DMZ Perimeter"
+security VPCNetwork "Protected VPC Network"
+security PrivateSubnet "Private Kubernetes Cluster"
+security EnclaveCore "Hardware Security Enclave (HSM)" focal=true
+
+beat perimeter_reveal "Defense in Depth":
+  show $nodes stagger=70ms
+  glow EnclaveCore "Root of trust & cryptographic isolation"

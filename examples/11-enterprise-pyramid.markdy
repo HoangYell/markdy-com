@@ -1,0 +1,18 @@
+# 11-enterprise-pyramid.markdy
+# Demonstrates Hierarchical Value Pyramid & Stacked Abstraction Tiers.
+
+scene "Platform Engineering Value Pyramid" theme=editorial type=pyramid width=1200 height=800
+
+service UserValue "Developer Velocity & Business Value" tier=0 focal=true
+service InternalDevPortal "Internal Developer Portal (Backstage)" tier=1
+service OrchestrationMesh "K8s Operator & Service Mesh" tier=2
+service CloudFoundation "Multi-Cloud Infrastructure & VPC" tier=3
+
+beat value_pyramid_revelation "1. Value Hierarchy":
+  show $nodes stagger=40ms
+  glow UserValue "Apex: Max Impact"
+
+beat dependency_chain "2. Upward Capability Flow":
+  CloudFoundation -> OrchestrationMesh "automated terraform provisioning"
+  OrchestrationMesh -> InternalDevPortal "declarative Golden Paths"
+  InternalDevPortal -> UserValue "10x faster service deployments"

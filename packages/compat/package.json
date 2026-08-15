@@ -5,8 +5,14 @@
   "description": "Backwards-compatibility gate for MarkdyScript. Snapshots every fixture in packages/compat/fixtures with the current parser and diffs ASTs on every CI run.",
   "license": "MIT",
   "type": "module",
-  "main": "./src/gate.ts",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./mermaid": "./src/mermaid/mermaid-transpiler.ts",
+    "./infra": "./src/index.ts"
+  },
   "scripts": {
+    "test": "vitest run",
     "gate": "tsx src/gate.ts",
     "gate:update": "tsx src/gate.ts --update",
     "typecheck": "tsc --noEmit"
@@ -17,6 +23,7 @@
   "devDependencies": {
     "@types/node": "^25.9.5",
     "tsx": "^4.23.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.7"
   }
 }

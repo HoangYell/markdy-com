@@ -203,6 +203,45 @@ export function ensureNodeStyles(doc: Document): void {
 .markdy-scene-root[data-flat="1"] .markdy-node[data-visible="1"] {
   box-shadow: inset 0 0 0 1px var(--md-hairline, color-mix(in srgb, var(--md-border) 50%, transparent));
 }
+.markdy-scene-root[data-flat="1"] .markdy-node[data-focal="1"] {
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--md-accent) 60%, transparent);
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--md-accent-tint, var(--md-accent)) 8%, transparent),
+      color-mix(in srgb, var(--md-accent-tint, var(--md-accent)) 4%, transparent));
+}
+.markdy-node[data-kind="external"] {
+  border: 1.2px dashed color-mix(in srgb, var(--md-ink, var(--md-text)) 30%, transparent);
+  background: color-mix(in srgb, var(--md-ink, var(--md-text)) 3%, transparent);
+  box-shadow: none;
+}
+.markdy-node[data-kind="optional"] {
+  border: 1px dashed color-mix(in srgb, var(--md-ink, var(--md-text)) 20%, transparent);
+  background: color-mix(in srgb, var(--md-ink, var(--md-text)) 2%, transparent);
+  box-shadow: none;
+  opacity: 0.7;
+}
+.markdy-scene-root[data-markdy-theme="terminal"] .markdy-node {
+  background: var(--md-node-surface, #141414);
+  border: 1px solid #2b2b2b;
+  box-shadow: none;
+  font-family: var(--md-font-mono, ui-monospace, monospace);
+}
+.markdy-scene-root[data-markdy-theme="terminal"] .markdy-node[data-focal="1"] {
+  border-color: #ff5a36;
+  box-shadow: 0 0 18px -8px rgba(255, 90, 54, 0.45);
+}
+.markdy-scene-root[data-markdy-theme="sketchy"] .markdy-node {
+  background: #ffffff;
+  border: 1.5px solid #2d3142;
+  box-shadow: 3px 3px 0 rgba(45, 49, 66, 0.10);
+  border-radius: var(--md-radius-md, 4px);
+}
+.markdy-scene-root[data-markdy-theme="sketchy"] .markdy-node[data-focal="1"] {
+  border-color: #eb6c36;
+  background: rgba(235, 108, 54, 0.06);
+  box-shadow: 3px 3px 0 rgba(235, 108, 54, 0.12);
+}
 `;
   doc.head.appendChild(style);
 }
@@ -361,6 +400,60 @@ const ICONS: Record<string, SvgSpec> = {
     ["path", { d: "M12 8v4" }],
     ["path", { d: "M12 16h.01" }],
   ],
+  hub: [
+    ["circle", { cx: "12", cy: "12", r: "7.5" }],
+    ["circle", { cx: "12", cy: "12", r: "2.8" }],
+  ],
+  station: [
+    ["rect", { x: "4", y: "4", width: "16", height: "16", rx: "4" }],
+    ["circle", { cx: "12", cy: "12", r: "3" }],
+  ],
+  bronze: [
+    ["rect", { x: "4", y: "5", width: "16", height: "5", rx: "1.5" }],
+    ["rect", { x: "4", y: "14", width: "16", height: "5", rx: "1.5" }],
+  ],
+  silver: [
+    ["path", { d: "M12 2 20 7v10l-8 5-8-5V7z" }],
+  ],
+  gold: [
+    ["path", { d: "M12 2.5 15 8.5l6.5 1-4.7 4.6 1.1 6.4L12 17.5 6.1 20.5l1.1-6.4L2.5 9.5l6.5-1z" }],
+  ],
+  terminal: [
+    ["rect", { x: "3", y: "4", width: "18", height: "16", rx: "2.5" }],
+    ["path", { d: "m7 9 3 3-3 3M13 15h4" }],
+  ],
+  cloud: [
+    ["path", { d: "M7 16a4 4 0 0 1-.88-7.9 5 5 0 0 1 9.76-1.1A4 4 0 0 1 17 16H7z" }],
+  ],
+  firewall: [
+    ["path", { d: "M12 3v18M3 8h18M3 16h18M7.5 3v5M16.5 3v5M7.5 16v5M16.5 16v5M12 8v8" }],
+  ],
+  alert: [
+    ["path", { d: "M12 3 2 20h20L12 3z" }],
+    ["path", { d: "M12 9v4M12 17h.01" }],
+  ],
+  sync: [
+    ["path", { d: "M20 11A8 8 0 0 0 5.6 6.4L3 9" }],
+    ["path", { d: "M3 4v5h5M4 13a8 8 0 0 0 14.4 4.6L21 15" }],
+    ["path", { d: "M21 20v-5h-5" }],
+  ],
+  search: [
+    ["circle", { cx: "11", cy: "11", r: "6.5" }],
+    ["path", { d: "m19 19-3.5-3.5" }],
+  ],
+  log: [
+    ["rect", { x: "4", y: "3", width: "16", height: "18", rx: "2" }],
+    ["path", { d: "M8 7h8M8 11h8M8 15h4" }],
+  ],
+  layers: [
+    ["path", { d: "M12 2 2 7l10 5 10-5-10-5z" }],
+    ["path", { d: "M2 17l10 5 10-5" }],
+    ["path", { d: "M2 12l10 5 10-5" }],
+  ],
+  nested: [
+    ["rect", { x: "3", y: "3", width: "18", height: "18", rx: "3" }],
+    ["rect", { x: "7", y: "7", width: "10", height: "10", rx: "2" }],
+  ],
 };
 
 /** Read-only monochrome glyph registry; callers can inspect or choose keys without injecting markup. */
@@ -389,6 +482,14 @@ function iconKeyForNode(node: PositionedNode): string {
   if (node.kind === "api" || node.kind === "service" || node.kind === "microservice" || node.kind === "backend" || node.kind === "server" || node.kind === "handler" || node.kind === "controller") return "server";
   if (node.kind === "browser" || node.kind === "web" || node.kind === "frontend" || node.kind === "app") return "browser";
   if (node.kind === "user" || node.kind === "client") return "user";
+  if (node.kind === "cloud") return "cloud";
+  if (node.kind === "firewall") return "firewall";
+  if (node.kind === "alert" || node.kind === "alarm") return "alert";
+  if (node.kind === "sync") return "sync";
+  if (node.kind === "search") return "search";
+  if (node.kind === "log" || node.kind === "audit") return "log";
+  if (node.kind === "layers" || node.kind === "stack") return "layers";
+  if (node.kind === "nested") return "nested";
   if (node.kind === "decision" || node.kind === "condition") return "decision";
   if (node.kind === "cache") return "cache";
   return ICONS[node.kind] ? node.kind : node.role;

@@ -1,0 +1,45 @@
+scene "High-Throughput Fintech Governance" theme=blueprint
+layout LR
+
+group edge_perimeter "Edge Security Zone": WAF CloudflareEdge
+group gateway_tier "API Orchestration": KongGateway AuthEngine
+group core_domain "Ledger Processing": TransactionService AccountService
+group persistence "ACID Storage Tier": AuroraPostgres RedisCache
+group event_stream "Audit & Telemetry": KafkaTopic AuditWorker
+
+browser WebTerminal "Trader Workstation"
+browser MobileTrader "Mobile App"
+
+gateway CloudflareEdge "Cloudflare Edge"
+gateway WAF "AWS WAF Shield"
+gateway KongGateway "Kong API Gateway"
+service AuthEngine "OAuth2 / OIDC Auth"
+
+service TransactionService "Tx Processing"
+service AccountService "Accounts & Balances"
+
+database AuroraPostgres "Aurora Multi-AZ"
+cache RedisCache "Redis Cluster"
+
+queue KafkaTopic "Kafka Audit Stream"
+worker AuditWorker "Compliance Engine"
+
+beat perimeter "1. Perimeter Inspection & mTLS":
+  show edge_perimeter gateway_tier stagger=40ms
+  WebTerminal -> CloudflareEdge "TLS 1.3" -> WAF "DDoS Filter" -> KongGateway "mTLS"
+  KongGateway -> AuthEngine "Validate JWT Claims"
+  KongGateway <- AuthEngine "Claims Validated"
+
+beat transaction_flow "2. Transaction Execution & Cache":
+  show core_domain persistence stagger=40ms
+  KongGateway -> TransactionService "POST /orders/execute"
+  TransactionService -> RedisCache "Check Balance Cache"
+  TransactionService -> AccountService "Debit / Credit Call"
+  AccountService -> AuroraPostgres "ACID Commit"
+
+beat audit_trail "3. Asynchronous Compliance Stream":
+  show event_stream stagger=40ms
+  TransactionService ~> KafkaTopic "TradeExecuted"
+  KafkaTopic ~> AuditWorker "Verify Audit Compliance"
+  AuditWorker -> AuroraPostgres "Write Audit Record"
+  WebTerminal <- KongGateway "200 Trade Confirmed"

@@ -42,11 +42,13 @@ Use the scene file directly when you can. Reach for package APIs only when you n
 
 | Goal | Use |
 |---|---|
-| Preview, lint, format, or render files | `@markdy/cli` |
+| Preview, lint, format, import, or diff files | `@markdy/cli` |
+| Transpile Mermaid, Draw.io, Docker Compose, K8s, Terraform | `@markdy/compat` |
+| AI Agent integration for Claude, Cursor, Antigravity | `@markdy/mcp-server` |
 | Embed in Astro docs | `@markdy/astro` |
 | Write fenced code blocks in MDX | `@markdy/mdx` |
-| Build a custom browser embed | `@markdy/renderer-dom` |
-| Parse or inspect scenes in tooling | `@markdy/core` |
+| Build a custom browser embed or export SVG/GIF | `@markdy/renderer-dom` |
+| Parse, diff, or audit architecture rules in tooling | `@markdy/core` |
 | Autocomplete and diagnostics in editors | `@markdy/language-server` |
 | Architecture node vocabulary manifest | `@markdy/stdlib-systems` (optional) |
 

@@ -85,12 +85,14 @@ beat main:
 
 ### Themes
 
-- `paper` — light documentation canvas (default)
-- `midnight` — dark developer canvas
-- `blueprint` — technical blueprint canvas
-- `graphite` — restrained dark graphite canvas
-- `editorial` — flat editorial paper with serif titles and semantic ink/accent roles (opt-in for documentation-style diagrams)
+- `paper` — clean light documentation canvas (default)
+- `editorial` — flat editorial paper with serif titles and semantic ink/accent roles
+- `terminal` — dark CLI/TUI canvas with monospace font and neon glow accents
+- `sketchy` — organic hand-drawn whiteboard theme with displacement filter
 - `nebula` — deep-space canvas with orbit rings, signal halos, and constellation decoration
+- `midnight` — dark developer canvas
+- `blueprint` — technical blueprint CAD canvas
+- `graphite` — restrained dark minimal canvas
 
 ### Diagram types (opt-in)
 
@@ -103,25 +105,41 @@ Add `type=` on the scene line to tune layout and node shapes without changing th
 | `tree` | Parent/child tiers with shared sibling buses |
 | `state` | Cycle-safe state placement and transition routing |
 | `sequence` | Participant columns, lifelines, ordered messages, and activations |
+| `timeline` | Horizontal hairline baseline with alternating above/below milestone placement |
+| `gantt` | Phase-based horizontal bar stacking with `phase=` and `span=` properties |
+| `venn` | 2–3 circle concept intersection with automatic proximity scaling |
+| `layers` | Full-width horizontal stacked abstraction bands (OSI, CSS cascade, memory models) |
+| `nested` | Concentric rounded boundaries with stepped insets for defense-in-depth and security scopes |
+| `radar` | Multi-axis polygon comparison chart with series color palette |
+| `medallion` | Multi-tier Bronze → Silver → Gold data lakehouse stages |
+| `flywheel` / `loop` | Circular closed-loop engine with tangential flow paths |
+| `quadrant` | 2×2 decision and strategic positioning matrix |
+| `swimlane` | Multi-tier cross-functional horizontal lane partitions |
+| `pyramid` | Hierarchical tier pyramid with step-proportional width scaling |
 | `constellation` | Radial focal-node layout with deterministic orbit decoration |
 
 ```markdy
-scene "Checkout" theme=editorial type=flowchart
-layout TB
-start Start
-decision Valid "Valid cart?"
-end End
+scene "Platform Roadmap" theme=editorial type=timeline
+service Alpha "Alpha v0.1"
+service Beta "Beta v0.5" focal=true
+service GA "GA v1.0"
 ```
 
-### Visual primitives
+### Visual primitives & semantic node kinds
 
 Optional visual primitives parse as nodes and reuse semantic styling. `stat`/`metric` accept `value=...`:
 
-`surface`/`panel`, `terminal`, `stat`/`metric`, `matrix`/`grid`, `track`/`lane`, `dot`/`marker`, `chips`/`token_strip`, `glyph`/`glyph_card`
+- **Containers & Surfaces**: `surface`/`panel`, `terminal`, `matrix`/`grid`, `track`/`lane`
+- **Data & Storage**: `database`, `storage`, `bucket`, `cache`, `queue`
+- **Markers & Tokens**: `dot`/`marker`, `chips`/`token_strip`, `glyph`/`glyph_card`
+- **Semantic Roles**: `external` (dashed outside-scope boundary), `optional` (faded pending feature)
+- **Metrics**: `stat`/`metric` (`value="142 ms"`)
 
 ```markdy
 stat P95Latency "P95 latency" value="142 ms"
 matrix Regions "Deployment matrix"
+storage S3DataLake "Object Storage"
+external CivilRegistry "External CRVS API"
 ```
 
 ### Structural edges
@@ -132,13 +150,16 @@ Declare persistent topology outside beats; renderer draws it behind animated flo
 edge backbone: Client -> Gateway -> API
 ```
 
-### Annotations
+### Editorial Annotations
 
-Up to two editorial callouts anchor to a node (default position `top-right`):
+Up to two editorial callouts anchor to a node with optional color `intent`:
 
 ```markdy
-annotation "Hot path" target=Redis position=top-right
+annotation "Hot path bottleneck" target=Redis position=top-right intent=accent
+annotation "Offline sync mode" target=LocalDb position=bottom-left intent=muted
 ```
+
+Supported intents: `neutral` (default ink), `accent` (coral/accent leader), `muted` (subtle secondary tone).
 
 ### Cues
 

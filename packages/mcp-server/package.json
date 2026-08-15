@@ -1,0 +1,33 @@
+{
+  "name": "@markdy/mcp-server",
+  "version": "0.8.20",
+  "description": "Model Context Protocol server for Markdy diagram validation, transpilation, and generation.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "markdy-mcp": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@markdy/compat": "workspace:*",
+    "@markdy/core": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.6.1"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.5",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.7"
+  }
+}

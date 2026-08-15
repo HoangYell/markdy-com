@@ -44,5 +44,8 @@ Markdy is a DSL. You write a small scene script instead of imperative animation 
 | Hand-drawn whiteboard | Excalidraw |
 | Product/UI animation inside an app | Framer Motion, GSAP, Anime.js |
 | Animated developer diagram from text | Markdy |
+| Ingest Mermaid, Draw.io, Docker Compose, K8s, Terraform | Markdy (`@markdy/compat` / `markdy import`) |
+| CI/CD Architecture Governance & Deadlock checks | Markdy (`markdy lint --arch-rules`) |
+| AI Model Context Protocol (MCP) diagram tools | Markdy (`@markdy/mcp-server`) |
 | AI-generated architecture explainer | Markdy |
 

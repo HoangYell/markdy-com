@@ -6,6 +6,7 @@
     "baseUrl": ".",
     "paths": {
       "@markdy/core": ["../core/src/index.ts"],
+      "@markdy/compat": ["../compat/src/index.ts"],
       "@markdy/stdlib-systems": ["../stdlib-systems/src/index.ts"]
     }
   },

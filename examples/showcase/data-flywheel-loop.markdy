@@ -1,0 +1,27 @@
+# data-flywheel-loop.markdy
+# Demonstrates circular feedback loops, flywheels, and operating reinforcement cycles with a shared state hub.
+
+scene "Self-Improving AI Data Flywheel" theme=paper type=loop width=1200 height=800
+
+hub SharedMemory "Shared Vector Memory & Knowledge Hub"
+station Capture "Signal Ingestion"
+station Synthesize "Context Synthesis"
+station Decide "Governance & Human Gate" focal=true
+station Act "Execution Engine"
+station Measure "Observability & Feedback"
+station Evolve "Model Fine-Tuning"
+
+beat perimeter_operating_flow "1. Clockwise Operating Cycle":
+  show $nodes stagger=40ms
+  Capture -> Synthesize "raw telemetry & user prompts"
+  Synthesize -> Decide "structured context & citations"
+  Decide -> Act "approved execution plan"
+  Act -> Measure "runtime metrics & token latency"
+  Measure -> Evolve "curated evaluation dataset"
+  Evolve -> Capture "reinforced system capabilities"
+
+beat memory_writeback "2. Inward State Synchronization":
+  glow Decide "focal gate"
+  Capture -> SharedMemory "embed raw signals"
+  Act -> SharedMemory "log verified execution traces"
+  Evolve -> SharedMemory "update embedding indices"

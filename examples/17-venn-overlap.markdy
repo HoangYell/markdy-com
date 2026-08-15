@@ -1,0 +1,17 @@
+# 17-venn-overlap.markdy
+# Demonstrates Venn / Set Overlap Diagram for Concept Intersection.
+
+scene "Product-Market Fit Intersection" theme=editorial type=venn width=1000 height=800
+
+service Desirability "Customer Desirability"
+service Feasibility "Technical Feasibility" focal=true
+service Viability "Business Viability"
+
+beat venn_reveal "Finding the Sweet Spot":
+  show $nodes stagger=80ms
+  glow Feasibility "Engineering-led differentiation"
+
+beat intersections "Overlap Insights":
+  Desirability -> Feasibility "Lovable & buildable"
+  Feasibility -> Viability "Sustainable engineering"
+  Viability -> Desirability "Market pull"

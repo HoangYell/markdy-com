@@ -1,4 +1,21 @@
-import { parse, type DiagramAST, type Diagnostic } from "@markdy/core";
+import {
+  parse,
+  validateArchitecture,
+  resolveArchitectureConfig,
+  diffDiagramASTs,
+  compressMarkdyToUrlHash,
+  type DiagramAST,
+  type Diagnostic,
+  type ArchitectureRule,
+  type MarkdyConfig,
+} from "@markdy/core";
+import {
+  transpileMermaidToMarkdy,
+  transpileDockerComposeToMarkdy,
+  transpileKubernetesManifestsToMarkdy,
+  transpileTerraformStateToMarkdy,
+  transpileDrawioToMarkdy,
+} from "@markdy/compat";
 import { createRequire } from "node:module";
 import { basename, dirname, extname, join, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -65,6 +82,12 @@ export async function runCli(
       return renderCommand(parsed, io, runtime);
     case "explain":
       return explainCommand(parsed, io);
+    case "import":
+      return importCommand(parsed, io);
+    case "diff":
+      return diffCommand(parsed, io);
+    case "share":
+      return shareCommand(parsed, io);
     case "new":
       return newCommand(parsed, io);
     case "docs":
@@ -87,15 +110,54 @@ async function lintCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
   }
 
   const strict = hasFlag(parsed, "strict");
+  const checkArchRules = hasFlag(parsed, "arch-rules");
+  const configPath = getStringFlag(parsed, "config");
   const cache = new Map<string, LoadedScene>();
   let warningCount = 0;
   let errorCount = 0;
+
+  let customRules: ArchitectureRule[] | undefined;
+  if (configPath) {
+    try {
+      const raw = await readFile(resolve(process.cwd(), configPath), "utf-8");
+      const json = JSON.parse(raw);
+      customRules = resolveArchitectureConfig(json);
+    } catch (err) {
+      io.stderr(`markdy lint: failed to read config "${configPath}": ${(err as Error).message}`);
+      return { exitCode: 1 };
+    }
+  } else {
+    for (const defaultName of [".markdyrc.json", "markdy.config.json", ".markdyrc"]) {
+      try {
+        const candidate = resolve(process.cwd(), defaultName);
+        const raw = await readFile(candidate, "utf-8");
+        const json = JSON.parse(raw);
+        customRules = resolveArchitectureConfig(json);
+        break;
+      } catch {
+        // ignore if not present
+      }
+    }
+  }
 
   for (const file of files) {
     try {
       const scene = await loadSceneFromFile(file, cache);
       io.stdout(`OK   ${file}`);
       warningCount += printWarnings(scene.ast.diagnostics, file, io);
+
+      if (checkArchRules || customRules) {
+        const violations = validateArchitecture(scene.ast, customRules);
+        for (const v of violations) {
+          if (v.severity === "error") {
+            errorCount++;
+            io.stderr(`ARCH_FAIL ${file}:${v.line ?? 1} [${v.ruleName}] ${v.message}`);
+          } else {
+            warningCount++;
+            io.stderr(`ARCH_WARN ${file}:${v.line ?? 1} [${v.ruleName}] ${v.message}`);
+          }
+        }
+      }
     } catch (error) {
       errorCount++;
       io.stderr(`FAIL ${file}`);
@@ -236,6 +298,99 @@ async function newCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
 
   await writeFile(resolvedTarget, content, "utf8");
   io.stdout(`Created ${resolvedTarget}`);
+  return { exitCode: 0 };
+}
+
+async function importCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
+  const inputFile = parsed.positionals[0];
+  if (!inputFile) {
+    io.stderr("markdy import: expected an input file (e.g. diagram.mmd, docker-compose.yml, manifests.yaml, terraform.tfstate)");
+    return { exitCode: 1 };
+  }
+
+  const content = await readFile(resolve(inputFile), "utf8").catch((err) => {
+    io.stderr(`markdy import: failed to read ${inputFile}: ${describeError(err)}`);
+    return null;
+  });
+  if (content === null) return { exitCode: 1 };
+
+  const formatFlag = getStringFlag(parsed, "from")?.toLowerCase();
+  const ext = extname(inputFile).toLowerCase();
+  const title = basename(inputFile, extname(inputFile));
+
+  let markdyCode: string;
+
+  if (formatFlag === "mermaid" || ext === ".mmd" || ext === ".mermaid") {
+    markdyCode = transpileMermaidToMarkdy(content, title).code;
+  } else if (formatFlag === "compose" || ((ext === ".yml" || ext === ".yaml") && (inputFile.includes("compose") || content.includes("services:")))) {
+    markdyCode = transpileDockerComposeToMarkdy(content, title);
+  } else if (formatFlag === "k8s" || (content.includes("apiVersion:") && content.includes("kind:"))) {
+    markdyCode = transpileKubernetesManifestsToMarkdy(content, title);
+  } else if (formatFlag === "terraform" || ext === ".tfstate" || (content.includes("terraform_version") || content.includes('"resources":'))) {
+    markdyCode = transpileTerraformStateToMarkdy(content, title);
+  } else if (formatFlag === "drawio" || ext === ".drawio" || (ext === ".xml" && content.includes("<mxCell"))) {
+    markdyCode = transpileDrawioToMarkdy(content, title).code;
+  } else {
+    markdyCode = transpileMermaidToMarkdy(content, title).code;
+  }
+
+  const outPath = getStringFlag(parsed, "out");
+  if (outPath) {
+    const resolvedOut = resolve(outPath);
+    await writeFile(resolvedOut, markdyCode, "utf8");
+    io.stdout(`Wrote ${resolvedOut}`);
+  } else {
+    io.stdout(markdyCode);
+  }
+
+  return { exitCode: 0 };
+}
+
+async function diffCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
+  const file1 = parsed.positionals[0];
+  const file2 = parsed.positionals[1];
+  if (!file1 || !file2) {
+    io.stderr("markdy diff: expected two .markdy files to compare (e.g. markdy diff before.markdy after.markdy)");
+    return { exitCode: 1 };
+  }
+
+  const scene1 = await loadSceneFromFile(file1).catch((err) => {
+    io.stderr(`markdy diff: ${describeError(err)}`);
+    return null;
+  });
+  const scene2 = await loadSceneFromFile(file2).catch((err) => {
+    io.stderr(`markdy diff: ${describeError(err)}`);
+    return null;
+  });
+  if (!scene1 || !scene2) return { exitCode: 1 };
+
+  const diffResult = diffDiagramASTs(scene1.ast, scene2.ast);
+
+  if (hasFlag(parsed, "evolution")) {
+    io.stdout(diffResult.evolutionMarkdyScript);
+    return { exitCode: 0 };
+  }
+
+  io.stdout(diffResult.summaryMarkdown);
+  return { exitCode: 0 };
+}
+
+async function shareCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
+  const file = parsed.positionals[0];
+  if (!file) {
+    io.stderr("markdy share: expected a .markdy input file");
+    return { exitCode: 1 };
+  }
+
+  const scene = await loadSceneFromFile(file).catch((err) => {
+    io.stderr(`markdy share: ${describeError(err)}`);
+    return null;
+  });
+  if (!scene) return { exitCode: 1 };
+
+  const hash = await compressMarkdyToUrlHash(scene.source);
+  const shareUrl = `https://markdy.com/playground/#code=${hash}`;
+  io.stdout(shareUrl);
   return { exitCode: 0 };
 }
 
@@ -681,14 +836,17 @@ function helpText(): string {
     "",
     "Usage:",
     "  markdy",
-    "  markdy lint <file-or-dir> [--strict]",
+    "  markdy lint <file-or-dir> [--strict] [--arch-rules]",
     "  markdy fmt <file-or-dir> [--write | --check]",
     "  markdy render <file.markdy> [--out file.html] [--port 4242] [--no-open]",
     "  markdy explain <file.markdy> [--json]",
+    "  markdy import <file> [--from compose|k8s|terraform|mermaid] [--out scene.markdy]",
+    "  markdy diff <before.markdy> <after.markdy> [--evolution]",
+    "  markdy share <file.markdy>",
     "  markdy new [target.markdy] [--force]",
     "  markdy docs [--open]",
     "  markdy ai [--open]",
-    "  markdy check-all [dir] [--strict]",
+    "  markdy check-all [dir] [--strict] [--arch-rules]",
   ].join("\n");
 }
 
@@ -755,7 +913,7 @@ function parseArgv(argv: string[]): ParsedArgs {
 }
 
 function expectsValue(flag: string): boolean {
-  return flag === "out" || flag === "port";
+  return flag === "out" || flag === "port" || flag === "config";
 }
 
 function hasFlag(parsed: ParsedArgs, name: string): boolean {

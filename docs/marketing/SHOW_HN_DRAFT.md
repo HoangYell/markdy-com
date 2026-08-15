@@ -42,7 +42,11 @@ beat main:
 
 3. **Semantic node kinds** — services, databases, queues, caches, gateways, clusters, and more cover architecture, infrastructure, CI/CD, and system-design diagrams. Layout and edge routing are automatic.
 
-4. **AI-friendly by design** — I wrote a structured `AGENT.md` prompt file; when attached to Claude/Cursor, the LLM reliably writes valid MarkdyScript without hallucinating API surfaces.
+4. **AI-friendly by design & Model Context Protocol (MCP)** — `@markdy/mcp-server` connects Claude Desktop, Cursor, and Antigravity directly to Markdy AST validation, self-healing diagnostic repair loops, and architecture explanation tools.
+
+5. **Universal Ingestion** (`@markdy/compat`) — Transpile existing Mermaid flowcharts, Draw.io XML graphs, Docker Compose topologies, Kubernetes YAML manifests, or Terraform state files directly into animated MarkdyScript scenes with `markdy import`.
+
+6. **Architecture Governance & Semantic AST Diffing** — Run `markdy lint --arch-rules` in CI/CD to catch deadlock cycles and presentation-to-database bypasses, or run `markdy diff` for Pull Request Markdown summary tables.
 
 It's integrated into my Astro blog as a `<Markdy>` island that hydrates on scroll with `client:visible`. The parser + renderer combined are ~34kb minzipped.
 
@@ -50,4 +54,4 @@ Playground: https://markdy.com
 GitHub: https://github.com/HoangYell/markdy-com  
 StackBlitz starter: https://stackblitz.com/github/HoangYell/markdy-com/tree/main/examples/astro-starter
 
-Happy to answer questions about the DSL design, the WAAPI scheduler, or the LLM integration approach.
+Happy to answer questions about the DSL design, the WAAPI scheduler, governance linting, or the LLM/MCP integration approach.

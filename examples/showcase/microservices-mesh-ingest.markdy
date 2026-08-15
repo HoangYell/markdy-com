@@ -1,0 +1,33 @@
+scene "Transpiled Microservices Mesh" theme=paper
+layout LR
+
+group ingress_mesh "Ingress Controller": IngressController EnvoyProxy
+group business_services "Service Mesh": CatalogAPI InventoryWorker NotificationSvc
+group datastores "Managed Backends": DocumentDB SQSQueue
+
+browser WebClient "Storefront React App"
+gateway IngressController "Nginx Ingress"
+gateway EnvoyProxy "Envoy Sidecar"
+
+service CatalogAPI "Catalog Service :8080"
+worker InventoryWorker "Inventory Worker"
+service NotificationSvc "Notification Svc"
+
+database DocumentDB "MongoDB Cluster"
+queue SQSQueue "AWS SQS Queue"
+
+beat ingress_beat "1. Ingress Routing":
+  show ingress_mesh business_services stagger=30ms
+  WebClient -> IngressController "GET /catalog" -> EnvoyProxy "mTLS mesh"
+  EnvoyProxy -> CatalogAPI "forward"
+
+beat query_beat "2. Database Read & Event Dispatch":
+  show datastores stagger=30ms
+  CatalogAPI -> DocumentDB "find({ active: true })"
+  CatalogAPI <- DocumentDB "products list"
+  CatalogAPI ~> SQSQueue "ProductViewed"
+
+beat async_beat "3. Async Worker Consumption":
+  SQSQueue ~> NotificationSvc "poll messages"
+  NotificationSvc -> InventoryWorker "sync status"
+  WebClient <- IngressController "200 OK (Products)"

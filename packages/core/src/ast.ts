@@ -7,7 +7,25 @@ export type LayoutDirection = "LR" | "RL" | "TB" | "BT";
 
 export type EdgeKind = "request" | "response" | "event" | "dependency";
 
-export type DiagramType = "architecture" | "flowchart" | "tree" | "state" | "sequence" | "constellation";
+export type DiagramType =
+  | "architecture"
+  | "flowchart"
+  | "tree"
+  | "state"
+  | "sequence"
+  | "constellation"
+  | "loop"
+  | "flywheel"
+  | "medallion"
+  | "quadrant"
+  | "swimlane"
+  | "pyramid"
+  | "radar"
+  | "timeline"
+  | "gantt"
+  | "venn"
+  | "layers"
+  | "nested";
 
 export type NodeShape = "card" | "rounded" | "diamond" | "circle" | "pill" | "terminal";
 
@@ -69,6 +87,8 @@ export type AnnotationDecl = {
   text: string;
   target?: string;
   position?: string;
+  /** Callout color intent: neutral (default), accent, or muted. */
+  intent?: string;
   props: Record<string, unknown>;
   line: number;
 };
@@ -166,6 +186,8 @@ export type ThemeTokens = {
   flatCards?: boolean;
   roles: Record<string, string>;
   edges: Record<EdgeKind, string>;
+  /** Multi-series palette for chart types (radar, line, bar). */
+  series?: string[];
   fonts?: {
     title?: string;
     nodeName?: string;

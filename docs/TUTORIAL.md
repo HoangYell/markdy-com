@@ -166,9 +166,9 @@ database Primary "Primary DB" style=hot
 database Replica "Read Replica"
 ```
 
-- Themes: `paper` (light, default), `editorial` (flat documentation canvas), `nebula` (radial/surreal), `midnight` (dark), `blueprint`, and `graphite`.
+- Themes: `paper` (clean light, default), `editorial` (flat editorial paper with serif headings), `terminal` (CLI/TUI dark mode), `sketchy` (hand-drawn whiteboard), `nebula` (radial/surreal), `midnight` (dark developer), `blueprint` (CAD cyan-grid), and `graphite` (dark minimal).
 - Directions: `LR` (default), `RL`, `TB`, `BT`.
-- Focused modes: `type=architecture` (default), `flowchart`, `tree`, `state`, `sequence`, and `constellation`.
+- Focused layout modes: `architecture` (default), `flowchart`, `tree`, `state`, `sequence`, `timeline`, `gantt`, `venn`, `layers`, `nested`, `radar`, `medallion`, `flywheel`/`loop`, `quadrant`, `swimlane`, `pyramid`, and `constellation`.
 - Named styles currently support visual props such as `fill`, `stroke`, `text`, and `accent`.
 
 ---

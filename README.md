@@ -46,18 +46,24 @@ beat main "Trace the request":
 
 | Feature | Detail |
 |---|---|
-| **Zero-dep parser** | `@markdy/core` is pure TypeScript — no DOM, no runtime deps |
-| **Web-native renderer** | Web Animations API + CSS transforms. No Canvas, no GSAP |
+| **Zero-dep parser & engines** | `@markdy/core` is pure TypeScript — AST parser, architecture linter, semantic classifier, AST diff engine, brand theme generator, and URL state codec |
+| **Web-native renderer** | Web Animations API + CSS transforms. No Canvas, no GSAP, zero dependencies |
+| **13 Specialized Layout Engines** | `architecture`, `flowchart`, `tree`, `state`, `sequence`, `constellation`, `loop`/`flywheel`, `medallion`, `quadrant`, `swimlane`, `pyramid`, `radar`, `timeline`, `gantt`, and `venn` |
+| **8 Semantic Themes** | `paper`, `editorial`, `nebula`, `midnight`, `blueprint`, `graphite`, `terminal` (CLI/TUI dark mode), and `sketchy` (editorial hand-drawn) |
+| **Universal Ingestion** | Instant transpilers for Mermaid, draw.io, Docker Compose, Kubernetes manifests, and Terraform state into animated MarkdyScript scenes (`markdy import`) |
+| **Brand Theme Generator** | Extract and generate WCAG-compliant light and dark themes from any brand hex color (`generateThemeFromBrand()`) |
+| **Output Size Presets** | 8 standard export presets (`doc-inline`, `doc-wide`, `slide-16x9`, `slide-4x3`, `social-og`, `social-square`, `print-a4`, `print-letter`) |
+| **Architecture Governance** | Built-in Well-Architected validation: layer boundaries, deadlock cycle detection, gateway checks, and isolation rules (`markdy lint --arch-rules`) |
+| **Semantic AST Diffing** | Compares architecture versions, outputs Markdown audit tables, and generates animated evolution scenes (`markdy diff`) |
+| **Media Exporters** | Zero-dep GIF89a encoder with LZW compression for animated GitHub READMEs and vector SVG export for Figma |
+| **Model Context Protocol (MCP)** | `@markdy/mcp-server` equips Claude, Cursor, Antigravity, and AI agents with validation, transpilation, and architecture explanation tools |
 | **Diagram-native DSL** | Declare nodes, `group`s, and `beat`s; the engine handles layout, routing, timing, and rendering |
-| **Auto-layout + routing** | Rank-based layout and orthogonal edge routing are built in — no coordinates required |
+| **Auto-layout + routing** | Rank-based layout and collision-aware orthogonal Manhattan edge routing are built in — no coordinates required |
 | **Flow operators** | `->` request, `<-` response, `~>` event, `--` dependency, each with its own edge style |
 | **Beats + cues** | Sequence reveals with `beat` blocks, captions, and `show`/`hide`/`glow`/`focus`/`frame` cues; run cues together with `&` |
-| **Semantic node cards** | Kind-aware SVG glyphs for browsers, services, gateways, queues, workers, databases, storage, CDN, security, platform, and more |
-| **Patterns, styles, groups** | Reusable `pattern name(...)` + `use`, per-node `style`, and `group` fan-out with `stagger` |
-| **Semantic themes** | `paper`, `editorial`, `nebula`, `midnight`, `blueprint`, and `graphite` — consistent colors per node role and edge kind |
-| **Focused diagram modes** | Opt-in `architecture`, `flowchart`, `tree`, `state`, `sequence`, and `constellation` layouts |
-| **Technical diagram vocabulary** | Optional systems pack adds architecture nodes, visual primitives, and labeled flows for software-engineering diagrams |
-| **Astro-ready** | `<Markdy />` island that hydrates on viewport entry |
+| **Semantic node cards** | Kind-aware SVG glyphs for browsers, services, gateways, queues, workers, databases, storage, CDN, security, hub, station, medals, and more |
+| **Editorial Callouts** | Italic-serif annotations with dashed Bézier leaders, landing dots, and color intents (`accent`, `muted`, `neutral`) |
+| **Astro & MDX Ready** | `<Markdy />` islands that hydrate on viewport entry with zero layout shift |
 | **AI-agent friendly** | Structured DSL that LLMs can generate, validate, and iterate on ([Agent Guide](https://markdy.com/agent/)) |
 
 ---
@@ -66,9 +72,11 @@ beat main "Trace the request":
 
 | Package | Description | Size |
 |---|---|---|
-| [`@markdy/core`](packages/core) | Parser + AST types (zero runtime deps) | ~12 KB |
-| [`@markdy/renderer-dom`](packages/renderer-dom) | Web Animations API renderer | ~22 KB |
-| [`@markdy/cli`](packages/cli) | CLI for linting, formatting, explaining, rendering, and local previews | Node package |
+| [`@markdy/core`](packages/core) | Parser + AST diff, architecture linter, semantic classifier, URL codec (zero runtime deps) | ~14 KB |
+| [`@markdy/compat`](packages/compat) | Universal transpilers (Mermaid, Docker Compose, Kubernetes, Terraform) & snapshot gates | ~8 KB |
+| [`@markdy/renderer-dom`](packages/renderer-dom) | Web Animations API renderer, GIF89a encoder, SVG exporter, presentation controller | ~24 KB |
+| [`@markdy/cli`](packages/cli) | CLI for linting, architecture rules, formatting, importing, diffing, explaining, and sharing | Node package |
+| [`@markdy/mcp-server`](packages/mcp-server) | Official Model Context Protocol (MCP) server for AI coding assistants & agents | Node package |
 | [`@markdy/language-server`](packages/markdy-language-server) | Shared LSP server for editors and IDE integrations | Node package |
 | [`@markdy/astro`](packages/astro) | Astro island component | ~2 KB |
 | [`@markdy/mdx`](packages/mdx) | MDX remark plugin + lazy React diagram component | ~4 KB |
@@ -275,7 +283,36 @@ Cues live inside a `beat` and are scheduled in order; put `&` between two cues t
 | `frame` | Move the scene camera to nodes or groups | `zoom`, `dur` |
 | `use` | Expand a `pattern` | pattern args |
 
-Selectors: `$nodes` targets every node, `$edges` targets structural and animated edges, and a group name targets its members. Themes: `paper` (light default), `editorial`, `nebula`, `midnight`, `blueprint`, and `graphite`.
+Selectors: `$nodes` targets every node, `$edges` targets structural and animated edges, and a group name targets its members.
+
+### Themes & Layout Modes
+
+**Themes (`theme=`):**
+- `paper` — clean light documentation canvas (default)
+- `editorial` — flat editorial paper with serif headings and semantic ink/accent roles
+- `terminal` — dark CLI/TUI canvas with monospace font and neon glow accents
+- `sketchy` — organic hand-drawn whiteboard theme with displacement filter
+- `nebula` — deep-space canvas with orbit rings, signal halos, and starfield
+- `midnight` — modern dark developer canvas
+- `blueprint` — technical cyan-grid CAD canvas
+- `graphite` — restrained dark minimal canvas
+
+**Layout Types (`type=`):**
+- `architecture` — ranked multi-tier systems and platform topology (default)
+- `flowchart` — top-down steps, decisions, and merges
+- `tree` — parent/child hierarchies with shared sibling buses
+- `state` — cycle-safe state transitions and self-loops
+- `sequence` — participant columns, lifelines, ordered messages, and activations
+- `timeline` — horizontal hairline baseline with collision-free alternating milestone cards
+- `gantt` — phase-based horizontal bar stacking with temporal span tracking
+- `venn` — 2–3 circle concept intersection with proximity scaling
+- `radar` — multi-axis polygon comparison chart with series color palette
+- `medallion` — multi-tier Bronze → Silver → Gold data lakehouse stages
+- `flywheel` / `loop` — circular closed-loop engine with tangential flow paths
+- `quadrant` — 2×2 decision and strategic positioning matrix
+- `swimlane` — multi-tier cross-functional horizontal lane partitions
+- `pyramid` — hierarchical tier pyramid with step-proportional width scaling
+- `constellation` — radial focal node with orbital signal rings
 
 ---
 

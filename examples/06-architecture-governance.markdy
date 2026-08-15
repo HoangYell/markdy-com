@@ -1,0 +1,37 @@
+# 06-architecture-governance.markdy
+# Demonstrates Well-Architected Clean Architecture and Layered Governance.
+
+scene "Well-Architected Fintech Engine" theme=blueprint
+layout LR
+
+group presentation "Presentation Tier": WebApp MobileApp
+group edge "Security & Gateway Zone": APIGateway WAF
+group core_services "Domain Services": LedgerService SettlementEngine
+group persistence "Encapsulated Storage": LedgerDB EventStream
+
+browser WebApp "Trader Dashboard"
+browser MobileApp "iOS / Android App"
+
+gateway WAF "Cloudflare / AWS WAF"
+gateway APIGateway "Kong API Gateway"
+
+service LedgerService "Ledger Core"
+worker SettlementEngine "Settlement Worker"
+
+database LedgerDB "Aurora Multi-Region"
+queue EventStream "Kafka Cluster"
+
+beat auth_and_route "Phase 1 — Secure Entry":
+  show presentation edge stagger=30ms
+  WebApp -> WAF "validate IP & TLS" -> APIGateway "mTLS"
+  MobileApp -> WAF "validate IP & TLS" -> APIGateway "mTLS"
+
+beat domain_execution "Phase 2 — Isolated Domain Execution":
+  show core_services persistence stagger=30ms
+  APIGateway -> LedgerService "POST /trade/execute"
+  LedgerService -> LedgerDB "ACID write transaction"
+  LedgerService ~> EventStream "TradeExecuted"
+
+beat async_settle "Phase 3 — Asynchronous Settlement":
+  EventStream ~> SettlementEngine "consume events"
+  SettlementEngine -> LedgerDB "commit final balance"

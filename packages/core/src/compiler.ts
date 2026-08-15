@@ -346,6 +346,508 @@ function layoutConstellation(ast: DiagramAST): PositionedNode[] {
   return nodes;
 }
 
+function layoutLoop(ast: DiagramAST): PositionedNode[] {
+  const nodeIds = Object.keys(ast.nodes);
+  if (nodeIds.length === 0) return [];
+
+  const hubId =
+    nodeIds.find((id) => {
+      const decl = ast.nodes[id];
+      return (
+        decl.kind === "hub" ||
+        decl.props.hub === true ||
+        /^(hub|state|memory|shared_memory|core)$/i.test(id)
+      );
+    }) ?? nodeIds[0];
+
+  const stationIds = nodeIds.filter((id) => id !== hubId);
+  const contentW = ast.meta.width - SAFE * 2;
+  const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const centerX = SAFE + contentW / 2;
+  const centerY = TITLE_BAND + contentH / 2;
+  const radiusX = Math.max(140, contentW / 2 - NODE_W / 2 - SAFE);
+  const radiusY = Math.max(120, contentH / 2 - NODE_H / 2 - SAFE);
+
+  const nodes: PositionedNode[] = [];
+
+  for (const id of nodeIds) {
+    const decl = ast.nodes[id];
+    const isHub = id === hubId;
+    let x: number;
+    let y: number;
+
+    if (isHub) {
+      x = centerX - (NODE_W * 1.2) / 2;
+      y = centerY - (NODE_H * 1.1) / 2;
+    } else {
+      const idx = stationIds.indexOf(id);
+      const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / Math.max(stationIds.length, 1);
+      x = centerX + Math.cos(angle) * radiusX - NODE_W / 2;
+      y = centerY + Math.sin(angle) * radiusY - NODE_H / 2;
+    }
+
+    const focal = isHub || decl.props.focal === true || decl.props.accent === true;
+    nodes.push({
+      id,
+      kind: decl.kind,
+      role: nodeRole(decl.kind),
+      label: decl.label,
+      x: snapGrid(x),
+      y: snapGrid(y),
+      width: isHub ? snapGrid(NODE_W * 1.2) : NODE_W,
+      height: isHub ? snapGrid(NODE_H * 1.1) : NODE_H,
+      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      props: decl.props,
+      opacity: 0,
+      shape: isHub ? "pill" : "card",
+      focal,
+    });
+  }
+
+  return nodes;
+}
+
+function layoutMedallion(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
+  const nodeIds = Object.keys(ast.nodes);
+  if (nodeIds.length === 0) return [];
+
+  function getMedallionTier(id: string, kind: string): number {
+    const combined = `${id} ${kind}`.toLowerCase();
+    if (kind === "bronze" || combined.includes("bronze") || combined.includes("raw") || combined.includes("landing")) return 1;
+    if (kind === "silver" || combined.includes("silver") || combined.includes("clean") || combined.includes("curated") || combined.includes("conformed")) return 2;
+    if (kind === "gold" || combined.includes("gold") || combined.includes("agg") || combined.includes("mart") || combined.includes("analytics")) return 3;
+    if (combined.includes("bi") || combined.includes("dash") || combined.includes("model") || combined.includes("app") || combined.includes("consumer") || combined.includes("user") || combined.includes("client")) return 4;
+    return 0;
+  }
+
+  const tiers = new Map<number, string[]>();
+  for (let i = 0; i <= 4; i++) tiers.set(i, []);
+
+  for (const id of nodeIds) {
+    const decl = ast.nodes[id];
+    const tier = getMedallionTier(id, decl.kind);
+    tiers.get(tier)!.push(id);
+  }
+
+  const activeTiers = [...tiers.entries()].filter(([_, ids]) => ids.length > 0);
+  const tierCount = activeTiers.length || 1;
+
+  const contentW = ast.meta.width - SAFE * 2;
+  const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const nodes: PositionedNode[] = [];
+
+  activeTiers.forEach(([_, ids], colIdx) => {
+    const colCount = ids.length;
+    const colX = SAFE + (contentW / (tierCount + 1)) * (colIdx + 1) - NODE_W / 2;
+
+    ids.forEach((id, rowIdx) => {
+      const decl = ast.nodes[id];
+      const rowY = TITLE_BAND + (contentH / (colCount + 1)) * (rowIdx + 1) - NODE_H / 2;
+      const focal = decl.props.focal === true || decl.props.accent === true;
+      nodes.push({
+        id,
+        kind: decl.kind,
+        role: nodeRole(decl.kind),
+        label: decl.label,
+        x: snapGrid(colX),
+        y: snapGrid(rowY),
+        width: NODE_W,
+        height: NODE_H,
+        style: decl.style ? ast.styles[decl.style]?.props : undefined,
+        props: decl.props,
+        opacity: 0,
+        shape: "card",
+        focal,
+      });
+    });
+  });
+
+  return nodes;
+}
+
+function layoutQuadrant(ast: DiagramAST): PositionedNode[] {
+  const nodeIds = Object.keys(ast.nodes);
+  if (nodeIds.length === 0) return [];
+
+  const contentW = ast.meta.width - SAFE * 2;
+  const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const centerX = SAFE + contentW / 2;
+  const centerY = TITLE_BAND + contentH / 2;
+
+  const quadNodes = new Map<number, string[]>([
+    [1, []],
+    [2, []],
+    [3, []],
+    [4, []],
+  ]);
+
+  nodeIds.forEach((id, idx) => {
+    const decl = ast.nodes[id];
+    let q = 1;
+    if (decl.props.quadrant) {
+      const qVal = String(decl.props.quadrant).toUpperCase();
+      if (qVal === "Q1" || qVal === "1" || qVal === "TOP_RIGHT") q = 1;
+      else if (qVal === "Q2" || qVal === "2" || qVal === "TOP_LEFT") q = 2;
+      else if (qVal === "Q3" || qVal === "3" || qVal === "BOTTOM_LEFT") q = 3;
+      else if (qVal === "Q4" || qVal === "4" || qVal === "BOTTOM_RIGHT") q = 4;
+    } else {
+      q = (idx % 4) + 1;
+    }
+    quadNodes.get(q)!.push(id);
+  });
+
+  const nodes: PositionedNode[] = [];
+  const quadCenters = {
+    1: { x: centerX + contentW / 4, y: centerY - contentH / 4 },
+    2: { x: centerX - contentW / 4, y: centerY - contentH / 4 },
+    3: { x: centerX - contentW / 4, y: centerY + contentH / 4 },
+    4: { x: centerX + contentW / 4, y: centerY + contentH / 4 },
+  };
+
+  for (const [qNum, ids] of quadNodes) {
+    const center = quadCenters[qNum as 1 | 2 | 3 | 4];
+    ids.forEach((id, idx) => {
+      const decl = ast.nodes[id];
+      const offsetCount = ids.length;
+      const rowOffset = (idx - (offsetCount - 1) / 2) * (NODE_H + 16);
+      const x = center.x - NODE_W / 2;
+      const y = center.y + rowOffset - NODE_H / 2;
+      const focal = decl.props.focal === true || decl.props.accent === true;
+      nodes.push({
+        id,
+        kind: decl.kind,
+        role: nodeRole(decl.kind),
+        label: decl.label,
+        x: snapGrid(x),
+        y: snapGrid(y),
+        width: NODE_W,
+        height: NODE_H,
+        style: decl.style ? ast.styles[decl.style]?.props : undefined,
+        props: decl.props,
+        opacity: 0,
+        shape: "card",
+        focal,
+      });
+    });
+  }
+
+  return nodes;
+}
+
+function layoutSwimlane(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
+  const nodeIds = Object.keys(ast.nodes);
+  if (nodeIds.length === 0) return [];
+
+  const lanes = new Map<string, string[]>();
+  const groupKeys = Object.keys(ast.groups);
+
+  if (groupKeys.length > 0) {
+    for (const gId of groupKeys) {
+      const members = ast.groups[gId].members.filter((id) => ast.nodes[id]);
+      if (members.length > 0) lanes.set(gId, members);
+    }
+  } else {
+    for (const id of nodeIds) {
+      const decl = ast.nodes[id];
+      const role = nodeRole(decl.kind);
+      if (!lanes.has(role)) lanes.set(role, []);
+      lanes.get(role)!.push(id);
+    }
+  }
+
+  const activeLanes = [...lanes.entries()].filter(([_, ids]) => ids.length > 0);
+  const laneCount = activeLanes.length || 1;
+
+  const contentW = ast.meta.width - SAFE * 2;
+  const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const laneHeight = contentH / laneCount;
+  const nodes: PositionedNode[] = [];
+
+  activeLanes.forEach(([_, ids], laneIdx) => {
+    const laneY = TITLE_BAND + laneIdx * laneHeight + (laneHeight - NODE_H) / 2;
+    const count = ids.length;
+
+    ids.forEach((id, colIdx) => {
+      const decl = ast.nodes[id];
+      const colX = SAFE + (contentW / (count + 1)) * (colIdx + 1) - NODE_W / 2;
+      const focal = decl.props.focal === true || decl.props.accent === true;
+      nodes.push({
+        id,
+        kind: decl.kind,
+        role: nodeRole(decl.kind),
+        label: decl.label,
+        x: snapGrid(colX),
+        y: snapGrid(laneY),
+        width: NODE_W,
+        height: NODE_H,
+        style: decl.style ? ast.styles[decl.style]?.props : undefined,
+        props: decl.props,
+        opacity: 0,
+        shape: "card",
+        focal,
+      });
+    });
+  });
+
+  return nodes;
+}
+
+function layoutPyramid(ast: DiagramAST): PositionedNode[] {
+  const nodeIds = Object.keys(ast.nodes);
+  if (nodeIds.length === 0) return [];
+
+  const ranks = new Map<number, string[]>();
+  nodeIds.forEach((id, idx) => {
+    const decl = ast.nodes[id];
+    const tier = typeof decl.props.tier === "number" ? decl.props.tier : typeof decl.props.level === "number" ? decl.props.level : idx;
+    if (!ranks.has(tier)) ranks.set(tier, []);
+    ranks.get(tier)!.push(id);
+  });
+
+  const sortedTiers = [...ranks.entries()].sort((a, b) => a[0] - b[0]);
+  const tierCount = sortedTiers.length || 1;
+
+  const contentW = ast.meta.width - SAFE * 2;
+  const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const nodes: PositionedNode[] = [];
+
+  sortedTiers.forEach(([_, ids], tierIdx) => {
+    const tierY = TITLE_BAND + (contentH / (tierCount + 1)) * (tierIdx + 1) - NODE_H / 2;
+    const spreadFraction = 0.4 + (0.6 * tierIdx) / Math.max(tierCount - 1, 1);
+    const tierWidth = contentW * spreadFraction;
+    const tierStartX = SAFE + (contentW - tierWidth) / 2;
+    const count = ids.length;
+
+    ids.forEach((id, idx) => {
+      const decl = ast.nodes[id];
+      const x = tierStartX + (tierWidth / (count + 1)) * (idx + 1) - NODE_W / 2;
+      const focal = decl.props.focal === true || decl.props.accent === true;
+      nodes.push({
+        id,
+        kind: decl.kind,
+        role: nodeRole(decl.kind),
+        label: decl.label,
+        x: snapGrid(x),
+        y: snapGrid(tierY),
+        width: NODE_W,
+        height: NODE_H,
+        style: decl.style ? ast.styles[decl.style]?.props : undefined,
+        props: decl.props,
+        opacity: 0,
+        shape: "card",
+        focal,
+      });
+    });
+  });
+
+  return nodes;
+}
+
+function layoutTimeline(ast: DiagramAST): PositionedNode[] {
+  const nodeIds = Object.keys(ast.nodes);
+  if (nodeIds.length === 0) return [];
+
+  const contentW = ast.meta.width - SAFE * 2;
+  const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const baselineY = TITLE_BAND + contentH / 2;
+  const spacing = contentW / Math.max(nodeIds.length, 1);
+  const nodes: PositionedNode[] = [];
+
+  nodeIds.forEach((id, idx) => {
+    const decl = ast.nodes[id];
+    const x = SAFE + spacing * idx + (spacing - NODE_W) / 2;
+    const above = idx % 2 === 0;
+    const y = above ? baselineY - NODE_H - 24 : baselineY + 24;
+    const focal = decl.props.focal === true || decl.props.accent === true;
+    nodes.push({
+      id, kind: decl.kind, role: nodeRole(decl.kind), label: decl.label,
+      x: snapGrid(x), y: snapGrid(y), width: NODE_W, height: NODE_H,
+      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      props: decl.props, opacity: 0, shape: "pill", focal,
+    });
+  });
+  return nodes;
+}
+
+function layoutGantt(ast: DiagramAST): PositionedNode[] {
+  const nodeIds = Object.keys(ast.nodes);
+  if (nodeIds.length === 0) return [];
+
+  const contentW = ast.meta.width - SAFE * 2;
+  const rowH = 56;
+  const barH = 40;
+  const nodes: PositionedNode[] = [];
+
+  nodeIds.forEach((id, idx) => {
+    const decl = ast.nodes[id];
+    const phase = typeof decl.props.phase === "number" ? decl.props.phase : 0;
+    const span = typeof decl.props.span === "number" ? decl.props.span : 1;
+    const totalPhases = Math.max(...nodeIds.map(nid => {
+      const p = ast.nodes[nid].props.phase;
+      const s = ast.nodes[nid].props.span;
+      return (typeof p === "number" ? p : 0) + (typeof s === "number" ? s : 1);
+    }), 1);
+    const unitW = contentW / totalPhases;
+    const x = SAFE + phase * unitW;
+    const w = Math.max(span * unitW - 8, NODE_W);
+    const y = TITLE_BAND + idx * rowH + (rowH - barH) / 2;
+    const focal = decl.props.focal === true || decl.props.accent === true;
+    nodes.push({
+      id, kind: decl.kind, role: nodeRole(decl.kind), label: decl.label,
+      x: snapGrid(x), y: snapGrid(y), width: snapGrid(w), height: barH,
+      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      props: decl.props, opacity: 0, shape: "pill", focal,
+    });
+  });
+  return nodes;
+}
+
+function layoutVenn(ast: DiagramAST): PositionedNode[] {
+  const nodeIds = Object.keys(ast.nodes);
+  if (nodeIds.length === 0) return [];
+
+  const contentW = ast.meta.width - SAFE * 2;
+  const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const centerX = SAFE + contentW / 2;
+  const centerY = TITLE_BAND + contentH / 2;
+  const N = nodeIds.length;
+  const radius = Math.min(contentW, contentH) * 0.22;
+  const nodes: PositionedNode[] = [];
+
+  nodeIds.forEach((id, idx) => {
+    const decl = ast.nodes[id];
+    let x: number, y: number;
+    if (N === 2) {
+      x = centerX + (idx === 0 ? -radius * 0.55 : radius * 0.55) - NODE_W / 2;
+      y = centerY - NODE_H / 2;
+    } else {
+      const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / N;
+      x = centerX + radius * 0.6 * Math.cos(angle) - NODE_W / 2;
+      y = centerY + radius * 0.6 * Math.sin(angle) - NODE_H / 2;
+    }
+    const focal = decl.props.focal === true || decl.props.accent === true;
+    nodes.push({
+      id, kind: decl.kind, role: nodeRole(decl.kind), label: decl.label,
+      x: snapGrid(x), y: snapGrid(y), width: NODE_W, height: NODE_H,
+      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      props: decl.props, opacity: 0, shape: "circle", focal,
+    });
+  });
+  return nodes;
+}
+
+function layoutLayers(ast: DiagramAST): PositionedNode[] {
+  const nodeIds = Object.keys(ast.nodes);
+  if (nodeIds.length === 0) return [];
+
+  const contentW = ast.meta.width - SAFE * 2;
+  const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const N = nodeIds.length;
+  const layerH = Math.min(Math.max((contentH - (N - 1) * 12) / N, 52), 76);
+  const totalH = N * layerH + (N - 1) * 12;
+  const startY = TITLE_BAND + (contentH - totalH) / 2;
+  const nodes: PositionedNode[] = [];
+
+  nodeIds.forEach((id, idx) => {
+    const decl = ast.nodes[id];
+    const y = startY + idx * (layerH + 12);
+    const focal = decl.props.focal === true || decl.props.accent === true;
+    nodes.push({
+      id,
+      kind: decl.kind,
+      role: nodeRole(decl.kind),
+      label: decl.label,
+      x: snapGrid(SAFE),
+      y: snapGrid(y),
+      width: snapGrid(contentW),
+      height: snapGrid(layerH),
+      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      props: decl.props,
+      opacity: 0,
+      shape: "rounded",
+      focal,
+    });
+  });
+  return nodes;
+}
+
+function layoutNested(ast: DiagramAST): PositionedNode[] {
+  const nodeIds = Object.keys(ast.nodes);
+  if (nodeIds.length === 0) return [];
+
+  const contentW = ast.meta.width - SAFE * 2;
+  const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const N = nodeIds.length;
+  const padX = Math.min(36, (contentW * 0.4) / N);
+  const padY = Math.min(32, (contentH * 0.4) / N);
+  const nodes: PositionedNode[] = [];
+
+  nodeIds.forEach((id, idx) => {
+    const decl = ast.nodes[id];
+    const x = SAFE + idx * padX;
+    const y = TITLE_BAND + idx * padY;
+    const w = contentW - idx * padX * 2;
+    const h = contentH - idx * padY * 2;
+    const focal = decl.props.focal === true || decl.props.accent === true || idx === N - 1;
+    nodes.push({
+      id,
+      kind: decl.kind,
+      role: nodeRole(decl.kind),
+      label: decl.label,
+      x: snapGrid(x),
+      y: snapGrid(y),
+      width: snapGrid(w),
+      height: snapGrid(h),
+      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      props: decl.props,
+      opacity: 0,
+      shape: "rounded",
+      focal,
+    });
+  });
+  return nodes;
+}
+
+function layoutRadar(ast: DiagramAST): PositionedNode[] {
+  const nodeIds = Object.keys(ast.nodes);
+  if (nodeIds.length === 0) return [];
+
+  const contentW = ast.meta.width - SAFE * 2;
+  const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const centerX = SAFE + contentW / 2;
+  const centerY = TITLE_BAND + contentH / 2;
+  const radius = Math.min(contentW, contentH) * 0.38;
+  const N = Math.max(nodeIds.length, 3);
+
+  const nodes: PositionedNode[] = [];
+
+  nodeIds.forEach((id, idx) => {
+    const decl = ast.nodes[id];
+    const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / N;
+    const x = centerX + radius * Math.cos(angle) - NODE_W / 2;
+    const y = centerY + radius * Math.sin(angle) - NODE_H / 2;
+    const focal = decl.props.focal === true || decl.props.accent === true;
+
+    nodes.push({
+      id,
+      kind: decl.kind,
+      role: nodeRole(decl.kind),
+      label: decl.label,
+      x: snapGrid(x),
+      y: snapGrid(y),
+      width: NODE_W,
+      height: NODE_H,
+      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      props: decl.props,
+      opacity: 0,
+      shape: "rounded",
+      focal,
+    });
+  });
+
+  return nodes;
+}
+
 function layoutNodes(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
   const dtype = diagramType(ast);
   switch (dtype) {
@@ -357,6 +859,29 @@ function layoutNodes(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
       return layoutRanked(ast, [], { columnLayout: true });
     case "constellation":
       return layoutConstellation(ast);
+    case "loop":
+    case "flywheel":
+      return layoutLoop(ast);
+    case "medallion":
+      return layoutMedallion(ast, edges);
+    case "quadrant":
+      return layoutQuadrant(ast);
+    case "swimlane":
+      return layoutSwimlane(ast, edges);
+    case "pyramid":
+      return layoutPyramid(ast);
+    case "radar":
+      return layoutRadar(ast);
+    case "timeline":
+      return layoutTimeline(ast);
+    case "gantt":
+      return layoutGantt(ast);
+    case "venn":
+      return layoutVenn(ast);
+    case "layers":
+      return layoutLayers(ast);
+    case "nested":
+      return layoutNested(ast);
     case "state":
       return layoutRanked(ast, cycleSafeEdges(Object.keys(ast.nodes), edges), { forceVertical: false });
     default:

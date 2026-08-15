@@ -40,7 +40,15 @@ Since it renders purely to browser-native Web Animations API (WAAPI), the AST pa
 
 ---
 
-### Tweet 4 (The Call To Action)
+### Tweet 4
+What else can it do?
+🔄 Universal Ingestion: convert Mermaid, Draw.io, Docker Compose, K8s manifests, or Terraform state into animated scenes with `markdy import`.
+🛡️ Architecture Governance: catch circular deadlock loops & database bypasses in CI/CD with `markdy lint --arch-rules`.
+🤖 Model Context Protocol: official MCP server for Claude, Cursor, and Antigravity.
+
+---
+
+### Tweet 5 (The Call To Action)
 Instead of dragging nodes around in Figma or coding keyframes by hand, you can tell an LLM to follow https://markdy.com/AGENT.md and write a MarkdyScript scene showing an API request through the edge cache, then paste the text block directly into your MDX files.
 
 Try the interactive playground and see the source code here! 

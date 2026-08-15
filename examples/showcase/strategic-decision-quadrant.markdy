@@ -1,0 +1,17 @@
+# strategic-decision-quadrant.markdy
+# Demonstrates 2x2 Strategic Decision Matrix (Impact vs Effort / Scenario Matrix).
+
+scene "Engineering Strategy 2x2 Matrix" theme=editorial type=quadrant width=1200 height=800
+
+service RealTimeEngine "Real-Time Streaming" quadrant=Q1 focal=true
+service GraphCatalog "Graph Data Catalog" quadrant=Q2
+service MonolithAuth "Legacy Session Store" quadrant=Q3
+service AutoPruneCron "Nightly Pruning Cron" quadrant=Q4
+
+beat matrix_revelation "1. Quadrant Positioning":
+  show $nodes stagger=60ms
+  glow RealTimeEngine "High Impact / Low Effort (Do First)"
+
+beat transition_path "2. Strategic Migration Path":
+  MonolithAuth -> GraphCatalog "refactor to catalog"
+  GraphCatalog -> RealTimeEngine "promote to stream core"

@@ -1,0 +1,14 @@
+# 15-project-timeline.markdy
+# Demonstrates Horizontal Timeline Diagram for Release History & Milestones.
+
+scene "Platform Engineering Milestones" theme=editorial type=timeline width=1200 height=600
+
+service AlphaRelease "v0.1 Alpha Launch"
+service BetaRelease "v0.5 Public Beta" focal=true
+service GARelease "v1.0 General Availability"
+service EnterpriseTier "v2.0 Enterprise Tier"
+service GlobalExpansion "v3.0 Multi-Region"
+
+beat timeline_reveal "Platform Evolution":
+  show $nodes stagger=60ms
+  glow BetaRelease "First paying customers"

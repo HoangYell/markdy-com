@@ -48,6 +48,7 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@markdy/compat": "workspace:*",
     "@markdy/core": "workspace:*",
     "@markdy/renderer-dom": "workspace:*",
     "@markdy/stdlib-systems": "workspace:*"
