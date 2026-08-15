@@ -55,6 +55,21 @@ beat inspect:
     });
   });
 
+  it("ignores trailing quoted cue captions when resolving targets", () => {
+    const source = `
+scene theme=paper
+service Decide
+
+beat main:
+  glow Decide "focal gate"
+`;
+    const ast = parse(source);
+    const plan = compile(ast);
+    const glow = plan.cues.find((cue) => cue.kind === "glow");
+    expect(glow).toMatchObject({ kind: "glow", targets: ["Decide"] });
+    expect(ast.diagnostics).toEqual([]);
+  });
+
   it("assigns diagram type, shapes, group boundaries, and structural edges", () => {
     const source = `
 scene "Checkout" theme=editorial type=flowchart
@@ -202,8 +217,10 @@ edge r4: Act -> Learn
 edge r5: Learn -> Capture
 edge w1: Act -> SharedMemory "outcomes"
 `;
-    const plan = compile(parse(source));
+    const ast = parse(source);
+    const plan = compile(ast);
     expect(plan.diagramType).toBe("loop");
+    expect(ast.diagnostics).toEqual([]);
     const hub = plan.nodes.find((n) => n.id === "SharedMemory")!;
     expect(hub.focal).toBe(true);
     expect(hub.shape).toBe("pill");

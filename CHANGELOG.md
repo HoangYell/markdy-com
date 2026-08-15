@@ -5,6 +5,16 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.22] — 2026-08-15
+
+### Changed
+- **CLI import loads compatibility tooling on demand** — `markdy import` now lazy-loads `@markdy/compat`, keeping normal CLI startup paths lighter while preserving all supported import formats.
+- **Diagram-cycle diagnostics stay mode-aware** — Forward-flow cycle warnings now apply to architecture and flowchart diagrams without flagging loop-oriented layouts that intentionally circle back.
+
+### Fixed
+- **Renderer embeds without `ResizeObserver`** — `@markdy/renderer-dom` now renders and tears down cleanly in browser/embed hosts that do not expose `ResizeObserver`, while still using resize observation when available.
+- **Quoted cue captions no longer become targets** — Cue target parsing now ignores trailing quoted captions such as `glow Decide "focal gate"` instead of warning about a missing target named after the caption.
+
 ## [0.8.21] — 2026-08-15
 
 ### Added
