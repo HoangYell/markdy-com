@@ -162,10 +162,10 @@ function parseStringToken(raw: string): { value: string; rest: string } | null {
 }
 
 function splitTargets(raw: string): string[] {
-  return raw
-    .split(/[\s,]+/)
-    .map((t) => t.trim())
-    .filter(Boolean);
+  const tokens = raw.match(/"(?:[^"\\]|\\.)*"|[^\s,]+/g) ?? [];
+  return tokens
+    .map((token) => token.trim())
+    .filter((token) => token.length > 0 && !token.startsWith('"'));
 }
 
 function splitOutsideQuotes(raw: string, separator: "&"): string[] {
@@ -719,7 +719,8 @@ function validateReferences(ast: DiagramAST): void {
  * until the diagram collapses into a couple of overlapping columns. Surface it early.
  */
 function detectFlowCycles(ast: DiagramAST): void {
-  if (ast.meta.type === "state") return;
+  const dtype = ast.meta.type ?? "architecture";
+  if (dtype !== "architecture" && dtype !== "flowchart") return;
   const seen = new Set<string>();
   const adj = new Map<string, { to: string; line: number }[]>();
   const ensure = (id: string) => {

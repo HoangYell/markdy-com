@@ -9,13 +9,6 @@ import {
   type ArchitectureRule,
   type MarkdyConfig,
 } from "@markdy/core";
-import {
-  transpileMermaidToMarkdy,
-  transpileDockerComposeToMarkdy,
-  transpileKubernetesManifestsToMarkdy,
-  transpileTerraformStateToMarkdy,
-  transpileDrawioToMarkdy,
-} from "@markdy/compat";
 import { createRequire } from "node:module";
 import { basename, dirname, extname, join, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -54,6 +47,15 @@ const DEFAULT_PORT = 4242;
 const IMPORT_RE = /^import\s+"([^"]+)"\s+as\s+(\w+)\s*$/;
 const MARKDY_EXT = ".markdy";
 const PACKAGE_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+type CompatModule = typeof import("@markdy/compat");
+let compatModulePromise: Promise<CompatModule> | null = null;
+
+function loadCompatModule(): Promise<CompatModule> {
+  if (!compatModulePromise) {
+    compatModulePromise = import("@markdy/compat");
+  }
+  return compatModulePromise;
+}
 
 export async function runCli(
   argv: string[],
@@ -317,21 +319,26 @@ async function importCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> 
   const formatFlag = getStringFlag(parsed, "from")?.toLowerCase();
   const ext = extname(inputFile).toLowerCase();
   const title = basename(inputFile, extname(inputFile));
+  const compat = await loadCompatModule().catch((err) => {
+    io.stderr(`markdy import: failed to load @markdy/compat: ${describeError(err)}`);
+    return null;
+  });
+  if (!compat) return { exitCode: 1 };
 
   let markdyCode: string;
 
   if (formatFlag === "mermaid" || ext === ".mmd" || ext === ".mermaid") {
-    markdyCode = transpileMermaidToMarkdy(content, title).code;
+    markdyCode = compat.transpileMermaidToMarkdy(content, title).code;
   } else if (formatFlag === "compose" || ((ext === ".yml" || ext === ".yaml") && (inputFile.includes("compose") || content.includes("services:")))) {
-    markdyCode = transpileDockerComposeToMarkdy(content, title);
+    markdyCode = compat.transpileDockerComposeToMarkdy(content, title);
   } else if (formatFlag === "k8s" || (content.includes("apiVersion:") && content.includes("kind:"))) {
-    markdyCode = transpileKubernetesManifestsToMarkdy(content, title);
+    markdyCode = compat.transpileKubernetesManifestsToMarkdy(content, title);
   } else if (formatFlag === "terraform" || ext === ".tfstate" || (content.includes("terraform_version") || content.includes('"resources":'))) {
-    markdyCode = transpileTerraformStateToMarkdy(content, title);
+    markdyCode = compat.transpileTerraformStateToMarkdy(content, title);
   } else if (formatFlag === "drawio" || ext === ".drawio" || (ext === ".xml" && content.includes("<mxCell"))) {
-    markdyCode = transpileDrawioToMarkdy(content, title).code;
+    markdyCode = compat.transpileDrawioToMarkdy(content, title).code;
   } else {
-    markdyCode = transpileMermaidToMarkdy(content, title).code;
+    markdyCode = compat.transpileMermaidToMarkdy(content, title).code;
   }
 
   const outPath = getStringFlag(parsed, "out");

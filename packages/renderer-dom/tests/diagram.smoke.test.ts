@@ -108,6 +108,18 @@ describe("createDiagram integration", () => {
     expect(container.querySelector(".markdy-scene-root")).toBeNull();
   });
 
+  it("renders when ResizeObserver is unavailable", () => {
+    delete (globalThis as unknown as { ResizeObserver?: unknown }).ResizeObserver;
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const diagram = createDiagram({ container, code: SCENE, autoplay: false, copyright: false });
+
+    expect(container.querySelector(".markdy-camera-layer")).not.toBeNull();
+    expect(container.querySelectorAll(".markdy-node")).toHaveLength(3);
+    expect(() => diagram.destroy()).not.toThrow();
+  });
+
   it("defaults playback to normalized 1x and falls back to 1x for invalid initial rates", () => {
     const container = document.createElement("div");
     document.body.appendChild(container);

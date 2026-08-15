@@ -358,8 +358,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     scene.style.transform = `scale(${fitScale})`;
   }
   scaleScene();
-  const resizeObserver = new ResizeObserver(scaleScene);
-  resizeObserver.observe(viewport);
+  const resizeObserver = typeof ResizeObserver === "function" ? new ResizeObserver(scaleScene) : null;
+  resizeObserver?.observe(viewport);
 
   const edgeRuntimes: EdgeRuntimeMap = new Map();
   const edgeSceneId = createEdgeSceneId();
@@ -587,7 +587,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     destroy() {
       diagram.pause();
       for (const anim of allAnims) anim.cancel();
-      resizeObserver.disconnect();
+      resizeObserver?.disconnect();
       if (progressEl?.parentNode === viewport) viewport.removeChild(progressEl);
       if (badge?.parentNode) badge.parentNode.removeChild(badge);
       if (footer?.parentNode) footer.parentNode.removeChild(footer);
