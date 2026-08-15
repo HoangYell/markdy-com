@@ -167,6 +167,26 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     progressEl.style.padding = "2px";
   }
 
+  let footer: HTMLDivElement | null = null;
+  function ensureFooter(): HTMLDivElement {
+    if (footer) return footer;
+    footer = document.createElement("div");
+    footer.className = "markdy-footer";
+    Object.assign(footer.style, {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "flex-end",
+      flexWrap: "wrap",
+      gap: "6px",
+      width: "100%",
+      boxSizing: "border-box",
+      padding: "4px 6px 0",
+    });
+    if (container.parentNode) container.parentNode.insertBefore(footer, container.nextSibling);
+    else container.appendChild(footer);
+    return footer;
+  }
+
   let badge: HTMLAnchorElement | null = null;
   if (copyright) {
     badge = document.createElement("a");
@@ -175,17 +195,17 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     badge.rel = "noopener noreferrer";
     badge.textContent = "Powered by Markdy";
     Object.assign(badge.style, {
-      display: "block",
+      display: "inline-flex",
+      alignItems: "center",
       textAlign: "right",
       fontSize: "10px",
       fontFamily: "system-ui, sans-serif",
       color: "#999",
       textDecoration: "none",
-      padding: "3px 6px 0",
+      padding: "0",
       opacity: "0.7",
     });
-    if (container.parentNode) container.parentNode.insertBefore(badge, container.nextSibling);
-    else container.appendChild(badge);
+    ensureFooter().appendChild(badge);
   }
 
   ensureSceneStyles(document);
@@ -526,6 +546,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       resizeObserver.disconnect();
       if (progressEl?.parentNode === viewport) viewport.removeChild(progressEl);
       if (badge?.parentNode) badge.parentNode.removeChild(badge);
+      if (footer?.parentNode) footer.parentNode.removeChild(footer);
       if (viewport.parentNode === container) container.removeChild(viewport);
     },
   };
@@ -546,16 +567,16 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     button.title = ariaLabel;
     Object.assign(button.style, {
       appearance: "none",
-      border: "1px solid rgba(15, 23, 42, 0.16)",
-      borderRadius: "6px",
-      background: "rgba(255, 255, 255, 0.92)",
-      color: "#111827",
+      border: "1px solid rgba(148, 163, 184, 0.55)",
+      borderRadius: "5px",
+      background: "rgba(248, 250, 252, 0.92)",
+      color: "#475569",
       cursor: "pointer",
-      font: "600 11px/1.2 system-ui, sans-serif",
-      padding: "6px 8px",
-      minWidth: "34px",
+      font: "600 10px/1.1 system-ui, sans-serif",
+      padding: "4px 6px",
+      minWidth: "28px",
       whiteSpace: "nowrap",
-      boxShadow: "0 1px 2px rgba(15, 23, 42, 0.08)",
+      boxShadow: "none",
     });
     return button;
   }
@@ -566,23 +587,20 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     toolbar.setAttribute("role", "toolbar");
     toolbar.setAttribute("aria-label", "Diagram controls");
     Object.assign(toolbar.style, {
-      position: "absolute",
-      left: "50%",
-      bottom: "10px",
-      zIndex: "10000",
+      position: "static",
       display: "flex",
       alignItems: "center",
-      justifyContent: "center",
+      justifyContent: "flex-end",
       flexWrap: "wrap",
-      gap: "6px",
-      maxWidth: "calc(100% - 20px)",
-      padding: "6px",
-      border: "1px solid rgba(15, 23, 42, 0.12)",
-      borderRadius: "8px",
-      background: "rgba(255, 255, 255, 0.78)",
-      boxShadow: "0 10px 28px rgba(15, 23, 42, 0.16)",
-      backdropFilter: "blur(10px)",
-      transform: "translateX(-50%)",
+      gap: "4px",
+      maxWidth: "100%",
+      padding: "0",
+      border: "0",
+      borderRadius: "0",
+      background: "transparent",
+      boxShadow: "none",
+      backdropFilter: "none",
+      transform: "none",
       pointerEvents: "auto",
     });
     for (const eventName of ["click", "dblclick", "pointerdown", "pointermove", "pointerup", "wheel"]) {
@@ -619,7 +637,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       toolbar.appendChild(resetButton);
     }
 
-    viewport.appendChild(toolbar);
+    ensureFooter().insertBefore(toolbar, badge ?? null);
     syncControls();
   }
 
