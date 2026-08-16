@@ -52,6 +52,8 @@ export function exportDiagramAsVectorSvg(
   clonedScene.style.transform = `scale(${scale})`;
   clonedScene.style.transformOrigin = "0 0";
   clonedScene.style.position = "relative";
+  clonedScene.style.left = "0px";
+  clonedScene.style.top = "0px";
   clonedScene.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
 
   if (options.transparentBackground) {

@@ -1,5 +1,13 @@
 # Markdy Troubleshooting
 
+> ### DOCUMENTATION METADATA
+> - **Status**: Active & Canonical
+> - **Current Version**: v0.8.26
+> - **Specification Version**: 0.8.x
+> - **Last Updated**: 2026-08-16
+> - **Documentation Hub**: <https://markdy.com/docs/>
+> - **AI Reference**: <https://markdy.com/AGENT.md>
+
 This guide helps fix common problems when writing MarkdyScript, rendering animated diagrams, or generating scenes with AI agents.
 
 ## "Unknown node kind"

@@ -188,7 +188,7 @@ const blogStructuredData = [
   .hub {
     max-width: 880px;
     margin: 0 auto;
-    padding: 5rem 1.25rem 4rem;
+    padding: max(3.5rem, calc(2.5rem + var(--sat))) 1.25rem 4rem;
   }
   .hub-crumbs {
     font-size: 0.85rem;
@@ -198,13 +198,13 @@ const blogStructuredData = [
   .hub-crumbs a { color: var(--accent, #38bdf8); text-decoration: none; }
   .hub-crumbs span { margin: 0 0.4rem; }
   .hub-head h1 {
-    font-size: clamp(2rem, 5vw, 2.8rem);
+    font-size: clamp(1.85rem, 6vw, 2.8rem);
     letter-spacing: -0.03em;
     line-height: 1.15;
     margin: 0 0 1rem;
   }
   .hub-dek {
-    font-size: 1.12rem;
+    font-size: 1.05rem;
     line-height: 1.65;
     color: var(--text-secondary, #475569);
     margin: 0 0 2.5rem;
@@ -232,14 +232,14 @@ const blogStructuredData = [
     height: 100%;
     padding: 1.35rem;
     border-radius: 14px;
-    border: 1px solid var(--border-color, #e2e8f0);
-    background: var(--bg-secondary, #ffffff);
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
     text-decoration: none;
     transition: transform 0.15s ease, border-color 0.15s ease;
   }
   .hub-card a:hover {
     transform: translateY(-2px);
-    border-color: var(--accent, #38bdf8);
+    border-color: var(--accent);
   }
   .hub-tag {
     display: inline-block;
@@ -247,33 +247,48 @@ const blogStructuredData = [
     font-weight: 700;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: var(--accent, #0ea5e9);
+    color: var(--accent);
     margin-bottom: 0.5rem;
   }
   .hub-card h3 {
     font-size: 1.12rem;
     line-height: 1.25;
     margin: 0 0 0.5rem;
-    color: var(--text-primary, #0f172a);
+    color: var(--text-primary);
   }
   .hub-card p {
-    color: var(--text-secondary, #475569);
+    color: var(--text-secondary);
     line-height: 1.55;
     font-size: 0.95rem;
     margin: 0 0 0.8rem;
   }
   .hub-more {
     font-weight: 600;
-    color: var(--accent, #0ea5e9);
+    color: var(--accent);
     font-size: 0.9rem;
   }
   .hub-cta {
     margin-top: 1rem;
     padding: 1.4rem 1.6rem;
     border-radius: 14px;
-    background: var(--bg-secondary, rgba(56, 189, 248, 0.06));
-    border: 1px solid var(--border-color, #e2e8f0);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
     line-height: 1.6;
-    color: var(--text-secondary, #475569);
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 600px) {
+    .hub {
+      padding: max(2.5rem, calc(2rem + var(--sat))) 1rem 3rem;
+    }
+    .hub-list {
+      grid-template-columns: 1fr;
+    }
+    .hub-card a {
+      padding: 1.1rem;
+    }
+    .hub-cta {
+      padding: 1.1rem;
+    }
   }
 </style>

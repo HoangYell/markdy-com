@@ -8,6 +8,10 @@ type PackageMetadata = {
 export type AgentReference = {
   content: string;
   version: string;
+  status: string;
+  specVersion: string;
+  timeUpdated: string;
+  lastUpdated: string;
   canonicalMarkdownUrl: string;
   humanUrl: string;
   llmsUrl: string;
@@ -65,15 +69,35 @@ function isMissingFileError(error: unknown) {
   return error instanceof Error && "code" in error && error.code === "ENOENT";
 }
 
+function extractHeaderMetadata(content: string) {
+  const statusMatch = content.match(/\*\*Status\*\*:\s*([^\n\r]+)/i);
+  const specVersionMatch = content.match(/\*\*Specification Version\*\*:\s*([^\n\r]+)/i);
+  const timeUpdatedMatch = content.match(/\*\*Time Updated\*\*:\s*([^\n\r]+)/i);
+  const lastUpdatedMatch = content.match(/\*\*Last Updated\*\*:\s*([^\n\r]+)/i);
+
+  return {
+    status: statusMatch ? statusMatch[1].trim() : "Active & Canonical",
+    specVersion: specVersionMatch ? specVersionMatch[1].trim() : "0.8.x",
+    timeUpdated: timeUpdatedMatch ? timeUpdatedMatch[1].trim() : (lastUpdatedMatch ? lastUpdatedMatch[1].trim() : "2026-08-16"),
+    lastUpdated: lastUpdatedMatch ? lastUpdatedMatch[1].trim() : "2026-08-16",
+  };
+}
+
 export async function getAgentReference(): Promise<AgentReference> {
   const [content, version] = await Promise.all([
     readRepoFile("docs/AGENT.md"),
     getProjectVersion(),
   ]);
 
+  const meta = extractHeaderMetadata(content);
+
   return {
     content,
     version,
+    status: meta.status,
+    specVersion: meta.specVersion,
+    timeUpdated: meta.timeUpdated,
+    lastUpdated: meta.lastUpdated,
     canonicalMarkdownUrl,
     humanUrl,
     llmsUrl,
@@ -86,6 +110,8 @@ export function textHeaders(contentType: string, version: string) {
   return {
     "Content-Type": `${contentType}; charset=utf-8`,
     "Cache-Control": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
     "X-Markdy-Version": version,
   };
 }
@@ -95,9 +121,20 @@ export function buildLlmsTxt(reference: AgentReference) {
 
 > Open-source diagram-native DSL for animated architecture and system diagrams — write semantic nodes, groups, beats, flows, and cues to get browser-native motion diagrams.
 
-MarkdyScript is the language used by Markdy. It declares scenes, semantic architecture nodes, groups, beats, flow operators, and cues for animated technical diagrams. Fetch the canonical guide before generating MarkdyScript; prefer it over older model memory, snippets in chats, or third-party cached examples.
+MarkdyScript is the language used by Markdy. It declares scenes, semantic architecture nodes, groups, beats, flow operators, and cues for animated technical diagrams.
 
-Version: ${reference.version}
+## Authoritative Specification (Fetch First)
+The canonical single source of truth for MarkdyScript syntax is:
+**${reference.canonicalMarkdownUrl}**
+
+When generating MarkdyScript:
+1. Always follow ${reference.canonicalMarkdownUrl}.
+2. Do not invent undocumented syntax or rely on older cached model memory.
+3. Treat deprecated syntax as invalid.
+
+Current Version: ${reference.version}
+Time Updated: ${reference.timeUpdated}
+Specification: ${reference.specVersion}
 
 ## Core Docs
 
@@ -124,7 +161,11 @@ export function buildFullLlmsTxt(reference: AgentReference) {
 Canonical source: ${reference.canonicalMarkdownUrl}
 Human-readable page: ${reference.humanUrl}
 GitHub source: ${reference.githubUrl}
-Version: ${reference.version}
+Current Version: ${reference.version}
+Time Updated: ${reference.timeUpdated}
+Last Updated: ${reference.lastUpdated}
+Status: ${reference.status}
+Specification Version: ${reference.specVersion}
 
 The content below is generated directly from docs/AGENT.md during the website build.
 

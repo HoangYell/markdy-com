@@ -80,6 +80,9 @@ done
 echo "🔗 Refreshing lockfile"
 pnpm install --no-frozen-lockfile >/dev/null
 
+echo "🔄 Regenerating prompts and synchronizing docs metadata"
+pnpm run regen
+
 create_changelog_stub_if_missing
 
 echo "✅ Running validation (build/lint/test)"

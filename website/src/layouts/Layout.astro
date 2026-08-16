@@ -108,6 +108,7 @@ const jsonLd = {
     <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
     <title>{title}</title>
     <link rel="canonical" href={canonicalURL} />
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
     <link rel="alternate" type="text/markdown" title="MarkdyScript AI Agent Reference" href="/AGENT.md" />
     <link rel="alternate" type="text/plain" title="Markdy llms.txt" href="/llms.txt" />
     <link rel="alternate" type="text/plain" title="Markdy full LLM context" href="/llms-full.txt" />
@@ -181,6 +182,10 @@ const jsonLd = {
         --selection-bg: #d1fae5;
         --selection-text: #064e3b;
         --grid-dot: rgba(15, 23, 42, 0.06);
+        --sat: env(safe-area-inset-top, 0px);
+        --sab: env(safe-area-inset-bottom, 0px);
+        --sal: env(safe-area-inset-left, 0px);
+        --sar: env(safe-area-inset-right, 0px);
       }
 
       [data-theme="dark"] {
@@ -211,9 +216,17 @@ const jsonLd = {
         --grid-dot: rgba(255, 255, 255, 0.05);
       }
 
-      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-tap-highlight-color: transparent;
+      }
 
-      html { scroll-behavior: smooth; }
+      html {
+        scroll-behavior: smooth;
+        overflow-x: hidden;
+      }
 
       body {
         font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -222,6 +235,8 @@ const jsonLd = {
         line-height: 1.6;
         -webkit-font-smoothing: antialiased;
         transition: background-color 0.25s ease, color 0.25s ease;
+        overflow-x: hidden;
+        min-width: 320px;
       }
 
       a { color: inherit; text-decoration: none; }
@@ -239,6 +254,13 @@ const jsonLd = {
         outline: 2px solid var(--accent);
         outline-offset: 2px;
         border-radius: 6px;
+      }
+
+      /* Prevent iOS auto-zoom on form elements */
+      @media (max-width: 768px) {
+        input, select, textarea {
+          font-size: 16px !important;
+        }
       }
 
       @media (prefers-reduced-motion: reduce) {

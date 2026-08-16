@@ -1,5 +1,13 @@
 # Markdy Comparisons
 
+> ### DOCUMENTATION METADATA
+> - **Status**: Active & Canonical
+> - **Current Version**: v0.8.26
+> - **Specification Version**: 0.8.x
+> - **Last Updated**: 2026-08-16
+> - **Documentation Hub**: <https://markdy.com/docs/>
+> - **Article Comparison**: <https://markdy.com/blog/markdy-vs-mermaid/>
+
 Developers often find Markdy while searching for a Mermaid alternative, animated diagrams, architecture visualization, text-to-diagram tooling, or AI-generated diagrams. This page explains when Markdy fits and when another tool is better.
 
 ## Markdy vs Mermaid

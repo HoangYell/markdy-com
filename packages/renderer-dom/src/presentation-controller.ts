@@ -68,7 +68,14 @@ export class DiagramPresentationController {
   }
 
   private onKeyDown = (e: KeyboardEvent): void => {
-    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+    if (
+      e.target instanceof HTMLInputElement ||
+      e.target instanceof HTMLTextAreaElement ||
+      e.target instanceof HTMLSelectElement ||
+      (e.target as HTMLElement)?.isContentEditable
+    ) {
+      return;
+    }
 
     switch (e.key) {
       case "ArrowRight":

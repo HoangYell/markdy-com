@@ -49,13 +49,14 @@ function positionForAnnotation(
   bounds: { width: number; height: number },
   index: number,
 ): { x: number; y: number } {
-  const pad = 24;
+  const pad = 28;
+  const topPad = 68;
   const p = (position ?? "").toLowerCase();
-  if (p.includes("top") && p.includes("right")) return { x: bounds.width - pad - 200, y: pad + index * 48 };
-  if (p.includes("top") && p.includes("left")) return { x: pad, y: pad + index * 48 };
+  if (p.includes("top") && p.includes("right")) return { x: bounds.width - pad - 200, y: topPad + index * 48 };
+  if (p.includes("top") && p.includes("left")) return { x: pad, y: topPad + index * 48 };
   if (p.includes("bottom") && p.includes("right")) return { x: bounds.width - pad - 200, y: bounds.height - pad - 40 };
   if (p.includes("bottom") && p.includes("left")) return { x: pad, y: bounds.height - pad - 40 };
-  return { x: bounds.width - pad - 200, y: pad + index * 48 };
+  return { x: bounds.width - pad - 200, y: topPad + index * 48 };
 }
 
 export function mountAnnotations(

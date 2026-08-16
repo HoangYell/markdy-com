@@ -50,31 +50,32 @@ import Layout from '../layouts/Layout.astro';
 
 <style>
   .legal-container {
-    padding: 6rem 1rem;
+    padding: max(3.5rem, calc(2.5rem + var(--sat))) 1rem 4rem;
     max-width: 800px;
     margin: 0 auto;
     min-height: 100vh;
   }
   .legal-content {
-    background: var(--bg-secondary, #ffffff);
+    background: var(--bg-secondary);
     padding: 3rem;
     border-radius: 16px;
-    border: 1px solid var(--border-color, #e2e8f0);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
   }
   .back-link {
     display: inline-block;
     margin-bottom: 2rem;
-    color: var(--accent, #ea4c89);
-    font-weight: 500;
+    color: var(--accent);
+    font-weight: 600;
   }
   h1 {
-    font-size: 2.5rem;
+    font-size: clamp(1.8rem, 6vw, 2.5rem);
     margin-bottom: 0.5rem;
-    letter-spacing: -0.05em;
+    letter-spacing: -0.04em;
+    color: var(--text-primary);
   }
   .last-updated {
-    color: var(--text-secondary, #64748b);
+    color: var(--text-muted);
     margin-bottom: 2.5rem;
     font-size: 0.9rem;
   }
@@ -84,30 +85,35 @@ import Layout from '../layouts/Layout.astro';
   h2 {
     font-size: 1.25rem;
     margin-bottom: 1rem;
-    color: var(--text-primary, #0f172a);
-    border-bottom: 1px solid var(--border-color, #f1f5f9);
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-subtle);
     padding-bottom: 0.5rem;
   }
   p {
     margin-bottom: 1rem;
-    color: var(--text-secondary, #475569);
+    color: var(--text-secondary);
     line-height: 1.7;
   }
   ul {
     padding-left: 1.5rem;
     margin-bottom: 1rem;
-    color: var(--text-secondary, #475569);
+    color: var(--text-secondary);
   }
   li {
     margin-bottom: 0.5rem;
   }
   a {
-    color: var(--accent, #ea4c89);
+    color: var(--accent);
     text-decoration: underline;
   }
-  
-  [data-theme="dark"] .legal-content {
-    background: var(--bg-secondary, #1e293b);
-    border-color: var(--border-color, #334155);
+
+  @media (max-width: 640px) {
+    .legal-container {
+      padding: max(2.5rem, calc(2rem + var(--sat))) 0.75rem 3rem;
+    }
+    .legal-content {
+      padding: 1.5rem;
+      border-radius: 12px;
+    }
   }
 </style>

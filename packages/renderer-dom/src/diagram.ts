@@ -167,11 +167,16 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   const durationSeconds = plan.duration;
 
   const viewport = document.createElement("div");
+  viewport.className = "markdy-viewport";
   Object.assign(viewport.style, {
     position: "relative",
     width: "100%",
+    height: "100%",
+    maxWidth: "100%",
+    maxHeight: "100%",
     aspectRatio: `${plan.meta.width} / ${plan.meta.height}`,
     overflow: "hidden",
+    boxSizing: "border-box",
   });
   container.appendChild(viewport);
 
@@ -351,15 +356,101 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   }
 
   let fitScale = 1;
+  let sceneOffsetX = 0;
+  let sceneOffsetY = 0;
+
+  function computeContentBounds(): { minX: number; minY: number; maxX: number; maxY: number; width: number; height: number } {
+    if (!plan.nodes || plan.nodes.length === 0) {
+      return { minX: 0, minY: 0, maxX: plan.meta.width, maxY: plan.meta.height, width: plan.meta.width, height: plan.meta.height };
+    }
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+
+    for (const node of plan.nodes) {
+      minX = Math.min(minX, node.x);
+      minY = Math.min(minY, node.y);
+      maxX = Math.max(maxX, node.x + node.width);
+      maxY = Math.max(maxY, node.y + node.height);
+    }
+
+    for (const gb of plan.groupBoundaries ?? []) {
+      minX = Math.min(minX, gb.x);
+      minY = Math.min(minY, gb.y);
+      maxX = Math.max(maxX, gb.x + gb.width);
+      maxY = Math.max(maxY, gb.y + gb.height);
+    }
+
+    for (const bus of plan.treeBuses ?? []) {
+      minX = Math.min(minX, bus.parentX, ...(bus.childXs.length ? bus.childXs : [bus.parentX]));
+      minY = Math.min(minY, bus.parentY, bus.branchY, bus.childY);
+      maxX = Math.max(maxX, bus.parentX, ...(bus.childXs.length ? bus.childXs : [bus.parentX]));
+      maxY = Math.max(maxY, bus.parentY, bus.branchY, bus.childY);
+    }
+
+    if (plan.title) {
+      minY = Math.min(minY, 20);
+    }
+
+    const pad = 36;
+    minX = Math.max(0, minX - pad);
+    minY = Math.max(0, minY - pad);
+    maxX = Math.min(plan.meta.width, maxX + pad);
+    maxY = Math.min(plan.meta.height, maxY + pad);
+
+    const width = Math.max(maxX - minX, 200);
+    const height = Math.max(maxY - minY, 140);
+    return { minX, minY, maxX, maxY, width, height };
+  }
 
   function scaleScene(): void {
-    const width = viewport.clientWidth || plan.meta.width;
-    fitScale = width / plan.meta.width;
+    const isBrowserLayout = (viewport.clientWidth || container.clientWidth || 0) > 0;
+    if (!isBrowserLayout) {
+      fitScale = 1;
+      sceneOffsetX = 0;
+      sceneOffsetY = 0;
+      scene.style.left = "0px";
+      scene.style.top = "0px";
+      scene.style.transformOrigin = "0 0";
+      scene.style.transform = "scale(1)";
+      return;
+    }
+
+    const vWidth = viewport.clientWidth || container.clientWidth || plan.meta.width;
+    const vHeight = viewport.clientHeight || container.clientHeight || (vWidth * plan.meta.height) / plan.meta.width;
+
+    const canvasScaleX = vWidth / plan.meta.width;
+    const canvasScaleY = vHeight / plan.meta.height;
+    const baseCanvasScale = Math.min(canvasScaleX, canvasScaleY);
+
+    const bounds = computeContentBounds();
+    const contentScaleX = (vWidth * 0.94) / bounds.width;
+    const contentScaleY = (vHeight * 0.94) / bounds.height;
+    const optimalContentScale = Math.min(contentScaleX, contentScaleY);
+
+    // Boost compact scenes (up to 1.45x of base canvas scale) so nodes and labels fill the container boldly
+    const chosenScale = Math.max(
+      baseCanvasScale,
+      Math.min(optimalContentScale, baseCanvasScale * 1.45),
+    );
+
+    fitScale = Number.isFinite(chosenScale) && chosenScale > 0 ? chosenScale : 1;
+
+    const scaledWidth = plan.meta.width * fitScale;
+    const scaledHeight = plan.meta.height * fitScale;
+    sceneOffsetX = (vWidth - scaledWidth) / 2;
+    sceneOffsetY = (vHeight - scaledHeight) / 2;
+
+    scene.style.left = `${sceneOffsetX}px`;
+    scene.style.top = `${sceneOffsetY}px`;
+    scene.style.transformOrigin = "0 0";
     scene.style.transform = `scale(${fitScale})`;
   }
   scaleScene();
   const resizeObserver = typeof ResizeObserver === "function" ? new ResizeObserver(scaleScene) : null;
   resizeObserver?.observe(viewport);
+  if (container !== viewport) resizeObserver?.observe(container);
 
   const edgeRuntimes: EdgeRuntimeMap = new Map();
   const edgeSceneId = createEdgeSceneId();
@@ -433,8 +524,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     event.preventDefault();
 
     const rect = viewport.getBoundingClientRect();
-    const pointerX = (event.clientX - rect.left) / fitScale;
-    const pointerY = (event.clientY - rect.top) / fitScale;
+    const pointerX = (event.clientX - rect.left - sceneOffsetX) / fitScale;
+    const pointerY = (event.clientY - rect.top - sceneOffsetY) / fitScale;
     const nextScale = Math.min(MAX_VIEWPORT_ZOOM, Math.max(MIN_VIEWPORT_ZOOM, viewportScale * Math.exp(-event.deltaY * VIEWPORT_ZOOM_STEP)));
     if (nextScale === viewportScale) return;
 

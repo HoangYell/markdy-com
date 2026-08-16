@@ -224,7 +224,7 @@ export function MarkdyDiagram({
       aria-label={title}
       aria-busy="true"
       style={{
-        maxWidth: `${width}px`,
+        maxWidth: typeof width === "number" ? `${width}px` : width,
         width: "100%",
         aspectRatio: `${resolvedWidth}/${resolvedHeight}`,
         overflow: "hidden",
