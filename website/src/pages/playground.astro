@@ -8,20 +8,28 @@ const EXAMPLES = await loadExamples(ROOT);
 
 const PLAY_SNIPPETS = [
   {
-    label: "Reveal all nodes",
+    label: "Reveal All Nodes",
     code: `beat reveal "Reveal the system":\n  show $nodes stagger=60ms`,
   },
   {
-    label: "Frame a group",
+    label: "Frame Subsystem Group",
     code: `beat inspect "Inspect backend":\n  frame backend zoom=1.18 dur=600ms`,
   },
   {
-    label: "Request / response",
+    label: "Request & Response Flow",
     code: `beat request "Trace request":\n  Client -> API "GET /items"\n  Client <- API "200 OK"`,
   },
   {
-    label: "Loop reset",
-    code: `beat reset "Return to overview":\n  frame $nodes dur=600ms`,
+    label: "Async Event & Glow",
+    code: `beat event "Async job":\n  API ~> Queue "order.created"\n  glow Queue color=#38bdf8`,
+  },
+  {
+    label: "OSI Stack (type=layers)",
+    code: `service L7 "Application Layer"\nservice L4 "Transport Layer"\nservice L3 "Network Layer"\n\nbeat stack:\n  show $nodes stagger=50ms\n  L7 -> L4 -> L3`,
+  },
+  {
+    label: "Perimeter (type=nested)",
+    code: `group dmz: IngressGateway\ngroup secure: AuthPod VaultDB\n\nbeat route:\n  show dmz & show secure\n  IngressGateway -> AuthPod "mTLS"`,
   },
 ];
 

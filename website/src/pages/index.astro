@@ -173,6 +173,45 @@ const SYNTAX_STEPS = [
   },
 ];
 
+const LAYOUT_SNIPPETS: Record<string, string> = {
+  architecture: `scene "Microservices Topology" theme=paper\nlayout LR\n\nuser Client\ngateway ApiGateway\nservice Auth\nservice Payments\ndatabase Postgres\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> ApiGateway "POST /checkout"\n  ApiGateway -> Auth "verify"\n  ApiGateway -> Payments "charge"\n  Payments -> Postgres "persist"`,
+  flowchart: `scene "Decision Flowchart" theme=paper type=flowchart\nlayout TB\n\nclient User\ngateway Validate\nservice Process\nservice Reject\n\nbeat evaluate:\n  show $nodes stagger=70ms\n  User -> Validate "Submit Payload"\n  Validate -> Process "Valid"\n  Validate -> Reject "Invalid"`,
+  tree: `scene "Taxonomy Tree" theme=editorial type=tree\nlayout TB\n\nservice Root "Root Domain"\nservice Sub1 "Identity"\nservice Sub2 "Billing"\nservice Sub3 "Storage"\n\nbeat expand:\n  show $nodes stagger=60ms\n  Root -> Sub1\n  Root -> Sub2\n  Root -> Sub3`,
+  state: `scene "Connection State Machine" theme=paper type=state\nlayout LR\n\nservice Disconnected\nservice Connecting\nservice Connected\nservice Reconnecting\n\nbeat transition:\n  show $nodes stagger=60ms\n  Disconnected -> Connecting "initiate"\n  Connecting -> Connected "ACK"\n  Connected -> Reconnecting "timeout"\n  Reconnecting -> Connected "retry"`,
+  sequence: `scene "OAuth Handshake" theme=paper type=sequence\nlayout LR\n\nuser User\nbrowser App\ngateway AuthServer\nservice Api\n\nbeat handshake:\n  show $nodes stagger=60ms\n  User -> App "Login"\n  App -> AuthServer "GET /auth"\n  AuthServer -> App "Auth Token"\n  App -> Api "GET /data (Bearer Token)"`,
+  layers: `scene "OSI Stack Abstraction" theme=editorial type=layers\nlayout TB\n\nservice App "Layer 7: Application"\nservice Transport "Layer 4: Transport (TCP/UDP)"\nservice Network "Layer 3: Network (IP)"\nservice Link "Layer 2: Data Link"\n\nbeat traverse:\n  show $nodes stagger=70ms\n  App -> Transport "Payload"\n  Transport -> Network "Packets"\n  Network -> Link "Frames"`,
+  nested: `scene "Kubernetes Security Perimeter" theme=blueprint type=nested\nlayout TB\n\nservice Internet "Public Traffic"\nservice IngressController "DMZ Gateway"\nservice AuthPod "Secure Pod"\nservice SecretsStore "Vault"\n\ngroup public: Internet\ngroup dmz: IngressController\ngroup perimeter: AuthPod SecretsStore\n\nbeat trace:\n  show public\n  show dmz\n  show perimeter\n  Internet -> IngressController "HTTPS"\n  IngressController -> AuthPod "mTLS"\n  AuthPod -> SecretsStore "Fetch Key"`,
+  swimlane: `scene "Order Fulfillment Swimlane" theme=paper type=swimlane\nlayout LR\n\nuser Customer\nservice Storefront\nservice Warehouse\nservice Logistics\n\nbeat fulfill:\n  show $nodes stagger=60ms\n  Customer -> Storefront "Place Order"\n  Storefront -> Warehouse "Check Stock"\n  Warehouse -> Logistics "Dispatch Parcel"`,
+  timeline: `scene "Release Milestone Timeline" theme=paper type=timeline\nlayout LR\n\nservice V1 "v1.0 Core Engine"\nservice V2 "v2.0 Motion Runtime"\nservice V3 "v3.0 Governance Linter"\nservice V4 "v4.0 MCP AI Integration"\n\nbeat progress:\n  show $nodes stagger=100ms\n  V1 -> V2 -> V3 -> V4`,
+  gantt: `scene "Sprint Roadmap" theme=paper type=gantt\nlayout LR\n\nservice Design "Architecture Design"\nservice Core "Parser & Diffing"\nservice UI "Playground Studio"\nservice Docs "Guides & AI Reference"\n\nbeat schedule:\n  show $nodes stagger=80ms\n  Design -> Core -> UI -> Docs`,
+  radar: `scene "Database Capability Radar" theme=editorial type=radar\nlayout LR\n\nservice Throughput "Latency (p99)"\nservice Consistency "Strong Consistency"\nservice Durability "Multi-Region"\nservice Scaling "Horizontal Scale"\nservice Simplicity "Developer Ergonomics"\n\nbeat profile:\n  show $nodes stagger=70ms\n  Throughput -> Consistency -> Durability -> Scaling -> Simplicity -> Throughput`,
+  venn: `scene "API Protocol Tradeoffs" theme=paper type=venn\nlayout LR\n\nservice REST "REST: Universal & Cacheable"\nservice GraphQL "GraphQL: Flexible Fetch"\nservice gRPC "gRPC: Binary Streaming"\n\nbeat compare:\n  show $nodes stagger=80ms\n  REST -- GraphQL\n  GraphQL -- gRPC\n  gRPC -- REST`,
+  quadrant: `scene "Architecture Priority Matrix" theme=paper type=quadrant\nlayout LR\n\nservice QuickWins "High Value / Low Effort"\nservice StrategicBets "High Value / High Effort"\nservice Incremental "Low Value / Low Effort"\nservice Sinkholes "Low Value / High Effort"\n\nbeat assess:\n  show $nodes stagger=60ms\n  QuickWins -> StrategicBets`,
+  pyramid: `scene "Testing Pyramid" theme=editorial type=pyramid\nlayout TB\n\nservice E2E "E2E Integration Tests"\nservice Service "Service API Tests"\nservice Unit "Unit & Property Tests"\n\nbeat build:\n  show $nodes stagger=70ms\n  Unit -> Service -> E2E`,
+  medallion: `scene "Lakehouse Medallion Architecture" theme=editorial type=medallion\nlayout LR\n\nservice Raw "Bronze: Raw Ingest"\nservice Cleansed "Silver: Validated & Clean"\nservice Enriched "Gold: Business Aggregates"\n\nbeat stream:\n  show $nodes stagger=80ms\n  Raw -> Cleansed "dbt Transform"\n  Cleansed -> Enriched "Analytics Model"`,
+  flywheel: `scene "Compounding Growth Flywheel" theme=paper type=flywheel\nlayout LR\n\nservice Content "Rich Technical Docs"\nservice Developers "Developer Adoption"\nservice Ecosystem "Plugin Contributions"\nservice Value "Enterprise Value"\n\nbeat cycle:\n  show $nodes stagger=70ms\n  Content -> Developers "engage"\n  Developers -> Ecosystem "build"\n  Ecosystem -> Value "compound"\n  Value -> Content "invest"`,
+  constellation: `scene "Distributed Consensus Constellation" theme=nebula type=constellation\nlayout LR\n\nservice Leader "Raft Leader"\nservice Follower1 "Node Alpha"\nservice Follower2 "Node Beta"\nservice Follower3 "Node Gamma"\nservice Follower4 "Node Delta"\n\nbeat sync:\n  show $nodes stagger=60ms\n  Leader -> Follower1 "Heartbeat"\n  Leader -> Follower2 "Heartbeat"\n  Leader -> Follower3 "Heartbeat"\n  Leader -> Follower4 "Heartbeat"`,
+};
+
+const THEME_SNIPPETS: Record<string, string> = {
+  paper: `scene "Checkout Architecture" theme=paper\nlayout LR\n\nbrowser WebApp\ngateway API\ndatabase Orders\n\nbeat flow:\n  show $nodes stagger=60ms\n  WebApp -> API "POST /order"\n  API -> Orders "INSERT"`,
+  editorial: `scene "Clean Architecture" theme=editorial\nlayout LR\n\nclient MobileApp\nservice ApiGateway\ndatabase Postgres\n\nbeat flow:\n  show $nodes stagger=60ms\n  MobileApp -> ApiGateway "fetch"\n  ApiGateway -> Postgres "query"`,
+  terminal: `scene "Production Incident Response" theme=terminal\nlayout LR\n\nservice Monitor "Alert Manager"\nservice PagerDuty "On-Call Pager"\nservice SRE "Incident Commander"\n\nbeat alert:\n  show $nodes stagger=60ms\n  Monitor -> PagerDuty "CRITICAL P0"\n  PagerDuty -> SRE "Dispatch"`,
+  sketchy: `scene "Whiteboard Brainstorming" theme=sketchy\nlayout LR\n\nuser User\nservice Frontend\nservice Backend\n\nbeat sketch:\n  show $nodes stagger=60ms\n  User -> Frontend "Click"\n  Frontend -> Backend "API Call"`,
+  blueprint: `scene "Infrastructure Blueprint" theme=blueprint\nlayout LR\n\nservice LB "Network Load Balancer"\nservice Kube "EKS Worker Pool"\nservice RDS "Aurora Multi-AZ"\n\nbeat provision:\n  show $nodes stagger=60ms\n  LB -> Kube "Ingress"\n  Kube -> RDS "Query"`,
+  midnight: `scene "Cloud Security Perimeter" theme=midnight\nlayout LR\n\ngateway Cloudflare\nservice Firewall\nservice PrivateApi\n\nbeat filter:\n  show $nodes stagger=60ms\n  Cloudflare -> Firewall "TLS Traffic"\n  Firewall -> PrivateApi "Clean Packet"`,
+  graphite: `scene "Monochrome Architecture" theme=graphite\nlayout LR\n\nclient Web\nservice CoreApi\ncache Redis\n\nbeat cache:\n  show $nodes stagger=60ms\n  Web -> CoreApi "GET /products"\n  CoreApi -> Redis "Cache Lookup"`,
+  nebula: `scene "Space Orbit Telemetry" theme=nebula\nlayout LR\n\nservice Satellite\nservice GroundStation\nservice MissionControl\n\nbeat downlink:\n  show $nodes stagger=60ms\n  Satellite ~> GroundStation "Telemetry Stream"\n  GroundStation -> MissionControl "Process"`,
+};
+
+const INGESTION_SNIPPETS: Record<string, string> = {
+  "Mermaid.js": `scene "Transpiled Mermaid Flow" theme=paper type=flowchart\nlayout TB\n\nservice Client "Client Browser"\ngateway Gateway "API Gateway"\nservice Auth "Auth Microservice"\ndatabase DB "PostgreSQL"\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> Gateway "POST /login"\n  Gateway -> Auth "Validate"\n  Auth -> DB "Query Credentials"\n  Gateway <- Auth "JWT Token"`,
+  "Draw.io": `scene "Transpiled Draw.io Topology" theme=blueprint type=architecture\nlayout LR\n\nservice CDN "Cloudflare CDN"\nservice Origin "Application Load Balancer"\nservice Pod1 "EKS Pod 1"\nservice Pod2 "EKS Pod 2"\ndatabase Aurora "Aurora Serverless"\n\nbeat traffic:\n  show $nodes stagger=60ms\n  CDN -> Origin "HTTPS"\n  Origin -> Pod1 "HTTP"\n  Origin -> Pod2 "HTTP"\n  Pod1 -> Aurora "SQL Read"\n  Pod2 -> Aurora "SQL Write"`,
+  "Docker Compose": `scene "Docker Compose Stack" theme=terminal type=nested\nlayout TB\n\nservice Web "nginx:alpine"\nservice Api "node:20-alpine"\nservice Cache "redis:7-alpine"\ndatabase Db "postgres:16-alpine"\n\ngroup ingress: Web\ngroup app: Api Cache\ngroup data: Db\n\nbeat boot:\n  show ingress stagger=50ms & show app stagger=50ms & show data\n  Web -> Api "proxy_pass :3000"\n  Api -> Cache "connect :6379"\n  Api -> Db "connect :5432"`,
+  "Kubernetes YAML": `scene "Kubernetes Cluster Ingress" theme=midnight type=nested\nlayout TB\n\nservice Ingress "nginx-ingress"\nservice Svc "order-service:80"\nservice PodA "order-pod-1"\nservice PodB "order-pod-2"\n\ngroup ingress: Ingress\ngroup cluster: Svc PodA PodB\n\nbeat route:\n  show ingress & show cluster stagger=60ms\n  Ingress -> Svc "Host: api.markdy.com"\n  Svc -> PodA "round_robin"\n  Svc -> PodB "round_robin"`,
+  "Terraform State": `scene "Terraform AWS Multi-AZ VPC" theme=blueprint type=layers\nlayout TB\n\nservice IGW "Internet Gateway"\nservice PublicSubnet "Public Subnet (AZ-1a)"\nservice PrivateSubnet "Private Subnet (AZ-1b)"\nservice RDS "RDS Multi-AZ (AZ-1c)"\n\nbeat provision:\n  show $nodes stagger=70ms\n  IGW -> PublicSubnet "0.0.0.0/0"\n  PublicSubnet -> PrivateSubnet "NAT Route"\n  PrivateSubnet -> RDS "Port 5432"`,
+};
+
 const PACKAGES = [
   {
     name: "@markdy/core",
@@ -651,6 +690,10 @@ markdy <span class="u-fn">check-all</span> examples`;
               <div class="layout-type-item">
                 <div class="layout-type-head">
                   <code>type={t.name}</code>
+                  <button class="try-chip-btn" data-snippet={LAYOUT_SNIPPETS[t.name]} title={`Try type=${t.name} in Playground`} aria-label={`Try type=${t.name} in playground`}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                    <span>Try</span>
+                  </button>
                 </div>
                 <p>{t.desc}</p>
               </div>
@@ -670,7 +713,13 @@ markdy <span class="u-fn">check-all</span> examples`;
           <div class="theme-chip">
             <div class="theme-chip-top">
               <strong>{th.name}</strong>
-              <span class="theme-badge">{th.badge}</span>
+              <div class="theme-chip-actions">
+                <span class="theme-badge">{th.badge}</span>
+                <button class="try-chip-btn" data-snippet={THEME_SNIPPETS[th.name]} title={`Preview theme=${th.name}`} aria-label={`Preview theme ${th.name}`}>
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                  <span>Preview</span>
+                </button>
+              </div>
             </div>
             <p>{th.desc}</p>
           </div>
@@ -696,8 +745,16 @@ markdy <span class="u-fn">check-all</span> examples`;
           </div>
           <p class="ingestion-desc">{src.desc}</p>
           <div class="ingestion-cmd-wrap">
-            <code>{src.cmd}</code>
+            <code class="ingestion-cmd-text">{src.cmd}</code>
+            <button class="ingestion-copy-btn copy-btn" title="Copy command" aria-label={`Copy import command for ${src.name}`}>
+              <svg class="copy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <svg class="copy-icon-check" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
           </div>
+          <button class="ingestion-try-btn try-chip-btn" data-snippet={INGESTION_SNIPPETS[src.name]} title={`Preview converted ${src.name} diagram in playground`} aria-label={`Preview converted ${src.name} in playground`}>
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+            <span>Preview Transpiled Scene</span>
+          </button>
         </div>
       ))}
     </div>
@@ -786,6 +843,10 @@ markdy <span class="u-fn">check-all</span> examples`;
           <div class="syntax-step-header">
             <span class="step-num">{s.step}</span>
             <h3>{s.title}</h3>
+            <button class="try-chip-btn" data-snippet={s.code} title={`Run Step ${s.step} in playground`} aria-label={`Run Step ${s.step} in playground`}>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <span>Run</span>
+            </button>
           </div>
           <pre class="syntax-step-code"><code>{s.code}</code></pre>
           <p>{s.desc}</p>
@@ -1505,16 +1566,51 @@ markdy <span class="u-fn">check-all</span> examples`;
     }
   });
 
-  // Setup global Apply function for Syntax Reference examples
-  (window as any).applyRefCode = (code: string) => {
+  // Setup global Apply function for interactive showcase snippets
+  function loadSnippetToPlayground(code: string) {
+    if (!isPlaygroundInit) {
+      lazyInit();
+    }
     createEditor(code);
     currentPreviewStart = 0;
     render(code, 0);
-    setActiveBtn(-1); // Remove active state
+    setActiveBtn(-1); // Remove example preset selection
     setExampleSourceLink(-1);
-    // scrollIntoView respects scroll-margin-top (set to 68px to clear the sticky nav)
     document.getElementById("playground")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  }
+
+  (window as any).applyRefCode = loadSnippetToPlayground;
+  (window as any).loadSnippetToPlayground = loadSnippetToPlayground;
+
+  // Handle all "Try in Playground" chips across layout, themes, and syntax cards
+  document.querySelectorAll<HTMLButtonElement>(".try-chip-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const snippet = btn.dataset.snippet;
+      if (snippet) {
+        loadSnippetToPlayground(snippet);
+      }
+    });
+  });
+
+  // Handle copy buttons on ingestion cards
+  document.querySelectorAll<HTMLButtonElement>(".ingestion-copy-btn").forEach((btn) => {
+    let revertTimer: ReturnType<typeof setTimeout> | null = null;
+    btn.addEventListener("click", () => {
+      const cmdText = btn.closest(".ingestion-cmd-wrap")?.querySelector(".ingestion-cmd-text")?.textContent?.trim() ?? "";
+      if (!cmdText) return;
+      navigator.clipboard.writeText(cmdText).then(() => {
+        if (revertTimer) clearTimeout(revertTimer);
+        btn.classList.add("copied");
+        btn.title = "Copied!";
+        revertTimer = setTimeout(() => {
+          btn.classList.remove("copied");
+          btn.title = "Copy command";
+        }, 2000);
+      }).catch(() => {
+        btn.title = "Copy failed";
+      });
+    });
+  });
 </script>
 
 <style>
@@ -1681,6 +1777,16 @@ markdy <span class="u-fn">check-all</span> examples`;
   .menu-toggle.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
   .menu-toggle.open span:nth-child(2) { opacity: 0; }
   .menu-toggle.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  /* ── Universal Accessible Focus Rings ────────────────────────────── */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
 
   /* ── Theme toggle ────────────────────────────────────────────────── */
   .theme-toggle {
@@ -2565,10 +2671,23 @@ markdy <span class="u-fn">check-all</span> examples`;
   }
 
   .layout-type-item {
-    padding: 0.5rem 0.65rem;
+    padding: 0.55rem 0.75rem;
     background: var(--bg-tertiary);
     border-radius: 8px;
     border: 1px solid var(--border-subtle);
+    transition: all 0.2s ease;
+  }
+
+  .layout-type-item:hover {
+    border-color: var(--accent);
+    background: color-mix(in srgb, var(--bg-tertiary) 80%, var(--accent-light));
+  }
+
+  .layout-type-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
   }
 
   .layout-type-head code {
@@ -2579,11 +2698,40 @@ markdy <span class="u-fn">check-all</span> examples`;
     padding: 0;
   }
 
+  .try-chip-btn {
+    font-family: inherit;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.18rem 0.45rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-secondary);
+    color: var(--accent);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: all 0.18s ease;
+    line-height: 1.2;
+  }
+
+  .try-chip-btn:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px var(--accent-light);
+  }
+
+  .try-chip-btn:active {
+    transform: scale(0.94);
+  }
+
   .layout-type-item p {
     font-size: 0.76rem;
     color: var(--text-secondary);
     line-height: 1.45;
-    margin: 0.25rem 0 0;
+    margin: 0.35rem 0 0;
   }
 
   .themes-banner {
@@ -2617,7 +2765,7 @@ markdy <span class="u-fn">check-all</span> examples`;
 
   .themes-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 0.85rem;
   }
 
@@ -2627,18 +2775,23 @@ markdy <span class="u-fn">check-all</span> examples`;
     border: 1px solid var(--border);
     border-radius: 10px;
     transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
   .theme-chip:hover {
     border-color: var(--accent);
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow-sm);
   }
 
   .theme-chip-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.45rem;
+    gap: 0.5rem;
   }
 
   .theme-chip-top strong {
@@ -2646,10 +2799,16 @@ markdy <span class="u-fn">check-all</span> examples`;
     color: var(--text-primary);
   }
 
+  .theme-chip-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
   .theme-badge {
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     font-weight: 600;
-    padding: 0.15rem 0.45rem;
+    padding: 0.12rem 0.4rem;
     border-radius: 999px;
     background: var(--accent-light);
     color: var(--accent);
@@ -2679,6 +2838,7 @@ markdy <span class="u-fn">check-all</span> examples`;
     flex-direction: column;
     justify-content: space-between;
     transition: all 0.25s ease;
+    gap: 0.75rem;
   }
 
   .ingestion-card:hover {
@@ -2690,7 +2850,6 @@ markdy <span class="u-fn">check-all</span> examples`;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.6rem;
   }
 
   .ingestion-name {
@@ -2713,7 +2872,7 @@ markdy <span class="u-fn">check-all</span> examples`;
     font-size: 0.8rem;
     color: var(--text-secondary);
     line-height: 1.5;
-    margin: 0 0 1rem;
+    margin: 0;
     flex: 1;
   }
 
@@ -2721,15 +2880,28 @@ markdy <span class="u-fn">check-all</span> examples`;
     background: var(--ref-code-bg);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 0.55rem 0.75rem;
-    overflow-x: auto;
+    padding: 0.4rem 0.6rem 0.4rem 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
   }
 
   .ingestion-cmd-wrap code {
     font-size: 0.72rem;
     color: var(--ref-code-text);
     white-space: nowrap;
+    overflow-x: auto;
     user-select: all;
+    flex: 1;
+  }
+
+  .ingestion-try-btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.72rem;
+    border-radius: 8px;
   }
 
   /* ── Core Feature 3: Architecture Governance ─────────────────────── */
