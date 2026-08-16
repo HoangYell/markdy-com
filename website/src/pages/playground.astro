@@ -220,6 +220,7 @@ const playgroundStructuredData = [
         </div>
 
         <textarea id="import-source" class="import-textarea" placeholder="Paste source code here..."></textarea>
+        <div id="import-error" class="import-error" hidden></div>
 
         <div class="modal-footer">
           <button id="load-sample-btn" class="tool-btn" type="button">Load Sample</button>
@@ -272,6 +273,7 @@ const playgroundStructuredData = [
   const auditResults = document.getElementById("audit-results") as HTMLDivElement;
   const importModal = document.getElementById("import-modal") as HTMLDialogElement;
   const importSource = document.getElementById("import-source") as HTMLTextAreaElement;
+  const importError = document.getElementById("import-error") as HTMLDivElement;
   const importBtn = document.getElementById("import-btn") as HTMLButtonElement;
   const auditBtn = document.getElementById("audit-btn") as HTMLButtonElement;
   const closeAuditBtn = document.getElementById("close-audit-btn") as HTMLButtonElement;
@@ -572,6 +574,7 @@ const playgroundStructuredData = [
   };
 
   importBtn.addEventListener("click", () => {
+    if (importError) importError.hidden = true;
     importModal.showModal();
     if (!importSource.value) {
       importSource.value = SAMPLES[activeImportFormat];
@@ -589,16 +592,19 @@ const playgroundStructuredData = [
       tab.classList.add("active");
       activeImportFormat = tab.dataset.format ?? "mermaid";
       importSource.value = SAMPLES[activeImportFormat] ?? "";
+      if (importError) importError.hidden = true;
     });
   });
 
   loadSampleBtn.addEventListener("click", () => {
     importSource.value = SAMPLES[activeImportFormat] ?? "";
+    if (importError) importError.hidden = true;
   });
 
   doImportBtn.addEventListener("click", () => {
     const raw = importSource.value.trim();
     if (!raw) return;
+    if (importError) importError.hidden = true;
     let transpiled = "";
     try {
       if (activeImportFormat === "mermaid") {
@@ -617,7 +623,10 @@ const playgroundStructuredData = [
       setActiveExample(-1);
       importModal.close();
     } catch (err) {
-      alert(`Import failed: ${(err as Error).message}`);
+      if (importError) {
+        importError.hidden = false;
+        importError.textContent = `❌ Import error: ${(err as Error).message}`;
+      }
     }
   });
 
@@ -1479,6 +1488,21 @@ const playgroundStructuredData = [
     font-size: 0.82rem;
     resize: vertical;
     box-sizing: border-box;
+  }
+  .import-error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #ef4444;
+    padding: 0.65rem 0.85rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.82rem;
+    line-height: 1.4;
+    margin-top: 0.75rem;
+  }
+  :root[data-theme="dark"] .import-error {
+    background: rgba(248, 113, 113, 0.15);
+    border-color: rgba(248, 113, 113, 0.35);
+    color: #f87171;
   }
   .modal-footer {
     display: flex;

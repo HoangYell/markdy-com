@@ -76,17 +76,25 @@ async function runComprehensiveMcpAudit() {
 
     console.log("\n🧪 Testing all 17 Layout Engine Try Chips...");
     for (const layout of layouts) {
+      const clickRes = await sendRpc("tools/call", {
+        name: "evaluate_script",
+        arguments: {
+          function: `(() => {
+            const btn = document.querySelector('button.try-chip-btn[aria-label="Try type=${layout} in playground"]');
+            if (btn) {
+              btn.click();
+              return true;
+            }
+            return false;
+          })`,
+        },
+      });
+      await new Promise((r) => setTimeout(r, 600));
+
       const testRes = await sendRpc("tools/call", {
         name: "evaluate_script",
         arguments: {
           function: `(() => {
-            const btn = document.querySelector('button.try-chip-btn[data-snippet*="type=${layout}"], button.try-chip-btn[data-snippet*="Microservices Topology"]');
-            if (!btn && '${layout}' === 'architecture') {
-              const archBtn = document.querySelector('button.try-chip-btn[data-snippet*="Microservices Topology"]');
-              if (archBtn) { archBtn.click(); }
-            } else if (btn) {
-              btn.click();
-            }
             const stage = document.getElementById('stage');
             const nodes = stage ? stage.querySelectorAll('.markdy-node').length : 0;
             const errors = stage ? stage.querySelectorAll('.parse-error').length : 0;

@@ -1576,6 +1576,21 @@ markdy <span class="u-fn">check-all</span> examples`;
     render(code, 0);
     setActiveBtn(-1); // Remove example preset selection
     setExampleSourceLink(-1);
+    
+    // Add brief visual pulse to editor and stage
+    const editorHostEl = document.getElementById("code-editor");
+    const stageWrapEl = document.getElementById("stage-wrap");
+    if (editorHostEl) {
+      editorHostEl.classList.remove("snippet-loaded-flash");
+      void editorHostEl.offsetWidth;
+      editorHostEl.classList.add("snippet-loaded-flash");
+    }
+    if (stageWrapEl) {
+      stageWrapEl.classList.remove("snippet-loaded-flash");
+      void stageWrapEl.offsetWidth;
+      stageWrapEl.classList.add("snippet-loaded-flash");
+    }
+
     document.getElementById("playground")?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
@@ -3680,5 +3695,19 @@ markdy <span class="u-fn">check-all</span> examples`;
 
     .core-section { padding: 2rem 0.75rem 2.5rem; }
     .ai-prompt-text code { word-break: break-all; font-size: 0.68rem; }
+  }
+
+  @keyframes flashGlow {
+    0% {
+      box-shadow: 0 0 0 2px var(--accent), 0 0 28px rgba(59, 130, 246, 0.45);
+      border-color: var(--accent);
+    }
+    100% {
+      box-shadow: none;
+    }
+  }
+
+  .snippet-loaded-flash {
+    animation: flashGlow 1.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 </style>
