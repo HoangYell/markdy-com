@@ -54,16 +54,16 @@ export function createMarkdyMcpServer(): Server {
         },
         {
           name: "transpile_to_markdy",
-          description: "Converts external infrastructure or diagram code (Mermaid, Docker Compose, Kubernetes manifests, or Terraform state) into animated MarkdyScript scenes.",
+          description: "Converts external infrastructure or diagram code (Mermaid, Docker Compose, Kubernetes manifests, Terraform state, or Draw.io XML) into animated MarkdyScript scenes.",
           inputSchema: {
             type: "object",
             properties: {
               source: { type: "string", description: "The source code or content to transpile." },
               format: {
-                type: "string",
-                enum: ["mermaid", "docker-compose", "k8s", "terraform"],
-                description: "The source format.",
-              },
+                 type: "string",
+                 enum: ["mermaid", "docker-compose", "k8s", "terraform", "drawio"],
+                 description: "The source format.",
+               },
               title: { type: "string", description: "Optional title for the resulting scene." },
             },
             required: ["source", "format"],

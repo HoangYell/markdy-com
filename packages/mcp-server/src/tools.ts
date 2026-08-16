@@ -16,6 +16,7 @@ import {
   transpileDockerComposeToMarkdy,
   transpileKubernetesManifestsToMarkdy,
   transpileTerraformStateToMarkdy,
+  transpileDrawioToMarkdy,
 } from "@markdy/compat";
 
 export interface ToolResult {
@@ -66,7 +67,7 @@ export function handleValidateMarkdy(code: string, checkArchitecture = true): To
 
 export function handleTranspileToMarkdy(
   source: string,
-  format: "mermaid" | "docker-compose" | "k8s" | "terraform",
+  format: "mermaid" | "docker-compose" | "k8s" | "terraform" | "drawio",
   title = "Imported Scene"
 ): ToolResult {
   try {
@@ -84,6 +85,9 @@ export function handleTranspileToMarkdy(
         break;
       case "terraform":
         markdyCode = transpileTerraformStateToMarkdy(source, title);
+        break;
+      case "drawio":
+        markdyCode = transpileDrawioToMarkdy(source, title).code;
         break;
       default:
         throw new Error(`Unsupported ingestion format: ${format}`);
