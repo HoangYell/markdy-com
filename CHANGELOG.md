@@ -5,6 +5,17 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.28] — 2026-08-16
+
+### Added
+- **Focused Visual & Code Authoring Studio (`/playground/`)** — Redesigned the playground into a modern visual and code authoring environment with segmented view modes (`⚡ Split`, `🎨 Canvas`, `📝 Code`), live status indicators with real-time node & flow counters, and a Code Formatter (`✨ Format` / `Cmd+S`).
+- **Token Palette Shelf with Drag & Drop Flow** — Added 5 categorized shelves (Nodes, Flows, Layouts, Themes, Beats) with semantic icons, drag-and-drop onto the canvas with visual drop cards, and automatic MarkdyScript AST code generation.
+- **Canvas Direct Manipulation & Contextual HUDs** — Added interactive node selection with Floating Node HUD (kind selector, inline rename, pulse animation trigger, frame grouping, node deletion), directional connector ports (N, S, E, W) with rubber-band bezier curves, and Flow connection popovers.
+- **Canvas Viewport & Background Grid Controls** — Added interactive Zoom In (`+`), Zoom Out (`−`), Fit to View (`⛶ Fit`), and Background Grid toggles (`▦ Dots / Mesh / Plain`).
+- **Collapsible Architecture Inspector Drawer** — Integrated 4 inspector panels: Entities (live node and flow counts), Health & Suggestions (with 1-click fixes), AI Prompt Architect (generates system prompts embedding the current AST and `AGENT.md`), and Diagnostics & Lint.
+- **Animated GIF Export Engine in `@markdy/renderer-dom`** — Added `exportDiagramAsGif` with multi-frame Web Animations API sampling, complementing existing vector SVG and 2x Retina PNG exporters.
+- **Showcase Gallery Search & Category Filters** — Enhanced gallery with alias expansion search (`k8s`, `kafka`, `oauth`, `sql`, `db`, `async`, `cicd`, `pipeline`, `stream`) and categorized filter chips.
+
 ## [0.8.27] — 2026-08-16
 
 ### Added

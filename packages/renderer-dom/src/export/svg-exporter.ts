@@ -10,6 +10,26 @@ export interface SvgExportOptions {
   scale?: number;
 }
 
+/**
+ * CSS animations (including WAAPI) do not survive cloneNode(). Copy the
+ * browser's resolved styles into the clone so a serialized export matches the
+ * frame the user is actually seeing.
+ */
+function copyRenderedStyles(source: HTMLElement, clone: HTMLElement): void {
+  if (typeof window === "undefined" || typeof window.getComputedStyle !== "function") return;
+
+  const sourceElements = [source, ...Array.from(source.querySelectorAll<HTMLElement>("*"))];
+  const cloneElements = [clone, ...Array.from(clone.querySelectorAll<HTMLElement>("*"))];
+  for (let index = 0; index < Math.min(sourceElements.length, cloneElements.length); index++) {
+    const computed = window.getComputedStyle(sourceElements[index]);
+    const target = cloneElements[index].style;
+    for (let propertyIndex = 0; propertyIndex < computed.length; propertyIndex++) {
+      const property = computed.item(propertyIndex);
+      target.setProperty(property, computed.getPropertyValue(property), computed.getPropertyPriority(property));
+    }
+  }
+}
+
 export function exportDiagramAsVectorSvg(
   containerEl: HTMLElement,
   options: SvgExportOptions = {}
@@ -34,6 +54,7 @@ export function exportDiagramAsVectorSvg(
   }
 
   const clonedScene = sceneEl.cloneNode(true) as HTMLElement;
+  copyRenderedStyles(sceneEl, clonedScene);
   
   const widthStr = clonedScene.style.width || String(sceneEl.clientWidth || 800);
   const heightStr = clonedScene.style.height || String(sceneEl.clientHeight || 400);
@@ -95,4 +116,3 @@ export function exportDiagramAsVectorSvg(
   const serializer = new XMLSerializer();
   return `<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n` + serializer.serializeToString(svg);
 }
-

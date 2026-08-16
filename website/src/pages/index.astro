@@ -55,7 +55,6 @@ const AI_TOOLS = [
   { id: "opencode", name: "Open Code", badge: "Terminal / IDE", tip: "Pass the canonical AGENT.md reference URL to Open Code to generate structured, deterministic Markdy architecture scenes." },
   { id: "antigravity", name: "Antigravity", badge: "Autonomous Agent", tip: "Antigravity uses native MCP tools and docs/AGENT.md to autonomously draft, compile, and lint architecture diagrams in your workspace." },
   { id: "chatgpt", name: "ChatGPT", badge: "GPT-4o / Canvas", tip: "Paste the hosted guide link https://markdy.com/AGENT.md and prompt directly into ChatGPT or GPT-4o Canvas for valid MarkdyScript." },
-  { id: "windsurf", name: "Windsurf", badge: "Cascade AI", tip: "Cascade AI reads AGENT.md rules directly to output self-contained MarkdyScript without inventing fictitious syntax." },
 ];
 
 const AI_PROMPT_PRESETS = [
@@ -243,9 +242,9 @@ const homepageStructuredData = [
 
       <div class="nav-links">
         <a href="#prompt-tutorial">AI Prompt</a>
-        <a href="#features">Features</a>
         <a href="#layouts">Layouts &amp; Themes</a>
         <a href="#ingestion">Ingestion</a>
+        <a href="#features">Core Value</a>
         <a href="#ai-gen">AI &amp; MCP</a>
         <a href="/docs/">Docs</a>
         <a href="/blog/">Articles</a>
@@ -271,9 +270,9 @@ const homepageStructuredData = [
     <div id="mobile-nav-drawer" class="mobile-nav-drawer" hidden>
       <div class="mobile-drawer-inner">
         <a href="#prompt-tutorial" class="mobile-nav-link">🤖 AI Prompt Tutorial</a>
-        <a href="#features" class="mobile-nav-link">✨ Features</a>
         <a href="#layouts" class="mobile-nav-link">🎨 17 Layouts &amp; Themes</a>
         <a href="#ingestion" class="mobile-nav-link">🔄 Universal Ingestion</a>
+        <a href="#features" class="mobile-nav-link">💎 Core Value</a>
         <a href="#ai-gen" class="mobile-nav-link">🤖 AI Coding &amp; MCP</a>
         <a href="/docs/" class="mobile-nav-link">📖 Documentation</a>
         <a href="/blog/" class="mobile-nav-link">✍️ Articles &amp; Guides</a>
@@ -446,6 +445,7 @@ const homepageStructuredData = [
           <button id="home-copy-btn" class="btn-studio-tool" title="Copy code to clipboard">Copy</button>
           <button id="home-export-svg-btn" class="btn-studio-tool" title="Export Vector SVG">SVG</button>
           <button id="home-export-png-btn" class="btn-studio-tool" title="Export 2x PNG">PNG</button>
+          <button id="home-export-gif-btn" class="btn-studio-tool" title="Export animated GIF">GIF</button>
           <button id="share-btn" class="btn-studio-tool" title="Copy shareable URL">Share</button>
           <a href="/playground/" class="btn-studio-tool" title="Open full studio in new page">Popout ↗</a>
         </div>
@@ -468,6 +468,10 @@ const homepageStructuredData = [
                 <svg id="play-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
                 <svg id="pause-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
                 <span id="play-label">Play</span>
+              </button>
+              <button id="auto-shuffle-btn" class="btn-transport auto-shuffle-btn active" title="Auto-Shuffle ON: Automatically plays random examples &amp; demos on scene end" aria-pressed="true">
+                <span class="shuffle-icon">🔀</span>
+                <span class="shuffle-label">Shuffle</span>
               </button>
             </div>
 
@@ -495,31 +499,8 @@ const homepageStructuredData = [
     </div>
   </header>
 
-  <!-- ─── 4 Core Pillars of Markdy ────────────────────────────────────── -->
+  <!-- ─── Interactive Layout Engines & Curated Themes ──────────────────── -->
   <main class="home-main">
-    <section id="features" class="pillars-section">
-      <div class="section-heading-block">
-        <span class="section-tag">Core Value</span>
-        <h2>Why Engineers &amp; Teams Choose Markdy</h2>
-        <p>A diagramming layer built for modern software architecture, autonomous coding agents, and CI/CD reviews.</p>
-      </div>
-
-      <div class="pillars-grid">
-        {PILLARS.map((p) => (
-          <a href={p.href} class="pillar-card">
-            <div class="pillar-card-header">
-              <span class="pillar-icon">{p.icon}</span>
-              <span class="pillar-tag">{p.tag}</span>
-            </div>
-            <h3>{p.title}</h3>
-            <p>{p.desc}</p>
-            <div class="pillar-learn-more">Learn more ↗</div>
-          </a>
-        ))}
-      </div>
-    </section>
-
-    <!-- ─── Interactive Layout Engines & Curated Themes ──────────────────── -->
     <section id="layouts" class="layouts-section">
       <div class="section-heading-block">
         <span class="section-tag">Layout &amp; Presentation</span>
@@ -576,6 +557,29 @@ const homepageStructuredData = [
               <span>⚡ Preview Transpiled Scene</span>
             </button>
           </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ─── 4 Core Pillars of Markdy ────────────────────────────────────── -->
+    <section id="features" class="pillars-section">
+      <div class="section-heading-block">
+        <span class="section-tag">Core Value</span>
+        <h2>Why Engineers &amp; Teams Choose Markdy</h2>
+        <p>A diagramming layer built for modern software architecture, autonomous coding agents, and CI/CD reviews.</p>
+      </div>
+
+      <div class="pillars-grid">
+        {PILLARS.map((p) => (
+          <a href={p.href} class="pillar-card">
+            <div class="pillar-card-header">
+              <span class="pillar-icon">{p.icon}</span>
+              <span class="pillar-tag">{p.tag}</span>
+            </div>
+            <h3>{p.title}</h3>
+            <p>{p.desc}</p>
+            <div class="pillar-learn-more">Learn more ↗</div>
+          </a>
         ))}
       </div>
     </section>
@@ -706,36 +710,40 @@ client Browser -> gateway API -> cache Redis
   <footer class="home-footer">
     <div class="footer-inner">
       <div class="footer-brand-pane">
-        <span class="f-logo">🎬 markdy</span>
-        <p>Open-source diagrams-as-code with native browser motion.<br />Built for system design, developer docs, and pull requests.</p>
+        <a class="f-logo" href="/" aria-label="Markdy home">
+          <span class="f-logo-mark" aria-hidden="true">M</span>
+          <span>markdy</span>
+        </a>
+        <p>Diagrams-as-code with native browser motion, built for the way modern engineering teams explain systems.</p>
+        <a class="footer-cta" href="/playground/">Open the studio <span aria-hidden="true">→</span></a>
       </div>
 
       <div class="footer-links-grid">
-        <div class="f-col">
+        <nav class="f-col" aria-label="Product">
           <h4>Product</h4>
-          <a href="/playground/">⚡ Studio</a>
+          <a href="/playground/">Studio</a>
           <a href="#features">Features</a>
           <a href="#layouts">Layout Engines</a>
           <a href="#ingestion">Ingestion</a>
-        </div>
-        <div class="f-col">
+        </nav>
+        <nav class="f-col" aria-label="Resources">
           <h4>Resources</h4>
           <a href="/docs/">Documentation</a>
           <a href="/blog/">Articles</a>
           <a href="/AGENT.md">AI Agent Guide</a>
           <a href="/llms.txt">llms.txt</a>
-        </div>
-        <div class="f-col">
+        </nav>
+        <nav class="f-col" aria-label="Community">
           <h4>Community</h4>
           <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">GitHub</a>
           <a href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener noreferrer">npm Registry</a>
           <a href="/privacy/">Privacy Policy</a>
-        </div>
+        </nav>
       </div>
     </div>
 
     <div class="footer-bottom-bar">
-      <span>MIT Licensed · Designed with precision for developers</span>
+      <span>© {new Date().getFullYear()} Markdy · MIT licensed</span>
       <span>Built by <a href="https://hoangyell.com" target="_blank" rel="noopener noreferrer">Hoang Yell</a></span>
     </div>
   </footer>
@@ -758,7 +766,7 @@ client Browser -> gateway API -> cache Redis
 
   import { markdyLanguage, markdyAutocomplete, markdyHighlightLight, markdyHighlightDark } from "../editor/markdy-language";
   import { baseTheme, lightTheme, darkTheme } from "../editor/editor-theme";
-  import { createDiagram, exportDiagramAsVectorSvg, exportDiagramAsPng } from "@markdy/renderer-dom";
+  import { createDiagram, exportDiagramAsVectorSvg, exportDiagramAsPng, exportDiagramAsGif } from "@markdy/renderer-dom";
   import type { Diagram } from "@markdy/renderer-dom";
   import { compressMarkdyToUrlHash } from "@markdy/core";
   import type { ExampleEntry } from "../data/examples";
@@ -781,6 +789,7 @@ client Browser -> gateway API -> cache Redis
   const sceneJump = document.getElementById("scene-jump") as HTMLSelectElement;
   const exampleSelect = document.getElementById("example-select") as HTMLSelectElement;
   const presetChips = document.querySelectorAll<HTMLButtonElement>(".preset-chip");
+  const autoShuffleBtn = document.getElementById("auto-shuffle-btn") as HTMLButtonElement | null;
 
   let diagram: Diagram | null = null;
   let isAnimPlaying = false;
@@ -788,6 +797,39 @@ client Browser -> gateway API -> cache Redis
   let editorView: EditorView | null = null;
   let isScrubbing = false;
   let selectedPlaybackRate = 1;
+  let isAutoShuffleEnabled = true;
+  let autoShuffleTimer: ReturnType<typeof setTimeout> | null = null;
+  let currentExampleIndex = 0;
+  let userEditedCode = false;
+
+  function clearAutoShuffleTimer() {
+    if (autoShuffleTimer) {
+      clearTimeout(autoShuffleTimer);
+      autoShuffleTimer = null;
+    }
+  }
+
+  function pickNextRandomExampleIndex(current: number, total: number): number {
+    if (total <= 1) return 0;
+    let next = Math.floor(Math.random() * (total - 1));
+    if (next >= current) next += 1;
+    return next;
+  }
+
+  function triggerAutoShuffleNext() {
+    clearAutoShuffleTimer();
+    if (!isAutoShuffleEnabled || userEditedCode || examples.length === 0) return;
+    autoShuffleTimer = setTimeout(() => {
+      if (!isAutoShuffleEnabled || userEditedCode) return;
+      const nextIdx = pickNextRandomExampleIndex(currentExampleIndex, examples.length);
+      currentExampleIndex = nextIdx;
+      if (examples[nextIdx]) {
+        if (exampleSelect) exampleSelect.value = String(nextIdx);
+        presetChips.forEach((c) => c.classList.toggle("active", c.dataset.index === String(nextIdx)));
+        setEditorCode(examples[nextIdx].code);
+      }
+    }, 1500);
+  }
 
   function isDarkMode(): boolean {
     return document.documentElement.getAttribute("data-theme") === "dark";
@@ -859,6 +901,9 @@ client Browser -> gateway API -> cache Redis
         interactiveViewport: true,
         onTimeUpdate: setTimeline,
         onPlayStateChange: setPlayState,
+        onEnded: () => {
+          triggerAutoShuffleNext();
+        },
       });
       setPlayState(true);
       setTimeline(diagram.currentTime(), diagram.duration());
@@ -909,6 +954,10 @@ client Browser -> gateway API -> cache Redis
       EditorView.contentAttributes.of({ "aria-label": "Code Editor" }),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
+          if (update.transactions.some((tr) => tr.isUserEvent("input") || tr.isUserEvent("delete"))) {
+            userEditedCode = true;
+            clearAutoShuffleTimer();
+          }
           if (debounce) clearTimeout(debounce);
           debounce = setTimeout(() => render(getEditorCode()), 500);
         }
@@ -935,7 +984,10 @@ client Browser -> gateway API -> cache Redis
   // Preset chips handler
   presetChips.forEach((chip) => {
     chip.addEventListener("click", () => {
+      userEditedCode = false;
+      clearAutoShuffleTimer();
       const index = Number(chip.dataset.index || "0");
+      currentExampleIndex = index;
       if (examples[index]) {
         setEditorCode(examples[index].code);
         if (exampleSelect) exampleSelect.value = String(index);
@@ -946,7 +998,10 @@ client Browser -> gateway API -> cache Redis
 
   // Example select dropdown
   exampleSelect?.addEventListener("change", () => {
+    userEditedCode = false;
+    clearAutoShuffleTimer();
     const idx = Number(exampleSelect.value);
+    currentExampleIndex = idx;
     if (examples[idx]) {
       setEditorCode(examples[idx].code);
       presetChips.forEach((c) => c.classList.toggle("active", c.dataset.index === String(idx)));
@@ -956,6 +1011,8 @@ client Browser -> gateway API -> cache Redis
   // Snippet trigger buttons
   document.querySelectorAll<HTMLButtonElement>(".try-chip-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
+      userEditedCode = false;
+      clearAutoShuffleTimer();
       const snippet = btn.dataset.snippet;
       if (snippet) {
         setEditorCode(snippet);
@@ -1027,6 +1084,9 @@ client Browser -> gateway API -> cache Redis
 
   // Run Result in Studio button
   tutorialRunBtn?.addEventListener("click", () => {
+    userEditedCode = false;
+    clearAutoShuffleTimer();
+    currentExampleIndex = activeTutorialExampleIndex;
     if (examples[activeTutorialExampleIndex]) {
       setEditorCode(examples[activeTutorialExampleIndex].code);
       if (exampleSelect) exampleSelect.value = String(activeTutorialExampleIndex);
@@ -1042,18 +1102,42 @@ client Browser -> gateway API -> cache Redis
 
   // Playback transport buttons
   playBtn?.addEventListener("click", () => {
+    clearAutoShuffleTimer();
     if (!diagram) return;
-    if (isAnimPlaying) diagram.pause();
-    else diagram.play();
+    if (isAnimPlaying) {
+      diagram.pause();
+    } else {
+      if (diagram.currentTime() >= diagram.duration() && diagram.duration() > 0) {
+        diagram.seek(0);
+      }
+      diagram.play();
+    }
   });
 
   restartBtn?.addEventListener("click", () => {
-    diagram?.restart();
+    clearAutoShuffleTimer();
+    if (diagram) {
+      diagram.seek(0);
+      diagram.play();
+    }
   });
 
   rewindBtn?.addEventListener("click", () => {
+    clearAutoShuffleTimer();
     if (!diagram) return;
     diagram.seek(Math.max(0, diagram.currentTime() - 1));
+  });
+
+  autoShuffleBtn?.addEventListener("click", () => {
+    isAutoShuffleEnabled = !isAutoShuffleEnabled;
+    autoShuffleBtn.classList.toggle("active", isAutoShuffleEnabled);
+    autoShuffleBtn.setAttribute("aria-pressed", isAutoShuffleEnabled ? "true" : "false");
+    autoShuffleBtn.title = isAutoShuffleEnabled
+      ? "Auto-Shuffle ON: Automatically plays random examples & demos on scene end"
+      : "Auto-Shuffle OFF: Click to enable auto-cycling examples on scene end";
+    if (!isAutoShuffleEnabled) {
+      clearAutoShuffleTimer();
+    }
   });
 
   speedBtns.forEach((btn) => {
@@ -1084,32 +1168,51 @@ client Browser -> gateway API -> cache Redis
     render(getEditorCode());
   });
 
-  // Export buttons
-  document.getElementById("home-export-svg-btn")?.addEventListener("click", () => {
-    if (!diagram) return;
-    const sceneRoot = stage.querySelector(".markdy-scene-root") as HTMLElement;
-    if (!sceneRoot) return;
-    const svgStr = exportDiagramAsVectorSvg(sceneRoot);
-    const blob = new Blob([svgStr], { type: "image/svg+xml" });
+  const afterPaint = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+  async function withFinalFrame<T>(action: (scene: HTMLElement) => Promise<T> | T): Promise<T> {
+    if (!diagram) throw new Error("No diagram is available to export");
+    const scene = stage.querySelector(".markdy-scene-root") as HTMLElement | null;
+    if (!scene) throw new Error("No diagram scene is available to export");
+    const previousTime = diagram.currentTime();
+    const wasPlaying = diagram.isPlaying();
+    diagram.pause();
+    diagram.seek(diagram.duration());
+    await afterPaint();
+    try {
+      return await action(scene);
+    } finally {
+      diagram.seek(previousTime);
+      if (wasPlaying) diagram.play();
+    }
+  }
+
+  function download(blob: Blob, filename: string): void {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "diagram.svg";
+    a.download = filename;
     a.click();
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 0);
+  }
+
+  // Static exports always capture the completed last frame.
+  document.getElementById("home-export-svg-btn")?.addEventListener("click", async () => {
+    if (!diagram) return;
+    const svg = await withFinalFrame((scene) => exportDiagramAsVectorSvg(scene, { includeThemeStyles: true }));
+    download(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }), "diagram.svg");
   });
 
   document.getElementById("home-export-png-btn")?.addEventListener("click", async () => {
     if (!diagram) return;
-    const sceneRoot = stage.querySelector(".markdy-scene-root") as HTMLElement;
-    if (!sceneRoot) return;
-    const blob = await exportDiagramAsPng(sceneRoot, { pixelRatio: 2, includeThemeStyles: true });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "diagram.png";
-    a.click();
-    URL.revokeObjectURL(url);
+    const blob = await withFinalFrame((scene) => exportDiagramAsPng(scene, { pixelRatio: 2, includeThemeStyles: true }));
+    download(blob, "diagram.png");
+  });
+
+  document.getElementById("home-export-gif-btn")?.addEventListener("click", async () => {
+    if (!diagram) return;
+    const scene = stage.querySelector(".markdy-scene-root") as HTMLElement | null;
+    if (!scene) return;
+    download(await exportDiagramAsGif(scene, diagram, { fps: 12, includeThemeStyles: true }), "diagram.gif");
   });
 
   // Copy code button
@@ -2141,6 +2244,25 @@ client Browser -> gateway API -> cache Redis
     padding: 0.2rem 0.45rem;
     border-radius: 5px;
     cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-transport:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+  }
+
+  .auto-shuffle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 600;
+  }
+
+  .auto-shuffle-btn.active {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
   }
 
   .btn-transport-play {
@@ -2350,18 +2472,28 @@ client Browser -> gateway API -> cache Redis
   .layout-group-card {
     background: var(--bg-elevated);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1.4rem;
+    border-radius: 12px;
+    padding: 1.35rem;
     box-shadow: var(--shadow-xs);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .layout-group-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-sm);
   }
 
   .group-header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.85rem;
     padding-bottom: 0.65rem;
     border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
   }
 
   .group-icon { font-size: 1.2rem; }
@@ -2375,13 +2507,49 @@ client Browser -> gateway API -> cache Redis
   .group-items {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 0.65rem;
+    max-height: 330px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 0.35rem;
+    margin-right: -0.2rem;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .group-items::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  .group-items::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .group-items::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+  }
+
+  .group-items::-webkit-scrollbar-thumb:hover {
+    background: var(--text-muted);
   }
 
   .group-item {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
+    padding: 0.45rem 0.55rem;
+    border-radius: 6px;
+    background: var(--bg-secondary);
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+  }
+
+  .group-item:hover {
+    border-color: var(--border);
+    background: var(--bg-tertiary);
   }
 
   .item-head {
@@ -2584,6 +2752,13 @@ client Browser -> gateway API -> cache Redis
     display: flex;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .framework-tabs::-webkit-scrollbar {
+    display: none;
   }
 
   .f-tab {
@@ -2595,6 +2770,8 @@ client Browser -> gateway API -> cache Redis
     font-weight: 600;
     color: var(--text-secondary);
     cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   .f-tab.active {
@@ -2666,41 +2843,97 @@ client Browser -> gateway API -> cache Redis
 
   /* ─── Footer ───────────────────────────────────────────────────────── */
   .home-footer {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     border-top: 1px solid var(--border);
     background: var(--bg-secondary);
-    padding: 3rem 1.5rem 2rem;
+    padding: 4.5rem 1.5rem 1.5rem;
+  }
+
+  .home-footer::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    width: min(42vw, 560px);
+    aspect-ratio: 1;
+    top: -55%;
+    left: -8%;
+    border-radius: 50%;
+    background: var(--accent-glow);
+    filter: blur(72px);
+    opacity: 0.44;
   }
 
   .footer-inner {
-    max-width: 1280px;
+    max-width: 1180px;
     margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    gap: 3rem;
-    margin-bottom: 2.5rem;
+    display: grid;
+    grid-template-columns: minmax(260px, 0.85fr) minmax(540px, 1.15fr);
+    align-items: start;
+    gap: clamp(3.5rem, 9vw, 9rem);
+    margin-bottom: 4rem;
   }
 
   .footer-brand-pane {
-    max-width: 380px;
+    max-width: 350px;
   }
 
   .f-logo {
-    font-size: 1.15rem;
+    width: fit-content;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    font-size: 1.25rem;
     font-weight: 800;
+    letter-spacing: -0.055em;
     color: var(--text-primary);
-    display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .f-logo-mark {
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 0.55rem;
+    color: #fff;
+    background: var(--accent);
+    box-shadow: 0 8px 18px var(--accent-glow);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem;
+    letter-spacing: -0.08em;
   }
 
   .footer-brand-pane p {
-    font-size: 0.82rem;
+    margin: 0;
+    font-size: 0.9rem;
     color: var(--text-secondary);
-    line-height: 1.6;
+    line-height: 1.7;
+  }
+
+  .footer-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin-top: 1.35rem;
+    color: var(--accent);
+    font-size: 0.84rem;
+    font-weight: 700;
+  }
+
+  .footer-cta span {
+    transition: transform 0.18s ease;
+  }
+
+  .footer-cta:hover span {
+    transform: translateX(3px);
   }
 
   .footer-links-grid {
-    display: flex;
-    gap: 3.5rem;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1.5rem, 4vw, 4rem);
   }
 
   .f-col {
@@ -2710,35 +2943,49 @@ client Browser -> gateway API -> cache Redis
   }
 
   .f-col h4 {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.12em;
     color: var(--text-muted);
-    margin-bottom: 0.35rem;
+    margin: 0 0 0.55rem;
   }
 
   .f-col a {
-    font-size: 0.82rem;
+    width: fit-content;
+    font-size: 0.84rem;
     color: var(--text-secondary);
-    transition: color 0.15s ease;
+    transition: color 0.15s ease, transform 0.15s ease;
   }
 
-  .f-col a:hover { color: var(--accent); }
+  .f-col a:hover {
+    color: var(--accent);
+    transform: translateX(2px);
+  }
 
   .footer-bottom-bar {
-    max-width: 1280px;
+    max-width: 1180px;
     margin: 0 auto;
-    padding-top: 1.5rem;
+    padding-top: 1.25rem;
     border-top: 1px solid var(--border-subtle);
     display: flex;
     justify-content: space-between;
-    font-size: 0.75rem;
+    align-items: center;
+    font-size: 0.76rem;
     color: var(--text-muted);
   }
 
   .footer-bottom-bar a {
     color: var(--text-secondary);
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 3px;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+  }
+
+  .footer-bottom-bar a:hover {
+    color: var(--accent);
+    text-decoration-color: currentColor;
   }
 
   /* ─── Responsive Breakpoints ───────────────────────────────────────── */
@@ -2762,7 +3009,33 @@ client Browser -> gateway API -> cache Redis
       grid-template-columns: 1fr;
     }
     .ingestion-grid {
-      grid-template-columns: repeat(2, 1fr);
+      display: flex;
+      overflow-x: auto;
+      overflow-y: hidden;
+      scroll-snap-type: x mandatory;
+      gap: 1rem;
+      padding: 0.25rem 0.25rem 0.85rem;
+      margin: 0 -0.5rem;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .ingestion-grid::-webkit-scrollbar {
+      height: 5px;
+    }
+    .ingestion-grid::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .ingestion-grid::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+    .ingestion-box {
+      flex: 0 0 280px;
+      scroll-snap-align: start;
+      min-width: 260px;
     }
     .ai-split-grid {
       grid-template-columns: 1fr;
@@ -2805,9 +3078,8 @@ client Browser -> gateway API -> cache Redis
       grid-template-columns: 1fr;
       gap: 0.85rem;
     }
-    .ingestion-grid {
-      grid-template-columns: 1fr;
-      gap: 0.85rem;
+    .ingestion-box {
+      flex: 0 0 270px;
     }
     .home-main {
       padding: 2rem 1rem 3.5rem;
@@ -2848,17 +3120,23 @@ client Browser -> gateway API -> cache Redis
       display: none;
     }
     .footer-inner {
-      flex-direction: column;
-      gap: 2rem;
+      grid-template-columns: 1fr;
+      gap: 2.75rem;
     }
     .footer-links-grid {
-      display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 1.75rem;
+      gap: 2rem;
     }
   }
 
   @media (max-width: 640px) {
+    .home-footer {
+      padding: 3.5rem 1.25rem calc(1.5rem + var(--sab));
+    }
+    .footer-inner {
+      gap: 2.5rem;
+      margin-bottom: 2.75rem;
+    }
     .hero-btn-row {
       flex-direction: column;
       width: 100%;

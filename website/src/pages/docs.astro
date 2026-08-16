@@ -1408,7 +1408,7 @@ client Browser -> service Api -> database DB
   .framework-grid,
   .pkg-list-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
     gap: 1rem;
   }
 
