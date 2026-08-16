@@ -90,7 +90,7 @@ const structuredData = [
       </div>
       <div class="prompt-code-wrap">
         <pre><code id="prompt-content">{prompt}</code></pre>
-        <button id="copy-prompt-btn" class="copy-action-btn" type="button" aria-label="Copy instruction to clipboard">
+        <button id="copy-prompt-btn" class="copy-action-btn copy-btn" type="button" aria-label="Copy instruction to clipboard">
           <span class="btn-text">Copy Instruction</span>
         </button>
       </div>
@@ -344,24 +344,8 @@ const structuredData = [
 
   .copy-action-btn {
     align-self: flex-start;
-    border: none;
-    border-radius: 999px;
-    padding: 0.5rem 1.1rem;
-    background: var(--accent, #047857);
-    color: #ffffff;
-    font-size: 0.85rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s ease;
   }
 
-  .copy-action-btn:hover {
-    background: #065f46;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
-  }
-
-  .copy-action-btn.copied,
   .copy-action-btn-sm.copied {
     background: #10b981;
     color: #ffffff;

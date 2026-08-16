@@ -114,7 +114,7 @@ const {
       }
 
       const copyBtn = document.createElement("button");
-      copyBtn.className = "art-copy-btn";
+      copyBtn.className = "art-copy-btn copy-btn";
       copyBtn.type = "button";
       copyBtn.textContent = "Copy";
       copyBtn.title = "Copy snippet to clipboard";
@@ -266,29 +266,6 @@ const {
   .article-body :global(.art-studio-btn:hover) {
     background: var(--accent);
     color: #ffffff !important;
-  }
-
-  .article-body :global(.art-copy-btn) {
-    padding: 0.2rem 0.55rem;
-    border-radius: 6px;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-    font-size: 0.72rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .article-body :global(.art-copy-btn:hover) {
-    color: var(--text-primary);
-    border-color: var(--border-hover);
-  }
-
-  .article-body :global(.art-copy-btn.copied) {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #ffffff;
   }
 
   .article-body :global(pre) {

@@ -5,6 +5,14 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] — 2026-08-16
+
+### Added
+- **"Core Philosophy" docs section** — The docs sidebar and mobile TOC have long linked to a `#concepts` anchor with no matching section. Added the missing "Core Philosophy" section covering diagrams-as-code, the parser/renderer split, timeline-driven motion, and semantic node kinds.
+
+### Changed
+- **Unified "Copy" button styling** — Standalone copy-to-clipboard buttons next to code blocks (blog articles, docs code cards, homepage framework/ingestion snippets, the AI agent page) now share one consistent style instead of five slightly different bespoke ones. Copy buttons that are part of a multi-button toolbar (playground toolbar, homepage Studio tools, paired prompt actions) were intentionally left as-is so they stay visually consistent with their sibling buttons.
+
 ## [1.0.3] — 2026-08-16
 
 ### Fixed
