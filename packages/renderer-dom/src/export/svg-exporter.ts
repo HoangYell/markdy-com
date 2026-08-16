@@ -10,6 +10,15 @@ export interface SvgExportOptions {
   scale?: number;
 }
 
+export interface PreparedHtmlSceneExport {
+  sceneEl: HTMLElement;
+  clonedScene: HTMLElement;
+  width: number;
+  height: number;
+  scaledWidth: number;
+  scaledHeight: number;
+}
+
 /**
  * CSS animations (including WAAPI) do not survive cloneNode(). Copy the
  * browser's resolved styles into the clone so a serialized export matches the
@@ -30,36 +39,38 @@ function copyRenderedStyles(source: HTMLElement, clone: HTMLElement): void {
   }
 }
 
-export function exportDiagramAsVectorSvg(
-  containerEl: HTMLElement,
-  options: SvgExportOptions = {}
-): string {
+function normalizeExportViewport(scene: HTMLElement): void {
+  scene.querySelectorAll<HTMLElement>(".markdy-viewport-transform").forEach((viewportTransform) => {
+    viewportTransform.style.transform = "translate(0px, 0px) scale(1)";
+    viewportTransform.style.transformOrigin = "0 0";
+    viewportTransform.style.willChange = "auto";
+  });
+}
+
+export function getDiagramSceneElement(containerEl: HTMLElement): HTMLElement {
   const sceneEl = (
     containerEl.classList?.contains("markdy-scene-root")
       ? containerEl
       : containerEl.querySelector(".markdy-scene-root") ||
         containerEl.querySelector("svg") ||
         (containerEl.tagName?.toLowerCase() === "svg" ? containerEl : null)
-  ) as HTMLElement;
+  ) as HTMLElement | null;
 
   if (!sceneEl) throw new Error("No Markdy scene element found in container");
+  return sceneEl;
+}
 
-  if (sceneEl.tagName?.toLowerCase() === "svg") {
-    const clonedSvg = sceneEl.cloneNode(true) as SVGSVGElement;
-    if (!clonedSvg.getAttribute("xmlns")) {
-      clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    }
-    const serializer = new XMLSerializer();
-    return `<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n${serializer.serializeToString(clonedSvg)}`;
-  }
-
+export function prepareHtmlSceneForExport(
+  sceneEl: HTMLElement,
+  options: SvgExportOptions = {}
+): PreparedHtmlSceneExport {
   const clonedScene = sceneEl.cloneNode(true) as HTMLElement;
   copyRenderedStyles(sceneEl, clonedScene);
+  normalizeExportViewport(clonedScene);
   
   const widthStr = clonedScene.style.width || String(sceneEl.clientWidth || 800);
   const heightStr = clonedScene.style.height || String(sceneEl.clientHeight || 400);
   
-  // Clean 'px' or '%' if present and parse
   let width = parseFloat(widthStr);
   let height = parseFloat(heightStr);
   
@@ -75,11 +86,32 @@ export function exportDiagramAsVectorSvg(
   clonedScene.style.position = "relative";
   clonedScene.style.left = "0px";
   clonedScene.style.top = "0px";
+  clonedScene.style.margin = "0";
   clonedScene.setAttribute("xmlns", "http://www.w3.org/1999/xhtml");
 
   if (options.transparentBackground) {
     clonedScene.style.background = "transparent";
   }
+
+  return { sceneEl, clonedScene, width, height, scaledWidth, scaledHeight };
+}
+
+export function exportDiagramAsVectorSvg(
+  containerEl: HTMLElement,
+  options: SvgExportOptions = {}
+): string {
+  const sceneEl = getDiagramSceneElement(containerEl);
+
+  if (sceneEl.tagName?.toLowerCase() === "svg") {
+    const clonedSvg = sceneEl.cloneNode(true) as SVGSVGElement;
+    if (!clonedSvg.getAttribute("xmlns")) {
+      clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    }
+    const serializer = new XMLSerializer();
+    return `<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n${serializer.serializeToString(clonedSvg)}`;
+  }
+
+  const { clonedScene, scaledWidth, scaledHeight } = prepareHtmlSceneForExport(sceneEl, options);
 
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");

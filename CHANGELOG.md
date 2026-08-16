@@ -5,6 +5,18 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] — 2026-08-16
+
+### Added
+- **Embedded playground popout** — The "Powered by Markdy" badge on embedded scenes now opens the hosted playground with the current MarkdyScript preloaded.
+
+### Fixed
+- **Viewport-independent exports** — SVG exports now capture the full scene instead of the current interactive pan and zoom transform.
+- **Resilient export resource inlining** — External image and CSS resources are cached, time-bounded, and safely replaced when unavailable so exports do not hang or fail on unreachable assets.
+
+### Changed
+- **Focused web export actions** — The homepage and playground topbars now emphasize SVG export while keeping heavier raster/GIF export paths out of the primary toolbar.
+
 ## [1.0.0] — 2026-08-16
 
 ### Added

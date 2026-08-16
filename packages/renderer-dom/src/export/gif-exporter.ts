@@ -8,8 +8,8 @@
  * throw "The canvas has been tainted by cross-origin data."
  */
 import { encodeGifSequence } from "./gif-encoder.js";
-import { exportDiagramAsVectorSvg, type SvgExportOptions } from "./svg-exporter.js";
-import { inlineExternalResources } from "./inline-resources.js";
+import type { SvgExportOptions } from "./svg-exporter.js";
+import { rasterizeDiagramToCanvas } from "./png-exporter.js";
 
 export interface TimelineController {
   seek(seconds: number): void;
@@ -26,7 +26,21 @@ export interface GifDiagramExportOptions extends SvgExportOptions {
   loop?: boolean;
 }
 
-const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+const nextFrame = () => new Promise<void>((resolve) => {
+  let settled = false;
+  const finish = () => {
+    if (settled) return;
+    settled = true;
+    resolve();
+  };
+  const fallback = setTimeout(finish, 80);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    clearTimeout(fallback);
+    finish();
+  }));
+});
+const DEFAULT_GIF_PIXEL_RATIO = 0.3;
+const MAX_GIF_FRAMES = 24;
 
 /**
  * Rasterize the current state of `container` into ImageData.
@@ -35,31 +49,10 @@ const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() 
  * without affecting the live DOM or subsequent frame renders.
  */
 async function rasterizeFrame(container: HTMLElement, pixelRatio: number, options: SvgExportOptions): Promise<ImageData> {
-  // Clone so mutation doesn't bleed into subsequent frames
-  const cloned = container.cloneNode(true) as HTMLElement;
-
-  // Inline all external URLs → prevents canvas taint → getImageData won't throw
-  await inlineExternalResources(cloned);
-
-  const svg = exportDiagramAsVectorSvg(cloned, options);
-  const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
-  try {
-    const image = new Image();
-    await new Promise<void>((resolve, reject) => {
-      image.onload = () => resolve();
-      image.onerror = () => reject(new Error("Failed to rasterize GIF frame"));
-      image.src = url;
-    });
-    const canvas = document.createElement("canvas");
-    canvas.width = image.naturalWidth * pixelRatio;
-    canvas.height = image.naturalHeight * pixelRatio;
-    const context = canvas.getContext("2d");
-    if (!context) throw new Error("Could not create GIF canvas context");
-    context.drawImage(image, 0, 0, canvas.width, canvas.height);
-    return context.getImageData(0, 0, canvas.width, canvas.height);
-  } finally {
-    URL.revokeObjectURL(url);
-  }
+  const canvas = await rasterizeDiagramToCanvas(container, options, pixelRatio);
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("Could not create GIF canvas context");
+  return context.getImageData(0, 0, canvas.width, canvas.height);
 }
 
 export async function exportDiagramAsGif(
@@ -67,28 +60,34 @@ export async function exportDiagramAsGif(
   timeline: TimelineController,
   options: GifDiagramExportOptions = {},
 ): Promise<Blob> {
-  const fps = Math.min(24, Math.max(1, Math.round(options.fps ?? 12)));
+  const requestedFps = Math.min(24, Math.max(1, Math.round(options.fps ?? 12)));
   const duration = timeline.duration();
+  const fps = Math.min(requestedFps, MAX_GIF_FRAMES / Math.max(duration, 0.001));
   const frameCount = Math.max(1, Math.ceil(duration * fps));
   const delayMs = Math.max(20, Math.round(1000 / fps));
+  const pixelRatio = options.pixelRatio ?? DEFAULT_GIF_PIXEL_RATIO;
   const priorTime = timeline.currentTime();
   const wasPlaying = timeline.isPlaying();
   timeline.pause();
 
   try {
     const frames = [];
+    timeline.seek(duration);
+    await nextFrame();
+    frames.push({ imageData: await rasterizeFrame(container, pixelRatio, options), delayMs: Math.max(delayMs, 800) });
+
     for (let frame = 0; frame < frameCount; frame++) {
       timeline.seek(Math.min(duration, frame / fps));
       await nextFrame();
       frames.push({
-        imageData: await rasterizeFrame(container, options.pixelRatio ?? 1, options),
+        imageData: await rasterizeFrame(container, pixelRatio, options),
         delayMs,
       });
     }
     // Keep the completed scene on screen long enough to read naturally.
     timeline.seek(duration);
     await nextFrame();
-    frames.push({ imageData: await rasterizeFrame(container, options.pixelRatio ?? 1, options), delayMs: Math.max(delayMs, 800) });
+    frames.push({ imageData: await rasterizeFrame(container, pixelRatio, options), delayMs: Math.max(delayMs, 800) });
     const encoded = encodeGifSequence(frames, { dither: true, loop: options.loop ?? true });
     // Copy into an ArrayBuffer-backed view: TS permits the encoder's generic
     // ArrayBufferLike view to include SharedArrayBuffer, which Blob does not.
