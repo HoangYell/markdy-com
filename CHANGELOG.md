@@ -5,6 +5,17 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] — 2026-08-16
+
+### Fixed
+- **Article code blocks readable in light theme** — Blog article code cards hardcoded a dark-theme text color, making snippets nearly invisible against the light-theme code background. Text color now follows the theme.
+
+### Added
+- **Vanilla JavaScript integration example** — The homepage framework quickstart and the docs "Framework Integrations" section now include a plain `@markdy/renderer-dom` / `createDiagram` example alongside Astro, MDX/React, and CLI.
+
+### Changed
+- **Homepage framework tabs now lead with JavaScript** — Supersedes the 1.0.2 change; the framework quickstart now defaults to the framework-agnostic JavaScript example first, since Astro and MDX are built on top of it, followed by Astro, MDX/React, and CLI tooling last.
+
 ## [1.0.2] — 2026-08-16
 
 ### Fixed
