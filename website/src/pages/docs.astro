@@ -592,8 +592,14 @@ client Browser -> service Api -> database DB
     if (!codeEl) return;
     const codeText = codeEl.textContent?.trim() || "";
     
-    // Check if it's a markdy snippet (contains scene, beat, flow, or node definitions)
-    const isMarkdy = codeText.includes("scene ") || codeText.includes("beat ") || codeText.includes(" -> ") || codeText.includes("service ");
+    // data-lang="markdy" on the <pre> opts a block into Studio explicitly; any other
+    // data-lang value opts it out, even if the raw text happens to contain Markdy
+    // keywords (e.g. a JS usage example whose template literal embeds a Markdy scene).
+    // Falls back to a keyword sniff only when no data-lang is set.
+    const declaredLang = (codeEl.closest("pre") as HTMLElement | null)?.dataset.lang;
+    const isMarkdy = declaredLang
+      ? declaredLang === "markdy"
+      : codeText.includes("scene ") || codeText.includes("beat ") || codeText.includes(" -> ") || codeText.includes("service ");
     
     let header = card.querySelector(".code-header") as HTMLElement;
     if (!header) {

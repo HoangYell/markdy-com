@@ -72,8 +72,17 @@ const {
       const codeText = code.textContent?.trim() || "";
       if (!codeText) return;
 
-      const isMarkdy = codeText.includes("scene ") || codeText.includes("beat ") || codeText.includes(" -> ") || codeText.includes("service ");
-      const isBash = codeText.startsWith("npm ") || codeText.startsWith("pnpm ") || codeText.startsWith("npx ") || codeText.startsWith("markdy ");
+      // data-lang="markdy" opts a block into Studio explicitly; any other data-lang
+      // value opts it out, even if the raw text happens to contain Markdy keywords
+      // (e.g. a JS usage example whose template literal embeds a Markdy scene).
+      // Falls back to a keyword sniff only when no data-lang is set.
+      const declaredLang = pre.dataset.lang;
+      const isMarkdy = declaredLang
+        ? declaredLang === "markdy"
+        : codeText.includes("scene ") || codeText.includes("beat ") || codeText.includes(" -> ") || codeText.includes("service ");
+      const isBash = declaredLang
+        ? declaredLang === "bash"
+        : codeText.startsWith("npm ") || codeText.startsWith("pnpm ") || codeText.startsWith("npx ") || codeText.startsWith("markdy ");
 
       const card = document.createElement("div");
       card.className = "art-code-card";
