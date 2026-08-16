@@ -6,6 +6,9 @@ export type { IconSpec } from "./nodes.js";
 export { encodeGifSequence } from "./export/gif-encoder.js";
 export type { AnimationRecordFrame, GifExportOptions } from "./export/gif-encoder.js";
 
+export { exportDiagramAsGif } from "./export/gif-exporter.js";
+export type { GifDiagramExportOptions, TimelineController } from "./export/gif-exporter.js";
+
 export { exportDiagramAsVectorSvg } from "./export/svg-exporter.js";
 export type { SvgExportOptions } from "./export/svg-exporter.js";
 

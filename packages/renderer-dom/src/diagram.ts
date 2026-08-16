@@ -52,6 +52,7 @@ export interface DiagramOptions {
   onWarning?: (warning: Diagnostic) => void;
   onTimeUpdate?: (seconds: number, durationSeconds: number) => void;
   onPlayStateChange?: (playing: boolean) => void;
+  onEnded?: () => void;
 }
 
 export interface Diagram {
@@ -124,6 +125,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     onWarning = (w) => console.warn(`[markdy] line ${w.line}: ${w.message}`),
     onTimeUpdate,
     onPlayStateChange,
+    onEnded,
   } = opts;
 
   const { ast, plan } = parseAndCompile(code);
@@ -621,6 +623,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
         emitPlayStateChange(false);
         lastRafTs = null;
         rafId = null;
+        onEnded?.();
         return;
       }
     }
