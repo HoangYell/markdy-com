@@ -140,7 +140,7 @@ const docStructuredData = [
           <a href="#ingestion" class="mobile-doc-link">Universal Ingestion</a>
           <a href="#mcp" class="mobile-doc-link">AI Coding &amp; MCP Server</a>
           <a href="#governance" class="mobile-doc-link">Architecture Governance</a>
-          <a href="#frameworks" class="mobile-doc-link">Astro, MDX &amp; React</a>
+          <a href="#frameworks" class="mobile-doc-link">JS, Astro, MDX &amp; React</a>
           <a href="#packages" class="mobile-doc-link">Package Directory</a>
         </div>
         <div class="mobile-drawer-group mobile-extra-links">
@@ -181,7 +181,7 @@ const docStructuredData = [
         <a href="#ingestion" class="sidebar-link">Universal Ingestion</a>
         <a href="#mcp" class="sidebar-link">AI Coding &amp; MCP Server</a>
         <a href="#governance" class="sidebar-link">Architecture Governance</a>
-        <a href="#frameworks" class="sidebar-link">Astro, MDX &amp; React</a>
+        <a href="#frameworks" class="sidebar-link">JS, Astro, MDX &amp; React</a>
         <a href="#packages" class="sidebar-link">Package Directory</a>
       </div>
     </aside>
@@ -510,9 +510,24 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
 
       <!-- ─── 10. Framework Integrations ───────────────────────────────── -->
       <section id="frameworks" class="doc-section">
-        <h2 class="section-heading">Framework Integrations: Astro, MDX &amp; React</h2>
-        
+        <h2 class="section-heading">Framework Integrations: JavaScript, Astro, MDX &amp; React</h2>
+
         <div class="framework-grid mt-4">
+          <div class="framework-card">
+            <div class="card-head-row">
+              <h4>Vanilla JavaScript</h4>
+              <button class="doc-copy-btn copy-cmd-btn" type="button" title="Copy snippet">Copy</button>
+            </div>
+            <pre><code>import &#123; createDiagram &#125; from "@markdy/renderer-dom";
+
+const diagram = createDiagram(&#123;
+  container: document.getElementById("scene"),
+  code: sceneCode,
+&#125;);
+
+diagram.play();</code></pre>
+          </div>
+
           <div class="framework-card">
             <div class="card-head-row">
               <h4>Astro Integration</h4>
