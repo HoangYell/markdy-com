@@ -2,7 +2,7 @@
 
 > ### INTERNAL ARCHITECTURE METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.0
+> - **Current Version**: v1.0.1
 > - **Specification Version**: 1.0.x
 > - **Last Updated**: 2026-08-16
 > - **Engine Boundary**: `@markdy/core` (AST & Layout) -> `@markdy/renderer-dom` (WAAPI)
