@@ -12,17 +12,167 @@ const FLOWER_ASSET: Record<string, string> = {
 };
 
 const FEATURES = [
-  { icon: "🧭", title: "Diagram-native MarkdyScript", desc: "Declare architecture nodes, groups, beats, and flows in reviewable text — no manual drawing layer." },
-  { icon: "🛡️", title: "Architecture Governance", desc: "Enforce Well-Architected principles: layer boundaries, deadlock cycle detection, and gateway isolation." },
-  { icon: "🔄", title: "Universal Ingestion", desc: "Instant conversion from Mermaid, Docker Compose, Kubernetes manifests, and Terraform state into animated scenes." },
-  { icon: "📊", title: "Semantic AST Diffing", desc: "Compare architecture versions with Markdown audit tables and animated evolutionary migration scenes." },
-  { icon: "🌐", title: "Browser-native & GIF export", desc: "Zero-dependency Web Animations API runtime + GIF89a LZW encoder for animated README demos." },
-  { icon: "🤖", title: "Model Context Protocol", desc: "Official MCP server equips Claude, Cursor, Antigravity, and autonomous coding agents with diagram tools." },
+  { icon: "🧭", title: "Diagram-Native DSL", desc: "Declare semantic nodes, groups, beats, and flows in reviewable text. Layout, routing, and timing are 100% automatic." },
+  { icon: "📐", title: "17 Domain Layout Engines", desc: "Architecture, flowchart, sequence, state, tree, layers, nested, timeline, gantt, venn, radar, medallion, flywheel, and more." },
+  { icon: "🎨", title: "8 Curated Visual Themes", desc: "Paper, editorial, terminal, sketchy, blueprint, midnight, graphite, and nebula — crafted for developer docs and technical blogs." },
+  { icon: "🔄", title: "Universal Ingestion", desc: "1-click transpilation from Mermaid, Draw.io, Docker Compose, Kubernetes manifests, and Terraform state into animated scenes." },
+  { icon: "🛡️", title: "Architecture Governance", desc: "Automated CI/CD linter catches deadlock cycles, cross-layer bypasses, ungrounded services, and outputs semantic PR diffs." },
+  { icon: "🤖", title: "AI-Native & MCP Server", desc: "Official Model Context Protocol server for Claude, Cursor, and Antigravity with self-healing syntax diagnostics." },
 ];
 
-/* ── Packages: one card per published package, each with a real usage line ──
-   MarkdyScript is the primary authoring surface; packages support validation,
-   docs embeds, editor tooling, and browser playback. ── */
+const LAYOUT_ENGINES = [
+  {
+    category: "Architecture & Systems",
+    icon: "🏗️",
+    types: [
+      { name: "architecture", desc: "Ranked DAG topology with smart obstacle-avoiding edge routing (default)." },
+      { name: "flowchart", desc: "Top-down decision branches, conditional routing, and pipeline steps." },
+      { name: "tree", desc: "Parent/child hierarchies and taxonomy trees with shared horizontal sibling buses." },
+      { name: "state", desc: "Cycle-safe state machine transitions, loops, and self-referencing arcs." },
+      { name: "sequence", desc: "Participant columns, lifelines, ordered messages, and activation spans." },
+    ],
+  },
+  {
+    category: "Structure & Security Boundaries",
+    icon: "🛡️",
+    types: [
+      { name: "layers", desc: "Full-width horizontal stacked abstraction bands (OSI, CSS cascade, memory)." },
+      { name: "nested", desc: "Concentric rounded boundaries with stepped insets for defense-in-depth and security scopes." },
+      { name: "swimlane", desc: "Cross-functional team lanes and multi-actor handoff tracks." },
+    ],
+  },
+  {
+    category: "Roadmaps & Progression",
+    icon: "⏱️",
+    types: [
+      { name: "timeline", desc: "Horizontal hairline baseline with alternating above/below milestone placement." },
+      { name: "gantt", desc: "Phase-based horizontal bar stacking with phase= and span= task properties." },
+    ],
+  },
+  {
+    category: "Strategy & Capability Benchmarks",
+    icon: "📈",
+    types: [
+      { name: "radar", desc: "Multi-axis polygon benchmark comparison chart with series color palette." },
+      { name: "venn", desc: "2–3 circle concept intersection with automatic proximity scaling." },
+      { name: "quadrant", desc: "2×2 strategic positioning matrix and decision framework." },
+      { name: "pyramid", desc: "Hierarchical value pyramid with step-proportional width scaling." },
+    ],
+  },
+  {
+    category: "Cycles, Radial & Data Stages",
+    icon: "🔄",
+    types: [
+      { name: "medallion", desc: "Multi-tier Bronze → Silver → Gold data lakehouse stages." },
+      { name: "flywheel", desc: "Circular closed-loop compounding engine with tangential flow paths." },
+      { name: "constellation", desc: "Radial focal-node layout with deterministic orbit decoration." },
+    ],
+  },
+];
+
+const THEMES = [
+  { name: "paper", badge: "Light", desc: "Clean light documentation canvas with high-contrast series palette." },
+  { name: "editorial", badge: "Print", desc: "Serif typography, refined ink lines, and muted semantic accents." },
+  { name: "terminal", badge: "Dark TUI", desc: "Monospace CLI aesthetic with vibrant phosphorescent glow accents." },
+  { name: "sketchy", badge: "Whiteboard", desc: "Organic hand-drawn whiteboard style with SVG displacement turbulence." },
+  { name: "blueprint", badge: "CAD", desc: "Technical CAD drafting grid with cyan wireframe geometry." },
+  { name: "midnight", badge: "Dark Navy", desc: "Deep developer canvas with layered glassmorphism elevations." },
+  { name: "graphite", badge: "Minimal Dark", desc: "Restrained monochrome dark theme for minimalist technical blogs." },
+  { name: "nebula", badge: "Cosmic", desc: "Deep-space canvas with orbit rings, signal halos, and starfields." },
+];
+
+const INGESTION_SOURCES = [
+  {
+    name: "Mermaid.js",
+    ext: ".mmd / .mermaid",
+    badge: "Flowcharts & Sequences",
+    desc: "Transpile existing Mermaid graph and sequence flowcharts into animated MarkdyScript scenes.",
+    cmd: "markdy import flow.mmd --out flow.markdy",
+  },
+  {
+    name: "Draw.io",
+    ext: ".drawio / .xml",
+    badge: "XML Graphs",
+    desc: "Convert Draw.io XML graph cells, geometries, and edge connections into clean DSL code.",
+    cmd: "markdy import arch.drawio --out arch.markdy",
+  },
+  {
+    name: "Docker Compose",
+    ext: "docker-compose.yml",
+    badge: "Containers & Mesh",
+    desc: "Extract service definitions, ports, network links, and volumes into a live architecture diagram.",
+    cmd: "markdy import docker-compose.yml",
+  },
+  {
+    name: "Kubernetes YAML",
+    ext: "k8s-manifest.yaml",
+    badge: "Pods & Clusters",
+    desc: "Map Ingress, Service, Deployment, Pod, and PVC resources into clustered layout tiers.",
+    cmd: "markdy import cluster.yaml",
+  },
+  {
+    name: "Terraform State",
+    ext: "terraform.tfstate",
+    badge: "Cloud Infrastructure",
+    desc: "Visualize provisioned AWS/GCP/Azure VPCs, subnets, databases, and gateways automatically.",
+    cmd: "markdy import terraform.tfstate",
+  },
+];
+
+const GOVERNANCE_RULES = [
+  {
+    title: "Deadlock Cycle Detection",
+    rule: "no-circular-dependencies",
+    desc: "Flags synchronous request cycles (A -> B -> C -> A) that risk cascade deadlocks in production.",
+    status: "BLOCKING IN CI",
+  },
+  {
+    title: "Layer Isolation Violation",
+    rule: "strict-layer-boundaries",
+    desc: "Prevents presentation tiers from bypassing API gateways and calling databases directly.",
+    status: "ERROR",
+  },
+  {
+    title: "Ungrounded Components",
+    rule: "isolated-node-warning",
+    desc: "Identifies orphaned microservices or unlinked database instances lacking ingress connections.",
+    status: "WARNING",
+  },
+  {
+    title: "Semantic AST Evolution",
+    rule: "markdy diff --evolution",
+    desc: "Generates Markdown tables for GitHub Pull Requests and animated before/after system migrations.",
+    status: "AUTOMATION",
+  },
+];
+
+const SYNTAX_STEPS = [
+  {
+    step: "1",
+    title: "Scene Header",
+    code: `scene "URL Shortener" theme=paper\nlayout LR`,
+    desc: "Declare canvas title, visual theme, and reading direction.",
+  },
+  {
+    step: "2",
+    title: "Semantic Nodes & Groups",
+    code: `client Browser\ngateway API\ncache Redis\ndatabase UrlDB\n\ngroup storage: Redis UrlDB`,
+    desc: "Declare services, databases, queues, and logical boundaries.",
+  },
+  {
+    step: "3",
+    title: "Timeline Beats & Reveal",
+    code: `beat reveal "System Overview":\n  show $nodes stagger=60ms\n  frame storage zoom=1.1`,
+    desc: "Control camera framing, progressive reveals, and captions.",
+  },
+  {
+    step: "4",
+    title: "Animated Flow Edges",
+    code: `beat resolve "Cache Lookup":\n  Browser -> API "GET /abc"\n  API -> Redis "cache hit"\n  Browser <- API "301 Redirect"`,
+    desc: "Connect request (->), response (<-), and event (~>) flows.",
+  },
+];
+
 const PACKAGES = [
   {
     name: "@markdy/core",
@@ -36,7 +186,7 @@ const PACKAGES = [
     name: "@markdy/compat",
     required: false,
     badge: "Ingestion",
-    desc: "Universal transpilers for Mermaid, Docker Compose, Kubernetes, and Terraform state.",
+    desc: "Universal transpilers for Mermaid, Draw.io, Docker Compose, Kubernetes, and Terraform state.",
     size: "~8 KB",
     snippet: `<span class="u-fn">transpileDockerComposeToMarkdy</span>(yaml)`,
   },
@@ -71,30 +221,6 @@ const PACKAGES = [
     desc: "Astro island. Pass your scene as a code prop — it hydrates only when scrolled into view.",
     size: "~2 KB",
     snippet: `&lt;<span class="u-fn">Markdy</span> code={code} autoplay /&gt;`,
-  },
-  {
-    name: "@markdy/mdx",
-    required: false,
-    badge: "MDX",
-    desc: "Write fenced markdy code blocks straight in Markdown/MDX — no component imports needed.",
-    size: "~8 KB",
-    snippet: `remarkPlugins: [<span class="u-fn">remarkMarkdy</span>]`,
-  },
-  {
-    name: "@markdy/language-server",
-    required: false,
-    badge: "LSP",
-    desc: "Diagnostics, autocomplete, and hover docs for any LSP-capable editor (VS Code, Neovim, Zed).",
-    size: "Node",
-    snippet: `npx <span class="u-str">@markdy/language-server</span>`,
-  },
-  {
-    name: "@markdy/stdlib-systems",
-    required: false,
-    badge: "Vocabulary",
-    desc: "Optional add-on: the full architecture node vocabulary and flow kinds for animated system diagrams.",
-    size: "<1 KB",
-    snippet: `<span class="u-kw">service</span> CheckoutApi`,
   },
 ] as const;
 
@@ -293,11 +419,13 @@ markdy <span class="u-fn">check-all</span> examples`;
     </button>
     <div class="nav-links">
       <a href="#features">Features</a>
-      <a href="/playground/">Playground</a>
-      <a href="#learn">Learn</a>
+      <a href="#playground">Playground</a>
+      <a href="#layouts">Layouts &amp; Themes</a>
+      <a href="#ingestion">Ingestion</a>
+      <a href="#governance">Governance</a>
+      <a href="#ai-gen">AI &amp; MCP</a>
       <a href="/docs/">Docs</a>
       <a href="/blog/">Articles</a>
-      <a href="#ai-gen">AI</a>
       <a href="#faq">FAQ</a>
       <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="nav-github">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
@@ -501,6 +629,179 @@ markdy <span class="u-fn">check-all</span> examples`;
     </div>
   </section>
 
+
+
+  <!-- ─── Core Feature 1: 17 Specialized Layout Engines & 8 Themes ─────── -->
+  <section id="layouts" class="core-section" aria-label="Layout engines and themes">
+    <div class="section-header">
+      <span class="section-tag">Layout &amp; Presentation</span>
+      <h2>17 Domain-Native Layout Engines &amp; 8 Curated Themes</h2>
+      <p>Architecture diagrams aren't just generic graphs. Markdy provides dedicated layout engines tuned for cloud systems, protocol lifelines, security perimeters, roadmaps, benchmarks, and data pipelines.</p>
+    </div>
+
+    <div class="layout-categories-grid">
+      {LAYOUT_ENGINES.map((cat) => (
+        <div class="layout-cat-card">
+          <div class="layout-cat-header">
+            <span class="layout-cat-icon">{cat.icon}</span>
+            <h3>{cat.category}</h3>
+          </div>
+          <div class="layout-types-list">
+            {cat.types.map((t) => (
+              <div class="layout-type-item">
+                <div class="layout-type-head">
+                  <code>type={t.name}</code>
+                </div>
+                <p>{t.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <div class="themes-banner">
+      <div class="themes-header">
+        <span class="themes-tag">🎨 Visual Personas</span>
+        <h3>8 Curated Themes for Technical Docs &amp; Engineering Blogs</h3>
+      </div>
+      <div class="themes-grid">
+        {THEMES.map((th) => (
+          <div class="theme-chip">
+            <div class="theme-chip-top">
+              <strong>{th.name}</strong>
+              <span class="theme-badge">{th.badge}</span>
+            </div>
+            <p>{th.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Core Feature 2: Universal Ingestion & 1-Click Migration ─────── -->
+  <section id="ingestion" class="core-section" aria-label="Universal ingestion">
+    <div class="section-header">
+      <span class="section-tag">Universal Ingestion</span>
+      <h2>Import Existing Systems into Animated Code in 1 Click</h2>
+      <p>Never start from scratch. Use <code>@markdy/compat</code> and the <code>markdy import</code> CLI to transpile Mermaid flowcharts, Draw.io XML graphs, Docker Compose setups, Kubernetes manifests, or Terraform state files directly into animated MarkdyScript.</p>
+    </div>
+
+    <div class="ingestion-grid">
+      {INGESTION_SOURCES.map((src) => (
+        <div class="ingestion-card">
+          <div class="ingestion-card-top">
+            <div class="ingestion-name">{src.name}</div>
+            <span class="ingestion-badge">{src.badge}</span>
+          </div>
+          <p class="ingestion-desc">{src.desc}</p>
+          <div class="ingestion-cmd-wrap">
+            <code>{src.cmd}</code>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ─── Core Feature 3: Architecture Governance & CI/CD Linter ───────── -->
+  <section id="governance" class="core-section" aria-label="Architecture governance">
+    <div class="section-header">
+      <span class="section-tag">Well-Architected Guardrails</span>
+      <h2>Architecture Governance in CI/CD &amp; PR Diffing</h2>
+      <p>Automate architecture reviews. Catch circular deadlock loops and layer violations before merging code, and generate semantic evolution tables on every Pull Request.</p>
+    </div>
+
+    <div class="governance-grid">
+      {GOVERNANCE_RULES.map((rule) => (
+        <div class="governance-card">
+          <div class="governance-card-top">
+            <div class="governance-title">{rule.title}</div>
+            <span class={`gov-status ${rule.status === 'BLOCKING IN CI' || rule.status === 'ERROR' ? 'gov-status--err' : 'gov-status--info'}`}>{rule.status}</span>
+          </div>
+          <code class="gov-rule-code">{rule.rule}</code>
+          <p class="gov-desc">{rule.desc}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ─── Core Feature 4: AI Coding Agents & MCP Server ─────────────────── -->
+  <section id="ai-gen" class="ai-section" aria-label="AI-powered generation">
+    <div class="section-header">
+      <span class="section-tag">AI-Native Architecture</span>
+      <h2>Official Model Context Protocol (MCP) &amp; Agent Tooling</h2>
+      <p>Markdy is designed from the ground up for LLMs and autonomous coding agents. Point Claude Desktop, Cursor, or Antigravity to our MCP server for instant AST validation and self-healing diagnostics.</p>
+    </div>
+
+    <div class="ai-grid">
+      <div class="ai-card ai-card-how">
+        <h3>How AI pairs with Markdy</h3>
+        <ol class="ai-steps">
+          <li>
+            <strong>Hosted LLM Reference</strong>
+            <p>Share <a href="/AGENT.md">markdy.com/AGENT.md</a> or <a href="/llms.txt">llms.txt</a> with your AI assistant.</p>
+          </li>
+          <li>
+            <strong>Describe Your Architecture</strong>
+            <p>Prompt with natural language: <em>"Explain our cache-aside pattern with Redis and Postgres on user authentication."</em></p>
+          </li>
+          <li>
+            <strong>Autonomous Self-Healing Loop</strong>
+            <p><code>@markdy/mcp-server</code> validates AST node kinds and flow connections, automatically fixing typos or invalid cues.</p>
+          </li>
+        </ol>
+      </div>
+
+      <div class="ai-card ai-card-example">
+        <h3>MCP Tool Integration</h3>
+        <div class="ai-prompt">
+          <div class="ai-prompt-header">
+            <span class="ai-prompt-label">Claude Desktop / Cursor / Antigravity MCP Config</span>
+          </div>
+          <pre class="mcp-config-code"><code>{`{
+  "mcpServers": {
+    "markdy": {
+      "command": "npx",
+      "args": ["-y", "@markdy/mcp-server"]
+    }
+  }
+}`}</code></pre>
+        </div>
+        <p class="ai-hint">AI assistants can call <code>validate_markdy_script</code>, <code>render_markdy_diagram</code>, and <code>explain_architecture</code> directly in chat.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Core Feature 5: Streamlined Quick-Start Syntax ────────────────── -->
+  <section id="syntax" class="core-section" aria-label="MarkdyScript syntax overview">
+    <div class="section-header">
+      <span class="section-tag">Syntax Overview</span>
+      <h2>MarkdyScript in 4 Clean Steps</h2>
+      <p>Zero boilerplate. Zero manual coordinates. Write declarative text and let Markdy handle animation choreography.</p>
+    </div>
+
+    <div class="syntax-steps-grid">
+      {SYNTAX_STEPS.map((s) => (
+        <div class="syntax-step-card">
+          <div class="syntax-step-header">
+            <span class="step-num">{s.step}</span>
+            <h3>{s.title}</h3>
+          </div>
+          <pre class="syntax-step-code"><code>{s.code}</code></pre>
+          <p>{s.desc}</p>
+        </div>
+      ))}
+    </div>
+
+    <div class="syntax-cta-box">
+      <p>Ready to master advanced cues, camera framing, and pattern macros?</p>
+      <div class="syntax-cta-actions">
+        <a href="/docs/" class="btn-primary">Explore Full Documentation</a>
+        <a href="/playground/" class="btn-secondary">Open Interactive Playground</a>
+      </div>
+    </div>
+  </section>
+
   <!-- ─── Packages ─────────────────────────────────────────────────────── -->
   <section id="packages" class="packages" aria-label="Packages">
     <div class="section-header">
@@ -523,490 +824,7 @@ markdy <span class="u-fn">check-all</span> examples`;
     </div>
   </section>
 
-  <!-- ─── How-To Tutorials (Learning Path) ─────────────────────────────── -->
-  <section id="learn" class="syntax-ref" aria-label="Learn MarkdyScript tutorials">
-    <div class="section-header">
-      <span class="section-tag">Step-by-Step</span>
-      <h2>Learn MarkdyScript</h2>
-      <p>Follow a progressive learning path from the smallest runnable scene to production-grade architecture choreography. Each level teaches one practical skill, includes a runnable example, and ends with a task that proves you are ready for the next concept.</p>
-    </div>
-
-    <div class="ref-grid">
-
-      <!-- Level 1: Scene shell -->
-      <article class="ref-card">
-        <div class="ref-card-header">
-          <div class="step-badge">1</div>
-          <h3>Level 1: Scene Shell</h3>
-          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
-        </div>
-        <p class="ref-intro"><strong>Objective:</strong> create the smallest complete MarkdyScript scene: a title, a layout direction, declared nodes, and one reveal beat.</p>
-        <div class="ref-code-wrap">
-        <pre><code>scene "Request Path" theme=paper
-layout LR
-
-browser WebApp
-service ApiServer
-
-beat reveal:
-  show $nodes stagger=60ms</code></pre>
-        <script type="text/plain" class="ref-code-data">
-scene "Request Path" theme=paper
-layout LR
-
-browser WebApp
-service ApiServer
-
-beat reveal:
-  show $nodes stagger=60ms
-        </script>
-        </div>
-        <table>
-          <thead><tr><th>Step</th><th>Action</th><th>Why it matters</th></tr></thead>
-          <tbody>
-            <tr><td>1</td><td>Add <code>scene</code></td><td>Names the diagram and picks the semantic palette.</td></tr>
-            <tr><td>2</td><td>Add <code>layout LR</code></td><td>Lets Markdy place nodes left-to-right without coordinates.</td></tr>
-            <tr><td>3</td><td>Declare every node</td><td>Flow lines can only reference ids that already exist.</td></tr>
-            <tr><td>4</td><td>Add a <code>beat</code></td><td>Beats are the timeline sections that contain animation cues.</td></tr>
-          </tbody>
-        </table>
-        <p><strong>Ready task:</strong> Add <code>database Postgres</code> to the scene. If <code>show $nodes</code> reveals all three nodes, move to Level 2.</p>
-      </article>
-
-      <!-- Level 2: Semantic nodes -->
-      <article class="ref-card">
-        <div class="ref-card-header">
-          <div class="step-badge">2</div>
-          <h3>Level 2: Semantic Nodes</h3>
-          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
-        </div>
-        <p class="ref-intro"><strong>Objective:</strong> choose node kinds that explain the architecture, then use readable ids so labels can be generated automatically.</p>
-        <div class="ref-code-wrap">
-        <pre><code>user Customer
-browser WebApp
-gateway ApiGateway
-service CheckoutApi
-database OrdersDb
-queue OrderEvents</code></pre>
-        <script type="text/plain" class="ref-code-data">
-scene "Checkout Roles" theme=paper
-layout LR
-
-user Customer
-browser WebApp
-gateway ApiGateway
-service CheckoutApi
-database OrdersDb
-queue OrderEvents
-
-beat main:
-  show $nodes stagger=80ms
-        </script>
-        </div>
-        <table>
-          <thead><tr><th>Kind family</th><th>Common kinds</th><th>Use when you mean</th></tr></thead>
-          <tbody>
-            <tr><td>Client</td><td><code>user</code>, <code>browser</code>, <code>client</code></td><td>Humans, apps, and entry points.</td></tr>
-            <tr><td>Compute</td><td><code>service</code>, <code>api</code>, <code>worker</code></td><td>Code that handles requests or jobs.</td></tr>
-            <tr><td>Data</td><td><code>database</code>, <code>cache</code>, <code>bucket</code></td><td>State, files, and fast lookup layers.</td></tr>
-            <tr><td>Messaging</td><td><code>queue</code>, <code>topic</code>, <code>stream</code></td><td>Async events and background work.</td></tr>
-          </tbody>
-        </table>
-        <p>Prefer ids like <code>CheckoutApi</code> and <code>OrdersDb</code>. Markdy renders them as <code>Checkout API</code> and <code>Orders DB</code>, so quoted labels are only needed for unusual display text.</p>
-        <p><strong>Ready task:</strong> Add <code>cache RedisCache</code>. If the rendered card has the cache role and a readable label, move to Level 3.</p>
-      </article>
-
-      <!-- Level 3: Request and event flows -->
-      <article class="ref-card">
-        <div class="ref-card-header">
-          <div class="step-badge">3</div>
-          <h3>Level 3: Request Flow</h3>
-          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
-        </div>
-        <p class="ref-intro"><strong>Objective:</strong> describe what happens between nodes using directed flow lines inside a beat. Labels belong after the target they describe.</p>
-        <div class="ref-code-wrap">
-        <pre><code>WebApp -> CheckoutApi "POST /checkout"
-CheckoutApi ~> OrderEvents "order.created"
-WebApp <- CheckoutApi "201 Created"</code></pre>
-        <script type="text/plain" class="ref-code-data">
-scene "Flow Edges" theme=paper
-layout LR
-
-client WebApp
-service CheckoutApi
-queue OrderEvents
-database OrdersDb
-
-beat flow:
-  show $nodes stagger=70ms
-  WebApp -> CheckoutApi "POST /checkout"
-  CheckoutApi -> OrdersDb "persist" & CheckoutApi ~> OrderEvents "order.created"
-  WebApp <- CheckoutApi "201 Created"
-        </script>
-        </div>
-        <table>
-          <thead><tr><th>Operator</th><th>Use it for</th><th>Rendered intent</th></tr></thead>
-          <tbody>
-            <tr><td><code>-&gt;</code></td><td>Calls, writes, reads</td><td>Solid request edge.</td></tr>
-            <tr><td><code>&lt;-</code></td><td>Returns and acknowledgements</td><td>Dashed response edge back to the caller.</td></tr>
-            <tr><td><code>~&gt;</code></td><td>Publishes and async jobs</td><td>Dotted event edge.</td></tr>
-            <tr><td><code>--</code></td><td>Static dependency</td><td>Thin relationship edge.</td></tr>
-          </tbody>
-        </table>
-        <p>Keep labels short and action-oriented: <code>persist</code>, <code>enqueue</code>, <code>cache hit</code>. Long prose belongs in surrounding docs, not edge labels.</p>
-        <p><strong>Ready task:</strong> Add a <code>RedisCache</code> node and one <code>CheckoutApi -> RedisCache "cache write"</code> edge. If every id is declared and the flow renders, move to Level 4.</p>
-      </article>
-
-      <!-- Level 4: Beats and timeline cues -->
-      <article class="ref-card">
-        <div class="ref-card-header">
-          <div class="step-badge">4</div>
-          <h3>Level 4: Beats &amp; Cues</h3>
-          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
-        </div>
-        <p class="ref-intro"><strong>Objective:</strong> split a diagram into narrative beats so viewers can follow setup, traffic, async work, and emphasis in sequence.</p>
-        <div class="ref-code-wrap">
-        <pre><code>beat highlight:
-  glow data color=#22c55e & focus CheckoutApi zoom=1.1</code></pre>
-        <script type="text/plain" class="ref-code-data">
-scene "Checkout Beats" theme=paper
-layout LR
-
-browser WebApp
-service CheckoutApi
-database OrdersDb
-cache RedisCache
-queue OrderEvents
-
-group data: OrdersDb RedisCache OrderEvents
-
-beat intro:
-  show WebApp CheckoutApi & show data stagger=80ms
-
-beat traffic:
-  WebApp -> CheckoutApi "POST /checkout" -> OrdersDb "persist"
-  CheckoutApi -> RedisCache "cache write"
-
-beat publish:
-  CheckoutApi ~> OrderEvents "order.created"
-
-beat highlight:
-  glow data color=#22c55e & focus CheckoutApi zoom=1.1
-        </script>
-        </div>
-        <table>
-          <thead><tr><th>Cue</th><th>Use it when</th><th>Common options</th></tr></thead>
-          <tbody>
-            <tr><td><code>show</code></td><td>Introducing nodes or groups.</td><td><code>stagger</code>, <code>dur</code></td></tr>
-            <tr><td><code>glow</code></td><td>Marking the important path.</td><td><code>color</code>, <code>strength</code></td></tr>
-            <tr><td><code>focus</code></td><td>Calling attention to one node.</td><td><code>zoom</code>, <code>dur</code></td></tr>
-            <tr><td><code>&amp;</code></td><td>Running two cues together.</td><td>Place it between cues on one line.</td></tr>
-          </tbody>
-        </table>
-        <p>Name beats after the story moment: <code>intro</code>, <code>traffic</code>, <code>publish</code>, <code>finish</code>. This makes generated scenes easier for people and LLMs to revise.</p>
-        <p><strong>Ready task:</strong> Add a <code>finish</code> beat that glows <code>CheckoutApi</code> and <code>OrdersDb</code> together. If the story still reads in order, move to Level 5.</p>
-      </article>
-
-      <!-- Level 5: Groups and subsystem targets -->
-      <article class="ref-card">
-        <div class="ref-card-header">
-          <div class="step-badge">5</div>
-          <h3>Level 5: Subsystem Groups</h3>
-          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
-        </div>
-        <p class="ref-intro"><strong>Objective:</strong> organize real systems into named tiers, then target each tier with one cue instead of repeating node ids everywhere.</p>
-        <div class="ref-code-wrap">
-        <pre><code>group ingress: WebApp ApiGateway
-group data: RedisCache OrdersDb
-
-beat layout:
-  show ingress & show data stagger=70ms</code></pre>
-        <script type="text/plain" class="ref-code-data">
-scene "Grouped Checkout" theme=paper
-layout LR
-
-browser WebApp
-gateway ApiGateway
-service CheckoutApi
-cache RedisCache
-database OrdersDb
-queue OrderEvents
-monitor Metrics
-
-group ingress: WebApp ApiGateway
-group app: CheckoutApi
-group data: RedisCache OrdersDb
-group ops: Metrics
-
-beat layout:
-  show ingress stagger=50ms & show app stagger=50ms & show data stagger=50ms & show ops stagger=50ms
-
-beat traffic:
-  WebApp -> ApiGateway "POST /checkout" -> CheckoutApi
-  CheckoutApi -> RedisCache "cache write" & CheckoutApi -> OrdersDb "persist"
-  CheckoutApi -- Metrics "request metrics"
-
-beat highlight:
-  glow data color=#22c55e & focus Metrics
-        </script>
-        </div>
-        <table>
-          <thead><tr><th>Pattern</th><th>Why it scales</th></tr></thead>
-          <tbody>
-            <tr><td><code>group ingress: ...</code></td><td>Names an architectural tier.</td></tr>
-            <tr><td><code>show ingress</code></td><td>Reveals the whole tier without repeating ids.</td></tr>
-            <tr><td><code>glow data</code></td><td>Highlights all related stateful components at once.</td></tr>
-          </tbody>
-        </table>
-        <p>Groups are especially useful in AI-generated diagrams because they give the model reusable targets and reduce typo-prone repeated node lists.</p>
-        <p><strong>Ready task:</strong> Add an <code>async</code> group with a queue and worker, reveal it in <code>layout</code>, and send one <code>~&gt;</code> event into it. Then move to Level 6.</p>
-      </article>
-
-      <!-- Level 6: Reusable patterns -->
-      <article class="ref-card">
-        <div class="ref-card-header">
-          <div class="step-badge">6</div>
-          <h3>Level 6: Reusable Patterns</h3>
-          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
-        </div>
-        <p class="ref-intro"><strong>Objective:</strong> remove repeated flow choreography by defining a pattern once and applying it to different node pairs.</p>
-        <div class="ref-code-wrap">
-        <pre><code>pattern lookup(client, store):
-  $client -> $store "lookup"
-  $client <- $store "result"</code></pre>
-        <script type="text/plain" class="ref-code-data">
-scene "Lookup Pattern" theme=paper
-layout LR
-
-service CheckoutApi
-cache RedisCache
-database OrdersDb
-
-pattern lookup(client, store):
-  $client -> $store "lookup"
-  $client <- $store "result"
-
-beat main:
-  show $nodes stagger=80ms
-  use lookup(CheckoutApi, RedisCache)
-  use lookup(CheckoutApi, OrdersDb)
-        </script>
-        </div>
-        <table>
-          <thead><tr><th>Part</th><th>What to write</th><th>What happens</th></tr></thead>
-          <tbody>
-            <tr><td>Definition</td><td><code>pattern lookup(client, store):</code></td><td>Declares reusable cue lines.</td></tr>
-            <tr><td>Placeholder</td><td><code>$client</code>, <code>$store</code></td><td>Marks values to substitute later.</td></tr>
-            <tr><td>Call site</td><td><code>use lookup(Api, Db)</code></td><td>Expands the pattern with concrete ids.</td></tr>
-          </tbody>
-        </table>
-        <p>Patterns should be small and meaningful. If the repeated action has a name people use in architecture reviews, it is a good pattern candidate.</p>
-        <p><strong>Ready task:</strong> Add a second pattern called <code>publish(app, queue)</code> with one <code>~&gt;</code> event edge, then use it from <code>CheckoutApi</code> to the declared <code>OrderEvents</code> queue. Then move to Level 7.</p>
-      </article>
-
-      <!-- Level 7: Styling and emphasis -->
-      <article class="ref-card">
-        <div class="ref-card-header">
-          <div class="step-badge">7</div>
-          <h3>Level 7: Styling &amp; Emphasis</h3>
-          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
-        </div>
-        <p class="ref-intro"><strong>Objective:</strong> tune visual meaning without changing the architecture: choose a theme, set direction, and style the path the viewer should remember.</p>
-        <div class="ref-code-wrap">
-        <pre><code>style hot = fill=#f59e0b
-
-service CheckoutApi style=hot</code></pre>
-        <script type="text/plain" class="ref-code-data">
-scene "Styled Hot Path" theme=paper
-layout TB
-
-style hot = fill=#f59e0b
-
-browser WebApp
-gateway ApiGateway
-service CheckoutApi style=hot
-database OrdersDb
-queue OrderEvents
-
-beat main:
-  show $nodes stagger=80ms
-  WebApp -> ApiGateway "POST /checkout" -> CheckoutApi
-  CheckoutApi -> OrdersDb "persist"
-  CheckoutApi ~> OrderEvents "order.created"
-
-beat finish:
-  glow CheckoutApi color=#f59e0b & focus OrdersDb
-        </script>
-        </div>
-        <table>
-          <thead><tr><th>Control</th><th>Use it for</th><th>Example</th></tr></thead>
-          <tbody>
-            <tr><td><code>theme</code></td><td>Overall palette.</td><td><code>paper</code>, <code>editorial</code>, <code>terminal</code>, <code>sketchy</code>, <code>nebula</code>, <code>midnight</code>, <code>blueprint</code>, <code>graphite</code></td></tr>
-            <tr><td><code>type</code></td><td>Focused composition.</td><td><code>architecture</code>, <code>flowchart</code>, <code>tree</code>, <code>state</code>, <code>sequence</code>, <code>timeline</code>, <code>gantt</code>, <code>venn</code>, <code>layers</code>, <code>nested</code>, <code>radar</code>, <code>medallion</code>, <code>flywheel</code>, <code>quadrant</code>, <code>swimlane</code>, <code>pyramid</code>, <code>constellation</code></td></tr>
-            <tr><td><code>layout</code></td><td>Scene reading direction.</td><td><code>LR</code>, <code>TB</code></td></tr>
-            <tr><td><code>style</code></td><td>Persistent node styling.</td><td><code>style hot = fill=#f59e0b</code></td></tr>
-            <tr><td><code>glow</code></td><td>Timeline emphasis.</td><td><code>glow CheckoutApi</code></td></tr>
-          </tbody>
-        </table>
-        <p>Use styles sparingly. One persistent highlight plus one final glow usually reads cleaner than styling every node.</p>
-        <p><strong>Ready task:</strong> Switch the scene between <code>paper</code>/<code>editorial</code>/<code>terminal</code>/<code>sketchy</code> and <code>TB</code>/<code>LR</code>. Then try <code>type=timeline</code>, <code>type=gantt</code>, <code>type=venn</code>, <code>type=layers</code>, <code>type=nested</code>, or <code>type=radar</code>. If the story still reads clearly, move to Level 8.</p>
-      </article>
-
-      <!-- Level 8: Production composition -->
-      <article class="ref-card">
-        <div class="ref-card-header">
-          <div class="step-badge">8</div>
-          <h3>Level 8: Production Scene</h3>
-          <button class="apply-ref-btn" title="Try in Playground" aria-label="Try this example in the playground" onclick="window.applyRefCode && window.applyRefCode(this.closest('.ref-card').querySelector('.ref-code-data').textContent.trim())"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg></button>
-        </div>
-        <p class="ref-intro"><strong>Objective:</strong> combine semantic nodes, groups, beats, flows, patterns, and emphasis into a real architecture explainer that can survive review.</p>
-        <div class="ref-code-wrap">
-        <pre><code>scene "URL Shortener Production Flow" theme=paper width=1280 height=760
-layout LR
-
-group ingress: Visitor WebClient ApiGateway
-group app: UrlShortener RedirectService
-group data: HotUrlCache UrlMappingDb</code></pre>
-        <script type="text/plain" class="ref-code-data">
-scene "URL Shortener Production Flow" theme=paper width=1280 height=760
-layout LR
-
-style hot = fill=#22c55e
-
-user Visitor
-browser WebClient
-gateway ApiGateway
-service UrlShortener style=hot
-service RedirectService
-cache HotUrlCache
-database UrlMappingDb
-queue AnalyticsEvents
-worker AnalyticsWorker
-monitor Metrics
-
-group ingress: Visitor WebClient ApiGateway
-group app: UrlShortener RedirectService
-group data: HotUrlCache UrlMappingDb
-group async: AnalyticsEvents AnalyticsWorker Metrics
-
-pattern resolve(app, store):
-  $app -> $store "lookup"
-  $app <- $store "result"
-
-beat layout:
-  show ingress stagger=40ms & show app stagger=40ms & show data stagger=40ms & show async stagger=40ms
-
-beat create:
-  WebClient -> ApiGateway "POST /shorten"
-  ApiGateway -> UrlShortener "validate"
-  UrlShortener -> UrlMappingDb "store slug" & UrlShortener ~> HotUrlCache "warm cache"
-  WebClient <- UrlShortener "short.ly/a7"
-
-beat redirect:
-  Visitor -> WebClient "open link"
-  WebClient -> ApiGateway "GET /a7"
-  ApiGateway -> RedirectService "resolve"
-  use resolve(RedirectService, HotUrlCache)
-  RedirectService -> UrlMappingDb "fallback"
-  WebClient <- RedirectService "301 redirect"
-
-beat telemetry:
-  RedirectService ~> AnalyticsEvents "click event"
-  AnalyticsEvents ~> AnalyticsWorker "process"
-  AnalyticsWorker -- Metrics "publish metrics"
-
-beat finish:
-  glow app color=#22c55e & glow data color=#38bdf8
-        </script>
-        </div>
-        <table>
-          <thead><tr><th>Production habit</th><th>Why it matters</th></tr></thead>
-          <tbody>
-            <tr><td>Declare nodes first</td><td>Makes every later flow, group, and cue easy to validate.</td></tr>
-            <tr><td>Group by subsystem</td><td>Lets readers see ingress, app, data, and async tiers before traffic starts.</td></tr>
-            <tr><td>Use beats as story chapters</td><td>Keeps create, redirect, telemetry, and finish concerns separate.</td></tr>
-            <tr><td>End with emphasis</td><td>Confirms the main path and persistent state after the animation completes.</td></tr>
-          </tbody>
-        </table>
-        <p>When prompting an LLM, ask for this same order: scene metadata, nodes, groups, patterns, beats, then validation against declared ids.</p>
-        <p><strong>Final task:</strong> Build a scene for one real system with at least eight nodes, three groups, four beats, one request, one response, one async event, one pattern, and one final glow. If it validates and a teammate can explain the architecture from the animation, you are ready for independent use.</p>
-      </article>
-
-    </div>
-  </section>
-
-  <!-- ─── AI-Friendly Generation ───────────────────────────────────────── -->
-  <section id="ai-gen" class="ai-section" aria-label="AI-powered generation">
-    <div class="section-header">
-      <span class="section-tag">AI Authoring</span>
-      <h2>AI-Friendly Diagram Generation</h2>
-      <p>MarkdyScript is a structured visual DSL that AI agents can generate, validate, diff, and iterate on. Describe the system; get a runnable animated diagram.</p>
-    </div>
-
-    <div class="ai-grid">
-      <div class="ai-card ai-card-how">
-        <h3>How it works</h3>
-        <ol class="ai-steps">
-          <li>
-            <strong>Point your AI to the docs</strong>
-            <p>Share the hosted <a href="/AGENT.md">AGENT.md</a> — a single all-in-one reference with grammar, cues, patterns and examples.</p>
-          </li>
-          <li>
-            <strong>Describe your scene in plain English</strong>
-            <p>Tell the AI the story you want to explain. You do not need to know node kinds, cue names, or flow operators.</p>
-          </li>
-          <li>
-            <strong>Get valid MarkdyScript back</strong>
-            <p>The AI generates syntactically correct code. Paste it into the playground or your app.</p>
-          </li>
-        </ol>
-      </div>
-
-      <div class="ai-card ai-card-example">
-        <h3>Example prompt</h3>
-        <div class="ai-prompt">
-          <div class="ai-prompt-header">
-            <span class="ai-prompt-label">You → Claude / ChatGPT / Copilot</span>
-          </div>
-          <blockquote class="ai-prompt-text">
-            Follow <code>https://markdy.com/AGENT.md</code> and return one complete MarkdyScript scene:
-            <br /><br />
-            <em>"Animate a URL shortener: a user creates a short link, then another user opens it and gets redirected via the API, cache, and database. Use beats for each step and highlight the fast cache path."</em>
-          </blockquote>
-        </div>
-        <p class="ai-hint">The AI reads the agent guide, chooses the right Markdy node kinds, beats, frame cues, and flow operators, then outputs a complete <code>.markdy</code> scene — ready to paste into the playground.</p>
-      </div>
-    </div>
-
-    <div class="ai-tools">
-      <p class="ai-tools-label">Works with any AI that accepts URL context</p>
-      <div class="ai-tools-list">
-        <span class="ai-tool">Claude</span>
-        <span class="ai-tool">ChatGPT</span>
-        <span class="ai-tool">GitHub Copilot</span>
-        <span class="ai-tool">Cursor</span>
-        <span class="ai-tool">Windsurf</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- ─── Search Intent: Use Cases + FAQ ──────────────────────────────── -->
-  <section id="use-cases" class="intent-section" aria-label="Markdy use cases">
-    <div class="section-header">
-      <span class="section-tag">Use Cases</span>
-      <h2>Where Markdy Fits</h2>
-      <p>Markdy is built for developer animation workflows where text, version control, docs, and AI generation matter more than timeline-heavy creative tools.</p>
-    </div>
-    <div class="intent-grid">
-      {USE_CASES.map((item) => (
-        <article class="intent-card">
-          <h3>{item.title}</h3>
-          <p>{item.desc}</p>
-        </article>
-      ))}
-    </div>
-  </section>
-
+  <!-- ─── FAQ ──────────────────────────────────────────────────────────── -->
   <section id="faq" class="faq-section" aria-label="Frequently asked questions">
     <div class="section-header">
       <span class="section-tag">FAQ</span>
@@ -1059,9 +877,11 @@ beat finish:
           <div class="footer-col">
             <h3>Product</h3>
             <a href="/playground/">Playground</a>
-            <a href="#learn">Syntax Reference</a>
+            <a href="#layouts">Layout Engines</a>
+            <a href="#ingestion">Ingestion</a>
+            <a href="#governance">Governance</a>
+            <a href="#syntax">Syntax Overview</a>
             <a href="#packages">Packages</a>
-            <a href="#ai-gen">AI Generation</a>
             <a href="#faq">FAQ</a>
           </div>
           <div class="footer-col">
@@ -1176,7 +996,7 @@ beat finish:
 
   /* ── Active nav link via IntersectionObserver ───────────────────── */
   (function () {
-    const sectionIds = ["features", "playground", "learn", "ai-gen", "faq"];
+    const sectionIds = ["features", "playground", "layouts", "ingestion", "governance", "ai-gen", "faq"];
     const navAnchors = new Map(
       sectionIds.map(id => [id, document.querySelector(`.nav-links a[href="#${id}"]`) as HTMLAnchorElement | null])
     );
@@ -2685,155 +2505,405 @@ beat finish:
     border-color: rgba(220, 38, 38, 0.3);
   }
 
-  /* ── Syntax Reference ────────────────────────────────────────────── */
-  .syntax-ref {
+  /* ── Core Sections Generic Layout ────────────────────────────────── */
+  .core-section {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 3rem 1.5rem 3.5rem;
+    padding: 3.5rem 1.5rem 4rem;
     border-top: 1px solid var(--border-subtle);
     scroll-margin-top: 68px;
   }
 
-  .ref-grid {
+  /* ── Core Feature 1: Layout Engines & Themes ─────────────────────── */
+  .layout-categories-grid {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.25rem;
+    margin-bottom: 2.5rem;
   }
 
-  .ref-card {
+  .layout-cat-card {
     border: 1px solid var(--border);
     border-radius: 12px;
-    padding: 1.5rem;
+    padding: 1.35rem;
     background: var(--bg-secondary);
     box-shadow: 0 1px 4px var(--shadow-sm);
     transition: all 0.25s ease;
-    /* Prevent grid item from expanding wider than its column */
-    min-width: 0;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
 
-  .ref-card:hover {
+  .layout-cat-card:hover {
     box-shadow: 0 4px 16px var(--shadow-md);
-    border-color: color-mix(in srgb, var(--accent) 30%, var(--border));
+    border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
   }
 
-  .ref-card-header {
+  .layout-cat-header {
     display: flex;
     align-items: center;
-    gap: 0.65rem;
-    margin-bottom: 0.75rem;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
   }
 
-  .step-badge {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 0.75rem;
-    font-weight: 700;
+  .layout-cat-icon {
+    font-size: 1.25rem;
   }
 
-  .ref-card-header h3 {
-    flex: 1;
+  .layout-cat-header h3 {
     font-size: 0.95rem;
     font-weight: 700;
     margin: 0;
     color: var(--text-primary);
   }
 
-  .apply-ref-btn {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    padding: 0;
+  .layout-types-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .layout-type-item {
+    padding: 0.5rem 0.65rem;
+    background: var(--bg-tertiary);
+    border-radius: 8px;
+    border: 1px solid var(--border-subtle);
+  }
+
+  .layout-type-head code {
+    font-size: 0.75rem;
+    font-weight: 600;
     color: var(--accent);
-    background: var(--accent-light);
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: background 0.15s ease, transform 0.1s ease;
+    background: transparent;
+    padding: 0;
   }
 
-  .apply-ref-btn:hover { background: rgba(63, 185, 80, 0.25); }
-  .apply-ref-btn:active { transform: scale(0.92); }
-
-  .ref-intro {
-    font-size: 0.85rem;
+  .layout-type-item p {
+    font-size: 0.76rem;
     color: var(--text-secondary);
-    line-height: 1.55;
-    margin-bottom: 0.75rem;
+    line-height: 1.45;
+    margin: 0.25rem 0 0;
   }
 
-  .ref-code-wrap {
+  .themes-banner {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    background: var(--bg-secondary);
+    box-shadow: 0 2px 8px var(--shadow-sm);
+  }
+
+  .themes-header {
+    margin-bottom: 1.25rem;
+  }
+
+  .themes-tag {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-bottom: 0.35rem;
+  }
+
+  .themes-header h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-primary);
+  }
+
+  .themes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.85rem;
+  }
+
+  .theme-chip {
+    padding: 0.85rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: all 0.2s ease;
+  }
+
+  .theme-chip:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .theme-chip-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.35rem;
+  }
+
+  .theme-chip-top strong {
+    font-size: 0.85rem;
+    color: var(--text-primary);
+  }
+
+  .theme-badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+
+  .theme-chip p {
+    font-size: 0.74rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  /* ── Core Feature 2: Universal Ingestion ─────────────────────────── */
+  .ingestion-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .ingestion-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.35rem;
+    background: var(--bg-secondary);
+    box-shadow: 0 1px 4px var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.25s ease;
+  }
+
+  .ingestion-card:hover {
+    box-shadow: 0 4px 16px var(--shadow-md);
+    border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  }
+
+  .ingestion-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+  }
+
+  .ingestion-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .ingestion-badge {
+    font-size: 0.65rem;
+    font-weight: 600;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+  }
+
+  .ingestion-desc {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0 0 1rem;
+    flex: 1;
+  }
+
+  .ingestion-cmd-wrap {
+    background: var(--ref-code-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.55rem 0.75rem;
     overflow-x: auto;
-    margin-bottom: 0.7rem;
   }
 
-  .ref-card pre {
-    position: relative;
+  .ingestion-cmd-wrap code {
+    font-size: 0.72rem;
+    color: var(--ref-code-text);
+    white-space: nowrap;
+    user-select: all;
+  }
+
+  /* ── Core Feature 3: Architecture Governance ─────────────────────── */
+  .governance-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.25rem;
+  }
+
+  .governance-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.35rem;
+    background: var(--bg-secondary);
+    box-shadow: 0 1px 4px var(--shadow-sm);
+    transition: all 0.25s ease;
+  }
+
+  .governance-card:hover {
+    box-shadow: 0 4px 16px var(--shadow-md);
+  }
+
+  .governance-card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .governance-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .gov-status {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  .gov-status--err {
+    background: rgba(220, 38, 38, 0.12);
+    color: #dc2626;
+  }
+
+  :root[data-theme="dark"] .gov-status--err {
+    background: rgba(248, 113, 113, 0.15);
+    color: #f87171;
+  }
+
+  .gov-status--info {
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+
+  .gov-rule-code {
+    display: block;
+    font-size: 0.72rem;
+    color: var(--accent);
+    background: var(--bg-tertiary);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    margin-bottom: 0.65rem;
+  }
+
+  .gov-desc {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* ── Core Feature 4: MCP / AI Config ─────────────────────────────── */
+  .mcp-config-code {
     background: var(--ref-code-bg);
     color: var(--ref-code-text);
     border: none;
     border-radius: 8px;
-    padding: 0.7rem 0.85rem;
-    overflow-x: auto;
+    padding: 0.85rem;
+    margin: 0;
     font-size: 0.74rem;
-    line-height: 1.6;
-    margin-bottom: 0;
-  }
-
-  .ref-table-wrap {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    margin-bottom: 0.6rem;
-  }
-
-  .ref-table-wrap table {
-    min-width: 0;
-    margin-bottom: 0;
-  }
-
-  .ref-card p {
-    font-size: 0.82rem;
-    color: var(--text-secondary);
     line-height: 1.55;
+    overflow-x: auto;
   }
 
-  .ref-card table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 0.6rem;
-    font-size: 0.78rem;
+  /* ── Core Feature 5: Streamlined 4-Step Syntax ──────────────────── */
+  .syntax-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1.15rem;
+    margin-bottom: 2rem;
   }
 
-  .ref-card th {
-    text-align: left;
-    font-weight: 600;
-    padding: 0.3rem 0.5rem 0.3rem 0;
-    border-bottom: 1px solid var(--border);
+  .syntax-step-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    background: var(--bg-secondary);
+    box-shadow: 0 1px 4px var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .syntax-step-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .step-num {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .syntax-step-header h3 {
+    font-size: 0.88rem;
+    font-weight: 700;
+    margin: 0;
     color: var(--text-primary);
   }
 
-  .ref-card td {
-    padding: 0.3rem 0.5rem 0.3rem 0;
-    border-bottom: 1px solid var(--border-subtle);
-    color: var(--text-secondary);
+  .syntax-step-code {
+    background: var(--ref-code-bg);
+    color: var(--ref-code-text);
+    border-radius: 8px;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.7rem;
+    line-height: 1.55;
+    margin: 0 0 0.65rem;
+    flex: 1;
+    overflow-x: auto;
   }
 
-  .ref-card td code {
-    font-size: 0.74rem;
-    background: var(--bg-tertiary);
-    padding: 0.1rem 0.35rem;
-    border-radius: 4px;
-    color: var(--accent);
+  .syntax-step-card p {
+    font-size: 0.76rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin: 0;
+  }
+
+  .syntax-cta-box {
+    text-align: center;
+    padding: 2rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+
+  .syntax-cta-box p {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 1.25rem;
+  }
+
+  .syntax-cta-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
   }
 
   /* ── AI Section ──────────────────────────────────────────────────── */
@@ -3365,11 +3435,14 @@ beat finish:
       text-align: left;
     }
 
-    .ref-grid { grid-template-columns: 1fr; }
+    .layout-categories-grid,
+    .ingestion-grid,
+    .governance-grid,
+    .syntax-steps-grid,
+    .themes-grid { grid-template-columns: 1fr; }
     .ai-grid { grid-template-columns: 1fr; }
     .intent-grid,
     .share-grid { grid-template-columns: 1fr; }
-    .ref-card pre { white-space: pre; }
 
     .footer-top { grid-template-columns: 1fr; }
     .footer-cols { grid-template-columns: repeat(3, 1fr); }
@@ -3433,18 +3506,7 @@ beat finish:
       -webkit-overflow-scrolling: touch;
     }
 
-    .syntax-ref { padding: 2rem 0.75rem 2.5rem; }
-    .ref-card { padding: 1rem; }
-    .ref-card pre { font-size: 0.7rem; }
-    .ref-card table {
-      display: block;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      font-size: 0.72rem;
-      white-space: nowrap;
-    }
-    .ref-card td, .ref-card th { white-space: normal; min-width: 80px; }
-    .ref-card td:last-child, .ref-card th:last-child { white-space: normal; }
+    .core-section { padding: 2rem 0.75rem 2.5rem; }
     .ai-prompt-text code { word-break: break-all; font-size: 0.68rem; }
   }
 </style>
