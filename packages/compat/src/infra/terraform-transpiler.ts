@@ -7,6 +7,7 @@
 export interface TfResourceAttributes {
   id?: string;
   name?: string;
+  arn?: string;
   tags?: Record<string, string>;
   vpc_id?: string;
   subnet_id?: string;
@@ -97,7 +98,7 @@ export function transpileTerraformStateToMarkdy(
 
     nodes.push({ id: resId, kind, label, vpcId });
 
-    if (firstInst?.arn) {
+    if (typeof firstInst?.arn === "string") {
       arnToResId.set(firstInst.arn, resId);
     }
 
@@ -106,7 +107,7 @@ export function transpileTerraformStateToMarkdy(
       vpcGroups.get(vpcId)!.push(resId);
     }
 
-    if (firstInst?.load_balancer_arn) {
+    if (typeof firstInst?.load_balancer_arn === "string") {
       edges.push({ from: firstInst.load_balancer_arn, to: resId, label: "routes" });
     }
   }
