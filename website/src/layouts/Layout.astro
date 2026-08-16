@@ -273,6 +273,31 @@ const jsonLd = {
         }
       }
 
+      /* Shared "Copy to clipboard" utility button, used wherever a standalone
+         copy action sits next to a code block (not part of a multi-button toolbar). */
+      .copy-btn {
+        padding: 0.25rem 0.6rem;
+        border-radius: 6px;
+        background: var(--bg-elevated);
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
+        font-size: 0.72rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+      }
+
+      .copy-btn:hover {
+        color: var(--text-primary);
+        border-color: var(--border-hover);
+      }
+
+      .copy-btn.copied {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #ffffff;
+      }
+
       .sr-only {
         position: absolute;
         width: 1px;

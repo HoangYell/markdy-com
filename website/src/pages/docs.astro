@@ -255,6 +255,18 @@ beat flow "Cache Lookup & Fallback":
         </div>
       </section>
 
+      <!-- ─── 1b. Core Philosophy ───────────────────────────────────────── -->
+      <section id="concepts" class="doc-section">
+        <h2 class="section-heading">Core Philosophy</h2>
+        <p>Markdy is <strong>diagram-native</strong>: MarkdyScript isn't a config format bolted onto a chart library — it's a small DSL purpose-built for describing systems, and every part of the toolchain treats it as a first-class language:</p>
+        <ul class="doc-list mt-4">
+          <li><strong>Diagrams as code.</strong> A scene is plain text, so it lives in your repo, reviews in a pull request, and diffs like any other source file — no binary design-tool exports to go stale.</li>
+          <li><strong>Parsing is separate from rendering.</strong> <code>@markdy/core</code> compiles MarkdyScript into a render plan (positioned nodes, routed edges, timed cues); <code>@markdy/renderer-dom</code> turns that plan into DOM and SVG. Anything that can consume the render plan can become a renderer.</li>
+          <li><strong>Motion, not just layout.</strong> Diagrams are told through <code>beat</code>s — discrete timeline steps — driven by the browser's native Web Animations API, so playback is seekable and scrubbable instead of a single static export.</li>
+          <li><strong>Semantic nodes over generic boxes.</strong> Declaring a node's kind (<code>service</code>, <code>database</code>, <code>queue</code>, ...) carries meaning the renderer uses for styling and iconography, instead of hand-picking shapes and colors per node.</li>
+        </ul>
+      </section>
+
       <!-- ─── 2. Grammar & Scene ───────────────────────────────────────── -->
       <section id="grammar" class="doc-section">
         <h2 class="section-heading">Scene Declaration</h2>
@@ -425,7 +437,7 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
           <div class="ingest-card">
             <div class="card-head-row">
               <h4>Mermaid.js (Flowcharts &amp; Sequences)</h4>
-              <button class="doc-copy-btn copy-cmd-btn" type="button" title="Copy command">Copy</button>
+              <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy command">Copy</button>
             </div>
             <p>Converts graph TD/LR and sequence diagrams to MarkdyScript.</p>
             <pre><code>markdy import flow.mmd --out flow.markdy</code></pre>
@@ -433,7 +445,7 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
           <div class="ingest-card">
             <div class="card-head-row">
               <h4>Docker Compose</h4>
-              <button class="doc-copy-btn copy-cmd-btn" type="button" title="Copy command">Copy</button>
+              <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy command">Copy</button>
             </div>
             <p>Extracts services, network links, volumes, and ports into clustered scenes.</p>
             <pre><code>markdy import docker-compose.yml</code></pre>
@@ -441,7 +453,7 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
           <div class="ingest-card">
             <div class="card-head-row">
               <h4>Kubernetes YAML</h4>
-              <button class="doc-copy-btn copy-cmd-btn" type="button" title="Copy command">Copy</button>
+              <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy command">Copy</button>
             </div>
             <p>Maps Ingress, Service, Deployment, Pod, and PVC tiers into nested groups.</p>
             <pre><code>markdy import k8s-manifest.yaml</code></pre>
@@ -449,7 +461,7 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
           <div class="ingest-card">
             <div class="card-head-row">
               <h4>Terraform State</h4>
-              <button class="doc-copy-btn copy-cmd-btn" type="button" title="Copy command">Copy</button>
+              <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy command">Copy</button>
             </div>
             <p>Extracts cloud VPCs, subnets, databases, and gateways into layered architectures.</p>
             <pre><code>markdy import terraform.tfstate</code></pre>
@@ -516,7 +528,7 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
           <div class="framework-card">
             <div class="card-head-row">
               <h4>Vanilla JavaScript</h4>
-              <button class="doc-copy-btn copy-cmd-btn" type="button" title="Copy snippet">Copy</button>
+              <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy snippet">Copy</button>
             </div>
             <pre><code>import &#123; createDiagram &#125; from "@markdy/renderer-dom";
 
@@ -531,7 +543,7 @@ diagram.play();</code></pre>
           <div class="framework-card">
             <div class="card-head-row">
               <h4>Astro Integration</h4>
-              <button class="doc-copy-btn copy-cmd-btn" type="button" title="Copy snippet">Copy</button>
+              <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy snippet">Copy</button>
             </div>
             <pre><code>import &#123; Markdy &#125; from "@markdy/astro";
 
@@ -541,7 +553,7 @@ diagram.play();</code></pre>
           <div class="framework-card">
             <div class="card-head-row">
               <h4>MDX Documentation</h4>
-              <button class="doc-copy-btn copy-cmd-btn" type="button" title="Copy snippet">Copy</button>
+              <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy snippet">Copy</button>
             </div>
             <pre><code>```markdy
 scene "Docs Architecture" theme=paper
@@ -655,7 +667,7 @@ client Browser -> service Api -> database DB
     // Add copy button if not present
     if (!actions.querySelector(".doc-copy-btn")) {
       const copyBtn = document.createElement("button");
-      copyBtn.className = "doc-copy-btn";
+      copyBtn.className = "doc-copy-btn copy-btn";
       copyBtn.type = "button";
       copyBtn.textContent = "Copy";
       copyBtn.title = "Copy snippet to clipboard";
@@ -1273,6 +1285,21 @@ client Browser -> service Api -> database DB
   .mt-4 { margin-top: 1rem; }
   .mt-6 { margin-top: 1.5rem; }
 
+  .doc-list {
+    padding-left: 1.2rem;
+  }
+
+  .doc-list li {
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin: 0.5rem 0;
+  }
+
+  .doc-list strong {
+    color: var(--text-primary);
+  }
+
   /* ─── Code Cards & Snippets ────────────────────────────────────────── */
   .doc-code-card {
     background: var(--code-bg);
@@ -1323,27 +1350,6 @@ client Browser -> service Api -> database DB
   .doc-studio-btn:hover {
     background: var(--accent);
     color: #ffffff !important;
-  }
-
-  .doc-copy-btn {
-    background: transparent;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--text-secondary);
-    font-size: 0.7rem;
-    padding: 0.15rem 0.45rem;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .doc-copy-btn:hover {
-    color: var(--text-primary);
-    border-color: var(--border-hover);
-  }
-
-  .doc-copy-btn.copied {
-    color: var(--accent);
-    border-color: var(--accent);
   }
 
   .doc-code-card pre {

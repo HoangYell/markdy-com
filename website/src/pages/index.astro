@@ -1310,7 +1310,11 @@ markdy check-all ./docs/diagrams</code></pre>
       navigator.clipboard.writeText(text.trim()).then(() => {
         const orig = btn.textContent;
         btn.textContent = "Copied!";
-        setTimeout(() => (btn.textContent = orig), 2000);
+        btn.classList.add("copied");
+        setTimeout(() => {
+          btn.textContent = orig;
+          btn.classList.remove("copied");
+        }, 2000);
       }).catch(() => {
         const orig = btn.textContent;
         btn.textContent = "Failed";
@@ -2685,22 +2689,7 @@ markdy check-all ./docs/diagrams</code></pre>
   }
 
   .copy-btn {
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-    font-size: 0.68rem;
-    font-weight: 600;
-    padding: 0.15rem 0.45rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.15s ease;
     flex-shrink: 0;
-  }
-
-  .copy-btn:hover {
-    color: var(--accent);
-    border-color: var(--accent);
-    background: var(--accent-light);
   }
 
   .ingestion-try-btn {
