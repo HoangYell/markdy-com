@@ -125,7 +125,7 @@ function lzwCompress(pixels: Uint8Array, minCodeSize = 8): Uint8Array {
       codeSize++;
     }
 
-    if (nextCode >= 4095) {
+    if (nextCode >= 4096) {
       codes.push(clearCode);
       dict = new Map();
       for (let j = 0; j < clearCode; j++) dict.set(String(j), j);

@@ -85,7 +85,12 @@ export function diffDiagramASTs(beforeAST: DiagramAST, afterAST: DiagramAST): Di
     if (!beforeEdgeMap.has(key)) {
       edgeDiffs.push({ key, status: "added", after: afterEdge });
     } else {
-      edgeDiffs.push({ key, status: "unchanged", before: beforeEdgeMap.get(key), after: afterEdge });
+      const beforeEdge = beforeEdgeMap.get(key)!;
+      if (beforeEdge.label !== afterEdge.label) {
+        edgeDiffs.push({ key, status: "modified", before: beforeEdge, after: afterEdge });
+      } else {
+        edgeDiffs.push({ key, status: "unchanged", before: beforeEdge, after: afterEdge });
+      }
     }
   }
 

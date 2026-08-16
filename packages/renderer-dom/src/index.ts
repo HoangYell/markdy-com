@@ -9,5 +9,8 @@ export type { AnimationRecordFrame, GifExportOptions } from "./export/gif-encode
 export { exportDiagramAsVectorSvg } from "./export/svg-exporter.js";
 export type { SvgExportOptions } from "./export/svg-exporter.js";
 
+export { exportDiagramAsPng } from "./export/png-exporter.js";
+export type { PngExportOptions } from "./export/png-exporter.js";
+
 export { DiagramPresentationController } from "./presentation-controller.js";
 export type { ControllerOptions } from "./presentation-controller.js";

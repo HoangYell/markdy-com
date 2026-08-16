@@ -336,7 +336,7 @@ async function importCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> 
   } else if (formatFlag === "terraform" || ext === ".tfstate" || (content.includes("terraform_version") || content.includes('"resources":'))) {
     markdyCode = compat.transpileTerraformStateToMarkdy(content, title);
   } else if (formatFlag === "drawio" || ext === ".drawio" || (ext === ".xml" && content.includes("<mxCell"))) {
-    markdyCode = compat.transpileDrawioToMarkdy(content, title).code;
+    markdyCode = (await compat.transpileDrawioToMarkdy(content, title)).code;
   } else {
     markdyCode = compat.transpileMermaidToMarkdy(content, title).code;
   }

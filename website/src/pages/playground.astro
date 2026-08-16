@@ -6,6 +6,59 @@ import { loadExamples } from "../data/examples";
 const ROOT = join(process.cwd(), "..");
 const EXAMPLES = await loadExamples(ROOT);
 
+const TOKEN_LIBRARIES = {
+  nodes: [
+    { kind: "service", icon: "⚙️", label: "Service", template: 'service ApiSvc "API Gateway Service"\n' },
+    { kind: "client", icon: "💻", label: "Client", template: 'client WebApp "Web Application"\n' },
+    { kind: "browser", icon: "🌐", label: "Browser", template: 'browser Chrome "End-User Browser"\n' },
+    { kind: "mobile", icon: "📱", label: "Mobile", template: 'mobile App "iOS / Android Client"\n' },
+    { kind: "gateway", icon: "🚪", label: "Gateway", template: 'gateway APIGw "Kong / Envoy Gateway"\n' },
+    { kind: "database", icon: "🗄️", label: "Database", template: 'database Postgres "PostgreSQL 16"\n' },
+    { kind: "cache", icon: "⚡", label: "Cache", template: 'cache Redis "Redis Cluster"\n' },
+    { kind: "queue", icon: "📬", label: "Queue", template: 'queue Kafka "Kafka Stream"\n' },
+    { kind: "worker", icon: "👷", label: "Worker", template: 'worker AsyncWorker "Background Worker"\n' },
+    { kind: "storage", icon: "📦", label: "Storage", template: 'storage S3Bucket "S3 Asset Storage"\n' },
+    { kind: "cdn", icon: "🌍", label: "CDN", template: 'cdn Cloudflare "Cloudflare Edge"\n' },
+    { kind: "firewall", icon: "🛡️", label: "Firewall", template: 'firewall WAF "WAF Perimeter"\n' },
+    { kind: "user", icon: "👤", label: "User", template: 'user Customer "End User"\n' },
+    { kind: "lambda", icon: "λ", label: "Lambda", template: 'lambda SlsFunc "Serverless Function"\n' },
+    { kind: "pod", icon: "📦", label: "Pod", template: 'pod AppPod "Kubernetes Pod"\n' },
+  ],
+  flows: [
+    { op: "->", label: "Sync (->)", template: 'Client -> Gateway "POST /checkout"\n', desc: "Synchronous HTTP/gRPC request" },
+    { op: "<-", label: "Response (<-)", template: 'Client <- Gateway "200 OK JSON"\n', desc: "Synchronous return response" },
+    { op: "~>", label: "Async (~>)", template: 'Gateway ~> Queue "order.created"\n', desc: "Asynchronous pub/sub event" },
+    { op: "<->", label: "Two-Way (<->)", template: 'WebApp <-> Gateway "WebSocket / mTLS"\n', desc: "Bidirectional streaming socket" },
+    { op: "..>", label: "Weak (..>)", template: 'Service ..> Database "depends on"\n', desc: "Dashed / weak dependency line" },
+  ],
+  layouts: [
+    { name: "layout LR", label: "layout LR", template: "layout LR\n", desc: "Left-to-right horizontal flow" },
+    { name: "layout TB", label: "layout TB", template: "layout TB\n", desc: "Top-to-bottom vertical hierarchy" },
+    { name: "type=nested", label: "type=nested", template: "type=nested\n", desc: "Subsystem boundary perimeters" },
+    { name: "type=gantt", label: "type=gantt", template: "type=gantt\n", desc: "Timeline & roadmap phases" },
+    { name: "type=medallion", label: "type=medallion", template: "type=medallion\n", desc: "Bronze → Silver → Gold data stages" },
+    { name: "type=flywheel", label: "type=flywheel", template: "type=flywheel\n", desc: "Compounding circular growth loop" },
+    { name: "type=constellation", label: "type=constellation", template: "type=constellation\n", desc: "Radial cluster around leader node" },
+    { name: "type=quadrant", label: "type=quadrant", template: "type=quadrant\n", desc: "2x2 strategic priority matrix" },
+  ],
+  themes: [
+    { name: "paper", label: "theme=paper", template: "theme=paper\n" },
+    { name: "editorial", label: "theme=editorial", template: "theme=editorial\n" },
+    { name: "terminal", label: "theme=terminal", template: "theme=terminal\n" },
+    { name: "sketchy", label: "theme=sketchy", template: "theme=sketchy\n" },
+    { name: "blueprint", label: "theme=blueprint", template: "theme=blueprint\n" },
+    { name: "midnight", label: "theme=midnight", template: "theme=midnight\n" },
+    { name: "graphite", label: "theme=graphite", template: "theme=graphite\n" },
+    { name: "nebula", label: "theme=nebula", template: "theme=nebula\n" },
+  ],
+  beats: [
+    { label: "Reveal All Nodes", template: 'beat reveal "System Entrance":\n  show $nodes stagger=60ms\n', desc: "Choreographed entrance" },
+    { label: "Subsystem Frame", template: 'beat inspect "Inspect Subsystem":\n  frame myGroup zoom=1.2 dur=600ms\n', desc: "Camera zoom focus" },
+    { label: "Pulse Glow", template: 'beat highlight "Alert State":\n  pulse NodeA color=#38bdf8\n', desc: "Glowing pulse effect" },
+    { label: "Group Boundary", template: 'group cluster "Secure VPC": NodeA NodeB DB\n', desc: "Perimeter enclosure" },
+  ],
+};
+
 const PLAY_SNIPPETS = [
   {
     label: "Reveal All Nodes",
@@ -33,6 +86,8 @@ const PLAY_SNIPPETS = [
   },
 ];
 
+const CATEGORIES = ["All", "Architecture", "Microservices", "Data Pipelines", "Cloud & Infra", "State & Algorithms"];
+
 const playgroundStructuredData = [
   {
     "@type": "WebPage",
@@ -47,109 +102,156 @@ const playgroundStructuredData = [
 ---
 
 <Layout
-  title="Markdy Playground — Learn and Test Animated Architecture Diagrams"
-  description="A spacious MarkdyScript playground for trying examples, editing animated architecture diagrams, learning beats and frame cues, and sharing runnable scenes."
+  title="Markdy Playground — Interactive Architecture Studio & Diagram As Code"
+  description="Author, test, inspect, and export animated architecture diagrams. Built-in token library, AST inspector, AI prompt assistant, governance linter, and vector SVG/PNG export."
   canonicalURL="https://markdy.com/playground/"
-  keywords="Markdy playground, MarkdyScript editor, animated architecture diagram playground, diagram as code playground, Mermaid alternative playground, AI diagram generator"
+  keywords="Markdy playground, architecture studio, diagram as code playground, mermaid alternative, animated architecture diagram, system design editor"
   structuredData={playgroundStructuredData}
 >
   <main class="playground-page">
     <nav class="topbar" aria-label="Playground navigation">
       <a class="brand" href="/" aria-label="Markdy home">
         <span>🎬</span>
-        <strong>markdy</strong>
+        <strong>markdy studio</strong>
       </a>
       <div class="topbar-links">
+        <div class="view-mode-group" role="group" aria-label="Studio layout mode">
+          <button id="view-split-btn" class="view-mode-btn active" type="button" data-mode="split" title="Split Screen (Code + Canvas)">⚡ Split</button>
+          <button id="view-canvas-btn" class="view-mode-btn" type="button" data-mode="canvas" title="Canvas Visual Studio">🎨 Canvas</button>
+          <button id="view-code-btn" class="view-mode-btn" type="button" data-mode="code" title="Code Only Editor">📝 Code</button>
+        </div>
+        <button id="open-cheatsheet-btn" class="topbar-chip" type="button" title="Syntax cheatsheet & keyboard shortcuts">⌨️ Shortcuts</button>
         <a href="/docs/">Docs</a>
         <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">GitHub</a>
         <button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle theme">Theme</button>
       </div>
     </nav>
 
-    <header class="hero">
-      <div class="hero-copy">
-        <span class="eyebrow">Dedicated workspace</span>
-        <h1>Play, learn, test, and share MarkdyScript.</h1>
-        <p>
-          Use this spacious playground when the homepage demo feels too tight:
-          pick a real shipped scene, edit with autocomplete, jump between beats,
-          inspect warnings, and copy a shareable URL.
-        </p>
-      </div>
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="#workspace">Start editing</a>
-        <a class="btn btn-secondary" href="/docs/">Read docs</a>
-      </div>
-    </header>
-
-    <section class="resource-strip" aria-label="Examples and learning helpers">
-      <section class="card examples-card">
-        <div class="panel-title">
-          <span>Examples</span>
-          <a id="example-source-link" href={EXAMPLES[0].sourceUrl} target="_blank" rel="noopener noreferrer">View source</a>
-        </div>
-        <div class="example-list">
-          {EXAMPLES.map((ex, i) => (
-            <button class="example-btn" type="button" data-index={i}>
-              <strong>{ex.title}</strong>
-              <span>{ex.pattern ?? ex.category}</span>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section class="card learn-card">
-        <div class="panel-title">
-          <span>Learn by inserting</span>
-        </div>
-        <p>Drop a small pattern into the editor, adapt the node ids, then run.</p>
-        <div class="snippet-list">
-          {PLAY_SNIPPETS.map((snippet) => (
-            <button class="snippet-btn" type="button" data-snippet={snippet.code}>{snippet.label}</button>
-          ))}
-        </div>
-      </section>
-
-      <section class="card checklist">
-        <div class="panel-title">
-          <span>Fast feedback loop</span>
-        </div>
-        <ol>
-          <li>Choose a showcase scene.</li>
-          <li>Edit nodes, groups, beats, and flow labels.</li>
-          <li>Use <code>frame</code> to guide attention.</li>
-          <li>Fix warnings until the scene is clean.</li>
-        </ol>
-      </section>
-    </section>
-
+    <!-- ── Interactive Workspace (Editor + Splitter + Preview) ── -->
     <section id="workspace" class="workspace" aria-label="MarkdyScript playground workspace">
+      
+      <!-- ── Left Column: Editor & Authoring Tools ── -->
       <section class="editor-panel" aria-label="Code editor">
         <div class="panel-head">
-          <div>
-            <span class="panel-kicker">Editor</span>
-            <h2>MarkdyScript</h2>
+          <div class="panel-head-left">
+            <div>
+              <span class="panel-kicker">Editor</span>
+              <h2>MarkdyScript</h2>
+            </div>
+            <select id="quick-example-select" class="tool-select" aria-label="Load Showcase Example">
+              {EXAMPLES.map((ex, i) => (
+                <option value={i}>{ex.title} ({ex.pattern ?? ex.category})</option>
+              ))}
+            </select>
           </div>
           <div class="toolbar">
-            <button id="import-btn" class="tool-btn" type="button" title="Import from Mermaid, Docker Compose, Kubernetes, or Terraform">Import</button>
+            <button id="import-btn" class="tool-btn" type="button" title="Import from Mermaid, Docker Compose, Kubernetes, Terraform, Draw.io">Import</button>
             <button id="audit-btn" class="tool-btn" type="button" title="Run Architecture Governance Audit">Audit</button>
             <button id="copy-code-btn" class="tool-btn" type="button">Copy</button>
             <button id="reset-btn" class="tool-btn" type="button">Reset</button>
-            <button id="run-btn" class="tool-btn tool-btn-primary" type="button">Run</button>
+            <button id="run-btn" class="tool-btn tool-btn-primary" type="button">Run ▶</button>
           </div>
         </div>
-        <div id="code-editor" class="code-editor" aria-label="MarkdyScript editor"></div>
-        <p class="hint">Auto-runs after typing. Use Cmd/Ctrl+Enter to run immediately.</p>
-        <div id="diagnostics" class="diagnostics" aria-live="polite"></div>
-        <div id="audit-panel" class="audit-panel" hidden>
-          <div class="audit-head">
-            <strong>🛡️ Architecture Governance Audit</strong>
-            <button id="close-audit-btn" class="audit-close" type="button" aria-label="Close audit panel">✕</button>
+
+        <!-- ── Token Library Quick Insert Bar ── -->
+        <div class="token-library-bar" aria-label="Token and Syntax Library">
+          <div class="token-group">
+            <span class="token-group-label">Nodes:</span>
+            <div class="token-chips">
+              {TOKEN_LIBRARIES.nodes.map((n) => (
+                <button class="token-chip" type="button" draggable="true" data-kind={n.kind} data-insert={n.template} title={`Drag to canvas or click to insert ${n.kind}: ${n.desc}`}>
+                  <span>{n.icon}</span>
+                  <code>{n.kind}</code>
+                </button>
+              ))}
+            </div>
           </div>
-          <div id="audit-results" class="audit-results"></div>
+          <div class="token-group">
+            <span class="token-group-label">Flows:</span>
+            <div class="token-chips">
+              {TOKEN_LIBRARIES.flows.map((f) => (
+                <button class="token-chip" type="button" data-insert={f.template} title={f.desc}>
+                  <code>{f.op}</code>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div class="token-group">
+            <span class="token-group-label">Presets:</span>
+            <div class="token-chips">
+              {TOKEN_LIBRARIES.layouts.slice(0, 4).map((l) => (
+                <button class="token-chip" type="button" data-insert={l.template} title={l.desc}>
+                  <code>{l.name}</code>
+                </button>
+              ))}
+              {TOKEN_LIBRARIES.beats.slice(0, 2).map((b) => (
+                <button class="token-chip" type="button" data-insert={b.template} title={b.desc}>
+                  <span>🎬</span>
+                  <code>{b.label}</code>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CodeMirror Editor Container ── -->
+        <div id="code-editor" class="code-editor" aria-label="MarkdyScript editor"></div>
+        <p class="hint">Auto-runs live after typing · Cmd/Ctrl+Enter to compile · Drag splitter to resize</p>
+
+        <!-- ── Editor Assistant & Entity Inspector Drawer ── -->
+        <div class="assistant-drawer" aria-label="Assistant and Inspector">
+          <div class="assistant-tabs" role="tablist">
+            <button class="assistant-tab active" type="button" data-tab="nodes">
+              <span>📦 Entities</span>
+              <span id="nodes-count-badge" class="tab-badge">0</span>
+            </button>
+            <button class="assistant-tab" type="button" data-tab="suggestions">
+              <span>💡 Health &amp; Suggestions</span>
+              <span id="sugg-count-badge" class="tab-badge">0</span>
+            </button>
+            <button class="assistant-tab" type="button" data-tab="ai">
+              <span>🤖 AI Prompt Builder</span>
+            </button>
+            <button class="assistant-tab" type="button" data-tab="diagnostics">
+              <span>🛡️ Diagnostics &amp; Lint</span>
+            </button>
+          </div>
+
+          <!-- Tab 1: Entities List -->
+          <div id="tab-panel-nodes" class="assistant-panel active">
+            <div class="entities-head">
+              <span class="entities-summary" id="entities-summary">Parsed Nodes &amp; Connections in Scene</span>
+              <button id="quick-add-node-btn" class="tool-btn-sm" type="button">+ Add Service</button>
+            </div>
+            <div id="nodes-inspector-grid" class="nodes-inspector-grid"></div>
+          </div>
+
+          <!-- Tab 2: Suggestions & Health -->
+          <div id="tab-panel-suggestions" class="assistant-panel">
+            <div class="suggestions-container" id="suggestions-container"></div>
+          </div>
+
+          <!-- Tab 3: AI Prompt Generator -->
+          <div id="tab-panel-ai" class="assistant-panel">
+            <div class="ai-builder-box">
+              <label for="ai-user-prompt">Describe architectural changes or system additions:</label>
+              <div class="ai-input-row">
+                <input id="ai-user-prompt" type="text" placeholder="e.g., Add a Kafka message queue between Ingress and OrderWorker..." />
+                <button id="generate-ai-prompt-btn" class="tool-btn tool-btn-primary" type="button">Copy Prompt for LLM</button>
+              </div>
+              <p class="ai-builder-hint">Generates an optimized prompt containing current AST and Markdy syntax conventions ready to paste into Claude, Cursor, or ChatGPT.</p>
+            </div>
+          </div>
+
+          <!-- Tab 4: Diagnostics & Governance -->
+          <div id="tab-panel-diagnostics" class="assistant-panel">
+            <div id="diagnostics" class="diagnostics" aria-live="polite"></div>
+            <div id="audit-results" class="audit-results"></div>
+          </div>
         </div>
       </section>
 
+      <!-- ── Draggable Splitter ── -->
       <button
         id="splitter"
         class="splitter"
@@ -165,6 +267,7 @@ const playgroundStructuredData = [
         <span></span>
       </button>
 
+      <!-- ── Right Column: Embedded Preview Panel ── -->
       <section class="preview-panel" aria-label="Animated preview">
         <div class="panel-head">
           <div>
@@ -173,6 +276,7 @@ const playgroundStructuredData = [
           </div>
           <div class="toolbar">
             <button id="export-svg-btn" class="tool-btn" type="button" title="Export clean Vector SVG">SVG</button>
+            <button id="export-png-btn" class="tool-btn" type="button" title="Export 2x Retina PNG">PNG</button>
             <button id="share-btn" class="tool-btn" type="button">Share</button>
             <button id="restart-btn" class="tool-btn" type="button">Restart</button>
             <button id="play-btn" class="tool-btn tool-btn-primary" type="button">Pause</button>
@@ -189,7 +293,85 @@ const playgroundStructuredData = [
           </div>
         </div>
 
-        <div id="stage" class="stage"></div>
+        <!-- Canvas Stage with Direct Interaction Overlays -->
+        <div id="stage" class="stage">
+          <!-- Diagram Scene Host -->
+          <div id="stage-canvas" class="stage-canvas"></div>
+
+          <!-- Drop Zone Indicator -->
+          <div id="stage-drop-overlay" class="stage-drop-overlay" hidden>
+            <div class="stage-drop-hint">
+              <span>✨</span>
+              <strong>Drop Node onto Canvas</strong>
+            </div>
+          </div>
+
+          <!-- Rubber-band Flow Connector SVG -->
+          <svg id="flow-canvas-svg" class="flow-canvas-svg" hidden>
+            <path id="flow-drag-path" class="flow-drag-path" d=""></path>
+          </svg>
+
+          <!-- Floating Node Contextual HUD -->
+          <div id="node-floating-hud" class="node-floating-hud" hidden>
+            <div class="hud-header">
+              <span id="hud-node-icon" class="hud-icon">📦</span>
+              <strong id="hud-node-id" class="hud-title">Node</strong>
+              <button id="hud-close-btn" class="hud-btn-close" type="button" title="Close HUD">✕</button>
+            </div>
+            <div class="hud-row">
+              <select id="hud-kind-select" class="hud-select" aria-label="Change Node Kind">
+                <option value="service">Service</option>
+                <option value="database">Database</option>
+                <option value="cache">Cache</option>
+                <option value="queue">Queue</option>
+                <option value="gateway">Gateway</option>
+                <option value="client">Client</option>
+                <option value="browser">Browser</option>
+                <option value="mobile">Mobile</option>
+                <option value="worker">Worker</option>
+                <option value="storage">Storage</option>
+                <option value="firewall">Firewall</option>
+                <option value="lambda">Lambda</option>
+                <option value="pod">Pod</option>
+              </select>
+              <input id="hud-label-input" class="hud-input" type="text" placeholder="Node label..." />
+            </div>
+            <div class="hud-actions-row">
+              <button id="hud-pulse-btn" class="hud-action-btn btn-hud-pulse" type="button" title="Add kinetic glow pulse">⚡ Pulse</button>
+              <button id="hud-frame-btn" class="hud-action-btn btn-hud-frame" type="button" title="Add camera zoom focus">🔍 Frame</button>
+              <button id="hud-delete-btn" class="hud-action-btn btn-hud-danger" type="button" title="Delete node from code">🗑️ Delete</button>
+            </div>
+          </div>
+
+          <!-- Flow Popover HUD -->
+          <div id="flow-popover" class="flow-popover" hidden>
+            <div class="flow-popover-header">
+              <span id="flow-popover-title">Connect Nodes</span>
+              <button id="flow-popover-close" class="hud-btn-close" type="button">✕</button>
+            </div>
+            <div class="flow-popover-body">
+              <div class="flow-type-chips">
+                <button class="flow-type-chip active" type="button" data-op="->">➔ Sync (-&gt;)</button>
+                <button class="flow-type-chip" type="button" data-op="~>">↝ Async (~&gt;)</button>
+                <button class="flow-type-chip" type="button" data-op="<->">↔ Bi-dir (&lt;-&gt;)</button>
+                <button class="flow-type-chip" type="button" data-op="<-">← Return (&lt;-)</button>
+              </div>
+              <input id="flow-label-input" class="hud-input" type="text" placeholder='Flow label (e.g. "GET /orders", "200 OK")' />
+              <button id="flow-submit-btn" class="tool-btn tool-btn-primary" type="button">Connect Flow</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Storyboard Beats Ribbon -->
+        <div class="storyboard-ribbon" aria-label="Storyboard Beats">
+          <div class="storyboard-header">
+            <span class="storyboard-title">🎬 Storyboard Beats</span>
+            <button id="storyboard-add-beat-btn" class="tool-btn-sm" type="button">+ Add Beat</button>
+          </div>
+          <div id="storyboard-track" class="storyboard-track">
+            <!-- Dynamically populated with parsed beats -->
+          </div>
+        </div>
 
         <div class="timeline">
           <input id="timeline-range" type="range" min="0" max="0" step="0.01" value="0" aria-label="Scrub timeline" />
@@ -198,7 +380,72 @@ const playgroundStructuredData = [
       </section>
     </section>
 
-    <!-- ── Ingestion Transpiler Modal ── -->
+    <!-- ── Showcase Library & Learning Strip (Below Workspace) ── -->
+    <section class="resource-strip" aria-label="Examples and learning helpers">
+      
+      <!-- Showcase Gallery -->
+      <section class="card examples-card">
+        <div class="panel-title">
+          <span>Showcase Examples Gallery (29 Systems)</span>
+          <a id="example-source-link" href={EXAMPLES[0].sourceUrl} target="_blank" rel="noopener noreferrer">View source ↗</a>
+        </div>
+        
+        <!-- Live search and category filters -->
+        <div class="gallery-controls">
+          <input id="example-search" class="gallery-search-input" type="text" placeholder="Search architecture models (e.g. k8s, kafka, redis, oauth)..." />
+          <div class="gallery-filter-chips">
+            {CATEGORIES.map((cat, i) => (
+              <button class={`gallery-filter-chip ${i === 0 ? 'active' : ''}`} type="button" data-cat={cat}>{cat}</button>
+            ))}
+          </div>
+        </div>
+
+        <div id="example-list" class="example-list">
+          {EXAMPLES.map((ex, i) => (
+            <button
+              class="example-btn"
+              type="button"
+              data-index={i}
+              data-title={ex.title.toLowerCase()}
+              data-cat={(ex.category ?? "").toLowerCase()}
+              data-pattern={(ex.pattern ?? "").toLowerCase()}
+              data-code={ex.code.slice(0, 300).toLowerCase()}
+            >
+              <strong>{ex.title}</strong>
+              <span>{ex.pattern ?? ex.category}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <!-- Pattern templates insertion -->
+      <section class="card learn-card">
+        <div class="panel-title">
+          <span>Learn by Inserting Patterns</span>
+        </div>
+        <p>Click any pattern to append directly into the editor:</p>
+        <div class="snippet-list">
+          {PLAY_SNIPPETS.map((snippet) => (
+            <button class="snippet-btn" type="button" data-snippet={snippet.code}>{snippet.label}</button>
+          ))}
+        </div>
+      </section>
+
+      <!-- Fast feedback checklist -->
+      <section class="card checklist">
+        <div class="panel-title">
+          <span>Fast Feedback Loop</span>
+        </div>
+        <ol>
+          <li>Declare semantic nodes (<code>service</code>, <code>database</code>, <code>cache</code>).</li>
+          <li>Connect relationships with <code>-&gt;</code> (sync) or <code>~&gt;</code> (async).</li>
+          <li>Choreograph steps inside <code>beat</code> blocks.</li>
+          <li>Use <code>frame</code> to direct camera attention to subsystems.</li>
+        </ol>
+      </section>
+    </section>
+
+    <!-- ── Universal Ingestion Modal ── -->
     <dialog id="import-modal" class="import-modal" aria-labelledby="import-modal-title">
       <div class="modal-backdrop"></div>
       <div class="modal-box">
@@ -224,10 +471,48 @@ const playgroundStructuredData = [
 
         <div class="modal-footer">
           <button id="load-sample-btn" class="tool-btn" type="button">Load Sample</button>
-          <button id="do-import-btn" class="tool-btn tool-btn-primary" type="button">Transpile & Open</button>
+          <button id="do-import-btn" class="tool-btn tool-btn-primary" type="button">Transpile &amp; Open</button>
         </div>
       </div>
     </dialog>
+
+    <!-- ── Shortcuts & Cheatsheet Modal ── -->
+    <dialog id="cheatsheet-modal" class="import-modal" aria-labelledby="cheatsheet-title">
+      <div class="modal-backdrop"></div>
+      <div class="modal-box">
+        <div class="modal-header">
+          <div>
+            <span class="panel-kicker">Quick Reference</span>
+            <h3 id="cheatsheet-title">Keyboard Shortcuts &amp; Syntax Reference</h3>
+          </div>
+          <button id="close-cheatsheet-btn" class="modal-close" type="button" aria-label="Close modal">✕</button>
+        </div>
+        
+        <div class="cheatsheet-body">
+          <div class="cheatsheet-section">
+            <h4>Keyboard Shortcuts</h4>
+            <div class="shortcuts-grid">
+              <div class="shortcut-row"><kbd>Cmd / Ctrl + Enter</kbd><span>Compile &amp; Re-run Scene</span></div>
+              <div class="shortcut-row"><kbd>Ctrl + Space</kbd><span>Trigger Autocomplete</span></div>
+              <div class="shortcut-row"><kbd>Space</kbd><span>Play / Pause Animation</span></div>
+              <div class="shortcut-row"><kbd>Esc</kbd><span>Close Modals / Reset Selection</span></div>
+            </div>
+          </div>
+
+          <div class="cheatsheet-section">
+            <h4>Flow Operators</h4>
+            <div class="shortcuts-grid">
+              <div class="shortcut-row"><code>A -&gt; B "call"</code><span>Synchronous request</span></div>
+              <div class="shortcut-row"><code>A &lt;- B "response"</code><span>Return response</span></div>
+              <div class="shortcut-row"><code>A ~&gt; B "event"</code><span>Asynchronous stream</span></div>
+              <div class="shortcut-row"><code>A &lt;-&gt; B "socket"</code><span>Bidirectional connection</span></div>
+              <div class="shortcut-row"><code>A ..&gt; B "dep"</code><span>Weak / dashed dependency</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
   </main>
 </Layout>
 
@@ -245,7 +530,7 @@ const playgroundStructuredData = [
 
   import { markdyLanguage, markdyAutocomplete, markdyHighlightLight, markdyHighlightDark } from "../editor/markdy-language";
   import { baseTheme, lightTheme, darkTheme } from "../editor/editor-theme";
-  import { createDiagram, exportDiagramAsVectorSvg } from "@markdy/renderer-dom";
+  import { createDiagram, exportDiagramAsVectorSvg, exportDiagramAsPng } from "@markdy/renderer-dom";
   import type { Diagram } from "@markdy/renderer-dom";
   import {
     parse,
@@ -268,20 +553,48 @@ const playgroundStructuredData = [
 
   const editorHost = document.getElementById("code-editor") as HTMLDivElement;
   const stage = document.getElementById("stage") as HTMLDivElement;
+  const stageCanvas = document.getElementById("stage-canvas") as HTMLDivElement;
+  const stageDropOverlay = document.getElementById("stage-drop-overlay") as HTMLDivElement;
+  const flowCanvasSvg = document.getElementById("flow-canvas-svg") as unknown as SVGSVGElement;
+  const flowDragPath = document.getElementById("flow-drag-path") as unknown as SVGPathElement;
+  const nodeFloatingHud = document.getElementById("node-floating-hud") as HTMLDivElement;
+  const hudNodeIcon = document.getElementById("hud-node-icon") as HTMLSpanElement;
+  const hudNodeId = document.getElementById("hud-node-id") as HTMLElement;
+  const hudKindSelect = document.getElementById("hud-kind-select") as HTMLSelectElement;
+  const hudLabelInput = document.getElementById("hud-label-input") as HTMLInputElement;
+  const hudPulseBtn = document.getElementById("hud-pulse-btn") as HTMLButtonElement;
+  const hudFrameBtn = document.getElementById("hud-frame-btn") as HTMLButtonElement;
+  const hudDeleteBtn = document.getElementById("hud-delete-btn") as HTMLButtonElement;
+  const hudCloseBtn = document.getElementById("hud-close-btn") as HTMLButtonElement;
+
+  const flowPopover = document.getElementById("flow-popover") as HTMLDivElement;
+  const flowPopoverTitle = document.getElementById("flow-popover-title") as HTMLSpanElement;
+  const flowPopoverClose = document.getElementById("flow-popover-close") as HTMLButtonElement;
+  const flowLabelInput = document.getElementById("flow-label-input") as HTMLInputElement;
+  const flowSubmitBtn = document.getElementById("flow-submit-btn") as HTMLButtonElement;
+  const flowTypeChips = document.querySelectorAll<HTMLButtonElement>(".flow-type-chip");
+
+  const storyboardTrack = document.getElementById("storyboard-track") as HTMLDivElement;
+  const storyboardAddBeatBtn = document.getElementById("storyboard-add-beat-btn") as HTMLButtonElement;
+  const viewModeBtns = document.querySelectorAll<HTMLButtonElement>(".view-mode-btn");
+
   const diagnostics = document.getElementById("diagnostics") as HTMLDivElement;
-  const auditPanel = document.getElementById("audit-panel") as HTMLDivElement;
   const auditResults = document.getElementById("audit-results") as HTMLDivElement;
   const importModal = document.getElementById("import-modal") as HTMLDialogElement;
   const importSource = document.getElementById("import-source") as HTMLTextAreaElement;
   const importError = document.getElementById("import-error") as HTMLDivElement;
   const importBtn = document.getElementById("import-btn") as HTMLButtonElement;
   const auditBtn = document.getElementById("audit-btn") as HTMLButtonElement;
-  const closeAuditBtn = document.getElementById("close-audit-btn") as HTMLButtonElement;
   const closeModalBtn = document.getElementById("close-modal-btn") as HTMLButtonElement;
   const loadSampleBtn = document.getElementById("load-sample-btn") as HTMLButtonElement;
   const doImportBtn = document.getElementById("do-import-btn") as HTMLButtonElement;
   const exportSvgBtn = document.getElementById("export-svg-btn") as HTMLButtonElement;
+  const exportPngBtn = document.getElementById("export-png-btn") as HTMLButtonElement;
   const formatTabs = document.querySelectorAll<HTMLButtonElement>(".format-tab");
+
+  const cheatsheetModal = document.getElementById("cheatsheet-modal") as HTMLDialogElement;
+  const openCheatsheetBtn = document.getElementById("open-cheatsheet-btn") as HTMLButtonElement;
+  const closeCheatsheetBtn = document.getElementById("close-cheatsheet-btn") as HTMLButtonElement;
 
   const runBtn = document.getElementById("run-btn") as HTMLButtonElement;
   const resetBtn = document.getElementById("reset-btn") as HTMLButtonElement;
@@ -294,20 +607,50 @@ const playgroundStructuredData = [
   const timelineLabel = document.getElementById("timeline-label") as HTMLSpanElement;
   const beatJump = document.getElementById("beat-jump") as HTMLSelectElement;
   const exampleSourceLink = document.getElementById("example-source-link") as HTMLAnchorElement;
+  const quickExampleSelect = document.getElementById("quick-example-select") as HTMLSelectElement;
   const exampleBtns = document.querySelectorAll<HTMLButtonElement>(".example-btn");
   const speedBtns = document.querySelectorAll<HTMLButtonElement>(".speed-btn");
   const themeToggle = document.getElementById("theme-toggle") as HTMLButtonElement;
   const workspace = document.getElementById("workspace") as HTMLElement;
   const splitter = document.getElementById("splitter") as HTMLButtonElement;
 
-  let activeImportFormat = "mermaid";
+  const nodesCountBadge = document.getElementById("nodes-count-badge") as HTMLSpanElement;
+  const suggCountBadge = document.getElementById("sugg-count-badge") as HTMLSpanElement;
+  const nodesInspectorGrid = document.getElementById("nodes-inspector-grid") as HTMLDivElement;
+  const suggestionsContainer = document.getElementById("suggestions-container") as HTMLDivElement;
+  const assistantTabs = document.querySelectorAll<HTMLButtonElement>(".assistant-tab");
+  const quickAddNodeBtn = document.getElementById("quick-add-node-btn") as HTMLButtonElement;
 
+  const aiUserPrompt = document.getElementById("ai-user-prompt") as HTMLInputElement;
+  const generateAiPromptBtn = document.getElementById("generate-ai-prompt-btn") as HTMLButtonElement;
+
+  const exampleSearch = document.getElementById("example-search") as HTMLInputElement;
+  const filterChips = document.querySelectorAll<HTMLButtonElement>(".gallery-filter-chip");
+
+  let activeImportFormat = "mermaid";
   let editor: EditorView | null = null;
   let diagram: Diagram | null = null;
   let debounce: ReturnType<typeof setTimeout> | null = null;
   let selectedExample = 0;
   let playbackRate = 1;
   let isScrubbing = false;
+
+  let parsedAst: any = null;
+  let selectedNodeId: string | null = null;
+  let isDrawingFlow = false;
+  let flowSourceNodeId: string | null = null;
+  let flowTargetNodeId: string | null = null;
+  let flowStartX = 0;
+  let flowStartY = 0;
+  let selectedFlowOp = "->";
+  let draggedToken: { kind?: string; template?: string } | null = null;
+
+  const NODE_ICON_MAP: Record<string, string> = {
+    service: "⚙️", client: "💻", browser: "🌐", mobile: "📱",
+    gateway: "🚪", database: "🗄️", cache: "⚡", queue: "📬",
+    worker: "👷", storage: "📦", cdn: "🌍", firewall: "🛡️",
+    user: "👤", lambda: "λ", pod: "📦",
+  };
 
   function isDarkMode(): boolean {
     return document.documentElement.getAttribute("data-theme") === "dark";
@@ -332,10 +675,9 @@ const playgroundStructuredData = [
   function showDiagnostics(items: string[]) {
     diagnostics.innerHTML = "";
     if (items.length === 0) {
-      diagnostics.hidden = true;
+      diagnostics.innerHTML = '<div class="diag-empty">✓ Scene parsed with 0 syntax errors.</div>';
       return;
     }
-    diagnostics.hidden = false;
     const title = document.createElement("strong");
     title.textContent = "Diagnostics";
     diagnostics.appendChild(title);
@@ -357,7 +699,7 @@ const playgroundStructuredData = [
     timelineLabel.textContent = `${formatTime(safeCurrent)} / ${formatTime(safeDuration)}`;
   }
 
-  function populateBeatJump(beats: { name: string; label?: string; start: number }[]) {
+  function populateBeatJump(beats: Array<{ name: string; label?: string }>) {
     beatJump.innerHTML = "";
     if (beats.length === 0) {
       beatJump.hidden = true;
@@ -379,6 +721,167 @@ const playgroundStructuredData = [
 
   function getCode(): string {
     return editor?.state.doc.toString() ?? "";
+  }
+
+  function insertCodeAtCursor(snippet: string) {
+    if (!editor) return;
+    const state = editor.state;
+    const selection = state.selection.main;
+    const doc = state.doc;
+    
+    // If empty or end of doc
+    let insert = snippet;
+    if (selection.empty && doc.length > 0 && !doc.toString().endsWith("\n") && !snippet.startsWith("\n")) {
+      insert = "\n" + snippet;
+    }
+
+    editor.dispatch({
+      changes: { from: selection.from, to: selection.to, insert },
+      selection: { anchor: selection.from + insert.length },
+    });
+    editor.focus();
+    render(getCode());
+  }
+
+  function updateEntitiesAndSuggestions(code: string) {
+    try {
+      const ast = parse(code);
+      parsedAst = ast;
+      const nodes = Object.values(ast.nodes || {});
+      const beats = ast.beats ?? [];
+      
+      updateStoryboard(beats);
+
+      // Calculate connection map
+      const incomingCounts: Record<string, number> = {};
+      const outgoingCounts: Record<string, number> = {};
+
+      for (const beat of beats) {
+        for (const cue of beat.cues ?? []) {
+          if (cue.kind === "flow") {
+            for (const seg of (cue as any).segments ?? []) {
+              if (seg.from) outgoingCounts[seg.from] = (outgoingCounts[seg.from] || 0) + 1;
+              if (seg.to) incomingCounts[seg.to] = (incomingCounts[seg.to] || 0) + 1;
+            }
+          }
+        }
+      }
+
+      for (const edge of (ast.edges ?? [])) {
+        if (edge.from) outgoingCounts[edge.from] = (outgoingCounts[edge.from] || 0) + 1;
+        if (edge.to) incomingCounts[edge.to] = (incomingCounts[edge.to] || 0) + 1;
+      }
+
+      // Update Entities badge & grid
+      nodesCountBadge.textContent = String(nodes.length);
+      nodesInspectorGrid.innerHTML = "";
+
+      if (nodes.length === 0) {
+        nodesInspectorGrid.innerHTML = '<div class="inspector-empty">No nodes declared. Click any Node chip above to insert.</div>';
+      } else {
+        for (const node of nodes) {
+          const card = document.createElement("div");
+          card.className = "node-item-card";
+          const icon = NODE_ICON_MAP[node.kind] || "⚙️";
+          const outCount = outgoingCounts[node.id] || 0;
+          const inCount = incomingCounts[node.id] || 0;
+
+          card.innerHTML = `
+            <div class="node-card-top">
+              <span class="node-icon">${icon}</span>
+              <strong class="node-id">${node.id}</strong>
+              <span class="node-kind-badge" data-kind="${node.kind}">${node.kind}</span>
+            </div>
+            <p class="node-label-text">${node.label || node.id}</p>
+            <div class="node-flows-stat">
+              <span>↑ ${outCount} out</span> · <span>↓ ${inCount} in</span>
+            </div>
+            <div class="node-actions-row">
+              <button class="node-action-btn btn-flow" type="button" data-id="${node.id}">+ Flow</button>
+              <button class="node-action-btn btn-pulse" type="button" data-id="${node.id}">Pulse</button>
+            </div>
+          `;
+
+          // Quick flow trigger
+          card.querySelector(".btn-flow")?.addEventListener("click", () => {
+            const nextTarget = nodes.find(n => n.id !== node.id)?.id || "Target";
+            insertCodeAtCursor(`\nbeat flow_${node.id}:\n  ${node.id} -> ${nextTarget} "request"`);
+          });
+
+          // Quick pulse trigger
+          card.querySelector(".btn-pulse")?.addEventListener("click", () => {
+            insertCodeAtCursor(`\nbeat alert_${node.id}:\n  pulse ${node.id} color=#38bdf8`);
+          });
+
+          nodesInspectorGrid.appendChild(card);
+        }
+      }
+
+      // Generate Smart Suggestions
+      const suggestions: Array<{ title: string; desc: string; actionLabel?: string; onAction?: () => void }> = [];
+
+      if (beats.length === 0) {
+        suggestions.push({
+          title: "Scene is static",
+          desc: "Add a choreographed beat block to animate requests and highlight stages.",
+          actionLabel: "+ Add Beat Entrance",
+          onAction: () => insertCodeAtCursor('\nbeat entrance "System Flow":\n  show $nodes stagger=60ms\n'),
+        });
+      }
+
+      const unconnected = nodes.filter(n => (outgoingCounts[n.id] || 0) === 0 && (incomingCounts[n.id] || 0) === 0);
+      if (unconnected.length > 0) {
+        const target = unconnected[0];
+        const partner = nodes.find(n => n.id !== target.id);
+        suggestions.push({
+          title: `Isolated node '${target.id}'`,
+          desc: `Node '${target.id}' (${target.kind}) has no incoming or outgoing flows.`,
+          actionLabel: partner ? `Connect to ${partner.id}` : "+ Connect Flow",
+          onAction: () => {
+            if (partner) insertCodeAtCursor(`\nbeat connect_${target.id}:\n  ${target.id} -> ${partner.id} "call"\n`);
+          },
+        });
+      }
+
+      if (!code.includes("layout LR") && !code.includes("layout TB")) {
+        suggestions.push({
+          title: "Directional layout unset",
+          desc: "Adding 'layout LR' provides a horizontal topology for clear microservice architectures.",
+          actionLabel: "+ Add layout LR",
+          onAction: () => insertCodeAtCursor("\nlayout LR\n"),
+        });
+      }
+
+      suggCountBadge.textContent = String(suggestions.length);
+      suggestionsContainer.innerHTML = "";
+
+      if (suggestions.length === 0) {
+        suggestionsContainer.innerHTML = '<div class="sugg-perfect">✓ Architecture looks great! All nodes connected with active beats.</div>';
+      } else {
+        for (const sugg of suggestions) {
+          const item = document.createElement("div");
+          item.className = "sugg-item";
+          item.innerHTML = `
+            <div class="sugg-info">
+              <strong>${sugg.title}</strong>
+              <p>${sugg.desc}</p>
+            </div>
+          `;
+          if (sugg.actionLabel && sugg.onAction) {
+            const btn = document.createElement("button");
+            btn.className = "sugg-action-btn";
+            btn.type = "button";
+            btn.textContent = sugg.actionLabel;
+            btn.addEventListener("click", sugg.onAction);
+            item.appendChild(btn);
+          }
+          suggestionsContainer.appendChild(item);
+        }
+      }
+
+    } catch {
+      // Ignored during mid-type errors
+    }
   }
 
   function createEditor(code: string) {
@@ -423,11 +926,12 @@ const playgroundStructuredData = [
   function render(code: string) {
     diagram?.destroy();
     diagram = null;
-    stage.innerHTML = "";
+    if (stageCanvas) stageCanvas.innerHTML = "";
+    deselectCanvas();
     const warnings: string[] = [];
     try {
       diagram = createDiagram({
-        container: stage,
+        container: stageCanvas || stage,
         code,
         autoplay: true,
         loop: true,
@@ -447,9 +951,11 @@ const playgroundStructuredData = [
       showDiagnostics(warnings);
       setTimeline(diagram.currentTime(), diagram.duration());
       populateBeatJump(diagram.beats());
+      updateEntitiesAndSuggestions(code);
+      attachCanvasInteraction();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
-      stage.innerHTML = `<div class="parse-error">${message}</div>`;
+      if (stageCanvas) stageCanvas.innerHTML = `<div class="parse-error">${message}</div>`;
       setStatus(false);
       showDiagnostics([message]);
       setTimeline(0, 0);
@@ -461,15 +967,394 @@ const playgroundStructuredData = [
   function setActiveExample(index: number) {
     selectedExample = index;
     exampleBtns.forEach((btn, i) => btn.classList.toggle("active", i === index));
+    if (quickExampleSelect && index >= 0) {
+      quickExampleSelect.value = String(index);
+    }
     const example = examples[index];
     if (example) {
       exampleSourceLink.href = example.sourceUrl;
-      exampleSourceLink.textContent = "View source";
+      exampleSourceLink.textContent = "View source ↗";
     } else {
       exampleSourceLink.href = "https://github.com/HoangYell/markdy-com/tree/main/examples";
-      exampleSourceLink.textContent = "Browse examples";
+      exampleSourceLink.textContent = "Browse examples ↗";
     }
   }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Direct Manipulation & Canvas Interactions
+  // ─────────────────────────────────────────────────────────────────────────────
+  function attachCanvasInteraction() {
+    if (!stageCanvas) return;
+    const nodeEls = stageCanvas.querySelectorAll<HTMLElement>(".markdy-node");
+    nodeEls.forEach((nodeEl) => {
+      const nodeId = nodeEl.dataset.node;
+      if (!nodeId) return;
+
+      nodeEl.addEventListener("click", (e) => {
+        e.stopPropagation();
+        selectNodeOnCanvas(nodeId, nodeEl);
+      });
+
+      ensureConnectorPorts(nodeEl, nodeId);
+    });
+  }
+
+  function selectNodeOnCanvas(nodeId: string, nodeEl: HTMLElement) {
+    selectedNodeId = nodeId;
+    if (!stageCanvas || !nodeFloatingHud) return;
+    if (flowPopover) flowPopover.hidden = true;
+
+    stageCanvas.querySelectorAll(".markdy-node").forEach(n => {
+      n.classList.toggle("markdy-node--selected", (n as HTMLElement).dataset.node === nodeId);
+    });
+
+    const nodeDecl = parsedAst?.nodes?.[nodeId];
+    const kind = (nodeDecl?.kind || nodeEl.dataset.kind || "service").toLowerCase();
+    const label = nodeDecl?.label || nodeId;
+    const icon = NODE_ICON_MAP[kind] || "⚙️";
+
+    if (hudNodeIcon) hudNodeIcon.textContent = icon;
+    if (hudNodeId) hudNodeId.textContent = nodeId;
+    if (hudKindSelect) hudKindSelect.value = kind;
+    if (hudLabelInput) hudLabelInput.value = label;
+
+    const stageRect = stage.getBoundingClientRect();
+    const nodeRect = nodeEl.getBoundingClientRect();
+
+    const left = Math.max(12, Math.min(stageRect.width - 240, nodeRect.left - stageRect.left + (nodeRect.width / 2) - 110));
+    const top = Math.max(12, nodeRect.top - stageRect.top - 84);
+
+    nodeFloatingHud.style.left = `${left}px`;
+    nodeFloatingHud.style.top = `${top}px`;
+    nodeFloatingHud.hidden = false;
+  }
+
+  function deselectCanvas() {
+    selectedNodeId = null;
+    if (stageCanvas) {
+      stageCanvas.querySelectorAll(".markdy-node").forEach(n => n.classList.remove("markdy-node--selected"));
+    }
+    if (nodeFloatingHud) nodeFloatingHud.hidden = true;
+    if (flowPopover) flowPopover.hidden = true;
+  }
+
+  stage.addEventListener("click", (e) => {
+    const target = e.target as HTMLElement;
+    if (target.closest(".markdy-node") || target.closest(".node-floating-hud") || target.closest(".flow-popover")) return;
+    deselectCanvas();
+  });
+
+  hudCloseBtn?.addEventListener("click", deselectCanvas);
+
+  hudKindSelect?.addEventListener("change", () => {
+    if (!selectedNodeId) return;
+    const newKind = hudKindSelect.value;
+    let code = getCode();
+    const regex = new RegExp(`^(\\s*)([a-zA-Z_]+)(\\s+${selectedNodeId}\\b)`, "m");
+    if (regex.test(code)) {
+      code = code.replace(regex, `$1${newKind}$3`);
+      createEditor(code);
+      render(code);
+      setTimeout(() => {
+        const el = stageCanvas?.querySelector<HTMLElement>(`[data-node="${selectedNodeId}"]`);
+        if (el) selectNodeOnCanvas(selectedNodeId!, el);
+      }, 50);
+    }
+  });
+
+  hudLabelInput?.addEventListener("change", () => {
+    if (!selectedNodeId) return;
+    const newLabel = hudLabelInput.value.trim();
+    let code = getCode();
+    const regex = new RegExp(`^(\\s*[a-zA-Z_]+\\s+${selectedNodeId})(\\s+("[^"]*"|'[^']*'|\\S+))?(.*)$`, "m");
+    if (regex.test(code)) {
+      code = code.replace(regex, `$1 "${newLabel}"$4`);
+      createEditor(code);
+      render(code);
+      setTimeout(() => {
+        const el = stageCanvas?.querySelector<HTMLElement>(`[data-node="${selectedNodeId}"]`);
+        if (el) selectNodeOnCanvas(selectedNodeId!, el);
+      }, 50);
+    }
+  });
+
+  hudPulseBtn?.addEventListener("click", () => {
+    if (!selectedNodeId) return;
+    insertCodeAtCursor(`\nbeat pulse_${selectedNodeId}:\n  pulse ${selectedNodeId} color=#38bdf8\n`);
+    deselectCanvas();
+  });
+
+  hudFrameBtn?.addEventListener("click", () => {
+    if (!selectedNodeId) return;
+    insertCodeAtCursor(`\nbeat zoom_${selectedNodeId}:\n  frame ${selectedNodeId} zoom=1.2 dur=600ms\n`);
+    deselectCanvas();
+  });
+
+  hudDeleteBtn?.addEventListener("click", () => {
+    if (!selectedNodeId) return;
+    let code = getCode();
+    const lines = code.split("\n").filter(line => {
+      if (new RegExp(`^[a-zA-Z_]+\\s+${selectedNodeId}\\b`).test(line.trim())) return false;
+      if (new RegExp(`\\b${selectedNodeId}\\s*(->|<-|~>|<->|\\.\\.>)|(->|<-|~>|<->|\\.\\.>)\\s*${selectedNodeId}\\b`).test(line)) return false;
+      return true;
+    });
+    const newCode = lines.join("\n");
+    deselectCanvas();
+    createEditor(newCode);
+    render(newCode);
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Connector Ports & Flow Drawing
+  // ─────────────────────────────────────────────────────────────────────────────
+  function ensureConnectorPorts(nodeEl: HTMLElement, nodeId: string) {
+    if (nodeEl.querySelector(".connector-port")) return;
+
+    ["e", "w", "s", "n"].forEach(pos => {
+      const port = document.createElement("div");
+      port.className = `connector-port port-${pos}`;
+      port.title = "Drag to connect flow";
+      
+      port.addEventListener("mousedown", (e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        startDrawingFlow(nodeId, e);
+      });
+
+      nodeEl.appendChild(port);
+    });
+  }
+
+  function startDrawingFlow(sourceId: string, e: MouseEvent) {
+    if (!flowCanvasSvg || !flowDragPath) return;
+    if (nodeFloatingHud) nodeFloatingHud.hidden = true;
+    if (flowPopover) flowPopover.hidden = true;
+    isDrawingFlow = true;
+    flowSourceNodeId = sourceId;
+    flowTargetNodeId = null;
+
+    const stageRect = stage.getBoundingClientRect();
+    flowStartX = e.clientX - stageRect.left;
+    flowStartY = e.clientY - stageRect.top;
+
+    flowCanvasSvg.hidden = false;
+    flowDragPath.setAttribute("d", `M ${flowStartX} ${flowStartY} L ${flowStartX} ${flowStartY}`);
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!isDrawingFlow) return;
+      const currentX = ev.clientX - stageRect.left;
+      const currentY = ev.clientY - stageRect.top;
+
+      const dx = currentX - flowStartX;
+      const dy = currentY - flowStartY;
+      const cx1 = flowStartX + dx * 0.5;
+      const cy1 = flowStartY;
+      const cx2 = flowStartX + dx * 0.5;
+      const cy2 = currentY;
+
+      flowDragPath.setAttribute("d", `M ${flowStartX} ${flowStartY} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${currentX} ${currentY}`);
+
+      const target = (document.elementFromPoint(ev.clientX, ev.clientY) as HTMLElement)?.closest(".markdy-node") as HTMLElement | null;
+      stageCanvas?.querySelectorAll(".markdy-node").forEach(n => n.classList.remove("markdy-node--target-drop"));
+      if (target && target.dataset.node && target.dataset.node !== sourceId) {
+        target.classList.add("markdy-node--target-drop");
+        flowTargetNodeId = target.dataset.node;
+      } else {
+        flowTargetNodeId = null;
+      }
+    };
+
+    const onMouseUp = (ev: MouseEvent) => {
+      isDrawingFlow = false;
+      flowCanvasSvg.hidden = true;
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+      stageCanvas?.querySelectorAll(".markdy-node").forEach(n => n.classList.remove("markdy-node--target-drop"));
+
+      if (flowTargetNodeId && flowSourceNodeId && flowTargetNodeId !== flowSourceNodeId) {
+        if (flowPopoverTitle) flowPopoverTitle.textContent = `${flowSourceNodeId} ➔ ${flowTargetNodeId}`;
+        if (flowLabelInput) flowLabelInput.value = "";
+        const currentX = ev.clientX - stageRect.left;
+        const currentY = ev.clientY - stageRect.top;
+        if (flowPopover) {
+          flowPopover.style.left = `${Math.max(10, Math.min(stageRect.width - 240, currentX - 110))}px`;
+          flowPopover.style.top = `${Math.max(10, Math.min(stageRect.height - 180, currentY - 50))}px`;
+          flowPopover.hidden = false;
+          flowLabelInput?.focus();
+        }
+      }
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+  }
+
+  flowPopoverClose?.addEventListener("click", () => { if (flowPopover) flowPopover.hidden = true; });
+
+  flowTypeChips.forEach(chip => {
+    chip.addEventListener("click", () => {
+      flowTypeChips.forEach(c => c.classList.remove("active"));
+      chip.classList.add("active");
+      selectedFlowOp = chip.dataset.op || "->";
+    });
+  });
+
+  flowSubmitBtn?.addEventListener("click", () => {
+    if (!flowSourceNodeId || !flowTargetNodeId) return;
+    const label = flowLabelInput?.value.trim() || "";
+    const labelSnippet = label ? ` "${label}"` : "";
+    const flowSnippet = `  ${flowSourceNodeId} ${selectedFlowOp} ${flowTargetNodeId}${labelSnippet}\n`;
+
+    let code = getCode();
+    const lines = code.split("\n");
+    const lastBeatIndex = lines.findLastIndex(l => /^beat\b/.test(l));
+
+    if (lastBeatIndex !== -1) {
+      lines.splice(lastBeatIndex + 1, 0, flowSnippet.trimEnd());
+      code = lines.join("\n");
+    } else {
+      code += `\nbeat flow_${flowSourceNodeId}_${flowTargetNodeId}:\n${flowSnippet}`;
+    }
+
+    if (flowPopover) flowPopover.hidden = true;
+    createEditor(code);
+    render(code);
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Palette Drag-and-Drop onto Canvas
+  // ─────────────────────────────────────────────────────────────────────────────
+  document.querySelectorAll<HTMLButtonElement>(".token-chip").forEach(chip => {
+    chip.addEventListener("dragstart", (e) => {
+      const kind = chip.dataset.kind;
+      const template = chip.dataset.insert || chip.dataset.template;
+      draggedToken = { kind, template };
+      if (e.dataTransfer) {
+        e.dataTransfer.setData("text/plain", template || "");
+        e.dataTransfer.effectAllowed = "copy";
+      }
+    });
+    chip.addEventListener("dragend", () => {
+      draggedToken = null;
+      if (stageDropOverlay) stageDropOverlay.hidden = true;
+    });
+  });
+
+  stage.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = "copy";
+    if (stageDropOverlay) stageDropOverlay.hidden = false;
+  });
+
+  stage.addEventListener("dragleave", (e) => {
+    if (!stage.contains(e.relatedTarget as Node)) {
+      if (stageDropOverlay) stageDropOverlay.hidden = true;
+    }
+  });
+
+  stage.addEventListener("drop", (e) => {
+    e.preventDefault();
+    if (stageDropOverlay) stageDropOverlay.hidden = true;
+    if (!draggedToken) return;
+
+    const kind = draggedToken.kind || "service";
+    const kindSlug = kind.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const existingNodes = Object.keys(parsedAst?.nodes || {});
+    let idIndex = 1;
+    let newId = `${kindSlug}_${idIndex}`;
+    while (existingNodes.includes(newId)) {
+      idIndex++;
+      newId = `${kindSlug}_${idIndex}`;
+    }
+    const label = `${kind.charAt(0).toUpperCase() + kind.slice(1)} ${idIndex}`;
+    const declaration = `${kind} ${newId} "${label}"\n`;
+
+    insertNodeDeclaration(declaration);
+  });
+
+  function insertNodeDeclaration(declaration: string) {
+    const code = getCode();
+    const lines = code.split("\n");
+    let insertIndex = lines.findIndex(l => /^(service|client|browser|mobile|gateway|database|db|cache|queue|worker|storage|firewall|lambda|pod|user)\b/.test(l));
+    
+    if (insertIndex === -1) {
+      insertIndex = lines.findIndex(l => /^layout\b/.test(l));
+      if (insertIndex === -1) insertIndex = lines.findIndex(l => /^scene\b/.test(l));
+      if (insertIndex !== -1) insertIndex += 1;
+      else insertIndex = lines.length;
+    }
+
+    lines.splice(insertIndex, 0, declaration.trim());
+    const newCode = lines.join("\n");
+    createEditor(newCode);
+    render(newCode);
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // Storyboard Beats Ribbon
+  // ─────────────────────────────────────────────────────────────────────────────
+  function updateStoryboard(beats: any[]) {
+    if (!storyboardTrack) return;
+    storyboardTrack.innerHTML = "";
+    if (!beats || beats.length === 0) {
+      storyboardTrack.innerHTML = '<div class="storyboard-empty">No animation beats declared. Click "+ Add Beat" to start choreographing motion.</div>';
+      return;
+    }
+
+    beats.forEach((beat, index) => {
+      const card = document.createElement("div");
+      card.className = "storyboard-card";
+      const cueCount = (beat.cues || []).length;
+      card.innerHTML = `
+        <div class="storyboard-card-head">
+          <span class="storyboard-card-step">#${index + 1}</span>
+          <strong class="storyboard-card-name">${beat.name}</strong>
+        </div>
+        <span class="storyboard-card-meta">${cueCount} cue${cueCount === 1 ? '' : 's'} · Click to seek</span>
+      `;
+
+      card.addEventListener("click", () => {
+        if (!diagram) return;
+        diagram.seekToBeat(beat.name);
+        storyboardTrack.querySelectorAll(".storyboard-card").forEach(c => c.classList.remove("active"));
+        card.classList.add("active");
+      });
+
+      storyboardTrack.appendChild(card);
+    });
+  }
+
+  storyboardAddBeatBtn?.addEventListener("click", () => {
+    const existingCount = (parsedAst?.beats || []).length;
+    const newBeatName = `step_${existingCount + 1}`;
+    insertCodeAtCursor(`\nbeat ${newBeatName} "Step ${existingCount + 1}":\n  show $nodes stagger=50ms\n`);
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // View Mode Switching
+  // ─────────────────────────────────────────────────────────────────────────────
+  function setViewMode(mode: "split" | "canvas" | "code") {
+    workspace.dataset.viewMode = mode;
+    viewModeBtns.forEach(btn => {
+      const active = btn.dataset.mode === mode;
+      btn.classList.toggle("active", active);
+      btn.setAttribute("aria-pressed", active ? "true" : "false");
+    });
+    if (mode === "canvas" || mode === "split") {
+      diagram?.seek(diagram.currentTime());
+    }
+  }
+
+  viewModeBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      setViewMode((btn.dataset.mode as any) || "split");
+    });
+  });
+
+  quickExampleSelect?.addEventListener("change", () => {
+    const idx = Number(quickExampleSelect.value);
+    if (idx >= 0) loadExample(idx);
+  });
 
   function loadExample(index: number) {
     const example = examples[index];
@@ -525,6 +1410,315 @@ const playgroundStructuredData = [
     setWorkspaceSplit(((clientX - rect.left) / rect.width) * 100);
   }
 
+  // Token Library Quick Insert Clicks
+  document.querySelectorAll<HTMLButtonElement>(".token-chip").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const template = chip.dataset.insert;
+      if (template) insertCodeAtCursor(template);
+    });
+  });
+
+  // Assistant Tab Switching
+  assistantTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const target = tab.dataset.tab;
+      assistantTabs.forEach(t => t.classList.toggle("active", t === tab));
+      document.querySelectorAll(".assistant-panel").forEach(p => {
+        p.classList.toggle("active", p.id === `tab-panel-${target}`);
+      });
+    });
+  });
+
+  // Quick Add Service Button
+  quickAddNodeBtn?.addEventListener("click", () => {
+    const name = `service_${Math.floor(Math.random() * 900 + 100)}`;
+    insertCodeAtCursor(`\nservice ${name} "New Microservice"\n`);
+  });
+
+  // AI Prompt Builder for LLMs
+  generateAiPromptBtn?.addEventListener("click", () => {
+    const promptText = aiUserPrompt?.value.trim() || "Add missing architectural layers and improve diagram animation";
+    const currentCode = getCode();
+    const fullPrompt = `I need you to modify/extend the following MarkdyScript architecture diagram code.\n\nUser Goal: ${promptText}\n\nCurrent MarkdyScript Code:\n\`\`\`markdy\n${currentCode}\n\`\`\`\n\nPlease output the complete updated MarkdyScript scene with valid semantic nodes (service, client, gateway, database, cache, queue, worker), flow operators (->, ~>, <->), and choreographed beats.`;
+    
+    writeClipboard(fullPrompt, generateAiPromptBtn, "✓ Prompt Copied!");
+  });
+
+  const ALIAS_MAP: Record<string, string[]> = {
+    k8s: ["kubernetes", "cluster", "platform"],
+    kube: ["kubernetes"],
+    auth: ["oauth", "oidc", "security", "login", "zero-trust"],
+    sql: ["database", "postgres", "aurora"],
+    db: ["database", "postgres", "redis"],
+    async: ["queue", "kafka", "fan-out", "event"],
+    cicd: ["ci/cd", "pipeline", "delivery"],
+    pipeline: ["ci/cd", "youtube", "medallion", "lakehouse"],
+    stream: ["kafka", "queue", "flywheel"],
+  };
+
+  // Gallery Search and Category Filter
+  function filterGallery() {
+    const rawQuery = exampleSearch?.value.toLowerCase().trim() || "";
+    const activeCat = document.querySelector<HTMLButtonElement>(".gallery-filter-chip.active")?.dataset.cat?.toLowerCase() || "all";
+
+    // Expand aliases
+    const expandedTerms = [rawQuery];
+    if (ALIAS_MAP[rawQuery]) {
+      expandedTerms.push(...ALIAS_MAP[rawQuery]);
+    }
+
+    exampleBtns.forEach((btn) => {
+      const title = (btn.dataset.title || "").toLowerCase();
+      const cat = (btn.dataset.cat || "").toLowerCase();
+      const pattern = (btn.dataset.pattern || "").toLowerCase();
+      const code = (btn.dataset.code || "").toLowerCase();
+
+      const haystack = `${title} ${cat} ${pattern} ${code}`;
+      const matchesQuery = rawQuery === "" || expandedTerms.some(term => haystack.includes(term));
+      const matchesCat = activeCat === "all" || cat.includes(activeCat) || pattern.includes(activeCat);
+      (btn as HTMLElement).style.display = matchesQuery && matchesCat ? "flex" : "none";
+    });
+  }
+
+  exampleSearch?.addEventListener("input", filterGallery);
+  filterChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      filterChips.forEach(c => c.classList.toggle("active", c === chip));
+      filterGallery();
+    });
+  });
+
+  // Cheatsheet modal
+  openCheatsheetBtn?.addEventListener("click", () => cheatsheetModal?.showModal());
+  closeCheatsheetBtn?.addEventListener("click", () => cheatsheetModal?.close());
+  cheatsheetModal?.addEventListener("click", (e) => {
+    if (e.target === cheatsheetModal) cheatsheetModal.close();
+  });
+
+  // Ingestion sample templates
+  const SAMPLES: Record<string, string> = {
+    mermaid: `flowchart LR\n  Client[Web Client] --> Gateway[Kong API Gateway]\n  Gateway --> OrdersSvc[Orders Microservice]\n  OrdersSvc --> OrdersDB[(PostgreSQL 16)]\n  OrdersSvc --> Cache[(Redis Cluster)]`,
+    compose: `services:\n  web:\n    image: nginx:alpine\n    ports: ["80:80"]\n    depends_on: ["api"]\n  api:\n    image: node:20\n    depends_on: ["db", "cache"]\n  db:\n    image: postgres:16\n  cache:\n    image: redis:7`,
+    k8s: `apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: payment-service\n  namespace: fintech\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: payment-svc\n  namespace: fintech\n---\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: payment-ingress\n  namespace: fintech`,
+    terraform: `{\n  "version": 4,\n  "resources": [\n    {\n      "type": "aws_lb",\n      "name": "public_alb",\n      "instances": [{ "attributes": { "name": "prod-alb", "vpc_id": "vpc_prod" } }]\n    },\n    {\n      "type": "aws_rds_cluster",\n      "name": "aurora_postgres",\n      "instances": [{ "attributes": { "name": "prod-db", "vpc_id": "vpc_prod" } }]\n    }\n  ]\n}`,
+    drawio: `<mxGraphModel>\n  <root>\n    <mxCell id="0"/>\n    <mxCell id="1" parent="0"/>\n    <mxCell id="2" value="Web Client" vertex="1" parent="1"/>\n    <mxCell id="3" value="API Gateway" style="shape=hexagon;" vertex="1" parent="1"/>\n    <mxCell id="4" value="PostgreSQL" style="shape=cylinder;" vertex="1" parent="1"/>\n    <mxCell id="5" value="HTTPS Request" edge="1" source="2" target="3" parent="1"/>\n    <mxCell id="6" value="SQL Query" edge="1" source="3" target="4" parent="1"/>\n  </root>\n</mxGraphModel>`,
+  };
+
+  importBtn.addEventListener("click", () => {
+    if (importError) importError.hidden = true;
+    importModal.showModal();
+    importSource.value = SAMPLES[activeImportFormat] ?? "";
+  });
+
+  closeModalBtn.addEventListener("click", () => importModal.close());
+  importModal.addEventListener("click", (e) => {
+    if (e.target === importModal) importModal.close();
+  });
+
+  loadSampleBtn.addEventListener("click", () => {
+    importSource.value = SAMPLES[activeImportFormat] ?? "";
+  });
+
+  formatTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      formatTabs.forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+      activeImportFormat = tab.dataset.format ?? "mermaid";
+      importSource.value = SAMPLES[activeImportFormat] ?? "";
+    });
+  });
+
+  doImportBtn.addEventListener("click", async () => {
+    const src = importSource.value.trim();
+    if (!src) return;
+    try {
+      let markdyCode = "";
+      if (activeImportFormat === "mermaid") {
+        const res = transpileMermaidToMarkdy(src);
+        markdyCode = typeof res === "string" ? res : res.code;
+      } else if (activeImportFormat === "compose") {
+        markdyCode = transpileDockerComposeToMarkdy(src);
+      } else if (activeImportFormat === "k8s") {
+        markdyCode = transpileKubernetesManifestsToMarkdy(src);
+      } else if (activeImportFormat === "terraform") {
+        markdyCode = transpileTerraformStateToMarkdy(src);
+      } else if (activeImportFormat === "drawio") {
+        const res = await transpileDrawioToMarkdy(src);
+        markdyCode = typeof res === "string" ? res : res.code;
+      } else {
+        throw new Error(`Unknown format: ${activeImportFormat}`);
+      }
+
+      importModal.close();
+      createEditor(markdyCode);
+      render(markdyCode);
+      setActiveExample(-1);
+    } catch (err) {
+      if (importError) {
+        importError.hidden = false;
+        importError.textContent = `Transpilation error: ${(err as Error).message}`;
+      }
+    }
+  });
+
+  // Architecture Governance Audit
+  auditBtn.addEventListener("click", () => {
+    try {
+      const code = getCode();
+      const ast = parse(code);
+      const violations = validateArchitecture(ast);
+      const errorCount = violations.filter(v => v.severity === "error").length;
+      const warnCount = violations.filter(v => v.severity === "warning").length;
+      
+      let html = `
+        <div class="audit-summary">
+          <div class="audit-badge ${errorCount === 0 ? 'badge-pass' : 'badge-fail'}">
+            ${errorCount === 0 ? '✓ GOVERNANCE PASS' : `✗ ${errorCount} BLOCKING ISSUES`}
+          </div>
+          <span class="audit-passrate">${errorCount} error${errorCount === 1 ? '' : 's'}, ${warnCount} warning${warnCount === 1 ? '' : 's'}</span>
+        </div>
+      `;
+
+      if (violations.length === 0) {
+        html += `<p class="audit-clean">✓ Architecture adheres to all cloud well-architected guardrails.</p>`;
+      } else {
+        html += `<ul class="audit-issues-list">`;
+        for (const issue of violations) {
+          const isErr = issue.severity === "error";
+          html += `
+            <li class="audit-issue ${isErr ? 'issue-err' : 'issue-warn'}">
+              <span class="issue-badge">${issue.severity.toUpperCase()}</span>
+              <div class="issue-body">
+                <strong>${issue.ruleName} (line ${issue.line ?? 1})</strong>
+                <p>${issue.message}</p>
+              </div>
+            </li>
+          `;
+        }
+        html += `</ul>`;
+      }
+      auditResults.innerHTML = html;
+      
+      // Switch to diagnostics tab
+      assistantTabs.forEach(t => t.classList.toggle("active", t.dataset.tab === "diagnostics"));
+      document.querySelectorAll(".assistant-panel").forEach(p => {
+        p.classList.toggle("active", p.id === "tab-panel-diagnostics");
+      });
+    } catch (err) {
+      alert("Audit error: " + (err as Error).message);
+    }
+  });
+
+  // Export buttons
+  exportSvgBtn.addEventListener("click", () => {
+    try {
+      const svgXml = exportDiagramAsVectorSvg(stage, { includeThemeStyles: true });
+      const blob = new Blob([svgXml], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "markdy-diagram.svg";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      writeClipboard("", exportSvgBtn, "Saved SVG");
+    } catch (err) {
+      alert("SVG export error: " + (err as Error).message);
+    }
+  });
+
+  exportPngBtn?.addEventListener("click", async () => {
+    try {
+      const blob = await exportDiagramAsPng(stage, { includeThemeStyles: true, pixelRatio: 2 });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "markdy-diagram.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      writeClipboard("", exportPngBtn, "Saved PNG");
+    } catch (err) {
+      alert("PNG export error: " + (err as Error).message);
+    }
+  });
+
+  runBtn.addEventListener("click", () => render(getCode()));
+  resetBtn.addEventListener("click", () => loadExample(selectedExample >= 0 ? selectedExample : 0));
+  copyCodeBtn.addEventListener("click", () => writeClipboard(getCode(), copyCodeBtn, "Copied"));
+  shareBtn.addEventListener("click", async () => {
+    const hash = await encodeShare(getCode());
+    const url = `${window.location.origin}${window.location.pathname}#code=${hash}`;
+    writeClipboard(url, shareBtn, "Copied Link");
+  });
+
+  restartBtn.addEventListener("click", () => {
+    if (!diagram) return;
+    diagram.seek(0);
+    diagram.play();
+  });
+
+  playBtn.addEventListener("click", () => {
+    if (!diagram) return;
+    if (diagram.isPlaying()) diagram.pause();
+    else diagram.play();
+  });
+
+  speedBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      playbackRate = Number(btn.dataset.speed ?? "1");
+      speedBtns.forEach((item) => {
+        const active = item === btn;
+        item.classList.toggle("active", active);
+        item.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+      diagram?.setPlaybackRate(playbackRate);
+    });
+  });
+
+  timelineRange.addEventListener("mousedown", () => { isScrubbing = true; });
+  timelineRange.addEventListener("touchstart", () => { isScrubbing = true; }, { passive: true });
+  window.addEventListener("mouseup", () => { isScrubbing = false; });
+  window.addEventListener("touchend", () => { isScrubbing = false; });
+  timelineRange.addEventListener("input", () => {
+    if (!diagram) return;
+    diagram.seek(Number(timelineRange.value));
+  });
+
+  beatJump.addEventListener("change", () => {
+    if (!diagram || !beatJump.value) return;
+    diagram.seekToBeat(beatJump.value);
+  });
+
+  themeToggle.addEventListener("click", () => {
+    const next = isDarkMode() ? "light" : "dark";
+    const code = getCode();
+    applyTheme(next);
+    createEditor(code);
+    render(code);
+  });
+
+  // Drag splitter
+  let draggingSplitter = false;
+  splitter.addEventListener("mousedown", (event) => {
+    draggingSplitter = true;
+    splitter.classList.add("dragging");
+    event.preventDefault();
+  });
+  window.addEventListener("mousemove", (event) => {
+    if (!draggingSplitter) return;
+    setWorkspaceSplitFromClientX(event.clientX);
+  });
+  window.addEventListener("mouseup", () => {
+    if (!draggingSplitter) return;
+    draggingSplitter = false;
+    splitter.classList.remove("dragging");
+  });
+  splitter.addEventListener("dblclick", () => setWorkspaceSplit(50));
+
+  // Initialize
   const params = new URLSearchParams(window.location.hash.slice(1));
   const sharedCodeParam = params.get("code");
 
@@ -553,243 +1747,8 @@ const playgroundStructuredData = [
   document.querySelectorAll<HTMLButtonElement>(".snippet-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const snippet = btn.dataset.snippet;
-      if (!editor || !snippet) return;
-      const doc = editor.state.doc;
-      const insert = `${doc.length > 0 ? "\n\n" : ""}${snippet}`;
-      editor.dispatch({
-        changes: { from: doc.length, insert },
-        selection: { anchor: doc.length + insert.length },
-      });
-      editor.focus();
-      render(getCode());
+      if (snippet) insertCodeAtCursor(`\n${snippet}\n`);
     });
-  });
-
-  const SAMPLES: Record<string, string> = {
-    mermaid: `flowchart LR\n  Client[Web Client] --> Gateway[Kong API Gateway]\n  Gateway --> OrdersSvc[Orders Microservice]\n  OrdersSvc --> OrdersDB[(PostgreSQL 16)]\n  OrdersSvc --> Cache[(Redis Cluster)]`,
-    compose: `services:\n  web:\n    image: nginx:alpine\n    ports: ["80:80"]\n    depends_on: ["api"]\n  api:\n    image: node:20\n    depends_on: ["db", "cache"]\n  db:\n    image: postgres:16\n  cache:\n    image: redis:7`,
-    k8s: `apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: payment-service\n  namespace: fintech\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: payment-svc\n  namespace: fintech\n---\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: payment-ingress\n  namespace: fintech`,
-    terraform: `{\n  "version": 4,\n  "resources": [\n    {\n      "type": "aws_lb",\n      "name": "public_alb",\n      "instances": [{ "attributes": { "name": "prod-alb", "vpc_id": "vpc_prod" } }]\n    },\n    {\n      "type": "aws_rds_cluster",\n      "name": "aurora_postgres",\n      "instances": [{ "attributes": { "name": "prod-db", "vpc_id": "vpc_prod" } }]\n    }\n  ]\n}`,
-    drawio: `<mxGraphModel>\n  <root>\n    <mxCell id="0"/>\n    <mxCell id="1" parent="0"/>\n    <mxCell id="2" value="Web Client" vertex="1" parent="1"/>\n    <mxCell id="3" value="API Gateway" style="shape=hexagon;" vertex="1" parent="1"/>\n    <mxCell id="4" value="PostgreSQL" style="shape=cylinder;" vertex="1" parent="1"/>\n    <mxCell id="5" value="HTTPS Request" edge="1" source="2" target="3" parent="1"/>\n    <mxCell id="6" value="SQL Query" edge="1" source="3" target="4" parent="1"/>\n  </root>\n</mxGraphModel>`,
-  };
-
-  importBtn.addEventListener("click", () => {
-    if (importError) importError.hidden = true;
-    importModal.showModal();
-    if (!importSource.value) {
-      importSource.value = SAMPLES[activeImportFormat];
-    }
-  });
-
-  closeModalBtn.addEventListener("click", () => importModal.close());
-  importModal.addEventListener("click", (e) => {
-    if (e.target === importModal) importModal.close();
-  });
-
-  formatTabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      formatTabs.forEach((t) => t.classList.remove("active"));
-      tab.classList.add("active");
-      activeImportFormat = tab.dataset.format ?? "mermaid";
-      importSource.value = SAMPLES[activeImportFormat] ?? "";
-      if (importError) importError.hidden = true;
-    });
-  });
-
-  loadSampleBtn.addEventListener("click", () => {
-    importSource.value = SAMPLES[activeImportFormat] ?? "";
-    if (importError) importError.hidden = true;
-  });
-
-  doImportBtn.addEventListener("click", () => {
-    const raw = importSource.value.trim();
-    if (!raw) return;
-    if (importError) importError.hidden = true;
-    let transpiled = "";
-    try {
-      if (activeImportFormat === "mermaid") {
-        transpiled = transpileMermaidToMarkdy(raw, "Imported Mermaid").code;
-      } else if (activeImportFormat === "compose") {
-        transpiled = transpileDockerComposeToMarkdy(raw, "Imported Docker Compose");
-      } else if (activeImportFormat === "k8s") {
-        transpiled = transpileKubernetesManifestsToMarkdy(raw, "Imported Kubernetes");
-      } else if (activeImportFormat === "terraform") {
-        transpiled = transpileTerraformStateToMarkdy(raw, "Imported Terraform");
-      } else if (activeImportFormat === "drawio") {
-        transpiled = transpileDrawioToMarkdy(raw, "Imported Draw.io").code;
-      }
-      createEditor(transpiled);
-      render(transpiled);
-      setActiveExample(-1);
-      importModal.close();
-    } catch (err) {
-      if (importError) {
-        importError.hidden = false;
-        importError.textContent = `❌ Import error: ${(err as Error).message}`;
-      }
-    }
-  });
-
-  auditBtn.addEventListener("click", () => {
-    const isHidden = auditPanel.hidden;
-    if (!isHidden) {
-      auditPanel.hidden = true;
-      return;
-    }
-    auditPanel.hidden = false;
-    auditResults.innerHTML = "";
-    try {
-      const ast = parse(getCode());
-      const violations = validateArchitecture(ast);
-      if (violations.length === 0) {
-        auditResults.innerHTML = `
-          <div class="audit-pass">
-            <span class="audit-badge pass">PASS</span>
-            <strong>Well-Architected Rules Satisfied</strong>
-            <p>No layer boundary violations, cyclic deadlocks, or unprotected persistence access detected.</p>
-          </div>
-        `;
-      } else {
-        const list = document.createElement("ul");
-        list.className = "audit-list";
-        for (const v of violations) {
-          const item = document.createElement("li");
-          item.className = `audit-item ${v.severity}`;
-          item.innerHTML = `
-            <span class="audit-badge ${v.severity}">${v.severity.toUpperCase()}</span>
-            <strong>${v.ruleName}</strong> (line ${v.line ?? 1}):
-            <span>${v.message}</span>
-          `;
-          list.appendChild(item);
-        }
-        auditResults.appendChild(list);
-      }
-    } catch (err) {
-      auditResults.innerHTML = `<div class="audit-error">Cannot audit: syntax errors present. Fix parser errors first.</div>`;
-    }
-  });
-
-  closeAuditBtn.addEventListener("click", () => {
-    auditPanel.hidden = true;
-  });
-
-  exportSvgBtn.addEventListener("click", () => {
-    try {
-      const svgXml = exportDiagramAsVectorSvg(stage, { includeThemeStyles: true });
-      const blob = new Blob([svgXml], { type: "image/svg+xml;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "markdy-diagram.svg";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      const old = exportSvgBtn.textContent;
-      exportSvgBtn.textContent = "Saved";
-      setTimeout(() => { exportSvgBtn.textContent = old; }, 1800);
-    } catch (err) {
-      alert("SVG export error: " + (err as Error).message);
-    }
-  });
-
-  runBtn.addEventListener("click", () => render(getCode()));
-  resetBtn.addEventListener("click", () => loadExample(selectedExample >= 0 ? selectedExample : 0));
-  copyCodeBtn.addEventListener("click", () => writeClipboard(getCode(), copyCodeBtn, "Copied"));
-  shareBtn.addEventListener("click", async () => {
-    const hash = await encodeShare(getCode());
-    const url = `${window.location.origin}${window.location.pathname}#code=${hash}`;
-    writeClipboard(url, shareBtn, "Copied");
-  });
-
-  restartBtn.addEventListener("click", () => {
-    if (!diagram) return;
-    diagram.seek(0);
-    diagram.play();
-  });
-
-  playBtn.addEventListener("click", () => {
-    if (!diagram) return;
-    if (diagram.isPlaying()) diagram.pause();
-    else diagram.play();
-  });
-
-  speedBtns.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      playbackRate = Number(btn.dataset.speed ?? "1");
-      speedBtns.forEach((item) => {
-        const active = item === btn;
-        item.classList.toggle("active", active);
-        item.setAttribute("aria-pressed", active ? "true" : "false");
-      });
-      diagram?.setPlaybackRate(playbackRate);
-    });
-  });
-
-  splitter.addEventListener("pointerdown", (event) => {
-    if (window.matchMedia("(max-width: 900px)").matches) return;
-    event.preventDefault();
-    splitter.setPointerCapture(event.pointerId);
-    document.body.classList.add("is-resizing-playground");
-
-    const onMove = (moveEvent: PointerEvent) => {
-      setWorkspaceSplitFromClientX(moveEvent.clientX);
-    };
-    const onUp = () => {
-      document.body.classList.remove("is-resizing-playground");
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp, { once: true });
-  });
-
-  splitter.addEventListener("dblclick", () => setWorkspaceSplit(50));
-
-  splitter.addEventListener("keydown", (event) => {
-    const current = Number(splitter.getAttribute("aria-valuenow") ?? "50");
-    if (event.key === "ArrowLeft") {
-      event.preventDefault();
-      setWorkspaceSplit(current - 4);
-    }
-    if (event.key === "ArrowRight") {
-      event.preventDefault();
-      setWorkspaceSplit(current + 4);
-    }
-    if (event.key === "Home") {
-      event.preventDefault();
-      setWorkspaceSplit(30);
-    }
-    if (event.key === "End") {
-      event.preventDefault();
-      setWorkspaceSplit(70);
-    }
-  });
-
-  timelineRange.addEventListener("input", () => {
-    if (!diagram) return;
-    isScrubbing = true;
-    diagram.seek(Number(timelineRange.value));
-  });
-
-  timelineRange.addEventListener("change", () => {
-    isScrubbing = false;
-    if (!diagram) return;
-    diagram.seek(Number(timelineRange.value));
-  });
-
-  beatJump.addEventListener("change", () => {
-    if (!diagram || !beatJump.value) return;
-    diagram.seekToBeat(beatJump.value);
-  });
-
-  themeToggle.addEventListener("click", () => {
-    const next = isDarkMode() ? "light" : "dark";
-    const code = getCode();
-    applyTheme(next);
-    createEditor(code);
-    render(code);
   });
 
   document.addEventListener("keydown", (event) => {
@@ -806,20 +1765,28 @@ const playgroundStructuredData = [
     --bg-primary: #f8fafc;
     --bg-secondary: #ffffff;
     --bg-tertiary: #f1f5f9;
+    --bg-elevated: #ffffff;
     --text-primary: #0f172a;
-    --text-secondary: #64748b;
-    --text-muted: #6b7280;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
     --border: #e2e8f0;
-    --border-subtle: #eef2f7;
-    --accent: #047857;
-    --accent-hover: #065f46;
-    --accent-light: rgba(5, 150, 105, 0.12);
-    --danger: #dc2626;
-    --shadow-md: rgba(15, 23, 42, 0.08);
+    --border-hover: #cbd5e1;
+    --border-subtle: #f1f5f9;
+    --accent: #059669;
+    --accent-hover: #047857;
+    --accent-light: rgba(5, 150, 105, 0.08);
+    --accent-glow: rgba(5, 150, 105, 0.25);
+    --danger: #ef4444;
+    --danger-light: rgba(239, 68, 68, 0.08);
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -2px rgba(15, 23, 42, 0.05);
+    --shadow-lg: 0 20px 40px -12px rgba(15, 23, 42, 0.12);
+    --grid-dot: rgba(15, 23, 42, 0.06);
     --selection-bg: #d1fae5;
     --selection-text: #064e3b;
     --cm-caret: #0f172a;
-    --cm-activeLine: rgba(5, 150, 105, 0.05);
+    --cm-activeLine: rgba(5, 150, 105, 0.04);
     --cm-selection: #d1fae5;
     --cm-tooltipBg: #ffffff;
     --cm-tooltipBorder: #e2e8f0;
@@ -829,685 +1796,1681 @@ const playgroundStructuredData = [
   }
 
   :root[data-theme="dark"] {
-    --bg-primary: #0d1117;
-    --bg-secondary: #161b22;
-    --bg-tertiary: #1c2128;
-    --text-primary: #c9d1d9;
-    --text-secondary: #8b949e;
-    --text-muted: #8b949e;
-    --border: #30363d;
-    --border-subtle: #21262d;
-    --accent: #3fb950;
-    --accent-hover: #2ea043;
-    --accent-light: rgba(63, 185, 80, 0.15);
+    --bg-primary: #090d16;
+    --bg-secondary: #0f172a;
+    --bg-tertiary: #1e293b;
+    --bg-elevated: #1a2234;
+    --text-primary: #f8fafc;
+    --text-secondary: #94a3b8;
+    --text-muted: #64748b;
+    --border: rgba(255, 255, 255, 0.09);
+    --border-hover: rgba(255, 255, 255, 0.18);
+    --border-subtle: rgba(255, 255, 255, 0.04);
+    --accent: #10b981;
+    --accent-hover: #059669;
+    --accent-light: rgba(16, 185, 129, 0.12);
+    --accent-glow: rgba(16, 185, 129, 0.3);
     --danger: #f87171;
-    --shadow-md: rgba(0, 0, 0, 0.3);
-    --selection-bg: rgba(63, 185, 80, 0.15);
-    --selection-text: #c9d1d9;
-    --cm-caret: #c9d1d9;
-    --cm-activeLine: rgba(63, 185, 80, 0.08);
-    --cm-selection: rgba(63, 185, 80, 0.22);
-    --cm-tooltipBg: #161b22;
-    --cm-tooltipBorder: #30363d;
-    --cm-tooltipShadow: rgba(0, 0, 0, 0.4);
-    --cm-tooltipSelected: #238636;
+    --danger-light: rgba(248, 113, 113, 0.12);
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 24px -4px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.6);
+    --grid-dot: rgba(255, 255, 255, 0.05);
+    --selection-bg: rgba(16, 185, 129, 0.18);
+    --selection-text: #f8fafc;
+    --cm-caret: #f8fafc;
+    --cm-activeLine: rgba(16, 185, 129, 0.06);
+    --cm-selection: rgba(16, 185, 129, 0.22);
+    --cm-tooltipBg: #1e293b;
+    --cm-tooltipBorder: rgba(255, 255, 255, 0.12);
+    --cm-tooltipShadow: rgba(0, 0, 0, 0.5);
+    --cm-tooltipSelected: #10b981;
     --cm-tooltipSelectedText: #ffffff;
   }
 
+  /* ── Base Layout ─────────────────────────────────────────────────────── */
   .playground-page {
     min-height: 100vh;
-    padding: 1.25rem;
+    padding: 0.75rem 1.25rem 2.5rem;
     background:
-      radial-gradient(circle at top left, var(--accent-light), transparent 36rem),
+      radial-gradient(ellipse 60% 40% at 50% 0%, var(--accent-light), transparent 70%),
       var(--bg-primary);
+    color: var(--text-primary);
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
   .topbar,
-  .hero,
+  .workspace,
   .resource-strip {
-    max-width: 1680px;
+    max-width: 1760px;
     margin: 0 auto;
   }
 
+  /* ── Header / Topbar ─────────────────────────────────────────────────── */
   .topbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 0.75rem 0 1.25rem;
-  }
-
-  .brand,
-  .topbar-links {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
+    padding: 0.5rem 0.85rem;
+    margin-bottom: 0.85rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
   }
 
   .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
     color: var(--text-primary);
-    font-size: 1.05rem;
-    font-weight: 800;
   }
 
-  .topbar-links a,
-  .theme-toggle {
+  .brand span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--accent-light);
+    font-size: 1rem;
+  }
+
+  .brand strong {
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+  }
+
+  .topbar-links {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* View Mode Segmented Control */
+  .view-mode-group {
+    display: inline-flex;
+    align-items: center;
+    background: var(--bg-tertiary);
     border: 1px solid var(--border);
-    border-radius: 999px;
+    border-radius: 8px;
+    padding: 2px;
+    gap: 2px;
+  }
+
+  .view-mode-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.28rem 0.65rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.14s ease;
+    white-space: nowrap;
+  }
+
+  .view-mode-btn:hover {
+    color: var(--text-primary);
+  }
+
+  .view-mode-btn.active {
+    background: var(--bg-secondary);
+    color: var(--accent);
+    box-shadow: var(--shadow-xs);
+    font-weight: 700;
+  }
+
+  /* Topbar Navigation Links & Actions */
+  .topbar-links a,
+  .topbar-chip,
+  .theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    height: 30px;
+    padding: 0 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 7px;
     background: var(--bg-secondary);
     color: var(--text-secondary);
-    padding: 0.5rem 0.85rem;
     font: inherit;
-    font-size: 0.88rem;
+    font-size: 0.78rem;
+    font-weight: 600;
     cursor: pointer;
+    text-decoration: none;
+    transition: all 0.14s ease;
   }
 
-  .hero {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: 2rem;
-    padding: 2.25rem 0 1.75rem;
-  }
-
-  .hero-copy {
-    max-width: 820px;
-  }
-
-  .eyebrow,
-  .panel-kicker {
-    color: var(--accent);
-    font-size: 0.75rem;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-  }
-
-  h1 {
-    margin-top: 0.45rem;
+  .topbar-links a:hover,
+  .topbar-chip:hover,
+  .theme-toggle:hover {
+    border-color: var(--border-hover);
     color: var(--text-primary);
-    font-size: clamp(2.7rem, 7vw, 5.8rem);
-    line-height: 0.94;
-    letter-spacing: -0.065em;
+    background: var(--bg-tertiary);
+    transform: translateY(-1px);
   }
 
-  .hero p {
-    max-width: 720px;
-    margin-top: 1rem;
-    color: var(--text-secondary);
-    font-size: clamp(1rem, 2vw, 1.18rem);
+  /* ── Workspace Grid ──────────────────────────────────────────────────── */
+  .workspace {
+    display: grid;
+    grid-template-columns: minmax(380px, var(--editor-pane, 50%)) 12px minmax(420px, 1fr);
+    gap: 0.65rem;
+    align-items: stretch;
+    height: clamp(660px, calc(100vh - 120px), 920px);
+    min-height: 640px;
+    margin-bottom: 1.25rem;
   }
 
-  .hero-actions,
+  .workspace[data-view-mode="canvas"] {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace[data-view-mode="canvas"] .editor-panel,
+  .workspace[data-view-mode="canvas"] .splitter {
+    display: none;
+  }
+
+  .workspace[data-view-mode="code"] {
+    grid-template-columns: 1fr;
+  }
+
+  .workspace[data-view-mode="code"] .preview-panel,
+  .workspace[data-view-mode="code"] .splitter {
+    display: none;
+  }
+
+  /* Panels Common */
+  .editor-panel,
+  .preview-panel {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-secondary);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+  }
+
+  /* Panel Headers */
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.55rem 0.85rem;
+    min-height: 48px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-primary);
+  }
+
+  .panel-head-left {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+  }
+
+  .panel-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--accent);
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    line-height: 1;
+  }
+
+  .panel-head h2 {
+    margin: 0.1rem 0 0;
+    font-size: 0.92rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+
+  .tool-select {
+    height: 30px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: 0 0.55rem;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    max-width: 220px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: all 0.14s ease;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .tool-select:hover {
+    border-color: var(--border-hover);
+  }
+
+  .tool-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-light);
+  }
+
+  /* Toolbars */
   .toolbar,
   .preview-toolbar,
   .speed-group {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    flex-wrap: wrap;
+    gap: 0.35rem;
   }
 
-  .btn,
-  .tool-btn,
-  .speed-btn {
+  .tool-btn {
+    height: 30px;
+    padding: 0 0.65rem;
     border: 1px solid var(--border);
-    border-radius: 0.75rem;
+    border-radius: 7px;
     background: var(--bg-secondary);
     color: var(--text-primary);
-    padding: 0.68rem 0.9rem;
     font: inherit;
-    font-size: 0.9rem;
-    font-weight: 700;
+    font-size: 0.75rem;
+    font-weight: 600;
     cursor: pointer;
-    box-shadow: 0 10px 26px -20px var(--shadow-md);
+    box-shadow: var(--shadow-xs);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    transition: all 0.14s ease;
+    white-space: nowrap;
   }
 
-  .btn-primary,
-  .tool-btn-primary,
-  .speed-btn.active {
+  .tool-btn:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-tertiary);
+    transform: translateY(-1px);
+  }
+
+  .tool-btn:active {
+    transform: translateY(0);
+  }
+
+  .tool-btn-sm {
+    height: 24px;
+    padding: 0 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-secondary);
+    color: var(--accent);
+    font: inherit;
+    font-size: 0.7rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.14s ease;
+  }
+
+  .tool-btn-sm:hover {
     border-color: var(--accent);
+    background: var(--accent);
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  .tool-btn-primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: 0 2px 6px -1px var(--accent-glow);
+  }
+
+  .tool-btn-primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    color: #ffffff;
+    box-shadow: 0 4px 10px -2px var(--accent-glow);
+  }
+
+  /* ── Token Library Ribbon ───────────────────────────────────────────── */
+  .token-library-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.4rem 0.85rem;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-subtle);
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .token-group {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+  }
+
+  .token-group-label {
+    font-size: 0.62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
+
+  .token-chips {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .token-chip {
+    height: 22px;
+    font-family: inherit;
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    cursor: grab;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: all 0.12s ease;
+    white-space: nowrap;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .token-chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+    transform: translateY(-1px);
+  }
+
+  .token-chip:active {
+    cursor: grabbing;
+    transform: translateY(0);
+  }
+
+  .token-chip code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.68rem;
+  }
+
+  /* ── CodeMirror Editor Container ────────────────────────────────────── */
+  .code-editor {
+    flex: 1 1 0;
+    min-height: 180px;
+    overflow: auto;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.85rem;
+    line-height: 1.55;
+  }
+
+  .hint {
+    margin: 0;
+    padding: 0.35rem 0.85rem;
+    border-top: 1px solid var(--border-subtle);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    background: var(--bg-primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  /* ── Assistant & Inspector Drawer ───────────────────────────────────── */
+  .assistant-drawer {
+    border-top: 1px solid var(--border);
+    background: var(--bg-secondary);
+    display: flex;
+    flex-direction: column;
+    flex: 0 0 auto;
+    max-height: 220px;
+  }
+
+  .assistant-tabs {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.3rem 0.65rem;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-subtle);
+    overflow-x: auto;
+  }
+
+  .assistant-tab {
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.25rem 0.55rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: all 0.14s ease;
+    white-space: nowrap;
+  }
+
+  .assistant-tab:hover {
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+  }
+
+  .assistant-tab.active {
+    color: var(--accent);
+    background: var(--bg-secondary);
+    box-shadow: var(--shadow-xs);
+    font-weight: 700;
+  }
+
+  .tab-badge {
+    background: var(--accent-light);
+    color: var(--accent);
+    font-size: 0.62rem;
+    font-weight: 800;
+    padding: 0.05rem 0.35rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+  }
+
+  .assistant-panel {
+    display: none;
+    padding: 0.6rem 0.85rem;
+    max-height: 170px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+
+  .assistant-panel.active {
+    display: block;
+  }
+
+  .entities-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.45rem;
+  }
+
+  .entities-summary {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .nodes-inspector-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.45rem;
+  }
+
+  .node-item-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.45rem;
+    background: var(--bg-tertiary);
+    transition: all 0.14s ease;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .node-item-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .node-card-top {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .node-id {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  .node-kind-badge {
+    font-size: 0.6rem;
+    font-weight: 700;
+    padding: 0.08rem 0.35rem;
+    border-radius: 4px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    text-transform: lowercase;
+  }
+
+  .node-kind-badge[data-kind="database"],
+  .node-kind-badge[data-kind="cache"],
+  .node-kind-badge[data-kind="storage"] {
+    background: rgba(2, 132, 199, 0.1);
+    color: #0284c7;
+    border-color: rgba(2, 132, 199, 0.25);
+  }
+
+  .node-kind-badge[data-kind="gateway"],
+  .node-kind-badge[data-kind="firewall"],
+  .node-kind-badge[data-kind="cdn"] {
+    background: rgba(124, 58, 237, 0.1);
+    color: #7c3aed;
+    border-color: rgba(124, 58, 237, 0.25);
+  }
+
+  .node-kind-badge[data-kind="service"],
+  .node-kind-badge[data-kind="worker"],
+  .node-kind-badge[data-kind="lambda"],
+  .node-kind-badge[data-kind="pod"] {
+    background: var(--accent-light);
+    color: var(--accent);
+    border-color: rgba(5, 150, 105, 0.25);
+  }
+
+  .node-kind-badge[data-kind="queue"] {
+    background: rgba(217, 119, 6, 0.1);
+    color: #d97706;
+    border-color: rgba(217, 119, 6, 0.25);
+  }
+
+  .node-kind-badge[data-kind="client"],
+  .node-kind-badge[data-kind="browser"],
+  .node-kind-badge[data-kind="mobile"],
+  .node-kind-badge[data-kind="user"] {
+    background: rgba(225, 29, 72, 0.1);
+    color: #e11d48;
+    border-color: rgba(225, 29, 72, 0.25);
+  }
+
+  .node-label-text {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin: 0.2rem 0 0.35rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .node-flows-stat {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  .node-actions-row {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .node-action-btn {
+    flex: 1;
+    font-family: inherit;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.2rem 0.4rem;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    line-height: 1.2;
+    transition: all 0.12s ease;
+  }
+
+  .node-action-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+    transform: translateY(-1px);
+  }
+
+  .node-action-btn.btn-flow {
+    color: var(--accent);
+  }
+
+  .node-action-btn.btn-pulse {
+    color: #0284c7;
+  }
+
+  :root[data-theme="dark"] .node-action-btn.btn-pulse {
+    color: #38bdf8;
+  }
+
+  .inspector-empty,
+  .diag-empty,
+  .sugg-perfect {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    padding: 0.4rem 0;
+  }
+
+  .sugg-perfect,
+  .diag-empty {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .suggestions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .sugg-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+    padding: 0.45rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--bg-tertiary);
+    transition: all 0.14s ease;
+  }
+
+  .sugg-item:hover {
+    border-color: var(--accent);
+  }
+
+  .sugg-info strong {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-primary);
+  }
+
+  .sugg-info p {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin: 0.1rem 0 0;
+  }
+
+  .sugg-action-btn {
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border: 1px solid var(--accent);
+    border-radius: 5px;
+    background: var(--accent);
+    color: #ffffff;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.14s ease;
+  }
+
+  .sugg-action-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+  }
+
+  /* AI Builder Box */
+  .ai-builder-box label {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.35rem;
+  }
+
+  .ai-input-row {
+    display: flex;
+    gap: 0.4rem;
+  }
+
+  .ai-input-row input {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    padding: 0.4rem 0.65rem;
+    font-size: 0.78rem;
+    font-family: inherit;
+  }
+
+  .ai-input-row input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-light);
+  }
+
+  .ai-builder-hint {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    margin: 0.35rem 0 0;
+  }
+
+  /* ── Splitter ──────────────────────────────────────────────────────── */
+  .splitter {
+    height: 100%;
+    min-height: 640px;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: col-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .splitter span {
+    width: 3px;
+    height: 36px;
+    border-radius: 999px;
+    background: var(--border);
+    transition: all 0.16s ease;
+  }
+
+  .splitter:hover span,
+  .splitter.dragging span {
+    background: var(--accent);
+    width: 5px;
+    height: 52px;
+  }
+
+  /* ── Preview Panel Toolbar ──────────────────────────────────────────── */
+  .preview-toolbar {
+    padding: 0.45rem 0.85rem;
+    border-bottom: 1px solid var(--border-subtle);
+    background: var(--bg-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+    min-height: 40px;
+  }
+
+  .beat-jump {
+    height: 26px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: 0 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .speed-group {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px;
+    gap: 2px;
+  }
+
+  .speed-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.18rem 0.45rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.12s ease;
+  }
+
+  .speed-btn:hover {
+    color: var(--text-primary);
+  }
+
+  .speed-btn.active {
     background: var(--accent);
     color: #ffffff;
   }
 
-  .btn-secondary {
-    color: var(--text-secondary);
+  /* ── Direct Canvas Stage ────────────────────────────────────────────── */
+  .stage {
+    flex: 1 1 auto;
+    min-height: 400px;
+    position: relative;
+    overflow: hidden;
+    background-color: var(--bg-secondary);
+    background-image: radial-gradient(circle, var(--grid-dot) 1.2px, transparent 1.2px);
+    background-size: 20px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .workspace {
-    display: grid;
-    grid-template-columns: minmax(360px, var(--editor-pane, 50%)) 14px minmax(420px, 1fr);
-    gap: 0.75rem;
-    align-items: start;
+  .stage-canvas {
     width: 100%;
-    max-width: none;
-    margin: 0;
+    height: 100%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  .resource-strip {
-    display: grid;
-    grid-template-columns: minmax(0, 1.6fr) minmax(260px, 0.8fr) minmax(260px, 0.7fr);
-    gap: 1rem;
-    margin-bottom: 1rem;
-    align-items: stretch;
+  /* Stage Drop Target Indicator */
+  .stage-drop-overlay {
+    position: absolute;
+    inset: 0.65rem;
+    background: var(--accent-light);
+    border: 2px dashed var(--accent);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    backdrop-filter: blur(4px);
+    pointer-events: none;
+    animation: pulseDrop 1.2s ease-in-out infinite;
   }
 
-  .examples-card {
-    min-width: 0;
+  .stage-drop-hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--accent);
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    color: var(--accent);
+    box-shadow: var(--shadow-md);
   }
 
-  .examples-card .example-list {
-    grid-auto-flow: column;
-    grid-auto-columns: minmax(210px, 1fr);
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    padding-bottom: 0.2rem;
-    scroll-snap-type: x proximity;
+  @keyframes pulseDrop {
+    0%, 100% { opacity: 0.85; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.006); }
   }
 
-  .examples-card .example-btn {
-    scroll-snap-align: start;
+  /* Flow Connector Rubber-band SVG */
+  .flow-canvas-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 40;
   }
 
-  .learn-card,
-  .checklist {
-    display: grid;
-    align-content: start;
+  .flow-drag-path {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2.5;
+    stroke-dasharray: 6 4;
+    animation: flowDash 0.6s linear infinite;
+    filter: drop-shadow(0 2px 8px var(--accent-glow));
   }
 
-  .checklist ol {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.35rem 0.85rem;
+  @keyframes flowDash {
+    to { stroke-dashoffset: -10; }
   }
 
-  .card,
-  .editor-panel,
-  .preview-panel {
+  /* Connector Port Handles on Nodes */
+  .connector-port {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--bg-secondary);
+    border: 2px solid var(--accent);
+    cursor: crosshair;
+    z-index: 30;
+    opacity: 0;
+    transition: all 0.15s ease;
+    transform: translate(-50%, -50%);
+  }
+
+  .markdy-node:hover .connector-port {
+    opacity: 0.9;
+  }
+
+  .connector-port:hover {
+    transform: translate(-50%, -50%) scale(1.5);
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+    opacity: 1 !important;
+  }
+
+  .connector-port.port-e { left: 100%; top: 50%; }
+  .connector-port.port-w { left: 0%; top: 50%; }
+  .connector-port.port-n { left: 50%; top: 0%; }
+  .connector-port.port-s { left: 50%; top: 100%; }
+
+  /* Node Selected State */
+  .markdy-node--selected {
+    outline: 2px solid var(--accent) !important;
+    outline-offset: 3px !important;
+    box-shadow: 0 0 16px var(--accent-glow) !important;
+  }
+
+  .markdy-node--target-drop {
+    outline: 2px dashed var(--accent) !important;
+    outline-offset: 3px !important;
+    transform: scale(1.03);
+  }
+
+  /* Hidden Overlay Rule */
+  .node-floating-hud[hidden],
+  .flow-popover[hidden],
+  .stage-drop-overlay[hidden],
+  .flow-canvas-svg[hidden] {
+    display: none !important;
+  }
+
+  /* Floating Contextual Node HUD */
+  .node-floating-hud {
+    position: absolute;
+    z-index: 60;
+    background: var(--bg-secondary);
     border: 1px solid var(--border);
-    border-radius: 1.35rem;
-    background: color-mix(in srgb, var(--bg-secondary) 94%, transparent);
-    box-shadow: 0 18px 56px -42px var(--shadow-md);
+    border-radius: 10px;
+    padding: 0.55rem 0.7rem;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    width: 230px;
+    animation: hudFadeIn 0.14s ease-out;
+    backdrop-filter: blur(16px);
   }
 
-  .card {
-    padding: 1rem;
+  @keyframes hudFadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  .panel-title,
-  .panel-head {
+  .hud-header {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .hud-title {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+  }
+
+  .hud-btn-close {
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 0.1rem 0.25rem;
+    border-radius: 4px;
+    transition: all 0.12s ease;
+  }
+
+  .hud-btn-close:hover {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+  }
+
+  .hud-row {
+    display: flex;
+    gap: 0.3rem;
+  }
+
+  .hud-select,
+  .hud-input {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 0.7rem;
+    font-family: inherit;
+    padding: 0.22rem 0.45rem;
+  }
+
+  .hud-select { width: 90px; cursor: pointer; }
+  .hud-input { flex: 1; min-width: 0; }
+
+  .hud-actions-row {
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  .hud-action-btn {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.22rem 0.3rem;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    transition: all 0.12s ease;
+  }
+
+  .btn-hud-pulse {
+    background: rgba(56, 189, 248, 0.1);
+    color: #0284c7;
+    border-color: rgba(56, 189, 248, 0.25);
+  }
+
+  :root[data-theme="dark"] .btn-hud-pulse {
+    color: #38bdf8;
+    background: rgba(56, 189, 248, 0.15);
+    border-color: rgba(56, 189, 248, 0.3);
+  }
+
+  .btn-hud-frame {
+    background: var(--accent-light);
+    color: var(--accent);
+    border-color: rgba(5, 150, 105, 0.25);
+  }
+
+  .btn-hud-danger {
+    background: var(--danger-light);
+    color: var(--danger);
+    border-color: rgba(239, 68, 68, 0.25);
+  }
+
+  .btn-hud-pulse:hover {
+    background: #0284c7;
+    color: #fff;
+  }
+
+  :root[data-theme="dark"] .btn-hud-pulse:hover {
+    background: #38bdf8;
+    color: #0f172a;
+  }
+
+  .btn-hud-frame:hover {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .btn-hud-danger:hover {
+    background: var(--danger);
+    color: #fff;
+  }
+
+  /* Flow Popover HUD */
+  .flow-popover {
+    position: absolute;
+    z-index: 65;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.6rem 0.75rem;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    width: 230px;
+    animation: hudFadeIn 0.14s ease-out;
+    backdrop-filter: blur(16px);
+  }
+
+  .flow-popover-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    font-size: 0.74rem;
+    font-weight: 800;
+    color: var(--text-primary);
+  }
+
+  .flow-popover-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .flow-type-chips {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem;
+  }
+
+  .flow-type-chip {
+    font-family: inherit;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.2rem 0.35rem;
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.12s ease;
+  }
+
+  .flow-type-chip:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+  }
+
+  .flow-type-chip.active {
+    background: var(--accent-light);
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  /* ── Storyboard Ribbon ──────────────────────────────────────────────── */
+  .storyboard-ribbon {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding: 0.45rem 0.85rem;
+    border-top: 1px solid var(--border-subtle);
+    background: var(--bg-tertiary);
+  }
+
+  .storyboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .storyboard-title {
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
+
+  .storyboard-track {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    padding-bottom: 0.15rem;
+  }
+
+  .storyboard-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0.3rem 0.55rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-secondary);
+    cursor: pointer;
+    flex-shrink: 0;
+    min-width: 110px;
+    transition: all 0.14s ease;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .storyboard-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .storyboard-card.active {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+
+  .storyboard-card-head {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .storyboard-card-step {
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .storyboard-card-name {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .storyboard-card-meta {
+    font-size: 0.62rem;
+    color: var(--text-muted);
+  }
+
+  .storyboard-empty {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    padding: 0.15rem 0;
+  }
+
+  /* ── Timeline ───────────────────────────────────────────────────────── */
+  .timeline {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0.85rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg-primary);
+  }
+
+  .timeline input[type="range"] {
+    flex: 1;
+    accent-color: var(--accent);
+    height: 4px;
+  }
+
+  .timeline span {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    min-width: 75px;
+    text-align: right;
+  }
+
+  /* ── Resource Strip & Showcase Gallery ─────────────────────────────── */
+  .resource-strip {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(280px, 0.85fr) minmax(260px, 0.75fr);
+    gap: 0.85rem;
+    margin-bottom: 2rem;
+    align-items: stretch;
+  }
+
+  .card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--bg-secondary);
+    padding: 1rem;
+    box-shadow: var(--shadow-sm);
   }
 
   .panel-title {
-    margin-bottom: 0.75rem;
-    color: var(--text-primary);
-    font-size: 0.86rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.78rem;
     font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
   }
 
   .panel-title a {
     color: var(--accent);
-    font-size: 0.78rem;
+    text-decoration: none;
+    font-size: 0.72rem;
+    text-transform: none;
+    letter-spacing: 0;
   }
 
-  .example-list,
-  .snippet-list {
-    display: grid;
-    gap: 0.55rem;
+  .panel-title a:hover {
+    text-decoration: underline;
   }
 
-  .example-btn,
-  .snippet-btn {
-    width: 100%;
-    border: 1px solid var(--border-subtle);
-    border-radius: 0.95rem;
+  .gallery-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .gallery-search-input {
+    border: 1px solid var(--border);
+    border-radius: 7px;
     background: var(--bg-tertiary);
     color: var(--text-primary);
-    padding: 0.75rem;
-    text-align: left;
-    cursor: pointer;
-  }
-
-  .example-btn strong,
-  .example-btn span {
-    display: block;
-  }
-
-  .example-btn span {
-    margin-top: 0.16rem;
-    color: var(--text-muted);
+    padding: 0.4rem 0.65rem;
     font-size: 0.78rem;
+    font-family: inherit;
+    transition: all 0.14s ease;
+  }
+
+  .gallery-search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-light);
+  }
+
+  .gallery-filter-chips {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .gallery-filter-chip {
+    font-family: inherit;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.18rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.14s ease;
+  }
+
+  .gallery-filter-chip:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+  }
+
+  .gallery-filter-chip.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+  }
+
+  .example-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 0.45rem;
+    max-height: 260px;
+    overflow-y: auto;
+    padding-right: 0.2rem;
+    scrollbar-width: thin;
+  }
+
+  .example-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+    padding: 0.45rem 0.55rem;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.14s ease;
+  }
+
+  .example-btn:hover {
+    border-color: var(--accent);
+    transform: translateY(-1px);
   }
 
   .example-btn.active {
-    border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+    border-color: var(--accent);
     background: var(--accent-light);
+    box-shadow: 0 0 0 1px var(--accent);
   }
 
-  .learn-card p,
-  .checklist li,
-  .hint {
+  .example-btn strong {
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .example-btn span {
+    font-size: 0.65rem;
     color: var(--text-secondary);
-    font-size: 0.9rem;
+  }
+
+  .snippet-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .snippet-btn {
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    padding: 0.4rem 0.55rem;
+    font: inherit;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.14s ease;
+  }
+
+  .snippet-btn:hover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    transform: translateY(-1px);
+  }
+
+  .learn-card p {
+    font-size: 0.74rem;
+    color: var(--text-secondary);
+    margin: 0 0 0.5rem;
   }
 
   .checklist ol {
-    padding-left: 1.1rem;
-  }
-
-  .checklist li + li {
-    margin-top: 0.35rem;
-  }
-
-  .editor-panel,
-  .preview-panel {
-    min-width: 0;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-  }
-
-  .preview-panel {
-    position: sticky;
-    top: 1rem;
-    max-height: calc(100vh - 2rem);
-    z-index: 2;
-  }
-
-  .splitter {
-    align-self: stretch;
-    width: 14px;
-    border: 0;
-    border-radius: 999px;
-    background: transparent;
-    cursor: col-resize;
-    display: grid;
-    place-items: center;
-    padding: 0;
-    touch-action: none;
-  }
-
-  .splitter span {
-    width: 4px;
-    height: min(18rem, 46vh);
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--border) 78%, var(--accent) 22%);
-    box-shadow: inset 0 0 0 1px color-mix(in srgb, #ffffff 18%, transparent);
-    transition: background 0.18s ease, transform 0.18s ease;
-  }
-
-  .splitter:hover span,
-  .splitter:focus-visible span,
-  :global(body.is-resizing-playground) .splitter span {
-    background: var(--accent);
-    transform: scaleX(1.35);
-  }
-
-  :global(body.is-resizing-playground) {
-    cursor: col-resize;
-    user-select: none;
-  }
-
-  .panel-head {
-    margin-bottom: 0.85rem;
-  }
-
-  .panel-head h2 {
-    margin-top: 0.1rem;
-    color: var(--text-primary);
-    font-size: 1.05rem;
-  }
-
-  .code-editor {
-    height: clamp(560px, calc(100vh - 14rem), 920px);
-    min-height: 0;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    border-radius: 1rem;
-    background: var(--bg-secondary);
-  }
-
-  :global(.code-editor .cm-editor) {
-    height: 100%;
-    min-height: 0;
-  }
-
-  :global(.code-editor .cm-scroller) {
-    height: 100%;
-    min-height: 0;
-    overflow: auto;
-  }
-
-  .hint {
-    margin-top: 0.65rem;
-  }
-
-  .diagnostics {
-    margin-top: 0.75rem;
-    border: 1px solid color-mix(in srgb, var(--danger) 24%, var(--border));
-    border-radius: 0.9rem;
-    background: color-mix(in srgb, var(--danger) 8%, var(--bg-secondary));
-    color: var(--text-primary);
-    padding: 0.75rem 0.9rem;
-    font-size: 0.88rem;
-  }
-
-  .diagnostics[hidden] {
-    display: none;
-  }
-
-  .diagnostics ul {
-    margin-top: 0.4rem;
-    padding-left: 1rem;
-  }
-
-  .preview-toolbar {
-    justify-content: space-between;
-    margin-bottom: 0.85rem;
-  }
-
-  .beat-jump {
-    min-width: 190px;
-    border: 1px solid var(--border);
-    border-radius: 0.75rem;
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    padding: 0.62rem 0.75rem;
-  }
-
-  .stage {
-    height: clamp(420px, calc(100vh - 15.25rem), 820px);
-    min-height: 0;
-    display: grid;
-    place-items: center;
-    overflow: auto;
-    border: 1px solid var(--border);
-    border-radius: 1rem;
-    background:
-      linear-gradient(45deg, color-mix(in srgb, var(--border) 22%, transparent) 25%, transparent 25%),
-      linear-gradient(-45deg, color-mix(in srgb, var(--border) 22%, transparent) 25%, transparent 25%),
-      var(--bg-tertiary);
-    background-size: 24px 24px;
-    padding: clamp(1rem, 2vw, 2rem);
-  }
-
-  .stage > div {
-    width: min(100%, 1280px);
-  }
-
-  .parse-error {
-    max-width: 720px;
-    border: 1px solid color-mix(in srgb, var(--danger) 45%, var(--border));
-    border-radius: 1rem;
-    background: color-mix(in srgb, var(--danger) 10%, var(--bg-secondary));
-    color: var(--danger);
-    padding: 1rem;
-    font-family: "JetBrains Mono", monospace;
-    white-space: pre-wrap;
-  }
-
-  .timeline {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 0.8rem;
-    align-items: center;
-    margin-top: 0.9rem;
-  }
-
-  .timeline input {
-    width: 100%;
-    accent-color: var(--accent);
-  }
-
-  .timeline span,
-  .status-dot {
-    color: var(--text-secondary);
-    font-size: 0.86rem;
-  }
-
-  .status-dot {
-    display: inline-block;
-    width: 0.62rem;
-    height: 0.62rem;
-    margin-right: 0.4rem;
-    border-radius: 999px;
-    vertical-align: middle;
-  }
-
-  .status-ok {
-    background: var(--accent);
-    box-shadow: 0 0 0 4px var(--accent-light);
-  }
-
-  .status-error {
-    background: var(--danger);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--danger) 16%, transparent);
-  }
-
-  @media (max-width: 1280px) {
-    .resource-strip {
-      grid-template-columns: 1fr;
-    }
-
-    .learn-card .snippet-list,
-    .checklist ol {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-  }
-
-  @media (max-width: 900px) {
-    .playground-page {
-      padding: 0.9rem;
-    }
-
-    .topbar,
-    .hero,
-    .resource-strip,
-    .workspace {
-      display: grid;
-    }
-
-    .workspace {
-      grid-template-columns: 1fr;
-    }
-
-    .splitter {
-      display: none;
-    }
-
-    .hero-actions {
-      justify-content: stretch;
-    }
-
-    .btn {
-      text-align: center;
-    }
-
-    .stage,
-    .code-editor {
-      height: auto;
-      min-height: 58vh;
-    }
-
-    .preview-panel {
-      position: static;
-      max-height: none;
-    }
-
-    .learn-card .snippet-list,
-    .checklist ol {
-      grid-template-columns: 1fr;
-    }
-  }
-
-  /* ── Ingestion Modal & Audit Panel Styles ── */
-  .audit-panel {
-    margin-top: 0.75rem;
-    padding: 0.9rem;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border);
-    background: var(--surface);
-    box-shadow: var(--shadow);
-  }
-
-  .audit-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.6rem;
-    font-size: 0.88rem;
-  }
-
-  .audit-close, .modal-close {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
-    color: var(--text-muted);
-    padding: 0.2rem 0.5rem;
-    border-radius: var(--radius-sm);
-  }
-  .audit-close:hover, .modal-close:hover {
-    color: var(--text);
-    background: var(--surface-muted);
-  }
-
-  .audit-pass {
-    padding: 0.6rem;
-    border-radius: var(--radius-sm);
-    background: rgba(16, 185, 129, 0.08);
-    border: 1px solid rgba(16, 185, 129, 0.25);
-    font-size: 0.84rem;
-  }
-
-  .audit-list {
-    list-style: none;
-    padding: 0;
     margin: 0;
-    display: grid;
-    gap: 0.5rem;
+    padding-left: 1.1rem;
+    font-size: 0.76rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
   }
 
-  .audit-item {
-    padding: 0.5rem 0.7rem;
-    border-radius: var(--radius-sm);
-    font-size: 0.82rem;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.4rem;
-  }
-  .audit-item.error {
-    background: rgba(239, 68, 68, 0.08);
-    border: 1px solid rgba(239, 68, 68, 0.25);
-  }
-  .audit-item.warning {
-    background: rgba(245, 158, 11, 0.08);
-    border: 1px solid rgba(245, 158, 11, 0.25);
-  }
-
-  .audit-badge {
-    display: inline-block;
-    padding: 0.12rem 0.4rem;
-    border-radius: 4px;
-    font-size: 0.72rem;
+  .checklist code {
+    color: var(--accent);
     font-weight: 700;
+    font-family: "JetBrains Mono", monospace;
   }
-  .audit-badge.pass { background: #10b981; color: #fff; }
-  .audit-badge.error { background: #ef4444; color: #fff; }
-  .audit-badge.warning { background: #f59e0b; color: #fff; }
 
+  /* ── Modals & Dialogs ───────────────────────────────────────────────── */
   .import-modal {
-    border: none;
-    padding: 0;
-    background: transparent;
-    max-width: 640px;
-    width: 90vw;
-  }
-  .import-modal::backdrop {
-    background: rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(4px);
-  }
-  .modal-box {
-    background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    padding: 1.5rem;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    color: var(--text);
+    border-radius: 14px;
+    padding: 0;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    max-width: 660px;
+    width: 90vw;
+    box-shadow: var(--shadow-lg);
   }
+
+  .import-modal::backdrop {
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+  }
+
+  .modal-box {
+    padding: 1.25rem;
+  }
+
   .modal-header {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 0.6rem;
+    margin-bottom: 0.35rem;
   }
+
+  .modal-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+  }
+
+  .modal-close {
+    border: none;
+    background: transparent;
+    font-size: 1.1rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+  }
+
+  .modal-close:hover {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
+  }
+
   .modal-desc {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin-bottom: 1rem;
-    line-height: 1.4;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
   }
+
   .format-tabs {
     display: flex;
     gap: 0.35rem;
-    margin-bottom: 0.8rem;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    overflow-x: auto;
   }
+
   .format-tab {
-    padding: 0.35rem 0.8rem;
-    border-radius: var(--radius-sm);
-    border: 1px solid transparent;
-    background: transparent;
-    color: var(--text-muted);
-    font-size: 0.82rem;
-    font-weight: 600;
+    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 700;
     cursor: pointer;
+    transition: all 0.12s ease;
   }
+
+  .format-tab:hover {
+    color: var(--text-primary);
+  }
+
   .format-tab.active {
-    background: var(--surface-muted);
-    color: var(--text);
-    border-color: var(--border);
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
   }
+
   .import-textarea {
     width: 100%;
-    height: 180px;
-    background: var(--surface-muted);
-    color: var(--text);
+    height: 170px;
     border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    padding: 0.8rem;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.82rem;
-    resize: vertical;
+    border-radius: 7px;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.8rem;
+    padding: 0.65rem;
     box-sizing: border-box;
+    margin-bottom: 0.65rem;
   }
+
+  .import-textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-light);
+  }
+
   .import-error {
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    color: #ef4444;
-    padding: 0.65rem 0.85rem;
-    border-radius: var(--radius-sm);
-    font-size: 0.82rem;
-    line-height: 1.4;
-    margin-top: 0.75rem;
+    color: var(--danger);
+    font-size: 0.75rem;
+    margin-bottom: 0.65rem;
   }
-  :root[data-theme="dark"] .import-error {
-    background: rgba(248, 113, 113, 0.15);
-    border-color: rgba(248, 113, 113, 0.35);
-    color: #f87171;
-  }
+
   .modal-footer {
     display: flex;
     justify-content: flex-end;
-    gap: 0.6rem;
-    margin-top: 1rem;
+    gap: 0.5rem;
+  }
+
+  .shortcuts-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
+  }
+
+  .shortcut-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    padding: 0.3rem 0.5rem;
+    background: var(--bg-tertiary);
+    border-radius: 6px;
+  }
+
+  .shortcut-row kbd,
+  .shortcut-row code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    background: var(--bg-secondary);
+    padding: 0.12rem 0.35rem;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .status-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    margin-right: 0.35rem;
+  }
+
+  .status-ok {
+    background: #10b981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+  }
+
+  .status-error {
+    background: #ef4444;
+    box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+  }
+
+  @media (max-width: 1080px) {
+    .workspace {
+      grid-template-columns: 1fr;
+    }
+    .splitter {
+      display: none;
+    }
+    .resource-strip {
+      grid-template-columns: 1fr;
+    }
   }
 </style>

@@ -7,6 +7,7 @@
 export interface TfResourceAttributes {
   id?: string;
   name?: string;
+  arn?: string;
   tags?: Record<string, string>;
   vpc_id?: string;
   subnet_id?: string;
@@ -82,6 +83,7 @@ export function transpileTerraformStateToMarkdy(
   const nodes: Array<{ id: string; kind: string; label: string; vpcId?: string }> = [];
   const edges: Array<{ from: string; to: string; label?: string }> = [];
   const vpcGroups = new Map<string, string[]>();
+  const arnToResId = new Map<string, string>();
 
   for (const res of parsed.resources) {
     if (res.type.startsWith("aws_iam_") || res.type.includes("route_table") || res.type.includes("security_group")) {
@@ -96,13 +98,27 @@ export function transpileTerraformStateToMarkdy(
 
     nodes.push({ id: resId, kind, label, vpcId });
 
+    if (typeof firstInst?.arn === "string") {
+      arnToResId.set(firstInst.arn, resId);
+    }
+
     if (vpcId) {
       if (!vpcGroups.has(vpcId)) vpcGroups.set(vpcId, []);
       vpcGroups.get(vpcId)!.push(resId);
     }
 
-    if (firstInst?.load_balancer_arn) {
-      edges.push({ from: sanitizeId(firstInst.load_balancer_arn), to: resId, label: "routes" });
+    if (typeof firstInst?.load_balancer_arn === "string") {
+      edges.push({ from: firstInst.load_balancer_arn, to: resId, label: "routes" });
+    }
+  }
+
+  // Resolve ARN edges
+  for (let i = 0; i < edges.length; i++) {
+    const edge = edges[i];
+    if (edge.from.startsWith("arn:") && arnToResId.has(edge.from)) {
+      edge.from = arnToResId.get(edge.from)!;
+    } else if (edge.from.startsWith("arn:")) {
+      edge.from = sanitizeId(edge.from); // Fallback
     }
   }
 

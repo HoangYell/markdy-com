@@ -4,172 +4,93 @@ import { join } from "node:path";
 import { loadExamples } from "../data/examples";
 
 const ROOT = join(process.cwd(), "..");
-
 const EXAMPLES = await loadExamples(ROOT);
 
 const FLOWER_ASSET: Record<string, string> = {
   flower: "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'36'%20height%3D'36'%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'16'%20fill%3D'%23ff69b4'%2F%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'6'%20fill%3D'%23ffff00'%2F%3E%3C%2Fsvg%3E",
 };
 
-const FEATURES = [
-  { icon: "🧭", title: "Diagram-Native DSL", desc: "Declare semantic nodes, groups, beats, and flows in reviewable text. Layout, routing, and timing are 100% automatic." },
-  { icon: "📐", title: "17 Domain Layout Engines", desc: "Architecture, flowchart, sequence, state, tree, layers, nested, timeline, gantt, venn, radar, medallion, flywheel, and more." },
-  { icon: "🎨", title: "8 Curated Visual Themes", desc: "Paper, editorial, terminal, sketchy, blueprint, midnight, graphite, and nebula — crafted for developer docs and technical blogs." },
-  { icon: "🔄", title: "Universal Ingestion", desc: "1-click transpilation from Mermaid, Draw.io, Docker Compose, Kubernetes manifests, and Terraform state into animated scenes." },
-  { icon: "🛡️", title: "Architecture Governance", desc: "Automated CI/CD linter catches deadlock cycles, cross-layer bypasses, ungrounded services, and outputs semantic PR diffs." },
-  { icon: "🤖", title: "AI-Native & MCP Server", desc: "Official Model Context Protocol server for Claude, Cursor, and Antigravity with self-healing syntax diagnostics." },
+const PILLARS = [
+  {
+    icon: "🧭",
+    title: "Diagram-Native DSL & Motion",
+    desc: "Declare semantic nodes, groups, flows, and timed beats in reviewable text. Layout, collision avoidance, and choreography are 100% automatic.",
+    tag: "Core Engine",
+    href: "/docs/#grammar",
+  },
+  {
+    icon: "🔄",
+    title: "Universal Ingestion",
+    desc: "1-click transpilation from Mermaid flowcharts, Draw.io XML, Docker Compose, Kubernetes YAML, and Terraform state into animated scenes.",
+    tag: "Compat",
+    href: "#ingestion",
+  },
+  {
+    icon: "🤖",
+    title: "AI-Native & MCP Server",
+    desc: "Official Model Context Protocol server for Claude, Cursor, and Antigravity with self-healing syntax diagnostics and prompt templates.",
+    tag: "MCP Server",
+    href: "#ai-gen",
+  },
+  {
+    icon: "🛡️",
+    title: "Architecture Governance",
+    desc: "Automated CI/CD linter catches deadlock cycles, cross-layer bypasses, ungrounded services, and outputs semantic PR diffs.",
+    tag: "CI/CD Linter",
+    href: "#governance",
+  },
 ];
 
-const LAYOUT_ENGINES = [
+const SIGNATURE_PRESETS = [
+  { name: "⚡ Cache-Aside (Redis)", index: 0 },
+  { name: "📬 Kafka Stream & Fan-Out", index: 1 },
+  { name: "☸️ Kubernetes Ingress Cluster", index: 2 },
+  { name: "🔐 OAuth2 JWT Handshake", index: 4 },
+];
+
+const LAYOUT_CATEGORIES = [
   {
     category: "Architecture & Systems",
     icon: "🏗️",
     types: [
-      { name: "architecture", desc: "Ranked DAG topology with smart obstacle-avoiding edge routing (default)." },
-      { name: "flowchart", desc: "Top-down decision branches, conditional routing, and pipeline steps." },
-      { name: "tree", desc: "Parent/child hierarchies and taxonomy trees with shared horizontal sibling buses." },
-      { name: "state", desc: "Cycle-safe state machine transitions, loops, and self-referencing arcs." },
-      { name: "sequence", desc: "Participant columns, lifelines, ordered messages, and activation spans." },
+      { name: "architecture", label: "type=architecture", desc: "Ranked DAG topology with smart obstacle-avoiding edge routing (default)." },
+      { name: "flowchart", label: "type=flowchart", desc: "Top-down decision branches, conditional routing, and pipeline steps." },
+      { name: "tree", label: "type=tree", desc: "Parent/child hierarchies with shared horizontal sibling buses." },
+      { name: "state", label: "type=state", desc: "Cycle-safe state machine transitions, loops, and self-referencing arcs." },
+      { name: "sequence", label: "type=sequence", desc: "Participant columns, lifelines, ordered messages, and activation spans." },
     ],
   },
   {
     category: "Structure & Security Boundaries",
     icon: "🛡️",
     types: [
-      { name: "layers", desc: "Full-width horizontal stacked abstraction bands (OSI, CSS cascade, memory)." },
-      { name: "nested", desc: "Concentric rounded boundaries with stepped insets for defense-in-depth and security scopes." },
-      { name: "swimlane", desc: "Cross-functional team lanes and multi-actor handoff tracks." },
+      { name: "layers", label: "type=layers", desc: "Full-width horizontal stacked abstraction bands (OSI, CSS cascade, memory)." },
+      { name: "nested", label: "type=nested", desc: "Concentric rounded boundaries with stepped insets for defense-in-depth." },
+      { name: "swimlane", label: "type=swimlane", desc: "Cross-functional team lanes and multi-actor handoff tracks." },
     ],
   },
   {
-    category: "Roadmaps & Progression",
-    icon: "⏱️",
-    types: [
-      { name: "timeline", desc: "Horizontal hairline baseline with alternating above/below milestone placement." },
-      { name: "gantt", desc: "Phase-based horizontal bar stacking with phase= and span= task properties." },
-    ],
-  },
-  {
-    category: "Strategy & Capability Benchmarks",
-    icon: "📈",
-    types: [
-      { name: "radar", desc: "Multi-axis polygon benchmark comparison chart with series color palette." },
-      { name: "venn", desc: "2–3 circle concept intersection with automatic proximity scaling." },
-      { name: "quadrant", desc: "2×2 strategic positioning matrix and decision framework." },
-      { name: "pyramid", desc: "Hierarchical value pyramid with step-proportional width scaling." },
-    ],
-  },
-  {
-    category: "Cycles, Radial & Data Stages",
+    category: "Pipelines, Roadmaps & Radial",
     icon: "🔄",
     types: [
-      { name: "medallion", desc: "Multi-tier Bronze → Silver → Gold data lakehouse stages." },
-      { name: "flywheel", desc: "Circular closed-loop compounding engine with tangential flow paths." },
-      { name: "constellation", desc: "Radial focal-node layout with deterministic orbit decoration." },
+      { name: "timeline", label: "type=timeline", desc: "Horizontal hairline baseline with alternating milestone placement." },
+      { name: "gantt", label: "type=gantt", desc: "Phase-based horizontal bar stacking with phase and span properties." },
+      { name: "medallion", label: "type=medallion", desc: "Multi-tier Bronze → Silver → Gold lakehouse data stages." },
+      { name: "flywheel", label: "type=flywheel", desc: "Circular closed-loop compounding engine with tangential flow paths." },
+      { name: "constellation", label: "type=constellation", desc: "Radial focal-node layout with deterministic orbit decoration." },
     ],
   },
-];
-
-const THEMES = [
-  { name: "paper", badge: "Light", desc: "Clean light documentation canvas with high-contrast series palette." },
-  { name: "editorial", badge: "Print", desc: "Serif typography, refined ink lines, and muted semantic accents." },
-  { name: "terminal", badge: "Dark TUI", desc: "Monospace CLI aesthetic with vibrant phosphorescent glow accents." },
-  { name: "sketchy", badge: "Whiteboard", desc: "Organic hand-drawn whiteboard style with SVG displacement turbulence." },
-  { name: "blueprint", badge: "CAD", desc: "Technical CAD drafting grid with cyan wireframe geometry." },
-  { name: "midnight", badge: "Dark Navy", desc: "Deep developer canvas with layered glassmorphism elevations." },
-  { name: "graphite", badge: "Minimal Dark", desc: "Restrained monochrome dark theme for minimalist technical blogs." },
-  { name: "nebula", badge: "Cosmic", desc: "Deep-space canvas with orbit rings, signal halos, and starfields." },
-];
-
-const INGESTION_SOURCES = [
   {
-    name: "Mermaid.js",
-    ext: ".mmd / .mermaid",
-    badge: "Flowcharts & Sequences",
-    desc: "Transpile existing Mermaid graph and sequence flowcharts into animated MarkdyScript scenes.",
-    cmd: "markdy import flow.mmd --out flow.markdy",
-  },
-  {
-    name: "Draw.io",
-    ext: ".drawio / .xml",
-    badge: "XML Graphs",
-    desc: "Convert Draw.io XML graph cells, geometries, and edge connections into clean DSL code.",
-    cmd: "markdy import arch.drawio --out arch.markdy",
-  },
-  {
-    name: "Docker Compose",
-    ext: "docker-compose.yml",
-    badge: "Containers & Mesh",
-    desc: "Extract service definitions, ports, network links, and volumes into a live architecture diagram.",
-    cmd: "markdy import docker-compose.yml",
-  },
-  {
-    name: "Kubernetes YAML",
-    ext: "k8s-manifest.yaml",
-    badge: "Pods & Clusters",
-    desc: "Map Ingress, Service, Deployment, Pod, and PVC resources into clustered layout tiers.",
-    cmd: "markdy import cluster.yaml",
-  },
-  {
-    name: "Terraform State",
-    ext: "terraform.tfstate",
-    badge: "Cloud Infrastructure",
-    desc: "Visualize provisioned AWS/GCP/Azure VPCs, subnets, databases, and gateways automatically.",
-    cmd: "markdy import terraform.tfstate",
-  },
-];
-
-const GOVERNANCE_RULES = [
-  {
-    title: "Deadlock Cycle Detection",
-    rule: "no-circular-dependencies",
-    desc: "Flags synchronous request cycles (A -> B -> C -> A) that risk cascade deadlocks in production.",
-    status: "BLOCKING IN CI",
-  },
-  {
-    title: "Layer Isolation Violation",
-    rule: "strict-layer-boundaries",
-    desc: "Prevents presentation tiers from bypassing API gateways and calling databases directly.",
-    status: "ERROR",
-  },
-  {
-    title: "Ungrounded Components",
-    rule: "isolated-node-warning",
-    desc: "Identifies orphaned microservices or unlinked database instances lacking ingress connections.",
-    status: "WARNING",
-  },
-  {
-    title: "Semantic AST Evolution",
-    rule: "markdy diff --evolution",
-    desc: "Generates Markdown tables for GitHub Pull Requests and animated before/after system migrations.",
-    status: "AUTOMATION",
-  },
-];
-
-const SYNTAX_STEPS = [
-  {
-    step: "1",
-    title: "Scene Header",
-    code: `scene "URL Shortener" theme=paper\nlayout LR`,
-    desc: "Declare canvas title, visual theme, and reading direction.",
-  },
-  {
-    step: "2",
-    title: "Semantic Nodes & Groups",
-    code: `client Browser\ngateway API\ncache Redis\ndatabase UrlDB\n\ngroup storage: Redis UrlDB`,
-    desc: "Declare services, databases, queues, and logical boundaries.",
-  },
-  {
-    step: "3",
-    title: "Timeline Beats & Reveal",
-    code: `beat reveal "System Overview":\n  show $nodes stagger=60ms\n  frame storage zoom=1.1`,
-    desc: "Control camera framing, progressive reveals, and captions.",
-  },
-  {
-    step: "4",
-    title: "Animated Flow Edges",
-    code: `beat resolve "Cache Lookup":\n  Browser -> API "GET /abc"\n  API -> Redis "cache hit"\n  Browser <- API "301 Redirect"`,
-    desc: "Connect request (->), response (<-), and event (~>) flows.",
+    category: "Curated Publication Themes",
+    icon: "🎨",
+    types: [
+      { name: "paper", label: "theme=paper", desc: "Clean light documentation canvas with high-contrast series palette." },
+      { name: "editorial", label: "theme=editorial", desc: "Serif typography, refined ink lines, and muted semantic accents." },
+      { name: "terminal", label: "theme=terminal", desc: "Monospace CLI aesthetic with vibrant phosphorescent glow accents." },
+      { name: "sketchy", label: "theme=sketchy", desc: "Organic hand-drawn whiteboard style with SVG displacement turbulence." },
+      { name: "blueprint", label: "theme=blueprint", desc: "Technical CAD drafting grid with cyan wireframe geometry." },
+      { name: "midnight", label: "theme=midnight", desc: "Deep developer canvas with layered glassmorphism elevations." },
+    ],
   },
 ];
 
@@ -184,147 +105,70 @@ const LAYOUT_SNIPPETS: Record<string, string> = {
   swimlane: `scene "Order Fulfillment Swimlane" theme=paper type=swimlane\nlayout LR\n\nuser Customer\nservice Storefront\nservice Warehouse\nservice Logistics\n\nbeat fulfill:\n  show $nodes stagger=60ms\n  Customer -> Storefront "Place Order"\n  Storefront -> Warehouse "Check Stock"\n  Warehouse -> Logistics "Dispatch Parcel"`,
   timeline: `scene "Release Milestone Timeline" theme=paper type=timeline\nlayout LR\n\nservice V1 "v1.0 Core Engine"\nservice V2 "v2.0 Motion Runtime"\nservice V3 "v3.0 Governance Linter"\nservice V4 "v4.0 MCP AI Integration"\n\nbeat progress:\n  show $nodes stagger=100ms\n  V1 -> V2 -> V3 -> V4`,
   gantt: `scene "Sprint Roadmap" theme=paper type=gantt\nlayout LR\n\nservice Design "Architecture Design"\nservice Core "Parser & Diffing"\nservice UI "Playground Studio"\nservice Docs "Guides & AI Reference"\n\nbeat schedule:\n  show $nodes stagger=80ms\n  Design -> Core -> UI -> Docs`,
-  radar: `scene "Database Capability Radar" theme=editorial type=radar\nlayout LR\n\nservice Throughput "Latency (p99)"\nservice Consistency "Strong Consistency"\nservice Durability "Multi-Region"\nservice Scaling "Horizontal Scale"\nservice Simplicity "Developer Ergonomics"\n\nbeat profile:\n  show $nodes stagger=70ms\n  Throughput -> Consistency -> Durability -> Scaling -> Simplicity -> Throughput`,
-  venn: `scene "API Protocol Tradeoffs" theme=paper type=venn\nlayout LR\n\nservice REST "REST: Universal & Cacheable"\nservice GraphQL "GraphQL: Flexible Fetch"\nservice gRPC "gRPC: Binary Streaming"\n\nbeat compare:\n  show $nodes stagger=80ms\n  REST -- GraphQL\n  GraphQL -- gRPC\n  gRPC -- REST`,
-  quadrant: `scene "Architecture Priority Matrix" theme=paper type=quadrant\nlayout LR\n\nservice QuickWins "High Value / Low Effort"\nservice StrategicBets "High Value / High Effort"\nservice Incremental "Low Value / Low Effort"\nservice Sinkholes "Low Value / High Effort"\n\nbeat assess:\n  show $nodes stagger=60ms\n  QuickWins -> StrategicBets`,
-  pyramid: `scene "Testing Pyramid" theme=editorial type=pyramid\nlayout TB\n\nservice E2E "E2E Integration Tests"\nservice Service "Service API Tests"\nservice Unit "Unit & Property Tests"\n\nbeat build:\n  show $nodes stagger=70ms\n  Unit -> Service -> E2E`,
   medallion: `scene "Lakehouse Medallion Architecture" theme=editorial type=medallion\nlayout LR\n\nservice Raw "Bronze: Raw Ingest"\nservice Cleansed "Silver: Validated & Clean"\nservice Enriched "Gold: Business Aggregates"\n\nbeat stream:\n  show $nodes stagger=80ms\n  Raw -> Cleansed "dbt Transform"\n  Cleansed -> Enriched "Analytics Model"`,
   flywheel: `scene "Compounding Growth Flywheel" theme=paper type=flywheel\nlayout LR\n\nservice Content "Rich Technical Docs"\nservice Developers "Developer Adoption"\nservice Ecosystem "Plugin Contributions"\nservice Value "Enterprise Value"\n\nbeat cycle:\n  show $nodes stagger=70ms\n  Content -> Developers "engage"\n  Developers -> Ecosystem "build"\n  Ecosystem -> Value "compound"\n  Value -> Content "invest"`,
   constellation: `scene "Distributed Consensus Constellation" theme=nebula type=constellation\nlayout LR\n\nservice Leader "Raft Leader"\nservice Follower1 "Node Alpha"\nservice Follower2 "Node Beta"\nservice Follower3 "Node Gamma"\nservice Follower4 "Node Delta"\n\nbeat sync:\n  show $nodes stagger=60ms\n  Leader -> Follower1 "Heartbeat"\n  Leader -> Follower2 "Heartbeat"\n  Leader -> Follower3 "Heartbeat"\n  Leader -> Follower4 "Heartbeat"`,
-};
-
-const THEME_SNIPPETS: Record<string, string> = {
-  paper: `scene "Checkout Architecture" theme=paper\nlayout LR\n\nbrowser WebApp\ngateway API\ndatabase Orders\n\nbeat flow:\n  show $nodes stagger=60ms\n  WebApp -> API "POST /order"\n  API -> Orders "INSERT"`,
-  editorial: `scene "Clean Architecture" theme=editorial\nlayout LR\n\nclient MobileApp\nservice ApiGateway\ndatabase Postgres\n\nbeat flow:\n  show $nodes stagger=60ms\n  MobileApp -> ApiGateway "fetch"\n  ApiGateway -> Postgres "query"`,
-  terminal: `scene "Production Incident Response" theme=terminal\nlayout LR\n\nservice Monitor "Alert Manager"\nservice PagerDuty "On-Call Pager"\nservice SRE "Incident Commander"\n\nbeat alert:\n  show $nodes stagger=60ms\n  Monitor -> PagerDuty "CRITICAL P0"\n  PagerDuty -> SRE "Dispatch"`,
+  paper: `scene "Paper Theme Architecture" theme=paper\nlayout LR\n\nbrowser WebApp\ngateway API\ndatabase Orders\n\nbeat flow:\n  show $nodes stagger=60ms\n  WebApp -> API "POST /order"\n  API -> Orders "INSERT"`,
+  editorial: `scene "Editorial Print Theme" theme=editorial\nlayout LR\n\nclient MobileApp\nservice ApiGateway\ndatabase Postgres\n\nbeat flow:\n  show $nodes stagger=60ms\n  MobileApp -> ApiGateway "fetch"\n  ApiGateway -> Postgres "query"`,
+  terminal: `scene "Terminal TUI Glow" theme=terminal\nlayout LR\n\nservice Monitor "Alert Manager"\nservice PagerDuty "On-Call Pager"\nservice SRE "Incident Commander"\n\nbeat alert:\n  show $nodes stagger=60ms\n  Monitor -> PagerDuty "CRITICAL P0"\n  PagerDuty -> SRE "Dispatch"`,
   sketchy: `scene "Whiteboard Brainstorming" theme=sketchy\nlayout LR\n\nuser User\nservice Frontend\nservice Backend\n\nbeat sketch:\n  show $nodes stagger=60ms\n  User -> Frontend "Click"\n  Frontend -> Backend "API Call"`,
   blueprint: `scene "Infrastructure Blueprint" theme=blueprint\nlayout LR\n\nservice LB "Network Load Balancer"\nservice Kube "EKS Worker Pool"\nservice RDS "Aurora Multi-AZ"\n\nbeat provision:\n  show $nodes stagger=60ms\n  LB -> Kube "Ingress"\n  Kube -> RDS "Query"`,
-  midnight: `scene "Cloud Security Perimeter" theme=midnight\nlayout LR\n\ngateway Cloudflare\nservice Firewall\nservice PrivateApi\n\nbeat filter:\n  show $nodes stagger=60ms\n  Cloudflare -> Firewall "TLS Traffic"\n  Firewall -> PrivateApi "Clean Packet"`,
-  graphite: `scene "Monochrome Architecture" theme=graphite\nlayout LR\n\nclient Web\nservice CoreApi\ncache Redis\n\nbeat cache:\n  show $nodes stagger=60ms\n  Web -> CoreApi "GET /products"\n  CoreApi -> Redis "Cache Lookup"`,
-  nebula: `scene "Space Orbit Telemetry" theme=nebula\nlayout LR\n\nservice Satellite\nservice GroundStation\nservice MissionControl\n\nbeat downlink:\n  show $nodes stagger=60ms\n  Satellite ~> GroundStation "Telemetry Stream"\n  GroundStation -> MissionControl "Process"`,
+  midnight: `scene "Midnight Developer Dark" theme=midnight\nlayout LR\n\ngateway Cloudflare\nservice Firewall\nservice PrivateApi\n\nbeat filter:\n  show $nodes stagger=60ms\n  Cloudflare -> Firewall "TLS Traffic"\n  Firewall -> PrivateApi "Clean Packet"`,
 };
 
-const INGESTION_SNIPPETS: Record<string, string> = {
-  "Mermaid.js": `scene "Transpiled Mermaid Flow" theme=paper type=flowchart\nlayout TB\n\nservice Client "Client Browser"\ngateway Gateway "API Gateway"\nservice Auth "Auth Microservice"\ndatabase DB "PostgreSQL"\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> Gateway "POST /login"\n  Gateway -> Auth "Validate"\n  Auth -> DB "Query Credentials"\n  Gateway <- Auth "JWT Token"`,
-  "Draw.io": `scene "Transpiled Draw.io Topology" theme=blueprint type=architecture\nlayout LR\n\nservice CDN "Cloudflare CDN"\nservice Origin "Application Load Balancer"\nservice Pod1 "EKS Pod 1"\nservice Pod2 "EKS Pod 2"\ndatabase Aurora "Aurora Serverless"\n\nbeat traffic:\n  show $nodes stagger=60ms\n  CDN -> Origin "HTTPS"\n  Origin -> Pod1 "HTTP"\n  Origin -> Pod2 "HTTP"\n  Pod1 -> Aurora "SQL Read"\n  Pod2 -> Aurora "SQL Write"`,
-  "Docker Compose": `scene "Docker Compose Stack" theme=terminal type=nested\nlayout TB\n\nservice Web "nginx:alpine"\nservice Api "node:20-alpine"\nservice Cache "redis:7-alpine"\ndatabase Db "postgres:16-alpine"\n\ngroup ingress: Web\ngroup app: Api Cache\ngroup data: Db\n\nbeat boot:\n  show ingress stagger=50ms & show app stagger=50ms & show data\n  Web -> Api "proxy_pass :3000"\n  Api -> Cache "connect :6379"\n  Api -> Db "connect :5432"`,
-  "Kubernetes YAML": `scene "Kubernetes Cluster Ingress" theme=midnight type=nested\nlayout TB\n\nservice Ingress "nginx-ingress"\nservice Svc "order-service:80"\nservice PodA "order-pod-1"\nservice PodB "order-pod-2"\n\ngroup ingress: Ingress\ngroup cluster: Svc PodA PodB\n\nbeat route:\n  show ingress & show cluster stagger=60ms\n  Ingress -> Svc "Host: api.markdy.com"\n  Svc -> PodA "round_robin"\n  Svc -> PodB "round_robin"`,
-  "Terraform State": `scene "Terraform AWS Multi-AZ VPC" theme=blueprint type=layers\nlayout TB\n\nservice IGW "Internet Gateway"\nservice PublicSubnet "Public Subnet (AZ-1a)"\nservice PrivateSubnet "Private Subnet (AZ-1b)"\nservice RDS "RDS Multi-AZ (AZ-1c)"\n\nbeat provision:\n  show $nodes stagger=70ms\n  IGW -> PublicSubnet "0.0.0.0/0"\n  PublicSubnet -> PrivateSubnet "NAT Route"\n  PrivateSubnet -> RDS "Port 5432"`,
-};
-
-const PACKAGES = [
+const INGESTION_SOURCES = [
   {
-    name: "@markdy/core",
-    required: false,
-    badge: "Core Engine",
-    desc: "Zero-dep parser, AST semantic diff, architecture governance linter, classifier, and URL codec.",
-    size: "~14 KB",
-    snippet: `<span class="u-kw">validateArchitecture</span>(ast) · <span class="u-kw">diffDiagramASTs</span>(a, b)`,
+    name: "Mermaid.js",
+    ext: ".mmd / .mermaid",
+    badge: "Flowcharts & Sequences",
+    desc: "Transpile existing Mermaid graph and sequence charts directly into animated MarkdyScript scenes.",
+    cmd: "markdy import flow.mmd --out flow.markdy",
+    snippet: `scene "Transpiled Mermaid Flow" theme=paper type=flowchart\nlayout TB\n\nservice Client "Client Browser"\ngateway Gateway "API Gateway"\nservice Auth "Auth Microservice"\ndatabase DB "PostgreSQL"\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> Gateway "POST /login"\n  Gateway -> Auth "Validate"\n  Auth -> DB "Query Credentials"\n  Gateway <- Auth "JWT Token"`,
   },
   {
-    name: "@markdy/compat",
-    required: false,
-    badge: "Ingestion",
-    desc: "Universal transpilers for Mermaid, Draw.io, Docker Compose, Kubernetes, and Terraform state.",
-    size: "~8 KB",
-    snippet: `<span class="u-fn">transpileDockerComposeToMarkdy</span>(yaml)`,
+    name: "Docker Compose",
+    ext: "docker-compose.yml",
+    badge: "Containers & Mesh",
+    desc: "Extract service definitions, ports, network links, and volumes into a live architecture diagram.",
+    cmd: "markdy import docker-compose.yml",
+    snippet: `scene "Docker Compose Stack" theme=terminal type=nested\nlayout TB\n\nservice Web "nginx:alpine"\nservice Api "node:20-alpine"\nservice Cache "redis:7-alpine"\ndatabase Db "postgres:16-alpine"\n\ngroup ingress: Web\ngroup app: Api Cache\ngroup data: Db\n\nbeat boot:\n  show ingress stagger=50ms & show app stagger=50ms & show data\n  Web -> Api "proxy_pass :3000"\n  Api -> Cache "connect :6379"\n  Api -> Db "connect :5432"`,
   },
   {
-    name: "@markdy/renderer-dom",
-    required: false,
-    badge: "Runtime & Media",
-    desc: "Browser WAAPI runtime, zero-dep GIF89a encoder, SVG vector exporter, and presenter.",
-    size: "~24 KB",
-    snippet: `<span class="u-fn">encodeGifSequence</span>(frames) · <span class="u-fn">exportDiagramAsVectorSvg</span>()`,
+    name: "Kubernetes YAML",
+    ext: "k8s-manifest.yaml",
+    badge: "Pods & Clusters",
+    desc: "Map Ingress, Service, Deployment, Pod, and PVC resources into clustered layout tiers.",
+    cmd: "markdy import cluster.yaml",
+    snippet: `scene "Kubernetes Cluster Ingress" theme=midnight type=nested\nlayout TB\n\nservice Ingress "nginx-ingress"\nservice Svc "order-service:80"\nservice PodA "order-pod-1"\nservice PodB "order-pod-2"\n\ngroup ingress: Ingress\ngroup cluster: Svc PodA PodB\n\nbeat route:\n  show ingress & show cluster stagger=60ms\n  Ingress -> Svc "Host: api.markdy.com"\n  Svc -> PodA "round_robin"\n  Svc -> PodB "round_robin"`,
   },
   {
-    name: "@markdy/cli",
-    required: false,
-    badge: "Dev Tooling",
-    desc: "CLI for linting, architecture rules, formatting, importing, diffing, explaining, and sharing.",
-    size: "Node",
-    snippet: `markdy <span class="u-fn">import</span> docker-compose.yml · markdy <span class="u-fn">lint</span> --arch-rules`,
+    name: "Terraform State",
+    ext: "terraform.tfstate",
+    badge: "Cloud Infrastructure",
+    desc: "Visualize provisioned AWS/GCP/Azure VPCs, subnets, databases, and gateways automatically.",
+    cmd: "markdy import terraform.tfstate",
+    snippet: `scene "Terraform AWS Multi-AZ VPC" theme=blueprint type=layers\nlayout TB\n\nservice IGW "Internet Gateway"\nservice PublicSubnet "Public Subnet (AZ-1a)"\nservice PrivateSubnet "Private Subnet (AZ-1b)"\nservice RDS "RDS Multi-AZ (AZ-1c)"\n\nbeat provision:\n  show $nodes stagger=70ms\n  IGW -> PublicSubnet "0.0.0.0/0"\n  PublicSubnet -> PrivateSubnet "NAT Route"\n  PrivateSubnet -> RDS "Port 5432"`,
   },
-  {
-    name: "@markdy/mcp-server",
-    required: false,
-    badge: "MCP / AI",
-    desc: "Official Model Context Protocol server connecting Claude Desktop, Cursor, and AI agents.",
-    size: "Node",
-    snippet: `npx <span class="u-str">@markdy/mcp-server</span>`,
-  },
-  {
-    name: "@markdy/astro",
-    required: false,
-    badge: "Astro",
-    desc: "Astro island. Pass your scene as a code prop — it hydrates only when scrolled into view.",
-    size: "~2 KB",
-    snippet: `&lt;<span class="u-fn">Markdy</span> code={code} autoplay /&gt;`,
-  },
-] as const;
-
-const USE_CASES = [
-  {
-    title: "Animated developer documentation",
-    desc: "Turn docs-as-code tutorials, onboarding flows, and release notes into compact architecture scenes that stay readable in source control.",
-  },
-  {
-    title: "Architecture visualization",
-    desc: "Show APIs, queues, databases, caches, Kubernetes services, and infrastructure diagrams as animated architecture-as-code, or switch to focused layout modes: timeline, gantt, venn, radar, medallion, flywheel, quadrant, swimlane, pyramid, flowchart, tree, state, sequence, and constellation.",
-  },
-  {
-    title: "Mermaid-style text diagrams with motion",
-    desc: "Use a text DSL when Mermaid, D2, PlantUML, Graphviz, Excalidraw, or draw.io are too static for a product or systems story.",
-  },
-  {
-    title: "AI-generated explainer scenes",
-    desc: "Give an AI coding agent a plain-English brief and get deterministic MarkdyScript back instead of brittle generated JavaScript.",
-  },
-] as const;
+];
 
 const FAQS = [
   {
     question: "What is Markdy?",
-    answer: "Markdy is an open-source, diagram-native DSL for animated architecture and system diagrams. You declare semantic nodes, groups, beats, flow operators, and cues in MarkdyScript; Markdy handles mode-specific layout, routing, timing, and browser rendering.",
+    answer: "Markdy is an open-source, diagram-native DSL for animated architecture and system diagrams. You write semantic nodes, groups, flows, and beats in plain text; Markdy compiles browser-native motion graphics with zero coordinate math and zero manual keyframing.",
   },
   {
-    question: "Is Markdy a Mermaid alternative?",
-    answer: "Markdy overlaps with Mermaid when you want text-based diagrams, but it focuses on diagram-native animated architecture walkthroughs: request paths, cache hits, async events, deployment flows, and technical explainers. Use Mermaid for static charts; use Markdy when motion and sequence matter.",
+    question: "How is Markdy different from Mermaid, PlantUML, or D2?",
+    answer: "Mermaid, D2, and PlantUML produce static 2D images. Markdy is designed for system motion: request-response paths, cache invalidations, event streaming, camera framing, and step-by-step lifecycles rendered via the browser-native Web Animations API.",
   },
   {
-    question: "How is Markdy different from PlantUML, D2, Graphviz, Excalidraw, or draw.io?",
-    answer: "Those tools are excellent for static UML, graphs, whiteboards, or architecture diagrams. Markdy is designed for browser-rendered motion from a constrained diagram DSL: labeled requests, responses, async events, framing, glow, reveal, and timed beats in a text file.",
+    question: "Does Markdy require Canvas or WebGL?",
+    answer: "No. Markdy uses DOM elements, CSS transforms, and the Web Animations API. Scenes are crisp at any DPI, lightweight, accessible, and run seamlessly inside Astro, MDX, React, or static docs sites.",
   },
   {
-    question: "Is Markdy an alternative to GSAP or Framer Motion?",
-    answer: "Markdy is not a general UI animation framework replacement. It is focused on declarative architecture scenes for documentation, explainers, animated system diagrams, demos, and AI-generated diagram-as-code snippets.",
+    question: "Can AI coding agents generate Markdy diagrams?",
+    answer: "Yes! Markdy's line-based grammar is designed for LLMs. Our official @markdy/mcp-server connects to Cursor, Claude Desktop, and Antigravity to validate, transpile, and self-heal diagrams in real time.",
   },
-  {
-    question: "Does Markdy require Canvas or a video renderer?",
-    answer: "No. The DOM renderer uses web-native elements, CSS transforms, and the Web Animations API. Scenes can be embedded in normal web pages and Astro projects.",
-  },
-  {
-    question: "Can AI tools generate MarkdyScript?",
-    answer: "Yes. MarkdyScript is intentionally line-based and constrained so tools like Claude, ChatGPT, GitHub Copilot, Cursor, and Windsurf can generate, validate, and revise diagrams from natural-language prompts.",
-  },
-  {
-    question: "Which packages do I need to render a scene?",
-    answer: "Start by writing a .markdy scene. Use @markdy/cli to validate or preview files, @markdy/astro or @markdy/mdx for documentation sites, and @markdy/renderer-dom only when you need a custom browser embed.",
-  },
-] as const;
-
-const PROMOTION_LINKS = [
-  { label: "Star on GitHub", href: "https://github.com/HoangYell/markdy-com", desc: "Follow releases, open issues, and contribute examples." },
-  { label: "Install from npm", href: "https://www.npmjs.com/package/@markdy/core", desc: "Use the parser and renderer packages in your app." },
-  { label: "Read the agent guide", href: "/agent/", desc: "Give AI tools the current hosted grammar and cue reference." },
-] as const;
-
-const FEATURED_ARTICLES = [
-  { href: "/blog/diagram-as-code-guide/", label: "Diagram-as-code guide" },
-  { href: "/blog/markdy-vs-mermaid/", label: "Markdy vs Mermaid" },
-  { href: "/blog/system-design-diagrams/", label: "System design use case" },
-  { href: "/blog/markdy-playground/", label: "Playground walkthrough" },
-] as const;
+];
 
 const homepageStructuredData = [
   {
@@ -332,490 +176,260 @@ const homepageStructuredData = [
     "@id": "https://markdy.com/#webpage",
     url: "https://markdy.com/",
     name: "Markdy — Animated Architecture Diagrams as Code",
-    description: "Markdy is a framework-agnostic, diagram-native DSL for animated architecture and system diagrams: write semantic nodes, groups, beats, flows, and cues to get browser-native, versionable, AI-friendly motion diagrams for docs, Astro sites, and MDX.",
+    description: "Open-source diagram-as-code DSL for animated architecture diagrams: declare semantic nodes, flows, and beats in reviewable text. Zero coordinate math, browser-native motion.",
     isPartOf: { "@id": "https://markdy.com/#website" },
-    about: { "@id": "https://markdy.com/#software" },
-    primaryImageOfPage: {
-      "@type": "ImageObject",
-      url: "https://markdy.com/og-image.png",
-      width: 1200,
-      height: 630,
-    },
-  },
-  {
-    "@type": "BreadcrumbList",
-    "@id": "https://markdy.com/#breadcrumb",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: "https://markdy.com/" },
-    ],
-  },
-  {
-    "@type": "FAQPage",
-    "@id": "https://markdy.com/#faq",
-    mainEntity: FAQS.map((item) => ({
-      "@type": "Question",
-      name: item.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: item.answer,
-      },
-    })),
-  },
-  {
-    "@type": "ItemList",
-    "@id": "https://markdy.com/#search-intents",
-    name: "Problems Markdy helps developers solve",
-    itemListElement: USE_CASES.map((item, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      name: item.title,
-      description: item.desc,
-    })),
-  },
-  {
-    "@type": "ItemList",
-    "@id": "https://markdy.com/#featured-articles",
-    name: "Featured Markdy articles",
-    itemListElement: FEATURED_ARTICLES.map((article, index) => ({
-      "@type": "ListItem",
-      position: index + 1,
-      url: `https://markdy.com${article.href}`,
-      name: article.label,
-    })),
   },
 ];
-
-/* ── Usage code snippets (pre-formatted HTML to avoid Astro expression parsing) ── */
-const USAGE_SCENE = `<span class="u-comment">// architecture.markdy</span>
-<span class="u-kw">scene</span> <span class="u-str">"Checkout Request"</span> theme=paper
-layout LR
-
-browser WebApp
-service CheckoutApi
-database OrdersDb
-
-beat main:
-  show $nodes stagger=80ms
-  WebApp -> CheckoutApi <span class="u-str">"GET /orders"</span> -> OrdersDb <span class="u-str">"query"</span>
-  WebApp <- CheckoutApi <span class="u-str">"200 OK"</span>`;
-
-const USAGE_ASTRO = `<span class="u-comment">---</span>
-<span class="u-kw">import</span> { Markdy } <span class="u-kw">from</span> <span class="u-str">"@markdy/astro"</span>;
-
-<span class="u-kw">const</span> code = <span class="u-str">\`
-  scene "Request" theme=paper width=800 height=400
-  browser WebApp
-  service CheckoutApi
-  beat main:
-    show $nodes
-    WebApp -> CheckoutApi "GET /users"
-\`</span>;
-<span class="u-comment">---</span>
-
-&lt;<span class="u-fn">Markdy</span> {code} width={800} height={400} bg=<span class="u-str">"#07111f"</span> autoplay /&gt;`;
-
-const USAGE_MDX = `<span class="u-comment">// mdx.config.mjs — one-time setup</span>
-<span class="u-kw">import</span> { remarkMarkdy } <span class="u-kw">from</span> <span class="u-str">"@markdy/mdx"</span>;
-
-<span class="u-kw">export default</span> {
-  remarkPlugins: [remarkMarkdy],
-};
-
-<span class="u-comment">// content.mdx — no imports, just write markdown</span>
-\`\`\`markdy
-scene <span class="u-str">"Request"</span> theme=paper
-browser WebApp
-service CheckoutApi
-beat main:
-  show $nodes
-  WebApp -> CheckoutApi <span class="u-str">"GET /users"</span>
-\`\`\``;
-
-const USAGE_CLI = `<span class="u-comment"># validate, format, and preview a scene</span>
-markdy <span class="u-fn">lint</span> trailer.markdy
-markdy <span class="u-fn">fmt</span> trailer.markdy --write
-markdy <span class="u-fn">render</span> trailer.markdy --out dist/trailer.html
-markdy <span class="u-fn">check-all</span> examples`;
-
 ---
 
-<Layout 
+<Layout
   title="Markdy — Animated Architecture Diagrams as Code"
-  description="Markdy is a diagram-as-code DSL for animated architecture and system diagrams — write MarkdyScript with semantic nodes, beats, flows, and cues, and render browser-native, AI-friendly motion in the browser."
-  keywords="diagram-native DSL, MarkdyScript, animated architecture diagram, diagram as code, animated diagrams, mermaid alternative, animated mermaid, system design diagram, sequence diagram, flowchart, infrastructure diagram, architecture as code, text to diagram, AI diagram generator, AI agent diagrams, docs as code, software architecture visualization, animated system diagram, developer diagrams"
-  ogImageAlt="Markdy playground showing MarkdyScript code and an animated architecture diagram"
+  description="Markdy is a diagram-as-code DSL for animated architecture and system diagrams: declare semantic nodes, flows, and beats in plain text. Zero coordinate math, browser-native motion."
+  keywords="Markdy, animated architecture diagram, diagram as code, mermaid alternative, animated system diagram, architecture visualization, docs as code, MCP server diagrams"
   structuredData={homepageStructuredData}
 >
-
-  <!-- ─── Nav ──────────────────────────────────────────────────────────── -->
-  <nav class="nav" role="navigation" aria-label="Main navigation">
-    <a href="/" class="nav-brand" aria-label="Markdy home">
-      <span class="brand-icon">🎬</span>
-      <span class="brand-text">markdy</span>
-    </a>
-    <button id="menu-toggle" class="menu-toggle" aria-label="Toggle menu" aria-expanded="false">
-      <span></span><span></span><span></span>
-    </button>
-    <div class="nav-links">
-      <a href="#features">Features</a>
-      <a href="#playground">Playground</a>
-      <a href="#layouts">Layouts &amp; Themes</a>
-      <a href="#ingestion">Ingestion</a>
-      <a href="#governance">Governance</a>
-      <a href="#ai-gen">AI &amp; MCP</a>
-      <a href="/docs/">Docs</a>
-      <a href="/blog/">Articles</a>
-      <a href="#faq">FAQ</a>
-      <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="nav-github">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
-        <span>Star</span>
+  <!-- ─── Floating Pill Navigation ────────────────────────────────────── -->
+  <nav class="home-nav" aria-label="Main Navigation">
+    <div class="nav-pill">
+      <a href="/" class="nav-brand">
+        <span class="nav-logo">🎬</span>
+        <span class="nav-title">markdy</span>
       </a>
 
-      <button id="theme-toggle" class="theme-toggle" title="Toggle dark mode" aria-label="Toggle between dark and light mode">
-        <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="5"></circle>
-          <line x1="12" y1="1" x2="12" y2="3"></line>
-          <line x1="12" y1="21" x2="12" y2="23"></line>
-          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-          <line x1="1" y1="12" x2="3" y2="12"></line>
-          <line x1="21" y1="12" x2="23" y2="12"></line>
-          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-        </svg>
-        <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
-      </button>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#layouts">Layouts &amp; Themes</a>
+        <a href="#ingestion">Ingestion</a>
+        <a href="#ai-gen">AI &amp; MCP</a>
+        <a href="/docs/">Docs</a>
+        <a href="/blog/">Articles</a>
+      </div>
+
+      <div class="nav-actions">
+        <a href="/playground/" class="btn-nav-studio">⚡ Studio</a>
+        <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="btn-nav-icon" title="GitHub Repository">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+        <button id="theme-toggle" class="btn-nav-icon" title="Toggle Theme" aria-label="Toggle theme">
+          <svg class="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          <svg class="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
+      </div>
     </div>
   </nav>
 
-  <!-- ─── Hero ─────────────────────────────────────────────────────────── -->
-  <header class="hero">
-    <div class="hero-badge">Open-source diagram-as-code DSL · Mermaid-style, with motion</div>
-    <h1>Animated architecture diagrams from <span class="gradient-text">plain text</span>.</h1>
-    <p class="hero-sub">
-      Write semantic nodes, groups, beats, flows, and cues in MarkdyScript.
-      Markdy renders browser-native motion graphics that stay reviewable, versioned, and AI-friendly.
-    </p>
-    <div class="hero-actions">
-      <a href="/playground/" class="btn-primary">Try the Playground</a>
-      <a href="#learn" class="btn-secondary">Learn the Syntax</a>
+  <!-- ─── Hero Section ─────────────────────────────────────────────────── -->
+  <header class="home-hero">
+    <div class="hero-content">
+      <div class="hero-kicker">Open-source diagram-as-code DSL · Native Browser Motion</div>
+      <h1>Animated architecture diagrams from <span class="gradient-text">plain text</span>.</h1>
+      <p class="hero-description">
+        Declare semantic nodes, flows, and timed beats in reviewable text.
+        Markdy compiles browser-native motion graphics that stay version-controlled, PR-friendly, and AI-native.
+      </p>
+
+      <div class="hero-btn-row">
+        <a href="/playground/" class="btn-hero-primary">⚡ Open Interactive Studio</a>
+        <a href="/docs/" class="btn-hero-secondary">Explore Documentation ↗</a>
+      </div>
+
+      <!-- Quick Preset Selector -->
+      <div class="hero-presets-strip">
+        <span class="preset-label">SIGNATURE PRESETS:</span>
+        <div class="preset-chips">
+          {SIGNATURE_PRESETS.map((p) => (
+            <button class="preset-chip example-btn" data-index={p.index}>
+              <span>{p.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
     </div>
-    <p class="hero-crawl-links" aria-label="Featured articles">
-      <span>Featured guides:</span>
-      {FEATURED_ARTICLES.map((article, index) => (
-        <>
-          {index > 0 && <span aria-hidden="true"> · </span>}
-          <a href={article.href}>{article.label}</a>
-        </>
-      ))}
-      <span aria-hidden="true"> · </span>
-      <a href="/blog/">All articles</a>
-    </p>
 
-    <!-- ─── Usage tabs ──────────────────────────────────────────────── -->
-    <div class="usage-section">
-      <div class="usage-tabs" role="tablist">
-        <button class="usage-tab active" data-tab="scene" role="tab" aria-selected="true">.markdy</button>
-        <button class="usage-tab" data-tab="cli" role="tab" aria-selected="false">CLI</button>
-        <button class="usage-tab" data-tab="astro" role="tab" aria-selected="false">Astro</button>
-        <button class="usage-tab" data-tab="mdx" role="tab" aria-selected="false">MDX</button>
+    <!-- ─── Embedded Live Interactive Hero Studio ─────────────────────── -->
+    <div id="playground" class="hero-studio-card">
+      <div class="studio-topbar">
+        <div class="studio-left">
+          <span class="studio-dot"></span>
+          <span class="studio-title">MarkdyScript Live Studio</span>
+          <select id="example-select" class="studio-select" aria-label="Load Architecture Example">
+            {EXAMPLES.map((ex, i) => (
+              <option value={i}>{ex.title} ({ex.pattern ?? ex.category})</option>
+            ))}
+          </select>
+        </div>
+
+        <div class="studio-actions">
+          <button id="run-btn" class="btn-studio-run" title="Compile & Run">Run ▶</button>
+          <button id="home-export-svg-btn" class="btn-studio-tool" title="Export Vector SVG">SVG</button>
+          <button id="home-export-png-btn" class="btn-studio-tool" title="Export 2x PNG">PNG</button>
+          <button id="share-btn" class="btn-studio-tool" title="Copy shareable URL">Share</button>
+          <a href="/playground/" class="btn-studio-tool" title="Open full studio in new page">Popout ↗</a>
+        </div>
       </div>
 
-      <div class="usage-panel active" data-panel="scene">
-        <div class="usage-install">
-          <code class="usage-cmd">architecture.markdy</code>
-          <button class="copy-btn" title="Copy" aria-label="Copy filename">
-            <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            <svg class="copy-icon-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          </button>
+      <div class="studio-split-body">
+        <!-- Editor Left Column -->
+        <div class="studio-editor-pane">
+          <div id="code-editor" class="code-editor-wrap"></div>
+          <textarea id="code-input" style="display:none" spellcheck="false" aria-label="Code Editor">{EXAMPLES[0].code}</textarea>
         </div>
-        <pre class="usage-code"><code set:html={USAGE_SCENE} /></pre>
-      </div>
 
-      <div class="usage-panel" data-panel="cli">
-        <div class="usage-install">
-          <code class="usage-cmd">pnpm add -D @markdy/cli</code>
-          <button class="copy-btn" title="Copy" aria-label="Copy install command">
-            <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            <svg class="copy-icon-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          </button>
-        </div>
-        <pre class="usage-code"><code set:html={USAGE_CLI} /></pre>
-      </div>
+        <!-- Preview Right Column -->
+        <div class="studio-preview-pane">
+          <div class="preview-transport-bar">
+            <div class="transport-controls">
+              <button id="restart-btn" class="btn-transport" title="Restart">⏮</button>
+              <button id="rewind-btn" class="btn-transport" title="Back 1s">⏪ 1s</button>
+              <button id="play-btn" class="btn-transport-play" title="Play / Pause">
+                <svg id="play-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                <svg id="pause-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                <span id="play-label">Play</span>
+              </button>
+            </div>
 
-      <div class="usage-panel" data-panel="astro">
-        <div class="usage-install">
-          <code class="usage-cmd">pnpm add @markdy/astro</code>
-          <button class="copy-btn" title="Copy" aria-label="Copy install command">
-            <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            <svg class="copy-icon-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          </button>
-        </div>
-        <pre class="usage-code"><code set:html={USAGE_ASTRO} /></pre>
-      </div>
+            <div class="speed-group">
+              <button class="speed-btn" type="button" data-speed="0.5">0.5×</button>
+              <button class="speed-btn active" type="button" data-speed="1">1×</button>
+              <button class="speed-btn" type="button" data-speed="1.5">1.5×</button>
+              <button class="speed-btn" type="button" data-speed="2">2×</button>
+            </div>
 
-      <div class="usage-panel" data-panel="mdx">
-        <div class="usage-install">
-          <code class="usage-cmd">pnpm add @markdy/mdx react react-dom</code>
-          <button class="copy-btn" title="Copy" aria-label="Copy install command">
-            <svg class="copy-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-            <svg class="copy-icon-check" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          </button>
+            <span id="status" class="status-indicator status-ok"></span>
+          </div>
+
+          <div id="stage-wrap" class="stage-wrap">
+            <div id="stage"></div>
+          </div>
+
+          <div class="timeline-bar">
+            <select id="scene-jump" class="scene-jump" aria-label="Jump to scene" hidden></select>
+            <input id="timeline-range" class="timeline-range" type="range" min="0" max="0" step="0.01" value="0" aria-label="Scrub timeline" />
+            <span id="timeline-time" class="timeline-time">0:00 / 0:00</span>
+          </div>
         </div>
-        <pre class="usage-code"><code set:html={USAGE_MDX} /></pre>
       </div>
     </div>
   </header>
 
-  <!-- ─── Main Content ─────────────────────────────────────────────────── -->
-  <main>
-    <!-- ─── Features ─────────────────────────────────────────────────────── -->
-    <section id="features" class="features" aria-label="Key features">
-      <h2 class="sr-only">Key Features</h2>
-      <div class="features-grid">
-      {FEATURES.map(f => (
-        <div class="feature-card">
-          <span class="feature-icon">{f.icon}</span>
-          <h3>{f.title}</h3>
-          <p>{f.desc}</p>
-        </div>
-      ))}
-    </div>
-  </section>
-
-  <!-- ─── Playground ───────────────────────────────────────────────────── -->
-  <section id="playground" class="playground" aria-label="Interactive playground">
-    <div class="section-header">
-      <span class="section-tag">Interactive</span>
-      <h2>Animated Architecture Playground</h2>
-      <p>Start from a real shipped architecture-as-code example, tweak the script, and preview the motion instantly. Need more room? <a href="/playground/">Open the dedicated playground</a>.</p>
-    </div>
-
-    <div class="editor-layout">
-      <aside class="examples-col">
-        <div class="panel-label">
-          <span>Examples</span>
-          <a id="example-source-link" class="example-source-link" href={EXAMPLES[0].sourceUrl} target="_blank" rel="noopener noreferrer">View source</a>
-        </div>
-        <div class="examples-list">
-          {EXAMPLES.map((ex, i) => (
-            <button class="example-btn" data-index={i}>
-              <strong>{ex.title}</strong>
-              <span>{ex.sourcePath}</span>
-            </button>
-          ))}
-        </div>
-      </aside>
-
-      <div class="editor-col">
-        <div class="panel-label">
-          <span>Editor</span>
-          <div class="editor-toolbar">
-            <span class="editor-hint">Ctrl+Space autocomplete · Cmd+Enter run</span>
-            <button id="run-btn" class="btn-run" title="Run (or just type — auto-runs)">Run ▶</button>
-          </div>
-        </div>
-        <div id="code-editor" class="code-editor-wrap"></div>
-        <textarea id="code-input" style="display:none" spellcheck="false" aria-label="Code Editor">{EXAMPLES[0].code}</textarea>
+  <!-- ─── 4 Core Pillars of Markdy ────────────────────────────────────── -->
+  <main class="home-main">
+    <section id="features" class="pillars-section">
+      <div class="section-heading-block">
+        <span class="section-tag">Core Value</span>
+        <h2>Why Engineers &amp; Teams Choose Markdy</h2>
+        <p>A diagramming layer built for modern software architecture, autonomous coding agents, and CI/CD reviews.</p>
       </div>
 
-      <div class="preview-col">
-        <div class="panel-label">
-          <span class="panel-label-title"><span id="status" class="status ok"></span>Embedded Preview</span>
-          <button id="share-btn" class="btn-icon" title="Copy shareable link to clipboard" aria-label="Share">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-            <span>Share</span>
-          </button>
-        </div>
-        <div class="preview-toolbar">
-          <div class="control-group control-group--transport" role="group" aria-label="Playback">
-            <button id="restart-btn" class="btn-icon" title="Play from start" aria-label="Play from start">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="19 20 9 12 19 4 19 20"></polygon><rect x="5" y="4" width="2" height="16"></rect></svg>
-            </button>
-            <button id="rewind-btn" class="btn-icon" title="Back 1 second" aria-label="Back 1 second">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="11 19 2 12 11 5 11 19"></polygon><polygon points="22 19 13 12 22 5 22 19"></polygon></svg>
-              <span>1s</span>
-            </button>
-            <button id="play-btn" class="btn-icon btn-icon--primary" title="Play / Pause" aria-label="Play">
-              <svg id="play-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-              <svg id="pause-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" stroke="none" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-              <span id="play-label">Play</span>
-            </button>
-          </div>
-          <div class="speed-controls" role="group" aria-label="Playback speed">
-            <button class="speed-btn" type="button" data-speed="0.25" aria-pressed="false" title="Playback speed 0.25x">0.25×</button>
-            <button class="speed-btn" type="button" data-speed="0.5" aria-pressed="false" title="Playback speed 0.5x">0.5×</button>
-            <button class="speed-btn" type="button" data-speed="1" aria-pressed="true" title="Playback speed 1x">1×</button>
-            <button class="speed-btn" type="button" data-speed="1.5" aria-pressed="false" title="Playback speed 1.5x">1.5×</button>
-            <button class="speed-btn" type="button" data-speed="2" aria-pressed="false" title="Playback speed 2x">2×</button>
-          </div>
-          <button id="expand-preview-btn" class="btn-icon control-group--expand" title="Expand preview" aria-label="Expand preview" aria-pressed="false">
-            <svg id="expand-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"></polyline><polyline points="9 21 3 21 3 15"></polyline><line x1="21" y1="3" x2="14" y2="10"></line><line x1="3" y1="21" x2="10" y2="14"></line></svg>
-            <span id="expand-preview-label">Expand</span>
-          </button>
-        </div>
-        <div id="stage-wrap" class="stage-wrap">
-          <div id="stage"></div>
-        </div>
-        <div class="timeline-controls" aria-label="Timeline controls">
-          <select id="scene-jump" class="scene-jump" aria-label="Jump to scene" hidden></select>
-          <input id="timeline-range" class="timeline-range" type="range" min="0" max="0" step="0.01" value="0" aria-label="Scrub timeline" />
-          <span id="timeline-time" class="timeline-time">0:00 / 0:00</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-
-  <!-- ─── Core Feature 1: 17 Specialized Layout Engines & 8 Themes ─────── -->
-  <section id="layouts" class="core-section" aria-label="Layout engines and themes">
-    <div class="section-header">
-      <span class="section-tag">Layout &amp; Presentation</span>
-      <h2>17 Domain-Native Layout Engines &amp; 8 Curated Themes</h2>
-      <p>Architecture diagrams aren't just generic graphs. Markdy provides dedicated layout engines tuned for cloud systems, protocol lifelines, security perimeters, roadmaps, benchmarks, and data pipelines.</p>
-    </div>
-
-    <div class="layout-categories-grid">
-      {LAYOUT_ENGINES.map((cat) => (
-        <div class="layout-cat-card">
-          <div class="layout-cat-header">
-            <span class="layout-cat-icon">{cat.icon}</span>
-            <h3>{cat.category}</h3>
-          </div>
-          <div class="layout-types-list">
-            {cat.types.map((t) => (
-              <div class="layout-type-item">
-                <div class="layout-type-head">
-                  <code>type={t.name}</code>
-                  <button class="try-chip-btn" data-snippet={LAYOUT_SNIPPETS[t.name]} title={`Try type=${t.name} in Playground`} aria-label={`Try type=${t.name} in playground`}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                    <span>Try</span>
-                  </button>
-                </div>
-                <p>{t.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      ))}
-    </div>
-
-    <div class="themes-banner">
-      <div class="themes-header">
-        <span class="themes-tag">🎨 Visual Personas</span>
-        <h3>8 Curated Themes for Technical Docs &amp; Engineering Blogs</h3>
-      </div>
-      <div class="themes-grid">
-        {THEMES.map((th) => (
-          <div class="theme-chip">
-            <div class="theme-chip-top">
-              <strong>{th.name}</strong>
-              <div class="theme-chip-actions">
-                <span class="theme-badge">{th.badge}</span>
-                <button class="try-chip-btn" data-snippet={THEME_SNIPPETS[th.name]} title={`Preview theme=${th.name}`} aria-label={`Preview theme ${th.name}`}>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                  <span>Preview</span>
-                </button>
-              </div>
+      <div class="pillars-grid">
+        {PILLARS.map((p) => (
+          <a href={p.href} class="pillar-card">
+            <div class="pillar-card-header">
+              <span class="pillar-icon">{p.icon}</span>
+              <span class="pillar-tag">{p.tag}</span>
             </div>
-            <p>{th.desc}</p>
+            <h3>{p.title}</h3>
+            <p>{p.desc}</p>
+            <div class="pillar-learn-more">Learn more ↗</div>
+          </a>
+        ))}
+      </div>
+    </section>
+
+    <!-- ─── Interactive Layout Engines & Curated Themes ──────────────────── -->
+    <section id="layouts" class="layouts-section">
+      <div class="section-heading-block">
+        <span class="section-tag">Layout &amp; Presentation</span>
+        <h2>17 Domain-Native Engines &amp; 8 Publication Themes</h2>
+        <p>From microservices and security perimeters to medallion pipelines and sprint roadmaps.</p>
+      </div>
+
+      <div class="layouts-category-grid">
+        {LAYOUT_CATEGORIES.map((cat) => (
+          <div class="layout-group-card">
+            <div class="group-header">
+              <span class="group-icon">{cat.icon}</span>
+              <h3>{cat.category}</h3>
+            </div>
+            <div class="group-items">
+              {cat.types.map((t) => (
+                <div class="group-item">
+                  <div class="item-head">
+                    <code>{t.label}</code>
+                    <button class="try-chip-btn" data-snippet={LAYOUT_SNIPPETS[t.name]} title={`Try ${t.label} in Studio`}>
+                      <span>Try</span>
+                    </button>
+                  </div>
+                  <p>{t.desc}</p>
+                </div>
+              ))}
+            </div>
           </div>
         ))}
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ─── Core Feature 2: Universal Ingestion & 1-Click Migration ─────── -->
-  <section id="ingestion" class="core-section" aria-label="Universal ingestion">
-    <div class="section-header">
-      <span class="section-tag">Universal Ingestion</span>
-      <h2>Import Existing Systems into Animated Code in 1 Click</h2>
-      <p>Never start from scratch. Use <code>@markdy/compat</code> and the <code>markdy import</code> CLI to transpile Mermaid flowcharts, Draw.io XML graphs, Docker Compose setups, Kubernetes manifests, or Terraform state files directly into animated MarkdyScript.</p>
-    </div>
-
-    <div class="ingestion-grid">
-      {INGESTION_SOURCES.map((src) => (
-        <div class="ingestion-card">
-          <div class="ingestion-card-top">
-            <div class="ingestion-name">{src.name}</div>
-            <span class="ingestion-badge">{src.badge}</span>
-          </div>
-          <p class="ingestion-desc">{src.desc}</p>
-          <div class="ingestion-cmd-wrap">
-            <code class="ingestion-cmd-text">{src.cmd}</code>
-            <button class="ingestion-copy-btn copy-btn" title="Copy command" aria-label={`Copy import command for ${src.name}`}>
-              <svg class="copy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-              <svg class="copy-icon-check" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </button>
-          </div>
-          <button class="ingestion-try-btn try-chip-btn" data-snippet={INGESTION_SNIPPETS[src.name]} title={`Preview converted ${src.name} diagram in playground`} aria-label={`Preview converted ${src.name} in playground`}>
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-            <span>Preview Transpiled Scene</span>
-          </button>
-        </div>
-      ))}
-    </div>
-  </section>
-
-  <!-- ─── Core Feature 3: Architecture Governance & CI/CD Linter ───────── -->
-  <section id="governance" class="core-section" aria-label="Architecture governance">
-    <div class="section-header">
-      <span class="section-tag">Well-Architected Guardrails</span>
-      <h2>Architecture Governance in CI/CD &amp; PR Diffing</h2>
-      <p>Automate architecture reviews. Catch circular deadlock loops and layer violations before merging code, and generate semantic evolution tables on every Pull Request.</p>
-    </div>
-
-    <div class="governance-grid">
-      {GOVERNANCE_RULES.map((rule) => (
-        <div class="governance-card">
-          <div class="governance-card-top">
-            <div class="governance-title">{rule.title}</div>
-            <span class={`gov-status ${rule.status === 'BLOCKING IN CI' || rule.status === 'ERROR' ? 'gov-status--err' : 'gov-status--info'}`}>{rule.status}</span>
-          </div>
-          <code class="gov-rule-code">{rule.rule}</code>
-          <p class="gov-desc">{rule.desc}</p>
-        </div>
-      ))}
-    </div>
-  </section>
-
-  <!-- ─── Core Feature 4: AI Coding Agents & MCP Server ─────────────────── -->
-  <section id="ai-gen" class="ai-section" aria-label="AI-powered generation">
-    <div class="section-header">
-      <span class="section-tag">AI-Native Architecture</span>
-      <h2>Official Model Context Protocol (MCP) &amp; Agent Tooling</h2>
-      <p>Markdy is designed from the ground up for LLMs and autonomous coding agents. Point Claude Desktop, Cursor, or Antigravity to our MCP server for instant AST validation and self-healing diagnostics.</p>
-    </div>
-
-    <div class="ai-grid">
-      <div class="ai-card ai-card-how">
-        <h3>How AI pairs with Markdy</h3>
-        <ol class="ai-steps">
-          <li>
-            <strong>Hosted LLM Reference</strong>
-            <p>Share <a href="/AGENT.md">markdy.com/AGENT.md</a> or <a href="/llms.txt">llms.txt</a> with your AI assistant.</p>
-          </li>
-          <li>
-            <strong>Describe Your Architecture</strong>
-            <p>Prompt with natural language: <em>"Explain our cache-aside pattern with Redis and Postgres on user authentication."</em></p>
-          </li>
-          <li>
-            <strong>Autonomous Self-Healing Loop</strong>
-            <p><code>@markdy/mcp-server</code> validates AST node kinds and flow connections, automatically fixing typos or invalid cues.</p>
-          </li>
-        </ol>
+    <!-- ─── Universal Ingestion ─────────────────────────────────────────── -->
+    <section id="ingestion" class="ingestion-section">
+      <div class="section-heading-block">
+        <span class="section-tag">Universal Ingestion</span>
+        <h2>Never Start From Scratch</h2>
+        <p>Convert existing static architecture definitions into animated MarkdyScript in 1 click.</p>
       </div>
 
-      <div class="ai-card ai-card-example">
-        <h3>MCP Tool Integration</h3>
-        <div class="ai-prompt">
-          <div class="ai-prompt-header">
-            <span class="ai-prompt-label">Claude Desktop / Cursor / Antigravity MCP Config</span>
+      <div class="ingestion-grid">
+        {INGESTION_SOURCES.map((src) => (
+          <div class="ingestion-box">
+            <div class="ingestion-box-top">
+              <strong>{src.name}</strong>
+              <span class="ingestion-badge">{src.badge}</span>
+            </div>
+            <p>{src.desc}</p>
+            <div class="cmd-row">
+              <code>{src.cmd}</code>
+              <button class="ingestion-copy-btn copy-btn" title="Copy command">Copy</button>
+            </div>
+            <button class="ingestion-try-btn try-chip-btn" data-snippet={src.snippet}>
+              <span>⚡ Preview Transpiled Scene</span>
+            </button>
           </div>
-          <pre class="mcp-config-code"><code>{`{
+        ))}
+      </div>
+    </section>
+
+    <!-- ─── AI Coding Agents & MCP Server ───────────────────────────────── -->
+    <section id="ai-gen" class="ai-section">
+      <div class="section-heading-block">
+        <span class="section-tag">AI-Native Architecture</span>
+        <h2>Official Model Context Protocol (MCP) Server</h2>
+        <p>Point Claude Desktop, Cursor, or Antigravity to Markdy for instant AST validation and self-healing diagrams.</p>
+      </div>
+
+      <div class="ai-split-grid">
+        <div class="ai-step-card">
+          <h3>How AI pairs with Markdy</h3>
+          <ol class="ai-step-list">
+            <li>
+              <strong>Hosted Agent Reference</strong>
+              <p>Share <a href="/AGENT.md"><code>markdy.com/AGENT.md</code></a> or <a href="/llms.txt"><code>llms.txt</code></a> with your coding assistant.</p>
+            </li>
+            <li>
+              <strong>Prompt with Natural Language</strong>
+              <p><em>"Draw a cache-aside architecture diagram with Redis and Postgres on user checkout."</em></p>
+            </li>
+            <li>
+              <strong>Autonomous Self-Healing Loop</strong>
+              <p>The MCP server automatically parses the AST and fixes invalid cues or node typos.</p>
+            </li>
+          </ol>
+        </div>
+
+        <div class="ai-config-card">
+          <div class="config-header">
+            <span>Claude Desktop / Cursor MCP Config</span>
+            <button class="ingestion-copy-btn copy-btn" id="copy-mcp-btn">Copy JSON</button>
+          </div>
+          <pre class="config-code"><code>{`{
   "mcpServers": {
     "markdy": {
       "command": "npx",
@@ -824,310 +438,121 @@ markdy <span class="u-fn">check-all</span> examples`;
   }
 }`}</code></pre>
         </div>
-        <p class="ai-hint">AI assistants can call <code>validate_markdy_script</code>, <code>render_markdy_diagram</code>, and <code>explain_architecture</code> directly in chat.</p>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ─── Core Feature 5: Streamlined Quick-Start Syntax ────────────────── -->
-  <section id="syntax" class="core-section" aria-label="MarkdyScript syntax overview">
-    <div class="section-header">
-      <span class="section-tag">Syntax Overview</span>
-      <h2>MarkdyScript in 4 Clean Steps</h2>
-      <p>Zero boilerplate. Zero manual coordinates. Write declarative text and let Markdy handle animation choreography.</p>
-    </div>
+    <!-- ─── Framework Integrations ─────────────────────────────────────── -->
+    <section id="frameworks" class="framework-section">
+      <div class="section-heading-block">
+        <span class="section-tag">Quickstart &amp; Integrations</span>
+        <h2>Docs-as-Code in Any Framework</h2>
+      </div>
 
-    <div class="syntax-steps-grid">
-      {SYNTAX_STEPS.map((s) => (
-        <div class="syntax-step-card">
-          <div class="syntax-step-header">
-            <span class="step-num">{s.step}</span>
-            <h3>{s.title}</h3>
-            <button class="try-chip-btn" data-snippet={s.code} title={`Run Step ${s.step} in playground`} aria-label={`Run Step ${s.step} in playground`}>
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-              <span>Run</span>
-            </button>
-          </div>
-          <pre class="syntax-step-code"><code>{s.code}</code></pre>
-          <p>{s.desc}</p>
+      <div class="framework-tabs-card">
+        <div class="framework-tabs" role="tablist">
+          <button class="f-tab active" data-tab="cli">CLI Tooling</button>
+          <button class="f-tab" data-tab="astro">Astro</button>
+          <button class="f-tab" data-tab="mdx">MDX / React</button>
         </div>
-      ))}
-    </div>
 
-    <div class="syntax-cta-box">
-      <p>Ready to master advanced cues, camera framing, and pattern macros?</p>
-      <div class="syntax-cta-actions">
-        <a href="/docs/" class="btn-primary">Explore Full Documentation</a>
-        <a href="/playground/" class="btn-secondary">Open Interactive Playground</a>
+        <div class="f-panel active" data-panel="cli">
+          <pre><code># Install CLI globally
+npm install -g @markdy/cli
+
+# Render scene to interactive HTML
+markdy render system.markdy --open
+
+# Batch validate all diagrams in CI/CD
+markdy check-all ./docs/diagrams</code></pre>
+        </div>
+
+        <div class="f-panel" data-panel="astro">
+          <pre><code>---
+import &#123; Markdy &#125; from "@markdy/astro";
+
+const sceneCode = `
+  scene "System Flow" theme=paper
+  client WebApp -> service Api -> database Postgres
+`;
+---
+
+&lt;Markdy code=&#123;sceneCode&#125; autoplay /&gt;</code></pre>
+        </div>
+
+        <div class="f-panel" data-panel="mdx">
+          <pre><code>// In your MDX documentation file:
+```markdy
+scene "Cache Lookup" theme=paper
+client Browser -> gateway API -> cache Redis
+```</code></pre>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- ─── Packages ─────────────────────────────────────────────────────── -->
-  <section id="packages" class="packages" aria-label="Packages">
-    <div class="section-header">
-      <span class="section-tag">Ecosystem</span>
-      <h2>Lightweight Packages for Docs-as-Code Animation</h2>
-      <p>Write portable <code>.markdy</code> scenes first. Use packages for validation, docs embeds, editor tooling, previews, and custom playback.</p>
-    </div>
-    <div class="pkg-grid">
-      {PACKAGES.map((pkg) => (
-        <a class="pkg-card" href={`https://www.npmjs.com/package/${pkg.name}`} target="_blank" rel="noopener noreferrer">
-          <div class="pkg-card-top">
-            <div class="pkg-name">{pkg.name}</div>
-            {pkg.required && <span class="pkg-required">Required</span>}
-          </div>
-          <div class="pkg-desc">{pkg.desc}</div>
-          <pre class="pkg-snippet"><code set:html={pkg.snippet} /></pre>
-          <div class="pkg-meta"><span class="pkg-size">{pkg.size}</span><span class="pkg-badge">{pkg.badge}</span></div>
-        </a>
-      ))}
-    </div>
-  </section>
+    <!-- ─── FAQ ────────────────────────────────────────────────────────── -->
+    <section id="faq" class="faq-section">
+      <div class="section-heading-block">
+        <span class="section-tag">FAQ</span>
+        <h2>Frequently Asked Questions</h2>
+      </div>
 
-  <!-- ─── FAQ ──────────────────────────────────────────────────────────── -->
-  <section id="faq" class="faq-section" aria-label="Frequently asked questions">
-    <div class="section-header">
-      <span class="section-tag">FAQ</span>
-      <h2>Diagramming, Animation, and AI Questions</h2>
-      <p>Direct answers for developers comparing Markdy with Mermaid, PlantUML, D2, Graphviz, JavaScript animation libraries, Canvas renderers, and AI-generated code.</p>
-    </div>
-    <div class="faq-list">
-      {FAQS.map((item) => (
-        <details class="faq-item">
-          <summary>{item.question}</summary>
-          <p>{item.answer}</p>
-        </details>
-      ))}
-    </div>
-  </section>
-
-  <!-- ─── Promotion Kit ──────────────────────────────────────────────── -->
-  <section id="share" class="share-section" aria-label="Share Markdy">
-    <div class="section-header">
-      <span class="section-tag">Promotion</span>
-      <h2>Share the Project</h2>
-      <p>Consistent links and descriptions help developers, search engines, and AI tools understand what Markdy is.</p>
-    </div>
-    <div class="share-grid">
-      {PROMOTION_LINKS.map((item) => (
-        <a class="share-card" href={item.href} target="_blank" rel="noopener noreferrer">
-          <strong>{item.label}</strong>
-          <span>{item.desc}</span>
-        </a>
-      ))}
-    </div>
-    <div class="share-copy" aria-label="Short project description">
-      <span>Short description</span>
-      <code>Markdy is an open-source DSL for animated architecture & system diagrams — write plain text, get browser-native animated diagrams.</code>
-    </div>
-  </section>
-
+      <div class="faq-accordion-list">
+        {FAQS.map((f) => (
+          <details class="faq-details">
+            <summary>{f.question}</summary>
+            <p>{f.answer}</p>
+          </details>
+        ))}
+      </div>
+    </section>
   </main>
 
   <!-- ─── Footer ───────────────────────────────────────────────────────── -->
-  <footer class="footer" role="contentinfo">
+  <footer class="home-footer">
     <div class="footer-inner">
-      <div class="footer-top">
-        <div class="footer-brand-col">
-          <span class="footer-brand">🎬 markdy</span>
-          <p class="footer-tagline">Open-source diagrams-as-code, with motion.<br />Built for animated architecture &amp; system diagrams.</p>
-        </div>
-        <div class="footer-cols">
-          <h2 class="sr-only">Footer Links</h2>
-          <div class="footer-col">
-            <h3>Product</h3>
-            <a href="/playground/">Playground</a>
-            <a href="#layouts">Layout Engines</a>
-            <a href="#ingestion">Ingestion</a>
-            <a href="#governance">Governance</a>
-            <a href="#syntax">Syntax Overview</a>
-            <a href="#packages">Packages</a>
-            <a href="#faq">FAQ</a>
-          </div>
-          <div class="footer-col">
-            <h3>Resources</h3>
-            <a href="/docs/">Documentation</a>
-            <a href="/blog/">Articles</a>
-            <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/TUTORIAL.md" target="_blank" rel="noopener noreferrer">Tutorial</a>
-            <a href="https://github.com/HoangYell/markdy-com/blob/main/docs/SYNTAX.md" target="_blank" rel="noopener noreferrer">Syntax Reference</a>
-            <a href="/agent/">AI Agent Guide</a>
-            <a href="https://github.com/HoangYell/markdy-com/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener noreferrer">Contributing</a>
-          </div>
-          <div class="footer-col">
-            <h3>Community</h3>
-            <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">GitHub</a>
-            <a href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener noreferrer">npm</a>
-            <a href="/llms.txt">llms.txt</a>
-            <a href="/llms-full.txt">llms-full.txt</a>
-            <a href="https://github.com/HoangYell/markdy-com/issues" target="_blank" rel="noopener noreferrer">Report a Bug</a>
-          </div>
-        </div>
+      <div class="footer-brand-pane">
+        <span class="f-logo">🎬 markdy</span>
+        <p>Open-source diagrams-as-code with native browser motion.<br />Built for system design, developer docs, and pull requests.</p>
       </div>
-      <div class="footer-bottom">
-        <span>MIT License</span>
-        <span class="dot">&middot;</span>
-        <a href="/privacy/">Privacy Policy</a>
-        <span class="dot">&middot;</span>
-        <span>Built by <a href="https://hoangyell.com" target="_blank" rel="noopener noreferrer">Hoang Yell</a></span>
+
+      <div class="footer-links-grid">
+        <div class="f-col">
+          <h4>Product</h4>
+          <a href="/playground/">⚡ Studio</a>
+          <a href="#features">Features</a>
+          <a href="#layouts">Layout Engines</a>
+          <a href="#ingestion">Ingestion</a>
+        </div>
+        <div class="f-col">
+          <h4>Resources</h4>
+          <a href="/docs/">Documentation</a>
+          <a href="/blog/">Articles</a>
+          <a href="/AGENT.md">AI Agent Guide</a>
+          <a href="/llms.txt">llms.txt</a>
+        </div>
+        <div class="f-col">
+          <h4>Community</h4>
+          <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener noreferrer">npm Registry</a>
+          <a href="/privacy/">Privacy Policy</a>
+        </div>
       </div>
     </div>
+
+    <div class="footer-bottom-bar">
+      <span>MIT Licensed · Designed with precision for developers</span>
+      <span>Built by <a href="https://hoangyell.com" target="_blank" rel="noopener noreferrer">Hoang Yell</a></span>
+    </div>
   </footer>
-
-  <!-- ─── Scroll to top ────────────────────────────────────────────────── -->
-  <button id="scroll-top" class="scroll-top" aria-label="Scroll to top" title="Back to top">
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg>
-  </button>
-
 </Layout>
 
-<!-- ─── Client-side: editor + examples ──────────────────────────────── -->
+<!-- ─── Client Runtime Variables ─────────────────────────────────────── -->
 <script define:vars={{ examples: EXAMPLES, flowerAsset: FLOWER_ASSET }}>
   window.__MARKDY_EXAMPLES = examples;
   window.__MARKDY_ASSETS = flowerAsset;
 </script>
 
-<script>
-  /* ── Usage tabs ────────────────────────────────────────────────────── */
-  const tabs = document.querySelectorAll<HTMLButtonElement>(".usage-tab");
-  const panels = document.querySelectorAll<HTMLDivElement>(".usage-panel");
-
-  tabs.forEach(tab => {
-    tab.addEventListener("click", () => {
-      const target = tab.dataset.tab;
-      tabs.forEach(t => { t.classList.remove("active"); t.setAttribute("aria-selected", "false"); });
-      panels.forEach(p => p.classList.remove("active"));
-      tab.classList.add("active");
-      tab.setAttribute("aria-selected", "true");
-      document.querySelector(`.usage-panel[data-panel="${target}"]`)?.classList.add("active");
-    });
-  });
-
-  /* ── Copy install commands ─────────────────────────────────────────── */
-  document.querySelectorAll<HTMLButtonElement>(".copy-btn").forEach(btn => {
-    let revertTimer: ReturnType<typeof setTimeout> | null = null;
-    btn.addEventListener("click", () => {
-      const cmd = btn.closest(".usage-install")?.querySelector(".usage-cmd");
-      if (!cmd) return;
-      navigator.clipboard.writeText(cmd.textContent?.trim() ?? "").then(() => {
-        if (revertTimer) clearTimeout(revertTimer);
-        btn.classList.add("copied");
-        btn.title = "Copied!";
-        btn.setAttribute("aria-label", "Copied to clipboard");
-        revertTimer = setTimeout(() => {
-          btn.classList.remove("copied");
-          btn.title = "Copy";
-          btn.setAttribute("aria-label", "Copy install command");
-        }, 2000);
-      }).catch(() => {
-        btn.title = "Copy failed — select and copy manually";
-      });
-    });
-  });
-
-  /* ── Scroll to top ─────────────────────────────────────────────────── */
-  const scrollTopBtn = document.getElementById("scroll-top");
-  if (scrollTopBtn) {
-    window.addEventListener("scroll", () => {
-      scrollTopBtn.classList.toggle("visible", window.scrollY > 400);
-    }, { passive: true });
-    scrollTopBtn.addEventListener("click", () => {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  }
-
-  /* ── Mobile menu toggle ────────────────────────────────────────────── */
-  const menuToggle = document.getElementById("menu-toggle");
-  const navLinks = document.querySelector(".nav-links");
-  if (menuToggle && navLinks) {
-    menuToggle.addEventListener("click", () => {
-      navLinks.classList.toggle("open");
-      menuToggle.classList.toggle("open");
-      menuToggle.setAttribute("aria-expanded", navLinks.classList.contains("open").toString());
-    });
-    // Close menu on link click
-    navLinks.querySelectorAll("a").forEach(link => {
-      link.addEventListener("click", () => {
-        navLinks.classList.remove("open");
-        menuToggle.classList.remove("open");
-        menuToggle.setAttribute("aria-expanded", "false");
-      });
-    });
-  }
-
-  /* ── Active nav link via IntersectionObserver ───────────────────── */
-  (function () {
-    const sectionIds = ["features", "playground", "layouts", "ingestion", "governance", "ai-gen", "faq"];
-    const navAnchors = new Map(
-      sectionIds.map(id => [id, document.querySelector(`.nav-links a[href="#${id}"]`) as HTMLAnchorElement | null])
-    );
-
-    function setActive(id: string | null) {
-      navAnchors.forEach((a, key) => {
-        if (!a) return;
-        if (key === id) {
-          a.setAttribute("aria-current", "true");
-        } else {
-          a.removeAttribute("aria-current");
-        }
-      });
-    }
-
-    // Use an ordered array — topmost visible section wins
-    const visible = new Set<string>();
-    const observer = new IntersectionObserver(
-      entries => {
-        entries.forEach(e => {
-          const id = (e.target as HTMLElement).id;
-          if (e.isIntersecting) visible.add(id);
-          else visible.delete(id);
-        });
-        // Pick first in order
-        const active = sectionIds.find(id => visible.has(id)) ?? null;
-        setActive(active);
-      },
-      { rootMargin: "-68px 0px -40% 0px", threshold: 0 }
-    );
-
-    sectionIds.forEach(id => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-  })();
-
-  /* ── Theme toggle (must run before CodeMirror to set CSS vars) ──── */
-  const STORAGE_KEY = "markdy-theme";
-
-  function getPreferredTheme(): "light" | "dark" {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === "dark" || stored === "light") return stored;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-  }
-
-  function applyTheme(theme: "light" | "dark") {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem(STORAGE_KEY, theme);
-    // Update toggle icon visibility
-    const toggle = document.getElementById("theme-toggle");
-    if (toggle) {
-      toggle.classList.toggle("is-dark", theme === "dark");
-    }
-  }
-
-  // Apply saved theme immediately
-  applyTheme(getPreferredTheme());
-
-  // Toggle button
-  document.getElementById("theme-toggle")?.addEventListener("click", () => {
-    const current = document.documentElement.getAttribute("data-theme") || "light";
-    applyTheme(current === "dark" ? "light" : "dark");
-    // Recreate editor with new theme
-    if ((window as any).__recreateEditor) {
-      (window as any).__recreateEditor();
-    }
-  });
-</script>
-
+<!-- ─── Interactive Client Logic ─────────────────────────────────────── -->
 <script>
   import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from "@codemirror/view";
   import { EditorState } from "@codemirror/state";
@@ -1138,54 +563,45 @@ markdy <span class="u-fn">check-all</span> examples`;
 
   import { markdyLanguage, markdyAutocomplete, markdyHighlightLight, markdyHighlightDark } from "../editor/markdy-language";
   import { baseTheme, lightTheme, darkTheme } from "../editor/editor-theme";
-  import { createDiagram } from "@markdy/renderer-dom";
+  import { createDiagram, exportDiagramAsVectorSvg, exportDiagramAsPng } from "@markdy/renderer-dom";
   import type { Diagram } from "@markdy/renderer-dom";
+  import { compressMarkdyToUrlHash } from "@markdy/core";
   import type { ExampleEntry } from "../data/examples";
 
-  const examples: ExampleEntry[]  = (window as any).__MARKDY_EXAMPLES;
-  const assets: Record<string, string> = (window as any).__MARKDY_ASSETS;
-
+  const examples: ExampleEntry[] = (window as any).__MARKDY_EXAMPLES || [];
   const editorContainer = document.getElementById("code-editor") as HTMLDivElement;
-  const stage     = document.getElementById("stage")      as HTMLDivElement;
-  const runBtn    = document.getElementById("run-btn")    as HTMLButtonElement;
-  const statusEl  = document.getElementById("status")     as HTMLSpanElement;
-  const rewindBtn = document.getElementById("rewind-btn") as HTMLButtonElement;
+  const stage = document.getElementById("stage") as HTMLDivElement;
+  const stageWrap = document.getElementById("stage-wrap") as HTMLDivElement;
+  const runBtn = document.getElementById("run-btn") as HTMLButtonElement;
+  const statusEl = document.getElementById("status") as HTMLSpanElement;
+  const playBtn = document.getElementById("play-btn") as HTMLButtonElement;
   const restartBtn = document.getElementById("restart-btn") as HTMLButtonElement;
-  const playBtn   = document.getElementById("play-btn")   as HTMLButtonElement;
-  const speedBtns = document.querySelectorAll<HTMLButtonElement>(".speed-btn");
-  const playIcon  = document.getElementById("play-icon")  as SVGElement;
+  const rewindBtn = document.getElementById("rewind-btn") as HTMLButtonElement;
+  const playIcon = document.getElementById("play-icon") as SVGElement;
   const pauseIcon = document.getElementById("pause-icon") as SVGElement;
   const playLabel = document.getElementById("play-label") as HTMLSpanElement;
-  const expandPreviewBtn = document.getElementById("expand-preview-btn") as HTMLButtonElement;
-  const expandPreviewLabel = document.getElementById("expand-preview-label") as HTMLSpanElement;
+  const speedBtns = document.querySelectorAll<HTMLButtonElement>(".speed-btn");
   const timelineRange = document.getElementById("timeline-range") as HTMLInputElement;
   const timelineTime = document.getElementById("timeline-time") as HTMLSpanElement;
   const sceneJump = document.getElementById("scene-jump") as HTMLSelectElement;
-  const exBtns    = document.querySelectorAll<HTMLButtonElement>(".example-btn");
-  const exampleSourceLink = document.getElementById("example-source-link") as HTMLAnchorElement;
+  const exampleSelect = document.getElementById("example-select") as HTMLSelectElement;
+  const presetChips = document.querySelectorAll<HTMLButtonElement>(".preset-chip");
 
   let diagram: Diagram | null = null;
   let isAnimPlaying = false;
   let debounce: ReturnType<typeof setTimeout> | null = null;
   let editorView: EditorView | null = null;
-  let currentPreviewStart = 0;
   let isScrubbing = false;
-  let isPreviewExpanded = false;
   let selectedPlaybackRate = 1;
 
-  function setSelectedPlaybackRate(rate: number) {
-    if (!Number.isFinite(rate) || rate <= 0) return;
-    selectedPlaybackRate = rate;
-    for (const btn of speedBtns) {
-      const btnRate = Number(btn.dataset.speed ?? "1");
-      const isActive = Math.abs(btnRate - rate) < 0.001;
-      btn.classList.toggle("active", isActive);
-      btn.setAttribute("aria-pressed", isActive ? "true" : "false");
-    }
-    diagram?.setPlaybackRate(rate);
+  function isDarkMode(): boolean {
+    return document.documentElement.getAttribute("data-theme") === "dark";
   }
 
-  setSelectedPlaybackRate(1);
+  function setStatus(ok: boolean) {
+    if (!statusEl) return;
+    statusEl.className = `status-indicator ${ok ? "status-ok" : "status-error"}`;
+  }
 
   function formatTime(seconds: number): string {
     if (!Number.isFinite(seconds) || seconds <= 0) return "0:00";
@@ -1196,6 +612,7 @@ markdy <span class="u-fn">check-all</span> examples`;
   }
 
   function setTimeline(current: number, duration: number) {
+    if (!timelineRange || !timelineTime) return;
     const safeDuration = Number.isFinite(duration) && duration > 0 ? duration : 0;
     const safeCurrent = safeDuration > 0 ? Math.min(Math.max(current, 0), safeDuration) : 0;
     timelineRange.max = safeDuration.toFixed(2);
@@ -1204,7 +621,16 @@ markdy <span class="u-fn">check-all</span> examples`;
     timelineTime.textContent = `${formatTime(safeCurrent)} / ${formatTime(safeDuration)}`;
   }
 
+  function setPlayState(playing: boolean) {
+    isAnimPlaying = playing;
+    if (playIcon) playIcon.style.display = playing ? "none" : "";
+    if (pauseIcon) pauseIcon.style.display = playing ? "" : "none";
+    if (playLabel) playLabel.textContent = playing ? "Pause" : "Play";
+    if (playBtn) playBtn.setAttribute("aria-label", playing ? "Pause" : "Play");
+  }
+
   function populateSceneJump(beats: { name: string; start: number }[]) {
+    if (!sceneJump) return;
     sceneJump.innerHTML = "";
     if (beats.length === 0) {
       sceneJump.hidden = true;
@@ -1213,7 +639,7 @@ markdy <span class="u-fn">check-all</span> examples`;
     sceneJump.hidden = false;
     const placeholder = document.createElement("option");
     placeholder.value = "";
-    placeholder.textContent = "Jump to scene…";
+    placeholder.textContent = "Jump to beat…";
     sceneJump.appendChild(placeholder);
     for (const beat of beats) {
       const option = document.createElement("option");
@@ -1221,72 +647,24 @@ markdy <span class="u-fn">check-all</span> examples`;
       option.textContent = beat.name;
       sceneJump.appendChild(option);
     }
-    sceneJump.value = "";
   }
-
-  function setPlayState(playing: boolean) {
-    isAnimPlaying = playing;
-    playIcon.style.display  = playing ? "none"   : "";
-    pauseIcon.style.display = playing ? ""       : "none";
-    playLabel.textContent   = playing ? "Pause"  : "Play";
-    playBtn.setAttribute("aria-label", playing ? "Pause" : "Play");
-  }
-
-  function isDarkMode(): boolean {
-    return document.documentElement.getAttribute("data-theme") === "dark";
-  }
-
-  function setStatus(ok: boolean) {
-    statusEl.className = `status ${ok ? "ok" : "err"}`;
-  }
-
-  const stageWrap = document.getElementById("stage-wrap") as HTMLDivElement;
 
   function resizeStage() {
-    if (!stageWrap || !stage.firstElementChild) return;
+    if (!stageWrap || !stage || !stage.firstElementChild) return;
     const sceneEl = stage.firstElementChild as HTMLElement;
-    
-    // Don't scale error messages
-    if (sceneEl.classList.contains("parse-error")) {
-      stageWrap.style.removeProperty("--preview-aspect");
-      sceneEl.style.transform = "";
-      return;
-    }
+    if (sceneEl.classList.contains("parse-error")) return;
 
     const wrapW = stage.clientWidth;
-    const styleWidth = sceneEl.style.width.trim();
-    const styleHeight = sceneEl.style.height.trim();
-    const aspectRatio = sceneEl.style.aspectRatio || getComputedStyle(sceneEl).aspectRatio;
-
-    let sceneWidth = parseFloat(styleWidth);
-    let sceneHeight = parseFloat(styleHeight);
-
-    if (styleWidth.endsWith("%") && aspectRatio.includes("/")) {
-      const [aspectW, aspectH] = aspectRatio.split("/").map((value) => Number.parseFloat(value.trim()));
-      if (Number.isFinite(aspectW) && Number.isFinite(aspectH) && aspectW > 0 && aspectH > 0) {
-        stageWrap.style.setProperty("--preview-aspect", `${aspectW} / ${aspectH}`);
-        sceneWidth = wrapW;
-        sceneHeight = wrapW * (aspectH / aspectW);
-      }
-    }
-
     const wrapH = stage.clientHeight;
     if (wrapW === 0 || wrapH === 0) return;
 
-    if (!Number.isFinite(sceneWidth) || sceneWidth <= 0 || !Number.isFinite(sceneHeight) || sceneHeight <= 0) {
-      stageWrap.style.removeProperty("--preview-aspect");
-      sceneWidth = wrapW;
-      sceneHeight = stageWrap.firstElementChild?.getBoundingClientRect().height || 400;
-    }
+    let sceneWidth = parseFloat(sceneEl.style.width || "1280");
+    let sceneHeight = parseFloat(sceneEl.style.height || "760");
 
-    const availW = Math.max(1, wrapW);
-    const availH = Math.max(1, wrapH);
+    const scaleX = wrapW / sceneWidth;
+    const scaleY = wrapH / sceneHeight;
+    const scale = Math.max(0.05, Math.min(scaleX, scaleY));
 
-    const scaleX = availW / sceneWidth;
-    const scaleY = availH / sceneHeight;
-    const scale = Math.max(0.01, Math.min(scaleX, scaleY));
-
-    // Override renderer's absolute position cleanly to center it visually
     sceneEl.style.position = "absolute";
     sceneEl.style.left = "50%";
     sceneEl.style.top = "50%";
@@ -1295,31 +673,17 @@ markdy <span class="u-fn">check-all</span> examples`;
   }
 
   const ro = new ResizeObserver(() => resizeStage());
-  ro.observe(stageWrap);
-  ro.observe(stage);
+  if (stageWrap) ro.observe(stageWrap);
+  if (stage) ro.observe(stage);
 
-  function setPreviewExpanded(expanded: boolean) {
-    isPreviewExpanded = expanded;
-    document.querySelector(".playground")?.classList.toggle("is-theater", expanded);
-    expandPreviewBtn.setAttribute("aria-pressed", expanded ? "true" : "false");
-    expandPreviewBtn.setAttribute("aria-label", expanded ? "Collapse preview" : "Expand preview");
-    expandPreviewBtn.title = expanded ? "Collapse preview" : "Expand preview";
-    expandPreviewLabel.textContent = expanded ? "Collapse" : "Expand";
-    requestAnimationFrame(() => resizeStage());
-  }
-
-  function adaptCodeToTheme(code: string): string {
-    return code;
-  }
-
-  function render(code: string, previewStart = currentPreviewStart) {
-    currentPreviewStart = previewStart;
+  function render(code: string) {
+    if (!stage) return;
     if (diagram) { diagram.destroy(); diagram = null; }
     stage.innerHTML = "";
     try {
       diagram = createDiagram({
         container: stage,
-        code: adaptCodeToTheme(code),
+        code,
         autoplay: true,
         copyright: false,
         sceneBoundaryProgress: false,
@@ -1328,9 +692,6 @@ markdy <span class="u-fn">check-all</span> examples`;
         onTimeUpdate: setTimeline,
         onPlayStateChange: setPlayState,
       });
-      if (previewStart > 0) {
-        diagram.seek(previewStart);
-      }
       setPlayState(true);
       setTimeline(diagram.currentTime(), diagram.duration());
       populateSceneJump(diagram.beats());
@@ -1338,28 +699,10 @@ markdy <span class="u-fn">check-all</span> examples`;
       resizeStage();
     } catch (e) {
       const msg = (e as Error).message ?? String(e);
-      stage.innerHTML = `<p class="parse-error">${msg}</p>`;
+      stage.innerHTML = `<p class="parse-error" style="color:var(--danger);padding:1rem;font-family:monospace;font-size:0.8rem;">${msg}</p>`;
       setStatus(false);
       setPlayState(false);
-      setTimeline(0, 0);
-      populateSceneJump([]);
     }
-  }
-
-  function setActiveBtn(index: number) {
-    exBtns.forEach((b, i) => b.classList.toggle("active", i === index));
-  }
-
-  function setExampleSourceLink(index: number) {
-    const example = examples[index];
-    if (!example) {
-      exampleSourceLink.href = "https://github.com/HoangYell/markdy-com/tree/main/examples";
-      exampleSourceLink.textContent = "Browse examples ↗";
-      return;
-    }
-
-    exampleSourceLink.href = example.sourceUrl;
-    exampleSourceLink.textContent = "View source ↗";
   }
 
   function getEditorCode(): string {
@@ -1367,7 +710,7 @@ markdy <span class="u-fn">check-all</span> examples`;
   }
 
   function createEditor(initialCode: string) {
-    // Destroy if existing
+    if (!editorContainer) return;
     if (editorView) {
       editorView.destroy();
       editorView = null;
@@ -1399,10 +742,8 @@ markdy <span class="u-fn">check-all</span> examples`;
       EditorView.contentAttributes.of({ "aria-label": "Code Editor" }),
       EditorView.updateListener.of((update) => {
         if (update.docChanged) {
-          currentPreviewStart = 0;
-          exBtns.forEach(b => b.classList.remove("active"));
           if (debounce) clearTimeout(debounce);
-          debounce = setTimeout(() => render(getEditorCode()), 600);
+          debounce = setTimeout(() => render(getEditorCode()), 500);
         }
       }),
     ];
@@ -1416,2298 +757,1192 @@ markdy <span class="u-fn">check-all</span> examples`;
     });
   }
 
-
-  // ── URL hash share state ────────────────────────────────────────────
-  function getCodeFromHash(): string | null {
-    try {
-      const hash = window.location.hash.slice(1);
-      if (!hash) return null;
-      const params = new URLSearchParams(hash);
-      const encoded = params.get("code");
-      if (!encoded) return null;
-      return decodeURIComponent(atob(encoded));
-    } catch {
-      return null;
-    }
+  function setEditorCode(code: string) {
+    if (!editorView) return;
+    editorView.dispatch({
+      changes: { from: 0, to: editorView.state.doc.length, insert: code },
+    });
+    render(code);
   }
 
-  function setShareURL(code: string) {
-    const encoded = btoa(encodeURIComponent(code));
-    const url = `${window.location.origin}${window.location.pathname}#code=${encoded}`;
-    return url;
-  }
-
-  const shareBtn = document.getElementById("share-btn") as HTMLButtonElement;
-  shareBtn?.addEventListener("click", () => {
-    const code = getEditorCode();
-    const url = setShareURL(code);
-    navigator.clipboard.writeText(url).then(() => {
-      shareBtn.textContent = "✓ Copied!";
-      shareBtn.style.color = "var(--accent, #ea4c89)";
-      setTimeout(() => {
-        shareBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg><span>Share</span>`;
-        shareBtn.style.color = "";
-      }, 2000);
-    }).catch(() => {
-      shareBtn.title = "Copy failed — check clipboard permissions";
-    });
-  });
-
-  // Lazy initialization on interaction to guarantee 100/100 Lighthouse performance
-  let isPlaygroundInit = false;
-  const lazyInit = () => {
-    if (isPlaygroundInit) return;
-    isPlaygroundInit = true;
-    // Load from URL hash if present, else use default example
-    const sharedCode = getCodeFromHash();
-    const initialCode = sharedCode ?? examples[0].code;
-    createEditor(initialCode);
-    if (!sharedCode) {
-      currentPreviewStart = examples[0].playback?.previewStart ?? 0;
-      render(initialCode, currentPreviewStart);
-      setActiveBtn(0);
-      setExampleSourceLink(0);
-    } else {
-      currentPreviewStart = 0;
-      render(initialCode, 0);
-      setActiveBtn(-1);
-      setExampleSourceLink(-1);
-    }
-  };
-
-  ['mousemove', 'scroll', 'keydown', 'click', 'touchstart'].forEach((event) => {
-    window.addEventListener(event, lazyInit, { once: true, passive: true });
-  });
-
-  // Fallback in case there is no interaction for a bit:
-  setTimeout(lazyInit, 8000);
-
-  // Expose theme-change handler — also re-render the scene with adapted bg
-  (window as any).__recreateEditor = () => {
-    const currentCode = getEditorCode();
-    createEditor(currentCode);
-    render(currentCode, currentPreviewStart);
-  };
-
-  // Example buttons
-  exBtns.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const idx = Number(btn.dataset.index);
-      setActiveBtn(idx);
-      setExampleSourceLink(idx);
-      createEditor(examples[idx].code);
-      render(examples[idx].code, examples[idx].playback?.previewStart ?? 0);
-    });
-  });
-
-  // Play / Pause button
-  playBtn.addEventListener("click", () => {
-    if (!diagram) return;
-    if (isAnimPlaying) {
-      diagram.pause();
-    } else {
-      diagram.play();
-    }
-  });
-
-  rewindBtn.addEventListener("click", () => {
-    if (!diagram) return;
-    diagram.seek(diagram.currentTime() - 1);
-  });
-
-  expandPreviewBtn.addEventListener("click", () => {
-    setPreviewExpanded(!isPreviewExpanded);
-  });
-
-  window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && isPreviewExpanded) {
-      setPreviewExpanded(false);
-    }
-  });
-
-  restartBtn.addEventListener("click", () => {
-    if (!diagram) return;
-    diagram.seek(0);
-    if (!diagram.isPlaying()) diagram.play();
-  });
-
-  speedBtns.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const rate = Number(btn.dataset.speed ?? "1");
-      setSelectedPlaybackRate(rate);
-    });
-  });
-
-  timelineRange.addEventListener("input", () => {
-    if (!diagram) return;
-    isScrubbing = true;
-    diagram.seek(Number(timelineRange.value));
-  });
-
-  timelineRange.addEventListener("change", () => {
-    isScrubbing = false;
-    if (!diagram) return;
-    diagram.seek(Number(timelineRange.value));
-  });
-
-  sceneJump.addEventListener("change", () => {
-    if (!diagram || !sceneJump.value) return;
-    diagram.seekToBeat(sceneJump.value);
-  });
-
-  // Run button
-  runBtn.addEventListener("click", () => render(getEditorCode()));
-
-  // Keyboard shortcut: Cmd/Ctrl+Enter to run
-  document.addEventListener("keydown", (e) => {
-    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
-      e.preventDefault();
-      render(getEditorCode());
-    }
-  });
-
-  // Setup global Apply function for interactive showcase snippets
-  function loadSnippetToPlayground(code: string) {
-    if (!isPlaygroundInit) {
-      lazyInit();
-    }
-    createEditor(code);
-    currentPreviewStart = 0;
-    render(code, 0);
-    setActiveBtn(-1); // Remove example preset selection
-    setExampleSourceLink(-1);
-    
-    // Add brief visual pulse to editor and stage
-    const editorHostEl = document.getElementById("code-editor");
-    const stageWrapEl = document.getElementById("stage-wrap");
-    if (editorHostEl) {
-      editorHostEl.classList.remove("snippet-loaded-flash");
-      void editorHostEl.offsetWidth;
-      editorHostEl.classList.add("snippet-loaded-flash");
-    }
-    if (stageWrapEl) {
-      stageWrapEl.classList.remove("snippet-loaded-flash");
-      void stageWrapEl.offsetWidth;
-      stageWrapEl.classList.add("snippet-loaded-flash");
-    }
-
-    document.getElementById("playground")?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-
-  (window as any).applyRefCode = loadSnippetToPlayground;
-  (window as any).loadSnippetToPlayground = loadSnippetToPlayground;
-
-  // Handle all "Try in Playground" chips across layout, themes, and syntax cards
-  document.querySelectorAll<HTMLButtonElement>(".try-chip-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const snippet = btn.dataset.snippet;
-      if (snippet) {
-        loadSnippetToPlayground(snippet);
+  // Preset chips handler
+  presetChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const index = Number(chip.dataset.index || "0");
+      if (examples[index]) {
+        setEditorCode(examples[index].code);
+        if (exampleSelect) exampleSelect.value = String(index);
+        presetChips.forEach((c) => c.classList.toggle("active", c === chip));
       }
     });
   });
 
-  // Handle copy buttons on ingestion cards
-  document.querySelectorAll<HTMLButtonElement>(".ingestion-copy-btn").forEach((btn) => {
-    let revertTimer: ReturnType<typeof setTimeout> | null = null;
+  // Example select dropdown
+  exampleSelect?.addEventListener("change", () => {
+    const idx = Number(exampleSelect.value);
+    if (examples[idx]) {
+      setEditorCode(examples[idx].code);
+      presetChips.forEach((c) => c.classList.toggle("active", c.dataset.index === String(idx)));
+    }
+  });
+
+  // Snippet trigger buttons
+  document.querySelectorAll<HTMLButtonElement>(".try-chip-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const cmdText = btn.closest(".ingestion-cmd-wrap")?.querySelector(".ingestion-cmd-text")?.textContent?.trim() ?? "";
-      if (!cmdText) return;
-      navigator.clipboard.writeText(cmdText).then(() => {
-        if (revertTimer) clearTimeout(revertTimer);
-        btn.classList.add("copied");
-        btn.title = "Copied!";
-        revertTimer = setTimeout(() => {
-          btn.classList.remove("copied");
-          btn.title = "Copy command";
-        }, 2000);
-      }).catch(() => {
-        btn.title = "Copy failed";
+      const snippet = btn.dataset.snippet;
+      if (snippet) {
+        setEditorCode(snippet);
+        const studio = document.getElementById("playground");
+        if (studio) {
+          studio.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }
+    });
+  });
+
+  // Playback transport buttons
+  playBtn?.addEventListener("click", () => {
+    if (!diagram) return;
+    if (isAnimPlaying) diagram.pause();
+    else diagram.play();
+  });
+
+  restartBtn?.addEventListener("click", () => {
+    diagram?.restart();
+  });
+
+  rewindBtn?.addEventListener("click", () => {
+    if (!diagram) return;
+    diagram.seek(Math.max(0, diagram.currentTime() - 1));
+  });
+
+  speedBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const speed = Number(btn.dataset.speed || "1");
+      selectedPlaybackRate = speed;
+      speedBtns.forEach((b) => b.classList.toggle("active", b === btn));
+      diagram?.setPlaybackRate(speed);
+    });
+  });
+
+  timelineRange?.addEventListener("input", () => {
+    isScrubbing = true;
+    diagram?.seek(Number(timelineRange.value));
+  });
+
+  timelineRange?.addEventListener("change", () => {
+    isScrubbing = false;
+  });
+
+  sceneJump?.addEventListener("change", () => {
+    if (sceneJump.value) {
+      diagram?.jumpTo(sceneJump.value);
+    }
+  });
+
+  runBtn?.addEventListener("click", () => {
+    render(getEditorCode());
+  });
+
+  // Export buttons
+  document.getElementById("home-export-svg-btn")?.addEventListener("click", () => {
+    if (!diagram) return;
+    const sceneRoot = stage.querySelector(".markdy-scene-root") as HTMLElement;
+    if (!sceneRoot) return;
+    const svgStr = exportDiagramAsVectorSvg(sceneRoot);
+    const blob = new Blob([svgStr], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "diagram.svg";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById("home-export-png-btn")?.addEventListener("click", async () => {
+    if (!diagram) return;
+    const sceneRoot = stage.querySelector(".markdy-scene-root") as HTMLElement;
+    if (!sceneRoot) return;
+    const blob = await exportDiagramAsPng(sceneRoot, { pixelRatio: 2, includeThemeStyles: true });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "diagram.png";
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  // Share button
+  document.getElementById("share-btn")?.addEventListener("click", async () => {
+    const code = getEditorCode();
+    try {
+      const hash = await compressMarkdyToUrlHash(code);
+      const url = `${window.location.origin}/playground/#code=${hash}`;
+      navigator.clipboard.writeText(url).then(() => {
+        const shareBtn = document.getElementById("share-btn") as HTMLButtonElement;
+        if (shareBtn) {
+          const orig = shareBtn.textContent;
+          shareBtn.textContent = "Copied!";
+          setTimeout(() => (shareBtn.textContent = orig), 2000);
+        }
+      });
+    } catch {
+      const encoded = encodeURIComponent(code);
+      const url = `${window.location.origin}/playground/#code=${encoded}`;
+      navigator.clipboard.writeText(url);
+    }
+  });
+
+  // Framework tabs
+  const fTabs = document.querySelectorAll<HTMLButtonElement>(".f-tab");
+  const fPanels = document.querySelectorAll<HTMLDivElement>(".f-panel");
+  fTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const target = tab.dataset.tab;
+      fTabs.forEach((t) => t.classList.remove("active"));
+      fPanels.forEach((p) => p.classList.remove("active"));
+      tab.classList.add("active");
+      document.querySelector(`.f-panel[data-panel="${target}"]`)?.classList.add("active");
+    });
+  });
+
+  // Copy buttons
+  document.querySelectorAll<HTMLButtonElement>(".copy-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const codeBlock = btn.closest("div")?.querySelector("code");
+      const text = codeBlock?.textContent || "";
+      navigator.clipboard.writeText(text.trim()).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = "Copied!";
+        setTimeout(() => (btn.textContent = orig), 2000);
       });
     });
   });
+
+  // Theme toggle
+  const themeBtn = document.getElementById("theme-toggle");
+  themeBtn?.addEventListener("click", () => {
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    const next = isDark ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("markdy-theme", next);
+    updateThemeIcons(next);
+    createEditor(getEditorCode());
+  });
+
+  function updateThemeIcons(theme: string) {
+    const sun = document.querySelector(".icon-sun") as HTMLElement;
+    const moon = document.querySelector(".icon-moon") as HTMLElement;
+    if (!sun || !moon) return;
+    if (theme === "dark") {
+      sun.style.display = "none";
+      moon.style.display = "block";
+    } else {
+      sun.style.display = "block";
+      moon.style.display = "none";
+    }
+  }
+
+  // Initialize
+  const initialTheme = document.documentElement.getAttribute("data-theme") || "light";
+  updateThemeIcons(initialTheme);
+
+  const initialCode = examples[0]?.code || 'scene "Demo" theme=paper\nclient Browser -> service API -> database DB\nbeat flow:\n  show $nodes';
+  createEditor(initialCode);
+  render(initialCode);
 </script>
 
 <style>
-  /* ── CSS Custom Properties (Light / Dark) ────────────────────────── */
-  :root,
-  :root[data-theme="light"] {
-    --bg-primary: #fafafa;
-    --bg-secondary: #ffffff;
-    --bg-tertiary: #f8fafc;
-    --bg-code: #0f172a;
-    --text-primary: #0f172a;
-    --text-secondary: #64748b;
-    --text-muted: #5e6d80;
-    --text-code: #e2e8f0;
-    --border: #e2e8f0;
-    --border-subtle: #f1f5f9;
-    --accent: #047857;
-    --accent-hover: #065f46;
-    --accent-light: rgba(5, 150, 105, 0.12);
-    --shadow-sm: rgba(0, 0, 0, 0.04);
-    --shadow-md: rgba(0, 0, 0, 0.06);
-    --selection-bg: #d1fae5;
-    --selection-text: #064e3b;
-
-    --cm-caret: #0f172a;
-    --cm-activeLine: rgba(5, 150, 105, 0.05);
-    --cm-selection: #d1fae5;
-    --cm-tooltipBg: #ffffff;
-    --cm-tooltipBorder: #e2e8f0;
-    --cm-tooltipShadow: rgba(0, 0, 0, 0.08);
-    --cm-tooltipSelected: #059669;
-    --cm-tooltipSelectedText: #ffffff;
-
-    --ref-code-bg: #f6f8fa;
-    --ref-code-text: #24292f;
+  /* ─── Floating Pill Navigation ─────────────────────────────────────── */
+  .home-nav {
+    position: sticky;
+    top: 1rem;
+    z-index: 100;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
   }
 
-  :root[data-theme="dark"] {
-    --bg-primary: #0d1117;
-    --bg-secondary: #161b22;
-    --bg-tertiary: #1c2128;
-    --bg-code: #0d1117;
-    --text-primary: #c9d1d9;
-    --text-secondary: #8b949e;
-    --text-muted: #8b949e;
-    --text-code: #c9d1d9;
-    --border: #30363d;
-    --border-subtle: #21262d;
-    --accent: #3fb950;
-    --accent-hover: #2ea043;
-    --accent-light: rgba(63, 185, 80, 0.15);
-    --shadow-sm: rgba(0, 0, 0, 0.2);
-    --shadow-md: rgba(0, 0, 0, 0.3);
-    --selection-bg: rgba(63, 185, 80, 0.15);
-    --selection-text: #c9d1d9;
-
-    --cm-caret: #c9d1d9;
-    --cm-activeLine: rgba(63, 185, 80, 0.06);
-    --cm-selection: rgba(63, 185, 80, 0.15);
-    --cm-tooltipBg: #1c2128;
-    --cm-tooltipBorder: #30363d;
-    --cm-tooltipShadow: rgba(0, 0, 0, 0.3);
-    --cm-tooltipSelected: #3fb950;
-    --cm-tooltipSelectedText: #0d1117;
-
-    --ref-code-bg: #161b22;
-    --ref-code-text: #c9d1d9;
-  }
-
-  /* ── Global overflow guard ────────────────────────────────────────── */
-  /* Prevent any single wide element from producing a horizontal scrollbar */
-  html, body { overflow-x: hidden; }
-
-  /* ── Nav ──────────────────────────────────────────────────────────── */
-  .nav {
+  .nav-pill {
+    background: color-mix(in srgb, var(--bg-elevated) 85%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.4rem 0.6rem 0.4rem 1rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.75rem 1.5rem;
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    background: color-mix(in srgb, var(--bg-primary) 85%, transparent);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    z-index: 10;
-    transition: background 0.3s ease, border-color 0.3s ease;
+    box-shadow: var(--shadow-sm);
   }
 
   .nav-brand {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    font-weight: 800;
-    font-size: 1.05rem;
-    text-decoration: none;
-    letter-spacing: -0.03em;
-    color: var(--accent);
+    gap: 0.45rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-primary);
   }
 
-  .brand-icon { font-size: 1.2rem; }
+  .nav-logo {
+    font-size: 1.1rem;
+  }
 
   .nav-links {
     display: flex;
-    gap: 1.25rem;
     align-items: center;
+    gap: 1.25rem;
   }
 
   .nav-links a {
     font-size: 0.82rem;
     font-weight: 500;
     color: var(--text-secondary);
-    transition: color 0.2s ease;
+    transition: color 0.15s ease;
   }
 
-  .nav-links a:hover { color: var(--text-primary); }
-  .nav-links a[aria-current="true"] { color: var(--accent); font-weight: 600; }
+  .nav-links a:hover {
+    color: var(--accent);
+  }
 
-
-  .nav-github {
-    display: inline-flex;
+  .nav-actions {
+    display: flex;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.3rem 0.65rem;
+    gap: 0.5rem;
+  }
+
+  .btn-nav-studio {
+    background: var(--accent);
+    color: #ffffff !important;
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    box-shadow: 0 0 12px var(--accent-glow);
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+
+  .btn-nav-studio:hover {
+    transform: translateY(-1px);
+    opacity: 0.95;
+  }
+
+  .btn-nav-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    background: var(--bg-tertiary);
     border: 1px solid var(--border);
-    border-radius: 6px;
-    font-size: 0.78rem !important;
-    font-weight: 600 !important;
-    transition: all 0.2s ease;
-  }
-
-  .nav-github:hover {
-    border-color: var(--accent);
-    color: var(--accent) !important;
-  }
-
-  .nav-github svg { flex-shrink: 0; }
-
-  /* ── Mobile menu ─────────────────────────────────────────────────── */
-  .menu-toggle {
-    display: none;
-    flex-direction: column;
-    gap: 4px;
-    width: 28px;
-    height: 28px;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    background: none;
-    cursor: pointer;
-    padding: 0;
-    z-index: 20;
-  }
-
-  .menu-toggle span {
-    display: block;
-    width: 18px;
-    height: 2px;
-    background: var(--text-primary);
-    border-radius: 2px;
-    transition: all 0.25s ease;
-  }
-
-  .menu-toggle.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-  .menu-toggle.open span:nth-child(2) { opacity: 0; }
-  .menu-toggle.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
-
-  /* ── Universal Accessible Focus Rings ────────────────────────────── */
-  button:focus-visible,
-  a:focus-visible,
-  input:focus-visible,
-  select:focus-visible,
-  textarea:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-
-  /* ── Theme toggle ────────────────────────────────────────────────── */
-  .theme-toggle {
+    color: var(--text-secondary);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 34px;
-    height: 34px;
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    background: var(--bg-secondary);
     cursor: pointer;
-    color: var(--text-secondary);
-    transition: all 0.25s ease;
-    position: relative;
-    flex-shrink: 0;
+    transition: all 0.15s ease;
   }
 
-  .theme-toggle:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    box-shadow: 0 0 0 3px var(--accent-light);
+  .btn-nav-icon:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
   }
 
-  .theme-toggle .icon-sun,
-  .theme-toggle .icon-moon {
-    position: absolute;
-    transition: opacity 0.25s ease, transform 0.3s ease;
-  }
-
-  .theme-toggle .icon-sun { opacity: 1; transform: rotate(0deg); }
-  .theme-toggle .icon-moon { opacity: 0; transform: rotate(-90deg); }
-  .theme-toggle.is-dark .icon-sun { opacity: 0; transform: rotate(90deg); }
-  .theme-toggle.is-dark .icon-moon { opacity: 1; transform: rotate(0deg); }
-
-  /* ── Hero ─────────────────────────────────────────────────────────── */
-  .hero {
-    max-width: 720px;
+  /* ─── Hero Section ─────────────────────────────────────────────────── */
+  .home-hero {
+    max-width: 1280px;
     margin: 0 auto;
-    padding: 5rem 1.5rem 3rem;
+    padding: 3.5rem 1.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
   }
 
-  .hero-badge {
+  .hero-content {
+    max-width: 860px;
+    margin: 0 auto 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .hero-kicker {
     display: inline-block;
     font-size: 0.72rem;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--accent);
+    letter-spacing: 0.06em;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
     background: var(--accent-light);
-    padding: 0.3rem 0.85rem;
-    border-radius: 100px;
+    color: var(--accent);
+    border: 1px solid var(--accent);
     margin-bottom: 1.25rem;
   }
 
-  .hero h1 {
-    font-size: 3rem;
+  .home-hero h1 {
+    font-size: clamp(2.2rem, 5vw, 3.6rem);
     font-weight: 800;
     letter-spacing: -0.04em;
     line-height: 1.1;
-    margin-bottom: 1rem;
     color: var(--text-primary);
-    transition: color 0.3s ease;
+    margin-bottom: 1.2rem;
   }
 
   .gradient-text {
-    background: linear-gradient(135deg, var(--accent), #10b981, #34d399);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--accent);
   }
 
-  .hero-sub {
-    color: var(--text-secondary);
-    font-size: 1.1rem;
-    line-height: 1.7;
-    margin-bottom: 2rem;
-    max-width: 540px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .hero-actions {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
-
-  .hero-crawl-links {
-    margin: 1rem auto 0;
-    max-width: 680px;
-    color: var(--text-secondary);
-    font-size: 0.88rem;
+  .hero-description {
+    font-size: 1.08rem;
     line-height: 1.6;
+    color: var(--text-secondary);
+    max-width: 680px;
+    margin-bottom: 1.75rem;
   }
 
-  .hero-crawl-links a {
-    color: var(--accent);
-    text-decoration: none;
-    font-weight: 600;
-  }
-
-  .hero-crawl-links a:hover {
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-
-  .btn-primary {
-    display: inline-flex;
+  .hero-btn-row {
+    display: flex;
     align-items: center;
-    padding: 0.65rem 1.5rem;
+    gap: 0.85rem;
+    margin-bottom: 2rem;
+  }
+
+  .btn-hero-primary {
     background: var(--accent);
-    color: #fff;
-    font-weight: 600;
+    color: #ffffff !important;
     font-size: 0.9rem;
-    border-radius: 10px;
-    transition: all 0.2s ease;
-    text-decoration: none;
-  }
-
-  .btn-primary:hover {
-    background: var(--accent-hover);
-    color: #fff;
-    box-shadow: 0 4px 14px var(--accent-light);
-    transform: translateY(-1px);
-  }
-
-  .btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.65rem 1.5rem;
-    background: transparent;
-    color: var(--text-secondary);
     font-weight: 600;
-    font-size: 0.9rem;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    transition: all 0.2s ease;
-    text-decoration: none;
-  }
-
-  .btn-secondary:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  /* ── Usage section ───────────────────────────────────────────────── */
-  .usage-section {
-    max-width: 560px;
-    margin: 2rem auto 0;
-    text-align: left;
-  }
-
-  .usage-tabs {
-    display: flex;
-    gap: 0;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 0;
-  }
-
-  .usage-tab {
-    font-family: inherit;
-    font-size: 0.78rem;
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-bottom: 2px solid transparent;
-    background: none;
-    cursor: pointer;
-    color: var(--text-muted);
-    transition: all 0.2s ease;
-  }
-
-  .usage-tab:hover { color: var(--text-secondary); }
-
-  .usage-tab.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
-  }
-
-  .usage-panel {
-    display: none;
-  }
-
-  .usage-panel.active {
-    display: block;
-  }
-
-  .usage-install {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-top: none;
-    border-radius: 0 0 0 0;
-    padding: 0.45rem 0.55rem 0.45rem 0.85rem;
-  }
-
-  .usage-cmd {
-    flex: 1;
-    font-size: 0.78rem;
-    color: var(--text-primary);
-    user-select: all;
-  }
-
-  .copy-btn {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border: none;
-    border-radius: 5px;
-    background: var(--bg-tertiary);
-    cursor: pointer;
-    color: var(--text-muted);
-    transition: all 0.2s ease;
-  }
-
-  .copy-btn:hover { color: var(--accent); background: var(--accent-light); }
-
-  .copy-btn.copied { color: var(--accent); background: var(--accent-light); }
-  .copy-btn.copied .copy-icon { display: none; }
-  .copy-btn.copied .copy-icon-check { display: block !important; }
-
-  .usage-code {
-    background: var(--ref-code-bg);
-    color: var(--ref-code-text);
-    border: 1px solid var(--border);
-    border-top: none;
-    border-radius: 0 0 10px 10px;
-    padding: 0.85rem 1rem;
-    font-size: 0.76rem;
-    line-height: 1.65;
-    overflow-x: auto;
-    margin: 0;
-  }
-
-  .usage-code .u-kw { color: #cf222e; }
-  .usage-code .u-str { color: #0a3069; }
-  .usage-code .u-fn { color: #8250df; }
-  .usage-code .u-lit { color: #0550ae; }
-  .usage-code .u-comment { color: var(--text-muted); }
-
-  :root[data-theme="dark"] .usage-code .u-kw { color: #ff7b72; }
-  :root[data-theme="dark"] .usage-code .u-str { color: #a5d6ff; }
-  :root[data-theme="dark"] .usage-code .u-fn { color: #d2a8ff; }
-  :root[data-theme="dark"] .usage-code .u-lit { color: #79c0ff; }
-  :root[data-theme="dark"] .usage-code .u-comment { color: var(--text-muted); }
-
-  /* ── Features ────────────────────────────────────────────────────── */
-  .features {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 1rem 1.5rem 3rem;
-    scroll-margin-top: 68px;
-  }
-
-  .features-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
-  }
-
-  .feature-card {
-    text-align: center;
-    padding: 1.25rem 1rem;
-    border: 1px solid var(--border-subtle);
-    border-radius: 12px;
-    background: var(--bg-secondary);
-    transition: all 0.2s ease;
-  }
-
-  .feature-card:hover {
-    border-color: var(--border);
-    box-shadow: 0 2px 8px var(--shadow-sm);
-  }
-
-  .feature-icon {
-    font-size: 1.5rem;
-    display: block;
-    margin-bottom: 0.5rem;
-  }
-
-  .feature-card h3 {
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 0.25rem;
-  }
-
-  .feature-card p {
-    font-size: 0.75rem;
-    color: var(--text-secondary);
-    line-height: 1.5;
-  }
-
-  /* ── Packages ────────────────────────────────────────────────────── */
-  .packages {
-    max-width: 1080px;
-    margin: 0 auto;
-    padding: 2.5rem 1.5rem 3rem;
-    border-top: 1px solid var(--border-subtle);
-    scroll-margin-top: 68px;
-  }
-
-  .pkg-grid {
-    display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 1rem;
-    max-width: 980px;
-    margin: 0 auto;
-    align-items: stretch;
-  }
-
-  .pkg-card {
-    grid-column: span 2;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-    padding: 1.25rem;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--bg-secondary);
-    text-decoration: none;
-    transition: all 0.2s ease;
-    /* Prevent grid item from expanding beyond its column */
-    min-width: 0;
-    overflow: hidden;
-  }
-
-  .pkg-card:hover {
-    border-color: var(--accent);
-    box-shadow: 0 4px 16px var(--shadow-md);
-    transform: translateY(-2px);
-    color: var(--text-primary);
-  }
-
-  .pkg-card-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-  }
-
-  .pkg-name {
-    font-family: "JetBrains Mono", monospace;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--accent);
-  }
-
-  .pkg-required {
-    flex-shrink: 0;
-    font-size: 0.6rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--text-secondary);
-    border: 1px solid var(--border);
-    padding: 0.1rem 0.4rem;
-    border-radius: 100px;
-  }
-
-  .pkg-desc {
-    font-size: 0.78rem;
-    color: var(--text-primary);
-    line-height: 1.45;
-  }
-
-  .pkg-snippet {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    background: var(--ref-code-bg);
-    color: var(--ref-code-text);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 0.5rem 0.6rem;
-    margin: 0;
-    font-size: 0.7rem;
-    line-height: 1.4;
-    overflow-x: auto;
-    white-space: pre;
-  }
-
-  .pkg-meta {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    margin-top: 0.25rem;
-  }
-
-  .pkg-size {
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    background: var(--bg-tertiary);
-    padding: 0.15rem 0.5rem;
-    border-radius: 100px;
-  }
-
-  .pkg-badge {
-    font-size: 0.65rem;
-    font-weight: 600;
-    color: var(--accent);
-    background: var(--accent-light);
-    padding: 0.15rem 0.5rem;
-    border-radius: 100px;
-  }
-
-  /* ── Section tags & headers ──────────────────────────────────────── */
-  .section-tag {
-    display: inline-block;
-    font-size: 0.68rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    color: var(--accent);
-    margin-bottom: 0.5rem;
-  }
-
-  .section-header {
-    max-width: 640px;
-    margin: 0 auto 1.5rem;
-    text-align: center;
-  }
-
-  .section-header h2 {
-    font-size: 1.75rem;
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    margin-bottom: 0.4rem;
-    color: var(--text-primary);
-    transition: color 0.3s ease;
-  }
-
-  .section-header p {
-    color: var(--text-secondary);
-    font-size: 0.95rem;
-  }
-
-  /* ── Playground ──────────────────────────────────────────────────── */
-  .playground {
-    max-width: 1240px;
-    margin: 0 auto;
-    padding: 2rem 1.5rem 3rem;
-    scroll-margin-top: 68px;
-  }
-
-  .example-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.15rem;
-    width: 100%;
-    padding: 0.65rem 0.8rem;
-    border: 1px solid var(--border);
+    padding: 0.65rem 1.35rem;
     border-radius: 8px;
+    box-shadow: 0 2px 16px var(--accent-glow);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .btn-hero-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px var(--accent-glow);
+  }
+
+  .btn-hero-secondary {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.65rem 1.35rem;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+  }
+
+  .btn-hero-secondary:hover {
+    border-color: var(--border-hover);
     background: var(--bg-secondary);
-    font-size: 0.8rem;
-    font-weight: 500;
-    cursor: pointer;
-    color: var(--text-primary);
-    transition: all 0.2s ease;
-    font-family: inherit;
-    text-align: left;
   }
 
-  .example-btn strong {
-    font-size: 0.8rem;
+  /* Preset Chips Strip */
+  .hero-presets-strip {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .preset-label {
+    font-size: 0.65rem;
     font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
   }
 
-  .example-btn span {
-    font-size: 0.69rem;
+  .preset-chips {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .preset-chip {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
     color: var(--text-secondary);
-    font-family: "JetBrains Mono", monospace;
+    font-size: 0.74rem;
+    font-weight: 600;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.15s ease;
   }
 
-  .example-btn:hover {
-    border-color: var(--text-muted);
+  .preset-chip:hover {
     color: var(--text-primary);
-    box-shadow: 0 1px 3px var(--shadow-sm);
+    border-color: var(--border-hover);
+    background: var(--bg-tertiary);
   }
 
-  .example-btn.active {
-    background: var(--accent);
-    color: #fff;
+  .preset-chip.active {
+    background: var(--accent-light);
+    color: var(--accent);
     border-color: var(--accent);
-    box-shadow: 0 1px 4px var(--accent-light);
   }
 
-  .example-btn.active span {
-    color: rgba(255, 255, 255, 0.9);
-  }
-
-  /* ── Editor layout ───────────────────────────────────────────────── */
-  .editor-layout {
-    display: grid;
-    grid-template-columns: minmax(220px, 240px) minmax(360px, 1.1fr) minmax(400px, 1.25fr);
-    gap: 0;
+  /* ─── Hero Live Studio Card ────────────────────────────────────────── */
+  .hero-studio-card {
+    width: 100%;
+    background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: 12px;
     overflow: hidden;
-    height: clamp(420px, 52vh, 520px);
-    background: var(--bg-secondary);
-    box-shadow: 0 4px 24px var(--shadow-sm);
-    transition: all 0.3s ease;
+    box-shadow: var(--shadow-lg);
+    text-align: left;
   }
 
-  .playground.is-theater .editor-layout {
-    grid-template-columns: minmax(0, 1fr);
-    height: min(78vh, 820px);
-    min-height: 560px;
-  }
-
-  .playground.is-theater .examples-col,
-  .playground.is-theater .editor-col {
-    display: none;
-  }
-
-  .examples-col {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    min-width: 0;
-    border-right: 1px solid var(--border);
-    background: var(--bg-tertiary);
-  }
-
-  .examples-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.55rem;
-    padding: 0.9rem;
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-  }
-
-  .example-source-link {
-    font-size: 0.72rem;
-    color: var(--text-primary);
-    font-weight: 600;
-    text-decoration: none;
-    text-transform: none;
-    letter-spacing: 0;
-    white-space: nowrap;
-  }
-
-  .example-source-link:hover {
-    text-decoration: underline;
-  }
-
-  .editor-col {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    min-width: 0;
-    border-right: 1px solid var(--border);
-  }
-
-  .preview-col {
-    display: flex;
-    flex-direction: column;
-    min-height: 0;
-    min-width: 0;
-  }
-
-  .panel-label {
+  .studio-topbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.45rem 0.85rem;
-    background: var(--bg-tertiary);
+    padding: 0.5rem 0.85rem;
+    background: var(--bg-secondary);
     border-bottom: 1px solid var(--border);
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.07em;
-    transition: all 0.3s ease;
-  }
-
-  .panel-label > span:first-child {
-    flex-shrink: 0;
-  }
-
-  .panel-label-title {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-  }
-
-  .editor-toolbar {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .preview-toolbar {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem 0.75rem;
+    gap: 1rem;
     flex-wrap: wrap;
-    padding: 0.4rem 0.85rem;
+  }
+
+  .studio-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .studio-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
+  }
+
+  .studio-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  .studio-select {
+    font-size: 0.74rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .studio-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .btn-studio-run {
+    background: var(--accent);
+    color: #ffffff;
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    box-shadow: 0 0 8px var(--accent-glow);
+    transition: opacity 0.15s ease;
+  }
+
+  .btn-studio-run:hover { opacity: 0.9; }
+
+  .btn-studio-tool {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.25rem 0.55rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-studio-tool:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+  }
+
+  .studio-split-body {
+    display: grid;
+    grid-template-columns: 460px 1fr;
+    height: 480px;
+  }
+
+  .studio-editor-pane {
+    border-right: 1px solid var(--border);
+    background: var(--code-bg);
+    overflow: hidden;
+  }
+
+  .code-editor-wrap {
+    height: 100%;
+    overflow-y: auto;
+    font-size: 0.82rem;
+  }
+
+  .studio-preview-pane {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-primary);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .preview-transport-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.4rem 0.75rem;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border);
   }
 
-  .control-group {
-    display: inline-flex;
+  .transport-controls {
+    display: flex;
     align-items: center;
     gap: 0.3rem;
   }
 
-  .control-group--expand {
-    margin-left: auto;
-  }
-
-  .speed-controls {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.2rem;
-    padding: 0.15rem;
+  .btn-transport {
     background: var(--bg-tertiary);
     border: 1px solid var(--border);
-    border-radius: 999px;
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    padding: 0.2rem 0.45rem;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .btn-transport-play {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    background: var(--accent-light);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+
+  .speed-group {
+    display: flex;
+    gap: 0.2rem;
   }
 
   .speed-btn {
-    font-family: inherit;
-    font-size: 0.64rem;
-    font-weight: 700;
-    padding: 0.16rem 0.42rem;
-    border: 1px solid transparent;
-    border-radius: 999px;
-    background: transparent;
-    color: var(--text-muted);
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.15rem 0.4rem;
+    border: 1px solid var(--border);
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    border-radius: 4px;
     cursor: pointer;
-    line-height: 1.2;
-    transition: all 0.18s ease;
-  }
-
-  .speed-btn:hover {
-    color: var(--accent);
   }
 
   .speed-btn.active {
-    background: var(--accent-light);
+    background: var(--accent);
+    color: #ffffff;
     border-color: var(--accent);
-    color: var(--accent);
   }
 
-  .editor-hint {
-    font-size: 0.65rem;
-    font-weight: 400;
-    text-transform: none;
-    letter-spacing: 0;
-    color: var(--text-muted);
-  }
-
-  .btn-run {
-    font-family: inherit;
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 0.2rem 0.55rem;
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    background: var(--bg-secondary);
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: all 0.2s ease;
-  }
-
-  .btn-run:hover { border-color: var(--accent); color: var(--accent); }
-
-  .btn-icon {
-    font-family: inherit;
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 0.24rem 0.5rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--bg-secondary);
-    cursor: pointer;
-    color: var(--text-secondary);
-    transition: all 0.2s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-  }
-
-  .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
-
-  .btn-icon--primary {
-    background: var(--accent-light);
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  .panel-label .btn-icon {
-    text-transform: none;
-    letter-spacing: 0;
-  }
-
-  .status {
+  .status-indicator {
     width: 7px;
     height: 7px;
-    border-radius: 50%;
+    border-radius: 999px;
   }
 
-  .status.ok  { background: var(--accent); }
-  .status.err { background: #ef4444; }
-
-  .code-editor-wrap {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
-  }
-
-  .code-editor-wrap .cm-editor {
-    flex: 1;
-    min-height: 100%;
-  }
+  .status-ok { background: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.6); }
+  .status-error { background: #ef4444; box-shadow: 0 0 6px rgba(239, 68, 68, 0.6); }
 
   .stage-wrap {
-    flex: 1 1 auto;
-    width: 100%;
-    align-self: stretch;
-    box-sizing: border-box;
-    min-height: 0;
-    margin: 0;
+    flex: 1;
     position: relative;
-    background: var(--bg-tertiary);
     overflow: hidden;
-    --stage-pad: 0px;
-    transition: background 0.3s ease;
+    background: var(--bg-primary);
+    background-image: radial-gradient(circle, var(--grid-dot) 1.2px, transparent 1.2px);
+    background-size: 20px 20px;
   }
 
-  .playground.is-theater .stage-wrap {
-    flex: 1 1 auto;
-    min-height: 0;
-    aspect-ratio: auto;
-    margin: 0;
-    --stage-pad: 1rem;
+  #stage {
+    width: 100%;
+    height: 100%;
+    position: relative;
   }
 
-  .timeline-controls {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto;
+  .timeline-bar {
+    display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.5rem 0.85rem;
-    border-top: 1px solid var(--border);
+    gap: 0.5rem;
+    padding: 0.35rem 0.75rem;
     background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
   }
 
   .scene-jump {
-    font-family: inherit;
-    font-size: 0.68rem;
-    color: var(--text-secondary);
+    font-size: 0.7rem;
     background: var(--bg-tertiary);
     border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 0.2rem 0.4rem;
-    max-width: 9rem;
-    cursor: pointer;
+    color: var(--text-primary);
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
   }
 
   .timeline-range {
-    width: 100%;
+    flex: 1;
     accent-color: var(--accent);
     cursor: pointer;
   }
 
-  .timeline-range:disabled {
-    cursor: not-allowed;
-    opacity: 0.45;
-  }
-
   .timeline-time {
-    min-width: 5.6rem;
-    text-align: right;
-    font-family: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
     font-size: 0.68rem;
+    font-family: "JetBrains Mono", monospace;
     color: var(--text-muted);
-    font-variant-numeric: tabular-nums;
+    min-width: 72px;
+    text-align: right;
   }
 
-  #stage {
-    position: absolute;
-    inset: var(--stage-pad);
-    overflow: hidden;
-    line-height: 0;
-  }
-
-  .parse-error {
-    font-family: "JetBrains Mono", "SF Mono", "Fira Code", monospace;
-    font-size: 0.78rem;
-    color: #dc2626;
-    background: #fef2f2;
-    border: 1px solid #fecaca;
-    border-radius: 8px;
-    padding: 0.75rem 1rem;
-    max-width: 340px;
-    white-space: pre-wrap;
-    margin: 0;
-  }
-
-  :root[data-theme="dark"] .parse-error {
-    color: #fca5a5;
-    background: rgba(220, 38, 38, 0.1);
-    border-color: rgba(220, 38, 38, 0.3);
-  }
-
-  /* ── Core Sections Generic Layout ────────────────────────────────── */
-  .core-section {
-    max-width: 1100px;
+  /* ─── Main Sections ────────────────────────────────────────────────── */
+  .home-main {
+    max-width: 1280px;
     margin: 0 auto;
-    padding: 3.5rem 1.5rem 4rem;
-    border-top: 1px solid var(--border-subtle);
-    scroll-margin-top: 68px;
-  }
-
-  /* ── Core Feature 1: Layout Engines & Themes ─────────────────────── */
-  .layout-categories-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.25rem;
-    margin-bottom: 2.5rem;
-  }
-
-  .layout-cat-card {
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.35rem;
-    background: var(--bg-secondary);
-    box-shadow: 0 1px 4px var(--shadow-sm);
-    transition: all 0.25s ease;
+    padding: 3rem 1.5rem 5rem;
     display: flex;
     flex-direction: column;
+    gap: 5rem;
   }
 
-  .layout-cat-card:hover {
-    box-shadow: 0 4px 16px var(--shadow-md);
-    border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  .section-heading-block {
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto 2.5rem;
   }
 
-  .layout-cat-header {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border-subtle);
-  }
-
-  .layout-cat-icon {
-    font-size: 1.25rem;
-  }
-
-  .layout-cat-header h3 {
-    font-size: 0.95rem;
-    font-weight: 700;
-    margin: 0;
-    color: var(--text-primary);
-  }
-
-  .layout-types-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .layout-type-item {
-    padding: 0.55rem 0.75rem;
-    background: var(--bg-tertiary);
-    border-radius: 8px;
-    border: 1px solid var(--border-subtle);
-    transition: all 0.2s ease;
-  }
-
-  .layout-type-item:hover {
-    border-color: var(--accent);
-    background: color-mix(in srgb, var(--bg-tertiary) 80%, var(--accent-light));
-  }
-
-  .layout-type-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-  }
-
-  .layout-type-head code {
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: var(--accent);
-    background: transparent;
-    padding: 0;
-  }
-
-  .try-chip-btn {
-    font-family: inherit;
-    font-size: 0.65rem;
-    font-weight: 700;
-    padding: 0.18rem 0.45rem;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--bg-secondary);
-    color: var(--accent);
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    transition: all 0.18s ease;
-    line-height: 1.2;
-  }
-
-  .try-chip-btn:hover {
-    background: var(--accent);
-    color: #fff;
-    border-color: var(--accent);
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px var(--accent-light);
-  }
-
-  .try-chip-btn:active {
-    transform: scale(0.94);
-  }
-
-  .layout-type-item p {
-    font-size: 0.76rem;
-    color: var(--text-secondary);
-    line-height: 1.45;
-    margin: 0.35rem 0 0;
-  }
-
-  .themes-banner {
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 1.5rem;
-    background: var(--bg-secondary);
-    box-shadow: 0 2px 8px var(--shadow-sm);
-  }
-
-  .themes-header {
-    margin-bottom: 1.25rem;
-  }
-
-  .themes-tag {
-    display: inline-block;
-    font-size: 0.72rem;
+  .section-tag {
+    font-size: 0.7rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--accent);
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.4rem;
+    display: inline-block;
   }
 
-  .themes-header h3 {
-    font-size: 1.05rem;
-    font-weight: 700;
-    margin: 0;
+  .section-heading-block h2 {
+    font-size: 1.8rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
     color: var(--text-primary);
+    margin-bottom: 0.5rem;
   }
 
-  .themes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 0.85rem;
-  }
-
-  .theme-chip {
-    padding: 0.85rem;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    transition: all 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .theme-chip:hover {
-    border-color: var(--accent);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px var(--shadow-sm);
-  }
-
-  .theme-chip-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.45rem;
-    gap: 0.5rem;
-  }
-
-  .theme-chip-top strong {
-    font-size: 0.85rem;
-    color: var(--text-primary);
-  }
-
-  .theme-chip-actions {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-  }
-
-  .theme-badge {
-    font-size: 0.62rem;
-    font-weight: 600;
-    padding: 0.12rem 0.4rem;
-    border-radius: 999px;
-    background: var(--accent-light);
-    color: var(--accent);
-  }
-
-  .theme-chip p {
-    font-size: 0.74rem;
+  .section-heading-block p {
+    font-size: 0.95rem;
     color: var(--text-secondary);
-    line-height: 1.4;
-    margin: 0;
+    line-height: 1.6;
   }
 
-  /* ── Core Feature 2: Universal Ingestion ─────────────────────────── */
-  .ingestion-grid {
+  /* ─── 4 Pillars Grid ───────────────────────────────────────────────── */
+  .pillars-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 1.25rem;
   }
 
-  .ingestion-card {
+  .pillar-card {
+    background: var(--bg-elevated);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.35rem;
-    background: var(--bg-secondary);
-    box-shadow: 0 1px 4px var(--shadow-sm);
+    border-radius: 10px;
+    padding: 1.4rem;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    transition: all 0.25s ease;
-    gap: 0.75rem;
+    gap: 0.6rem;
+    box-shadow: var(--shadow-xs);
+    transition: all 0.2s ease;
   }
 
-  .ingestion-card:hover {
-    box-shadow: 0 4px 16px var(--shadow-md);
-    border-color: color-mix(in srgb, var(--accent) 35%, var(--border));
+  .pillar-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
   }
 
-  .ingestion-card-top {
+  .pillar-card-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
 
-  .ingestion-name {
-    font-size: 0.95rem;
+  .pillar-icon { font-size: 1.5rem; }
+
+  .pillar-tag {
+    font-size: 0.65rem;
     font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.15rem 0.45rem;
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+    border-radius: 4px;
+  }
+
+  .pillar-card h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+
+  .pillar-card p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    flex: 1;
+  }
+
+  .pillar-learn-more {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin-top: 0.35rem;
+  }
+
+  /* ─── Layouts Category Grid ────────────────────────────────────────── */
+  .layouts-category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+
+  .layout-group-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.4rem;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .group-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .group-icon { font-size: 1.2rem; }
+
+  .group-header h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .group-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .group-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .item-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .item-head code {
+    font-size: 0.78rem;
+    background: var(--bg-tertiary);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .try-chip-btn {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .try-chip-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .group-item p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  /* ─── Ingestion Section ────────────────────────────────────────────── */
+  .ingestion-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+  }
+
+  .ingestion-box {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .ingestion-box-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .ingestion-box-top strong {
+    font-size: 0.95rem;
     color: var(--text-primary);
   }
 
   .ingestion-badge {
     font-size: 0.65rem;
     font-weight: 600;
-    padding: 0.15rem 0.5rem;
-    border-radius: 999px;
+    padding: 0.12rem 0.4rem;
+    border-radius: 4px;
     background: var(--bg-tertiary);
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
+    color: var(--text-muted);
   }
 
-  .ingestion-desc {
+  .ingestion-box p {
     font-size: 0.8rem;
     color: var(--text-secondary);
     line-height: 1.5;
-    margin: 0;
     flex: 1;
   }
 
-  .ingestion-cmd-wrap {
-    background: var(--ref-code-bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.4rem 0.6rem 0.4rem 0.75rem;
+  .cmd-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    padding: 0.35rem 0.6rem;
+    border-radius: 6px;
     gap: 0.5rem;
   }
 
-  .ingestion-cmd-wrap code {
+  .cmd-row code {
     font-size: 0.72rem;
-    color: var(--ref-code-text);
+    color: var(--text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
-    overflow-x: auto;
-    user-select: all;
     flex: 1;
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  .copy-btn {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  .copy-btn:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: var(--accent-light);
   }
 
   .ingestion-try-btn {
     width: 100%;
-    justify-content: center;
-    padding: 0.45rem 0.85rem;
-    font-size: 0.72rem;
-    border-radius: 8px;
-  }
-
-  /* ── Core Feature 3: Architecture Governance ─────────────────────── */
-  .governance-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.25rem;
-  }
-
-  .governance-card {
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.35rem;
-    background: var(--bg-secondary);
-    box-shadow: 0 1px 4px var(--shadow-sm);
-    transition: all 0.25s ease;
-  }
-
-  .governance-card:hover {
-    box-shadow: 0 4px 16px var(--shadow-md);
-  }
-
-  .governance-card-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-bottom: 0.6rem;
-  }
-
-  .governance-title {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: var(--text-primary);
-  }
-
-  .gov-status {
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    padding: 0.15rem 0.45rem;
-    border-radius: 6px;
-    white-space: nowrap;
-  }
-
-  .gov-status--err {
-    background: rgba(220, 38, 38, 0.12);
-    color: #dc2626;
-  }
-
-  :root[data-theme="dark"] .gov-status--err {
-    background: rgba(248, 113, 113, 0.15);
-    color: #f87171;
-  }
-
-  .gov-status--info {
-    background: var(--accent-light);
-    color: var(--accent);
-  }
-
-  .gov-rule-code {
-    display: block;
-    font-size: 0.72rem;
-    color: var(--accent);
-    background: var(--bg-tertiary);
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-    margin-bottom: 0.65rem;
-  }
-
-  .gov-desc {
-    font-size: 0.78rem;
-    color: var(--text-secondary);
-    line-height: 1.5;
-    margin: 0;
-  }
-
-  /* ── Core Feature 4: MCP / AI Config ─────────────────────────────── */
-  .mcp-config-code {
-    background: var(--ref-code-bg);
-    color: var(--ref-code-text);
-    border: none;
-    border-radius: 8px;
-    padding: 0.85rem;
-    margin: 0;
-    font-size: 0.74rem;
-    line-height: 1.55;
-    overflow-x: auto;
-  }
-
-  /* ── Core Feature 5: Streamlined 4-Step Syntax ──────────────────── */
-  .syntax-steps-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 1.15rem;
-    margin-bottom: 2rem;
-  }
-
-  .syntax-step-card {
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.25rem;
-    background: var(--bg-secondary);
-    box-shadow: 0 1px 4px var(--shadow-sm);
-    display: flex;
-    flex-direction: column;
-  }
-
-  .syntax-step-header {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .step-num {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 6px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 0.72rem;
-    font-weight: 700;
-  }
-
-  .syntax-step-header h3 {
-    font-size: 0.88rem;
-    font-weight: 700;
-    margin: 0;
-    color: var(--text-primary);
-  }
-
-  .syntax-step-code {
-    background: var(--ref-code-bg);
-    color: var(--ref-code-text);
-    border-radius: 8px;
-    padding: 0.65rem 0.75rem;
-    font-size: 0.7rem;
-    line-height: 1.55;
-    margin: 0 0 0.65rem;
-    flex: 1;
-    overflow-x: auto;
-  }
-
-  .syntax-step-card p {
-    font-size: 0.76rem;
-    color: var(--text-secondary);
-    line-height: 1.45;
-    margin: 0;
-  }
-
-  .syntax-cta-box {
     text-align: center;
-    padding: 2rem;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 14px;
+    padding: 0.35rem;
+    font-size: 0.72rem;
   }
 
-  .syntax-cta-box p {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin: 0 0 1.25rem;
-  }
-
-  .syntax-cta-actions {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  /* ── AI Section ──────────────────────────────────────────────────── */
-  .ai-section {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 3rem 1.5rem 3.5rem;
-    border-top: 1px solid var(--border-subtle);
-    scroll-margin-top: 68px;
-  }
-
-  .ai-grid {
+  /* ─── AI Section ───────────────────────────────────────────────────── */
+  .ai-split-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    gap: 1.25rem;
-    margin-bottom: 1.5rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
   }
 
-  .ai-card {
+  .ai-step-card,
+  .ai-config-card {
+    background: var(--bg-elevated);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 10px;
     padding: 1.5rem;
-    background: var(--bg-secondary);
-    box-shadow: 0 1px 4px var(--shadow-sm);
-    transition: all 0.25s ease;
-    min-width: 0;
-    overflow: hidden;
+    box-shadow: var(--shadow-xs);
   }
 
-  .ai-card:hover {
-    box-shadow: 0 4px 16px var(--shadow-md);
-  }
-
-  .ai-card h3 {
-    font-size: 0.95rem;
+  .ai-step-card h3 {
+    font-size: 1.05rem;
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 1rem;
   }
 
-  .ai-steps {
-    list-style: none;
-    counter-reset: ai-step;
-    padding: 0;
+  .ai-step-list {
+    padding-left: 1.25rem;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-  }
-
-  .ai-steps li {
-    counter-increment: ai-step;
-    position: relative;
-    padding-left: 2.25rem;
-  }
-
-  .ai-steps li::before {
-    content: counter(ai-step);
-    position: absolute;
-    left: 0;
-    top: 0.1rem;
-    width: 22px;
-    height: 22px;
-    border-radius: 6px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 0.7rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .ai-steps li strong {
-    display: block;
+    gap: 0.85rem;
     font-size: 0.85rem;
-    font-weight: 600;
+    color: var(--text-secondary);
+  }
+
+  .ai-step-list strong {
     color: var(--text-primary);
+    display: block;
     margin-bottom: 0.15rem;
   }
 
-  .ai-steps li p {
+  .config-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .config-code {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 6px;
+    padding: 1rem;
     font-size: 0.8rem;
-    color: var(--text-secondary);
     line-height: 1.5;
-    margin: 0;
   }
 
-  .ai-steps li a {
-    color: var(--accent);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-
-  .ai-steps li a:hover {
-    color: var(--accent-hover);
-  }
-
-  .ai-prompt {
+  /* ─── Framework Tabs ───────────────────────────────────────────────── */
+  .framework-tabs-card {
+    background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: 10px;
     overflow: hidden;
-    margin-bottom: 0.75rem;
+    box-shadow: var(--shadow-xs);
   }
 
-  .ai-prompt-header {
-    padding: 0.4rem 0.85rem;
-    background: var(--bg-tertiary);
+  .framework-tabs {
+    display: flex;
+    background: var(--bg-secondary);
     border-bottom: 1px solid var(--border);
   }
 
-  .ai-prompt-label {
-    font-size: 0.68rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    color: var(--text-muted);
-  }
-
-  .ai-prompt-text {
-    padding: 0.85rem;
-    margin: 0;
-    font-size: 0.82rem;
-    color: var(--text-primary);
-    line-height: 1.6;
+  .f-tab {
+    padding: 0.65rem 1.25rem;
+    background: transparent;
     border: none;
-  }
-
-  .ai-prompt-text code {
-    font-size: 0.74rem;
-    background: var(--bg-tertiary);
-    padding: 0.1rem 0.35rem;
-    border-radius: 4px;
-    color: var(--accent);
-    word-break: break-all;
-  }
-
-  .ai-prompt-text em {
-    color: var(--text-secondary);
-  }
-
-  .ai-hint {
-    font-size: 0.78rem;
-    color: var(--text-secondary);
-    line-height: 1.5;
-  }
-
-  .ai-hint code {
-    font-size: 0.74rem;
-    background: var(--bg-tertiary);
-    padding: 0.1rem 0.35rem;
-    border-radius: 4px;
-    color: var(--accent);
-  }
-
-  .ai-tools {
-    text-align: center;
-  }
-
-  .ai-tools-label {
-    font-size: 0.75rem;
-    font-weight: 500;
-    color: var(--text-muted);
-    margin-bottom: 0.6rem;
-  }
-
-  .ai-tools-list {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-  }
-
-  .ai-tool {
-    font-size: 0.75rem;
+    border-bottom: 2px solid transparent;
+    font-size: 0.82rem;
     font-weight: 600;
-    padding: 0.3rem 0.75rem;
-    border: 1px solid var(--border);
-    border-radius: 100px;
     color: var(--text-secondary);
-    background: var(--bg-secondary);
+    cursor: pointer;
   }
 
-  /* ── Intent + FAQ + Promotion ────────────────────────────────────── */
-  .intent-section,
-  .faq-section,
-  .share-section {
-    max-width: 1100px;
+  .f-tab.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+    background: var(--bg-elevated);
+  }
+
+  .f-panel {
+    display: none;
+    padding: 1.25rem;
+    background: var(--code-bg);
+  }
+
+  .f-panel.active { display: block; }
+
+  .f-panel pre {
+    font-size: 0.82rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* ─── FAQ ──────────────────────────────────────────────────────────── */
+  .faq-accordion-list {
+    max-width: 800px;
     margin: 0 auto;
-    padding: 3rem 1.5rem 3.5rem;
-    border-top: 1px solid var(--border-subtle);
-    scroll-margin-top: 68px;
-  }
-
-  .intent-grid,
-  .share-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1rem;
-  }
-
-  .intent-card,
-  .share-card {
     display: flex;
     flex-direction: column;
-    gap: 0.45rem;
-    min-height: 100%;
-    padding: 1.25rem;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--bg-secondary);
-    box-shadow: 0 1px 4px var(--shadow-sm);
-    transition: all 0.2s ease;
+    gap: 0.75rem;
   }
 
-  .intent-card h3,
-  .share-card strong {
-    font-size: 0.9rem;
-    font-weight: 700;
-    line-height: 1.35;
+  .faq-details {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.85rem 1.1rem;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .faq-details summary {
+    font-size: 0.92rem;
+    font-weight: 600;
     color: var(--text-primary);
-  }
-
-  .intent-card p,
-  .share-card span {
-    font-size: 0.8rem;
-    line-height: 1.55;
-    color: var(--text-secondary);
-  }
-
-  .share-card:hover {
-    border-color: var(--accent);
-    box-shadow: 0 4px 16px var(--shadow-md);
-    transform: translateY(-2px);
-  }
-
-  .faq-list {
-    display: grid;
-    gap: 0.8rem;
-    max-width: 820px;
-    margin: 0 auto;
-  }
-
-  .faq-item {
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--bg-secondary);
-    box-shadow: 0 1px 4px var(--shadow-sm);
-  }
-
-  .faq-item summary {
     cursor: pointer;
-    padding: 1rem 1.25rem;
-    font-weight: 700;
-    color: var(--text-primary);
   }
 
-  .faq-item summary::marker {
-    color: var(--accent);
-  }
-
-  .faq-item p {
-    padding: 0 1.25rem 1rem;
+  .faq-details p {
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
     color: var(--text-secondary);
-    font-size: 0.88rem;
-    line-height: 1.65;
-  }
-
-  .share-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .share-copy {
-    display: grid;
-    gap: 0.45rem;
-    max-width: 900px;
-    margin: 1rem auto 0;
-    padding: 1rem 1.25rem;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: var(--bg-tertiary);
-  }
-
-  .share-copy span {
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--text-muted);
-  }
-
-  .share-copy code {
-    color: var(--text-primary);
-    font-size: 0.82rem;
     line-height: 1.6;
-    white-space: normal;
   }
 
-  /* ── Footer ──────────────────────────────────────────────────────── */
-  .footer {
-    padding: 2.5rem 1.5rem 1.5rem;
-    border-top: 1px solid var(--border-subtle);
-    transition: all 0.3s ease;
+  /* ─── Footer ───────────────────────────────────────────────────────── */
+  .home-footer {
+    border-top: 1px solid var(--border);
+    background: var(--bg-secondary);
+    padding: 3rem 1.5rem 2rem;
   }
 
   .footer-inner {
-    max-width: 1100px;
+    max-width: 1280px;
     margin: 0 auto;
-  }
-
-  .footer-top {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 2rem;
-    margin-bottom: 2rem;
-  }
-
-  .footer-brand-col {
     display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
+    justify-content: space-between;
+    gap: 3rem;
+    margin-bottom: 2.5rem;
   }
 
-  .footer-brand {
-    font-weight: 700;
-    font-size: 1rem;
+  .footer-brand-pane {
+    max-width: 380px;
+  }
+
+  .f-logo {
+    font-size: 1.15rem;
+    font-weight: 800;
     color: var(--text-primary);
+    display: block;
+    margin-bottom: 0.5rem;
   }
 
-  .footer-tagline {
-    font-size: 0.78rem;
-    color: var(--text-muted);
-    line-height: 1.5;
+  .footer-brand-pane p {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
   }
 
-  .footer-cols {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 1.5rem;
+  .footer-links-grid {
+    display: flex;
+    gap: 3.5rem;
   }
 
-  .footer-col {
+  .f-col {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
   }
 
-  .footer-col h3 {
+  .f-col h4 {
     font-size: 0.72rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.07em;
-    color: var(--text-primary);
-    margin-bottom: 0.25rem;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
   }
 
-  .footer-col a {
-    font-size: 0.78rem;
+  .f-col a {
+    font-size: 0.82rem;
     color: var(--text-secondary);
-    transition: color 0.2s;
+    transition: color 0.15s ease;
   }
 
-  .footer-col a:hover { color: var(--accent); }
+  .f-col a:hover { color: var(--accent); }
 
-  .footer-bottom {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding-top: 1rem;
+  .footer-bottom-bar {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding-top: 1.5rem;
     border-top: 1px solid var(--border-subtle);
-    font-size: 0.72rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
     color: var(--text-muted);
   }
 
-  .footer-bottom a { color: var(--text-secondary); transition: color 0.2s; }
-  .footer-bottom a:hover { color: var(--accent); }
-  .dot { color: var(--text-muted); }
-
-  /* ── Scroll to top ───────────────────────────────────────────────── */
-  .scroll-top {
-    position: fixed;
-    bottom: 1.5rem;
-    right: 1.5rem;
-    width: 40px;
-    height: 40px;
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: color-mix(in srgb, var(--bg-secondary) 90%, transparent);
-    backdrop-filter: blur(8px);
-    cursor: pointer;
+  .footer-bottom-bar a {
     color: var(--text-secondary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transform: translateY(10px);
-    pointer-events: none;
-    transition: all 0.25s ease;
-    z-index: 9;
   }
 
-  .scroll-top.visible {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
-
-  .scroll-top:hover {
-    color: var(--accent);
-    border-color: var(--accent);
-    box-shadow: 0 2px 8px var(--accent-light);
-  }
-
-  /* ── Responsive ──────────────────────────────────────────────────── */
+  /* ─── Responsive Breakpoints ───────────────────────────────────────── */
   @media (max-width: 1080px) {
-    .pkg-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      max-width: 720px;
-    }
-
-    .pkg-card,
-    .pkg-card:last-child {
-      grid-column: auto;
-    }
-
-    .playground {
-      padding-left: 1rem;
-      padding-right: 1rem;
-    }
-
-    .editor-layout {
+    .studio-split-body {
       grid-template-columns: 1fr;
       height: auto;
-      min-height: 0;
     }
-
-    .playground.is-theater .editor-layout {
-      height: min(72vh, 560px);
-      min-height: 360px;
+    .studio-editor-pane {
+      height: 260px;
+      border-right: none;
+      border-bottom: 1px solid var(--border);
     }
-
-    .examples-col { border-right: none; border-bottom: 1px solid var(--border); }
-    .editor-col { border-right: none; border-bottom: 1px solid var(--border); }
-    .examples-list { max-height: 180px; }
-    .code-editor-wrap { min-height: 260px; }
-    .stage-wrap {
-      flex: 0 0 auto;
-      width: 100%;
-      margin: 0;
-      aspect-ratio: var(--preview-aspect, 16 / 9);
-      min-height: 0;
-      --stage-pad: 0.5rem;
+    .studio-preview-pane {
+      height: 380px;
     }
-
-    .playground.is-theater .stage-wrap {
-      flex: 1 1 auto;
-      aspect-ratio: auto;
-      --stage-pad: 0.75rem;
+    .pillars-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .layouts-category-grid {
+      grid-template-columns: 1fr;
+    }
+    .ingestion-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .ai-split-grid {
+      grid-template-columns: 1fr;
     }
   }
 
   @media (max-width: 768px) {
-    .menu-toggle { display: flex; }
-
-    .nav-links {
-      display: none;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      flex-direction: column;
-      padding: 1rem 1.5rem;
-      background: var(--bg-primary);
-      border-bottom: 1px solid var(--border);
-      box-shadow: 0 8px 24px var(--shadow-md);
-      gap: 0.75rem;
-    }
-
-    .nav-links.open { display: flex; }
-
-    .nav-links a { font-size: 0.9rem; }
-
-    .nav { padding: 0.7rem 1rem; }
-    .hero { padding: 3rem 1rem 1.75rem; }
-    .hero h1 { font-size: 2rem; line-height: 1.06; }
-    .hero-sub { font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem; }
-    .hero-crawl-links { font-size: 0.8rem; margin-top: 0.85rem; }
-    .usage-section { max-width: none; }
-    .usage-tabs { overflow-x: auto; scrollbar-width: none; }
-    .usage-tabs::-webkit-scrollbar { display: none; }
-    .usage-tab { flex: 1 0 auto; white-space: nowrap; padding: 0.5rem 0.85rem; }
-
-    .features-grid { grid-template-columns: repeat(2, 1fr); }
-    .pkg-grid { grid-template-columns: minmax(0, 1fr); max-width: none; }
-
-    .examples-list { max-height: 220px; }
-    .code-editor-wrap { min-height: 220px; }
-
-    .preview-toolbar {
-      gap: 0.3rem 0.5rem;
-      padding: 0.4rem 0.6rem;
-    }
-
-    .speed-controls {
-      gap: 0.15rem;
-    }
-
-    .speed-btn {
-      font-size: 0.62rem;
-      padding: 0.14rem 0.36rem;
-    }
-
-    #expand-preview-label {
-      display: inline;
-    }
-
-    .timeline-controls {
-      grid-template-columns: 1fr;
-      gap: 0.35rem;
-    }
-
-    .scene-jump {
-      max-width: none;
-      width: 100%;
-    }
-
-    .timeline-time {
-      text-align: left;
-    }
-
-    .layout-categories-grid,
-    .ingestion-grid,
-    .governance-grid,
-    .syntax-steps-grid,
-    .themes-grid { grid-template-columns: 1fr; }
-    .ai-grid { grid-template-columns: 1fr; }
-    .intent-grid,
-    .share-grid { grid-template-columns: 1fr; }
-
-    .footer-top { grid-template-columns: 1fr; }
-    .footer-cols { grid-template-columns: repeat(3, 1fr); }
-
-    .editor-hint { display: none; }
-  }
-
-  @media (max-width: 480px) {
-    .features-grid { grid-template-columns: 1fr; }
-    .footer-cols { grid-template-columns: 1fr; }
-    .nav-brand { font-size: 1rem; }
-    .brand-icon { font-size: 1.1rem; }
-    .hero { padding: 2.35rem 1rem 1.25rem; }
-    .hero-badge {
-      font-size: 0.65rem;
-      padding: 0.28rem 0.75rem;
-      margin-bottom: 0.9rem;
-      letter-spacing: 0.07em;
-    }
-    .hero h1 {
-      font-size: 1.72rem;
-      margin-bottom: 0.75rem;
-      letter-spacing: -0.05em;
-    }
-    .hero-sub {
-      font-size: 0.82rem;
-      line-height: 1.55;
-      max-width: 330px;
-      margin-bottom: 1.25rem;
-    }
-    .hero-actions {
-      flex-direction: column;
-      gap: 0.6rem;
-      align-items: stretch;
-      max-width: 320px;
-      margin: 0 auto;
-    }
-    .hero-crawl-links {
-      font-size: 0.74rem;
-      line-height: 1.5;
-      max-width: 340px;
-      margin-top: 0.75rem;
-    }
-    .btn-primary,
-    .btn-secondary {
-      width: 100%;
-      justify-content: center;
-      padding: 0.8rem 1rem;
-      font-size: 0.88rem;
-    }
-    .usage-section { margin-top: 1.1rem; }
-    .usage-tab { font-size: 0.72rem; padding: 0.45rem 0.7rem; }
-    .usage-install { padding: 0.4rem 0.5rem 0.4rem 0.65rem; }
-    .usage-cmd { font-size: 0.72rem; line-height: 1.35; }
-    .copy-btn { width: 30px; height: 30px; }
-    .usage-code {
-      font-size: 0.7rem;
-      line-height: 1.55;
-      padding: 0.75rem 0.8rem;
-      max-height: 220px;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .core-section { padding: 2rem 0.75rem 2.5rem; }
-    .ai-prompt-text code { word-break: break-all; font-size: 0.68rem; }
-  }
-
-  @keyframes flashGlow {
-    0% {
-      box-shadow: 0 0 0 2px var(--accent), 0 0 28px rgba(59, 130, 246, 0.45);
-      border-color: var(--accent);
-    }
-    100% {
-      box-shadow: none;
-    }
-  }
-
-  .snippet-loaded-flash {
-    animation: flashGlow 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    .nav-links { display: none; }
+    .pillars-grid { grid-template-columns: 1fr; }
+    .ingestion-grid { grid-template-columns: 1fr; }
+    .footer-inner { flex-direction: column; gap: 2rem; }
+    .footer-links-grid { flex-wrap: wrap; gap: 2rem; }
   }
 </style>

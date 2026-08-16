@@ -140,7 +140,7 @@ spec:
     expect(ast.beats).toHaveLength(1);
   });
 
-  it("transpiles Draw.io XML models into connected MarkdyScript", () => {
+  it("transpiles Draw.io XML models into connected MarkdyScript", async () => {
     const drawioXml = `
       <mxGraphModel>
         <root>
@@ -155,7 +155,7 @@ spec:
       </mxGraphModel>
     `;
 
-    const result = transpileDrawioToMarkdy(drawioXml, "Fintech App");
+    const result = await transpileDrawioToMarkdy(drawioXml, "Fintech App");
     expect(result.nodeCount).toBe(3);
     expect(result.edgeCount).toBe(2);
 

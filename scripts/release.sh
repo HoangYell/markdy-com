@@ -70,10 +70,10 @@ if [ -n "$(git status --porcelain)" ]; then
 fi
 
 echo "📦 Bumping versions to $VERSION"
-pnpm version "$VERSION" --no-git-tag-version
+pnpm version "$VERSION" --allow-same-version --no-git-tag-version
 for pkg in packages/*; do
   if [ -f "$pkg/package.json" ]; then
-    (cd "$pkg" && pnpm version "$VERSION" --no-git-tag-version)
+    (cd "$pkg" && pnpm version "$VERSION" --allow-same-version --no-git-tag-version)
   fi
 done
 
@@ -88,12 +88,10 @@ pnpm run lint
 pnpm run test
 
 echo "📝 Committing release metadata"
-git add -A
-if [ -z "$(git diff --cached --name-only)" ]; then
-  echo "❌ No staged changes for release commit."
-  exit 1
+if [ -n "$(git status --porcelain)" ]; then
+  git add -A
+  git commit -m "chore: release $TAG"
 fi
-git commit -m "chore: release $TAG"
 
 echo "☁️ Pushing release branch"
 git push -u origin "$RELEASE_BRANCH"
