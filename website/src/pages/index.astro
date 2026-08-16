@@ -230,13 +230,14 @@ const homepageStructuredData = [
   title="Markdy — Animated Architecture Diagrams as Code"
   description="Markdy is a diagram-as-code DSL for animated architecture and system diagrams: declare semantic nodes, flows, and beats in plain text. Zero coordinate math, browser-native motion."
   keywords="Markdy, animated architecture diagram, diagram as code, mermaid alternative, animated system diagram, architecture visualization, docs as code, MCP server diagrams"
+  preloadImage="/og-image.webp"
   structuredData={homepageStructuredData}
 >
   <!-- ─── Floating Pill Navigation ────────────────────────────────────── -->
   <nav class="home-nav" aria-label="Main Navigation">
     <div class="nav-pill">
       <a href="/" class="nav-brand">
-        <img src="/icon.svg" class="nav-logo-svg" alt="Markdy Logo" width="22" height="22" />
+        <img src="/icon.svg" class="nav-logo-svg" alt="Markdy Logo" width="22" height="22" loading="eager" decoding="async" />
         <span class="nav-title">markdy</span>
       </a>
 
@@ -286,7 +287,16 @@ const homepageStructuredData = [
   <header class="home-hero">
     <!-- Hero Showcase Stage with og-image.webp Visual Foundation -->
     <div class="hero-stage">
-      <img src="/og-image.webp" class="hero-stage-bg" alt="Markdy Animated Diagrams Foundation" loading="eager" decoding="async" />
+      <img
+        src="/og-image.webp"
+        class="hero-stage-bg"
+        alt="Markdy Animated Diagrams Foundation"
+        fetchpriority="high"
+        loading="eager"
+        decoding="async"
+        width="1200"
+        height="630"
+      />
       <div class="hero-stage-wash" aria-hidden="true"></div>
 
       <div class="hero-stage-content">
@@ -330,7 +340,7 @@ const homepageStructuredData = [
           </div>
           <div class="prompt-header-right">
             <div class="prompt-mascot-guide" title="Markdy Assistant">
-              <img src="/images/mascot.webp" class="prompt-mascot-img" alt="Markdy Axolotl Mascot" width="46" height="46" />
+              <img src="/images/mascot.webp" class="prompt-mascot-img" alt="Markdy Axolotl Mascot" width="46" height="46" loading="lazy" decoding="async" />
               <div class="prompt-mascot-speech">
                 <span>AI Prompt Guide</span>
               </div>
@@ -741,10 +751,10 @@ markdy check-all ./docs/diagrams</code></pre>
       <div class="footer-brand-pane">
         <div class="f-brand-top">
           <a class="f-logo" href="/" aria-label="Markdy home">
-            <img src="/icon.svg" class="f-logo-icon" alt="Markdy" width="26" height="26" />
+            <img src="/icon.svg" class="f-logo-icon" alt="Markdy" width="26" height="26" loading="lazy" decoding="async" />
             <span>markdy</span>
           </a>
-          <img src="/images/mascot.webp" class="footer-mascot" alt="Markdy Axolotl Mascot" width="54" height="54" />
+          <img src="/images/mascot.webp" class="footer-mascot" alt="Markdy Axolotl Mascot" width="54" height="54" loading="lazy" decoding="async" />
         </div>
         <p>Diagrams-as-code with native browser motion, built for the way modern engineering teams explain systems.</p>
         <a class="footer-cta" href="/playground/">Open the studio <span aria-hidden="true">→</span></a>
@@ -1808,29 +1818,6 @@ markdy check-all ./docs/diagrams</code></pre>
       padding: 2.5rem 1.75rem 2.25rem;
       max-width: 100%;
     }
-  }
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    color: var(--text-muted);
-  }
-
-  .preset-chips {
-    display: flex;
-    gap: 0.4rem;
-    flex-wrap: wrap;
-  }
-
-  .preset-chip {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-    font-size: 0.74rem;
-    font-weight: 600;
-    padding: 0.25rem 0.65rem;
-    border-radius: 999px;
-    cursor: pointer;
-    transition: all 0.15s ease;
   }
 
   .preset-chip:hover {

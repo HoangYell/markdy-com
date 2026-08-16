@@ -9,6 +9,7 @@ export interface Props extends HTMLAttributes<"html"> {
   ogImage?: string;
   ogImageAlt?: string;
   keywords?: string;
+  preloadImage?: string;
   structuredData?: Record<string, unknown> | Record<string, unknown>[];
 }
 
@@ -19,6 +20,7 @@ const {
   ogImage = "https://markdy.com/og-image.webp",
   ogImageAlt = "Markdy - Animated Architecture Diagram-as-Code DSL with Cute Mascot",
   keywords = "diagram-native DSL, MarkdyScript, animated architecture diagram, diagram as code, animated diagrams, mermaid alternative, animated mermaid, system design diagram, sequence diagram, flowchart, infrastructure diagram, architecture as code, text to diagram, AI diagram generator, AI agent diagrams, docs as code, software architecture visualization, animated system diagram, developer diagrams",
+  preloadImage,
   structuredData = [],
 } = Astro.props;
 
@@ -138,13 +140,10 @@ const jsonLd = {
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/icon.svg" />
     <link rel="manifest" href="/site.webmanifest" />
+    {preloadImage && <link rel="preload" as="image" href={preloadImage} type="image/webp" fetchpriority="high" />}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
-    <noscript>
-      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-    </noscript>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=optional" />
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
