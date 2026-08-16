@@ -284,28 +284,34 @@ const homepageStructuredData = [
 
   <!-- ─── Hero Section ─────────────────────────────────────────────────── -->
   <header class="home-hero">
-    <div class="hero-content">
-      <div class="hero-kicker">Open-source diagram-as-code DSL · Native Browser Motion</div>
-      <h1>Animated architecture diagrams from <span class="gradient-text">plain text</span>.</h1>
-      <p class="hero-description">
-        Declare semantic nodes, flows, and timed beats in reviewable text.
-        Markdy compiles browser-native motion graphics that stay version-controlled, PR-friendly, and AI-native.
-      </p>
+    <!-- Hero Showcase Stage with og-image.webp Visual Foundation -->
+    <div class="hero-stage">
+      <img src="/og-image.webp" class="hero-stage-bg" alt="Markdy Animated Diagrams Foundation" loading="eager" decoding="async" />
+      <div class="hero-stage-wash" aria-hidden="true"></div>
 
-      <div class="hero-btn-row">
-        <a href="/playground/" class="btn-hero-primary">⚡ Open Interactive Studio</a>
-        <a href="/docs/" class="btn-hero-secondary">Explore Documentation ↗</a>
-      </div>
+      <div class="hero-stage-content">
+        <div class="hero-kicker">⚡ Open-Source Diagram-as-Code DSL · Native Browser Motion</div>
+        <h1>Animated architecture diagrams from <span class="gradient-text">plain text</span>.</h1>
+        <p class="hero-description">
+          Declare semantic nodes, flows, and timed beats in reviewable text.
+          Markdy compiles browser-native motion graphics that stay version-controlled, PR-friendly, and AI-native.
+        </p>
 
-      <!-- Quick Preset Selector -->
-      <div class="hero-presets-strip">
-        <span class="preset-label">SIGNATURE PRESETS:</span>
-        <div class="preset-chips">
-          {SIGNATURE_PRESETS.map((p) => (
-            <button class="preset-chip example-btn" data-index={p.index}>
-              <span>{p.name}</span>
-            </button>
-          ))}
+        <div class="hero-btn-row">
+          <a href="#playground" class="btn-hero-primary">⚡ Open Interactive Studio</a>
+          <a href="/docs/" class="btn-hero-secondary">Explore Documentation ↗</a>
+        </div>
+
+        <!-- Quick Preset Selector -->
+        <div class="hero-presets-strip">
+          <span class="preset-label">SIGNATURE ARCHITECTURE PRESETS:</span>
+          <div class="preset-chips">
+            {SIGNATURE_PRESETS.map((p) => (
+              <button class="preset-chip example-btn" data-index={p.index} type="button">
+                <span>{p.name}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -1579,27 +1585,95 @@ markdy check-all ./docs/diagrams</code></pre>
 
   /* ─── Hero Section ─────────────────────────────────────────────────── */
   .home-hero {
-    max-width: 1280px;
+    position: relative;
+    max-width: 1360px;
     margin: 0 auto;
-    padding: 3.5rem 1.5rem 2rem;
+    padding: 2rem 1.5rem 2.5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
   }
 
-  .hero-content {
-    max-width: 860px;
-    margin: 0 auto 2.5rem;
+  /* ─── Hero Showcase Stage (Visual Foundation) ─── */
+  .hero-stage {
+    width: 100%;
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.09), 0 0 0 1px rgba(0, 0, 0, 0.06);
+    background: #ffffff;
+    margin-bottom: 2.5rem;
+    display: flex;
+    min-height: 560px;
+    text-align: left;
+  }
+
+  [data-theme="dark"] .hero-stage {
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    background: #0f172a;
+  }
+
+  .hero-stage-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: right 38%;
+    transform: scale(1.06);
+    z-index: 1;
+  }
+
+  [data-theme="dark"] .hero-stage-bg {
+    filter: brightness(0.82) contrast(1.15);
+    opacity: 0.85;
+  }
+
+  /* Seamless Readability Wash on Left */
+  .hero-stage-wash {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.96) 0%,
+      rgba(255, 255, 255, 0.92) 42%,
+      rgba(255, 255, 255, 0.72) 58%,
+      rgba(255, 255, 255, 0.1) 85%,
+      transparent 100%
+    );
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  [data-theme="dark"] .hero-stage-wash {
+    background: linear-gradient(
+      90deg,
+      rgba(9, 13, 22, 0.96) 0%,
+      rgba(9, 13, 22, 0.9) 42%,
+      rgba(9, 13, 22, 0.65) 60%,
+      rgba(9, 13, 22, 0.15) 85%,
+      transparent 100%
+    );
+  }
+
+  /* Left Floating Content Panel */
+  .hero-stage-content {
+    position: relative;
+    z-index: 3;
+    max-width: 660px;
+    padding: 3.5rem 3rem 3.25rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    justify-content: center;
   }
 
   .hero-kicker {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     font-size: 0.72rem;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     padding: 0.25rem 0.75rem;
@@ -1607,16 +1681,17 @@ markdy check-all ./docs/diagrams</code></pre>
     background: var(--accent-light);
     color: var(--accent);
     border: 1px solid var(--accent);
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.15rem;
+    width: fit-content;
   }
 
-  .home-hero h1 {
-    font-size: clamp(2.2rem, 5vw, 3.6rem);
+  .hero-stage-content h1 {
+    font-size: clamp(2rem, 3.8vw, 3.2rem);
     font-weight: 800;
     letter-spacing: -0.04em;
-    line-height: 1.1;
+    line-height: 1.12;
     color: var(--text-primary);
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
   }
 
   .gradient-text {
@@ -1624,18 +1699,17 @@ markdy check-all ./docs/diagrams</code></pre>
   }
 
   .hero-description {
-    font-size: 1.08rem;
+    font-size: 1.05rem;
     line-height: 1.6;
     color: var(--text-secondary);
-    max-width: 680px;
-    margin-bottom: 1.75rem;
+    margin-bottom: 1.6rem;
   }
 
   .hero-btn-row {
     display: flex;
     align-items: center;
     gap: 0.85rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.75rem;
   }
 
   .btn-hero-primary {
@@ -1643,8 +1717,8 @@ markdy check-all ./docs/diagrams</code></pre>
     color: #ffffff !important;
     font-size: 0.9rem;
     font-weight: 600;
-    padding: 0.65rem 1.35rem;
-    border-radius: 8px;
+    padding: 0.7rem 1.4rem;
+    border-radius: 9px;
     box-shadow: 0 2px 16px var(--accent-glow);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
@@ -1660,8 +1734,8 @@ markdy check-all ./docs/diagrams</code></pre>
     color: var(--text-primary);
     font-size: 0.9rem;
     font-weight: 600;
-    padding: 0.65rem 1.35rem;
-    border-radius: 8px;
+    padding: 0.7rem 1.35rem;
+    border-radius: 9px;
     transition: all 0.15s ease;
   }
 
@@ -1673,13 +1747,68 @@ markdy check-all ./docs/diagrams</code></pre>
   /* Preset Chips Strip */
   .hero-presets-strip {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
+    gap: 0.55rem;
   }
 
   .preset-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .preset-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .preset-chip {
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 0.3rem 0.65rem;
+    border-radius: 6px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .preset-chip:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+    background: var(--bg-tertiary);
+  }
+
+  @media (max-width: 900px) {
+    .hero-stage {
+      flex-direction: column;
+      min-height: auto;
+    }
+    .hero-stage-wash {
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(255, 255, 255, 0.9) 70%,
+        rgba(255, 255, 255, 0.7) 100%
+      );
+    }
+    [data-theme="dark"] .hero-stage-wash {
+      background: linear-gradient(
+        180deg,
+        rgba(9, 13, 22, 0.95) 0%,
+        rgba(9, 13, 22, 0.9) 70%,
+        rgba(9, 13, 22, 0.7) 100%
+      );
+    }
+    .hero-stage-content {
+      padding: 2.5rem 1.75rem 2.25rem;
+      max-width: 100%;
+    }
+  }
     font-size: 0.65rem;
     font-weight: 700;
     letter-spacing: 0.08em;
