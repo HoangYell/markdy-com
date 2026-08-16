@@ -22,6 +22,11 @@ const MIN_VIEWPORT_ZOOM = 0.5;
 const MAX_VIEWPORT_ZOOM = 3;
 const VIEWPORT_ZOOM_STEP = 0.0015;
 const DRAG_CLICK_THRESHOLD_PX = 4;
+const MARKDY_PLAYGROUND_URL = "https://markdy.com/playground/";
+
+function encodeCodeForPlaygroundHash(code: string): string {
+  return encodeURIComponent(btoa(encodeURIComponent(code)));
+}
 
 export interface DiagramOptions {
   container: HTMLElement;
@@ -237,7 +242,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   let badge: HTMLAnchorElement | null = null;
   if (copyright) {
     badge = document.createElement("a");
-    badge.href = "https://markdy.com";
+    badge.href = `${MARKDY_PLAYGROUND_URL}#code=${encodeCodeForPlaygroundHash(code)}`;
     badge.target = "_blank";
     badge.rel = "noopener noreferrer";
     badge.textContent = "Powered by Markdy";

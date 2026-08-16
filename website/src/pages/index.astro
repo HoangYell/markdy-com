@@ -444,8 +444,6 @@ const homepageStructuredData = [
           <button id="home-paste-btn" class="btn-studio-tool" title="Paste MarkdyScript code from clipboard">Paste</button>
           <button id="home-copy-btn" class="btn-studio-tool" title="Copy code to clipboard">Copy</button>
           <button id="home-export-svg-btn" class="btn-studio-tool" title="Export Vector SVG">SVG</button>
-          <button id="home-export-png-btn" class="btn-studio-tool" title="Export 2x PNG">PNG</button>
-          <button id="home-export-gif-btn" class="btn-studio-tool" title="Export animated GIF">GIF</button>
           <button id="share-btn" class="btn-studio-tool" title="Copy shareable URL">Share</button>
           <a href="/playground/" class="btn-studio-tool" title="Open full studio in new page">Popout ↗</a>
         </div>
@@ -766,7 +764,7 @@ client Browser -> gateway API -> cache Redis
 
   import { markdyLanguage, markdyAutocomplete, markdyHighlightLight, markdyHighlightDark } from "../editor/markdy-language";
   import { baseTheme, lightTheme, darkTheme } from "../editor/editor-theme";
-  import { createDiagram, exportDiagramAsVectorSvg, exportDiagramAsPng, exportDiagramAsGif } from "@markdy/renderer-dom";
+  import { createDiagram, exportDiagramAsVectorSvg } from "@markdy/renderer-dom";
   import type { Diagram } from "@markdy/renderer-dom";
   import { compressMarkdyToUrlHash } from "@markdy/core";
   import type { ExampleEntry } from "../data/examples";
@@ -1200,19 +1198,6 @@ client Browser -> gateway API -> cache Redis
     if (!diagram) return;
     const svg = await withFinalFrame((scene) => exportDiagramAsVectorSvg(scene, { includeThemeStyles: true }));
     download(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }), "diagram.svg");
-  });
-
-  document.getElementById("home-export-png-btn")?.addEventListener("click", async () => {
-    if (!diagram) return;
-    const blob = await withFinalFrame((scene) => exportDiagramAsPng(scene, { pixelRatio: 2, includeThemeStyles: true }));
-    download(blob, "diagram.png");
-  });
-
-  document.getElementById("home-export-gif-btn")?.addEventListener("click", async () => {
-    if (!diagram) return;
-    const scene = stage.querySelector(".markdy-scene-root") as HTMLElement | null;
-    if (!scene) return;
-    download(await exportDiagramAsGif(scene, diagram, { fps: 12, includeThemeStyles: true }), "diagram.gif");
   });
 
   // Copy code button
@@ -2592,12 +2577,36 @@ client Browser -> gateway API -> cache Redis
 
   /* ─── Ingestion Section ────────────────────────────────────────────── */
   .ingestion-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
     gap: 1.25rem;
+    padding: 0.25rem 0.25rem 0.85rem;
+    margin: 0 -0.5rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .ingestion-grid::-webkit-scrollbar {
+    height: 5px;
+  }
+
+  .ingestion-grid::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .ingestion-grid::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
   }
 
   .ingestion-box {
+    flex: 0 0 clamp(260px, 26vw, 320px);
+    scroll-snap-align: start;
     background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: 10px;
@@ -3009,32 +3018,10 @@ client Browser -> gateway API -> cache Redis
       grid-template-columns: 1fr;
     }
     .ingestion-grid {
-      display: flex;
-      overflow-x: auto;
-      overflow-y: hidden;
-      scroll-snap-type: x mandatory;
       gap: 1rem;
-      padding: 0.25rem 0.25rem 0.85rem;
-      margin: 0 -0.5rem;
-      padding-left: 0.5rem;
-      padding-right: 0.5rem;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: thin;
-      scrollbar-color: var(--border) transparent;
-    }
-    .ingestion-grid::-webkit-scrollbar {
-      height: 5px;
-    }
-    .ingestion-grid::-webkit-scrollbar-track {
-      background: transparent;
-    }
-    .ingestion-grid::-webkit-scrollbar-thumb {
-      background: var(--border);
-      border-radius: 4px;
     }
     .ingestion-box {
       flex: 0 0 280px;
-      scroll-snap-align: start;
       min-width: 260px;
     }
     .ai-split-grid {

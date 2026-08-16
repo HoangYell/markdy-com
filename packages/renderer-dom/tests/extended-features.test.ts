@@ -60,6 +60,30 @@ describe("@markdy/renderer-dom: Vector SVG Exporter", () => {
     expect(svgXml).toContain("xmlns=\"http://www.w3.org/2000/svg\"");
     expect(svgXml).toContain("<circle");
   });
+
+  it("exports the full scene without interactive viewport pan and zoom", () => {
+    const scene = document.createElement("div");
+    scene.className = "markdy-scene-root";
+    Object.assign(scene.style, {
+      width: "800px",
+      height: "400px",
+      left: "120px",
+      top: "80px",
+      transform: "scale(1.4)",
+    });
+
+    const viewportTransform = document.createElement("div");
+    viewportTransform.className = "markdy-viewport-transform";
+    viewportTransform.style.transform = "translate(180px, -60px) scale(2.5)";
+    scene.appendChild(viewportTransform);
+
+    const svgXml = exportDiagramAsVectorSvg(scene, { includeThemeStyles: true });
+
+    expect(svgXml).toContain('width="800"');
+    expect(svgXml).toContain('height="400"');
+    expect(svgXml).toContain("translate(0px, 0px) scale(1)");
+    expect(svgXml).not.toContain("translate(180px, -60px) scale(2.5)");
+  });
 });
 
 describe("@markdy/renderer-dom: Diagram Presentation Controller", () => {

@@ -260,6 +260,8 @@ describe("createDiagram integration", () => {
     expect(footer?.style.justifyContent).toBe("space-between");
     expect(toolbar?.style.justifyContent).toBe("flex-start");
     expect(badge?.style.marginLeft).toBe("auto");
+    expect(badge?.href).toContain("https://markdy.com/playground/#code=");
+    expect(badge?.target).toBe("_blank");
     expect(footer?.firstElementChild).toBe(toolbar);
     expect(footer?.lastElementChild).toBe(badge);
 

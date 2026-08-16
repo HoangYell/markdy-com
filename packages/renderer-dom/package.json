@@ -51,7 +51,8 @@
     "harness": "pnpm --filter @markdy/core run build && pnpm run build && node harness/serve.mjs"
   },
   "dependencies": {
-    "@markdy/core": "workspace:*"
+    "@markdy/core": "workspace:*",
+    "html2canvas": "^1.4.1"
   },
   "devDependencies": {
     "@markdy/stdlib-systems": "workspace:*",
