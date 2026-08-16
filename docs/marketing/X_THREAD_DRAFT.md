@@ -12,7 +12,7 @@ It’s like Mermaid.js, but for animated architecture flows.
 
 Meet Markdy 🎬👇
 
-*(Attach the 25s Demo Video here OR the generated `og-image.png`!)*
+*(Attach the 25s Demo Video here OR the generated `og-image.webp`!)*
 
 ---
 

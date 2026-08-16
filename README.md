@@ -1,4 +1,5 @@
 <p align="center">
+  <img src="docs/images/mascot/icon.svg" width="64" height="64" alt="Markdy Logo" /><br>
   <strong>Markdy</strong><br>
   Open-source DSL for animated architecture & system diagrams.<br>
   Write diagram-native MarkdyScript → get browser-native animated architecture diagrams.
@@ -14,6 +15,12 @@
   <a href="https://bundlephobia.com/package/@markdy/core"><img src="https://img.shields.io/bundlephobia/minzip/@markdy/core?label=size" alt="Bundle Size" /></a>
   <a href="https://stackblitz.com/github/HoangYell/markdy-com/tree/main/examples/astro-starter"><img src="https://developer.stackblitz.com/img/open_in_stackblitz.svg" alt="Open in StackBlitz" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/HoangYell/markdy-com" alt="MIT License" /></a>
+</p>
+
+<p align="center">
+  <a href="https://markdy.com/playground/">
+    <img src="docs/images/mascot/og-markdy.webp" width="100%" alt="Markdy — Animated Architecture Diagrams as Code" />
+  </a>
 </p>
 
 ---

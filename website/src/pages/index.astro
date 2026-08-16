@@ -236,7 +236,7 @@ const homepageStructuredData = [
   <nav class="home-nav" aria-label="Main Navigation">
     <div class="nav-pill">
       <a href="/" class="nav-brand">
-        <span class="nav-logo">🎬</span>
+        <img src="/icon.svg" class="nav-logo-svg" alt="Markdy Logo" width="22" height="22" />
         <span class="nav-title">markdy</span>
       </a>
 
@@ -323,6 +323,12 @@ const homepageStructuredData = [
             </p>
           </div>
           <div class="prompt-header-right">
+            <div class="prompt-mascot-guide" title="Markdy Assistant">
+              <img src="/images/mascot.webp" class="prompt-mascot-img" alt="Markdy Axolotl Mascot" width="46" height="46" />
+              <div class="prompt-mascot-speech">
+                <span>AI Prompt Guide</span>
+              </div>
+            </div>
             <a href="/AGENT.md" class="spec-link-pill" target="_blank" rel="noopener noreferrer" title="View canonical AI agent specification">
               <span class="spec-icon">📄</span>
               <span class="spec-url">markdy.com/AGENT.md</span>
@@ -727,10 +733,13 @@ markdy check-all ./docs/diagrams</code></pre>
   <footer class="home-footer">
     <div class="footer-inner">
       <div class="footer-brand-pane">
-        <a class="f-logo" href="/" aria-label="Markdy home">
-          <span class="f-logo-mark" aria-hidden="true">M</span>
-          <span>markdy</span>
-        </a>
+        <div class="f-brand-top">
+          <a class="f-logo" href="/" aria-label="Markdy home">
+            <img src="/icon.svg" class="f-logo-icon" alt="Markdy" width="26" height="26" />
+            <span>markdy</span>
+          </a>
+          <img src="/images/mascot.webp" class="footer-mascot" alt="Markdy Axolotl Mascot" width="54" height="54" />
+        </div>
         <p>Diagrams-as-code with native browser motion, built for the way modern engineering teams explain systems.</p>
         <a class="footer-cta" href="/playground/">Open the studio <span aria-hidden="true">→</span></a>
       </div>
@@ -1435,14 +1444,18 @@ markdy check-all ./docs/diagrams</code></pre>
   .nav-brand {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
-    font-weight: 700;
-    font-size: 0.95rem;
+    gap: 0.5rem;
+    font-weight: 800;
+    font-size: 1rem;
     color: var(--text-primary);
+    letter-spacing: -0.02em;
   }
 
-  .nav-logo {
-    font-size: 1.1rem;
+  .nav-logo-svg {
+    display: block;
+    width: 22px;
+    height: 22px;
+    filter: drop-shadow(0 2px 4px rgba(24,184,135,0.25));
   }
 
   .nav-links {
@@ -1763,6 +1776,38 @@ markdy check-all ./docs/diagrams</code></pre>
     color: var(--text-secondary);
     line-height: 1.55;
     margin: 0;
+  }
+
+  .prompt-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .prompt-mascot-guide {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.65rem 0.3rem 0.35rem;
+    border-radius: 999px;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .prompt-mascot-img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.12));
+  }
+
+  .prompt-mascot-speech {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
 
   .spec-link-pill {
@@ -2896,6 +2941,13 @@ markdy check-all ./docs/diagrams</code></pre>
     max-width: 350px;
   }
 
+  .f-brand-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.85rem;
+  }
+
   .f-logo {
     width: fit-content;
     display: inline-flex;
@@ -2905,21 +2957,25 @@ markdy check-all ./docs/diagrams</code></pre>
     font-weight: 800;
     letter-spacing: -0.055em;
     color: var(--text-primary);
-    margin-bottom: 1rem;
   }
 
-  .f-logo-mark {
-    display: grid;
-    place-items: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: 0.55rem;
-    color: #fff;
-    background: var(--accent);
-    box-shadow: 0 8px 18px var(--accent-glow);
-    font-family: "JetBrains Mono", monospace;
-    font-size: 0.78rem;
-    letter-spacing: -0.08em;
+  .f-logo-icon {
+    display: block;
+    width: 26px;
+    height: 26px;
+    filter: drop-shadow(0 2px 5px rgba(24,184,135,0.3));
+  }
+
+  .footer-mascot {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+    transition: transform 0.2s ease;
+  }
+
+  .footer-mascot:hover {
+    transform: scale(1.08) rotate(-4deg);
   }
 
   .footer-brand-pane p {
