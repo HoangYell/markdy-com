@@ -5,6 +5,14 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.6] — 2026-08-16
+
+### Performance
+- **Hero Image Preloading & Resource Prioritization** — Preloaded hero background image (`/og-image.webp`) in the HTML `<head>` with `fetchpriority="high"`, `loading="eager"`, and explicit intrinsic dimensions, driving Largest Contentful Paint (LCP) down to 520ms.
+- **Zero-Shift Font Strategy (CLS = 0)** — Switched web font loading to `font-display: optional` with DNS preconnect, eliminating layout reflows and font-swapping shifts for a perfect Cumulative Layout Shift score (0.00).
+- **Asynchronous & Lazy Image Loading** — Configured all blog diagram images, mascots, and brand marks with `loading="lazy"`, `decoding="async"`, and explicit aspect ratio dimensions.
+- **Edge Asset Caching** — Added long-term immutable caching headers (`Cache-Control: public, max-age=31536000, immutable`) for all `/images/*`, `/*.webp`, `/*.svg`, and `/_astro/*` bundles in `website/public/_headers`.
+
 ## [1.0.5] — 2026-08-16
 
 ### Added
