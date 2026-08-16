@@ -1,6 +1,15 @@
-/** Browser-side animated GIF export for a Markdy timeline. */
+/**
+ * packages/renderer-dom/src/export/gif-exporter.ts
+ * Browser-side animated GIF export for a Markdy timeline.
+ *
+ * Fix: Inline all external resources (images, CSS url()) as base64 data URIs
+ * before drawing each frame to canvas. A foreignObject-wrapped SVG taints the
+ * canvas whenever it references any external URL, which causes getImageData to
+ * throw "The canvas has been tainted by cross-origin data."
+ */
 import { encodeGifSequence } from "./gif-encoder.js";
 import { exportDiagramAsVectorSvg, type SvgExportOptions } from "./svg-exporter.js";
+import { inlineExternalResources } from "./inline-resources.js";
 
 export interface TimelineController {
   seek(seconds: number): void;
@@ -19,8 +28,20 @@ export interface GifDiagramExportOptions extends SvgExportOptions {
 
 const nextFrame = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
 
+/**
+ * Rasterize the current state of `container` into ImageData.
+ *
+ * We clone the container first so inlineExternalResources can mutate it freely
+ * without affecting the live DOM or subsequent frame renders.
+ */
 async function rasterizeFrame(container: HTMLElement, pixelRatio: number, options: SvgExportOptions): Promise<ImageData> {
-  const svg = exportDiagramAsVectorSvg(container, options);
+  // Clone so mutation doesn't bleed into subsequent frames
+  const cloned = container.cloneNode(true) as HTMLElement;
+
+  // Inline all external URLs → prevents canvas taint → getImageData won't throw
+  await inlineExternalResources(cloned);
+
+  const svg = exportDiagramAsVectorSvg(cloned, options);
   const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
   try {
     const image = new Image();

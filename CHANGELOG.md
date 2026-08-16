@@ -5,6 +5,17 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] — 2026-08-16
+
+### Added
+- **Canvas-safe PNG and GIF exports** — Added shared resource inlining for renderer DOM exports so external images and CSS `url()` assets are embedded as data URIs before canvas rendering.
+
+### Fixed
+- **Cross-origin export failures** — Prevented tainted-canvas failures in PNG snapshots and animated GIF frame capture when diagrams include externally hosted assets.
+
+### Changed
+- **Playground editor controls** — Refined the playground source editor header into separate selector and action rows, improving toolbar grouping, spacing, and primary Run button placement.
+
 ## [0.8.28] — 2026-08-16
 
 ### Added
