@@ -136,10 +136,10 @@ export function parseDrawioXml(xml: string, defaultTitle: string = "Imported Dra
 /**
  * Transpiles Draw.io XML or model into MarkdyScript.
  */
-export function transpileDrawioToMarkdy(
+export async function transpileDrawioToMarkdy(
   source: string,
   customTitle?: string
-): { code: string; nodeCount: number; edgeCount: number } {
+): Promise<{ code: string; nodeCount: number; edgeCount: number }> {
   let xml = source.trim();
 
   // If source contains <diagram> with compressed base64 content, attempt XML extraction or direct text
@@ -148,11 +148,46 @@ export function transpileDrawioToMarkdy(
     if (diagramMatch) {
       const payload = diagramMatch[1].trim();
       try {
-        // Test if payload is base64
         const binaryStr = atob(payload);
-        // Check if raw binary is utf8 xml
+        // If it looks like raw XML
         if (binaryStr.includes("<mxGraphModel")) {
           xml = binaryStr;
+        } else if (typeof DecompressionStream !== "undefined") {
+          // Attempt Deflate decompression
+          const uint8 = new Uint8Array(binaryStr.length);
+          for (let i = 0; i < binaryStr.length; i++) {
+            uint8[i] = binaryStr.charCodeAt(i);
+          }
+          try {
+            const ds = new DecompressionStream("deflate-raw");
+            const writer = ds.writable.getWriter();
+            writer.write(uint8);
+            writer.close();
+
+            const reader = ds.readable.getReader();
+            const chunks: Uint8Array[] = [];
+            let totalLen = 0;
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              if (value) {
+                chunks.push(value);
+                totalLen += value.length;
+              }
+            }
+
+            const decompressed = new Uint8Array(totalLen);
+            let offset = 0;
+            for (const c of chunks) {
+              decompressed.set(c, offset);
+              offset += c.length;
+            }
+
+            const decodedStr = new TextDecoder().decode(decompressed);
+            xml = decodeURIComponent(decodedStr);
+          } catch (e) {
+            // keep raw xml on fail
+          }
         }
       } catch {
         // Keep raw xml

@@ -6,13 +6,54 @@ import { loadExamples } from "../data/examples";
 const ROOT = join(process.cwd(), "..");
 const EXAMPLES = await loadExamples(ROOT);
 
+const NODE_KINDS = [
+  { kind: "user", icon: "👤", desc: "End users, mobile apps, or human actors initiating requests", example: 'user Customer "Mobile User"' },
+  { kind: "client", icon: "💻", desc: "Frontends, SPAs, web browsers, or client runtimes", example: 'client WebApp "Next.js WebApp"' },
+  { kind: "gateway", icon: "🌐", desc: "API Gateways, reverse proxies, ingress, or load balancers", example: 'gateway ApiGateway "Kong / Envoy"' },
+  { kind: "service", icon: "⚙️", desc: "Microservices, backend applications, gRPC daemons", example: 'service AuthService "Auth & Sessions"' },
+  { kind: "database", icon: "🗄️", desc: "Relational DBs, document stores, primary persistence", example: 'database Postgres "PostgreSQL 16"' },
+  { kind: "cache", icon: "⚡", desc: "In-memory stores, Redis clusters, Memcached instances", example: 'cache Redis "Redis Cluster"' },
+  { kind: "queue", icon: "📬", desc: "Message brokers, Kafka event streams, SQS/RabbitMQ", example: 'queue EventBus "Kafka Event Stream"' },
+  { kind: "worker", icon: "👷", desc: "Background job processors, async consumers, cron runners", example: 'worker VideoWorker "Transcoder Worker"' },
+  { kind: "storage", icon: "📦", desc: "Object storage buckets, S3, blob storage, volume mounts", example: 'storage S3Bucket "Asset S3 Bucket"' },
+  { kind: "cdn", icon: "🌍", desc: "Global edge CDNs, Cloudflare, Fastly edge points", example: 'cdn Cloudflare "Cloudflare Edge"' },
+  { kind: "firewall", icon: "🛡️", desc: "WAFs, security filters, rate limiters, DMZ shields", example: 'firewall CloudWAF "AWS WAF Shield"' },
+  { kind: "lambda", icon: "λ", desc: "Serverless functions, edge compute, ephemeral handlers", example: 'lambda ImageResize "Edge Worker"' },
+  { kind: "pod", icon: "📦", desc: "Kubernetes pods, container instances, daemon sets", example: 'pod OrderPod "order-pod-v2"' },
+];
+
+const FLOW_OPERATORS = [
+  { op: "->", name: "Sync Request", desc: "Direct synchronous RPC, HTTP call, or method invocation with moving payload particle", syntax: 'Client -> Gateway "POST /order"' },
+  { op: "<-", name: "Sync Response", desc: "Synchronous return value, ACK response, or status code flowing backward", syntax: 'Client <- Gateway "201 Created"' },
+  { op: "<->", name: "Bidirectional", desc: "Full-duplex WebSocket connection, socket streaming, or sync handshake", syntax: 'Browser <-> SocketServer "ws:// live"' },
+  { op: "~>", name: "Async Event", desc: "Non-blocking message pub/sub, webhook trigger, or distributed queue emission", syntax: 'Gateway ~> EventBus "order.placed"' },
+  { op: "==>", name: "Data Pipe", desc: "High-throughput bulk data stream, ETL pipeline, or database replication", syntax: 'PrimaryDB ==> ReplicaDB "WAL stream"' },
+  { op: "-.->", name: "Dotted / Probe", desc: "Heartbeat ping, liveness check, telemetry beacon, or weak reference", syntax: 'Monitor -.-> Service "health check"' },
+];
+
+const BEAT_CUES = [
+  { cue: "show $nodes", desc: "Progressively reveals all declared nodes with timed stagger animation", example: "show $nodes stagger=60ms" },
+  { cue: "show <group>", desc: "Reveals specific boundary groups or clustered subsystem components", example: "show ingress stagger=40ms & show persistence" },
+  { cue: "frame <target>", desc: "Directs camera attention and smooth pan/zoom to a group or node", example: "frame storage zoom=1.15" },
+  { cue: "pulse <target>", desc: "Highlights node with a luminous phosphorescent beacon ring", example: "pulse Redis color=accent count=2" },
+  { cue: "dim <target>", desc: "Fades non-active components to 25% opacity to emphasize current flow", example: "dim Auth WebApp" },
+  { cue: "& (parallel)", desc: "Executes multiple cues or concurrent network flows at the same instant", example: "App -> Cache \"get\" & App -> Db \"log\"" },
+];
+
+const GOVERNANCE_RULES = [
+  { id: "no-circular-dependencies", level: "BLOCKING", desc: "Flags synchronous request cycles (A -> B -> C -> A) that risk cascade deadlocks." },
+  { id: "strict-layer-boundaries", level: "ERROR", desc: "Enforces architectural tiers (e.g. Clients cannot bypass API Gateways to talk to DBs)." },
+  { id: "isolated-node-warning", level: "WARNING", desc: "Identifies orphaned microservices or unlinked database instances lacking connections." },
+  { id: "semantic-diff-evolution", level: "PR AUDIT", desc: "Produces GitHub Markdown change summaries and migration tables for pull requests." },
+];
+
 const docStructuredData = [
   {
     "@type": "WebPage",
     "@id": "https://markdy.com/docs/#webpage",
     url: "https://markdy.com/docs/",
-    name: "Markdy Documentation",
-    description: "Learn MarkdyScript for animated architecture and system diagrams as code: semantic nodes, groups, beats, flow operators, cues, docs-as-code workflows, and AI-generated diagrams.",
+    name: "Markdy Documentation — MarkdyScript Reference & Developer Guide",
+    description: "Comprehensive developer guide for MarkdyScript: semantic node kinds, flow operators, timeline beats, universal ingestion, AI/MCP agent configuration, and architecture governance.",
     isPartOf: { "@id": "https://markdy.com/#website" },
     about: { "@id": "https://markdy.com/#software" },
   },
@@ -21,280 +62,996 @@ const docStructuredData = [
     "@id": "https://markdy.com/docs/#breadcrumb",
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Home", item: "https://markdy.com/" },
-      { "@type": "ListItem", position: 2, name: "Docs", item: "https://markdy.com/docs/" },
-    ],
-  },
-  {
-    "@type": "ItemList",
-    "@id": "https://markdy.com/docs/#resources",
-    name: "Markdy documentation resources",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "MarkdyScript Tutorial", url: "https://github.com/HoangYell/markdy-com/blob/main/docs/TUTORIAL.md" },
-      { "@type": "ListItem", position: 2, name: "MarkdyScript Syntax", url: "https://github.com/HoangYell/markdy-com/blob/main/docs/SYNTAX.md" },
-      { "@type": "ListItem", position: 3, name: "AI Agent Reference", url: "https://markdy.com/agent/" },
-      { "@type": "ListItem", position: 4, name: "Markdy Playground", url: "https://markdy.com/playground/" },
-      { "@type": "ListItem", position: 5, name: "Getting Started", url: "https://github.com/HoangYell/markdy-com/blob/main/docs/GETTING_STARTED.md" },
-      { "@type": "ListItem", position: 6, name: "Comparisons", url: "https://github.com/HoangYell/markdy-com/blob/main/docs/COMPARISONS.md" },
+      { "@type": "ListItem", position: 2, name: "Documentation", item: "https://markdy.com/docs/" },
     ],
   },
 ];
 ---
 
 <Layout
-  title="Markdy Docs — MarkdyScript for Animated Diagrams as Code"
-  description="Learn MarkdyScript for animated architecture and system diagrams as code: declare semantic nodes, groups, beats, flow operators, and cues — for docs, Astro, MDX, and AI generation."
+  title="Markdy Docs — MarkdyScript Reference & Complete Developer Guide"
+  description="Master MarkdyScript for animated architecture diagrams as code: full grammar cheatsheet, node kinds, flow operators, timeline beats, universal ingestion, AI MCP configuration, and CI/CD governance."
   canonicalURL="https://markdy.com/docs/"
-  keywords="diagram-native MarkdyScript, MarkdyScript tutorial, animated architecture diagram, diagram as code, mermaid alternative, system design diagram, sequence diagram, flowchart, architecture as code, AI diagram generator, AI agent diagrams, docs as code"
+  keywords="Markdy documentation, MarkdyScript tutorial, diagram as code reference, animated architecture diagrams, mermaid alternative, system design diagrams, MCP server diagrams, AI diagram generator, architecture governance"
   structuredData={docStructuredData}
 >
-  <main class="docs-page">
-    <a href="/" class="back-link">Back to Markdy</a>
-    <header class="docs-hero">
-      <span class="docs-kicker">Documentation</span>
-      <h1>Learn MarkdyScript for animated diagrams</h1>
-      <p>MarkdyScript is diagram-native: start with a scene, declare semantic architecture nodes, group systems, choreograph beats, and render browser-native animated diagrams from reviewable text.</p>
-    </header>
+  <!-- ─── Docs Topbar ─────────────────────────────────────────────────── -->
+  <header class="docs-topbar">
+    <div class="topbar-inner">
+      <a href="/" class="topbar-brand">
+        <span class="brand-badge">🎬</span>
+        <span class="brand-name">markdy</span>
+        <span class="brand-doc-pill">docs</span>
+      </a>
 
-    <section class="docs-grid" aria-label="Documentation resources">
-      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/TUTORIAL.md" target="_blank" rel="noopener noreferrer">
-        <span>Tutorial</span>
-        <h2>Build Your First Scene</h2>
-        <p>A step-by-step guide from your first node and flow to groups, beats, patterns, styles, annotations, focused modes, and semantic themes.</p>
-      </a>
-      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/SYNTAX.md" target="_blank" rel="noopener noreferrer">
-        <span>Reference</span>
-        <h2>MarkdyScript Syntax</h2>
-        <p>The language reference for scene declarations, node kinds, groups, beats, flow operators, patterns, visual primitives, focused modes, and themes.</p>
-      </a>
-      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/tree/main/packages/compat" target="_blank" rel="noopener noreferrer">
-        <span>Transpilers</span>
-        <h2>Universal Ingestion</h2>
-        <p>Import and convert Mermaid flowcharts/sequences, Docker Compose topologies, Kubernetes YAML manifests, and Terraform state into animated MarkdyScript scenes.</p>
-      </a>
-      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/tree/main/packages/mcp-server" target="_blank" rel="noopener noreferrer">
-        <span>AI & MCP</span>
-        <h2>Model Context Protocol</h2>
-        <p>Connect Claude Desktop, Cursor, Antigravity, and autonomous coding agents to Markdy with built-in AST validation, transpilation, and architecture explanation tools.</p>
-      </a>
-      <a class="doc-card" href="/agent/">
-        <span>AI Agents</span>
-        <h2>Agent Generation Guide</h2>
-        <p>A crawlable reference and machine-readable Markdown bundle optimized for ChatGPT, Gemini, GitHub Copilot, Cursor, Windsurf, and other LLM coding agents.</p>
-      </a>
-      <a class="doc-card" href="/playground/">
-        <span>Playground</span>
-        <h2>Practice in the Browser</h2>
-        <p>Open a spacious MarkdyScript workspace with curated examples, autocomplete, timeline controls, beat jumping, warnings, and compressed shareable links.</p>
-      </a>
-      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/tree/main/packages/cli" target="_blank" rel="noopener noreferrer">
-        <span>CLI & Governance</span>
-        <h2>Architecture Linter & CLI</h2>
-        <p>Enforce Well-Architected governance rules, detect synchronous request deadlocks, calculate semantic AST diffs, and batch validate scenes in CI/CD.</p>
-      </a>
-      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/tree/main/examples" target="_blank" rel="noopener noreferrer">
-        <span>Examples</span>
-        <h2>Shipped Scenes</h2>
-        <p>Browse real .markdy examples for request paths, event-driven systems, pipelines, authentication flows, Kubernetes, architecture, flowcharts, trees, state machines, sequences, and radial constellations.</p>
-      </a>
-      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/GETTING_STARTED.md" target="_blank" rel="noopener noreferrer">
-        <span>Quick Start</span>
-        <h2>Getting Started</h2>
-        <p>Install Markdy, render your first scene, add the systems pack, and choose the right integration for docs, apps, or AI workflows.</p>
-      </a>
-      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/GUIDES.md" target="_blank" rel="noopener noreferrer">
-        <span>Guides</span>
-        <h2>Best Practices & Production Use</h2>
-        <p>Practical guidance for readable scripts, architecture diagrams, phased reveals, docs-as-code, and production embedding.</p>
-      </a>
-      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/COMPARISONS.md" target="_blank" rel="noopener noreferrer">
-        <span>Comparisons</span>
-        <h2>Mermaid, PlantUML, D2, Graphviz</h2>
-        <p>When to choose Markdy over static diagramming tools, UI animation libraries, whiteboards, and video tools.</p>
-      </a>
-      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/TROUBLESHOOTING.md" target="_blank" rel="noopener noreferrer">
-        <span>Troubleshooting</span>
-        <h2>Fix Common Issues</h2>
-        <p>Parse errors, unknown cues, overlapping nodes, animation timing, imports, packages, and rendering problems.</p>
-      </a>
-      <a class="doc-card" href="https://github.com/HoangYell/markdy-com/blob/main/docs/CONTENT_ROADMAP.md" target="_blank" rel="noopener noreferrer">
-        <span>Roadmap</span>
-        <h2>Future Content Strategy</h2>
-        <p>High-value docs and comparison pages for developers searching around Mermaid, architecture diagrams, AI agents, and diagram-native DSLs.</p>
-      </a>
-    </section>
+      <nav class="topbar-nav" aria-label="Documentation Navigation">
+        <a href="#quickstart">Quickstart</a>
+        <a href="#grammar">Syntax &amp; Grammar</a>
+        <a href="#node-kinds">Nodes</a>
+        <a href="#flows">Flows</a>
+        <a href="#beats">Beats &amp; Cues</a>
+        <a href="#ingestion">Ingestion</a>
+        <a href="#mcp">AI &amp; MCP</a>
+        <a href="#governance">Governance</a>
+      </nav>
 
-    <section class="showcase-grid" aria-label="Showcase examples">
-      <div class="docs-hero">
-        <span class="docs-kicker">Showcase</span>
-        <h2>Demo Scenes</h2>
-        <p>The scenes shown in the homepage playground — real, runnable <code>.markdy</code> files targeting architecture visualization and technical motion graphics.</p>
+      <div class="topbar-actions">
+        <a href="/playground/" class="btn-topbar-studio">
+          <span>⚡ Studio</span>
+        </a>
+        <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="btn-topbar-gh">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+        <button id="theme-toggle" class="btn-topbar-theme" aria-label="Toggle theme">
+          <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
       </div>
-      <div class="docs-grid">
-        {EXAMPLES.map((ex) => (
-          <a class="doc-card" href={ex.sourceUrl} target="_blank" rel="noopener noreferrer">
-            <span>{ex.category}</span>
-            <h2>{ex.title}</h2>
-            {ex.pattern && <code>{ex.pattern}</code>}
-          </a>
-        ))}
-      </div>
-    </section>
+    </div>
+  </header>
 
-    <section class="quickstart" aria-label="Markdy quickstart">
-      <div>
-        <span class="docs-kicker">Quickstart</span>
-        <h2>Install the parser, DOM renderer, and systems pack</h2>
-        <p>Use <code>@markdy/core</code> for parsing, <code>@markdy/renderer-dom</code> for browser playback, and <code>@markdy/stdlib-systems</code> for architecture diagrams.</p>
+  <!-- ─── Docs Layout Container ────────────────────────────────────────── -->
+  <div class="docs-container">
+    <!-- Sidebar Navigation -->
+    <aside class="docs-sidebar" aria-label="Documentation Table of Contents">
+      <div class="sidebar-group">
+        <span class="sidebar-title">Getting Started</span>
+        <a href="#quickstart" class="sidebar-link active">60-Second Quickstart</a>
+        <a href="#concepts" class="sidebar-link">Core Philosophy</a>
       </div>
-      <pre><code>npm i @markdy/core @markdy/renderer-dom @markdy/stdlib-systems</code></pre>
-    </section>
-  </main>
+
+      <div class="sidebar-group">
+        <span class="sidebar-title">MarkdyScript Grammar</span>
+        <a href="#grammar" class="sidebar-link">Scene Declaration</a>
+        <a href="#node-kinds" class="sidebar-link">Semantic Node Kinds</a>
+        <a href="#groups" class="sidebar-link">Groups &amp; Subsystems</a>
+        <a href="#flows" class="sidebar-link">Flow Operators &amp; Routing</a>
+        <a href="#beats" class="sidebar-link">Timeline Beats &amp; Cues</a>
+      </div>
+
+      <div class="sidebar-group">
+        <span class="sidebar-title">Ecosystem &amp; Tooling</span>
+        <a href="#ingestion" class="sidebar-link">Universal Ingestion</a>
+        <a href="#mcp" class="sidebar-link">AI Coding &amp; MCP Server</a>
+        <a href="#governance" class="sidebar-link">Architecture Governance</a>
+        <a href="#frameworks" class="sidebar-link">Astro, MDX &amp; React</a>
+        <a href="#packages" class="sidebar-link">Package Directory</a>
+      </div>
+    </aside>
+
+    <!-- Main Documentation Content -->
+    <main class="docs-main">
+      <!-- ─── Hero Header ──────────────────────────────────────────────── -->
+      <section class="doc-header-block">
+        <span class="doc-badge">Developer Reference</span>
+        <h1>Markdy Documentation</h1>
+        <p class="doc-lead">
+          Markdy is a diagram-native DSL for creating animated architecture diagrams from reviewable, version-controlled plain text. 
+          Markdy compiles declarations into fluid Web Animations API motion without canvas overhead or manual coordinate math.
+        </p>
+        <div class="doc-header-ctas">
+          <a href="/playground/" class="btn-doc-primary">⚡ Open Interactive Studio</a>
+          <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="btn-doc-secondary">View GitHub Repository ↗</a>
+        </div>
+      </section>
+
+      <!-- ─── 1. Quickstart ────────────────────────────────────────────── -->
+      <section id="quickstart" class="doc-section">
+        <h2 class="section-heading">60-Second Quickstart</h2>
+        <p>Install the Markdy CLI, create your first <code>.markdy</code> scene, and compile it to an interactive HTML preview:</p>
+
+        <div class="doc-code-card">
+          <div class="code-header">
+            <span class="code-title">Terminal</span>
+            <button class="doc-copy-btn" data-code="npm install -g @markdy/cli\nmarkdy init architecture.markdy\nmarkdy render architecture.markdy --open">Copy</button>
+          </div>
+          <pre><code># 1. Install Markdy CLI globally (or run with npx)
+npm install -g @markdy/cli
+
+# 2. Render and open your animated architecture diagram in the browser
+markdy render architecture.markdy --open</code></pre>
+        </div>
+
+        <p class="mt-4">Here is a complete, runnable <code>architecture.markdy</code> scene:</p>
+
+        <div class="doc-code-card">
+          <div class="code-header">
+            <span class="code-title">architecture.markdy</span>
+            <button class="doc-copy-btn" data-code={`scene "Cache-Aside Architecture" theme=paper layout=LR
+
+client WebBrowser "Client App"
+gateway ApiGateway "API Gateway"
+cache RedisCluster "Redis Cache"
+database PostgresDB "PostgreSQL (Master)"
+
+group caching: RedisCluster
+group persistence: PostgresDB
+
+beat setup "Initial System Reveal":
+  show $nodes stagger=60ms
+
+beat flow "Cache Lookup & Fallback":
+  WebBrowser -> ApiGateway "GET /product/42"
+  ApiGateway -> RedisCluster "1. Check Cache (MISS)"
+  ApiGateway -> PostgresDB "2. Query Database"
+  ApiGateway -> RedisCluster "3. Populate Cache"
+  WebBrowser <- ApiGateway "200 OK (JSON)"`}>Copy</button>
+          </div>
+          <pre><code>scene "Cache-Aside Architecture" theme=paper layout=LR
+
+client WebBrowser "Client App"
+gateway ApiGateway "API Gateway"
+cache RedisCluster "Redis Cache"
+database PostgresDB "PostgreSQL (Master)"
+
+group caching: RedisCluster
+group persistence: PostgresDB
+
+beat setup "Initial System Reveal":
+  show $nodes stagger=60ms
+
+beat flow "Cache Lookup & Fallback":
+  WebBrowser -> ApiGateway "GET /product/42"
+  ApiGateway -> RedisCluster "1. Check Cache (MISS)"
+  ApiGateway -> PostgresDB "2. Query Database"
+  ApiGateway -> RedisCluster "3. Populate Cache"
+  WebBrowser <- ApiGateway "200 OK (JSON)"</code></pre>
+        </div>
+      </section>
+
+      <!-- ─── 2. Grammar & Scene ───────────────────────────────────────── -->
+      <section id="grammar" class="doc-section">
+        <h2 class="section-heading">Scene Declaration</h2>
+        <p>Every Markdy script starts with an optional <code>scene</code> header declaring canvas metadata, visual theme, and reading direction:</p>
+
+        <div class="doc-code-card">
+          <pre><code>scene "System Title" theme=paper layout=LR width=1280 height=720</code></pre>
+        </div>
+
+        <div class="table-wrap mt-4">
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>Property</th>
+                <th>Options / Format</th>
+                <th>Default</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>theme</code></td>
+                <td><code>paper</code>, <code>editorial</code>, <code>terminal</code>, <code>sketchy</code>, <code>blueprint</code>, <code>midnight</code>, <code>graphite</code>, <code>nebula</code></td>
+                <td><code>paper</code></td>
+                <td>Visual presentation theme tailored for publication and documentation.</td>
+              </tr>
+              <tr>
+                <td><code>layout</code></td>
+                <td><code>LR</code> (Left to Right), <code>TB</code> (Top to Bottom), <code>RL</code>, <code>BT</code></td>
+                <td><code>LR</code></td>
+                <td>Primary topological flow direction for the automated DAG router.</td>
+              </tr>
+              <tr>
+                <td><code>type</code></td>
+                <td><code>architecture</code>, <code>flowchart</code>, <code>sequence</code>, <code>state</code>, <code>tree</code>, <code>layers</code>, <code>nested</code>, <code>timeline</code>, <code>gantt</code>, <code>venn</code>, <code>radar</code>, <code>medallion</code>, <code>flywheel</code>, <code>constellation</code></td>
+                <td><code>architecture</code></td>
+                <td>Specialized layout engine tailoring node placement and edge routing.</td>
+              </tr>
+              <tr>
+                <td><code>width</code> / <code>height</code></td>
+                <td>Pixel numbers (e.g. <code>width=1280 height=760</code>)</td>
+                <td><code>1280x760</code></td>
+                <td>Virtual canvas viewport dimension for responsive auto-scaling.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ─── 3. Semantic Node Kinds ──────────────────────────────────── -->
+      <section id="node-kinds" class="doc-section">
+        <h2 class="section-heading">Semantic Node Kinds</h2>
+        <p>Markdy uses semantic node declarations. Rather than generic boxes, each node kind automatically receives domain-specific styling, iconography, and rendering metadata:</p>
+
+        <div class="table-wrap mt-4">
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>Kind</th>
+                <th>Icon</th>
+                <th>Description</th>
+                <th>Syntax Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              {NODE_KINDS.map(k => (
+                <tr>
+                  <td><code>{k.kind}</code></td>
+                  <td><span class="table-icon">{k.icon}</span></td>
+                  <td>{k.desc}</td>
+                  <td><code class="code-sm">{k.example}</code></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ─── 4. Groups & Subsystems ───────────────────────────────────── -->
+      <section id="groups" class="doc-section">
+        <h2 class="section-heading">Groups &amp; Subsystem Boundaries</h2>
+        <p>Declare logical architectural boundaries, network VPCs, Kubernetes namespaces, or cluster tiers using the <code>group</code> keyword:</p>
+
+        <div class="doc-code-card">
+          <pre><code>{`# Syntax: group <group_id> [label="Display Title"]: <node1> <node2> ...
+group ingress "Public Ingress Tier": WebClient ApiGateway
+group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
+        </div>
+      </section>
+
+      <!-- ─── 5. Flow Operators & Routing ──────────────────────────────── -->
+      <section id="flows" class="doc-section">
+        <h2 class="section-heading">Flow Operators &amp; Routing</h2>
+        <p>Markdy provides 6 expressive flow operators to distinguish synchronous requests, asynchronous event streams, and streaming data pipes:</p>
+
+        <div class="table-wrap mt-4">
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>Operator</th>
+                <th>Name</th>
+                <th>Behavior</th>
+                <th>Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              {FLOW_OPERATORS.map(f => (
+                <tr>
+                  <td><code>{f.op}</code></td>
+                  <td><strong>{f.name}</strong></td>
+                  <td>{f.desc}</td>
+                  <td><code class="code-sm">{f.syntax}</code></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <h3 class="subsection-heading mt-6">Multi-Hop Chaining</h3>
+        <p>Chain multi-stage operations cleanly on a single line:</p>
+        <div class="doc-code-card">
+          <pre><code>WebApp -> ApiGateway "POST /checkout" -> PaymentWorker "charge" -> PostgresDB "save"</code></pre>
+        </div>
+      </section>
+
+      <!-- ─── 6. Timeline Beats & Cues ─────────────────────────────────── -->
+      <section id="beats" class="doc-section">
+        <h2 class="section-heading">Timeline Beats &amp; Motion Choreography</h2>
+        <p>Markdy diagrams are animated through discrete <strong>beats</strong>. Each beat represents a step in a walkthrough, story, or lifecycle:</p>
+
+        <div class="table-wrap mt-4">
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>Cue Directive</th>
+                <th>Description</th>
+                <th>Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              {BEAT_CUES.map(c => (
+                <tr>
+                  <td><code>{c.cue}</code></td>
+                  <td>{c.desc}</td>
+                  <td><code class="code-sm">{c.example}</code></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ─── 7. Universal Ingestion ───────────────────────────────────── -->
+      <section id="ingestion" class="doc-section">
+        <h2 class="section-heading">Universal Ingestion &amp; 1-Click Migration</h2>
+        <p>Convert existing static architecture files directly into animated MarkdyScript using <code>@markdy/compat</code>:</p>
+
+        <div class="ingestion-table-grid mt-4">
+          <div class="ingest-card">
+            <h4>Mermaid.js (Flowcharts &amp; Sequences)</h4>
+            <p>Converts graph TD/LR and sequence diagrams to MarkdyScript.</p>
+            <pre><code>markdy import flow.mmd --out flow.markdy</code></pre>
+          </div>
+          <div class="ingest-card">
+            <h4>Docker Compose</h4>
+            <p>Extracts services, network links, volumes, and ports into clustered scenes.</p>
+            <pre><code>markdy import docker-compose.yml</code></pre>
+          </div>
+          <div class="ingest-card">
+            <h4>Kubernetes YAML</h4>
+            <p>Maps Ingress, Service, Deployment, Pod, and PVC tiers into nested groups.</p>
+            <pre><code>markdy import k8s-manifest.yaml</code></pre>
+          </div>
+          <div class="ingest-card">
+            <h4>Terraform State</h4>
+            <p>Extracts cloud VPCs, subnets, databases, and gateways into layered architectures.</p>
+            <pre><code>markdy import terraform.tfstate</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── 8. AI Coding & MCP Server ────────────────────────────────── -->
+      <section id="mcp" class="doc-section">
+        <h2 class="section-heading">AI Coding Agents &amp; Official MCP Server</h2>
+        <p>Connect Claude Desktop, Cursor, Antigravity, or any LLM agent to the official Model Context Protocol server:</p>
+
+        <div class="doc-code-card">
+          <div class="code-header">
+            <span class="code-title">Claude Desktop / Cursor MCP Config</span>
+            <button class="doc-copy-btn" data-code={`{
+  "mcpServers": {
+    "markdy": {
+      "command": "npx",
+      "args": ["-y", "@markdy/mcp-server"]
+    }
+  }
+}`}>Copy</button>
+          </div>
+          <pre><code>{`{
+  "mcpServers": {
+    "markdy": {
+      "command": "npx",
+      "args": ["-y", "@markdy/mcp-server"]
+    }
+  }
+}`}</code></pre>
+        </div>
+
+        <p class="mt-4">
+          AI agents can access <a href="/AGENT.md"><code>markdy.com/AGENT.md</code></a> and call <code>validate_markdy_script</code> to test and self-heal diagrams during generation.
+        </p>
+      </section>
+
+      <!-- ─── 9. Architecture Governance ───────────────────────────────── -->
+      <section id="governance" class="doc-section">
+        <h2 class="section-heading">Architecture Governance &amp; CI/CD Linter</h2>
+        <p>Integrate automated Well-Architected governance checks in your continuous integration pipeline:</p>
+
+        <div class="table-wrap mt-4">
+          <table class="doc-table">
+            <thead>
+              <tr>
+                <th>Rule ID</th>
+                <th>Severity</th>
+                <th>Enforcement Rule</th>
+              </tr>
+            </thead>
+            <tbody>
+              {GOVERNANCE_RULES.map(r => (
+                <tr>
+                  <td><code>{r.id}</code></td>
+                  <td><span class={`gov-badge ${r.level === 'BLOCKING' ? 'gov-badge--crit' : 'gov-badge--warn'}`}>{r.level}</span></td>
+                  <td>{r.desc}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ─── 10. Framework Integrations ───────────────────────────────── -->
+      <section id="frameworks" class="doc-section">
+        <h2 class="section-heading">Framework Integrations: Astro, MDX &amp; React</h2>
+        
+        <div class="framework-grid mt-4">
+          <div class="framework-card">
+            <h4>Astro Integration</h4>
+            <pre><code>import &#123; Markdy &#125; from "@markdy/astro";
+
+&lt;Markdy code=&#123;sceneCode&#125; autoplay /&gt;</code></pre>
+          </div>
+
+          <div class="framework-card">
+            <h4>MDX Documentation</h4>
+            <pre><code>```markdy
+scene "Docs Architecture" theme=paper
+client Browser -> service Api -> database DB
+```</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── 11. Package Directory ────────────────────────────────────── -->
+      <section id="packages" class="doc-section">
+        <h2 class="section-heading">Ecosystem Package Directory</h2>
+        <div class="pkg-list-grid mt-4">
+          <div class="pkg-box">
+            <strong>@markdy/core</strong>
+            <span>Zero-dep tokenizer, AST parser, semantic diffing, classifier, and linter.</span>
+          </div>
+          <div class="pkg-box">
+            <strong>@markdy/renderer-dom</strong>
+            <span>WAAPI motion runtime, zero-dep GIF89a encoder, and SVG vector exporter.</span>
+          </div>
+          <div class="pkg-box">
+            <strong>@markdy/compat</strong>
+            <span>Universal transpilers for Mermaid, Draw.io, Docker Compose, K8s, and Terraform.</span>
+          </div>
+          <div class="pkg-box">
+            <strong>@markdy/cli</strong>
+            <span>CLI for rendering, formatting, linting, importing, and batch validating scenes.</span>
+          </div>
+          <div class="pkg-box">
+            <strong>@markdy/mcp-server</strong>
+            <span>Official Model Context Protocol server for Claude, Cursor, and AI agents.</span>
+          </div>
+          <div class="pkg-box">
+            <strong>@markdy/astro</strong>
+            <span>Lazy-loaded Astro component for documentation sites and blogs.</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ─── Footer ───────────────────────────────────────────────────────── -->
+  <footer class="docs-footer">
+    <div class="footer-content">
+      <span>MIT Licensed · Open-Source Diagrams as Code</span>
+      <div class="footer-links">
+        <a href="/">Home</a>
+        <a href="/playground/">Playground Studio</a>
+        <a href="/blog/">Articles</a>
+        <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </div>
+  </footer>
 </Layout>
 
+<script>
+  // Copy button handler
+  document.querySelectorAll<HTMLButtonElement>(".doc-copy-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const code = btn.dataset.code || btn.closest(".doc-code-card")?.querySelector("code")?.textContent || "";
+      navigator.clipboard.writeText(code.trim()).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = "Copied!";
+        btn.classList.add("copied");
+        setTimeout(() => {
+          btn.textContent = orig;
+          btn.classList.remove("copied");
+        }, 2000);
+      });
+    });
+  });
+
+  // Theme toggle
+  const themeBtn = document.getElementById("theme-toggle");
+  themeBtn?.addEventListener("click", () => {
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    const next = isDark ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("markdy-theme", next);
+    updateThemeIcons(next);
+  });
+
+  function updateThemeIcons(theme: string) {
+    const sun = document.querySelector(".icon-sun") as HTMLElement;
+    const moon = document.querySelector(".icon-moon") as HTMLElement;
+    if (!sun || !moon) return;
+    if (theme === "dark") {
+      sun.style.display = "none";
+      moon.style.display = "block";
+    } else {
+      sun.style.display = "block";
+      moon.style.display = "none";
+    }
+  }
+
+  const initialTheme = document.documentElement.getAttribute("data-theme") || "light";
+  updateThemeIcons(initialTheme);
+</script>
+
 <style>
-  .docs-page {
-    min-height: 100vh;
-    max-width: 1100px;
+  /* ─── Docs Header & Navigation ─────────────────────────────────────── */
+  .docs-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(12px);
+    height: 52px;
+  }
+
+  .topbar-inner {
+    max-width: 1380px;
     margin: 0 auto;
-    padding: 5rem 1.5rem;
+    padding: 0 1.5rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
   }
 
-  .back-link {
-    display: inline-block;
-    margin-bottom: 2rem;
-    color: var(--accent, #047857);
-    font-size: 0.9rem;
+  .topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+  }
+
+  .brand-badge {
+    font-size: 1.1rem;
+  }
+
+  .brand-doc-pill {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+
+  .topbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    overflow-x: auto;
+  }
+
+  .topbar-nav a {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: color 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .topbar-nav a:hover {
+    color: var(--accent);
+  }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .btn-topbar-studio {
+    background: var(--accent);
+    color: #ffffff !important;
+    font-size: 0.78rem;
     font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    transition: transform 0.15s ease, opacity 0.15s ease;
   }
 
-  .docs-hero {
-    max-width: 720px;
-    margin-bottom: 2rem;
+  .btn-topbar-studio:hover {
+    transform: translateY(-1px);
+    opacity: 0.95;
   }
 
-  .docs-kicker {
-    display: inline-block;
-    margin-bottom: 0.6rem;
-    color: var(--accent, #047857);
+  .btn-topbar-gh,
+  .btn-topbar-theme {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-topbar-gh:hover,
+  .btn-topbar-theme:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+  }
+
+  /* ─── Docs Layout Container ────────────────────────────────────────── */
+  .docs-container {
+    max-width: 1380px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 3rem;
+  }
+
+  .docs-sidebar {
+    position: sticky;
+    top: 72px;
+    height: calc(100vh - 90px);
+    overflow-y: auto;
+    padding-right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .sidebar-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .sidebar-title {
     font-size: 0.72rem;
     font-weight: 700;
-    letter-spacing: 0.1em;
     text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
   }
 
-  h1 {
-    color: var(--text-primary, #0f172a);
-    font-size: clamp(2.4rem, 7vw, 4.5rem);
-    line-height: 0.98;
-    letter-spacing: -0.05em;
-    margin-bottom: 1rem;
+  .sidebar-link {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    padding: 0.25rem 0.5rem;
+    border-radius: 5px;
+    transition: all 0.15s ease;
   }
 
-  .docs-hero p,
-  .quickstart p {
-    color: var(--text-secondary, #64748b);
-    font-size: 1rem;
-    line-height: 1.7;
+  .sidebar-link:hover {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
   }
 
-  .docs-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 1rem;
+  .sidebar-link.active {
+    color: var(--accent);
+    font-weight: 600;
+    background: var(--accent-light);
   }
 
-  .showcase-grid {
-    margin-top: 3rem;
+  /* ─── Main Content Styling ─────────────────────────────────────────── */
+  .docs-main {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
   }
 
-  .showcase-grid .docs-hero {
+  .doc-header-block {
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .doc-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: var(--accent-light);
+    color: var(--accent);
+    margin-bottom: 0.75rem;
+  }
+
+  .doc-header-block h1 {
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+  }
+
+  .doc-lead {
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    max-width: 800px;
     margin-bottom: 1.25rem;
   }
 
-  .doc-card,
-  .quickstart {
-    border: 1px solid var(--border, #e2e8f0);
-    border-radius: 12px;
-    background: var(--bg-secondary, #ffffff);
-    box-shadow: 0 1px 4px var(--shadow-sm, rgba(0, 0, 0, 0.04));
+  .doc-header-ctas {
+    display: flex;
+    gap: 0.75rem;
   }
 
-  .doc-card {
+  .btn-doc-primary {
+    background: var(--accent);
+    color: #ffffff !important;
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.5rem 1.1rem;
+    border-radius: 7px;
+    transition: transform 0.15s ease;
+  }
+
+  .btn-doc-primary:hover {
+    transform: translateY(-1px);
+  }
+
+  .btn-doc-secondary {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.85rem;
+    padding: 0.5rem 1.1rem;
+    border-radius: 7px;
+    transition: all 0.15s ease;
+  }
+
+  .btn-doc-secondary:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-secondary);
+  }
+
+  .doc-section {
+    scroll-margin-top: 72px;
+  }
+
+  .section-heading {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+  }
+
+  .subsection-heading {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .doc-section p {
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+
+  .mt-4 { margin-top: 1rem; }
+  .mt-6 { margin-top: 1.5rem; }
+
+  /* ─── Code Cards & Snippets ────────────────────────────────────────── */
+  .doc-code-card {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 8px;
+    margin-top: 0.85rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .code-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.45rem 0.85rem;
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .code-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  .doc-copy-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-secondary);
+    font-size: 0.7rem;
+    padding: 0.15rem 0.45rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .doc-copy-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+  }
+
+  .doc-copy-btn.copied {
+    color: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .doc-code-card pre {
+    padding: 1rem;
+    margin: 0;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: var(--text-primary);
+  }
+
+  /* ─── Tables ───────────────────────────────────────────────────────── */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .doc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.84rem;
+    text-align: left;
+  }
+
+  .doc-table th {
+    background: var(--bg-tertiary);
+    padding: 0.65rem 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .doc-table td {
+    padding: 0.65rem 0.85rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+  }
+
+  .doc-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .doc-table code {
+    font-size: 0.78rem;
+    background: var(--bg-tertiary);
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    color: var(--accent);
+  }
+
+  .code-sm {
+    font-size: 0.75rem !important;
+    white-space: nowrap;
+  }
+
+  .table-icon {
+    font-size: 1rem;
+  }
+
+  .gov-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.12rem 0.4rem;
+    border-radius: 4px;
+  }
+
+  .gov-badge--crit {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--danger);
+  }
+
+  .gov-badge--warn {
+    background: rgba(245, 158, 11, 0.12);
+    color: var(--warning);
+  }
+
+  /* ─── Grids ────────────────────────────────────────────────────────── */
+  .ingestion-table-grid,
+  .framework-grid,
+  .pkg-list-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+  }
+
+  .ingest-card,
+  .framework-card,
+  .pkg-box {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.1rem;
     display: flex;
     flex-direction: column;
-    gap: 0.55rem;
-    padding: 1.25rem;
-    transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    gap: 0.5rem;
+    box-shadow: var(--shadow-xs);
   }
 
-  .doc-card:hover {
-    border-color: var(--accent, #047857);
-    box-shadow: 0 4px 16px var(--shadow-md, rgba(0, 0, 0, 0.06));
-    transform: translateY(-2px);
-  }
-
-  .doc-card span {
-    color: var(--accent, #047857);
-    font-size: 0.7rem;
+  .ingest-card h4,
+  .framework-card h4,
+  .pkg-box strong {
+    font-size: 0.9rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    color: var(--text-primary);
   }
 
-  .doc-card h2 {
-    color: var(--text-primary, #0f172a);
-    font-size: 1rem;
-    line-height: 1.35;
+  .ingest-card p,
+  .pkg-box span {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
   }
 
-  .doc-card p {
-    color: var(--text-secondary, #64748b);
-    font-size: 0.84rem;
-    line-height: 1.6;
-  }
-
-  .doc-card code {
-    align-self: flex-start;
-    padding: 0.16rem 0.45rem;
-    border-radius: 999px;
-    background: var(--accent-light, rgba(5, 150, 105, 0.12));
-    color: var(--accent, #047857);
-    font-size: 0.72rem;
-    font-weight: 700;
-  }
-
-  .quickstart {
-    display: grid;
-    grid-template-columns: 1.2fr 1fr;
-    gap: 1.5rem;
-    align-items: center;
-    margin-top: 1rem;
-    padding: 1.5rem;
-  }
-
-  .quickstart h2 {
-    color: var(--text-primary, #0f172a);
-    font-size: 1.3rem;
-    margin-bottom: 0.4rem;
-  }
-
-  .quickstart pre {
+  .ingest-card pre,
+  .framework-card pre {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    padding: 0.65rem;
+    border-radius: 6px;
+    font-size: 0.76rem;
+    margin-top: 0.25rem;
     overflow-x: auto;
-    margin: 0;
-    padding: 0.9rem 1rem;
-    border-radius: 8px;
-    background: var(--ref-code-bg, #f6f8fa);
-    color: var(--ref-code-text, #24292f);
-    font-size: 0.82rem;
+  }
+
+  /* ─── Footer ───────────────────────────────────────────────────────── */
+  .docs-footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 1.5rem;
+    background: var(--bg-secondary);
+  }
+
+  .footer-content {
+    max-width: 1380px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 1.25rem;
+  }
+
+  .footer-links a {
+    color: var(--text-secondary);
+    transition: color 0.15s ease;
+  }
+
+  .footer-links a:hover {
+    color: var(--accent);
   }
 
   @media (max-width: 900px) {
-    .docs-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .quickstart { grid-template-columns: 1fr; }
-  }
-
-  @media (max-width: 560px) {
-    .docs-page { padding: 3rem 1rem; }
-    .docs-grid { grid-template-columns: 1fr; }
+    .docs-container {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    .docs-sidebar {
+      display: none;
+    }
+    .topbar-nav {
+      display: none;
+    }
   }
 </style>

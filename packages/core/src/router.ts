@@ -64,18 +64,77 @@ export function routeOrthogonalEdge(sourceBox: Box, targetBox: Box): RoutedPath 
   const end = getBoxPortPosition(targetBox, targetPort);
 
   const waypoints: Point[] = [];
+  const MARGIN = 20;
 
   if (sourcePort === "right" && targetPort === "left") {
-    const midX = (start.x + end.x) / 2;
-    waypoints.push({ x: midX, y: start.y });
-    waypoints.push({ x: midX, y: end.y });
+    if (start.x <= end.x - MARGIN * 2) {
+      const midX = (start.x + end.x) / 2;
+      waypoints.push({ x: midX, y: start.y });
+      waypoints.push({ x: midX, y: end.y });
+    } else {
+      waypoints.push({ x: start.x + MARGIN, y: start.y });
+      const midY = (start.y + end.y) / 2;
+      waypoints.push({ x: start.x + MARGIN, y: midY });
+      waypoints.push({ x: end.x - MARGIN, y: midY });
+      waypoints.push({ x: end.x - MARGIN, y: end.y });
+    }
+  } else if (sourcePort === "left" && targetPort === "right") {
+    if (start.x >= end.x + MARGIN * 2) {
+      const midX = (start.x + end.x) / 2;
+      waypoints.push({ x: midX, y: start.y });
+      waypoints.push({ x: midX, y: end.y });
+    } else {
+      waypoints.push({ x: start.x - MARGIN, y: start.y });
+      const midY = (start.y + end.y) / 2;
+      waypoints.push({ x: start.x - MARGIN, y: midY });
+      waypoints.push({ x: end.x + MARGIN, y: midY });
+      waypoints.push({ x: end.x + MARGIN, y: end.y });
+    }
   } else if (sourcePort === "bottom" && targetPort === "top") {
-    const midY = (start.y + end.y) / 2;
-    waypoints.push({ x: start.x, y: midY });
-    waypoints.push({ x: end.x, y: midY });
+    if (start.y <= end.y - MARGIN * 2) {
+      const midY = (start.y + end.y) / 2;
+      waypoints.push({ x: start.x, y: midY });
+      waypoints.push({ x: end.x, y: midY });
+    } else {
+      waypoints.push({ x: start.x, y: start.y + MARGIN });
+      const midX = (start.x + end.x) / 2;
+      waypoints.push({ x: midX, y: start.y + MARGIN });
+      waypoints.push({ x: midX, y: end.y - MARGIN });
+      waypoints.push({ x: end.x, y: end.y - MARGIN });
+    }
+  } else if (sourcePort === "top" && targetPort === "bottom") {
+    if (start.y >= end.y + MARGIN * 2) {
+      const midY = (start.y + end.y) / 2;
+      waypoints.push({ x: start.x, y: midY });
+      waypoints.push({ x: end.x, y: midY });
+    } else {
+      waypoints.push({ x: start.x, y: start.y - MARGIN });
+      const midX = (start.x + end.x) / 2;
+      waypoints.push({ x: midX, y: start.y - MARGIN });
+      waypoints.push({ x: midX, y: end.y + MARGIN });
+      waypoints.push({ x: end.x, y: end.y + MARGIN });
+    }
   } else {
-    // Cardinal corner routing
-    waypoints.push({ x: end.x, y: start.y });
+    // Mixed combinations (e.g. top to left)
+    if (sourcePort === "right") waypoints.push({ x: start.x + MARGIN, y: start.y });
+    else if (sourcePort === "left") waypoints.push({ x: start.x - MARGIN, y: start.y });
+    else if (sourcePort === "top") waypoints.push({ x: start.x, y: start.y - MARGIN });
+    else if (sourcePort === "bottom") waypoints.push({ x: start.x, y: start.y + MARGIN });
+
+    const p1 = waypoints[0] || start;
+    let p2: Point;
+    if (targetPort === "right") p2 = { x: end.x + MARGIN, y: end.y };
+    else if (targetPort === "left") p2 = { x: end.x - MARGIN, y: end.y };
+    else if (targetPort === "top") p2 = { x: end.x, y: end.y - MARGIN };
+    else p2 = { x: end.x, y: end.y + MARGIN };
+
+    if (sourcePort === "left" || sourcePort === "right") {
+      waypoints.push({ x: p1.x, y: p2.y });
+    } else {
+      waypoints.push({ x: p2.x, y: p1.y });
+    }
+
+    waypoints.push(p2);
   }
 
   // Build SVG Path string

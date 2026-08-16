@@ -28,17 +28,17 @@ describe("@markdy/mcp-server: MCP Tool Handlers", () => {
     expect(result.content[0].text).toContain("Suggested AI Healing Prompt");
   });
 
-  it("transpiles external sources to valid Markdy code across all formats", () => {
+  it("transpiles external sources to valid Markdy code across all formats", async () => {
     const mmd = `
       flowchart LR
         A[Client] --> B[Server]
     `;
-    const mmdResult = handleTranspileToMarkdy(mmd, "mermaid", "Imported Flow");
+    const mmdResult = await handleTranspileToMarkdy(mmd, "mermaid", "Imported Flow");
     expect(mmdResult.isError).toBeFalsy();
     expect(mmdResult.content[0].text).toContain("scene \"Imported Flow\"");
 
     const drawioXml = `<mxGraphModel><root><mxCell id="0"/><mxCell id="1" parent="0"/><mxCell id="c" value="Client" vertex="1" parent="1"/><mxCell id="s" value="Server" vertex="1" parent="1"/><mxCell id="e" source="c" target="s" edge="1" parent="1"/></root></mxGraphModel>`;
-    const drawioResult = handleTranspileToMarkdy(drawioXml, "drawio", "Imported Drawio");
+    const drawioResult = await handleTranspileToMarkdy(drawioXml, "drawio", "Imported Drawio");
     expect(drawioResult.isError).toBeFalsy();
     expect(drawioResult.content[0].text).toContain("scene \"Imported Drawio\"");
   });

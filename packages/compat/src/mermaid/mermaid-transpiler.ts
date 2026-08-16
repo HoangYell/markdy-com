@@ -90,8 +90,7 @@ function transpileSequenceDiagram(lines: string[], title: string): MermaidTransp
       if (!participants.has(to)) participants.set(to, { id: to, label: to, kind: inferKindFromMermaid(to, to) });
 
       let kind: "->" | "<-" | "~>" = "->";
-      if (arrow === "-->>" || arrow === "-->") kind = "<-";
-      else if (arrow === "-)" || arrow === "~>") kind = "~>";
+      if (arrow === "-->>" || arrow === "-->" || arrow === "-.->") kind = "~>";
 
       messages.push({ from, to, label, kind });
     }
@@ -140,7 +139,7 @@ function transpileFlowchart(lines: string[], title: string): MermaidTranspileRes
   let currentSubgraph: { id: string; label: string; members: string[] } | null = null;
 
   // Match: id[(label)], id[[label]], id([label]), id((label)), id[label], id{label}, id(label)
-  const nodePattern = /([a-zA-Z0-9_-]+)\s*(\[\(|\(\[|\[\[|\(\(|\[|\{|\()([^\n\]\)\}]*)(\)\]|\]\)|\ counselling|\)\]|\]\]|\)\)|\]|\}|\))/g;
+  const explicitNodeRe = /([a-zA-Z0-9_-]+)\s*(\[\([^\n]*?\)\]|\[\[[^\n]*?\]\]|\(\[[^\n]*?\]\)|\(\([^\n]*?\)\)|\[[^\n]*?\]|\{[^\n]*?\}|\([^\n]*?\))/g;
   const flowPattern = /([a-zA-Z0-9_-]+)\s*(?:\[[^\]]*\]|\([^)]*\)|\{[^}]*\})?\s*(-->|->|==>|-.->|--\s*([^-]+)\s*-->)\s*(?:\|([^|]+)\|)?\s*([a-zA-Z0-9_-]+)/;
 
   for (const line of lines) {
@@ -160,8 +159,6 @@ function transpileFlowchart(lines: string[], title: string): MermaidTranspileRes
     }
 
     // Extract node definitions
-    // Clean-cut bracket shapes
-    const explicitNodeRe = /([a-zA-Z0-9_-]+)\s*(\[\([^\n]*?\)\]|\[\[[^\n]*?\]\]|\(\[[^\n]*?\]\)|\(\([^\n]*?\)\)|\[[^\n]*?\]|\{[^\n]*?\}|\([^\n]*?\))/g;
     let match: RegExpExecArray | null;
     while ((match = explicitNodeRe.exec(line)) !== null) {
       const rawId = match[1];
@@ -177,9 +174,12 @@ function transpileFlowchart(lines: string[], title: string): MermaidTranspileRes
       }
     }
 
-    // Extract connection
-    const fMatch = flowPattern.exec(line);
-    if (fMatch) {
+    // Extract connections (handling chained edges like A -> B -> C)
+    let remainingLine = line;
+    while (true) {
+      const fMatch = flowPattern.exec(remainingLine);
+      if (!fMatch) break;
+
       const from = sanitizeId(fMatch[1]);
       const arrow = fMatch[2];
       const inlineLabel = fMatch[3];
@@ -194,6 +194,11 @@ function transpileFlowchart(lines: string[], title: string): MermaidTranspileRes
       if (arrow.includes("-.->") || arrow.includes("~")) op = "~>";
 
       flows.push({ from, to, op, label });
+
+      // advance remainder to the 'to' node, allowing it to become the 'from' node for the next link
+      const toIndex = fMatch.index + fMatch[0].lastIndexOf(fMatch[5]);
+      if (toIndex === 0) break; // prevent infinite loop if unexpected match
+      remainingLine = remainingLine.substring(toIndex);
     }
   }
 

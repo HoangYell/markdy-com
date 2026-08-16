@@ -5,6 +5,23 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.26] — 2026-08-16
+
+### Added
+- **Complete In-Browser Documentation Hub (`/docs/`)** — Interactive quickstart, complete grammar and scene declaration tables, 13 semantic node kinds, 6 flow operators, and official Model Context Protocol (MCP) server integration reference for Claude Desktop and Cursor.
+- **Interactive Studio Visual Canvas & HUD (`/playground/`)** — Added 3 view modes (Canvas, Split, Code), direct-manipulation node selection with Floating HUD (`⚡ Pulse`, `🔍 Frame`, `🗑️ Delete`), storyboard beat track, and 1-click universal ingestion modal.
+- **Hero Split-Pane Live Studio (`/`)** — Embedded live interactive compiler and Web Animations API DOM stage directly on the homepage hero with 1-click architecture presets (Cache-Aside, Kafka Stream, K8s Ingress, OAuth2).
+- **High-DPI 2x Retina PNG & Vector SVG Export** — Standalone export utilities in `@markdy/renderer-dom` for SVG and crisp raster PNG snapshots.
+- **Native URL State Compression** — Built-in LZ-based compression (`compressMarkdyToUrlHash` / `decompressMarkdyFromUrlHash`) for compact `#code=~m...` shareable URLs.
+
+### Changed
+- **Architecture Governance Linter & AST Validation** — Strict rule validation across cloud well-architected guardrails, cycle detection, and security boundary isolation.
+- **Global Design Tokens & Elevations** — Standardized modern HSL palette, dark/light theme palettes, layered elevations, and focus rings.
+
+### Fixed
+- **Universal Ingestion Transpilation Handlers** — Fixed async Draw.io parsing and Mermaid transpiler result object extraction in studio import modal.
+- **Architecture Governance Audit in Studio** — Corrected AST passing and violation report formatting.
+
 ## [0.8.25] — 2026-08-15
 
 ### Fixed

@@ -65,11 +65,11 @@ export function handleValidateMarkdy(code: string, checkArchitecture = true): To
   }
 }
 
-export function handleTranspileToMarkdy(
+export async function handleTranspileToMarkdy(
   source: string,
   format: "mermaid" | "docker-compose" | "k8s" | "terraform" | "drawio",
   title = "Imported Scene"
-): ToolResult {
+): Promise<ToolResult> {
   try {
     let markdyCode = "";
 
@@ -87,7 +87,7 @@ export function handleTranspileToMarkdy(
         markdyCode = transpileTerraformStateToMarkdy(source, title);
         break;
       case "drawio":
-        markdyCode = transpileDrawioToMarkdy(source, title).code;
+        markdyCode = (await transpileDrawioToMarkdy(source, title)).code;
         break;
       default:
         throw new Error(`Unsupported ingestion format: ${format}`);

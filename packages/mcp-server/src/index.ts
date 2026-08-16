@@ -107,9 +107,9 @@ export function createMarkdyMcpServer(): Server {
         );
 
       case "transpile_to_markdy":
-        return handleTranspileToMarkdy(
+        return await handleTranspileToMarkdy(
           String(safeArgs.source ?? ""),
-          safeArgs.format as "mermaid" | "docker-compose" | "k8s" | "terraform",
+          safeArgs.format as "mermaid" | "docker-compose" | "k8s" | "terraform" | "drawio",
           safeArgs.title ? String(safeArgs.title) : undefined
         );
 
