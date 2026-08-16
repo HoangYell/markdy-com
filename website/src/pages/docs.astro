@@ -114,6 +114,11 @@ const docStructuredData = [
   <div class="docs-container">
     <!-- Sidebar Navigation -->
     <aside class="docs-sidebar" aria-label="Documentation Table of Contents">
+      <div class="sidebar-search-box">
+        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="docs-search" class="docs-search-input" placeholder="Search reference..." aria-label="Search documentation" />
+      </div>
+
       <div class="sidebar-group">
         <span class="sidebar-title">Getting Started</span>
         <a href="#quickstart" class="sidebar-link active">60-Second Quickstart</a>
@@ -529,21 +534,115 @@ client Browser -> service Api -> database DB
 </Layout>
 
 <script>
-  // Copy button handler
-  document.querySelectorAll<HTMLButtonElement>(".doc-copy-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const code = btn.dataset.code || btn.closest(".doc-code-card")?.querySelector("code")?.textContent || "";
-      navigator.clipboard.writeText(code.trim()).then(() => {
-        const orig = btn.textContent;
-        btn.textContent = "Copied!";
-        btn.classList.add("copied");
-        setTimeout(() => {
-          btn.textContent = orig;
-          btn.classList.remove("copied");
-        }, 2000);
+  import { compressMarkdyToUrlHash } from "@markdy/core";
+
+  // Automatically enhance all doc-code-cards with Open in Studio & Copy buttons
+  document.querySelectorAll<HTMLElement>(".doc-code-card").forEach(async (card) => {
+    const codeEl = card.querySelector("code");
+    if (!codeEl) return;
+    const codeText = codeEl.textContent?.trim() || "";
+    
+    // Check if it's a markdy snippet (contains scene, beat, flow, or node definitions)
+    const isMarkdy = codeText.includes("scene ") || codeText.includes("beat ") || codeText.includes(" -> ") || codeText.includes("service ");
+    
+    let header = card.querySelector(".code-header") as HTMLElement;
+    if (!header) {
+      header = document.createElement("div");
+      header.className = "code-header";
+      const titleSpan = document.createElement("span");
+      titleSpan.className = "code-title";
+      titleSpan.textContent = isMarkdy ? "MarkdyScript" : "Snippet";
+      header.appendChild(titleSpan);
+      card.insertBefore(header, card.firstChild);
+    }
+
+    let actions = header.querySelector(".code-header-actions") as HTMLElement;
+    if (!actions) {
+      actions = document.createElement("div");
+      actions.className = "code-header-actions";
+      header.appendChild(actions);
+    }
+    
+    // Add studio button if markdy
+    if (isMarkdy && !actions.querySelector(".doc-studio-btn")) {
+      const studioLink = document.createElement("a");
+      studioLink.className = "doc-studio-btn";
+      studioLink.textContent = "⚡ Open in Studio";
+      studioLink.target = "_blank";
+      try {
+        const hash = await compressMarkdyToUrlHash(codeText);
+        studioLink.href = `/playground/#code=${hash}`;
+      } catch {
+        studioLink.href = `/playground/#code=${encodeURIComponent(codeText)}`;
+      }
+      actions.appendChild(studioLink);
+    }
+
+    // Add copy button if not present
+    if (!actions.querySelector(".doc-copy-btn")) {
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "doc-copy-btn";
+      copyBtn.textContent = "Copy";
+      copyBtn.addEventListener("click", () => {
+        navigator.clipboard.writeText(codeText).then(() => {
+          copyBtn.textContent = "Copied!";
+          copyBtn.classList.add("copied");
+          setTimeout(() => {
+            copyBtn.textContent = "Copy";
+            copyBtn.classList.remove("copied");
+          }, 2000);
+        });
       });
+      actions.appendChild(copyBtn);
+    }
+  });
+
+  // Live Docs Search & Filter
+  const searchInput = document.getElementById("docs-search") as HTMLInputElement;
+  const sidebarLinks = document.querySelectorAll<HTMLAnchorElement>(".sidebar-link");
+  const docSections = document.querySelectorAll<HTMLElement>(".doc-section");
+
+  searchInput?.addEventListener("input", () => {
+    const query = searchInput.value.toLowerCase().trim();
+    if (!query) {
+      sidebarLinks.forEach(link => {
+        link.style.display = "";
+        link.classList.remove("search-match");
+      });
+      docSections.forEach(sec => sec.style.display = "");
+      return;
+    }
+
+    sidebarLinks.forEach(link => {
+      const text = link.textContent?.toLowerCase() || "";
+      const matches = text.includes(query);
+      link.style.display = matches ? "" : "none";
+      link.classList.toggle("search-match", matches);
+    });
+
+    docSections.forEach(sec => {
+      const secText = sec.textContent?.toLowerCase() || "";
+      const matches = secText.includes(query);
+      sec.style.display = matches ? "" : "none";
     });
   });
+
+  // Active ScrollSpy
+  const observer = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (entry.isIntersecting) {
+        const id = entry.target.getAttribute("id");
+        if (id) {
+          sidebarLinks.forEach(link => {
+            const href = link.getAttribute("href");
+            link.classList.toggle("active", href === `#${id}`);
+          });
+        }
+      }
+    }
+  }, { rootMargin: "-10% 0px -70% 0px" });
+
+  docSections.forEach(sec => observer.observe(sec));
 
   // Theme toggle
   const themeBtn = document.getElementById("theme-toggle");
@@ -700,6 +799,41 @@ client Browser -> service Api -> database DB
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+  }
+
+  .sidebar-search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.35rem 0.6rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 0.5rem;
+    transition: border-color 0.15s ease;
+  }
+
+  .sidebar-search-box:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-light);
+  }
+
+  .search-icon {
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  .docs-search-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-size: 0.78rem;
+    color: var(--text-primary);
+    width: 100%;
+  }
+
+  .docs-search-input::placeholder {
+    color: var(--text-muted);
   }
 
   .sidebar-group {
@@ -865,6 +999,32 @@ client Browser -> service Api -> database DB
     font-weight: 600;
     color: var(--text-muted);
     font-family: "JetBrains Mono", monospace;
+  }
+
+  .code-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .doc-studio-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--accent) !important;
+    background: var(--accent-light);
+    border: 1px solid var(--accent);
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+
+  .doc-studio-btn:hover {
+    background: var(--accent);
+    color: #ffffff !important;
   }
 
   .doc-copy-btn {

@@ -22,7 +22,10 @@ export async function exportDiagramAsPng(
   const img = new Image();
   await new Promise<void>((resolve, reject) => {
     img.onload = () => resolve();
-    img.onerror = () => reject(new Error("Failed to rasterize SVG into Image for PNG export"));
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("Failed to rasterize SVG into Image for PNG export"));
+    };
     img.src = url;
   });
 

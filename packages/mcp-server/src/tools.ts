@@ -52,13 +52,13 @@ export function handleValidateMarkdy(code: string, checkArchitecture = true): To
       content: [{ type: "text", text: lines.join("\n") }],
     };
   } catch (error) {
-    const repairPrompt = analyzeAndBuildRepairPrompt(code);
+    const repairBundle = analyzeAndBuildRepairPrompt(code);
     return {
       isError: true,
       content: [
         {
           type: "text",
-          text: `❌ Parse Error: ${(error as Error).message}\n\nSuggested AI Healing Prompt:\n${repairPrompt}`,
+          text: `❌ Parse Error: ${(error as Error).message}\n\nSuggested AI Healing Prompt:\n${repairBundle.repairPrompt}`,
         },
       ],
     };

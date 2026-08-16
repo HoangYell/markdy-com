@@ -337,6 +337,7 @@ const playgroundStructuredData = [
               <input id="hud-label-input" class="hud-input" type="text" placeholder="Node label..." />
             </div>
             <div class="hud-actions-row">
+              <button id="hud-connect-btn" class="hud-action-btn btn-hud-connect" type="button" title="Connect flow to another node">➔ Flow</button>
               <button id="hud-pulse-btn" class="hud-action-btn btn-hud-pulse" type="button" title="Add kinetic glow pulse">⚡ Pulse</button>
               <button id="hud-frame-btn" class="hud-action-btn btn-hud-frame" type="button" title="Add camera zoom focus">🔍 Frame</button>
               <button id="hud-delete-btn" class="hud-action-btn btn-hud-danger" type="button" title="Delete node from code">🗑️ Delete</button>
@@ -562,6 +563,7 @@ const playgroundStructuredData = [
   const hudNodeId = document.getElementById("hud-node-id") as HTMLElement;
   const hudKindSelect = document.getElementById("hud-kind-select") as HTMLSelectElement;
   const hudLabelInput = document.getElementById("hud-label-input") as HTMLInputElement;
+  const hudConnectBtn = document.getElementById("hud-connect-btn") as HTMLButtonElement;
   const hudPulseBtn = document.getElementById("hud-pulse-btn") as HTMLButtonElement;
   const hudFrameBtn = document.getElementById("hud-frame-btn") as HTMLButtonElement;
   const hudDeleteBtn = document.getElementById("hud-delete-btn") as HTMLButtonElement;
@@ -983,6 +985,8 @@ const playgroundStructuredData = [
   // ─────────────────────────────────────────────────────────────────────────────
   // Direct Manipulation & Canvas Interactions
   // ─────────────────────────────────────────────────────────────────────────────
+  let isPickingTargetNode = false;
+
   function attachCanvasInteraction() {
     if (!stageCanvas) return;
     const nodeEls = stageCanvas.querySelectorAll<HTMLElement>(".markdy-node");
@@ -992,6 +996,33 @@ const playgroundStructuredData = [
 
       nodeEl.addEventListener("click", (e) => {
         e.stopPropagation();
+
+        if (isPickingTargetNode && flowSourceNodeId && flowSourceNodeId !== nodeId) {
+          isPickingTargetNode = false;
+          flowTargetNodeId = nodeId;
+          stageCanvas?.querySelectorAll(".markdy-node").forEach(n => n.classList.remove("markdy-node--target-candidate"));
+
+          if (flowPopoverTitle) flowPopoverTitle.textContent = `${flowSourceNodeId} ➔ ${flowTargetNodeId}`;
+          if (flowLabelInput) flowLabelInput.value = "";
+          const stageRect = stage.getBoundingClientRect();
+          const nodeRect = nodeEl.getBoundingClientRect();
+          const relX = nodeRect.left - stageRect.left + nodeRect.width / 2;
+          const relY = nodeRect.top - stageRect.top;
+
+          if (flowPopover) {
+            flowPopover.style.left = `${Math.max(10, Math.min(stageRect.width - 240, relX - 110))}px`;
+            flowPopover.style.top = `${Math.max(10, Math.min(stageRect.height - 180, relY - 60))}px`;
+            flowPopover.hidden = false;
+            flowLabelInput?.focus();
+          }
+          return;
+        }
+
+        if (isPickingTargetNode) {
+          isPickingTargetNode = false;
+          stageCanvas?.querySelectorAll(".markdy-node").forEach(n => n.classList.remove("markdy-node--target-candidate"));
+        }
+
         selectNodeOnCanvas(nodeId, nodeEl);
       });
 
@@ -1030,9 +1061,13 @@ const playgroundStructuredData = [
   }
 
   function deselectCanvas() {
+    isPickingTargetNode = false;
     selectedNodeId = null;
     if (stageCanvas) {
-      stageCanvas.querySelectorAll(".markdy-node").forEach(n => n.classList.remove("markdy-node--selected"));
+      stageCanvas.querySelectorAll(".markdy-node").forEach(n => {
+        n.classList.remove("markdy-node--selected");
+        n.classList.remove("markdy-node--target-candidate");
+      });
     }
     if (nodeFloatingHud) nodeFloatingHud.hidden = true;
     if (flowPopover) flowPopover.hidden = true;
@@ -1045,6 +1080,20 @@ const playgroundStructuredData = [
   });
 
   hudCloseBtn?.addEventListener("click", deselectCanvas);
+
+  hudConnectBtn?.addEventListener("click", () => {
+    if (!selectedNodeId) return;
+    flowSourceNodeId = selectedNodeId;
+    isPickingTargetNode = true;
+    if (nodeFloatingHud) nodeFloatingHud.hidden = true;
+
+    stageCanvas?.querySelectorAll<HTMLElement>(".markdy-node").forEach(nodeEl => {
+      const nid = nodeEl.dataset.node;
+      if (nid && nid !== flowSourceNodeId) {
+        nodeEl.classList.add("markdy-node--target-candidate");
+      }
+    });
+  });
 
   hudKindSelect?.addEventListener("change", () => {
     if (!selectedNodeId) return;
@@ -2886,6 +2935,18 @@ const playgroundStructuredData = [
     transition: all 0.12s ease;
   }
 
+  .btn-hud-connect {
+    background: rgba(168, 85, 247, 0.1);
+    color: #9333ea;
+    border-color: rgba(168, 85, 247, 0.25);
+  }
+
+  :root[data-theme="dark"] .btn-hud-connect {
+    color: #c084fc;
+    background: rgba(168, 85, 247, 0.15);
+    border-color: rgba(168, 85, 247, 0.3);
+  }
+
   .btn-hud-pulse {
     background: rgba(56, 189, 248, 0.1);
     color: #0284c7;
@@ -2908,6 +2969,28 @@ const playgroundStructuredData = [
     background: var(--danger-light);
     color: var(--danger);
     border-color: rgba(239, 68, 68, 0.25);
+  }
+
+  .btn-hud-connect:hover {
+    background: #9333ea;
+    color: #fff;
+  }
+
+  :root[data-theme="dark"] .btn-hud-connect:hover {
+    background: #c084fc;
+    color: #0f172a;
+  }
+
+  .markdy-node--target-candidate {
+    outline: 2px dashed #9333ea !important;
+    outline-offset: 4px;
+    cursor: crosshair !important;
+    animation: candidatePulse 1.2s infinite ease-in-out;
+  }
+
+  @keyframes candidatePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
   }
 
   .btn-hud-pulse:hover {
