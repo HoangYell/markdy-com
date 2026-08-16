@@ -5,6 +5,15 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] — 2026-08-16
+
+### Fixed
+- **Code-card language detection now respects explicit block metadata** — Studio eligibility checks on article and docs code cards now honor `data-lang`, preventing JavaScript or text examples that embed Markdy strings from being misclassified as runnable Markdy scenes.
+- **Framework example snippets now declare intended languages** — Blog examples that should remain JavaScript or literal fenced text now opt out of Studio auto-detection with explicit `data-lang` values.
+
+### Changed
+- **Homepage framework tabs now lead with Astro** — The framework quickstart tab order and default active panel now prioritize the Astro integration path while retaining MDX/React and CLI snippets.
+
 ## [1.0.1] — 2026-08-16
 
 ### Added

@@ -635,27 +635,12 @@ const homepageStructuredData = [
 
       <div class="framework-tabs-card">
         <div class="framework-tabs" role="tablist">
-          <button class="f-tab active" data-tab="cli">CLI Tooling</button>
-          <button class="f-tab" data-tab="astro">Astro</button>
+          <button class="f-tab active" data-tab="astro">Astro</button>
           <button class="f-tab" data-tab="mdx">MDX / React</button>
+          <button class="f-tab" data-tab="cli">CLI Tooling</button>
         </div>
 
-        <div class="f-panel active" data-panel="cli">
-          <div class="f-panel-header">
-            <span class="f-panel-title">CLI Installation &amp; Rendering</span>
-            <button class="ingestion-copy-btn copy-btn" type="button" title="Copy CLI snippet">Copy</button>
-          </div>
-          <pre><code># Install CLI globally
-npm install -g @markdy/cli
-
-# Render scene to interactive HTML
-markdy render system.markdy --open
-
-# Batch validate all diagrams in CI/CD
-markdy check-all ./docs/diagrams</code></pre>
-        </div>
-
-        <div class="f-panel" data-panel="astro">
+        <div class="f-panel active" data-panel="astro">
           <div class="f-panel-header">
             <span class="f-panel-title">Astro Island Component</span>
             <button class="ingestion-copy-btn copy-btn" type="button" title="Copy Astro snippet">Copy</button>
@@ -682,6 +667,21 @@ const sceneCode = `
 scene "Cache Lookup" theme=paper
 client Browser -> gateway API -> cache Redis
 ```</code></pre>
+        </div>
+
+        <div class="f-panel" data-panel="cli">
+          <div class="f-panel-header">
+            <span class="f-panel-title">CLI Installation &amp; Rendering</span>
+            <button class="ingestion-copy-btn copy-btn" type="button" title="Copy CLI snippet">Copy</button>
+          </div>
+          <pre><code># Install CLI globally
+npm install -g @markdy/cli
+
+# Render scene to interactive HTML
+markdy render system.markdy --open
+
+# Batch validate all diagrams in CI/CD
+markdy check-all ./docs/diagrams</code></pre>
         </div>
       </div>
     </section>
