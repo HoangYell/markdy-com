@@ -27,6 +27,8 @@ It allows you to define architecture scenes, nodes, groups, beats, and routed fl
 
 **No Canvas. No React. Zero external dependencies.**
 
+![Markdy Interactive Studio](https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-studio-hero.webp)
+
 ### How it looks in practice:
 
 Instead of hooking into component lifecycles, I just declare my nodes and how they connect:

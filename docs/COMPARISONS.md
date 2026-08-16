@@ -16,6 +16,10 @@ Use Mermaid when you need static flowcharts, sequence diagrams, class diagrams, 
 
 Use Markdy when you need animated diagrams, phased reveals, browser-native motion, AI-generated technical explainers, or architecture flows that unfold step by step.
 
+<p align="center">
+  <img src="images/markdy-vs-mermaid-comparison.webp" alt="Mermaid vs Markdy Side-by-Side Comparison" width="800" />
+</p>
+
 Short version: **Mermaid is great for static diagrams; Markdy is closer to Mermaid for animation.**
 
 ## Markdy vs PlantUML

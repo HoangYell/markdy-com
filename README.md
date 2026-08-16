@@ -148,10 +148,14 @@ npm i -g @markdy/cli
 ## Output preview
 
 <p align="center">
-  <img src="website/public/images/markdy-output-preview.webp" alt="Markdy output preview" width="1100" />
+  <img src="website/public/images/markdy-studio-hero.webp" alt="Markdy Interactive Studio Preview" width="1100" />
 </p>
 
 The dedicated playground mirrors this workflow: choose a shipped `.markdy` scene, edit syntax-highlighted MarkdyScript, resize the editor/preview split, and watch the embedded architecture preview update in the browser.
+
+<p align="center">
+  <img src="website/public/images/markdy-vs-mermaid-comparison.webp" alt="Mermaid vs Markdy Comparison" width="950" />
+</p>
 
 To preview a full scene result locally, run:
 
@@ -296,6 +300,10 @@ Selectors: `$nodes` targets every node, `$edges` targets structural and animated
 - `midnight` — modern dark developer canvas
 - `blueprint` — technical cyan-grid CAD canvas
 - `graphite` — restrained dark minimal canvas
+
+<p align="center">
+  <img src="website/public/images/markdy-themes-showcase.webp" alt="Markdy Semantic Themes" width="950" />
+</p>
 
 **Layout Types (`type=`):**
 - `architecture` — ranked multi-tier systems and platform topology (default)

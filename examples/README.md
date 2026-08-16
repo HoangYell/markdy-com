@@ -27,6 +27,20 @@ Every file in this tree parses cleanly on the current 0.8 diagram grammar. Chang
 - `showcase/` — 30 curated showcase demo scenes shown on the homepage playground and docs page.
 - `astro-starter/` — a minimal Astro project embedding the `<Markdy />` component.
 
+## Visual Showcase Gallery
+
+| Kubernetes Cloud Blueprint | Lakehouse Medallion Data Pipeline |
+|---|---|
+| <img src="../docs/images/scene-kubernetes-cluster.webp" alt="Kubernetes Cluster Blueprint" width="450" /> | <img src="../docs/images/scene-lakehouse-medallion.webp" alt="Lakehouse Medallion Pipeline" width="450" /> |
+
+| Cross-Functional Swimlanes | Zero-Trust Secure Paved Road |
+|---|---|
+| <img src="../docs/images/scene-ecommerce-swimlanes.webp" alt="E-Commerce Checkout Swimlanes" width="450" /> | <img src="../docs/images/scene-zero-trust-paved-road.webp" alt="Zero-Trust Secure Paved Road" width="450" /> |
+
+| Signal Constellation (Nebula) | Terminal Infrastructure CLI |
+|---|---|
+| <img src="../docs/images/scene-nebula-constellation.webp" alt="Signal Constellation in Nebula Theme" width="450" /> | <img src="../docs/images/scene-terminal-cli.webp" alt="Terminal Infrastructure CLI Topology" width="450" /> |
+
 Compat-gate fixtures (baseline snapshot corpus) live alongside their snapshots in `packages/compat/fixtures/` and are covered by `pnpm run gate`.
 
 ## Verifying

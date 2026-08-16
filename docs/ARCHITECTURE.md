@@ -65,6 +65,10 @@ Technical deep dive into Markdy's design, data flow, and renderer internals.
   └─────────────────┘ └─────────────┘ └───────────────────┘
 ```
 
+<p align="center">
+  <img src="images/markdy-universal-ingestion.webp" alt="Markdy Universal Ingestion & Transpilers" width="800" />
+</p>
+
 ---
 
 ## Package Details

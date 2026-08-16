@@ -58,5 +58,5 @@ re-export and manifest, not a runtime registration step.
 ## Output preview
 
 <p align="center">
-	<img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-output-preview.webp" alt="Markdy output preview" width="900" />
+	<img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-ecommerce-swimlanes.webp" alt="Markdy Semantic Nodes & Swimlanes Preview" width="900" />
 </p>

@@ -23,7 +23,7 @@ To make `markdy` available as a shell command everywhere, install it globally wi
 ## Output preview
 
 <p align="center">
-	<img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-output-preview.webp" alt="Markdy output preview" width="900" />
+	<img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-terminal-cli.webp" alt="Markdy CLI Terminal Infrastructure Preview" width="900" />
 </p>
 
 Use this command to generate a local HTML preview:

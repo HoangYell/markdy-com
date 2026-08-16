@@ -19,7 +19,7 @@ The server translates parse diagnostics and symbols into LSP responses.
 ## Output preview
 
 <p align="center">
-	<img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-output-preview.webp" alt="Markdy output preview" width="900" />
+	<img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-governance-audit.webp" alt="Markdy Language Server & Diagnostics Preview" width="900" />
 </p>
 
 Run on stdio:

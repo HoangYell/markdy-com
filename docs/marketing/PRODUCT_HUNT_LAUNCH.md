@@ -51,13 +51,15 @@ Would love your feedback on the MarkdyScript grammar — which node kinds, cues,
 
 ## PH Gallery Assets Needed
 
-*(Before submitting, prepare these:)*
+*(Ready in `website/public/images/` and `docs/images/`:)*
 
-- [ ] **Thumbnail (240×240px):** Use the 🎬 emoji on a dark gradient background
-- [ ] **Gallery Image 1:** Screenshot of playground with a running animation
-- [ ] **Gallery Image 2:** Side-by-side: GSAP code (60 lines) vs Markdy (8 lines)
-- [ ] **Gallery Image 3:** The generated OG image (og-image.png)
-- [ ] **Demo Video (optional but 3× more clicks):** 30–60s screen recording of the playground
+- [x] **Thumbnail (240×240px):** `website/public/icon.svg` on dark backdrop
+- [x] **Gallery Image 1 (Hero Studio):** `website/public/images/markdy-studio-hero.webp`
+- [x] **Gallery Image 2 (Mermaid vs Markdy):** `website/public/images/markdy-vs-mermaid-comparison.webp`
+- [x] **Gallery Image 3 (Cloud Blueprint):** `website/public/images/scene-kubernetes-cluster.webp`
+- [x] **Gallery Image 4 (Data Lakehouse):** `website/public/images/scene-lakehouse-medallion.webp`
+- [x] **Gallery Image 5 (Semantic Themes):** `website/public/images/markdy-themes-showcase.webp`
+- [x] **Gallery Image 6 (AI Agent Hub):** `website/public/images/markdy-ai-agent-workflow.webp`
 
 ---
 

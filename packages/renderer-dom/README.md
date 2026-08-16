@@ -34,7 +34,7 @@ This package consumes parsed AST and drives DOM + Web Animations API timelines.
 ## Output preview
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-output-preview.webp" alt="Markdy output preview" width="900" />
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-kubernetes-cluster.webp" alt="Markdy DOM Renderer Output (Kubernetes Blueprint)" width="900" />
 </p>
 
 ## Usage

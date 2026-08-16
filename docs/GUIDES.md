@@ -19,6 +19,10 @@ This guide focuses on real problems developers search for: animated architecture
 5. Use separate `beat` blocks to separate phases.
 6. End with one visual takeaway: `glow` or `focus`.
 
+<p align="center">
+  <img src="images/scene-ecommerce-swimlanes.webp" alt="Multi-Tier Architecture Diagram Design" width="800" />
+</p>
+
 ## Make diagrams readable in documentation
 
 - Keep edge labels under 28 characters when possible.
@@ -45,6 +49,10 @@ Markdy works well with AI because it is constrained:
 - line-numbered parse errors
 - deterministic rendering
 - small diffs
+
+<p align="center">
+  <img src="images/markdy-ai-agent-workflow.webp" alt="Markdy AI Agent Workflow" width="800" />
+</p>
 
 Ask AI agents for concrete scenes:
 
