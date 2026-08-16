@@ -2,7 +2,7 @@
 
 > ### DOCUMENTATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.4
+> - **Current Version**: v1.0.5
 > - **Specification Version**: 1.0.x
 > - **Last Updated**: 2026-08-16
 > - **Documentation Hub**: <https://markdy.com/docs/>
@@ -15,6 +15,10 @@ Developers often find Markdy while searching for a Mermaid alternative, animated
 Use Mermaid when you need static flowcharts, sequence diagrams, class diagrams, or simple diagrams embedded in Markdown.
 
 Use Markdy when you need animated diagrams, phased reveals, browser-native motion, AI-generated technical explainers, or architecture flows that unfold step by step.
+
+<p align="center">
+  <img src="images/markdy-vs-mermaid-comparison.webp" alt="Mermaid vs Markdy Side-by-Side Comparison" width="800" />
+</p>
 
 Short version: **Mermaid is great for static diagrams; Markdy is closer to Mermaid for animation.**
 

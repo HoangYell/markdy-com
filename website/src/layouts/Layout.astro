@@ -16,8 +16,8 @@ const {
   title,
   description = "Markdy is a diagram-as-code DSL for animated architecture and system diagrams — an open-source, AI-friendly way to turn MarkdyScript into browser-native motion diagrams.",
   canonicalURL = "https://markdy.com/",
-  ogImage = "https://markdy.com/og-image.png",
-  ogImageAlt = "Markdy playground with MarkdyScript code and an animated architecture diagram",
+  ogImage = "https://markdy.com/og-image.webp",
+  ogImageAlt = "Markdy - Animated Architecture Diagram-as-Code DSL with Cute Mascot",
   keywords = "diagram-native DSL, MarkdyScript, animated architecture diagram, diagram as code, animated diagrams, mermaid alternative, animated mermaid, system design diagram, sequence diagram, flowchart, infrastructure diagram, architecture as code, text to diagram, AI diagram generator, AI agent diagrams, docs as code, software architecture visualization, animated system diagram, developer diagrams",
   structuredData = [],
 } = Astro.props;
@@ -136,6 +136,7 @@ const jsonLd = {
     <meta name="twitter:image:alt" content={ogImageAlt} />
 
     <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/icon.svg" />
     <link rel="manifest" href="/site.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

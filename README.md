@@ -1,4 +1,5 @@
 <p align="center">
+  <img src="docs/images/mascot/icon.svg" width="64" height="64" alt="Markdy Logo" /><br>
   <strong>Markdy</strong><br>
   Open-source DSL for animated architecture & system diagrams.<br>
   Write diagram-native MarkdyScript → get browser-native animated architecture diagrams.
@@ -14,6 +15,12 @@
   <a href="https://bundlephobia.com/package/@markdy/core"><img src="https://img.shields.io/bundlephobia/minzip/@markdy/core?label=size" alt="Bundle Size" /></a>
   <a href="https://stackblitz.com/github/HoangYell/markdy-com/tree/main/examples/astro-starter"><img src="https://developer.stackblitz.com/img/open_in_stackblitz.svg" alt="Open in StackBlitz" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/github/license/HoangYell/markdy-com" alt="MIT License" /></a>
+</p>
+
+<p align="center">
+  <a href="https://markdy.com/playground/">
+    <img src="docs/images/mascot/og-markdy.webp" width="100%" alt="Markdy — Animated Architecture Diagrams as Code" />
+  </a>
 </p>
 
 ---
@@ -148,10 +155,14 @@ npm i -g @markdy/cli
 ## Output preview
 
 <p align="center">
-  <img src="website/public/images/markdy-output-preview.webp" alt="Markdy output preview" width="1100" />
+  <img src="website/public/images/markdy-studio-hero.webp" alt="Markdy Interactive Studio Preview" width="1100" />
 </p>
 
 The dedicated playground mirrors this workflow: choose a shipped `.markdy` scene, edit syntax-highlighted MarkdyScript, resize the editor/preview split, and watch the embedded architecture preview update in the browser.
+
+<p align="center">
+  <img src="website/public/images/markdy-vs-mermaid-comparison.webp" alt="Mermaid vs Markdy Comparison" width="950" />
+</p>
 
 To preview a full scene result locally, run:
 
@@ -296,6 +307,10 @@ Selectors: `$nodes` targets every node, `$edges` targets structural and animated
 - `midnight` — modern dark developer canvas
 - `blueprint` — technical cyan-grid CAD canvas
 - `graphite` — restrained dark minimal canvas
+
+<p align="center">
+  <img src="website/public/images/markdy-themes-showcase.webp" alt="Markdy Semantic Themes" width="950" />
+</p>
 
 **Layout Types (`type=`):**
 - `architecture` — ranked multi-tier systems and platform topology (default)

@@ -236,7 +236,7 @@ const homepageStructuredData = [
   <nav class="home-nav" aria-label="Main Navigation">
     <div class="nav-pill">
       <a href="/" class="nav-brand">
-        <span class="nav-logo">🎬</span>
+        <img src="/icon.svg" class="nav-logo-svg" alt="Markdy Logo" width="22" height="22" />
         <span class="nav-title">markdy</span>
       </a>
 
@@ -284,28 +284,34 @@ const homepageStructuredData = [
 
   <!-- ─── Hero Section ─────────────────────────────────────────────────── -->
   <header class="home-hero">
-    <div class="hero-content">
-      <div class="hero-kicker">Open-source diagram-as-code DSL · Native Browser Motion</div>
-      <h1>Animated architecture diagrams from <span class="gradient-text">plain text</span>.</h1>
-      <p class="hero-description">
-        Declare semantic nodes, flows, and timed beats in reviewable text.
-        Markdy compiles browser-native motion graphics that stay version-controlled, PR-friendly, and AI-native.
-      </p>
+    <!-- Hero Showcase Stage with og-image.webp Visual Foundation -->
+    <div class="hero-stage">
+      <img src="/og-image.webp" class="hero-stage-bg" alt="Markdy Animated Diagrams Foundation" loading="eager" decoding="async" />
+      <div class="hero-stage-wash" aria-hidden="true"></div>
 
-      <div class="hero-btn-row">
-        <a href="/playground/" class="btn-hero-primary">⚡ Open Interactive Studio</a>
-        <a href="/docs/" class="btn-hero-secondary">Explore Documentation ↗</a>
-      </div>
+      <div class="hero-stage-content">
+        <div class="hero-kicker">⚡ Open-Source Diagram-as-Code DSL · Native Browser Motion</div>
+        <h1>Animated architecture diagrams from <span class="gradient-text">plain text</span>.</h1>
+        <p class="hero-description">
+          Declare semantic nodes, flows, and timed beats in reviewable text.
+          Markdy compiles browser-native motion graphics that stay version-controlled, PR-friendly, and AI-native.
+        </p>
 
-      <!-- Quick Preset Selector -->
-      <div class="hero-presets-strip">
-        <span class="preset-label">SIGNATURE PRESETS:</span>
-        <div class="preset-chips">
-          {SIGNATURE_PRESETS.map((p) => (
-            <button class="preset-chip example-btn" data-index={p.index}>
-              <span>{p.name}</span>
-            </button>
-          ))}
+        <div class="hero-btn-row">
+          <a href="#playground" class="btn-hero-primary">⚡ Open Interactive Studio</a>
+          <a href="/docs/" class="btn-hero-secondary">Explore Documentation ↗</a>
+        </div>
+
+        <!-- Quick Preset Selector -->
+        <div class="hero-presets-strip">
+          <span class="preset-label">SIGNATURE ARCHITECTURE PRESETS:</span>
+          <div class="preset-chips">
+            {SIGNATURE_PRESETS.map((p) => (
+              <button class="preset-chip example-btn" data-index={p.index} type="button">
+                <span>{p.name}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
     </div>
@@ -323,6 +329,12 @@ const homepageStructuredData = [
             </p>
           </div>
           <div class="prompt-header-right">
+            <div class="prompt-mascot-guide" title="Markdy Assistant">
+              <img src="/images/mascot.webp" class="prompt-mascot-img" alt="Markdy Axolotl Mascot" width="46" height="46" />
+              <div class="prompt-mascot-speech">
+                <span>AI Prompt Guide</span>
+              </div>
+            </div>
             <a href="/AGENT.md" class="spec-link-pill" target="_blank" rel="noopener noreferrer" title="View canonical AI agent specification">
               <span class="spec-icon">📄</span>
               <span class="spec-url">markdy.com/AGENT.md</span>
@@ -727,10 +739,13 @@ markdy check-all ./docs/diagrams</code></pre>
   <footer class="home-footer">
     <div class="footer-inner">
       <div class="footer-brand-pane">
-        <a class="f-logo" href="/" aria-label="Markdy home">
-          <span class="f-logo-mark" aria-hidden="true">M</span>
-          <span>markdy</span>
-        </a>
+        <div class="f-brand-top">
+          <a class="f-logo" href="/" aria-label="Markdy home">
+            <img src="/icon.svg" class="f-logo-icon" alt="Markdy" width="26" height="26" />
+            <span>markdy</span>
+          </a>
+          <img src="/images/mascot.webp" class="footer-mascot" alt="Markdy Axolotl Mascot" width="54" height="54" />
+        </div>
         <p>Diagrams-as-code with native browser motion, built for the way modern engineering teams explain systems.</p>
         <a class="footer-cta" href="/playground/">Open the studio <span aria-hidden="true">→</span></a>
       </div>
@@ -1435,14 +1450,18 @@ markdy check-all ./docs/diagrams</code></pre>
   .nav-brand {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
-    font-weight: 700;
-    font-size: 0.95rem;
+    gap: 0.5rem;
+    font-weight: 800;
+    font-size: 1rem;
     color: var(--text-primary);
+    letter-spacing: -0.02em;
   }
 
-  .nav-logo {
-    font-size: 1.1rem;
+  .nav-logo-svg {
+    display: block;
+    width: 22px;
+    height: 22px;
+    filter: drop-shadow(0 2px 4px rgba(24,184,135,0.25));
   }
 
   .nav-links {
@@ -1566,27 +1585,95 @@ markdy check-all ./docs/diagrams</code></pre>
 
   /* ─── Hero Section ─────────────────────────────────────────────────── */
   .home-hero {
-    max-width: 1280px;
+    position: relative;
+    max-width: 1360px;
     margin: 0 auto;
-    padding: 3.5rem 1.5rem 2rem;
+    padding: 2rem 1.5rem 2.5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
   }
 
-  .hero-content {
-    max-width: 860px;
-    margin: 0 auto 2.5rem;
+  /* ─── Hero Showcase Stage (Visual Foundation) ─── */
+  .hero-stage {
+    width: 100%;
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.09), 0 0 0 1px rgba(0, 0, 0, 0.06);
+    background: #ffffff;
+    margin-bottom: 2.5rem;
+    display: flex;
+    min-height: 560px;
+    text-align: left;
+  }
+
+  [data-theme="dark"] .hero-stage {
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+    background: #0f172a;
+  }
+
+  .hero-stage-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: right 38%;
+    transform: scale(1.06);
+    z-index: 1;
+  }
+
+  [data-theme="dark"] .hero-stage-bg {
+    filter: brightness(0.82) contrast(1.15);
+    opacity: 0.85;
+  }
+
+  /* Seamless Readability Wash on Left */
+  .hero-stage-wash {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.96) 0%,
+      rgba(255, 255, 255, 0.92) 42%,
+      rgba(255, 255, 255, 0.72) 58%,
+      rgba(255, 255, 255, 0.1) 85%,
+      transparent 100%
+    );
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  [data-theme="dark"] .hero-stage-wash {
+    background: linear-gradient(
+      90deg,
+      rgba(9, 13, 22, 0.96) 0%,
+      rgba(9, 13, 22, 0.9) 42%,
+      rgba(9, 13, 22, 0.65) 60%,
+      rgba(9, 13, 22, 0.15) 85%,
+      transparent 100%
+    );
+  }
+
+  /* Left Floating Content Panel */
+  .hero-stage-content {
+    position: relative;
+    z-index: 3;
+    max-width: 660px;
+    padding: 3.5rem 3rem 3.25rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    justify-content: center;
   }
 
   .hero-kicker {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
     font-size: 0.72rem;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.06em;
     padding: 0.25rem 0.75rem;
@@ -1594,16 +1681,17 @@ markdy check-all ./docs/diagrams</code></pre>
     background: var(--accent-light);
     color: var(--accent);
     border: 1px solid var(--accent);
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.15rem;
+    width: fit-content;
   }
 
-  .home-hero h1 {
-    font-size: clamp(2.2rem, 5vw, 3.6rem);
+  .hero-stage-content h1 {
+    font-size: clamp(2rem, 3.8vw, 3.2rem);
     font-weight: 800;
     letter-spacing: -0.04em;
-    line-height: 1.1;
+    line-height: 1.12;
     color: var(--text-primary);
-    margin-bottom: 1.2rem;
+    margin-bottom: 1rem;
   }
 
   .gradient-text {
@@ -1611,18 +1699,17 @@ markdy check-all ./docs/diagrams</code></pre>
   }
 
   .hero-description {
-    font-size: 1.08rem;
+    font-size: 1.05rem;
     line-height: 1.6;
     color: var(--text-secondary);
-    max-width: 680px;
-    margin-bottom: 1.75rem;
+    margin-bottom: 1.6rem;
   }
 
   .hero-btn-row {
     display: flex;
     align-items: center;
     gap: 0.85rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.75rem;
   }
 
   .btn-hero-primary {
@@ -1630,8 +1717,8 @@ markdy check-all ./docs/diagrams</code></pre>
     color: #ffffff !important;
     font-size: 0.9rem;
     font-weight: 600;
-    padding: 0.65rem 1.35rem;
-    border-radius: 8px;
+    padding: 0.7rem 1.4rem;
+    border-radius: 9px;
     box-shadow: 0 2px 16px var(--accent-glow);
     transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
@@ -1647,8 +1734,8 @@ markdy check-all ./docs/diagrams</code></pre>
     color: var(--text-primary);
     font-size: 0.9rem;
     font-weight: 600;
-    padding: 0.65rem 1.35rem;
-    border-radius: 8px;
+    padding: 0.7rem 1.35rem;
+    border-radius: 9px;
     transition: all 0.15s ease;
   }
 
@@ -1660,13 +1747,68 @@ markdy check-all ./docs/diagrams</code></pre>
   /* Preset Chips Strip */
   .hero-presets-strip {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    justify-content: center;
+    flex-direction: column;
+    gap: 0.55rem;
   }
 
   .preset-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .preset-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+
+  .preset-chip {
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 0.3rem 0.65rem;
+    border-radius: 6px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .preset-chip:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+    background: var(--bg-tertiary);
+  }
+
+  @media (max-width: 900px) {
+    .hero-stage {
+      flex-direction: column;
+      min-height: auto;
+    }
+    .hero-stage-wash {
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(255, 255, 255, 0.9) 70%,
+        rgba(255, 255, 255, 0.7) 100%
+      );
+    }
+    [data-theme="dark"] .hero-stage-wash {
+      background: linear-gradient(
+        180deg,
+        rgba(9, 13, 22, 0.95) 0%,
+        rgba(9, 13, 22, 0.9) 70%,
+        rgba(9, 13, 22, 0.7) 100%
+      );
+    }
+    .hero-stage-content {
+      padding: 2.5rem 1.75rem 2.25rem;
+      max-width: 100%;
+    }
+  }
     font-size: 0.65rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -1763,6 +1905,38 @@ markdy check-all ./docs/diagrams</code></pre>
     color: var(--text-secondary);
     line-height: 1.55;
     margin: 0;
+  }
+
+  .prompt-header-right {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .prompt-mascot-guide {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.65rem 0.3rem 0.35rem;
+    border-radius: 999px;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .prompt-mascot-img {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.12));
+  }
+
+  .prompt-mascot-speech {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
 
   .spec-link-pill {
@@ -2896,6 +3070,13 @@ markdy check-all ./docs/diagrams</code></pre>
     max-width: 350px;
   }
 
+  .f-brand-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.85rem;
+  }
+
   .f-logo {
     width: fit-content;
     display: inline-flex;
@@ -2905,21 +3086,25 @@ markdy check-all ./docs/diagrams</code></pre>
     font-weight: 800;
     letter-spacing: -0.055em;
     color: var(--text-primary);
-    margin-bottom: 1rem;
   }
 
-  .f-logo-mark {
-    display: grid;
-    place-items: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: 0.55rem;
-    color: #fff;
-    background: var(--accent);
-    box-shadow: 0 8px 18px var(--accent-glow);
-    font-family: "JetBrains Mono", monospace;
-    font-size: 0.78rem;
-    letter-spacing: -0.08em;
+  .f-logo-icon {
+    display: block;
+    width: 26px;
+    height: 26px;
+    filter: drop-shadow(0 2px 5px rgba(24,184,135,0.3));
+  }
+
+  .footer-mascot {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+    transition: transform 0.2s ease;
+  }
+
+  .footer-mascot:hover {
+    transform: scale(1.08) rotate(-4deg);
   }
 
   .footer-brand-pane p {

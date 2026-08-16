@@ -2,7 +2,7 @@
 
 > ### INTERNAL ARCHITECTURE METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.4
+> - **Current Version**: v1.0.5
 > - **Specification Version**: 1.0.x
 > - **Last Updated**: 2026-08-16
 > - **Engine Boundary**: `@markdy/core` (AST & Layout) -> `@markdy/renderer-dom` (WAAPI)
@@ -64,6 +64,10 @@ Technical deep dive into Markdy's design, data flow, and renderer internals.
   │  Island Hydrate │ │ Dev Tooling │ │ Claude / AI Tools │
   └─────────────────┘ └─────────────┘ └───────────────────┘
 ```
+
+<p align="center">
+  <img src="images/markdy-universal-ingestion.webp" alt="Markdy Universal Ingestion & Transpilers" width="800" />
+</p>
 
 ---
 

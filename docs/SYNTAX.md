@@ -2,7 +2,7 @@
 
 > ### SPECIFICATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.4
+> - **Current Version**: v1.0.5
 > - **Specification Version**: 1.0.x
 > - **Last Updated**: 2026-08-16
 > - **Documentation Hub**: <https://markdy.com/docs/>
@@ -101,9 +101,17 @@ beat main:
 - `blueprint` — technical blueprint CAD canvas
 - `graphite` — restrained dark minimal canvas
 
+<p align="center">
+  <img src="images/markdy-themes-showcase.webp" alt="Markdy Semantic Themes Overview" width="800" />
+</p>
+
 ### Diagram types (opt-in)
 
 Add `type=` on the scene line to tune layout and node shapes without changing the core grammar:
+
+<p align="center">
+  <img src="images/markdy-layouts-themes.webp" alt="Markdy Layout Topologies and Themes" width="800" />
+</p>
 
 | Type | Layout behavior |
 |---|---|

@@ -2,7 +2,7 @@
 
 > ### DOCUMENTATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.4
+> - **Current Version**: v1.0.5
 > - **Specification Version**: 1.0.x
 > - **Last Updated**: 2026-08-16
 > - **Documentation Hub**: <https://markdy.com/docs/>
@@ -18,6 +18,10 @@ This guide focuses on real problems developers search for: animated architecture
 4. Use `->` and `<-` for synchronous calls; use `~>` for events and `--` for dependencies.
 5. Use separate `beat` blocks to separate phases.
 6. End with one visual takeaway: `glow` or `focus`.
+
+<p align="center">
+  <img src="images/scene-ecommerce-swimlanes.webp" alt="Multi-Tier Architecture Diagram Design" width="800" />
+</p>
 
 ## Make diagrams readable in documentation
 
@@ -45,6 +49,10 @@ Markdy works well with AI because it is constrained:
 - line-numbered parse errors
 - deterministic rendering
 - small diffs
+
+<p align="center">
+  <img src="images/markdy-ai-agent-workflow.webp" alt="Markdy AI Agent Workflow" width="800" />
+</p>
 
 Ask AI agents for concrete scenes:
 

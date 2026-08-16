@@ -2,7 +2,7 @@
 
 > ### DOCUMENTATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.4
+> - **Current Version**: v1.0.5
 > - **Specification Version**: 1.0.x
 > - **Last Updated**: 2026-08-16
 > - **Documentation Hub**: <https://markdy.com/docs/>
@@ -30,11 +30,19 @@ beat main:
   WebApp <- ApiServer "200 OK"
 ```
 
+<p align="center">
+  <img src="images/scene-url-shortener.webp" alt="Markdy Rendered Architecture Scene" width="800" />
+</p>
+
 Node labels are optional. IDs like `ApiServer` and `OrdersDb` render as readable labels such as `API Server` and `Orders DB`.
 
 ## 2. Preview and validate it
 
 For a quick visual pass, open the dedicated playground at <https://markdy.com/playground/> and start from one of the shipped architecture examples. It uses the same `.markdy` files from `examples/showcase/`, shows syntax-highlighted MarkdyScript, offers an adjustable editor/preview split, and links back to each source file.
+
+<p align="center">
+  <img src="images/markdy-split-editor.webp" alt="Markdy Playground Split Editor Preview" width="800" />
+</p>
 
 ```sh
 npm i -D @markdy/cli
@@ -85,6 +93,10 @@ markdy render path/to/scene.markdy --out preview.html
 ## 6. Prompt an AI coding agent
 
 Use <https://markdy.com/AGENT.md> as the full grammar reference, but prompt with your idea in normal product or architecture language. The AI should translate that idea into valid MarkdyScript.
+
+<p align="center">
+  <img src="images/markdy-ai-agent-workflow.webp" alt="Prompting AI Coding Agents for Markdy" width="800" />
+</p>
 
 Example prompt:
 

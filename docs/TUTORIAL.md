@@ -2,7 +2,7 @@
 
 > ### DOCUMENTATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.4
+> - **Current Version**: v1.0.5
 > - **Specification Version**: 1.0.x
 > - **Last Updated**: 2026-08-16
 > - **Documentation Hub**: <https://markdy.com/docs/>
@@ -177,6 +177,10 @@ database Replica "Read Replica"
 - Focused layout modes: `architecture` (default), `flowchart`, `tree`, `state`, `sequence`, `timeline`, `gantt`, `venn`, `layers`, `nested`, `radar`, `medallion`, `flywheel`/`loop`, `quadrant`, `swimlane`, `pyramid`, and `constellation`.
 - Named styles currently support visual props such as `fill`, `stroke`, `text`, and `accent`.
 
+<p align="center">
+  <img src="images/markdy-themes-showcase.webp" alt="Markdy Semantic Themes Overview" width="800" />
+</p>
+
 ---
 
 ## 7. Putting It All Together
@@ -213,6 +217,10 @@ beat finish "Storage keeps it fast":
   frame storage zoom=1.18
   glow storage color=#22c55e
 ```
+
+<p align="center">
+  <img src="images/scene-url-shortener.webp" alt="Completed URL Shortener Architecture Scene" width="800" />
+</p>
 
 ---
 

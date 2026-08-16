@@ -5,6 +5,17 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5] — 2026-08-16
+
+### Added
+- **Markdy Visual Capture Workspace Skill** — Added reusable agent automation (`.agents/skills/markdy-visual-capture/`) for capturing crisp 2× Retina playground diagrams and generating decorated 16:9 landscape documentation assets.
+- **Mascot & Brand Visual Identity** — Added transparent mascot artwork (`mascot.webp`), 3D hexagon M pin icon, and master WebP Open Graph image (`og-image.webp`).
+
+### Changed
+- **Redesigned Homepage Hero Section** — Elevated the landing page hero into a modern showcase stage using `og-image.webp` as the visual foundation, with a seamless frosted glass wash for crisp typography readability and responsive light/dark theme support.
+- **High-DPI Landscape Documentation Assets** — Upgraded all 32 diagrams across `docs/images/` and `website/public/images/` to 16:9 landscape format, decorated with the Markdy axolotl mascot, 3D icon pins, and step-by-step architecture notes.
+- **GitHub README Showcase** — Embedded the official mascot banner and vector logo directly into the root `README.md`.
+
 ## [1.0.4] — 2026-08-16
 
 ### Added

@@ -27,7 +27,7 @@ pnpm add @markdy/core
 ## Output preview
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-output-preview.webp" alt="Markdy output preview" width="900" />
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-split-editor.webp" alt="Markdy AST & DSL Editor Preview" width="900" />
 </p>
 
 ## Usage
