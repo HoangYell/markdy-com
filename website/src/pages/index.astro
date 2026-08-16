@@ -44,8 +44,53 @@ const PILLARS = [
 const SIGNATURE_PRESETS = [
   { name: "⚡ Cache-Aside (Redis)", index: 0 },
   { name: "📬 Kafka Stream & Fan-Out", index: 1 },
-  { name: "☸️ Kubernetes Ingress Cluster", index: 2 },
-  { name: "🔐 OAuth2 JWT Handshake", index: 4 },
+  { name: "☸️ Kubernetes Ingress Cluster", index: 4 },
+  { name: "🔐 OAuth2 JWT Handshake", index: 3 },
+];
+
+const AI_TOOLS = [
+  { id: "cursor", name: "Cursor", badge: "Composer / Agent", tip: "In Cursor Composer (Cmd+I / Cmd+L), paste the prompt referencing @https://markdy.com/AGENT.md or configure @markdy/mcp-server for instant diagram generation." },
+  { id: "claude", name: "Claude", badge: "Desktop / Web", tip: "Give Claude URL context with https://markdy.com/AGENT.md or connect @markdy/mcp-server for automated AST validation and self-healing diagrams." },
+  { id: "copilot", name: "GitHub Copilot", badge: "VS Code / CLI", tip: "Paste the prompt into GitHub Copilot Chat referencing https://markdy.com/AGENT.md for clean node kinds and choreographed flow operators." },
+  { id: "opencode", name: "Open Code", badge: "Terminal / IDE", tip: "Pass the canonical AGENT.md reference URL to Open Code to generate structured, deterministic Markdy architecture scenes." },
+  { id: "antigravity", name: "Antigravity", badge: "Autonomous Agent", tip: "Antigravity uses native MCP tools and docs/AGENT.md to autonomously draft, compile, and lint architecture diagrams in your workspace." },
+  { id: "chatgpt", name: "ChatGPT", badge: "GPT-4o / Canvas", tip: "Paste the hosted guide link https://markdy.com/AGENT.md and prompt directly into ChatGPT or GPT-4o Canvas for valid MarkdyScript." },
+  { id: "windsurf", name: "Windsurf", badge: "Cascade AI", tip: "Cascade AI reads AGENT.md rules directly to output self-contained MarkdyScript without inventing fictitious syntax." },
+];
+
+const AI_PROMPT_PRESETS = [
+  {
+    id: "url-shortener",
+    name: "🔗 URL Shortener Architecture",
+    exampleIndex: 0,
+    target: "Design a URL Shortener architecture",
+    prompt: `Follow https://markdy.com/AGENT.md and generate one complete MarkdyScript scene:
+"Design a URL Shortener architecture: a user creates a short link via API Gateway and URL Shortener service, writes to PostgreSQL and warms Redis cache. Then a visitor opens the short link and gets redirected 301 from cache or DB fallback. Use beats for each step and highlight the cache hit path."`,
+  },
+  {
+    id: "twitter-timeline",
+    name: "📬 Kafka Stream & Fan-Out",
+    exampleIndex: 1,
+    target: "Twitter Timeline Fan-Out Service",
+    prompt: `Follow https://markdy.com/AGENT.md and generate one complete MarkdyScript scene:
+"Design a real-time event streaming and timeline fan-out service: User posts a tweet, Ingress forwards to TweetService, event publishes to Kafka queue, TimelineWorker consumes and fans out to Redis timelines of active followers."`,
+  },
+  {
+    id: "k8s-cluster",
+    name: "☸️ Kubernetes Ingress Cluster",
+    exampleIndex: 4,
+    target: "Kubernetes Cluster Ingress & Pods",
+    prompt: `Follow https://markdy.com/AGENT.md and generate one complete MarkdyScript scene:
+"Design a Kubernetes Cluster Architecture: Internet traffic arrives at IngressController, routes to order-service Pods in the cluster group, connects to PostgreSQL database, with a finish glow beat on the cluster."`,
+  },
+  {
+    id: "oauth-flow",
+    name: "🔐 OAuth2 JWT Handshake",
+    exampleIndex: 3,
+    target: "OAuth2 / OIDC Login Handshake",
+    prompt: `Follow https://markdy.com/AGENT.md and generate one complete MarkdyScript scene:
+"Design an OAuth2 / OIDC login flow: User clicks login on Browser, redirects to AuthServer, exchanges authorization code for JWT token, and passes Bearer token to Backend API."`,
+  },
 ];
 
 const LAYOUT_CATEGORIES = [
@@ -197,6 +242,7 @@ const homepageStructuredData = [
       </a>
 
       <div class="nav-links">
+        <a href="#prompt-tutorial">AI Prompt</a>
         <a href="#features">Features</a>
         <a href="#layouts">Layouts &amp; Themes</a>
         <a href="#ingestion">Ingestion</a>
@@ -214,6 +260,25 @@ const homepageStructuredData = [
           <svg class="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
           <svg class="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
         </button>
+        <button id="mobile-menu-btn" class="btn-nav-icon mobile-menu-btn" title="Open Navigation Menu" aria-label="Open Navigation Menu" aria-expanded="false" aria-controls="mobile-nav-drawer">
+          <svg class="icon-burger" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          <svg class="icon-close" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Drawer Menu -->
+    <div id="mobile-nav-drawer" class="mobile-nav-drawer" hidden>
+      <div class="mobile-drawer-inner">
+        <a href="#prompt-tutorial" class="mobile-nav-link">🤖 AI Prompt Tutorial</a>
+        <a href="#features" class="mobile-nav-link">✨ Features</a>
+        <a href="#layouts" class="mobile-nav-link">🎨 17 Layouts &amp; Themes</a>
+        <a href="#ingestion" class="mobile-nav-link">🔄 Universal Ingestion</a>
+        <a href="#ai-gen" class="mobile-nav-link">🤖 AI Coding &amp; MCP</a>
+        <a href="/docs/" class="mobile-nav-link">📖 Documentation</a>
+        <a href="/blog/" class="mobile-nav-link">✍️ Articles &amp; Guides</a>
+        <a href="/playground/" class="mobile-nav-link mobile-nav-highlight">⚡ Open Interactive Studio</a>
+        <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="mobile-nav-link">🐙 GitHub Repository ↗</a>
       </div>
     </div>
   </nav>
@@ -246,6 +311,122 @@ const homepageStructuredData = [
       </div>
     </div>
 
+    <!-- ─── AI Agent Prompt Tutorial Card ─────────────────────────────── -->
+    <section id="prompt-tutorial" class="hero-prompt-tutorial" aria-label="AI Prompt Tutorial">
+      <div class="prompt-tutorial-inner">
+        <!-- Top Title & Specs Link -->
+        <div class="prompt-tutorial-header">
+          <div class="prompt-header-left">
+            <span class="prompt-badge">⚡ AI AGENT PROMPT TUTORIAL</span>
+            <h2>Generate Animated Architecture with AI Agents</h2>
+            <p class="prompt-subtitle">
+              Markdy is designed from the ground up for LLMs. Instruct <strong>Cursor</strong>, <strong>Claude</strong>, <strong>GitHub Copilot</strong>, <strong>Open Code</strong>, <strong>Antigravity</strong>, or <strong>ChatGPT</strong> to generate and animate production architecture scenes using the canonical specification.
+            </p>
+          </div>
+          <div class="prompt-header-right">
+            <a href="/AGENT.md" class="spec-link-pill" target="_blank" rel="noopener noreferrer" title="View canonical AI agent specification">
+              <span class="spec-icon">📄</span>
+              <span class="spec-url">markdy.com/AGENT.md</span>
+              <span class="spec-arrow">↗</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- AI Agent Tools Row -->
+        <div class="ai-tools-shelf">
+          <span class="tools-shelf-label">SUPPORTED AGENTS &amp; TOOLS:</span>
+          <div class="ai-tools-list" role="tablist" aria-label="Supported AI Tools">
+            {AI_TOOLS.map((tool, i) => (
+              <button
+                class={`ai-tool-chip ${i === 0 ? "active" : ""}`}
+                type="button"
+                data-tool={tool.id}
+                data-tip={tool.tip}
+                role="tab"
+                aria-selected={i === 0 ? "true" : "false"}
+              >
+                <span class="tool-chip-name">{tool.name}</span>
+                <span class="tool-chip-badge">{tool.badge}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <!-- Dynamic Tool Tip Helper Banner -->
+        <div id="ai-tool-tip-bar" class="ai-tool-tip-bar">
+          <span class="tip-icon">💡</span>
+          <span id="ai-tool-tip-text" class="tip-text">{AI_TOOLS[0].tip}</span>
+        </div>
+
+        <!-- Prompt Presets Bar -->
+        <div class="prompt-presets-bar">
+          <span class="presets-bar-label">SELECT ARCHITECTURE PROMPT:</span>
+          <div class="prompt-preset-tabs">
+            {AI_PROMPT_PRESETS.map((preset, i) => (
+              <button
+                class={`prompt-preset-tab ${i === 0 ? "active" : ""}`}
+                type="button"
+                data-preset-id={preset.id}
+                data-example-index={preset.exampleIndex}
+                data-target={preset.target}
+                data-prompt={preset.prompt}
+              >
+                {preset.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <!-- Main Prompt Code Box -->
+        <div class="prompt-display-box">
+          <div class="prompt-display-top">
+            <div class="prompt-target-tag">
+              <span class="target-dot"></span>
+              <span>Architecture Goal: <strong id="prompt-target-title">{AI_PROMPT_PRESETS[0].target}</strong></span>
+            </div>
+            <div class="prompt-box-actions">
+              <button id="tutorial-copy-btn" class="btn-prompt-action btn-prompt-copy" title="Copy prompt for your AI assistant">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span id="tutorial-copy-label">Copy Prompt for AI</span>
+              </button>
+              <button id="tutorial-run-btn" class="btn-prompt-action btn-prompt-run" title="Load & run this example in the Live Studio below">
+                <span>⚡ Run Result in Studio</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="prompt-code-wrap">
+            <pre><code id="tutorial-prompt-code">{AI_PROMPT_PRESETS[0].prompt}</code></pre>
+          </div>
+        </div>
+
+        <!-- 3-Step Workflow Grid -->
+        <div class="tutorial-steps-grid">
+          <div class="tutorial-step-card">
+            <div class="step-badge">1</div>
+            <div class="step-content">
+              <strong>Point Agent to Canonical Spec</strong>
+              <p>Reference <a href="/AGENT.md"><code>markdy.com/AGENT.md</code></a> or configure <code>@markdy/mcp-server</code> so the AI outputs valid 0.8 grammar, node kinds, and timed beats.</p>
+            </div>
+          </div>
+          <div class="tutorial-step-card">
+            <div class="step-badge">2</div>
+            <div class="step-content">
+              <strong>Describe System &amp; Flows</strong>
+              <p>Describe your architecture in plain English (gateways, microservices, caches, databases, async queues). Layout and edge routing are automatic.</p>
+            </div>
+          </div>
+          <div class="tutorial-step-card">
+            <div class="step-badge">3</div>
+            <div class="step-content">
+              <strong>Paste &amp; Render Motion Graphics</strong>
+              <p>Paste the resulting <code>.markdy</code> code straight into the Live Studio below, your Astro/MDX documentation, or CI/CD pipelines.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ─── Embedded Live Interactive Hero Studio ─────────────────────── -->
     <div id="playground" class="hero-studio-card">
       <div class="studio-topbar">
@@ -261,6 +442,8 @@ const homepageStructuredData = [
 
         <div class="studio-actions">
           <button id="run-btn" class="btn-studio-run" title="Compile & Run">Run ▶</button>
+          <button id="home-paste-btn" class="btn-studio-tool" title="Paste MarkdyScript code from clipboard">Paste</button>
+          <button id="home-copy-btn" class="btn-studio-tool" title="Copy code to clipboard">Copy</button>
           <button id="home-export-svg-btn" class="btn-studio-tool" title="Export Vector SVG">SVG</button>
           <button id="home-export-png-btn" class="btn-studio-tool" title="Export 2x PNG">PNG</button>
           <button id="share-btn" class="btn-studio-tool" title="Copy shareable URL">Share</button>
@@ -456,6 +639,10 @@ const homepageStructuredData = [
         </div>
 
         <div class="f-panel active" data-panel="cli">
+          <div class="f-panel-header">
+            <span class="f-panel-title">CLI Installation &amp; Rendering</span>
+            <button class="ingestion-copy-btn copy-btn" type="button" title="Copy CLI snippet">Copy</button>
+          </div>
           <pre><code># Install CLI globally
 npm install -g @markdy/cli
 
@@ -467,6 +654,10 @@ markdy check-all ./docs/diagrams</code></pre>
         </div>
 
         <div class="f-panel" data-panel="astro">
+          <div class="f-panel-header">
+            <span class="f-panel-title">Astro Island Component</span>
+            <button class="ingestion-copy-btn copy-btn" type="button" title="Copy Astro snippet">Copy</button>
+          </div>
           <pre><code>---
 import &#123; Markdy &#125; from "@markdy/astro";
 
@@ -480,6 +671,10 @@ const sceneCode = `
         </div>
 
         <div class="f-panel" data-panel="mdx">
+          <div class="f-panel-header">
+            <span class="f-panel-title">MDX Markdown Embedded Block</span>
+            <button class="ingestion-copy-btn copy-btn" type="button" title="Copy MDX snippet">Copy</button>
+          </div>
           <pre><code>// In your MDX documentation file:
 ```markdy
 scene "Cache Lookup" theme=paper
@@ -649,33 +844,6 @@ client Browser -> gateway API -> cache Redis
     }
   }
 
-  function resizeStage() {
-    if (!stageWrap || !stage || !stage.firstElementChild) return;
-    const sceneEl = stage.firstElementChild as HTMLElement;
-    if (sceneEl.classList.contains("parse-error")) return;
-
-    const wrapW = stage.clientWidth;
-    const wrapH = stage.clientHeight;
-    if (wrapW === 0 || wrapH === 0) return;
-
-    let sceneWidth = parseFloat(sceneEl.style.width || "1280");
-    let sceneHeight = parseFloat(sceneEl.style.height || "760");
-
-    const scaleX = wrapW / sceneWidth;
-    const scaleY = wrapH / sceneHeight;
-    const scale = Math.max(0.05, Math.min(scaleX, scaleY));
-
-    sceneEl.style.position = "absolute";
-    sceneEl.style.left = "50%";
-    sceneEl.style.top = "50%";
-    sceneEl.style.transform = `translate(-50%, -50%) scale(${scale})`;
-    sceneEl.style.transformOrigin = "center center";
-  }
-
-  const ro = new ResizeObserver(() => resizeStage());
-  if (stageWrap) ro.observe(stageWrap);
-  if (stage) ro.observe(stage);
-
   function render(code: string) {
     if (!stage) return;
     if (diagram) { diagram.destroy(); diagram = null; }
@@ -696,7 +864,6 @@ client Browser -> gateway API -> cache Redis
       setTimeline(diagram.currentTime(), diagram.duration());
       populateSceneJump(diagram.beats());
       setStatus(true);
-      resizeStage();
     } catch (e) {
       const msg = (e as Error).message ?? String(e);
       stage.innerHTML = `<p class="parse-error" style="color:var(--danger);padding:1rem;font-family:monospace;font-size:0.8rem;">${msg}</p>`;
@@ -800,6 +967,79 @@ client Browser -> gateway API -> cache Redis
     });
   });
 
+  // ─── AI Prompt Tutorial Handlers ─────────────────────────────────────
+  const toolChips = document.querySelectorAll<HTMLButtonElement>(".ai-tool-chip");
+  const toolTipText = document.getElementById("ai-tool-tip-text");
+  const promptPresetTabs = document.querySelectorAll<HTMLButtonElement>(".prompt-preset-tab");
+  const promptCodeEl = document.getElementById("tutorial-prompt-code");
+  const promptTargetTitleEl = document.getElementById("prompt-target-title");
+  const tutorialCopyBtn = document.getElementById("tutorial-copy-btn") as HTMLButtonElement | null;
+  const tutorialCopyLabel = document.getElementById("tutorial-copy-label");
+  const tutorialRunBtn = document.getElementById("tutorial-run-btn") as HTMLButtonElement | null;
+  let activeTutorialExampleIndex = 0;
+
+  // Tool chips switcher
+  toolChips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      toolChips.forEach((c) => {
+        c.classList.remove("active");
+        c.setAttribute("aria-selected", "false");
+      });
+      chip.classList.add("active");
+      chip.setAttribute("aria-selected", "true");
+      const tip = chip.dataset.tip || "";
+      if (toolTipText) toolTipText.textContent = tip;
+    });
+  });
+
+  // Prompt Presets switcher
+  promptPresetTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      promptPresetTabs.forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
+      const promptText = tab.dataset.prompt || "";
+      const exIdx = Number(tab.dataset.exampleIndex || "0");
+      const target = tab.dataset.target || tab.textContent?.trim() || "";
+      activeTutorialExampleIndex = exIdx;
+      if (promptCodeEl) promptCodeEl.textContent = promptText;
+      if (promptTargetTitleEl) promptTargetTitleEl.textContent = target;
+    });
+  });
+
+  // Copy Prompt button
+  tutorialCopyBtn?.addEventListener("click", async () => {
+    const code = promptCodeEl?.textContent?.trim() || "";
+    try {
+      await navigator.clipboard.writeText(code);
+      if (tutorialCopyLabel) tutorialCopyLabel.textContent = "✓ Copied to Clipboard!";
+      tutorialCopyBtn.classList.add("btn-copied-active");
+      setTimeout(() => {
+        if (tutorialCopyLabel) tutorialCopyLabel.textContent = "Copy Prompt for AI";
+        tutorialCopyBtn.classList.remove("btn-copied-active");
+      }, 2200);
+    } catch {
+      if (tutorialCopyLabel) tutorialCopyLabel.textContent = "Copy failed";
+      setTimeout(() => {
+        if (tutorialCopyLabel) tutorialCopyLabel.textContent = "Copy Prompt for AI";
+      }, 2000);
+    }
+  });
+
+  // Run Result in Studio button
+  tutorialRunBtn?.addEventListener("click", () => {
+    if (examples[activeTutorialExampleIndex]) {
+      setEditorCode(examples[activeTutorialExampleIndex].code);
+      if (exampleSelect) exampleSelect.value = String(activeTutorialExampleIndex);
+      presetChips.forEach((c) => c.classList.toggle("active", c.dataset.index === String(activeTutorialExampleIndex)));
+      const studio = document.getElementById("playground");
+      if (studio) {
+        studio.scrollIntoView({ behavior: "smooth", block: "center" });
+        studio.classList.add("studio-highlight-flash");
+        setTimeout(() => studio.classList.remove("studio-highlight-flash"), 1500);
+      }
+    }
+  });
+
   // Playback transport buttons
   playBtn?.addEventListener("click", () => {
     if (!diagram) return;
@@ -872,6 +1112,54 @@ client Browser -> gateway API -> cache Redis
     URL.revokeObjectURL(url);
   });
 
+  // Copy code button
+  const homeCopyBtn = document.getElementById("home-copy-btn") as HTMLButtonElement | null;
+  homeCopyBtn?.addEventListener("click", async () => {
+    const code = getEditorCode();
+    try {
+      await navigator.clipboard.writeText(code);
+      const orig = homeCopyBtn.textContent;
+      homeCopyBtn.textContent = "Copied!";
+      setTimeout(() => { homeCopyBtn.textContent = orig; }, 1800);
+    } catch {
+      homeCopyBtn.title = "Copy failed";
+    }
+  });
+
+  // Paste code button
+  const homePasteBtn = document.getElementById("home-paste-btn") as HTMLButtonElement | null;
+  homePasteBtn?.addEventListener("click", async () => {
+    let text = "";
+    try {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        text = await navigator.clipboard.readText();
+      } else {
+        text = prompt("Paste your MarkdyScript code here:") || "";
+      }
+    } catch {
+      const fallback = prompt("Clipboard read access was blocked. Paste your MarkdyScript code below:");
+      if (fallback !== null) {
+        text = fallback;
+      } else {
+        return;
+      }
+    }
+
+    const trimmed = text.trim();
+    if (!trimmed) {
+      const orig = homePasteBtn.textContent;
+      homePasteBtn.textContent = "Empty!";
+      setTimeout(() => { homePasteBtn.textContent = orig; }, 1800);
+      return;
+    }
+
+    setEditorCode(text);
+    render(text);
+    const orig = homePasteBtn.textContent;
+    homePasteBtn.textContent = "Pasted!";
+    setTimeout(() => { homePasteBtn.textContent = orig; }, 1800);
+  });
+
   // Share button
   document.getElementById("share-btn")?.addEventListener("click", async () => {
     const code = getEditorCode();
@@ -909,14 +1197,71 @@ client Browser -> gateway API -> cache Redis
   // Copy buttons
   document.querySelectorAll<HTMLButtonElement>(".copy-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const codeBlock = btn.closest("div")?.querySelector("code");
+      const container = btn.closest(".ai-config-card, .f-panel, .cmd-row, .ingestion-box") || btn.closest("div");
+      const codeBlock = container?.querySelector("code");
       const text = codeBlock?.textContent || "";
       navigator.clipboard.writeText(text.trim()).then(() => {
         const orig = btn.textContent;
         btn.textContent = "Copied!";
         setTimeout(() => (btn.textContent = orig), 2000);
+      }).catch(() => {
+        const orig = btn.textContent;
+        btn.textContent = "Failed";
+        setTimeout(() => (btn.textContent = orig), 2000);
       });
     });
+  });
+
+  // Mobile Menu Drawer Toggle
+  const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+  const mobileDrawer = document.getElementById("mobile-nav-drawer");
+  const burgerIcon = mobileMenuBtn?.querySelector(".icon-burger") as HTMLElement | null;
+  const closeIcon = mobileMenuBtn?.querySelector(".icon-close") as HTMLElement | null;
+
+  function toggleMobileMenu(open?: boolean) {
+    if (!mobileDrawer || !mobileMenuBtn) return;
+    const shouldOpen = open !== undefined ? open : mobileDrawer.hidden;
+    if (shouldOpen) {
+      mobileDrawer.hidden = false;
+      mobileMenuBtn.setAttribute("aria-expanded", "true");
+      if (burgerIcon && closeIcon) {
+        burgerIcon.style.display = "none";
+        closeIcon.style.display = "block";
+      }
+    } else {
+      mobileDrawer.hidden = true;
+      mobileMenuBtn.setAttribute("aria-expanded", "false");
+      if (burgerIcon && closeIcon) {
+        burgerIcon.style.display = "block";
+        closeIcon.style.display = "none";
+      }
+    }
+  }
+
+  mobileMenuBtn?.addEventListener("click", () => toggleMobileMenu());
+
+  // Close mobile drawer when clicking any nav link
+  mobileDrawer?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => toggleMobileMenu(false));
+  });
+
+  // Close mobile drawer on Escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && mobileDrawer && !mobileDrawer.hidden) {
+      toggleMobileMenu(false);
+    }
+  });
+
+  // Close mobile drawer on outside click
+  document.addEventListener("click", (e) => {
+    if (
+      mobileDrawer &&
+      !mobileDrawer.hidden &&
+      !mobileDrawer.contains(e.target as Node) &&
+      !mobileMenuBtn?.contains(e.target as Node)
+    ) {
+      toggleMobileMenu(false);
+    }
   });
 
   // Theme toggle
@@ -956,7 +1301,7 @@ client Browser -> gateway API -> cache Redis
   /* ─── Floating Pill Navigation ─────────────────────────────────────── */
   .home-nav {
     position: sticky;
-    top: 1rem;
+    top: max(0.75rem, var(--sat));
     z-index: 100;
     max-width: 1200px;
     margin: 0 auto;
@@ -964,7 +1309,7 @@ client Browser -> gateway API -> cache Redis
   }
 
   .nav-pill {
-    background: color-mix(in srgb, var(--bg-elevated) 85%, transparent);
+    background: color-mix(in srgb, var(--bg-elevated) 88%, transparent);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--border);
@@ -1021,6 +1366,7 @@ client Browser -> gateway API -> cache Redis
     border-radius: 999px;
     box-shadow: 0 0 12px var(--accent-glow);
     transition: transform 0.15s ease, opacity 0.15s ease;
+    white-space: nowrap;
   }
 
   .btn-nav-studio:hover {
@@ -1029,8 +1375,8 @@ client Browser -> gateway API -> cache Redis
   }
 
   .btn-nav-icon {
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     border-radius: 999px;
     background: var(--bg-tertiary);
     border: 1px solid var(--border);
@@ -1040,11 +1386,71 @@ client Browser -> gateway API -> cache Redis
     justify-content: center;
     cursor: pointer;
     transition: all 0.15s ease;
+    flex-shrink: 0;
   }
 
   .btn-nav-icon:hover {
     color: var(--text-primary);
     border-color: var(--border-hover);
+  }
+
+  .mobile-menu-btn {
+    display: none;
+  }
+
+  /* ── Mobile Navigation Drawer ── */
+  .mobile-nav-drawer {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 1rem;
+    right: 1rem;
+    background: color-mix(in srgb, var(--bg-elevated) 96%, transparent);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    padding: 0.65rem;
+    z-index: 1000;
+    animation: drawerFade 0.16s ease-out;
+  }
+
+  .mobile-nav-drawer[hidden] {
+    display: none !important;
+  }
+
+  @keyframes drawerFade {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .mobile-drawer-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .mobile-nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: background-color 0.14s ease, color 0.14s ease;
+  }
+
+  .mobile-nav-link:hover,
+  .mobile-nav-link:active {
+    background: var(--bg-tertiary);
+    color: var(--accent);
+  }
+
+  .mobile-nav-highlight {
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid var(--accent);
   }
 
   /* ─── Hero Section ─────────────────────────────────────────────────── */
@@ -1184,6 +1590,415 @@ client Browser -> gateway API -> cache Redis
     background: var(--accent-light);
     color: var(--accent);
     border-color: var(--accent);
+  }
+
+  /* ─── Hero Prompt Tutorial Section ─────────────────────────────────── */
+  .hero-prompt-tutorial {
+    width: 100%;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    margin-bottom: 2.25rem;
+    text-align: left;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .hero-prompt-tutorial:hover {
+    border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
+    box-shadow: var(--shadow-lg);
+  }
+
+  .prompt-tutorial-inner {
+    padding: 1.6rem 1.75rem;
+  }
+
+  .prompt-tutorial-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .prompt-header-left {
+    flex: 1;
+  }
+
+  .prompt-badge {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    margin-bottom: 0.5rem;
+  }
+
+  .prompt-tutorial-header h2 {
+    font-size: 1.45rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin: 0 0 0.4rem;
+  }
+
+  .prompt-subtitle {
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  .spec-link-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    padding: 0.45rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent);
+    transition: all 0.15s ease;
+    white-space: nowrap;
+    text-decoration: none;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .spec-link-pill:hover {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    transform: translateY(-1px);
+  }
+
+  .spec-icon { font-size: 0.9rem; }
+  .spec-url { font-family: "JetBrains Mono", monospace; }
+  .spec-arrow { font-size: 0.85rem; }
+
+  /* AI Tools Shelf */
+  .ai-tools-shelf {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+  }
+
+  .tools-shelf-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .ai-tools-list {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .ai-tool-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .ai-tool-chip:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+    background: var(--bg-tertiary);
+  }
+
+  .ai-tool-chip.active {
+    background: var(--accent-light);
+    color: var(--accent);
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+
+  .tool-chip-name {
+    font-weight: 700;
+  }
+
+  .tool-chip-badge {
+    font-size: 0.62rem;
+    padding: 0.05rem 0.35rem;
+    border-radius: 999px;
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+  }
+
+  .ai-tool-chip.active .tool-chip-badge {
+    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    color: var(--accent);
+  }
+
+  /* Tool Tip Bar */
+  .ai-tool-tip-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    background: color-mix(in srgb, var(--accent-light) 30%, var(--bg-secondary));
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+    padding: 0.5rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    color: var(--text-primary);
+    margin-bottom: 1.15rem;
+  }
+
+  .tip-icon {
+    font-size: 0.95rem;
+    flex-shrink: 0;
+  }
+
+  .tip-text {
+    line-height: 1.45;
+  }
+
+  /* Presets Bar */
+  .prompt-presets-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.85rem;
+  }
+
+  .presets-bar-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+
+  .prompt-preset-tabs {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+
+  .prompt-preset-tab {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 0.74rem;
+    font-weight: 600;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .prompt-preset-tab:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+    background: var(--bg-tertiary);
+  }
+
+  .prompt-preset-tab.active {
+    background: var(--accent);
+    color: #ffffff !important;
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+
+  /* Prompt Display Box */
+  .prompt-display-box {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 1.35rem;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .prompt-display-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.55rem 0.85rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .prompt-target-tag {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.76rem;
+    color: var(--text-secondary);
+  }
+
+  .prompt-target-tag strong {
+    color: var(--text-primary);
+  }
+
+  .target-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #10b981;
+    box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+  }
+
+  .prompt-box-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-prompt-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 0.35rem 0.85rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: none;
+    text-decoration: none;
+  }
+
+  .btn-prompt-copy {
+    background: var(--accent);
+    color: #ffffff;
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+
+  .btn-prompt-copy:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+  }
+
+  .btn-prompt-copy.btn-copied-active {
+    background: #10b981;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+  }
+
+  .btn-prompt-run {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+  }
+
+  .btn-prompt-run:hover {
+    background: var(--accent-light);
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .prompt-code-wrap {
+    padding: 1.1rem 1.25rem;
+    overflow-x: auto;
+  }
+
+  .prompt-code-wrap pre {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+    border: none;
+  }
+
+  .prompt-code-wrap code {
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.82rem;
+    line-height: 1.65;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* 3-Step Workflow Grid */
+  .tutorial-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .tutorial-step-card {
+    display: flex;
+    gap: 0.75rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem;
+    align-items: flex-start;
+  }
+
+  .step-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #ffffff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .step-content strong {
+    display: block;
+    font-size: 0.84rem;
+    color: var(--text-primary);
+    margin-bottom: 0.25rem;
+  }
+
+  .step-content p {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    margin: 0;
+  }
+
+  .step-content code {
+    font-size: 0.74rem;
+    background: var(--bg-tertiary);
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+    color: var(--accent);
+  }
+
+  .step-content a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .studio-highlight-flash {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    animation: flashBorder 1.5s ease-out;
+  }
+
+  @keyframes flashBorder {
+    0% { outline-color: var(--accent); box-shadow: 0 0 24px var(--accent-glow); }
+    100% { outline-color: transparent; box-shadow: var(--shadow-lg); }
   }
 
   /* ─── Hero Live Studio Card ────────────────────────────────────────── */
@@ -1796,6 +2611,22 @@ client Browser -> gateway API -> cache Redis
 
   .f-panel.active { display: block; }
 
+  .f-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .f-panel-title {
+    font-size: 0.76rem;
+    font-weight: 600;
+    font-family: "JetBrains Mono", monospace;
+    color: var(--text-muted);
+  }
+
   .f-panel pre {
     font-size: 0.82rem;
     line-height: 1.6;
@@ -1917,7 +2748,7 @@ client Browser -> gateway API -> cache Redis
       height: auto;
     }
     .studio-editor-pane {
-      height: 260px;
+      height: 250px;
       border-right: none;
       border-bottom: 1px solid var(--border);
     }
@@ -1940,9 +2771,202 @@ client Browser -> gateway API -> cache Redis
 
   @media (max-width: 768px) {
     .nav-links { display: none; }
-    .pillars-grid { grid-template-columns: 1fr; }
-    .ingestion-grid { grid-template-columns: 1fr; }
-    .footer-inner { flex-direction: column; gap: 2rem; }
-    .footer-links-grid { flex-wrap: wrap; gap: 2rem; }
+    .mobile-menu-btn { display: flex; }
+    .home-hero {
+      padding: max(2rem, calc(1.5rem + var(--sat))) 1rem 1.75rem;
+    }
+    .home-hero h1 {
+      font-size: clamp(1.85rem, 6.5vw, 2.75rem);
+    }
+    .hero-description {
+      font-size: 0.95rem;
+    }
+    .prompt-tutorial-inner {
+      padding: 1.25rem 1rem;
+    }
+    .prompt-tutorial-header {
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+    .tutorial-steps-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+    .prompt-display-top {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.65rem;
+    }
+    .prompt-box-actions {
+      display: flex;
+      gap: 0.4rem;
+    }
+    .pillars-grid {
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+    }
+    .ingestion-grid {
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+    }
+    .home-main {
+      padding: 2rem 1rem 3.5rem;
+      gap: 3.5rem;
+    }
+    .section-heading-block {
+      margin-bottom: 1.75rem;
+    }
+    .section-heading-block h2 {
+      font-size: 1.45rem;
+    }
+    .studio-topbar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.55rem;
+      padding: 0.55rem 0.65rem;
+    }
+    .studio-left {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+      width: 100%;
+    }
+    .studio-select {
+      flex: 1;
+      max-width: 100%;
+      min-width: 0;
+    }
+    .studio-actions {
+      display: flex;
+      gap: 0.3rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .studio-actions::-webkit-scrollbar {
+      display: none;
+    }
+    .footer-inner {
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .footer-links-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.75rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .hero-btn-row {
+      flex-direction: column;
+      width: 100%;
+      max-width: 380px;
+      gap: 0.65rem;
+    }
+    .btn-hero-primary,
+    .btn-hero-secondary {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+      padding: 0.75rem 1rem;
+    }
+    .hero-presets-strip {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.35rem;
+      width: 100%;
+    }
+    .preset-chips {
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .preset-chips::-webkit-scrollbar {
+      display: none;
+    }
+    .preset-chip {
+      flex-shrink: 0;
+    }
+    .prompt-presets-bar {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.35rem;
+    }
+    .prompt-preset-tabs {
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .prompt-preset-tabs::-webkit-scrollbar {
+      display: none;
+    }
+    .prompt-preset-tab {
+      flex-shrink: 0;
+    }
+    .ai-tools-shelf {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.35rem;
+    }
+    .ai-tools-list {
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .ai-tools-list::-webkit-scrollbar {
+      display: none;
+    }
+    .ai-tool-chip {
+      flex-shrink: 0;
+    }
+    .prompt-box-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .btn-prompt-action {
+      width: 100%;
+      justify-content: center;
+      text-align: center;
+      padding: 0.5rem 0.75rem;
+    }
+    .preview-transport-bar {
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0.45rem 0.6rem;
+    }
+    .footer-bottom-bar {
+      flex-direction: column;
+      gap: 0.6rem;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .footer-links-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+    .studio-editor-pane {
+      height: 220px;
+    }
+    .studio-preview-pane {
+      height: 340px;
+    }
+    .cmd-row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.4rem;
+    }
+    .copy-btn {
+      align-self: flex-end;
+    }
   }
 </style>

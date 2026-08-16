@@ -1,5 +1,12 @@
 # MarkdyScript Syntax Reference
 
+> ### SPECIFICATION METADATA
+> - **Status**: Active & Canonical
+> - **Current Version**: v0.8.27
+> - **Specification Version**: 0.8.x
+> - **Last Updated**: 2026-08-16
+> - **Documentation Hub**: <https://markdy.com/docs/>
+> - **AI Agent Guide**: <https://markdy.com/AGENT.md>
 
 ## MarkdyScript 0.8 — Diagram-Native Grammar
 

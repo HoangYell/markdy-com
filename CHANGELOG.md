@@ -5,6 +5,17 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.27] — 2026-08-16
+
+### Added
+- **AI Agent & Docs Header Metadata** — Added authoritative specification metadata blocks (Current Version, Time Updated, Specification Version, Last Updated, Status, and Canonical URLs) across `docs/AGENT.md`, `docs/SYNTAX.md`, `docs/TUTORIAL.md`, `docs/GETTING_STARTED.md`, `docs/GUIDES.md`, `docs/TROUBLESHOOTING.md`, `docs/COMPARISONS.md`, and `docs/ARCHITECTURE.md`.
+- **Dynamic Documentation Endpoints** — Dynamically synchronized version, timestamp, and spec metadata across `/agent/`, `/docs/`, `/llms.txt`, and `/llms-full.txt`.
+- **Automated Version Synchronization** — Integrated `pnpm run regen` directly into the release script so every future release automatically updates documentation metadata, prompts, and machine-readable endpoints from `package.json`.
+- **Copy Actions on Documentation Snippets** — Added 1-click copy buttons for universal ingestion commands and framework code snippets on the documentation hub.
+
+### Changed
+- **Mobile UX & Safe-Area Inset Handling** — Added safe area inset support (`var(--sat)`, `var(--sab)`), responsive fluid typography (`clamp()`), and momentum touch scrolling (`-webkit-overflow-scrolling: touch`) across layouts, code blocks, and table containers.
+
 ## [0.8.26] — 2026-08-16
 
 ### Added

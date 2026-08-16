@@ -7,23 +7,67 @@ Allow: /agent/
 Allow: /AGENT.md
 Allow: /llms.txt
 Allow: /llms-full.txt
+Allow: /sitemap.xml
+Allow: /sitemap-index.xml
 
+# OpenAI SearchBot (surfaces markdy.com in ChatGPT search results)
+User-agent: OAI-SearchBot
+Allow: /
+
+# OpenAI ChatGPT User Browsing (user-initiated link inspection)
+User-agent: ChatGPT-User
+Allow: /
+
+# OpenAI Training & Retrieval Bot
 User-agent: GPTBot
 Allow: /
 
+# Anthropic Claude Search & Retrieval Bots
 User-agent: ClaudeBot
 Allow: /
 
+User-agent: anthropic-ai
+Allow: /
+
+# Perplexity AI Search Crawler
 User-agent: PerplexityBot
+Allow: /
+
+# Google Search & Extended AI Crawlers
+User-agent: Googlebot
 Allow: /
 
 User-agent: Google-Extended
 Allow: /
 
-User-agent: CCBot
+User-agent: GoogleOther
 Allow: /
 
+# Apple Intelligence & Siri Crawlers
 User-agent: Applebot
 Allow: /
 
+User-agent: Applebot-Extended
+Allow: /
+
+# Meta AI Crawlers
+User-agent: Meta-ExternalAgent
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+# Amazon AI Crawlers
+User-agent: Amazonbot
+Allow: /
+
+# Common Crawl & Open Datasets
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+# Canonical Sitemaps
+Sitemap: https://markdy.com/sitemap.xml
 Sitemap: https://markdy.com/sitemap-index.xml

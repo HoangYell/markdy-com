@@ -18,6 +18,8 @@ const structuredData = [
     about: { "@id": "https://markdy.com/#software" },
     encodingFormat: "text/html",
     mainEntityOfPage: reference.humanUrl,
+    version: reference.version,
+    dateModified: reference.timeUpdated,
     sameAs: [reference.canonicalMarkdownUrl, reference.githubUrl, reference.fullContextUrl],
   },
   {
@@ -27,6 +29,7 @@ const structuredData = [
     url: reference.canonicalMarkdownUrl,
     encodingFormat: "text/markdown",
     version: reference.version,
+    dateModified: reference.timeUpdated,
     isBasedOn: reference.githubUrl,
     about: { "@id": "https://markdy.com/#software" },
   },
@@ -44,7 +47,15 @@ const structuredData = [
     <a href="/docs/" class="back-link">Back to docs</a>
 
     <header class="hero">
-      <span class="kicker">AI agent reference</span>
+      <div class="hero-top">
+        <span class="kicker">AI agent reference</span>
+        <div class="meta-strip" aria-label="Specification metadata">
+          <span class="meta-badge status"><span class="meta-dot"></span> {reference.status}</span>
+          <span class="meta-badge version"><strong>Version</strong> v{reference.version}</span>
+          <span class="meta-badge spec"><strong>Spec</strong> {reference.specVersion}</span>
+          <span class="meta-badge time"><strong>Updated</strong> <time datetime={reference.timeUpdated}>{reference.timeUpdated}</time></span>
+        </div>
+      </div>
       <h1>Current MarkdyScript syntax for AI tools</h1>
       <p>
         This page is generated from the same source as the repository guide:
@@ -75,8 +86,14 @@ const structuredData = [
       <div>
         <span class="kicker">Recommended instruction</span>
         <h2 id="prompt-title">Tell AI tools to fetch the guide first</h2>
+        <p class="prompt-subtitle">Copy and paste this instruction into Claude, Cursor, ChatGPT, or Antigravity before asking for a diagram:</p>
       </div>
-      <pre><code>{prompt}</code></pre>
+      <div class="prompt-code-wrap">
+        <pre><code id="prompt-content">{prompt}</code></pre>
+        <button id="copy-prompt-btn" class="copy-action-btn" type="button" aria-label="Copy instruction to clipboard">
+          <span class="btn-text">Copy Instruction</span>
+        </button>
+      </div>
     </section>
 
     <section class="source-panel" aria-labelledby="source-title">
@@ -85,18 +102,65 @@ const structuredData = [
           <span class="kicker">Generated from source</span>
           <h2 id="source-title">docs/AGENT.md</h2>
         </div>
-        <span class="version">Markdy v{reference.version}</span>
+        <div class="source-actions">
+          <span class="version">Markdy v{reference.version}</span>
+          <button id="copy-spec-btn" class="copy-action-btn-sm" type="button">Copy Spec</button>
+          <a class="download-spec-link" href="/AGENT.md" download="AGENT.md">Download .md</a>
+        </div>
       </div>
-      <pre class="agent-source"><code>{reference.content}</code></pre>
+      <pre class="agent-source"><code id="agent-source-content">{reference.content}</code></pre>
     </section>
   </main>
+
+  <script>
+    const copyPromptBtn = document.getElementById("copy-prompt-btn");
+    const copySpecBtn = document.getElementById("copy-spec-btn");
+    const promptCode = document.getElementById("prompt-content");
+    const specCode = document.getElementById("agent-source-content");
+
+    async function copyText(text: string, button: HTMLElement, successText = "Copied!") {
+      try {
+        await navigator.clipboard.writeText(text);
+        const originalText = button.textContent;
+        button.textContent = successText;
+        button.classList.add("copied");
+        setTimeout(() => {
+          button.textContent = originalText;
+          button.classList.remove("copied");
+        }, 2000);
+      } catch {
+        const textarea = document.createElement("textarea");
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textarea);
+        button.textContent = successText;
+        setTimeout(() => {
+          button.textContent = "Copy";
+        }, 2000);
+      }
+    }
+
+    copyPromptBtn?.addEventListener("click", () => {
+      if (promptCode?.textContent) {
+        copyText(promptCode.textContent.trim(), copyPromptBtn, "✓ Copied!");
+      }
+    });
+
+    copySpecBtn?.addEventListener("click", () => {
+      if (specCode?.textContent) {
+        copyText(specCode.textContent, copySpecBtn, "✓ Copied Spec!");
+      }
+    });
+  </script>
 </Layout>
 
 <style>
   .agent-page {
     width: min(1120px, calc(100% - 2rem));
     margin: 0 auto;
-    padding: 5rem 0;
+    padding: max(3.5rem, calc(2.5rem + var(--sat))) 0 4rem;
   }
 
   .back-link {
@@ -108,16 +172,73 @@ const structuredData = [
   }
 
   .hero {
-    max-width: 820px;
+    max-width: 860px;
     margin-bottom: 2rem;
+  }
+
+  .hero-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .meta-strip {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .meta-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 999px;
+    padding: 0.25rem 0.65rem;
+    background: var(--surface, #ffffff);
+    color: var(--text-secondary, #475569);
+    font-size: 0.76rem;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .meta-badge strong {
+    color: var(--text-primary, #0f172a);
+    font-weight: 600;
+  }
+
+  .meta-badge.version,
+  .meta-badge.spec,
+  .meta-badge.time time {
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  .meta-badge.status {
+    border-color: rgba(4, 120, 87, 0.25);
+    background: rgba(16, 185, 129, 0.08);
+    color: var(--accent, #047857);
+    font-weight: 700;
+  }
+
+  .meta-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent, #047857);
+    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
   }
 
   .hero h1 {
     margin: 0.4rem 0 1rem;
     color: var(--text-primary, #0f172a);
-    font-size: clamp(2.4rem, 5vw, 4.75rem);
-    line-height: 0.98;
-    letter-spacing: -0.06em;
+    font-size: clamp(2rem, 6vw, 4.75rem);
+    line-height: 1.05;
+    letter-spacing: -0.05em;
   }
 
   .hero p,
@@ -205,6 +326,74 @@ const structuredData = [
     border-radius: 18px;
     background: #0f172a;
     color: #e2e8f0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .prompt-subtitle {
+    margin-top: 0.35rem;
+    font-size: 0.88rem;
+    line-height: 1.4;
+  }
+
+  .prompt-code-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .copy-action-btn {
+    align-self: flex-start;
+    border: none;
+    border-radius: 999px;
+    padding: 0.5rem 1.1rem;
+    background: var(--accent, #047857);
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .copy-action-btn:hover {
+    background: #065f46;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(4, 120, 87, 0.25);
+  }
+
+  .copy-action-btn.copied,
+  .copy-action-btn-sm.copied {
+    background: #10b981;
+    color: #ffffff;
+  }
+
+  .source-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .copy-action-btn-sm,
+  .download-spec-link {
+    border: 1px solid var(--border, #e2e8f0);
+    border-radius: 999px;
+    padding: 0.4rem 0.85rem;
+    background: var(--surface, #ffffff);
+    color: var(--text-primary, #0f172a);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .copy-action-btn-sm:hover,
+  .download-spec-link:hover {
+    border-color: var(--accent, #047857);
+    color: var(--accent, #047857);
+    background: rgba(16, 185, 129, 0.06);
   }
 
   .prompt-box pre {
@@ -250,6 +439,24 @@ const structuredData = [
     .source-heading {
       align-items: flex-start;
       flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .agent-page {
+      width: calc(100% - 1.5rem);
+      padding: max(2.5rem, calc(2rem + var(--sat))) 0 3rem;
+    }
+    .surface-card,
+    .prompt-box,
+    .source-panel {
+      padding: 1rem;
+      border-radius: 16px;
+    }
+    .agent-source {
+      padding: 0.85rem;
+      font-size: 0.82rem;
     }
   }
 </style>

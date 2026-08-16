@@ -1,7 +1,13 @@
 # MarkdyScript Tutorial
 
-A step-by-step guide to creating animated architecture diagrams, system explainers, and technical visualizations with MarkdyScript 0.8.
-
+> ### DOCUMENTATION METADATA
+> - **Status**: Active & Canonical
+> - **Current Version**: v0.8.27
+> - **Specification Version**: 0.8.x
+> - **Last Updated**: 2026-08-16
+> - **Documentation Hub**: <https://markdy.com/docs/>
+> - **Playground**: <https://markdy.com/playground/>
+>
 > **Prerequisites:** Basic familiarity with any text editor. No programming required to write MarkdyScript.
 
 ---

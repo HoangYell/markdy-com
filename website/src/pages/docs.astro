@@ -2,9 +2,11 @@
 import Layout from "../layouts/Layout.astro";
 import { join } from "node:path";
 import { loadExamples } from "../data/examples";
+import { getProjectVersion } from "../lib/agent-reference";
 
 const ROOT = join(process.cwd(), "..");
 const EXAMPLES = await loadExamples(ROOT);
+const projectVersion = await getProjectVersion();
 
 const NODE_KINDS = [
   { kind: "user", icon: "👤", desc: "End users, mobile apps, or human actors initiating requests", example: 'user Customer "Mobile User"' },
@@ -96,6 +98,10 @@ const docStructuredData = [
       </nav>
 
       <div class="topbar-actions">
+        <button id="mobile-docs-toc-btn" class="btn-topbar-theme mobile-docs-toc-btn" aria-label="Open Table of Contents" aria-expanded="false" aria-controls="mobile-docs-drawer" title="Table of Contents">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="15" y2="12"></line><line x1="3" y1="18" x2="18" y2="18"></line></svg>
+          <span>TOC</span>
+        </button>
         <a href="/playground/" class="btn-topbar-studio">
           <span>⚡ Studio</span>
         </a>
@@ -106,6 +112,42 @@ const docStructuredData = [
           <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
           <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
         </button>
+      </div>
+    </div>
+
+    <!-- Mobile Table of Contents Drawer -->
+    <div id="mobile-docs-drawer" class="mobile-docs-drawer" hidden>
+      <div class="mobile-drawer-header">
+        <span class="mobile-drawer-title">📑 Documentation Index</span>
+        <button id="close-docs-drawer-btn" class="close-docs-drawer-btn" aria-label="Close Table of Contents">✕</button>
+      </div>
+      <div class="mobile-drawer-body">
+        <div class="mobile-drawer-group">
+          <span class="mobile-group-title">Getting Started</span>
+          <a href="#quickstart" class="mobile-doc-link">60-Second Quickstart</a>
+          <a href="#concepts" class="mobile-doc-link">Core Philosophy</a>
+        </div>
+        <div class="mobile-drawer-group">
+          <span class="mobile-group-title">MarkdyScript Grammar</span>
+          <a href="#grammar" class="mobile-doc-link">Scene Declaration</a>
+          <a href="#node-kinds" class="mobile-doc-link">Semantic Node Kinds</a>
+          <a href="#groups" class="mobile-doc-link">Groups &amp; Subsystems</a>
+          <a href="#flows" class="mobile-doc-link">Flow Operators &amp; Routing</a>
+          <a href="#beats" class="mobile-doc-link">Timeline Beats &amp; Cues</a>
+        </div>
+        <div class="mobile-drawer-group">
+          <span class="mobile-group-title">Ecosystem &amp; Tooling</span>
+          <a href="#ingestion" class="mobile-doc-link">Universal Ingestion</a>
+          <a href="#mcp" class="mobile-doc-link">AI Coding &amp; MCP Server</a>
+          <a href="#governance" class="mobile-doc-link">Architecture Governance</a>
+          <a href="#frameworks" class="mobile-doc-link">Astro, MDX &amp; React</a>
+          <a href="#packages" class="mobile-doc-link">Package Directory</a>
+        </div>
+        <div class="mobile-drawer-group mobile-extra-links">
+          <a href="/playground/" class="mobile-doc-link mobile-highlight-link">⚡ Open Interactive Studio</a>
+          <a href="/blog/" class="mobile-doc-link">✍️ Articles &amp; Guides</a>
+          <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="mobile-doc-link">🐙 GitHub Repository ↗</a>
+        </div>
       </div>
     </div>
   </header>
@@ -148,7 +190,15 @@ const docStructuredData = [
     <main class="docs-main">
       <!-- ─── Hero Header ──────────────────────────────────────────────── -->
       <section class="doc-header-block">
-        <span class="doc-badge">Developer Reference</span>
+        <div class="doc-header-top">
+          <span class="doc-badge">Developer Reference</span>
+          <div class="doc-meta-strip" aria-label="Documentation metadata">
+            <span class="doc-meta-item status"><span class="doc-meta-dot"></span> Active &amp; Canonical</span>
+            <span class="doc-meta-item version"><strong>Version</strong> v{projectVersion}</span>
+            <span class="doc-meta-item spec"><strong>Spec</strong> {projectVersion.split('.').slice(0, 2).join('.')}.x</span>
+            <span class="doc-meta-item time"><strong>Updated</strong> August 2026</span>
+          </div>
+        </div>
         <h1>Markdy Documentation</h1>
         <p class="doc-lead">
           Markdy is a diagram-native DSL for creating animated architecture diagrams from reviewable, version-controlled plain text. 
@@ -156,7 +206,8 @@ const docStructuredData = [
         </p>
         <div class="doc-header-ctas">
           <a href="/playground/" class="btn-doc-primary">⚡ Open Interactive Studio</a>
-          <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="btn-doc-secondary">View GitHub Repository ↗</a>
+          <a href="/agent/" class="btn-doc-secondary">🤖 AI Agent Guide</a>
+          <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="btn-doc-secondary">GitHub ↗</a>
         </div>
       </section>
 
@@ -168,7 +219,6 @@ const docStructuredData = [
         <div class="doc-code-card">
           <div class="code-header">
             <span class="code-title">Terminal</span>
-            <button class="doc-copy-btn" data-code="npm install -g @markdy/cli\nmarkdy init architecture.markdy\nmarkdy render architecture.markdy --open">Copy</button>
           </div>
           <pre><code># 1. Install Markdy CLI globally (or run with npx)
 npm install -g @markdy/cli
@@ -182,25 +232,6 @@ markdy render architecture.markdy --open</code></pre>
         <div class="doc-code-card">
           <div class="code-header">
             <span class="code-title">architecture.markdy</span>
-            <button class="doc-copy-btn" data-code={`scene "Cache-Aside Architecture" theme=paper layout=LR
-
-client WebBrowser "Client App"
-gateway ApiGateway "API Gateway"
-cache RedisCluster "Redis Cache"
-database PostgresDB "PostgreSQL (Master)"
-
-group caching: RedisCluster
-group persistence: PostgresDB
-
-beat setup "Initial System Reveal":
-  show $nodes stagger=60ms
-
-beat flow "Cache Lookup & Fallback":
-  WebBrowser -> ApiGateway "GET /product/42"
-  ApiGateway -> RedisCluster "1. Check Cache (MISS)"
-  ApiGateway -> PostgresDB "2. Query Database"
-  ApiGateway -> RedisCluster "3. Populate Cache"
-  WebBrowser <- ApiGateway "200 OK (JSON)"`}>Copy</button>
           </div>
           <pre><code>scene "Cache-Aside Architecture" theme=paper layout=LR
 
@@ -230,6 +261,9 @@ beat flow "Cache Lookup & Fallback":
         <p>Every Markdy script starts with an optional <code>scene</code> header declaring canvas metadata, visual theme, and reading direction:</p>
 
         <div class="doc-code-card">
+          <div class="code-header">
+            <span class="code-title">Scene Header Syntax</span>
+          </div>
           <pre><code>scene "System Title" theme=paper layout=LR width=1280 height=720</code></pre>
         </div>
 
@@ -308,6 +342,9 @@ beat flow "Cache Lookup & Fallback":
         <p>Declare logical architectural boundaries, network VPCs, Kubernetes namespaces, or cluster tiers using the <code>group</code> keyword:</p>
 
         <div class="doc-code-card">
+          <div class="code-header">
+            <span class="code-title">Subsystem Groups</span>
+          </div>
           <pre><code>{`# Syntax: group <group_id> [label="Display Title"]: <node1> <node2> ...
 group ingress "Public Ingress Tier": WebClient ApiGateway
 group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
@@ -345,6 +382,9 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
         <h3 class="subsection-heading mt-6">Multi-Hop Chaining</h3>
         <p>Chain multi-stage operations cleanly on a single line:</p>
         <div class="doc-code-card">
+          <div class="code-header">
+            <span class="code-title">Multi-Hop Chaining</span>
+          </div>
           <pre><code>WebApp -> ApiGateway "POST /checkout" -> PaymentWorker "charge" -> PostgresDB "save"</code></pre>
         </div>
       </section>
@@ -383,22 +423,34 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
 
         <div class="ingestion-table-grid mt-4">
           <div class="ingest-card">
-            <h4>Mermaid.js (Flowcharts &amp; Sequences)</h4>
+            <div class="card-head-row">
+              <h4>Mermaid.js (Flowcharts &amp; Sequences)</h4>
+              <button class="doc-copy-btn copy-cmd-btn" type="button" title="Copy command">Copy</button>
+            </div>
             <p>Converts graph TD/LR and sequence diagrams to MarkdyScript.</p>
             <pre><code>markdy import flow.mmd --out flow.markdy</code></pre>
           </div>
           <div class="ingest-card">
-            <h4>Docker Compose</h4>
+            <div class="card-head-row">
+              <h4>Docker Compose</h4>
+              <button class="doc-copy-btn copy-cmd-btn" type="button" title="Copy command">Copy</button>
+            </div>
             <p>Extracts services, network links, volumes, and ports into clustered scenes.</p>
             <pre><code>markdy import docker-compose.yml</code></pre>
           </div>
           <div class="ingest-card">
-            <h4>Kubernetes YAML</h4>
+            <div class="card-head-row">
+              <h4>Kubernetes YAML</h4>
+              <button class="doc-copy-btn copy-cmd-btn" type="button" title="Copy command">Copy</button>
+            </div>
             <p>Maps Ingress, Service, Deployment, Pod, and PVC tiers into nested groups.</p>
             <pre><code>markdy import k8s-manifest.yaml</code></pre>
           </div>
           <div class="ingest-card">
-            <h4>Terraform State</h4>
+            <div class="card-head-row">
+              <h4>Terraform State</h4>
+              <button class="doc-copy-btn copy-cmd-btn" type="button" title="Copy command">Copy</button>
+            </div>
             <p>Extracts cloud VPCs, subnets, databases, and gateways into layered architectures.</p>
             <pre><code>markdy import terraform.tfstate</code></pre>
           </div>
@@ -413,14 +465,6 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
         <div class="doc-code-card">
           <div class="code-header">
             <span class="code-title">Claude Desktop / Cursor MCP Config</span>
-            <button class="doc-copy-btn" data-code={`{
-  "mcpServers": {
-    "markdy": {
-      "command": "npx",
-      "args": ["-y", "@markdy/mcp-server"]
-    }
-  }
-}`}>Copy</button>
           </div>
           <pre><code>{`{
   "mcpServers": {
@@ -470,14 +514,20 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
         
         <div class="framework-grid mt-4">
           <div class="framework-card">
-            <h4>Astro Integration</h4>
+            <div class="card-head-row">
+              <h4>Astro Integration</h4>
+              <button class="doc-copy-btn copy-cmd-btn" type="button" title="Copy snippet">Copy</button>
+            </div>
             <pre><code>import &#123; Markdy &#125; from "@markdy/astro";
 
 &lt;Markdy code=&#123;sceneCode&#125; autoplay /&gt;</code></pre>
           </div>
 
           <div class="framework-card">
-            <h4>MDX Documentation</h4>
+            <div class="card-head-row">
+              <h4>MDX Documentation</h4>
+              <button class="doc-copy-btn copy-cmd-btn" type="button" title="Copy snippet">Copy</button>
+            </div>
             <pre><code>```markdy
 scene "Docs Architecture" theme=paper
 client Browser -> service Api -> database DB
@@ -556,6 +606,9 @@ client Browser -> service Api -> database DB
       card.insertBefore(header, card.firstChild);
     }
 
+    // Defensive cleanup: remove any preexisting loose copy buttons directly in header to avoid duplicates
+    header.querySelectorAll(":scope > .doc-copy-btn").forEach((btn) => btn.remove());
+
     let actions = header.querySelector(".code-header-actions") as HTMLElement;
     if (!actions) {
       actions = document.createElement("div");
@@ -582,7 +635,9 @@ client Browser -> service Api -> database DB
     if (!actions.querySelector(".doc-copy-btn")) {
       const copyBtn = document.createElement("button");
       copyBtn.className = "doc-copy-btn";
+      copyBtn.type = "button";
       copyBtn.textContent = "Copy";
+      copyBtn.title = "Copy snippet to clipboard";
       copyBtn.addEventListener("click", () => {
         navigator.clipboard.writeText(codeText).then(() => {
           copyBtn.textContent = "Copied!";
@@ -591,10 +646,37 @@ client Browser -> service Api -> database DB
             copyBtn.textContent = "Copy";
             copyBtn.classList.remove("copied");
           }, 2000);
+        }).catch(() => {
+          copyBtn.textContent = "Failed";
+          setTimeout(() => {
+            copyBtn.textContent = "Copy";
+          }, 2000);
         });
       });
       actions.appendChild(copyBtn);
     }
+  });
+
+  // Copy command buttons in ingestion & framework cards
+  document.querySelectorAll<HTMLButtonElement>(".copy-cmd-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const card = btn.closest(".ingest-card, .framework-card");
+      const codeEl = card?.querySelector("code");
+      const text = codeEl?.textContent?.trim() || "";
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = "Copied!";
+        btn.classList.add("copied");
+        setTimeout(() => {
+          btn.textContent = orig;
+          btn.classList.remove("copied");
+        }, 2000);
+      }).catch(() => {
+        btn.textContent = "Failed";
+        setTimeout(() => { btn.textContent = "Copy"; }, 2000);
+      });
+    });
   });
 
   // Live Docs Search & Filter
@@ -643,6 +725,42 @@ client Browser -> service Api -> database DB
   }, { rootMargin: "-10% 0px -70% 0px" });
 
   docSections.forEach(sec => observer.observe(sec));
+
+  // Mobile Table of Contents Drawer
+  const mobileTocBtn = document.getElementById("mobile-docs-toc-btn");
+  const mobileDocsDrawer = document.getElementById("mobile-docs-drawer");
+  const closeDocsDrawerBtn = document.getElementById("close-docs-drawer-btn");
+
+  function toggleDocsDrawer(open?: boolean) {
+    if (!mobileDocsDrawer || !mobileTocBtn) return;
+    const shouldOpen = open !== undefined ? open : mobileDocsDrawer.hidden;
+    mobileDocsDrawer.hidden = !shouldOpen;
+    mobileTocBtn.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+  }
+
+  mobileTocBtn?.addEventListener("click", () => toggleDocsDrawer());
+  closeDocsDrawerBtn?.addEventListener("click", () => toggleDocsDrawer(false));
+
+  mobileDocsDrawer?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => toggleDocsDrawer(false));
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && mobileDocsDrawer && !mobileDocsDrawer.hidden) {
+      toggleDocsDrawer(false);
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    if (
+      mobileDocsDrawer &&
+      !mobileDocsDrawer.hidden &&
+      !mobileDocsDrawer.contains(e.target as Node) &&
+      !mobileTocBtn?.contains(e.target as Node)
+    ) {
+      toggleDocsDrawer(false);
+    }
+  });
 
   // Theme toggle
   const themeBtn = document.getElementById("theme-toggle");
@@ -772,12 +890,116 @@ client Browser -> service Api -> database DB
     color: var(--text-secondary);
     cursor: pointer;
     transition: all 0.15s ease;
+    flex-shrink: 0;
   }
 
   .btn-topbar-gh:hover,
   .btn-topbar-theme:hover {
     color: var(--text-primary);
     border-color: var(--border-hover);
+  }
+
+  .mobile-docs-toc-btn {
+    display: none;
+  }
+
+  /* ── Mobile Docs Drawer ── */
+  .mobile-docs-drawer {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .mobile-docs-drawer[hidden] {
+    display: none !important;
+  }
+
+  .mobile-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-secondary);
+  }
+
+  .mobile-drawer-title {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: var(--text-primary);
+  }
+
+  .close-docs-drawer-btn {
+    border: none;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobile-drawer-body {
+    width: min(85vw, 340px);
+    height: 100%;
+    background: var(--bg-elevated);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .mobile-drawer-group {
+    padding: 0.85rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .mobile-group-title {
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 0.2rem;
+  }
+
+  .mobile-doc-link {
+    padding: 0.45rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.12s ease;
+  }
+
+  .mobile-doc-link:hover,
+  .mobile-doc-link:active {
+    background: var(--bg-tertiary);
+    color: var(--accent);
+  }
+
+  .mobile-highlight-link {
+    background: var(--accent-light);
+    color: var(--accent);
+    font-weight: 700;
+    border: 1px solid var(--accent);
+  }
+
+  .mobile-extra-links {
+    margin-top: auto;
+    background: var(--bg-secondary);
   }
 
   /* ─── Docs Layout Container ────────────────────────────────────────── */
@@ -883,6 +1105,15 @@ client Browser -> service Api -> database DB
     border-bottom: 1px solid var(--border);
   }
 
+  .doc-header-top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
   .doc-badge {
     display: inline-block;
     font-size: 0.72rem;
@@ -893,7 +1124,53 @@ client Browser -> service Api -> database DB
     border-radius: 999px;
     background: var(--accent-light);
     color: var(--accent);
-    margin-bottom: 0.75rem;
+  }
+
+  .doc-meta-strip {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .doc-meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.2rem 0.55rem;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    font-size: 0.74rem;
+    font-weight: 500;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .doc-meta-item strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  .doc-meta-item.version,
+  .doc-meta-item.spec {
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  .doc-meta-item.status {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .doc-meta-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-glow);
   }
 
   .doc-header-block h1 {
@@ -1052,6 +1329,7 @@ client Browser -> service Api -> database DB
     padding: 1rem;
     margin: 0;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     font-size: 0.82rem;
     line-height: 1.55;
     color: var(--text-primary);
@@ -1060,6 +1338,7 @@ client Browser -> service Api -> database DB
   /* ─── Tables ───────────────────────────────────────────────────────── */
   .table-wrap {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     border: 1px solid var(--border);
     border-radius: 8px;
     box-shadow: var(--shadow-xs);
@@ -1146,6 +1425,13 @@ client Browser -> service Api -> database DB
     box-shadow: var(--shadow-xs);
   }
 
+  .card-head-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
   .ingest-card h4,
   .framework-card h4,
   .pkg-box strong {
@@ -1169,6 +1455,7 @@ client Browser -> service Api -> database DB
     font-size: 0.76rem;
     margin-top: 0.25rem;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   /* ─── Footer ───────────────────────────────────────────────────────── */
@@ -1205,13 +1492,75 @@ client Browser -> service Api -> database DB
   @media (max-width: 900px) {
     .docs-container {
       grid-template-columns: 1fr;
-      gap: 2rem;
+      padding: 1.5rem 1rem 3.5rem;
+      gap: 1.75rem;
     }
     .docs-sidebar {
       display: none;
     }
     .topbar-nav {
       display: none;
+    }
+    .mobile-docs-toc-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0 0.6rem;
+      width: auto;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: var(--accent);
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+    .doc-header-block {
+      padding: 1.35rem;
+    }
+    .doc-header-block h1 {
+      font-size: clamp(1.8rem, 6vw, 2.3rem);
+    }
+    .ingestion-table-grid,
+    .framework-grid,
+    .pkg-list-grid {
+      grid-template-columns: 1fr;
+    }
+    .footer-content {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .docs-topbar {
+      height: 48px;
+    }
+    .topbar-inner {
+      padding: 0 0.75rem;
+      gap: 0.45rem;
+    }
+    .brand-doc-pill {
+      display: none;
+    }
+    .doc-header-ctas {
+      flex-direction: column;
+      width: 100%;
+      max-width: 360px;
+      gap: 0.65rem;
+    }
+    .btn-doc-primary,
+    .btn-doc-secondary {
+      width: 100%;
+      text-align: center;
+      justify-content: center;
+      padding: 0.65rem 1rem;
+    }
+    .table-wrap {
+      font-size: 0.78rem;
+    }
+    .doc-table th,
+    .doc-table td {
+      padding: 0.5rem 0.65rem;
     }
   }
 </style>

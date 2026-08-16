@@ -1,5 +1,13 @@
 # Getting Started with Markdy
 
+> ### DOCUMENTATION METADATA
+> - **Status**: Active & Canonical
+> - **Current Version**: v0.8.27
+> - **Specification Version**: 0.8.x
+> - **Last Updated**: 2026-08-16
+> - **Documentation Hub**: <https://markdy.com/docs/>
+> - **Quickstart Command**: `npm install -g @markdy/cli`
+
 Markdy is an open-source, diagram-as-code DSL for animated architecture diagrams, system visualization, docs-as-code workflows, and AI-generated technical explainers. MarkdyScript is diagram-native: you declare semantic nodes, groups, beats, flows, and cues instead of drawing shapes by hand.
 
 Use this guide when you want to answer: "How do I turn semantic nodes, groups, beats, and flows into an animated developer diagram?"

@@ -51,6 +51,28 @@ Equip Claude Desktop, Cursor, Google Antigravity, and autonomous AI agents with 
 }
 ```
 
+### Google Antigravity (`~/.gemini/antigravity/mcp_config.json`)
+
+```json
+{
+  "mcpServers": {
+    "markdy": {
+      "command": "npx",
+      "args": ["-y", "@markdy/mcp-server"]
+    }
+  }
+}
+```
+
+---
+
+## 📖 Documentation & References
+
+- **Authoritative AI Agent Guide**: <https://markdy.com/AGENT.md>
+- **Human Documentation**: <https://markdy.com/docs/>
+- **Interactive Playground**: <https://markdy.com/playground/>
+- **LLM Index**: <https://markdy.com/llms.txt>
+
 ---
 
 ## License

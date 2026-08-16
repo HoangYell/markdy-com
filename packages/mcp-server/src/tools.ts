@@ -161,16 +161,17 @@ export function handleExplainArchitecture(code: string): ToolResult {
 
 export function handleGenerateMarkdyPrompt(userGoal: string): ToolResult {
   const prompt = [
-    `You are an expert system architecture designer specializing in MarkdyScript DSL.`,
+    `You are an expert system architecture designer specializing in MarkdyScript 0.8+ syntax and DSL.`,
     `Goal: ${userGoal}`,
     ``,
-    `### Instructions:`,
-    `1. Use MarkdyScript 0.8+ syntax. Start with: \`scene "<Title>" theme=paper layout=LR\``,
-    `2. Define nodes using semantic types (e.g. \`browser client\`, \`gateway api_gw\`, \`service auth_svc\`, \`database pg_db\`, \`cache redis\`, \`queue kafka\`).`,
-    `3. Organize components in \`group <id> "<Label>": <members...>\` boundaries.`,
-    `4. Define animated traffic steps in \`beat <id> "<Description>":\``,
-    `5. Animate flows with \`show $nodes\`, \`client -> api_gw "request"\`, and \`api_gw -> auth_svc "verify"\`.`,
-    `6. Keep syntax clean and output ONLY valid MarkdyScript.`,
+    `### Instructions & Authoritative Reference:`,
+    `1. Follow the canonical MarkdyScript 0.8+ syntax and specification hosted at: https://markdy.com/AGENT.md`,
+    `2. Start the scene with: \`scene "<Title>" theme=paper layout=LR\``,
+    `3. Define nodes using semantic types (e.g. \`browser client\`, \`gateway api_gw\`, \`service auth_svc\`, \`database pg_db\`, \`cache redis\`, \`queue kafka\`, \`worker worker\`).`,
+    `4. Organize components in \`group <id> "<Label>": <members...>\` boundaries.`,
+    `5. Animate flows with canonical operators: \`->\` (request), \`<-\` (response), \`~>\` (event), and \`--\` (dependency).`,
+    `6. Group narrative cues into \`beat <id> "<Description>":\` with \`show $nodes\`, \`glow\`, \`focus\`, \`frame\`.`,
+    `7. Keep syntax clean, do not invent unsupported directives, and output ONLY valid MarkdyScript.`,
   ].join("\n");
 
   return {

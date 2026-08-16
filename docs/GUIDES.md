@@ -1,5 +1,13 @@
 # Markdy Guides and Best Practices
 
+> ### DOCUMENTATION METADATA
+> - **Status**: Active & Canonical
+> - **Current Version**: v0.8.27
+> - **Specification Version**: 0.8.x
+> - **Last Updated**: 2026-08-16
+> - **Documentation Hub**: <https://markdy.com/docs/>
+> - **AI Reference**: <https://markdy.com/AGENT.md>
+
 This guide focuses on real problems developers search for: animated architecture diagrams, Mermaid-style diagrams with motion, docs-as-code animation, and AI-generated technical explainers.
 
 ## Design an animated architecture diagram

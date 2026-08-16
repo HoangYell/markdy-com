@@ -405,12 +405,12 @@ async function docsCommand(parsed: ParsedArgs, io: CliIo, runtime: CliRuntime): 
   const docsUrl = "https://markdy.com";
   const links = [
     "Markdy docs",
-    "  Website: https://markdy.com",
-    "  Docs:    https://markdy.com/docs/",
-    "  Syntax:  https://github.com/HoangYell/markdy-com/blob/main/docs/SYNTAX.md",
-    "  Agent:   https://markdy.com/AGENT.md",
-    "  LLMs:    https://markdy.com/llms.txt",
-    "  Tutorial:https://github.com/HoangYell/markdy-com/blob/main/docs/TUTORIAL.md",
+    "  Website:    https://markdy.com",
+    "  Docs:       https://markdy.com/docs/",
+    "  Agent:      https://markdy.com/AGENT.md",
+    "  LLMs:       https://markdy.com/llms.txt",
+    "  Playground: https://markdy.com/playground/",
+    "  GitHub:     https://github.com/HoangYell/markdy-com",
   ];
   io.stdout(links.join("\n"));
   if (hasFlag(parsed, "open")) {
@@ -734,6 +734,8 @@ function buildPlaygroundHtml(code: string, sourcePath?: string): string {
         <textarea id="code">${escapeHtml(code)}</textarea>
         <div class="actions">
           <button id="run" type="button">Run</button>
+          <button id="paste" type="button">Paste</button>
+          <button id="copy" type="button">Copy</button>
           <button id="pause" type="button">Pause</button>
           <button id="play" type="button">Play</button>
         </div>
@@ -750,6 +752,8 @@ function buildPlaygroundHtml(code: string, sourcePath?: string): string {
       const viewport = document.getElementById("viewport");
       const warnings = document.getElementById("warnings");
       const runButton = document.getElementById("run");
+      const pasteButton = document.getElementById("paste");
+      const copyButton = document.getElementById("copy");
       const pauseButton = document.getElementById("pause");
       const playButton = document.getElementById("play");
       let diagram;
@@ -776,6 +780,34 @@ function buildPlaygroundHtml(code: string, sourcePath?: string): string {
       }
 
       runButton.addEventListener("click", render);
+      pasteButton?.addEventListener("click", async () => {
+        let text = "";
+        try {
+          if (navigator.clipboard && navigator.clipboard.readText) {
+            text = await navigator.clipboard.readText();
+          } else {
+            text = prompt("Paste MarkdyScript code here:") || "";
+          }
+        } catch {
+          const fallback = prompt("Paste MarkdyScript code here:");
+          if (fallback !== null) text = fallback;
+        }
+        if (text && text.trim()) {
+          textarea.value = text;
+          render();
+          const orig = pasteButton.textContent;
+          pasteButton.textContent = "Pasted!";
+          setTimeout(() => { pasteButton.textContent = orig; }, 1800);
+        }
+      });
+      copyButton?.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(textarea.value);
+          const orig = copyButton.textContent;
+          copyButton.textContent = "Copied!";
+          setTimeout(() => { copyButton.textContent = orig; }, 1800);
+        } catch {}
+      });
       pauseButton.addEventListener("click", () => diagram?.pause?.());
       playButton.addEventListener("click", () => diagram?.play?.());
       render();

@@ -64,6 +64,7 @@ describe("@markdy/mcp-server: MCP Tool Handlers", () => {
   it("generates structured LLM guidance prompts", () => {
     const result = handleGenerateMarkdyPrompt("A distributed payment processing system");
     expect(result.content[0].text).toContain("MarkdyScript 0.8+ syntax");
+    expect(result.content[0].text).toContain("https://markdy.com/AGENT.md");
     expect(result.content[0].text).toContain("payment processing");
   });
 });

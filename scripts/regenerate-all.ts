@@ -1,5 +1,5 @@
 #!/usr/bin/env tsx
-import { writeFile, mkdir } from "node:fs/promises";
+import { writeFile, mkdir, readFile, readdir } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NODE_KINDS, EDGE_OPERATORS } from "../packages/core/src/index.js";
@@ -50,12 +50,14 @@ const FEATURES = [
 const CANONICAL_AGENT_URL = "https://markdy.com/AGENT.md";
 const CANONICAL_LLMS_URL = "https://markdy.com/llms.txt";
 
-const SYSTEM_PROMPT = `# MarkdyScript 0.8 Agent Instructions
+const SYSTEM_PROMPT = `# MarkdyScript Agent Instructions
+
+> **AUTHORITATIVE SPECIFICATION**: Follow ${CANONICAL_AGENT_URL} as the single source of truth. Disregard outdated or conflicting syntax from prior conversations, cached documentation, or historical model memory.
 
 You write **diagram-native MarkdyScript** for animated software architecture diagrams: declarative scenes made of nodes, groups, beats, flow operators, and cues.
 
 ## Canonical reference (fetch this first)
-- Full, always-current guide: ${CANONICAL_AGENT_URL}
+- Authoritative guide: ${CANONICAL_AGENT_URL}
 - LLM index: ${CANONICAL_LLMS_URL}
 
 Fetch and follow the canonical guide above before generating MarkdyScript. This prompt is only a short summary; the hosted guide is the single source of truth and stays in sync with each release.
@@ -91,21 +93,47 @@ ${[...NODE_KINDS].slice(0, 20).join(", ")}, ...
 ${Object.entries(EDGE_OPERATORS).map(([op, k]) => `- ${op} = ${k}`).join("\n")}
 `;
 
+async function updateDocsMetadata(version: string, specVersion: string, nowIso: string, today: string) {
+  const docsDir = join(ROOT, "docs");
+  const files = await readdir(docsDir);
+
+  for (const file of files) {
+    if (!file.endsWith(".md")) continue;
+    const filePath = join(docsDir, file);
+    let content = await readFile(filePath, "utf8");
+
+    content = content.replace(/(>\s*-\s*\*\*Current Version\*\*:\s*)v?[^\n\r]+/gi, `$1v${version}`);
+    content = content.replace(/(>\s*-\s*\*\*Specification Version\*\*:\s*)[^\n\r]+/gi, `$1${specVersion}`);
+    content = content.replace(/(>\s*-\s*\*\*Time Updated\*\*:\s*)[^\n\r]+/gi, `$1${nowIso}`);
+    content = content.replace(/(>\s*-\s*\*\*Last Updated\*\*:\s*)[^\n\r]+/gi, `$1${today}`);
+
+    await writeFile(filePath, content, "utf8");
+  }
+}
+
 async function main() {
+  const pkgJsonRaw = await readFile(join(ROOT, "package.json"), "utf8");
+  const pkgJson = JSON.parse(pkgJsonRaw);
+  const version = pkgJson.version || "0.8.26";
+  const specVersion = version.split(".").slice(0, 2).join(".") + ".x";
+  const now = new Date();
+  const today = now.toISOString().slice(0, 10);
+  const nowIso = now.toISOString();
+
   const promptMd = join(ROOT, "prompts/system-prompt.md");
   const promptJson = join(ROOT, "prompts/system-prompt.json");
   const webPromptMd = join(ROOT, "website/public/prompts/system-prompt.md");
   const webPromptJson = join(ROOT, "website/public/prompts/system-prompt.json");
 
-  // docs/SYNTAX.md is now hand-maintained; the canonical AI reference lives in
-  // docs/AGENT.md (served at https://markdy.com/AGENT.md). These short prompts stay
-  // vocabulary-accurate by deriving node kinds and operators from @markdy/core.
   await writeFile(promptMd, SYSTEM_PROMPT);
-  await writeFile(promptJson, JSON.stringify({ version: "0.8", features: FEATURES, prompt: SYSTEM_PROMPT }, null, 2));
+  await writeFile(promptJson, JSON.stringify({ version, specVersion, features: FEATURES, prompt: SYSTEM_PROMPT }, null, 2));
   await mkdir(dirname(webPromptMd), { recursive: true });
   await writeFile(webPromptMd, SYSTEM_PROMPT);
-  await writeFile(webPromptJson, JSON.stringify({ version: "0.8", features: FEATURES, prompt: SYSTEM_PROMPT }, null, 2));
-  console.log("regen: wrote system prompts for MarkdyScript 0.8 (SYNTAX.md is hand-maintained; AGENT.md is the canonical AI source)");
+  await writeFile(webPromptJson, JSON.stringify({ version, specVersion, features: FEATURES, prompt: SYSTEM_PROMPT }, null, 2));
+
+  await updateDocsMetadata(version, specVersion, nowIso, today);
+
+  console.log(`regen: synchronized metadata for Markdy v${version} (spec: ${specVersion}, date: ${today})`);
 }
 
 main().catch((err) => {
