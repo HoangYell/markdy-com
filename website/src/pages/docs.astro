@@ -763,6 +763,21 @@ client Browser -> service Api -> database DB
     });
   });
 
+  // Keyboard Shortcuts: Cmd+K, Ctrl+K, or '/' to focus search
+  document.addEventListener("keydown", (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+      e.preventDefault();
+      searchInput?.focus();
+      searchInput?.select();
+    } else if (e.key === "/" && document.activeElement !== searchInput && !(document.activeElement instanceof HTMLInputElement) && !(document.activeElement instanceof HTMLTextAreaElement)) {
+      e.preventDefault();
+      searchInput?.focus();
+      searchInput?.select();
+    } else if (e.key === "Escape" && document.activeElement === searchInput) {
+      searchInput?.blur();
+    }
+  });
+
   // Active ScrollSpy
   const observer = new IntersectionObserver((entries) => {
     for (const entry of entries) {
