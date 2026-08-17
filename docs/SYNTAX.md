@@ -2,9 +2,9 @@
 
 > ### SPECIFICATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.6
+> - **Current Version**: v1.0.7
 > - **Specification Version**: 1.0.x
-> - **Last Updated**: 2026-08-16
+> - **Last Updated**: 2026-08-17
 > - **Documentation Hub**: <https://markdy.com/docs/>
 > - **AI Agent Guide**: <https://markdy.com/AGENT.md>
 

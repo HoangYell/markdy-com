@@ -5,6 +5,20 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7] — 2026-08-17
+
+### Performance
+- **Dynamic Module Code-Splitting** — Switched homepage interactive studio to dynamically load `@codemirror/*` and `@markdy/renderer-dom` inside `requestIdleCallback`, dropping initial page JavaScript bundle from 614 KB to 17 KB.
+- **100/100 Google Lighthouse Scores** — Reached 100/100 Performance, 100/100 Best Practices, and 100/100 SEO across all key routes (`/`, `/docs/`, `/agent/`, `/blog/`, `/playground/`).
+- **Zero Cumulative Layout Shift (CLS = 0.000)** — Stabilized hero stages and typography rendering with `display=optional` and reserved responsive dimension boundaries.
+
+### Added
+- **Playground Live Director Theatre Mode** — Added a 1-click fullscreen cinematic presentation theatre mode with frosted glass blur dock and auto-restart on stage focus.
+- **Playful Mascot Integrations** — Embedded axolotl mascots, 3D wordmark, and AI agent graphics with low-priority non-blocking lazy loading.
+
+### Accessibility
+- **WCAG 2.2 Compliance** — Sequential heading hierarchy (`h1` $\rightarrow$ `h2` $\rightarrow$ `h3`), `role="tablist"` / `role="tab"` / `aria-selected` state synchronization, distinct link underlines in text blocks, and touch target sizing.
+
 ## [1.0.6] — 2026-08-16
 
 ### Performance
