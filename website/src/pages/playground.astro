@@ -371,7 +371,7 @@ const playgroundStructuredData = [
       </button>
 
       <!-- ── Right Column: Visual Canvas Studio ── -->
-      <section class="preview-panel" aria-label="Animated visual canvas preview">
+      <section id="stage-pane" class="preview-panel" aria-label="Animated visual canvas preview">
         <!-- Canvas Header Bar -->
         <div class="panel-head preview-panel-head">
           <div class="canvas-header-left">
@@ -767,9 +767,11 @@ const playgroundStructuredData = [
   const quickExampleSelect = document.getElementById("quick-example-select") as HTMLSelectElement;
   const exampleBtns = document.querySelectorAll<HTMLButtonElement>(".example-btn");
   const speedBtns = document.querySelectorAll<HTMLButtonElement>(".speed-btn");
-  const themeToggle = document.getElementById("theme-toggle") as HTMLButtonElement;
+  const themeToggle = (document.getElementById("theme-toggle") || document.getElementById("theme-toggle-btn")) as HTMLButtonElement;
   const workspace = document.getElementById("workspace") as HTMLElement;
   const splitter = document.getElementById("splitter") as HTMLButtonElement;
+  const liveDirectorBtn = document.getElementById("live-director-btn") as HTMLButtonElement | null;
+  const stagePane = document.getElementById("stage-pane") as HTMLElement | null;
 
   // Palette shelf tabs
   const paletteTabs = document.querySelectorAll<HTMLButtonElement>(".palette-tab");
@@ -830,7 +832,12 @@ const playgroundStructuredData = [
   function applyTheme(theme: "light" | "dark") {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem(STORAGE_KEY, theme);
-    themeToggle.textContent = theme === "dark" ? "☀️" : "🌙";
+    const sun = themeToggle?.querySelector(".icon-sun") as HTMLElement | null;
+    const moon = themeToggle?.querySelector(".icon-moon") as HTMLElement | null;
+    if (sun && moon) {
+      sun.style.display = theme === "dark" ? "none" : "block";
+      moon.style.display = theme === "dark" ? "block" : "none";
+    }
   }
 
   function formatTime(seconds: number): string {
@@ -2249,12 +2256,41 @@ Requirements:
     diagram.seekToBeat(beatJump.value);
   });
 
-  themeToggle.addEventListener("click", () => {
+  themeToggle?.addEventListener("click", () => {
     const next = isDarkMode() ? "light" : "dark";
     const code = getCode();
     applyTheme(next);
     createEditor(code);
     render(code);
+  });
+
+  liveDirectorBtn?.addEventListener("click", async () => {
+    if (!stagePane) return;
+    try {
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        stagePane.classList.remove("director-theatre-active");
+      } else {
+        await stagePane.requestFullscreen();
+        stagePane.classList.add("director-theatre-active");
+        if (diagram) {
+          diagram.seek(0);
+          diagram.play();
+        }
+      }
+    } catch {
+      stagePane.classList.toggle("director-theatre-active");
+      if (diagram) {
+        diagram.seek(0);
+        diagram.play();
+      }
+    }
+  });
+
+  document.addEventListener("fullscreenchange", () => {
+    if (!document.fullscreenElement && stagePane) {
+      stagePane.classList.remove("director-theatre-active");
+    }
   });
 
   // Drag splitter
@@ -2648,6 +2684,31 @@ Requirements:
     flex-direction: column;
     height: 100%;
     position: relative;
+  }
+
+  /* ── Fullscreen Director Theatre Mode ── */
+  .preview-panel:fullscreen,
+  .preview-panel.director-theatre-active {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    border: none;
+    background: #090d16;
+  }
+
+  .preview-panel.director-theatre-active .preview-panel-head {
+    background: rgba(9, 13, 22, 0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .preview-panel.director-theatre-active .storyboard-dock {
+    background: rgba(9, 13, 22, 0.85);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
   }
 
   /* Panel Headers */
