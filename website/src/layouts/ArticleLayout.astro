@@ -53,8 +53,22 @@ const {
     </div>
 
     <aside class="article-cta" aria-label="Call to action">
-      <h2>See it animate in your browser</h2>
-      <p>Write a diagram in plain text and watch Markdy lay it out, route the edges, and play it back — no signup, no install.</p>
+      <div class="article-cta-main">
+        <img
+          src="/images/male-markdy.webp"
+          class="article-cta-mascot"
+          alt="Markdy Mascot"
+          width="84"
+          height="84"
+          loading="lazy"
+          decoding="async"
+          fetchpriority="low"
+        />
+        <div class="article-cta-text">
+          <h2>See it animate in your browser</h2>
+          <p>Write a diagram in plain text and watch Markdy lay it out, route the edges, and play it back — no signup, no install.</p>
+        </div>
+      </div>
       <div class="article-cta-actions">
         <a class="art-btn art-btn-primary" href="/playground/">Open the Playground</a>
         <a class="art-btn art-btn-secondary" href="/docs/">Read the Docs</a>
@@ -328,16 +342,37 @@ const {
     border: 1px solid var(--border);
     background: var(--bg-secondary);
     text-align: center;
+    position: relative;
+    overflow: hidden;
   }
-  .article-cta h2 {
+  .article-cta-main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+  }
+  .article-cta-mascot {
+    width: 84px;
+    height: 84px;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.1));
+    flex-shrink: 0;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .article-cta:hover .article-cta-mascot {
+    transform: scale(1.08) rotate(3deg);
+  }
+  .article-cta-text h2 {
     font-size: 1.5rem;
-    margin: 0 0 0.6rem;
+    margin: 0 0 0.4rem;
     color: var(--text-primary);
   }
-  .article-cta p {
+  .article-cta-text p {
     color: var(--text-secondary);
-    margin: 0 auto 1.4rem;
-    max-width: 46ch;
+    margin: 0;
+    max-width: 48ch;
     line-height: 1.6;
   }
   .article-cta-actions {

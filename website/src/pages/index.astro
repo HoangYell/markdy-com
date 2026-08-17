@@ -403,7 +403,10 @@ const homepageStructuredData = [
         <!-- Top Title & Specs Link -->
         <div class="prompt-tutorial-header">
           <div class="prompt-header-left">
-            <span class="prompt-badge">⚡ AI AGENT PROMPT TUTORIAL</span>
+            <span class="prompt-badge">
+              <img src="/images/3d-icon.webp" alt="" class="prompt-badge-icon" width="14" height="14" loading="lazy" decoding="async" fetchpriority="low" />
+              AI AGENT PROMPT TUTORIAL
+            </span>
             <h2>Generate Animated Architecture with AI Agents</h2>
             <p class="prompt-subtitle">
               Markdy is designed from the ground up for LLMs. Instruct <strong>Cursor</strong>, <strong>Claude</strong>, <strong>GitHub Copilot</strong>, <strong>Open Code</strong>, <strong>Antigravity</strong>, or <strong>ChatGPT</strong> to generate and animate production architecture scenes using the canonical specification.
@@ -411,7 +414,7 @@ const homepageStructuredData = [
           </div>
           <div class="prompt-header-right">
             <div class="prompt-mascot-guide" title="Markdy Assistant">
-              <img src="/images/mascot.webp" class="prompt-mascot-img" alt="Markdy Axolotl Mascot" width="46" height="46" loading="lazy" decoding="async" />
+              <img src="/images/male-markdy.webp" class="prompt-mascot-img" alt="Markdy Mascot" width="52" height="52" loading="lazy" decoding="async" fetchpriority="low" />
               <div class="prompt-mascot-speech">
                 <span>AI Prompt Guide</span>
               </div>
@@ -687,7 +690,7 @@ const homepageStructuredData = [
           <div class="ingestion-transpile-bridge" aria-hidden="true">
             <div class="bridge-line"></div>
             <div class="bridge-pill">
-              <span class="bridge-icon">⚡</span>
+              <img src="/images/3d-icon.webp" alt="" class="bridge-icon-img" width="16" height="16" loading="lazy" decoding="async" fetchpriority="low" />
               <span>1-Click Transpile</span>
             </div>
             <div class="bridge-line"></div>
@@ -743,7 +746,10 @@ const homepageStructuredData = [
 
       <div class="ai-split-grid">
         <div class="ai-step-card">
-          <h3>How AI pairs with Markdy</h3>
+          <div class="ai-step-card-header">
+            <h3>How AI pairs with Markdy</h3>
+            <img src="/images/male-markdy-ads.webp" alt="Markdy AI Mascot" class="ai-card-mascot" width="44" height="44" loading="lazy" decoding="async" fetchpriority="low" />
+          </div>
           <ol class="ai-step-list">
             <li>
               <strong>Hosted Agent Reference</strong>
@@ -889,10 +895,9 @@ markdy check-all ./docs/diagrams</code></pre>
       <div class="footer-brand-pane">
         <div class="f-brand-top">
           <a class="f-logo" href="/" aria-label="Markdy home">
-            <img src="/icon.svg" class="f-logo-icon" alt="Markdy" width="26" height="26" loading="lazy" decoding="async" />
-            <span>markdy</span>
+            <img src="/images/markdy-com.webp" class="f-logo-wordmark" alt="Markdy" width="124" height="40" loading="lazy" decoding="async" fetchpriority="low" />
           </a>
-          <img src="/images/mascot.webp" class="footer-mascot" alt="Markdy Axolotl Mascot" width="54" height="54" loading="lazy" decoding="async" />
+          <img src="/images/male-markdy.webp" class="footer-mascot" alt="Markdy Mascot" width="56" height="56" loading="lazy" decoding="async" fetchpriority="low" />
         </div>
         <p>Diagrams-as-code with native browser motion, built for the way modern engineering teams explain systems.</p>
         <a class="footer-cta" href="/playground/">Open the studio <span aria-hidden="true">→</span></a>
@@ -2144,6 +2149,16 @@ markdy check-all ./docs/diagrams</code></pre>
     color: var(--accent);
     border: 1px solid var(--accent);
     margin-bottom: 0.5rem;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .prompt-badge-icon {
+    width: 14px;
+    height: 14px;
+    vertical-align: -2px;
+    margin-right: 0.35rem;
+    display: inline-block;
   }
 
   .prompt-tutorial-header h2 {
@@ -2176,13 +2191,23 @@ markdy check-all ./docs/diagrams</code></pre>
     padding: 0.3rem 0.65rem 0.3rem 0.35rem;
     border-radius: 999px;
     box-shadow: var(--shadow-xs);
+    transition: transform 0.2s ease;
+  }
+
+  .prompt-mascot-guide:hover {
+    transform: scale(1.04);
   }
 
   .prompt-mascot-img {
-    width: 36px;
-    height: 36px;
+    width: 42px;
+    height: 42px;
     object-fit: contain;
-    filter: drop-shadow(0 2px 5px rgba(0,0,0,0.12));
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.12));
+    transition: transform 0.2s ease;
+  }
+
+  .prompt-mascot-guide:hover .prompt-mascot-img {
+    transform: rotate(6deg);
   }
 
   .prompt-mascot-speech {
@@ -3239,6 +3264,12 @@ markdy check-all ./docs/diagrams</code></pre>
     white-space: nowrap;
   }
 
+  .bridge-icon-img {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+  }
+
   @media (max-width: 900px) {
     .ingestion-compare-split {
       grid-template-columns: 1fr;
@@ -3272,11 +3303,30 @@ markdy check-all ./docs/diagrams</code></pre>
     box-shadow: var(--shadow-xs);
   }
 
-  .ai-step-card h3 {
+  .ai-step-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
+  .ai-step-card-header h3 {
     font-size: 1.05rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 1rem;
+    margin: 0;
+  }
+
+  .ai-card-mascot {
+    width: 44px;
+    height: 44px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 10px rgba(4, 120, 87, 0.15));
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .ai-step-card:hover .ai-card-mascot {
+    transform: scale(1.12) rotate(4deg);
   }
 
   .ai-step-list {
@@ -3520,30 +3570,33 @@ markdy check-all ./docs/diagrams</code></pre>
     width: fit-content;
     display: inline-flex;
     align-items: center;
-    gap: 0.65rem;
-    font-size: 1.25rem;
-    font-weight: 800;
-    letter-spacing: -0.055em;
-    color: var(--text-primary);
+    text-decoration: none;
   }
 
-  .f-logo-icon {
+  .f-logo-wordmark {
     display: block;
-    width: 26px;
-    height: 26px;
-    filter: drop-shadow(0 2px 5px rgba(24,184,135,0.3));
+    width: 124px;
+    height: auto;
+    max-height: 40px;
+    object-fit: contain;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.08));
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .f-logo:hover .f-logo-wordmark {
+    transform: scale(1.05);
   }
 
   .footer-mascot {
-    width: 52px;
-    height: 52px;
+    width: 56px;
+    height: 56px;
     object-fit: contain;
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
-    transition: transform 0.2s ease;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.12));
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .footer-mascot:hover {
-    transform: scale(1.08) rotate(-4deg);
+    transform: scale(1.12) rotate(-6deg);
   }
 
   .footer-brand-pane p {

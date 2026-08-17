@@ -47,21 +47,37 @@ const structuredData = [
     <a href="/docs/" class="back-link">Back to docs</a>
 
     <header class="hero">
-      <div class="hero-top">
-        <span class="kicker">AI agent reference</span>
-        <div class="meta-strip" aria-label="Specification metadata">
-          <span class="meta-badge status"><span class="meta-dot"></span> {reference.status}</span>
-          <span class="meta-badge version"><strong>Version</strong> v{reference.version}</span>
-          <span class="meta-badge spec"><strong>Spec</strong> {reference.specVersion}</span>
-          <span class="meta-badge time"><strong>Updated</strong> <time datetime={reference.timeUpdated}>{reference.timeUpdated}</time></span>
+      <div class="hero-header-split">
+        <div class="hero-header-content">
+          <div class="hero-top">
+            <span class="kicker">AI agent reference</span>
+            <div class="meta-strip" aria-label="Specification metadata">
+              <span class="meta-badge status"><span class="meta-dot"></span> {reference.status}</span>
+              <span class="meta-badge version"><strong>Version</strong> v{reference.version}</span>
+              <span class="meta-badge spec"><strong>Spec</strong> {reference.specVersion}</span>
+              <span class="meta-badge time"><strong>Updated</strong> <time datetime={reference.timeUpdated}>{reference.timeUpdated}</time></span>
+            </div>
+          </div>
+          <h1>Current MarkdyScript syntax for AI tools</h1>
+          <p>
+            This page is generated from the same source as the repository guide:
+            <a href={reference.githubUrl} target="_blank" rel="noopener noreferrer">docs/AGENT.md</a>.
+            The raw Markdown, LLM index, and full context bundle are rebuilt from that file so agents do not drift across releases.
+          </p>
+        </div>
+        <div class="hero-mascot-badge" aria-hidden="true">
+          <img
+            src="/images/male-markdy-ads.webp"
+            alt="Markdy AI Mascot"
+            class="agent-hero-mascot-img"
+            width="128"
+            height="128"
+            loading="lazy"
+            decoding="async"
+            fetchpriority="low"
+          />
         </div>
       </div>
-      <h1>Current MarkdyScript syntax for AI tools</h1>
-      <p>
-        This page is generated from the same source as the repository guide:
-        <a href={reference.githubUrl} target="_blank" rel="noopener noreferrer">docs/AGENT.md</a>.
-        The raw Markdown, LLM index, and full context bundle are rebuilt from that file so agents do not drift across releases.
-      </p>
     </header>
 
     <section class="surface-grid" aria-label="AI documentation entry points">
@@ -231,6 +247,47 @@ const structuredData = [
     border-radius: 50%;
     background: var(--accent, #047857);
     box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.25);
+  }
+
+  .hero-header-split {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .hero-header-content {
+    flex: 1;
+  }
+
+  .hero-mascot-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .agent-hero-mascot-img {
+    width: 130px;
+    height: 130px;
+    object-fit: contain;
+    filter: drop-shadow(0 12px 28px rgba(4, 120, 87, 0.2));
+    animation: agent-float 4s ease-in-out infinite alternate;
+  }
+
+  @keyframes agent-float {
+    0% { transform: translateY(0px) rotate(0deg); }
+    100% { transform: translateY(-8px) rotate(2deg); }
+  }
+
+  @media (max-width: 820px) {
+    .hero-header-split {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .hero-mascot-badge {
+      display: none;
+    }
   }
 
   .hero h1 {

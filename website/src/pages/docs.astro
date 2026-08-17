@@ -184,6 +184,24 @@ const docStructuredData = [
         <a href="#frameworks" class="sidebar-link">JS, Astro, MDX &amp; React</a>
         <a href="#packages" class="sidebar-link">Package Directory</a>
       </div>
+
+      <div class="sidebar-mascot-card" aria-label="Markdy Studio Quick Access">
+        <img
+          src="/images/male-markdy.webp"
+          alt="Markdy Mascot"
+          class="sidebar-mascot-img"
+          width="48"
+          height="48"
+          loading="lazy"
+          decoding="async"
+          fetchpriority="low"
+        />
+        <div class="sidebar-mascot-content">
+          <strong>Interactive Studio</strong>
+          <p>Test syntax and motion live in your browser.</p>
+          <a href="/playground/" class="sidebar-mascot-link">Launch Studio ⚡</a>
+        </div>
+      </div>
     </aside>
 
     <!-- Main Documentation Content -->
@@ -191,7 +209,10 @@ const docStructuredData = [
       <!-- ─── Hero Header ──────────────────────────────────────────────── -->
       <section class="doc-header-block">
         <div class="doc-header-top">
-          <span class="doc-badge">Developer Reference</span>
+          <span class="doc-badge">
+            <img src="/images/3d-icon.webp" alt="" class="doc-badge-icon" width="14" height="14" loading="lazy" decoding="async" fetchpriority="low" />
+            Developer Reference
+          </span>
           <div class="doc-meta-strip" aria-label="Documentation metadata">
             <span class="doc-meta-item status"><span class="doc-meta-dot"></span> Active &amp; Canonical</span>
             <span class="doc-meta-item version"><strong>Version</strong> v{projectVersion}</span>
@@ -1123,6 +1144,69 @@ client Browser -> service Api -> database DB
     color: var(--accent);
     font-weight: 600;
     background: var(--accent-light);
+  }
+
+  .sidebar-mascot-card {
+    margin-top: auto;
+    padding: 1rem;
+    border-radius: 12px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 0.5rem;
+  }
+
+  .sidebar-mascot-img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.08));
+    transition: transform 0.2s ease;
+  }
+
+  .sidebar-mascot-card:hover .sidebar-mascot-img {
+    transform: scale(1.1) rotate(4deg);
+  }
+
+  .sidebar-mascot-content strong {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--text-primary);
+    margin-bottom: 0.2rem;
+  }
+
+  .sidebar-mascot-content p {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    line-height: 1.4;
+    margin: 0 0 0.6rem;
+  }
+
+  .sidebar-mascot-link {
+    display: inline-block;
+    font-size: 0.74rem;
+    font-weight: 700;
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #ffffff !important;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+  }
+
+  .sidebar-mascot-link:hover {
+    opacity: 0.9;
+  }
+
+  .doc-badge-icon {
+    width: 14px;
+    height: 14px;
+    vertical-align: -2px;
+    margin-right: 0.35rem;
+    display: inline-block;
   }
 
   /* ─── Main Content Styling ─────────────────────────────────────────── */
