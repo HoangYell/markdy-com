@@ -4,7 +4,7 @@
 > - **Status**: Active & Canonical
 > - **Current Version**: v1.0.7
 > - **Specification Version**: 1.0.x
-> - **Time Updated**: 2026-08-17T14:49:37.931Z
+> - **Time Updated**: 2026-08-17T14:51:08.668Z
 > - **Last Updated**: 2026-08-17
 > - **Canonical URL**: <https://markdy.com/AGENT.md>
 > - **Human-Readable Mirror**: <https://markdy.com/agent/>
@@ -104,8 +104,14 @@ Auto-layout distributes nodes into ranks (columns in `LR`, rows in `TB`). Nodes 
 
 Declare nodes at the top level before referencing them in beats:
 
-```markdy
+```text
 <kind> <Id> ["Optional Display Label"]
+```
+
+```markdy
+service ApiService "Order API"
+database PostgresDB "Main Store"
+queue EventBus "Kafka Events"
 ```
 
 - `<kind>`: Semantic role (determines SVG icon glyph, color tone, and border styling).
@@ -133,14 +139,13 @@ Declare nodes at the top level before referencing them in beats:
 Group nodes into visual boundary containers:
 
 ```markdy
+database Database
+cache Cache
 group storageTier "Storage & Caching Tier": Database Cache
-group workerPool "Worker Cluster": Worker1 Worker2 Worker3
-```
 
-Groups can be referenced directly in camera frames or emphasis glows:
-```markdy
-frame storageTier zoom=1.2
-glow storageTier color=#3b82f6
+beat focusStorage "Inspect Data Tier":
+  frame storageTier zoom=1.2
+  glow storageTier color=#3b82f6
 ```
 
 ---
@@ -157,13 +162,20 @@ Connect nodes using semantic directed edges. Chain multiple steps on one line:
 | `--` | **Structural Link** | Thin solid neutral line | Non-directed dependency |
 
 ```markdy
-# Request and immediate response chain:
-Client -> Gateway "POST /login" -> AuthService "verify_credentials"
-Gateway <- AuthService "JWT Token"
-Client <- Gateway "200 OK (Set-Cookie)"
+browser Client
+gateway Gateway
+service AuthService
+service OrderService
+queue Kafka
 
-# Async event emission:
-OrderService ~> Kafka "order.placed"
+beat auth "Authentication Flow":
+  # Request and immediate response chain:
+  Client -> Gateway "POST /login" -> AuthService "verify_credentials"
+  Gateway <- AuthService "JWT Token"
+  Client <- Gateway "200 OK (Set-Cookie)"
+
+  # Async event emission:
+  OrderService ~> Kafka "order.placed"
 ```
 
 > [!IMPORTANT]

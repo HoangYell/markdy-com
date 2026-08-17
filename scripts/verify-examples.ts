@@ -31,6 +31,31 @@ async function verify(): Promise<number> {
     }
   }
 
+  // Also verify all markdy code blocks inside docs/AGENT.md
+  try {
+    const agentMd = await readFile(join(ROOT, "docs", "AGENT.md"), "utf8");
+    const codeBlockRegex = /```markdy\n([\s\S]*?)```/g;
+    let match: RegExpExecArray | null;
+    let blockIdx = 0;
+    while ((match = codeBlockRegex.exec(agentMd)) !== null) {
+      blockIdx++;
+      total++;
+      const code = match[1].trim();
+      try {
+        const ast = parse(code);
+        const errors = ast.diagnostics.filter((d) => d.severity === "error");
+        if (errors.length) failures.push(`docs/AGENT.md block #${blockIdx}: ${errors.map((e) => e.message).join("; ")}`);
+        for (const w of ast.diagnostics.filter((d) => d.severity === "warning")) {
+          warnings.push(`docs/AGENT.md block #${blockIdx}:${w.line} ${w.message}`);
+        }
+      } catch (error) {
+        failures.push(`docs/AGENT.md block #${blockIdx}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+  } catch (error) {
+    failures.push(`docs/AGENT.md read: ${error instanceof Error ? error.message : String(error)}`);
+  }
+
   // Shipped examples are curated: they must parse cleanly with zero warnings so
   // the reference diagnostics stay meaningful and copy-paste friendly.
   if (failures.length || warnings.length) {
@@ -40,7 +65,7 @@ async function verify(): Promise<number> {
     return 1;
   }
 
-  console.log(`verify-examples: PASS — ${total} example file(s), 0 warnings.`);
+  console.log(`verify-examples: PASS — ${total} example file(s) & documentation blocks, 0 warnings.`);
   return 0;
 }
 
