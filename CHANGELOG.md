@@ -5,6 +5,16 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.8] — 2026-08-17
+
+### Added
+- **Authoritative AGENT.md Refactor** — Redesigned the canonical AI reference guide with a universal 4-step mental model, canvas sizing math, and 8 production-ready golden architectural templates (Microservices, RAG/AI Agents, Kafka Fanout, Kubernetes, GitOps CI/CD, OAuth2 Auth, Multi-Region HA, and Decision Trees).
+- **Automated Documentation Quality Gate** — Extended `verify:examples` to automatically extract, parse, and validate all `markdy` code fences in `docs/AGENT.md` ensuring 100% of documentation examples remain syntactically valid and runnable.
+- **Docs Keyboard Search Shortcuts** — Added `Cmd+K`, `Ctrl+K`, and `/` keyboard shortcuts to immediately focus and select the documentation search bar.
+
+### Changed
+- **Article Typography & Link Contrast** — Standardized text block links and breadcrumbs with high-contrast palette values and distinct underlines.
+
 ## [1.0.7] — 2026-08-17
 
 ### Performance
