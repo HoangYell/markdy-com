@@ -791,11 +791,11 @@ const homepageStructuredData = [
       </div>
 
       <div class="framework-tabs-card">
-        <div class="framework-tabs" role="tablist">
-          <button class="f-tab active" data-tab="js">JavaScript</button>
-          <button class="f-tab" data-tab="astro">Astro</button>
-          <button class="f-tab" data-tab="mdx">MDX / React</button>
-          <button class="f-tab" data-tab="cli">CLI Tooling</button>
+        <div class="framework-tabs" role="tablist" aria-label="Framework Integration Tabs">
+          <button class="f-tab active" data-tab="js" role="tab" aria-selected="true">JavaScript</button>
+          <button class="f-tab" data-tab="astro" role="tab" aria-selected="false">Astro</button>
+          <button class="f-tab" data-tab="mdx" role="tab" aria-selected="false">MDX / React</button>
+          <button class="f-tab" data-tab="cli" role="tab" aria-selected="false">CLI Tooling</button>
         </div>
 
         <div class="f-panel active" data-panel="js">
@@ -905,21 +905,21 @@ markdy check-all ./docs/diagrams</code></pre>
 
       <div class="footer-links-grid">
         <nav class="f-col" aria-label="Product">
-          <h4>Product</h4>
+          <h3>Product</h3>
           <a href="/playground/">Studio</a>
           <a href="#features">Features</a>
           <a href="#layouts">Layout Engines</a>
           <a href="#ingestion">Ingestion</a>
         </nav>
         <nav class="f-col" aria-label="Resources">
-          <h4>Resources</h4>
+          <h3>Resources</h3>
           <a href="/docs/">Documentation</a>
           <a href="/blog/">Articles</a>
           <a href="/AGENT.md">AI Agent Guide</a>
           <a href="/llms.txt">llms.txt</a>
         </nav>
         <nav class="f-col" aria-label="Community">
-          <h4>Community</h4>
+          <h3>Community</h3>
           <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">GitHub</a>
           <a href="https://www.npmjs.com/package/@markdy/core" target="_blank" rel="noopener noreferrer">npm Registry</a>
           <a href="/privacy/">Privacy Policy</a>
@@ -943,18 +943,7 @@ markdy check-all ./docs/diagrams</code></pre>
 
 <!-- ─── Interactive Client Logic ─────────────────────────────────────── -->
 <script>
-  import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from "@codemirror/view";
-  import { EditorState } from "@codemirror/state";
-  import { bracketMatching, indentOnInput } from "@codemirror/language";
-  import { defaultKeymap, history, historyKeymap, indentWithTab } from "@codemirror/commands";
-  import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
-  import { closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
-
-  import { markdyLanguage, markdyAutocomplete, markdyHighlightLight, markdyHighlightDark } from "../editor/markdy-language";
-  import { baseTheme, lightTheme, darkTheme } from "../editor/editor-theme";
-  import { createDiagram, exportDiagramAsVectorSvg } from "@markdy/renderer-dom";
   import type { Diagram } from "@markdy/renderer-dom";
-  import { compressMarkdyToUrlHash } from "@markdy/core";
   import type { ExampleEntry } from "../data/examples";
 
   const examples: ExampleEntry[] = (window as any).__MARKDY_EXAMPLES || [];
@@ -980,13 +969,51 @@ markdy check-all ./docs/diagrams</code></pre>
   let diagram: Diagram | null = null;
   let isAnimPlaying = false;
   let debounce: ReturnType<typeof setTimeout> | null = null;
-  let editorView: EditorView | null = null;
+  let editorView: any = null;
   let isScrubbing = false;
   let selectedPlaybackRate = 1;
   let isAutoShuffleEnabled = true;
   let autoShuffleTimer: ReturnType<typeof setTimeout> | null = null;
   let currentExampleIndex = 0;
   let userEditedCode = false;
+  let editorModulesPromise: Promise<any> | null = null;
+
+  async function getEditorModules() {
+    if (!editorModulesPromise) {
+      editorModulesPromise = Promise.all([
+        import("@codemirror/view"),
+        import("@codemirror/state"),
+        import("@codemirror/language"),
+        import("@codemirror/commands"),
+        import("@codemirror/search"),
+        import("@codemirror/autocomplete"),
+        import("../editor/markdy-language"),
+        import("../editor/editor-theme"),
+        import("@markdy/renderer-dom"),
+      ]).then(([
+        view,
+        state,
+        language,
+        commands,
+        search,
+        autocomplete,
+        markdyLang,
+        editorTheme,
+        renderer,
+      ]) => ({
+        ...view,
+        ...state,
+        ...language,
+        ...commands,
+        ...search,
+        ...autocomplete,
+        ...markdyLang,
+        ...editorTheme,
+        ...renderer,
+      }));
+    }
+    return editorModulesPromise;
+  }
 
   function clearAutoShuffleTimer() {
     if (autoShuffleTimer) {
@@ -1072,11 +1099,12 @@ markdy check-all ./docs/diagrams</code></pre>
     }
   }
 
-  function render(code: string) {
+  async function render(code: string) {
     if (!stage) return;
-    if (diagram) { diagram.destroy(); diagram = null; }
-    stage.innerHTML = "";
     try {
+      const { createDiagram } = await getEditorModules();
+      if (diagram) { diagram.destroy(); diagram = null; }
+      stage.innerHTML = "";
       diagram = createDiagram({
         container: stage,
         code,
@@ -1107,8 +1135,34 @@ markdy check-all ./docs/diagrams</code></pre>
     return editorView?.state.doc.toString() ?? "";
   }
 
-  function createEditor(initialCode: string) {
+  async function createEditor(initialCode: string) {
     if (!editorContainer) return;
+    const {
+      EditorView,
+      EditorState,
+      keymap,
+      lineNumbers,
+      highlightActiveLine,
+      highlightActiveLineGutter,
+      history,
+      bracketMatching,
+      closeBrackets,
+      indentOnInput,
+      highlightSelectionMatches,
+      markdyLanguage,
+      markdyAutocomplete,
+      markdyHighlightLight,
+      markdyHighlightDark,
+      baseTheme,
+      lightTheme,
+      darkTheme,
+      closeBracketsKeymap,
+      defaultKeymap,
+      searchKeymap,
+      historyKeymap,
+      indentWithTab,
+    } = await getEditorModules();
+
     if (editorView) {
       editorView.destroy();
       editorView = null;
@@ -1138,9 +1192,9 @@ markdy check-all ./docs/diagrams</code></pre>
         indentWithTab,
       ]),
       EditorView.contentAttributes.of({ "aria-label": "Code Editor" }),
-      EditorView.updateListener.of((update) => {
+      EditorView.updateListener.of((update: any) => {
         if (update.docChanged) {
-          if (update.transactions.some((tr) => tr.isUserEvent("input") || tr.isUserEvent("delete"))) {
+          if (update.transactions.some((tr: any) => tr.isUserEvent("input") || tr.isUserEvent("delete"))) {
             userEditedCode = true;
             clearAutoShuffleTimer();
           }
@@ -1390,6 +1444,7 @@ markdy check-all ./docs/diagrams</code></pre>
   // Static exports always capture the completed last frame.
   document.getElementById("home-export-svg-btn")?.addEventListener("click", async () => {
     if (!diagram) return;
+    const { exportDiagramAsVectorSvg } = await getEditorModules();
     const svg = await withFinalFrame((scene) => exportDiagramAsVectorSvg(scene, { includeThemeStyles: true }));
     download(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }), "diagram.svg");
     if (typeof (window as any).showToast === "function") {
@@ -1455,6 +1510,7 @@ markdy check-all ./docs/diagrams</code></pre>
   document.getElementById("share-btn")?.addEventListener("click", async () => {
     const code = getEditorCode();
     try {
+      const { compressMarkdyToUrlHash } = await import("@markdy/core");
       const hash = await compressMarkdyToUrlHash(code);
       const url = `${window.location.origin}/playground/#code=${hash}`;
       navigator.clipboard.writeText(url).then(() => {
@@ -1484,9 +1540,13 @@ markdy check-all ./docs/diagrams</code></pre>
   fTabs.forEach((tab) => {
     tab.addEventListener("click", () => {
       const target = tab.dataset.tab;
-      fTabs.forEach((t) => t.classList.remove("active"));
+      fTabs.forEach((t) => {
+        t.classList.remove("active");
+        t.setAttribute("aria-selected", "false");
+      });
       fPanels.forEach((p) => p.classList.remove("active"));
       tab.classList.add("active");
+      tab.setAttribute("aria-selected", "true");
       document.querySelector(`.f-panel[data-panel="${target}"]`)?.classList.add("active");
     });
   });
@@ -1701,8 +1761,17 @@ markdy check-all ./docs/diagrams</code></pre>
   updateThemeIcons(initialTheme);
 
   const initialCode = examples[0]?.code || 'scene "Demo" theme=paper\nclient Browser -> service API -> database DB\nbeat flow:\n  show $nodes';
-  createEditor(initialCode);
-  render(initialCode);
+  if ("requestIdleCallback" in window) {
+    (window as any).requestIdleCallback(() => {
+      createEditor(initialCode);
+      render(initialCode);
+    }, { timeout: 1200 });
+  } else {
+    setTimeout(() => {
+      createEditor(initialCode);
+      render(initialCode);
+    }, 40);
+  }
 </script>
 
 <style>
@@ -2694,16 +2763,17 @@ markdy check-all ./docs/diagrams</code></pre>
   .transport-controls {
     display: flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.35rem;
   }
 
   .btn-transport {
     background: var(--bg-tertiary);
     border: 1px solid var(--border);
     color: var(--text-secondary);
-    font-size: 0.7rem;
-    padding: 0.2rem 0.45rem;
-    border-radius: 5px;
+    font-size: 0.72rem;
+    padding: 0.3rem 0.55rem;
+    min-height: 28px;
+    border-radius: 6px;
     cursor: pointer;
     transition: all 0.15s ease;
   }
@@ -2729,31 +2799,35 @@ markdy check-all ./docs/diagrams</code></pre>
   .btn-transport-play {
     display: flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 0.35rem;
     background: var(--accent-light);
     border: 1px solid var(--accent);
     color: var(--accent);
-    font-size: 0.72rem;
+    font-size: 0.74rem;
     font-weight: 700;
-    padding: 0.2rem 0.55rem;
-    border-radius: 5px;
+    padding: 0.3rem 0.65rem;
+    min-height: 28px;
+    border-radius: 6px;
     cursor: pointer;
   }
 
   .speed-group {
     display: flex;
-    gap: 0.2rem;
+    gap: 0.25rem;
   }
 
   .speed-btn {
-    font-size: 0.68rem;
+    font-size: 0.7rem;
     font-weight: 600;
-    padding: 0.15rem 0.4rem;
+    padding: 0.3rem 0.5rem;
+    min-height: 28px;
+    min-width: 28px;
     border: 1px solid var(--border);
     background: var(--bg-tertiary);
     color: var(--text-secondary);
-    border-radius: 4px;
+    border-radius: 6px;
     cursor: pointer;
+    text-align: center;
   }
 
   .speed-btn.active {
@@ -3636,7 +3710,7 @@ markdy check-all ./docs/diagrams</code></pre>
     gap: 0.4rem;
   }
 
-  .f-col h4 {
+  .f-col h3 {
     font-size: 0.68rem;
     font-weight: 700;
     text-transform: uppercase;
@@ -3722,6 +3796,9 @@ markdy check-all ./docs/diagrams</code></pre>
   @media (max-width: 768px) {
     .home-hero {
       padding: max(2rem, calc(1.5rem + var(--sat))) 1rem 1.75rem;
+    }
+    .hero-stage {
+      min-height: 480px;
     }
     .home-hero h1 {
       font-size: clamp(1.85rem, 6.5vw, 2.75rem);

@@ -112,8 +112,8 @@ const playgroundStructuredData = [
     <!-- ── Top Navigation Bar ── -->
     <nav class="topbar" aria-label="Playground navigation">
       <div class="topbar-left">
-        <a class="brand" href="/" aria-label="Markdy home">
-          <img src="/icon.svg" class="brand-logo-svg" alt="Markdy" width="22" height="22" loading="eager" decoding="async" />
+        <a class="brand" href="/" title="Markdy home">
+          <img src="/icon.svg" class="brand-logo-svg" alt="" width="22" height="22" loading="eager" decoding="async" />
           <strong>markdy studio</strong>
         </a>
         <div id="studio-status-pill" class="status-pill status-pill--ok" title="Diagram compiler status">
@@ -128,22 +128,41 @@ const playgroundStructuredData = [
         <div class="view-mode-group" role="group" aria-label="Studio layout mode">
           <button id="view-split-btn" class="view-mode-btn active" type="button" data-mode="split" title="Split Screen (Code + Canvas)">⚡ Split</button>
           <button id="view-canvas-btn" class="view-mode-btn" type="button" data-mode="canvas" title="Canvas Visual Studio">🎨 Canvas</button>
-          <button id="view-code-btn" class="view-mode-btn" type="button" data-mode="code" title="Pure Code Editor">📝 Code</button>
         </div>
       </div>
 
       <div class="topbar-right">
-        <button id="open-gallery-btn" class="topbar-btn" type="button" title="Browse 29 architecture models">🏛️ Gallery</button>
-        <button id="import-btn" class="topbar-btn" type="button" title="Import from Mermaid, Docker Compose, Kubernetes, Terraform, Draw.io">📥 Import</button>
-        <button id="audit-btn" class="topbar-btn" type="button" title="Run Architecture Governance Audit">🛡️ Audit</button>
+        <!-- Presentation & Playback Mode Switcher -->
+        <button id="live-director-btn" class="tool-btn director-pulse" type="button" title="Open Stage Presentation & Director Mode (Fullscreen Motion Theatre)">
+          <span>🎬 Live Director</span>
+        </button>
 
-        <div class="export-group" role="group" aria-label="Export options">
-          <button id="export-svg-btn" class="topbar-btn export-btn" type="button" title="Export final frame as vector SVG">SVG</button>
-        </div>
+        <button id="import-btn" class="tool-btn" type="button" title="Import from Mermaid, Docker Compose, Kubernetes, Terraform or Draw.io">
+          <span>⚡ Import / Transpile</span>
+        </button>
 
-        <button id="share-btn" class="topbar-btn topbar-btn-share" type="button" title="Copy shareable diagram link">🔗 Share</button>
-        <button id="open-cheatsheet-btn" class="topbar-btn topbar-btn-icon" type="button" title="Keyboard shortcuts & syntax reference" aria-label="Keyboard Shortcuts">⌨️</button>
-        <button id="theme-toggle" class="topbar-btn topbar-btn-icon theme-toggle" type="button" aria-label="Toggle theme">🌓</button>
+        <button id="export-svg-btn" class="tool-btn" type="button" title="Export current scene as scalable, styled Vector SVG">
+          <span>🎨 SVG</span>
+        </button>
+
+        <button id="share-btn" class="tool-btn" type="button" title="Copy compressed shareable URL to clipboard">
+          <span>🔗 Share</span>
+        </button>
+
+        <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="tool-btn tool-btn-icon" aria-label="GitHub Repository" title="GitHub Repository">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
+          </svg>
+        </a>
+
+        <button id="theme-toggle-btn" class="tool-btn tool-btn-icon" type="button" aria-label="Toggle theme">
+          <svg class="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="5" /><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+          </svg>
+          <svg class="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+          </svg>
+        </button>
       </div>
     </nav>
 
@@ -273,19 +292,19 @@ const playgroundStructuredData = [
         <!-- ── Editor Assistant & Architecture Inspector Drawer ── -->
         <div id="assistant-drawer" class="assistant-drawer expanded" aria-label="Assistant and Inspector">
           <div class="assistant-tabs-bar">
-            <div class="assistant-tabs" role="tablist">
-              <button class="assistant-tab active" type="button" data-tab="nodes">
+            <div class="assistant-tabs" role="tablist" aria-label="Assistant Tabs">
+              <button class="assistant-tab active" type="button" data-tab="nodes" role="tab" aria-selected="true">
                 <span>📦 Entities</span>
                 <span id="nodes-count-badge" class="tab-badge">0</span>
               </button>
-              <button class="assistant-tab" type="button" data-tab="suggestions">
+              <button class="assistant-tab" type="button" data-tab="suggestions" role="tab" aria-selected="false">
                 <span>💡 Health &amp; Suggestions</span>
                 <span id="sugg-count-badge" class="tab-badge">0</span>
               </button>
-              <button class="assistant-tab" type="button" data-tab="ai">
+              <button class="assistant-tab" type="button" data-tab="ai" role="tab" aria-selected="false">
                 <span>🤖 AI Prompt Architect</span>
               </button>
-              <button class="assistant-tab" type="button" data-tab="diagnostics">
+              <button class="assistant-tab" type="button" data-tab="diagnostics" role="tab" aria-selected="false">
                 <span>🛡️ Diagnostics &amp; Lint</span>
                 <span id="diag-count-badge" class="tab-badge tab-badge--diag" hidden>0</span>
               </button>
@@ -577,12 +596,12 @@ const playgroundStructuredData = [
         </div>
         <p class="modal-desc">Transpile Mermaid diagrams, Docker Compose services, Kubernetes manifests, Terraform state files, or Draw.io XML graphs into animated MarkdyScript scenes.</p>
 
-        <div class="format-tabs" role="tablist">
-          <button class="format-tab active" type="button" data-format="mermaid">Mermaid</button>
-          <button class="format-tab" type="button" data-format="compose">Docker Compose</button>
-          <button class="format-tab" type="button" data-format="k8s">Kubernetes</button>
-          <button class="format-tab" type="button" data-format="terraform">Terraform</button>
-          <button class="format-tab" type="button" data-format="drawio">Draw.io</button>
+        <div class="format-tabs" role="tablist" aria-label="Import Format Tabs">
+          <button class="format-tab active" type="button" data-format="mermaid" role="tab" aria-selected="true">Mermaid</button>
+          <button class="format-tab" type="button" data-format="compose" role="tab" aria-selected="false">Docker Compose</button>
+          <button class="format-tab" type="button" data-format="k8s" role="tab" aria-selected="false">Kubernetes</button>
+          <button class="format-tab" type="button" data-format="terraform" role="tab" aria-selected="false">Terraform</button>
+          <button class="format-tab" type="button" data-format="drawio" role="tab" aria-selected="false">Draw.io</button>
         </div>
 
         <textarea id="import-source" class="import-textarea" placeholder="Paste source code here..."></textarea>

@@ -98,14 +98,14 @@ const docStructuredData = [
       </nav>
 
       <div class="topbar-actions">
-        <button id="mobile-docs-toc-btn" class="btn-topbar-theme mobile-docs-toc-btn" aria-label="Open Table of Contents" aria-expanded="false" aria-controls="mobile-docs-drawer" title="Table of Contents">
+        <button id="mobile-docs-toc-btn" class="btn-topbar-theme mobile-docs-toc-btn" aria-label="Table of Contents" aria-expanded="false" aria-controls="mobile-docs-drawer" title="Table of Contents">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="15" y2="12"></line><line x1="3" y1="18" x2="18" y2="18"></line></svg>
           <span>TOC</span>
         </button>
         <a href="/playground/" class="btn-topbar-studio">
           <span>⚡ Studio</span>
         </a>
-        <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="btn-topbar-gh">
+        <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="btn-topbar-gh" aria-label="GitHub Repository" title="GitHub Repository">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
         </a>
         <button id="theme-toggle" class="btn-topbar-theme" aria-label="Toggle theme">
@@ -457,7 +457,7 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
         <div class="ingestion-table-grid mt-4">
           <div class="ingest-card">
             <div class="card-head-row">
-              <h4>Mermaid.js (Flowcharts &amp; Sequences)</h4>
+              <h3>Mermaid.js (Flowcharts &amp; Sequences)</h3>
               <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy command">Copy</button>
             </div>
             <p>Converts graph TD/LR and sequence diagrams to MarkdyScript.</p>
@@ -465,7 +465,7 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
           </div>
           <div class="ingest-card">
             <div class="card-head-row">
-              <h4>Docker Compose</h4>
+              <h3>Docker Compose</h3>
               <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy command">Copy</button>
             </div>
             <p>Extracts services, network links, volumes, and ports into clustered scenes.</p>
@@ -473,7 +473,7 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
           </div>
           <div class="ingest-card">
             <div class="card-head-row">
-              <h4>Kubernetes YAML</h4>
+              <h3>Kubernetes YAML</h3>
               <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy command">Copy</button>
             </div>
             <p>Maps Ingress, Service, Deployment, Pod, and PVC tiers into nested groups.</p>
@@ -481,7 +481,7 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
           </div>
           <div class="ingest-card">
             <div class="card-head-row">
-              <h4>Terraform State</h4>
+              <h3>Terraform State</h3>
               <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy command">Copy</button>
             </div>
             <p>Extracts cloud VPCs, subnets, databases, and gateways into layered architectures.</p>
@@ -548,7 +548,7 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
         <div class="framework-grid mt-4">
           <div class="framework-card">
             <div class="card-head-row">
-              <h4>Vanilla JavaScript</h4>
+              <h3>Vanilla JavaScript</h3>
               <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy snippet">Copy</button>
             </div>
             <pre><code>import &#123; createDiagram &#125; from "@markdy/renderer-dom";
@@ -563,7 +563,7 @@ diagram.play();</code></pre>
 
           <div class="framework-card">
             <div class="card-head-row">
-              <h4>Astro Integration</h4>
+              <h3>Astro Integration</h3>
               <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy snippet">Copy</button>
             </div>
             <pre><code>import &#123; Markdy &#125; from "@markdy/astro";
@@ -573,7 +573,7 @@ diagram.play();</code></pre>
 
           <div class="framework-card">
             <div class="card-head-row">
-              <h4>MDX Documentation</h4>
+              <h3>MDX Documentation</h3>
               <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy snippet">Copy</button>
             </div>
             <pre><code>```markdy

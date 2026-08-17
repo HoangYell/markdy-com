@@ -8,6 +8,12 @@ importers:
 
   .:
     devDependencies:
+      chrome-launcher:
+        specifier: ^1.2.1
+        version: 1.2.1
+      lighthouse:
+        specifier: ^13.4.0
+        version: 13.4.0(yauzl@2.10.0)
       puppeteer-core:
         specifier: ^25.7.0
         version: 25.7.0(yauzl@2.10.0)
