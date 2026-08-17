@@ -8,20 +8,53 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 
 const CHROME_PATH = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-const OG_PNG_PATH = path.join(rootDir, 'docs/images/mascot/og-markdy.png');
-const MASCOT_PNG_PATH = path.join(rootDir, 'docs/images/mascot/markdy.png');
-const ICON_SVG_PATH = path.join(rootDir, 'docs/images/mascot/icon.svg');
+const MASCOT_DIR = path.join(rootDir, 'docs/images/mascot');
+const PUBLIC_IMGS_DIR = path.join(rootDir, 'website/public/images');
+const ICON_SVG_PATH = path.join(MASCOT_DIR, 'icon.svg');
+
+async function convertImage(page, inputPath, outputs, { width, height, transparent = true }) {
+  if (!fs.existsSync(inputPath)) {
+    console.warn(`File not found: ${inputPath}`);
+    return;
+  }
+  const base64 = `data:image/png;base64,${fs.readFileSync(inputPath).toString('base64')}`;
+  await page.setViewport({ width, height, deviceScaleFactor: 1 });
+  await page.setContent(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body, html { width: ${width}px; height: ${height}px; overflow: hidden; background: ${transparent ? 'transparent' : '#000'}; }
+          img { width: 100%; height: 100%; object-fit: contain; }
+        </style>
+      </head>
+      <body>
+        <img src="${base64}" />
+      </body>
+    </html>
+  `, { waitUntil: 'domcontentloaded' });
+  await new Promise(r => setTimeout(r, 150));
+
+  for (const out of outputs) {
+    const outDir = path.dirname(out);
+    if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
+    await page.screenshot({ path: out, type: 'webp', quality: 95, omitBackground: transparent });
+    console.log(`✅ Saved: ${path.relative(rootDir, out)}`);
+  }
+}
 
 async function convert() {
-  console.log('🔄 Converting and updating brand assets...');
+  console.log('🔄 Converting and updating all brand assets...');
 
   // 1. Copy icon.svg to website/public/
-  const iconSvgContent = fs.readFileSync(ICON_SVG_PATH, 'utf-8');
-  fs.writeFileSync(path.join(rootDir, 'website/public/icon.svg'), iconSvgContent);
-  fs.writeFileSync(path.join(rootDir, 'website/public/favicon.svg'), iconSvgContent);
-  console.log('✅ Updated website/public/icon.svg & favicon.svg with new hexagon M mark.');
+  if (fs.existsSync(ICON_SVG_PATH)) {
+    const iconSvgContent = fs.readFileSync(ICON_SVG_PATH, 'utf-8');
+    fs.writeFileSync(path.join(rootDir, 'website/public/icon.svg'), iconSvgContent);
+    fs.writeFileSync(path.join(rootDir, 'website/public/favicon.svg'), iconSvgContent);
+    console.log('✅ Updated website/public/icon.svg & favicon.svg with vector hexagon M mark.');
+  }
 
-  // 2. Launch browser to convert og-markdy.png to webp & optimized png
   const browser = await puppeteer.launch({
     executablePath: CHROME_PATH,
     headless: true,
@@ -30,63 +63,75 @@ async function convert() {
 
   const page = await browser.newPage();
 
-  // Convert OG Image (1200x630 social standard or 1600x900)
-  const ogBase64 = `data:image/png;base64,${fs.readFileSync(OG_PNG_PATH).toString('base64')}`;
-  await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 1 });
-  await page.setContent(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <style>
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body, html { width: 1200px; height: 630px; overflow: hidden; background: #000; }
-          img { width: 1200px; height: 630px; object-fit: cover; }
-        </style>
-      </head>
-      <body>
-        <img src="${ogBase64}" />
-      </body>
-    </html>
-  `, { waitUntil: 'domcontentloaded' });
-  await new Promise(r => setTimeout(r, 200));
+  // 2. Convert OG Image (1200x630)
+  await convertImage(
+    page,
+    path.join(MASCOT_DIR, 'og-markdy.png'),
+    [
+      path.join(MASCOT_DIR, 'og-markdy.webp'),
+      path.join(rootDir, 'website/public/og-image.webp'),
+      path.join(PUBLIC_IMGS_DIR, 'og-markdy.webp'),
+    ],
+    { width: 1200, height: 630, transparent: false }
+  );
 
-  const ogWebpDocs = path.join(rootDir, 'docs/images/mascot/og-markdy.webp');
-  const ogWebpPublic = path.join(rootDir, 'website/public/og-image.webp');
-  const ogWebpPublicImgs = path.join(rootDir, 'website/public/images/og-markdy.webp');
+  // 3. Convert transparent Mascot (markdy.png)
+  await convertImage(
+    page,
+    path.join(MASCOT_DIR, 'markdy.png'),
+    [
+      path.join(MASCOT_DIR, 'markdy.webp'),
+      path.join(PUBLIC_IMGS_DIR, 'mascot.webp'),
+    ],
+    { width: 800, height: 800, transparent: true }
+  );
 
-  await page.screenshot({ path: ogWebpDocs, type: 'webp', quality: 95 });
-  await page.screenshot({ path: ogWebpPublic, type: 'webp', quality: 95 });
-  await page.screenshot({ path: ogWebpPublicImgs, type: 'webp', quality: 95 });
-  console.log('✅ Generated og-image.webp and og-markdy.webp.');
+  // 4. Convert 3D Brand Wordmark (markdy-com.png)
+  await convertImage(
+    page,
+    path.join(MASCOT_DIR, 'markdy-com.png'),
+    [
+      path.join(MASCOT_DIR, 'markdy-com.webp'),
+      path.join(PUBLIC_IMGS_DIR, 'markdy-com.webp'),
+    ],
+    { width: 1200, height: 400, transparent: true }
+  );
 
-  // Convert Mascot transparent image to webp
-  const mascotBase64 = `data:image/png;base64,${fs.readFileSync(MASCOT_PNG_PATH).toString('base64')}`;
-  await page.setViewport({ width: 600, height: 600, deviceScaleFactor: 1 });
-  await page.setContent(`
-    <!DOCTYPE html>
-    <html>
-      <head>
-        <style>
-          * { margin: 0; padding: 0; box-sizing: border-box; }
-          body, html { width: 600px; height: 600px; overflow: hidden; background: transparent; }
-          img { width: 600px; height: 600px; object-fit: contain; }
-        </style>
-      </head>
-      <body>
-        <img src="${mascotBase64}" />
-      </body>
-    </html>
-  `, { waitUntil: 'domcontentloaded' });
-  await new Promise(r => setTimeout(r, 200));
+  // 5. Convert Action Mascot Ads (male-markdy-ads.png)
+  await convertImage(
+    page,
+    path.join(MASCOT_DIR, 'male-markdy-ads.png'),
+    [
+      path.join(MASCOT_DIR, 'male-markdy-ads.webp'),
+      path.join(PUBLIC_IMGS_DIR, 'male-markdy-ads.webp'),
+    ],
+    { width: 1200, height: 800, transparent: true }
+  );
 
-  const mascotWebpDocs = path.join(rootDir, 'docs/images/mascot/markdy.webp');
-  const mascotWebpPublic = path.join(rootDir, 'website/public/images/mascot.webp');
+  // 6. Convert Character Mascot (male-markdy.png)
+  await convertImage(
+    page,
+    path.join(MASCOT_DIR, 'male-markdy.png'),
+    [
+      path.join(MASCOT_DIR, 'male-markdy.webp'),
+      path.join(PUBLIC_IMGS_DIR, 'male-markdy.webp'),
+    ],
+    { width: 800, height: 800, transparent: true }
+  );
 
-  await page.screenshot({ path: mascotWebpDocs, type: 'webp', quality: 95, omitBackground: true });
-  await page.screenshot({ path: mascotWebpPublic, type: 'webp', quality: 95, omitBackground: true });
-  console.log('✅ Generated mascot.webp with transparent background.');
+  // 7. Convert 3D Hexagon Icon (3d-icon.png)
+  await convertImage(
+    page,
+    path.join(MASCOT_DIR, '3d-icon.png'),
+    [
+      path.join(MASCOT_DIR, '3d-icon.webp'),
+      path.join(PUBLIC_IMGS_DIR, '3d-icon.webp'),
+    ],
+    { width: 400, height: 400, transparent: true }
+  );
 
   await browser.close();
+  console.log('🎉 All brand assets successfully converted and synchronized!');
 }
 
 convert().catch(console.error);

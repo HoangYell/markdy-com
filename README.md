@@ -1,12 +1,13 @@
 <p align="center">
-  <img src="docs/images/mascot/icon.svg" width="64" height="64" alt="Markdy Logo" /><br>
-  <strong>Markdy</strong><br>
-  Open-source DSL for animated architecture & system diagrams.<br>
-  Write diagram-native MarkdyScript → get browser-native animated architecture diagrams.
+  <a href="https://markdy.com">
+    <img src="docs/images/mascot/markdy-com.webp" width="380" alt="markdy.com" />
+  </a><br>
+  <strong>Open-source DSL for animated architecture &amp; system diagrams.</strong><br>
+  Write diagram-native MarkdyScript → get browser-native motion graphics that stay version-controlled, PR-friendly, and AI-native.
 </p>
 
 <p align="center">
-  <a href="https://markdy.com/playground/"><b>✨ Try the Interactive Playground</b></a>
+  <a href="https://markdy.com/playground/"><b>⚡ Try the Interactive Studio / Playground</b></a>
 </p>
 
 <p align="center">
@@ -27,7 +28,7 @@
 
 ## What is Markdy?
 
-**Markdy is a framework-agnostic, diagram-native DSL for animated architecture and system diagrams.** Declare semantic nodes, groups, beats, flows, and cues in MarkdyScript — Markdy handles layout, edge routing, timing, and browser-native rendering with the Web Animations API. No Canvas, no GSAP, no bloated dependencies.
+**Markdy is a framework-agnostic, diagram-native DSL for animated architecture and system diagrams.** Declare semantic nodes, groups, beats, flows, and cues in MarkdyScript — Markdy handles layout, edge routing, timing, and browser-native rendering with the Web Animations API. No Canvas, no GSAP, zero bloated dependencies.
 
 > Markdy is built for **animated architecture diagrams and system-design explainers**.
 > The built-in vocabulary expresses architecture, cloud, Kubernetes, CI/CD, auth, data, messaging, state-machine, and flow diagrams.
@@ -55,7 +56,7 @@ beat main "Trace the request":
 |---|---|
 | **Zero-dep parser & engines** | `@markdy/core` is pure TypeScript — AST parser, architecture linter, semantic classifier, AST diff engine, brand theme generator, and URL state codec |
 | **Web-native renderer** | Web Animations API + CSS transforms. No Canvas, no GSAP, zero dependencies |
-| **13 Specialized Layout Engines** | `architecture`, `flowchart`, `tree`, `state`, `sequence`, `constellation`, `loop`/`flywheel`, `medallion`, `quadrant`, `swimlane`, `pyramid`, `radar`, `timeline`, `gantt`, and `venn` |
+| **17 Specialized Layout Engines** | `architecture` (LR, RL, TB, BT), `flowchart`, `tree`, `state`, `sequence`, `constellation`, `loop`/`flywheel`, `medallion`, `quadrant`, `swimlane`, `pyramid`, `radar`, `timeline`, `gantt`, `venn`, `grid`, and `radial` |
 | **8 Semantic Themes** | `paper`, `editorial`, `nebula`, `midnight`, `blueprint`, `graphite`, `terminal` (CLI/TUI dark mode), and `sketchy` (editorial hand-drawn) |
 | **Universal Ingestion** | Instant transpilers for Mermaid, draw.io, Docker Compose, Kubernetes manifests, and Terraform state into animated MarkdyScript scenes (`markdy import`) |
 | **Brand Theme Generator** | Extract and generate WCAG-compliant light and dark themes from any brand hex color (`generateThemeFromBrand()`) |

@@ -53,7 +53,9 @@ Would love your feedback on the MarkdyScript grammar — which node kinds, cues,
 
 *(Ready in `website/public/images/` and `docs/images/`:)*
 
-- [x] **Thumbnail (240×240px):** `website/public/icon.svg` on dark backdrop
+- [x] **Thumbnail (240×240px):** `website/public/images/3d-icon.webp` / `website/public/icon.svg`
+- [x] **Header Banner (Brand Wordmark):** `website/public/images/markdy-com.webp`
+- [x] **Mascot Launch Banner:** `website/public/images/male-markdy-ads.webp`
 - [x] **Gallery Image 1 (Hero Studio):** `website/public/images/markdy-studio-hero.webp`
 - [x] **Gallery Image 2 (Mermaid vs Markdy):** `website/public/images/markdy-vs-mermaid-comparison.webp`
 - [x] **Gallery Image 3 (Cloud Blueprint):** `website/public/images/scene-kubernetes-cluster.webp`
