@@ -162,35 +162,106 @@ const LAYOUT_SNIPPETS: Record<string, string> = {
 
 const INGESTION_SOURCES = [
   {
+    id: "mermaid",
     name: "Mermaid.js",
-    ext: ".mmd / .mermaid",
+    ext: "flowchart.mmd",
+    rawLang: "mermaid",
     badge: "Flowcharts & Sequences",
     desc: "Transpile existing Mermaid graph and sequence charts directly into animated MarkdyScript scenes.",
     cmd: "markdy import flow.mmd --out flow.markdy",
-    snippet: `scene "Transpiled Mermaid Flow" theme=paper type=flowchart\nlayout TB\n\nservice Client "Client Browser"\ngateway Gateway "API Gateway"\nservice Auth "Auth Microservice"\ndatabase DB "PostgreSQL"\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> Gateway "POST /login"\n  Gateway -> Auth "Validate"\n  Auth -> DB "Query Credentials"\n  Gateway <- Auth "JWT Token"`,
+    rawInput: `flowchart LR
+  Client[Client Browser] --> Gateway[API Gateway]
+  Gateway --> Auth[Auth Service]
+  Auth --> DB[(PostgreSQL)]
+  Auth -.-> Cache[(Redis Session)]`,
+    snippet: `scene "Transpiled Mermaid Flow" theme=paper type=flowchart\nlayout TB\n\nservice Client "Client Browser"\ngateway Gateway "API Gateway"\nservice Auth "Auth Microservice"\ncache Cache "Redis Session"\ndatabase DB "PostgreSQL"\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> Gateway "POST /login"\n  Gateway -> Auth "Validate"\n  Auth -> DB "Query Credentials"\n  Auth -> Cache "Set Session"\n  Gateway <- Auth "JWT Token"`,
   },
   {
+    id: "docker",
     name: "Docker Compose",
     ext: "docker-compose.yml",
+    rawLang: "yaml",
     badge: "Containers & Mesh",
     desc: "Extract service definitions, ports, network links, and volumes into a live architecture diagram.",
     cmd: "markdy import docker-compose.yml",
+    rawInput: `version: '3.8'
+services:
+  web:
+    image: nginx:alpine
+    ports: ["80:80"]
+    depends_on: [api]
+  api:
+    build: ./api
+    depends_on: [cache, db]
+  cache:
+    image: redis:7-alpine
+  db:
+    image: postgres:16-alpine`,
     snippet: `scene "Docker Compose Stack" theme=terminal type=nested\nlayout TB\n\nservice Web "nginx:alpine"\nservice Api "node:20-alpine"\nservice Cache "redis:7-alpine"\ndatabase Db "postgres:16-alpine"\n\ngroup ingress: Web\ngroup app: Api Cache\ngroup data: Db\n\nbeat boot:\n  show ingress stagger=50ms & show app stagger=50ms & show data\n  Web -> Api "proxy_pass :3000"\n  Api -> Cache "connect :6379"\n  Api -> Db "connect :5432"`,
   },
   {
+    id: "k8s",
     name: "Kubernetes YAML",
     ext: "k8s-manifest.yaml",
+    rawLang: "yaml",
     badge: "Pods & Clusters",
     desc: "Map Ingress, Service, Deployment, Pod, and PVC resources into clustered layout tiers.",
     cmd: "markdy import cluster.yaml",
+    rawInput: `apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: api-ingress
+spec:
+  rules:
+  - host: api.markdy.com
+    http:
+      paths:
+      - path: /
+        backend:
+          service:
+            name: order-service
+            port: { number: 80 }`,
     snippet: `scene "Kubernetes Cluster Ingress" theme=midnight type=nested\nlayout TB\n\nservice Ingress "nginx-ingress"\nservice Svc "order-service:80"\nservice PodA "order-pod-1"\nservice PodB "order-pod-2"\n\ngroup ingress: Ingress\ngroup cluster: Svc PodA PodB\n\nbeat route:\n  show ingress & show cluster stagger=60ms\n  Ingress -> Svc "Host: api.markdy.com"\n  Svc -> PodA "round_robin"\n  Svc -> PodB "round_robin"`,
   },
   {
+    id: "drawio",
+    name: "Draw.io XML",
+    ext: "diagram.drawio",
+    rawLang: "xml",
+    badge: "Vector Whiteboard",
+    desc: "Convert Draw.io and diagrams.net XML architectures into structured motion choreographies.",
+    cmd: "markdy import diagram.drawio --out scene.markdy",
+    rawInput: `<mxfile host="app.diagrams.net">
+  <diagram name="Edge Flow">
+    <mxGraphModel>
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="edge" value="Cloudflare Edge" vertex="1" parent="1"/>
+        <mxCell id="origin" value="App Server" vertex="1" parent="1"/>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>`,
+    snippet: `scene "Draw.io Transpiled Flow" theme=blueprint\nlayout LR\n\nservice CDN "Cloudflare Edge"\nservice Origin "App Server"\ndatabase Storage "S3 Object Store"\n\nbeat cache:\n  show $nodes stagger=50ms\n  CDN -> Origin "Cache Miss -> fetch"\n  Origin -> Storage "GET /assets"`,
+  },
+  {
+    id: "terraform",
     name: "Terraform State",
     ext: "terraform.tfstate",
+    rawLang: "json",
     badge: "Cloud Infrastructure",
     desc: "Visualize provisioned AWS/GCP/Azure VPCs, subnets, databases, and gateways automatically.",
     cmd: "markdy import terraform.tfstate",
+    rawInput: `{
+  "format_version": "1.0",
+  "resources": [
+    { "type": "aws_internet_gateway", "name": "igw" },
+    { "type": "aws_subnet", "name": "public_a" },
+    { "type": "aws_subnet", "name": "private_b" },
+    { "type": "aws_db_instance", "name": "postgres" }
+  ]
+}`,
     snippet: `scene "Terraform AWS Multi-AZ VPC" theme=blueprint type=layers\nlayout TB\n\nservice IGW "Internet Gateway"\nservice PublicSubnet "Public Subnet (AZ-1a)"\nservice PrivateSubnet "Private Subnet (AZ-1b)"\nservice RDS "RDS Multi-AZ (AZ-1c)"\n\nbeat provision:\n  show $nodes stagger=70ms\n  IGW -> PublicSubnet "0.0.0.0/0"\n  PublicSubnet -> PrivateSubnet "NAT Route"\n  PrivateSubnet -> RDS "Port 5432"`,
   },
 ];
@@ -553,31 +624,89 @@ const homepageStructuredData = [
       </div>
     </section>
 
-    <!-- ─── Universal Ingestion ─────────────────────────────────────────── -->
+    <!-- ─── Universal Ingestion (Interactive Comparison Dock) ────────────── -->
     <section id="ingestion" class="ingestion-section">
       <div class="section-heading-block">
         <span class="section-tag">Universal Ingestion</span>
         <h2>Never Start From Scratch</h2>
-        <p>Convert existing static architecture definitions into animated MarkdyScript in 1 click.</p>
+        <p>Convert existing static architecture definitions into animated MarkdyScript scenes in 1 command or 1 click.</p>
       </div>
 
-      <div class="ingestion-grid">
-        {INGESTION_SOURCES.map((src) => (
-          <div class="ingestion-box">
-            <div class="ingestion-box-top">
-              <strong>{src.name}</strong>
-              <span class="ingestion-badge">{src.badge}</span>
-            </div>
-            <p>{src.desc}</p>
-            <div class="cmd-row">
-              <code>{src.cmd}</code>
-              <button class="ingestion-copy-btn copy-btn" title="Copy command">Copy</button>
-            </div>
-            <button class="ingestion-try-btn try-chip-btn" data-snippet={src.snippet}>
-              <span>⚡ Preview Transpiled Scene</span>
+      <div class="ingestion-dock-container">
+        <!-- Format Switcher Tabs -->
+        <div class="ingestion-tabs-shelf" role="tablist" aria-label="Ingestion Format Tabs">
+          {INGESTION_SOURCES.map((src, i) => (
+            <button
+              class={`ingestion-format-tab ${i === 0 ? "active" : ""}`}
+              type="button"
+              data-ingestion-id={src.id}
+              role="tab"
+              aria-selected={i === 0 ? "true" : "false"}
+            >
+              <span class="ingestion-tab-title">{src.name}</span>
+              <span class="ingestion-tab-badge">{src.badge}</span>
+            </button>
+          ))}
+        </div>
+
+        <!-- Ingestion Command & Action Bar -->
+        <div class="ingestion-action-bar">
+          <div class="ingestion-cmd-box">
+            <span class="cmd-prompt">$</span>
+            <code id="ingestion-cmd-text">{INGESTION_SOURCES[0].cmd}</code>
+            <button id="ingestion-cmd-copy-btn" class="ingestion-copy-btn copy-btn" title="Copy CLI command">Copy</button>
+          </div>
+          <div class="ingestion-right-actions">
+            <button id="ingestion-run-studio-btn" class="btn-prompt-action btn-prompt-run" title="Load & run this transpiled scene in Live Studio">
+              <span>⚡ Run in Studio</span>
+            </button>
+            <button id="ingestion-copy-code-btn" class="btn-prompt-action btn-prompt-copy" title="Copy MarkdyScript output">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              <span>Copy MarkdyScript</span>
             </button>
           </div>
-        ))}
+        </div>
+
+        <!-- Before -> After Comparison Split Dock -->
+        <div class="ingestion-compare-split">
+          <!-- Left Pane: Raw Static Input -->
+          <div class="ingestion-code-pane pane-before">
+            <div class="code-pane-header">
+              <div class="pane-header-left">
+                <span class="pane-badge badge-raw">ORIGINAL STATIC INPUT</span>
+                <span id="ingestion-ext-label" class="file-ext-label">{INGESTION_SOURCES[0].ext}</span>
+              </div>
+              <span class="pane-note">Static 2D Diagram / Manifest</span>
+            </div>
+            <div class="code-pane-body">
+              <pre><code id="ingestion-raw-code">{INGESTION_SOURCES[0].rawInput}</code></pre>
+            </div>
+          </div>
+
+          <!-- Middle Animated Indicator -->
+          <div class="ingestion-transpile-bridge" aria-hidden="true">
+            <div class="bridge-line"></div>
+            <div class="bridge-pill">
+              <span class="bridge-icon">⚡</span>
+              <span>1-Click Transpile</span>
+            </div>
+            <div class="bridge-line"></div>
+          </div>
+
+          <!-- Right Pane: Animated MarkdyScript Output -->
+          <div class="ingestion-code-pane pane-after">
+            <div class="code-pane-header">
+              <div class="pane-header-left">
+                <span class="pane-badge badge-markdy">ANIMATED MARKDYSCRIPT</span>
+                <span class="file-ext-label">output.markdy</span>
+              </div>
+              <span class="pane-note">Native WAAPI Browser Motion</span>
+            </div>
+            <div class="code-pane-body">
+              <pre><code id="ingestion-markdy-code">{INGESTION_SOURCES[0].snippet}</code></pre>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -735,11 +864,20 @@ markdy check-all ./docs/diagrams</code></pre>
       </div>
 
       <div class="faq-accordion-list">
-        {FAQS.map((f) => (
-          <details class="faq-details">
-            <summary>{f.question}</summary>
-            <p>{f.answer}</p>
-          </details>
+        {FAQS.map((f, i) => (
+          <div class={`faq-item ${i === 0 ? "active" : ""}`} data-faq-index={i}>
+            <button class="faq-trigger" type="button" aria-expanded={i === 0 ? "true" : "false"} aria-controls={`faq-answer-${i}`}>
+              <span class="faq-question-text">{f.question}</span>
+              <span class="faq-chevron" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </span>
+            </button>
+            <div id={`faq-answer-${i}`} class="faq-body" role="region">
+              <div class="faq-content">
+                <p>{f.answer}</p>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </section>
@@ -792,9 +930,10 @@ markdy check-all ./docs/diagrams</code></pre>
 </Layout>
 
 <!-- ─── Client Runtime Variables ─────────────────────────────────────── -->
-<script define:vars={{ examples: EXAMPLES, flowerAsset: FLOWER_ASSET }}>
+<script define:vars={{ examples: EXAMPLES, flowerAsset: FLOWER_ASSET, ingestion: INGESTION_SOURCES }}>
   window.__MARKDY_EXAMPLES = examples;
   window.__MARKDY_ASSETS = flowerAsset;
+  window.__MARKDY_INGESTION = ingestion;
 </script>
 
 <!-- ─── Interactive Client Logic ─────────────────────────────────────── -->
@@ -1112,6 +1251,9 @@ markdy check-all ./docs/diagrams</code></pre>
       await navigator.clipboard.writeText(code);
       if (tutorialCopyLabel) tutorialCopyLabel.textContent = "✓ Copied to Clipboard!";
       tutorialCopyBtn.classList.add("btn-copied-active");
+      if (typeof (window as any).showToast === "function") {
+        (window as any).showToast("Copied AI prompt to clipboard! Ready to paste into Cursor / Claude", "📋");
+      }
       setTimeout(() => {
         if (tutorialCopyLabel) tutorialCopyLabel.textContent = "Copy Prompt for AI";
         tutorialCopyBtn.classList.remove("btn-copied-active");
@@ -1138,6 +1280,9 @@ markdy check-all ./docs/diagrams</code></pre>
         studio.scrollIntoView({ behavior: "smooth", block: "center" });
         studio.classList.add("studio-highlight-flash");
         setTimeout(() => studio.classList.remove("studio-highlight-flash"), 1500);
+      }
+      if (typeof (window as any).showToast === "function") {
+        (window as any).showToast("Loaded AI prompt result into Studio", "⚡");
       }
     }
   });
@@ -1242,6 +1387,9 @@ markdy check-all ./docs/diagrams</code></pre>
     if (!diagram) return;
     const svg = await withFinalFrame((scene) => exportDiagramAsVectorSvg(scene, { includeThemeStyles: true }));
     download(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }), "diagram.svg");
+    if (typeof (window as any).showToast === "function") {
+      (window as any).showToast("Exported Vector SVG diagram", "🎨");
+    }
   });
 
   // Copy code button
@@ -1252,6 +1400,9 @@ markdy check-all ./docs/diagrams</code></pre>
       await navigator.clipboard.writeText(code);
       const orig = homeCopyBtn.textContent;
       homeCopyBtn.textContent = "Copied!";
+      if (typeof (window as any).showToast === "function") {
+        (window as any).showToast("Copied MarkdyScript code to clipboard", "📋");
+      }
       setTimeout(() => { homeCopyBtn.textContent = orig; }, 1800);
     } catch {
       homeCopyBtn.title = "Copy failed";
@@ -1289,6 +1440,9 @@ markdy check-all ./docs/diagrams</code></pre>
     render(text);
     const orig = homePasteBtn.textContent;
     homePasteBtn.textContent = "Pasted!";
+    if (typeof (window as any).showToast === "function") {
+      (window as any).showToast("Pasted MarkdyScript into Studio", "📥");
+    }
     setTimeout(() => { homePasteBtn.textContent = orig; }, 1800);
   });
 
@@ -1303,6 +1457,9 @@ markdy check-all ./docs/diagrams</code></pre>
         if (shareBtn) {
           const orig = shareBtn.textContent;
           shareBtn.textContent = "Copied!";
+          if (typeof (window as any).showToast === "function") {
+            (window as any).showToast("Shareable diagram link copied to clipboard", "🔗");
+          }
           setTimeout(() => (shareBtn.textContent = orig), 2000);
         }
       });
@@ -1310,6 +1467,9 @@ markdy check-all ./docs/diagrams</code></pre>
       const encoded = encodeURIComponent(code);
       const url = `${window.location.origin}/playground/#code=${encoded}`;
       navigator.clipboard.writeText(url);
+      if (typeof (window as any).showToast === "function") {
+        (window as any).showToast("Shareable diagram link copied to clipboard", "🔗");
+      }
     }
   });
 
@@ -1329,13 +1489,16 @@ markdy check-all ./docs/diagrams</code></pre>
   // Copy buttons
   document.querySelectorAll<HTMLButtonElement>(".copy-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
-      const container = btn.closest(".ai-config-card, .f-panel, .cmd-row, .ingestion-box") || btn.closest("div");
+      const container = btn.closest(".ai-config-card, .f-panel, .cmd-row, .ingestion-box, .ingestion-cmd-box") || btn.closest("div");
       const codeBlock = container?.querySelector("code");
       const text = codeBlock?.textContent || "";
       navigator.clipboard.writeText(text.trim()).then(() => {
         const orig = btn.textContent;
         btn.textContent = "Copied!";
         btn.classList.add("copied");
+        if (typeof (window as any).showToast === "function") {
+          (window as any).showToast("Copied to clipboard", "📋");
+        }
         setTimeout(() => {
           btn.textContent = orig;
           btn.classList.remove("copied");
@@ -1346,6 +1509,110 @@ markdy check-all ./docs/diagrams</code></pre>
         setTimeout(() => (btn.textContent = orig), 2000);
       });
     });
+  });
+
+  // ─── Ingestion Comparison Dock Handlers ──────────────────────────────
+  const ingestionList: any[] = (window as any).__MARKDY_INGESTION || [];
+  const ingestionTabs = document.querySelectorAll<HTMLButtonElement>(".ingestion-format-tab");
+  const ingestionCmdText = document.getElementById("ingestion-cmd-text");
+  const ingestionExtLabel = document.getElementById("ingestion-ext-label");
+  const ingestionRawCode = document.getElementById("ingestion-raw-code");
+  const ingestionMarkdyCode = document.getElementById("ingestion-markdy-code");
+  const ingestionCmdCopyBtn = document.getElementById("ingestion-cmd-copy-btn");
+  const ingestionRunStudioBtn = document.getElementById("ingestion-run-studio-btn");
+  const ingestionCopyCodeBtn = document.getElementById("ingestion-copy-code-btn");
+
+  let activeIngestionIndex = 0;
+
+  ingestionTabs.forEach((tab, index) => {
+    tab.addEventListener("click", () => {
+      ingestionTabs.forEach((t) => {
+        t.classList.remove("active");
+        t.setAttribute("aria-selected", "false");
+      });
+      tab.classList.add("active");
+      tab.setAttribute("aria-selected", "true");
+      activeIngestionIndex = index;
+      const src = ingestionList[index];
+      if (src) {
+        if (ingestionCmdText) ingestionCmdText.textContent = src.cmd;
+        if (ingestionExtLabel) ingestionExtLabel.textContent = src.ext;
+        if (ingestionRawCode) ingestionRawCode.textContent = src.rawInput;
+        if (ingestionMarkdyCode) ingestionMarkdyCode.textContent = src.snippet;
+        if (typeof (window as any).showToast === "function") {
+          (window as any).showToast(`Switched to ${src.name} transpiler`, "🔄");
+        }
+      }
+    });
+  });
+
+  ingestionCmdCopyBtn?.addEventListener("click", () => {
+    const cmd = ingestionCmdText?.textContent || "";
+    navigator.clipboard.writeText(cmd).then(() => {
+      if (typeof (window as any).showToast === "function") {
+        (window as any).showToast("Copied CLI import command", "💻");
+      }
+    });
+  });
+
+  ingestionRunStudioBtn?.addEventListener("click", () => {
+    const src = ingestionList[activeIngestionIndex];
+    if (src) {
+      userEditedCode = false;
+      clearAutoShuffleTimer();
+      setEditorCode(src.snippet);
+      const studio = document.getElementById("playground");
+      if (studio) {
+        studio.scrollIntoView({ behavior: "smooth", block: "center" });
+        studio.classList.add("studio-highlight-flash");
+        setTimeout(() => studio.classList.remove("studio-highlight-flash"), 1500);
+      }
+      if (typeof (window as any).showToast === "function") {
+        (window as any).showToast(`Loaded ${src.name} into Studio`, "⚡");
+      }
+    }
+  });
+
+  ingestionCopyCodeBtn?.addEventListener("click", () => {
+    const src = ingestionList[activeIngestionIndex];
+    if (src) {
+      navigator.clipboard.writeText(src.snippet).then(() => {
+        if (typeof (window as any).showToast === "function") {
+          (window as any).showToast(`Copied ${src.name} MarkdyScript`, "📋");
+        }
+      });
+    }
+  });
+
+  // ─── FAQ Accordion Handlers ──────────────────────────────────────────
+  document.querySelectorAll(".faq-trigger").forEach((trigger) => {
+    trigger.addEventListener("click", () => {
+      const item = trigger.closest(".faq-item");
+      if (!item) return;
+      const isOpen = item.classList.contains("active");
+      document.querySelectorAll(".faq-item").forEach((i) => {
+        i.classList.remove("active");
+        i.querySelector(".faq-trigger")?.setAttribute("aria-expanded", "false");
+      });
+      if (!isOpen) {
+        item.classList.add("active");
+        trigger.setAttribute("aria-expanded", "true");
+      }
+    });
+  });
+
+  // ─── Global Keyboard Shortcuts ───────────────────────────────────────
+  document.addEventListener("keydown", (e) => {
+    const target = e.target as HTMLElement;
+    if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable || target.closest(".cm-editor"))) {
+      return;
+    }
+    if (e.code === "Space") {
+      e.preventDefault();
+      playBtn?.click();
+    } else if (e.key === "r" || e.key === "R") {
+      restartBtn?.click();
+    }
   });
 
   // Mobile Menu Drawer Toggle
@@ -2759,105 +3026,234 @@ markdy check-all ./docs/diagrams</code></pre>
     color: var(--text-secondary);
   }
 
-  /* ─── Ingestion Section ────────────────────────────────────────────── */
-  .ingestion-grid {
-    display: flex;
-    overflow-x: auto;
-    overflow-y: hidden;
-    scroll-snap-type: x mandatory;
-    gap: 1.25rem;
-    padding: 0.25rem 0.25rem 0.85rem;
-    margin: 0 -0.5rem;
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border) transparent;
-  }
-
-  .ingestion-grid::-webkit-scrollbar {
-    height: 5px;
-  }
-
-  .ingestion-grid::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .ingestion-grid::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 4px;
-  }
-
-  .ingestion-box {
-    flex: 0 0 clamp(260px, 26vw, 320px);
-    scroll-snap-align: start;
+  /* ─── Ingestion Before-After Comparison Dock ─── */
+  .ingestion-dock-container {
     background: var(--bg-elevated);
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 16px;
     padding: 1.25rem;
+    box-shadow: var(--shadow-sm);
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
-    box-shadow: var(--shadow-xs);
+    gap: 1rem;
   }
 
-  .ingestion-box-top {
+  .ingestion-tabs-shelf {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .ingestion-box-top strong {
-    font-size: 0.95rem;
-    color: var(--text-primary);
-  }
-
-  .ingestion-badge {
-    font-size: 0.65rem;
-    font-weight: 600;
-    padding: 0.12rem 0.4rem;
-    border-radius: 4px;
-    background: var(--bg-tertiary);
-    color: var(--text-muted);
-  }
-
-  .ingestion-box p {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    line-height: 1.5;
-    flex: 1;
-  }
-
-  .cmd-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: var(--code-bg);
-    border: 1px solid var(--code-border);
-    padding: 0.35rem 0.6rem;
-    border-radius: 6px;
     gap: 0.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
   }
 
-  .cmd-row code {
-    font-size: 0.72rem;
-    color: var(--text-primary);
-    overflow: hidden;
-    text-overflow: ellipsis;
+  .ingestion-tabs-shelf::-webkit-scrollbar {
+    display: none;
+  }
+
+  .ingestion-format-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.5rem 0.85rem;
+    border-radius: 8px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
     white-space: nowrap;
-    flex: 1;
-    font-family: "JetBrains Mono", monospace;
-  }
-
-  .copy-btn {
+    transition: all 0.15s ease;
     flex-shrink: 0;
   }
 
-  .ingestion-try-btn {
-    width: 100%;
-    text-align: center;
-    padding: 0.35rem;
+  .ingestion-format-tab:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+  }
+
+  .ingestion-format-tab.active {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .ingestion-tab-badge {
+    font-size: 0.65rem;
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    background: var(--bg-primary);
+    color: var(--text-muted);
+  }
+
+  .ingestion-format-tab.active .ingestion-tab-badge {
+    background: var(--accent);
+    color: #ffffff;
+  }
+
+  .ingestion-action-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .ingestion-cmd-box {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    flex: 1;
+    min-width: 260px;
+  }
+
+  .cmd-prompt {
+    color: var(--accent);
+    font-weight: 800;
+    font-family: monospace;
+  }
+
+  .ingestion-cmd-box code {
+    font-size: 0.78rem;
+    font-family: "JetBrains Mono", monospace;
+    color: var(--text-primary);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .ingestion-right-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .ingestion-compare-split {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .ingestion-code-pane {
+    background: var(--code-bg);
+    border: 1px solid var(--code-border);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .code-pane-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0.85rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-subtle);
     font-size: 0.72rem;
+  }
+
+  .pane-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .pane-badge {
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    font-size: 0.65rem;
+    padding: 0.12rem 0.4rem;
+    border-radius: 4px;
+  }
+
+  .badge-raw {
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+  }
+
+  .badge-markdy {
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+
+  .file-ext-label {
+    font-family: "JetBrains Mono", monospace;
+    color: var(--text-muted);
+    font-size: 0.7rem;
+  }
+
+  .pane-note {
+    color: var(--text-muted);
+    font-size: 0.7rem;
+  }
+
+  .code-pane-body {
+    padding: 1rem;
+    flex: 1;
+    overflow-x: auto;
+    max-height: 280px;
+  }
+
+  .code-pane-body pre {
+    margin: 0;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: var(--text-primary);
+  }
+
+  .ingestion-transpile-bridge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .bridge-line {
+    width: 1px;
+    flex: 1;
+    background: var(--border);
+  }
+
+  .bridge-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.45rem 0.65rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: var(--accent);
+    white-space: nowrap;
+  }
+
+  @media (max-width: 900px) {
+    .ingestion-compare-split {
+      grid-template-columns: 1fr;
+    }
+    .ingestion-transpile-bridge {
+      flex-direction: row;
+      padding: 0.5rem 0;
+    }
+    .bridge-line {
+      height: 1px;
+      width: 100%;
+    }
+    .bridge-pill {
+      flex-direction: row;
+    }
   }
 
   /* ─── AI Section ───────────────────────────────────────────────────── */
@@ -2988,7 +3384,7 @@ markdy check-all ./docs/diagrams</code></pre>
     margin: 0;
   }
 
-  /* ─── FAQ ──────────────────────────────────────────────────────────── */
+  /* ─── FAQ Accordion ─────────────────────────────────────────────── */
   .faq-accordion-list {
     max-width: 800px;
     margin: 0 auto;
@@ -2997,26 +3393,82 @@ markdy check-all ./docs/diagrams</code></pre>
     gap: 0.75rem;
   }
 
-  .faq-details {
+  .faq-item {
     background: var(--bg-elevated);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 0.85rem 1.1rem;
-    box-shadow: var(--shadow-xs);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease;
   }
 
-  .faq-details summary {
-    font-size: 0.92rem;
+  .faq-item:hover {
+    border-color: var(--border-hover);
+  }
+
+  .faq-item.active {
+    border-color: var(--accent);
+    box-shadow: 0 4px 20px var(--accent-light);
+  }
+
+  .faq-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.15rem 1.35rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    gap: 1rem;
+    font-size: 0.96rem;
     font-weight: 600;
     color: var(--text-primary);
-    cursor: pointer;
+    transition: color 0.15s ease;
   }
 
-  .faq-details p {
-    margin-top: 0.5rem;
-    font-size: 0.85rem;
+  .faq-trigger:hover {
+    color: var(--accent);
+  }
+
+  .faq-chevron {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: var(--bg-tertiary);
     color: var(--text-secondary);
-    line-height: 1.6;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.15s ease, color 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  .faq-item.active .faq-chevron {
+    transform: rotate(180deg);
+    background: var(--accent-light);
+    color: var(--accent);
+  }
+
+  .faq-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .faq-item.active .faq-body {
+    grid-template-rows: 1fr;
+  }
+
+  .faq-content {
+    overflow: hidden;
+  }
+
+  .faq-content p {
+    padding: 0 1.35rem 1.25rem;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--text-secondary);
   }
 
   /* ─── Footer ───────────────────────────────────────────────────────── */
