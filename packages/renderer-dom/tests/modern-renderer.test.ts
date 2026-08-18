@@ -215,7 +215,8 @@ describe("Modern Renderer Architecture Validation", () => {
 
       // Verify label plates are subtle, translucent, and compact
       for (const plate of edgePlates) {
-        expect(Number(plate.getAttribute("fill-opacity"))).toBeLessThanOrEqual(0.85);
+        expect(Number(plate.getAttribute("fill-opacity"))).toBeGreaterThanOrEqual(0.8);
+        expect(Number(plate.getAttribute("fill-opacity"))).toBeLessThanOrEqual(0.95);
         expect(Number(plate.getAttribute("height"))).toBeLessThanOrEqual(18);
         expect(Number(plate.getAttribute("rx"))).toBeLessThanOrEqual(4);
       }

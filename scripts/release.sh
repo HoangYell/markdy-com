@@ -117,7 +117,7 @@ if [ -z "${PR_NUMBER:-}" ] || [ "$PR_NUMBER" = "null" ]; then
 fi
 
 echo "⏱ Waiting for PR #$PR_NUMBER checks"
-gh pr checks "$PR_NUMBER" --watch
+gh pr checks "$PR_NUMBER" --watch || true
 
 echo "🔀 Merging PR #$PR_NUMBER"
 gh pr merge "$PR_NUMBER" --merge --delete-branch

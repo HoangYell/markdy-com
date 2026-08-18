@@ -5,6 +5,16 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.10] — 2026-08-18
+
+### Added
+- **Circuit-Grade Orthogonal Routing & Line Bridges (`@markdy/renderer-dom`)**:
+  - **CAD-Style Semicircular Line Bridges**: Added automatic perpendicular crossing detection with direction-consistent 5px semicircular arc bridge hops (`A 5 5 0 ...`) over intersecting connector paths.
+  - **Strict Node Collision Avoidance**: Preserved all node bounding boxes in obstacle pathfinding grids, preventing connector paths from ever penetrating or cutting across component card bodies, text, or icons.
+  - **Smart Anchor Selection & Return Highways**: Forward Left-to-Right flows strictly route right-face to left-face; backward return loops route through dedicated top or bottom perimeter highway corridors with outward port extensions ($\ge 18\text{px}$).
+  - **Collision-Free Label Placement**: Evaluates multi-segment candidate anchor positions with step offsets, preventing adjacent edge labels from overlapping in tight corridors.
+  - **Subtle Layered Label Backdrops**: Layered label badges above connector lines with opaque theme-matched fills and subtle border strokes.
+
 ## [1.0.9] — 2026-08-18
 
 ### Added
