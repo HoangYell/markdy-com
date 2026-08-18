@@ -17,6 +17,7 @@ import {
 import type { Rect } from "../src/geometry/rect.js";
 import {
   cleanCollinearPoints,
+  findSegmentHops,
   labelPointForPath,
   placeFlowLabel,
   pointAtDistance,
@@ -146,6 +147,17 @@ describe("polyline measurement", () => {
     expect(toPathD(path, 8)).toMatch(/^M 0 0 L 22 0 Q 30 0 30 8 L 30 40$/);
     expect(toPathD(path)).toMatch(/^M 0 0 L 16 0 Q 30 0 30 14 L 30 40$/);
     expect(round1(12.349)).toBe(12.3);
+  });
+
+  it("renders semicircular arc bridge hops over intersecting perpendicular paths", () => {
+    const horizontalLine = [{ x: 100, y: 200 }, { x: 300, y: 200 }];
+    const crossingVertical = [{ x: 200, y: 100 }, { x: 200, y: 300 }];
+    const hops = findSegmentHops(horizontalLine[0], horizontalLine[1], [crossingVertical]);
+    expect(hops).toHaveLength(1);
+    expect(hops[0]).toEqual({ x: 200, y: 200 });
+
+    const pathD = toPathD(horizontalLine, 14, [crossingVertical]);
+    expect(pathD).toContain("A 5 5 0 0 0 205 200");
   });
 
   it("places labels on the longest segment with lane-aware offset", () => {
