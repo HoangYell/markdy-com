@@ -146,7 +146,7 @@ export function transpileDockerComposeToMarkdy(
   }
 
   const out: string[] = [];
-  out.push(`scene "${title}" theme=paper`);
+  out.push(title ? `scene "${title}" theme=paper` : `scene theme=paper`);
   out.push("layout LR");
   out.push("");
 

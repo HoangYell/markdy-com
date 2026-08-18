@@ -1,4 +1,4 @@
-scene "Minimal Diagram" theme=midnight
+scene theme=midnight
 layout LR
 
 browser Client

@@ -47,7 +47,7 @@ export function transpileKubernetesManifestsToMarkdy(
   }
 
   const out: string[] = [];
-  out.push(`scene "${title}" theme=paper`);
+  out.push(title ? `scene "${title}" theme=paper` : `scene theme=paper`);
   out.push("layout TB");
   out.push("");
 

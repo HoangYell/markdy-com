@@ -151,6 +151,29 @@ export interface EdgeRuntime {
 
 export type EdgeRuntimeMap = Map<string, EdgeRuntime>;
 
+function isDarkTheme(theme: ThemeTokens): boolean {
+  if (theme.name === "paper" || theme.name === "editorial" || theme.name === "sketchy") {
+    return false;
+  }
+  const canvas = (theme.canvas || theme.surface || "").trim();
+  if (canvas.startsWith("#")) {
+    const hex = canvas.slice(1);
+    const r = parseInt(hex.length === 3 ? hex[0] + hex[0] : hex.slice(0, 2), 16) || 0;
+    const g = parseInt(hex.length === 3 ? hex[1] + hex[1] : hex.slice(2, 4), 16) || 0;
+    const b = parseInt(hex.length === 3 ? hex[2] + hex[2] : hex.slice(4, 6), 16) || 0;
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance < 0.5;
+  }
+  return true;
+}
+
+function computeEdgeLabelColor(edgeColor: string, isDark: boolean): string {
+  if (isDark) {
+    return `color-mix(in srgb, ${edgeColor} 65%, #f8fafc)`;
+  }
+  return `color-mix(in srgb, ${edgeColor} 75%, #090d16)`;
+}
+
 export function createEdgeRuntime(
   svg: SVGSVGElement,
   from: PositionedNode,
@@ -163,6 +186,7 @@ export function createEdgeRuntime(
   labelObstacles: Rect[],
   bounds: { width: number; height: number },
   lane: number,
+  existingPaths: Point[][] = [],
 ): EdgeRuntime {
   ensureDefs(svg, theme, sceneId);
   const color = theme.edges[kind];
@@ -171,11 +195,12 @@ export function createEdgeRuntime(
   const points = isSelfLoop
     ? dedupePoints(selfLoopPath(from))
     : dedupePoints(routeEdgePoints(from, to, routeObstacles, bounds, lane));
-  const d = toPathD(points);
+  const d = toPathD(points, 14, existingPaths);
   const len = polylineLength(points);
 
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
   group.setAttribute("data-edge-kind", kind);
+  group.setAttribute("class", `markdy-edge markdy-edge--${kind}`);
   group.style.opacity = "0";
 
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
@@ -185,6 +210,7 @@ export function createEdgeRuntime(
   path.setAttribute("stroke-width", kind === "dependency" ? "1.5" : "2");
   path.setAttribute("stroke-linejoin", "round");
   path.setAttribute("stroke-linecap", "round");
+  path.setAttribute("class", `markdy-edge-path markdy-edge-path--${kind}`);
   if (style.dash) path.setAttribute("stroke-dasharray", style.dash);
   if (style.marker !== "none") {
     path.setAttribute("marker-end", `url(#${sceneId}-arrow-${kind})`);
@@ -196,6 +222,7 @@ export function createEdgeRuntime(
   const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
   dot.setAttribute("r", "4");
   dot.setAttribute("fill", color);
+  dot.setAttribute("class", "markdy-edge-dot");
   dot.style.opacity = "0";
   dot.style.filter = `drop-shadow(0 0 6px ${color}) drop-shadow(0 0 12px ${color}88)`;
 
@@ -204,34 +231,40 @@ export function createEdgeRuntime(
   let labelEl: SVGTextElement | undefined;
   let labelRect: Rect | undefined;
   if (label) {
-    const textWidth = label.length * 6.8 + 14;
+    const isDark = isDarkTheme(theme);
+    const labelColor = computeEdgeLabelColor(color, isDark);
+    const textWidth = Math.max(36, label.length * 6.6 + 8);
     const placement = placeFlowLabel(points, textWidth, labelObstacles, bounds);
     labelRect = placement.rect;
     const plate = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    const padX = 8;
+    const padX = 5;
     const halfW = textWidth / 2;
+    plate.setAttribute("class", "markdy-edge-plate");
     plate.setAttribute("x", String(placement.x - halfW - padX));
-    plate.setAttribute("y", String(placement.y - 10));
+    plate.setAttribute("y", String(placement.y - 9));
     plate.setAttribute("width", String(textWidth + padX * 2));
-    plate.setAttribute("height", "20");
-    plate.setAttribute("rx", "6");
-    plate.setAttribute("fill", theme.labelPlate ?? theme.surface);
-    plate.setAttribute("fill-opacity", "0.96");
-    plate.setAttribute("stroke", theme.hairline ?? `color-mix(in srgb, ${theme.border} 70%, transparent)`);
-    plate.setAttribute("stroke-width", "1");
+    plate.setAttribute("height", "18");
+    plate.setAttribute("rx", "3");
+    plate.setAttribute("ry", "3");
+    plate.setAttribute("fill", theme.canvas ?? theme.surface);
+    plate.setAttribute("fill-opacity", "0.82");
+    plate.setAttribute("stroke", translucentColor(color, "22"));
+    plate.setAttribute("stroke-width", "0.75");
     plate.style.opacity = "0";
-    plate.style.filter = "drop-shadow(0 1px 3px rgba(0,0,0,0.12))";
+    plate.style.filter = "none";
     group.appendChild(plate);
+
     labelEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    labelEl.setAttribute("class", "markdy-edge-label");
     labelEl.setAttribute("x", String(placement.x));
     labelEl.setAttribute("y", String(placement.y + 0.5));
     labelEl.setAttribute("text-anchor", "middle");
     labelEl.setAttribute("dominant-baseline", "middle");
-    labelEl.setAttribute("font-size", "11");
+    labelEl.setAttribute("font-size", "10.5");
     labelEl.setAttribute("font-weight", "500");
     labelEl.setAttribute("letter-spacing", "0.02em");
-    labelEl.setAttribute("font-family", "ui-monospace, SFMono-Regular, Menlo, monospace");
-    labelEl.setAttribute("fill", theme.text);
+    labelEl.setAttribute("font-family", "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace");
+    labelEl.setAttribute("fill", labelColor);
     labelEl.textContent = label;
     labelEl.style.opacity = "0";
     group.appendChild(labelEl);
@@ -258,6 +291,11 @@ function setEdgeVisible(runtime: EdgeRuntime, visible: boolean): void {
   runtime.group.style.opacity = visible ? "1" : "0";
   if (runtime.label) runtime.label.style.opacity = visible ? "1" : "0";
   if (runtime.labelPlate) runtime.labelPlate.style.opacity = visible ? "1" : "0";
+  if (visible) {
+    runtime.path.classList.add("markdy-edge-path--flowing");
+  } else {
+    runtime.path.classList.remove("markdy-edge-path--flowing");
+  }
 }
 
 function translucentColor(color: string, alpha = "aa"): string {
@@ -270,9 +308,25 @@ function translucentColor(color: string, alpha = "aa"): string {
   return `color-mix(in srgb, ${value} 67%, transparent)`;
 }
 
-function nextEdgeLane(lanes: Map<string, number>, from: string, to: string): number {
-  const pair = [from, to].sort().join("|");
-  const keys = [`pair:${pair}`, `out:${from}`, `in:${to}`];
+function nextEdgeLane(
+  lanes: Map<string, number>,
+  from: PositionedNode | string,
+  to: PositionedNode | string,
+): number {
+  const fromId = typeof from === "string" ? from : from.id;
+  const toId = typeof to === "string" ? to : to.id;
+  const pair = [fromId, toId].sort().join("|");
+  const keys = [`pair:${pair}`, `out:${fromId}`, `in:${toId}`];
+
+  if (typeof from !== "string" && typeof to !== "string") {
+    const colFrom = Math.round(from.x / 80);
+    const colTo = Math.round(to.x / 80);
+    const corridorKey = colFrom !== colTo
+      ? `corridor-x:${Math.min(colFrom, colTo)}-${Math.max(colFrom, colTo)}`
+      : `corridor-y:${Math.round(from.y / 60)}-${Math.round(to.y / 60)}`;
+    keys.push(corridorKey);
+  }
+
   const lane = Math.max(...keys.map((key) => lanes.get(key) ?? 0));
   for (const key of keys) lanes.set(key, (lanes.get(key) ?? 0) + 1);
   return lane;
@@ -358,17 +412,49 @@ function animateEdgeEmphasis(
   durMs: number,
   strength: number,
   color?: string,
-): Animation {
+): Animation[] {
+  const anims: Animation[] = [];
   const baseFilter = runtime.kind === "dependency"
     ? "none"
     : `drop-shadow(0 0 3px ${translucentColor(runtime.color, "33")})`;
   const glowColor = color ?? runtime.color;
   const radius = Math.max(4, Math.min(16, 5 + strength * 4));
   const peakFilter = `drop-shadow(0 0 ${radius}px ${translucentColor(glowColor)}) brightness(${1 + Math.min(strength, 2) * 0.08})`;
-  return runtime.path.animate(
-    [{ filter: baseFilter }, { filter: peakFilter }, { filter: baseFilter }],
-    { duration: durMs, delay: startMs, fill: "none", easing: "ease-in-out" },
+
+  anims.push(
+    runtime.path.animate(
+      [{ filter: baseFilter }, { filter: peakFilter }, { filter: baseFilter }],
+      { duration: durMs, delay: startMs, fill: "none", easing: "ease-in-out" },
+    ),
   );
+
+  if (runtime.label) {
+    anims.push(
+      runtime.label.animate(
+        [
+          { filter: "none", opacity: 1 },
+          { filter: `drop-shadow(0 0 4px ${translucentColor(glowColor, "88")}) brightness(1.25)`, opacity: 1 },
+          { filter: "none", opacity: 1 },
+        ],
+        { duration: durMs, delay: startMs, fill: "none", easing: "ease-in-out" },
+      ),
+    );
+  }
+
+  if (runtime.labelPlate) {
+    anims.push(
+      runtime.labelPlate.animate(
+        [
+          { stroke: translucentColor(runtime.color, "22") },
+          { stroke: translucentColor(glowColor, "88") },
+          { stroke: translucentColor(runtime.color, "22") },
+        ],
+        { duration: durMs, delay: startMs, fill: "none", easing: "ease-in-out" },
+      ),
+    );
+  }
+
+  return anims;
 }
 
 export function computeFrameTransform(
@@ -431,15 +517,18 @@ export function buildCueAnimations(
   const edgeRectById = new Map(nodes.map((node) => [node.id, boxRect(node)]));
   const edgeLabels: Rect[] = [];
   const edgeLanes = new Map<string, number>();
+  const placedPaths: Point[][] = [];
+
   for (const edge of diagramType === "sequence" ? [] : edges) {
     if (edge.structural || edgeRuntimes.has(edge.id)) continue;
     const from = nodeById.get(edge.from);
     const to = nodeById.get(edge.to);
     if (!from || !to) continue;
-    const routeObstacles = [...edgeRectById.entries()]
+    const nodeObstacles = [...edgeRectById.entries()]
       .filter(([id]) => id !== from.id && id !== to.id)
       .map(([, rect]) => rect);
-    const lane = nextEdgeLane(edgeLanes, edge.from, edge.to);
+    const routeObstacles = [...nodeObstacles, ...edgeLabels.map((l) => inflateRect(l, 4))];
+    const lane = nextEdgeLane(edgeLanes, from, to);
     const runtime = createEdgeRuntime(
       svg,
       from,
@@ -452,7 +541,9 @@ export function buildCueAnimations(
       [...edgeRects, ...edgeLabels],
       bounds,
       lane,
+      placedPaths,
     );
+    placedPaths.push(runtime.points);
     if (runtime.labelRect) edgeLabels.push(runtime.labelRect);
     edgeRuntimes.set(edge.id, runtime);
   }
@@ -468,6 +559,69 @@ export function buildCueAnimations(
   for (const cue of cues) {
     const startMs = cue.start * 1000;
     const durMs = cue.duration * 1000;
+
+    if (cue.kind === "reveal") {
+      for (const id of cue.targets) {
+        const el = nodeEls.get(id);
+        if (el) {
+          anims.push(
+            el.animate(
+              [
+                { opacity: 0, transform: "translateY(8px)" },
+                { opacity: 1, transform: "translateY(0)" },
+              ],
+              { duration: durMs, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+            ),
+          );
+        }
+      }
+      continue;
+    }
+
+    if (cue.kind === "dim") {
+      const targetSet = new Set(cue.targets);
+      for (const [id, el] of nodeEls) {
+        if (!targetSet.has(id)) {
+          anims.push(
+            el.animate(
+              [{ opacity: 1 }, { opacity: 0.2 }],
+              { duration: durMs, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+            ),
+          );
+        }
+      }
+      for (const [id, runtime] of edgeRuntimes) {
+        if (!targetSet.has(id)) {
+          anims.push(
+            runtime.group.animate(
+              [{ opacity: 1 }, { opacity: 0.15 }],
+              { duration: durMs, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+            ),
+          );
+        }
+      }
+      continue;
+    }
+
+    if (cue.kind === "undim") {
+      for (const el of nodeEls.values()) {
+        anims.push(
+          el.animate(
+            [{ opacity: 0.2 }, { opacity: 1 }],
+            { duration: durMs, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+          ),
+        );
+      }
+      for (const runtime of edgeRuntimes.values()) {
+        anims.push(
+          runtime.group.animate(
+            [{ opacity: 0.15 }, { opacity: 1 }],
+            { duration: durMs, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+          ),
+        );
+      }
+      continue;
+    }
 
     if (cue.kind === "show") {
       cue.targets.forEach((id, idx) => {
@@ -522,7 +676,7 @@ export function buildCueAnimations(
           continue;
         }
         const runtime = edgeRuntimes.get(id);
-        if (runtime) anims.push(animateEdgeEmphasis(runtime, startMs, durMs, strength, typeof cue.params.color === "string" ? cue.params.color : undefined));
+        if (runtime) anims.push(...animateEdgeEmphasis(runtime, startMs, durMs, strength, typeof cue.params.color === "string" ? cue.params.color : undefined));
       }
       continue;
     }
@@ -545,7 +699,7 @@ export function buildCueAnimations(
           continue;
         }
         const runtime = edgeRuntimes.get(id);
-        if (runtime) anims.push(animateEdgeEmphasis(runtime, startMs, durMs, zoom, undefined));
+        if (runtime) anims.push(...animateEdgeEmphasis(runtime, startMs, durMs, zoom, undefined));
       }
       continue;
     }
@@ -577,11 +731,12 @@ export function buildCueAnimations(
       const from = nodeById.get(seg.from);
       const to = nodeById.get(seg.to);
       if (!from || !to) continue;
-      const routeObstacles: Rect[] = [];
+      const nodeObstacles: Rect[] = [];
       for (const [id, rect] of rectById) {
-        if (id !== seg.from && id !== seg.to) routeObstacles.push(rect);
+        if (id !== seg.from && id !== seg.to) nodeObstacles.push(rect);
       }
-      const lane = nextEdgeLane(laneByPair, seg.from, seg.to);
+      const routeObstacles = [...nodeObstacles, ...placedLabels.map((l) => inflateRect(l, 4))];
+      const lane = nextEdgeLane(laneByPair, from, to);
       const labelObstacles = [...allNodeRects, ...placedLabels];
       const edgeId = cue.edgeId ?? edges.find((edge) =>
         !edge.structural &&
@@ -592,7 +747,21 @@ export function buildCueAnimations(
       )?.id;
       let runtime = edgeId ? edgeRuntimes.get(edgeId) : undefined;
       if (!runtime) {
-        runtime = createEdgeRuntime(svg, from, to, seg.op, seg.label, theme, sceneId, routeObstacles, labelObstacles, bounds, lane);
+        runtime = createEdgeRuntime(
+          svg,
+          from,
+          to,
+          seg.op,
+          seg.label,
+          theme,
+          sceneId,
+          routeObstacles,
+          labelObstacles,
+          bounds,
+          lane,
+          placedPaths,
+        );
+        placedPaths.push(runtime.points);
         if (runtime.labelRect) placedLabels.push(runtime.labelRect);
         if (edgeId) edgeRuntimes.set(edgeId, runtime);
       }
@@ -641,6 +810,7 @@ export function buildStructuralEdgeAnimations(
   const rectById = new Map(nodes.map((n) => [n.id, boxRect(n)]));
   const allNodeRects = [...rectById.values()];
   const placedLabels: Rect[] = [];
+  const placedPaths: Point[][] = [];
   const laneByPair = new Map<string, number>();
   const svg = ensureEdgeLayer(scene);
 
@@ -648,10 +818,11 @@ export function buildStructuralEdgeAnimations(
     const from = nodeById.get(edge.from);
     const to = nodeById.get(edge.to);
     if (!from || !to) continue;
-    const routeObstacles: Rect[] = [];
+    const nodeObstacles: Rect[] = [];
     for (const [id, rect] of rectById) {
-      if (id !== edge.from && id !== edge.to) routeObstacles.push(rect);
+      if (id !== edge.from && id !== edge.to) nodeObstacles.push(rect);
     }
+    const routeObstacles = [...nodeObstacles, ...placedLabels.map((l) => inflateRect(l, 4))];
     const lane = nextEdgeLane(laneByPair, edge.from, edge.to);
     const labelObstacles = [...allNodeRects, ...placedLabels];
     const runtime = createEdgeRuntime(
@@ -666,7 +837,9 @@ export function buildStructuralEdgeAnimations(
       labelObstacles,
       bounds,
       lane,
+      placedPaths,
     );
+    placedPaths.push(runtime.points);
     if (runtime.labelRect) placedLabels.push(runtime.labelRect);
     setEdgeVisible(runtime, true);
     edgeRuntimes.set(edge.id, runtime);

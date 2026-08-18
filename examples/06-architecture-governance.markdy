@@ -1,7 +1,7 @@
 # 06-architecture-governance.markdy
 # Demonstrates Well-Architected Clean Architecture and Layered Governance.
 
-scene "Well-Architected Fintech Engine" theme=blueprint
+scene theme=blueprint
 layout LR
 
 group presentation "Presentation Tier": WebApp MobileApp

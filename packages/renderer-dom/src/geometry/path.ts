@@ -1,34 +1,166 @@
 /**
  * Polyline construction, measurement, and obstacle-aware routing for flow
- * edges. Like `rect.ts` this is DOM-free: the router returns plain points and
- * the caller turns them into SVG. Keeping routing pure means the "does this
- * edge dodge the other nodes?" logic can be tested directly.
+ * edges. DOM-free pure 2D geometry functions.
  */
 import type { Point, Rect } from "./rect.js";
-import { countPathIntersections, inflateRect, rectCenter } from "./rect.js";
+import { countPathIntersections, inflateRect, rectCenter, rectsOverlap } from "./rect.js";
 
 /** Rounds to one decimal so generated SVG path data stays compact. */
 export function round1(n: number): number {
   return Math.round(n * 10) / 10;
 }
 
-export function toPathD(points: Point[], cornerRadius = 14): string {
+export interface HopCrossing {
+  x: number;
+  y: number;
+}
+
+/**
+ * Finds perpendicular crossings of a straight segment with other polylines,
+ * ignoring grazing endpoints or corners.
+ */
+export function findSegmentHops(
+  p1: Point,
+  p2: Point,
+  existingPaths: Point[][] = [],
+  hopRadius = 5,
+  minDistFromVertex = 10,
+): Point[] {
+  const isHoriz = Math.abs(p1.y - p2.y) < 0.01;
+  const isVert = Math.abs(p1.x - p2.x) < 0.01;
+  if ((!isHoriz && !isVert) || existingPaths.length === 0) return [];
+
+  const crossings: Point[] = [];
+  const minX = Math.min(p1.x, p2.x);
+  const maxX = Math.max(p1.x, p2.x);
+  const minY = Math.min(p1.y, p2.y);
+  const maxY = Math.max(p1.y, p2.y);
+
+  for (const path of existingPaths) {
+    for (let j = 0; j < path.length - 1; j++) {
+      const q1 = path[j];
+      const q2 = path[j + 1];
+      const qHoriz = Math.abs(q1.y - q2.y) < 0.01;
+      const qVert = Math.abs(q1.x - q2.x) < 0.01;
+
+      if (isHoriz && qVert) {
+        const crossX = q1.x;
+        const crossY = p1.y;
+        const qMinY = Math.min(q1.y, q2.y);
+        const qMaxY = Math.max(q1.y, q2.y);
+
+        if (
+          crossX > minX + minDistFromVertex &&
+          crossX < maxX - minDistFromVertex &&
+          crossY > qMinY + 6 &&
+          crossY < qMaxY - 6
+        ) {
+          crossings.push({ x: crossX, y: crossY });
+        }
+      } else if (isVert && qHoriz) {
+        const crossX = p1.x;
+        const crossY = q1.y;
+        const qMinX = Math.min(q1.x, q2.x);
+        const qMaxX = Math.max(q1.x, q2.x);
+
+        if (
+          crossX > qMinX + 6 &&
+          crossX < qMaxX - 6 &&
+          crossY > minY + minDistFromVertex &&
+          crossY < maxY - minDistFromVertex
+        ) {
+          crossings.push({ x: crossX, y: crossY });
+        }
+      }
+    }
+  }
+
+  // Sort crossings along the direction of travel from p1 to p2
+  crossings.sort((a, b) => {
+    const da = Math.hypot(a.x - p1.x, a.y - p1.y);
+    const db = Math.hypot(b.x - p1.x, b.y - p1.y);
+    return da - db;
+  });
+
+  return crossings;
+}
+
+function appendSegmentWithHops(
+  parts: string[],
+  start: Point,
+  end: Point,
+  existingPaths: Point[][] = [],
+  hopRadius = 5,
+): void {
+  const isHoriz = Math.abs(start.y - end.y) < 0.01;
+  const isVert = Math.abs(start.x - end.x) < 0.01;
+  if ((!isHoriz && !isVert) || existingPaths.length === 0) {
+    parts.push(`L ${round1(end.x)} ${round1(end.y)}`);
+    return;
+  }
+
+  const hops = findSegmentHops(start, end, existingPaths, hopRadius);
+  if (hops.length === 0) {
+    parts.push(`L ${round1(end.x)} ${round1(end.y)}`);
+    return;
+  }
+
+  const R = hopRadius;
+  if (isHoriz) {
+    const dx = end.x - start.x;
+    for (const h of hops) {
+      if (dx > 0) {
+        parts.push(`L ${round1(h.x - R)} ${round1(start.y)}`);
+        parts.push(`A ${R} ${R} 0 0 0 ${round1(h.x + R)} ${round1(start.y)}`);
+      } else {
+        parts.push(`L ${round1(h.x + R)} ${round1(start.y)}`);
+        parts.push(`A ${R} ${R} 0 0 0 ${round1(h.x - R)} ${round1(start.y)}`);
+      }
+    }
+    parts.push(`L ${round1(end.x)} ${round1(end.y)}`);
+  } else if (isVert) {
+    const dy = end.y - start.y;
+    for (const h of hops) {
+      if (dy > 0) {
+        parts.push(`L ${round1(start.x)} ${round1(h.y - R)}`);
+        parts.push(`A ${R} ${R} 0 0 1 ${round1(start.x)} ${round1(h.y + R)}`);
+      } else {
+        parts.push(`L ${round1(start.x)} ${round1(h.y + R)}`);
+        parts.push(`A ${R} ${R} 0 0 1 ${round1(start.x)} ${round1(h.y - R)}`);
+      }
+    }
+    parts.push(`L ${round1(end.x)} ${round1(end.y)}`);
+  }
+}
+
+/**
+ * Builds SVG path data with smooth rounded corners at 90-degree elbows
+ * and semicircular arc bridge hops over intersecting perpendicular paths.
+ */
+export function toPathD(points: Point[], cornerRadius = 14, existingPaths: Point[][] = []): string {
   if (points.length < 2) return "";
   if (points.length === 2) {
-    const [a, b] = points;
-    return `M ${round1(a.x)} ${round1(a.y)} L ${round1(b.x)} ${round1(b.y)}`;
+    const parts = [`M ${round1(points[0].x)} ${round1(points[0].y)}`];
+    appendSegmentWithHops(parts, points[0], points[1], existingPaths);
+    return parts.join(" ");
   }
   if (cornerRadius <= 0) {
-    return points.map((p, i) => (i === 0 ? `M ${round1(p.x)} ${round1(p.y)}` : `L ${round1(p.x)} ${round1(p.y)}`)).join(" ");
+    const parts = [`M ${round1(points[0].x)} ${round1(points[0].y)}`];
+    for (let i = 1; i < points.length; i++) {
+      appendSegmentWithHops(parts, points[i - 1], points[i], existingPaths);
+    }
+    return parts.join(" ");
   }
 
   const parts: string[] = [`M ${round1(points[0].x)} ${round1(points[0].y)}`];
+  let prevCornerEnd = points[0];
+
   for (let i = 1; i < points.length; i++) {
     const prev = points[i - 1];
     const cur = points[i];
     const next = points[i + 1];
     if (!next) {
-      parts.push(`L ${round1(cur.x)} ${round1(cur.y)}`);
+      appendSegmentWithHops(parts, prevCornerEnd, cur, existingPaths);
       continue;
     }
     const dx1 = cur.x - prev.x;
@@ -38,7 +170,8 @@ export function toPathD(points: Point[], cornerRadius = 14): string {
     const len1 = Math.hypot(dx1, dy1);
     const len2 = Math.hypot(dx2, dy2);
     if (len1 < 0.5 || len2 < 0.5) {
-      parts.push(`L ${round1(cur.x)} ${round1(cur.y)}`);
+      appendSegmentWithHops(parts, prevCornerEnd, cur, existingPaths);
+      prevCornerEnd = cur;
       continue;
     }
     const r = Math.min(cornerRadius, len1 / 2, len2 / 2);
@@ -46,8 +179,9 @@ export function toPathD(points: Point[], cornerRadius = 14): string {
     const by = cur.y - (dy1 / len1) * r;
     const ax = cur.x + (dx2 / len2) * r;
     const ay = cur.y + (dy2 / len2) * r;
-    parts.push(`L ${round1(bx)} ${round1(by)}`);
+    appendSegmentWithHops(parts, prevCornerEnd, { x: bx, y: by }, existingPaths);
     parts.push(`Q ${round1(cur.x)} ${round1(cur.y)} ${round1(ax)} ${round1(ay)}`);
+    prevCornerEnd = { x: ax, y: ay };
   }
   return parts.join(" ");
 }
@@ -76,8 +210,6 @@ export function polylineLength(points: Point[]): number {
 
 /**
  * Walks `dist` pixels along the polyline and returns the point landed on.
- * Distances outside the path are clamped to its endpoints rather than
- * extrapolated along the first/last segment's direction.
  */
 export function pointAtDistance(points: Point[], dist: number): Point {
   let remain = Math.max(0, dist);
@@ -128,11 +260,7 @@ export interface LabelPlacement {
   rect: Rect;
 }
 
-const LABEL_BOX_HEIGHT = 20;
-
-function rectsOverlap(a: Rect, b: Rect): boolean {
-  return a.x1 < b.x2 && a.x2 > b.x1 && a.y1 < b.y2 && a.y2 > b.y1;
-}
+const LABEL_BOX_HEIGHT = 18;
 
 function overlapCount(rect: Rect, obstacles: Rect[]): number {
   let hits = 0;
@@ -141,10 +269,9 @@ function overlapCount(rect: Rect, obstacles: Rect[]): number {
 }
 
 /**
- * Chooses a readable anchor for an edge label: it steps perpendicular to the
- * edge's longest segment until the label box clears every obstacle (node boxes
- * and already-placed labels), staying inside the scene. The least-crowded
- * candidate wins if nothing is fully clear.
+ * Chooses a clean, legible anchor position for an edge label.
+ * The label plate is snugly attached directly along the connector line,
+ * and candidate offsets resolve collisions with nodes or adjacent labels.
  */
 export function placeFlowLabel(
   points: Point[],
@@ -167,25 +294,26 @@ export function placeFlowLabel(
   const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
   const horizontal = Math.abs(a.x - b.x) >= Math.abs(a.y - b.y);
 
-  const half = textWidth / 2;
-  const halfH = LABEL_BOX_HEIGHT / 2;
-  const pad = 10;
+  const halfW = textWidth / 2 + 5;
+  const halfH = LABEL_BOX_HEIGHT / 2 + 1;
+  const pad = 12;
 
-  const base = horizontal ? 16 : half + 14;
-  const step = horizontal ? LABEL_BOX_HEIGHT + 6 : textWidth + 14;
+  // Prioritize 0 (sitting snugly on the connector segment), then test small tight offsets
+  const offsets: number[] = [0];
   const order = horizontal ? [-1, 1] : [1, -1];
-  const offsets: number[] = [];
-  for (let k = 0; k < 8; k++) {
-    for (const sign of order) offsets.push(sign * (base + k * step));
+  for (let k = 1; k <= 6; k++) {
+    for (const sign of order) {
+      offsets.push(sign * (horizontal ? k * 14 : k * (textWidth + 8)));
+    }
   }
 
   let fallback: LabelPlacement | null = null;
   let fallbackHits = Number.POSITIVE_INFINITY;
 
   for (const off of offsets) {
-    const cx = clamp(horizontal ? mid.x : mid.x + off, pad + half, bounds.width - pad - half);
+    const cx = clamp(horizontal ? mid.x : mid.x + off, pad + halfW, bounds.width - pad - halfW);
     const cy = clamp(horizontal ? mid.y + off : mid.y, pad + halfH, bounds.height - pad - halfH);
-    const rect: Rect = { x1: cx - half, y1: cy - halfH, x2: cx + half, y2: cy + halfH };
+    const rect: Rect = { x1: cx - halfW, y1: cy - halfH, x2: cx + halfW, y2: cy + halfH };
     const hits = overlapCount(rect, obstacles);
     if (hits === 0) return { x: round1(cx), y: round1(cy), rect };
     if (hits < fallbackHits) {
@@ -198,7 +326,7 @@ export function placeFlowLabel(
     fallback ?? {
       x: round1(mid.x),
       y: round1(mid.y),
-      rect: { x1: mid.x - half, y1: mid.y - halfH, x2: mid.x + half, y2: mid.y + halfH },
+      rect: { x1: mid.x - halfW, y1: mid.y - halfH, x2: mid.x + halfW, y2: mid.y + halfH },
     }
   );
 }
@@ -243,6 +371,9 @@ function routeBends(points: Point[]): number {
   return bends;
 }
 
+/**
+ * Removes collinear redundant points and micro-segments while preserving genuine 90° corners.
+ */
 export function cleanCollinearPoints(points: Point[]): Point[] {
   if (points.length <= 2) return points;
   const result: Point[] = [points[0]];
@@ -263,13 +394,17 @@ export function cleanCollinearPoints(points: Point[]): Point[] {
   return result;
 }
 
+interface PortConfig {
+  source: Point;
+  sStub: Point;
+  target: Point;
+  tStub: Point;
+  dir: "horizontal" | "vertical" | "mixed";
+}
+
 /**
- * Picks an orthogonal route between two node rectangles that crosses as few
- * other nodes as possible.
- *
- * Strategy: generate candidate polylines (direct, mid-x dogleg, mid-y dogleg,
- * and clear channel bypasses around obstacles), score each by obstacle hits,
- * bends, and length. `lane` offsets concurrent edges to avoid overlapping.
+ * Intelligently generates orthogonal routes between source and target rectangles
+ * with obstacle avoidance, natural port selection, and minimal bends.
  */
 export function routeOrthogonal(
   sourceRect: Rect,
@@ -282,92 +417,178 @@ export function routeOrthogonal(
   const sourceCenter = rectCenter(sourceRect);
   const targetCenter = rectCenter(targetRect);
 
-  const horizontalPrimary =
-    Math.abs(targetCenter.x - sourceCenter.x) >= Math.abs(targetCenter.y - sourceCenter.y);
+  const dx = targetCenter.x - sourceCenter.x;
+  const dy = targetCenter.y - sourceCenter.y;
 
-  const sourceRight = targetCenter.x >= sourceCenter.x;
-  const targetLeft = targetCenter.x >= sourceCenter.x;
-  const sourceDown = targetCenter.y >= sourceCenter.y;
-  const targetUp = targetCenter.y >= sourceCenter.y;
+  const sourceRight = dx >= 0;
+  const targetLeft = dx >= 0;
+  const sourceDown = dy >= 0;
+  const targetUp = dy >= 0;
 
-  const source: Point = horizontalPrimary
-    ? {
-        x: sourceRight ? sourceRect.x2 : sourceRect.x1,
-        y: clamp(sourceCenter.y + laneShift, sourceRect.y1 + 16, sourceRect.y2 - 16),
-      }
-    : {
-        x: clamp(sourceCenter.x + laneShift, sourceRect.x1 + 20, sourceRect.x2 - 20),
-        y: sourceDown ? sourceRect.y2 : sourceRect.y1,
-      };
-
-  const target: Point = horizontalPrimary
-    ? {
-        x: targetLeft ? targetRect.x1 : targetRect.x2,
-        y: clamp(targetCenter.y + laneShift, targetRect.y1 + 16, targetRect.y2 - 16),
-      }
-    : {
-        x: clamp(targetCenter.x + laneShift, targetRect.x1 + 20, targetRect.x2 - 20),
-        y: targetUp ? targetRect.y1 : targetRect.y2,
-      };
-
-  // Exit/entry stubs to ensure initial trajectory is perpendicular to node boundary
   const stubLen = 18;
-  const sStub: Point = horizontalPrimary
-    ? { x: source.x + (sourceRight ? stubLen : -stubLen), y: source.y }
-    : { x: source.x, y: source.y + (sourceDown ? stubLen : -stubLen) };
+  const infl = obstacles.map((o) => inflateRect(o, 12));
 
-  const tStub: Point = horizontalPrimary
-    ? { x: target.x + (targetLeft ? -stubLen : stubLen), y: target.y }
-    : { x: target.x, y: target.y + (targetUp ? -stubLen : stubLen) };
+  // Build candidate port configurations
+  const portConfigs: PortConfig[] = [];
 
-  const infl = obstacles.map((o) => inflateRect(o, 10));
-  const candidates: Point[][] = [];
+  // 1. Primary horizontal ports (standard LR flow or backward RL flow)
+  const sHoriz: Point = {
+    x: sourceRight ? sourceRect.x2 : sourceRect.x1,
+    y: clamp(sourceCenter.y + laneShift, sourceRect.y1 + 14, sourceRect.y2 - 14),
+  };
+  const sHorizStub: Point = {
+    x: sHoriz.x + (sourceRight ? stubLen : -stubLen),
+    y: sHoriz.y,
+  };
+  const tHoriz: Point = {
+    x: targetLeft ? targetRect.x1 : targetRect.x2,
+    y: clamp(targetCenter.y + laneShift, targetRect.y1 + 14, targetRect.y2 - 14),
+  };
+  const tHorizStub: Point = {
+    x: tHoriz.x + (targetLeft ? -stubLen : stubLen),
+    y: tHoriz.y,
+  };
 
-  // 1. Direct shot if endpoints share an axis
-  if (Math.abs(source.y - target.y) < 0.001 || Math.abs(source.x - target.x) < 0.001) {
-    candidates.push([source, target]);
+  portConfigs.push({
+    source: sHoriz,
+    sStub: sHorizStub,
+    target: tHoriz,
+    tStub: tHorizStub,
+    dir: "horizontal",
+  });
+
+  // 2. Primary vertical ports (TB flow)
+  const sVert: Point = {
+    x: clamp(sourceCenter.x + laneShift, sourceRect.x1 + 16, sourceRect.x2 - 16),
+    y: sourceDown ? sourceRect.y2 : sourceRect.y1,
+  };
+  const sVertStub: Point = {
+    x: sVert.x,
+    y: sVert.y + (sourceDown ? stubLen : -stubLen),
+  };
+  const tVert: Point = {
+    x: clamp(targetCenter.x + laneShift, targetRect.x1 + 16, targetRect.x2 - 16),
+    y: targetUp ? targetRect.y1 : targetRect.y2,
+  };
+  const tVertStub: Point = {
+    x: tVert.x,
+    y: tVert.y + (targetUp ? -stubLen : stubLen),
+  };
+
+  portConfigs.push({
+    source: sVert,
+    sStub: sVertStub,
+    target: tVert,
+    tStub: tVertStub,
+    dir: "vertical",
+  });
+
+  // 3. For backward/detour flows, also consider exit-bottom / enter-bottom or exit-top / enter-top
+  if (!sourceRight) {
+    // Backward edge (source is to the right of target)
+    portConfigs.push({
+      source: { x: sourceRect.x1, y: sHoriz.y },
+      sStub: { x: sourceRect.x1 - stubLen, y: sHoriz.y },
+      target: { x: targetRect.x2, y: tHoriz.y },
+      tStub: { x: targetRect.x2 + stubLen, y: tHoriz.y },
+      dir: "horizontal",
+    });
   }
 
-  // 2. Mid-X and Mid-Y doglegs with perpendicular stubs
-  const midX = round1((source.x + target.x) / 2 + laneShift);
-  const midY = round1((source.y + target.y) / 2 + laneShift);
+  const candidates: Point[][] = [];
 
-  candidates.push(
-    [source, sStub, { x: midX, y: source.y }, { x: midX, y: target.y }, tStub, target],
-    [source, sStub, { x: source.x, y: midY }, { x: target.x, y: midY }, tStub, target],
-    [source, { x: midX, y: source.y }, { x: midX, y: target.y }, target],
-    [source, { x: source.x, y: midY }, { x: target.x, y: midY }, target],
-  );
+  for (const cfg of portConfigs) {
+    const { source, sStub, target, tStub } = cfg;
 
-  // 3. Detour lanes around all obstacle boundaries
-  const minObstacleY = infl.length ? Math.min(...infl.map((o) => o.y1)) : Math.min(source.y, target.y);
-  const maxObstacleY = infl.length ? Math.max(...infl.map((o) => o.y2)) : Math.max(source.y, target.y);
-  const topLane = Math.max(20, minObstacleY - 28 - lane * 14);
-  const bottomLane = Math.min(bounds.height - 20, maxObstacleY + 28 + lane * 14);
-  candidates.push(
-    [source, sStub, { x: sStub.x, y: topLane }, { x: tStub.x, y: topLane }, tStub, target],
-    [source, sStub, { x: sStub.x, y: bottomLane }, { x: tStub.x, y: bottomLane }, tStub, target],
-  );
+    // A. Direct shot if endpoints share an axis and face each other
+    if (
+      (Math.abs(source.y - target.y) < 0.001 && cfg.dir === "horizontal") ||
+      (Math.abs(source.x - target.x) < 0.001 && cfg.dir === "vertical")
+    ) {
+      candidates.push([source, target]);
+    }
 
-  const minObstacleX = infl.length ? Math.min(...infl.map((o) => o.x1)) : Math.min(source.x, target.x);
-  const maxObstacleX = infl.length ? Math.max(...infl.map((o) => o.x2)) : Math.max(source.x, target.x);
-  const leftLane = Math.max(20, minObstacleX - 28 - lane * 14);
-  const rightLane = Math.min(bounds.width - 20, maxObstacleX + 28 + lane * 14);
-  candidates.push(
-    [source, sStub, { x: leftLane, y: sStub.y }, { x: leftLane, y: tStub.y }, tStub, target],
-    [source, sStub, { x: rightLane, y: sStub.y }, { x: rightLane, y: tStub.y }, tStub, target],
-  );
+    // B. Mid-channel doglegs with perpendicular stubs
+    const midX = round1((sStub.x + tStub.x) / 2 + laneShift);
+    const midY = round1((sStub.y + tStub.y) / 2 + laneShift);
 
+    // Z-dogleg horizontal-first
+    candidates.push(
+      [source, sStub, { x: midX, y: sStub.y }, { x: midX, y: tStub.y }, tStub, target],
+      [source, { x: midX, y: source.y }, { x: midX, y: target.y }, target],
+    );
+
+    // Z-dogleg vertical-first
+    candidates.push(
+      [source, sStub, { x: sStub.x, y: midY }, { x: tStub.x, y: midY }, tStub, target],
+      [source, { x: source.x, y: midY }, { x: target.x, y: midY }, target],
+    );
+
+    // C. Obstacle-specific bypass channels
+    for (const obstacle of infl) {
+      // Top channel bypass around this obstacle
+      const bypassYTop = Math.max(16, obstacle.y1 - 20 - Math.abs(laneShift));
+      candidates.push([
+        source,
+        sStub,
+        { x: sStub.x, y: bypassYTop },
+        { x: tStub.x, y: bypassYTop },
+        tStub,
+        target,
+      ]);
+
+      // Bottom channel bypass around this obstacle
+      const bypassYBottom = Math.min(bounds.height - 16, obstacle.y2 + 20 + Math.abs(laneShift));
+      candidates.push([
+        source,
+        sStub,
+        { x: sStub.x, y: bypassYBottom },
+        { x: tStub.x, y: bypassYBottom },
+        tStub,
+        target,
+      ]);
+
+      // Left channel bypass
+      const bypassXLeft = Math.max(16, obstacle.x1 - 20 - Math.abs(laneShift));
+      candidates.push([
+        source,
+        sStub,
+        { x: bypassXLeft, y: sStub.y },
+        { x: bypassXLeft, y: tStub.y },
+        tStub,
+        target,
+      ]);
+
+      // Right channel bypass
+      const bypassXRight = Math.min(bounds.width - 16, obstacle.x2 + 20 + Math.abs(laneShift));
+      candidates.push([
+        source,
+        sStub,
+        { x: bypassXRight, y: sStub.y },
+        { x: bypassXRight, y: tStub.y },
+        tStub,
+        target,
+      ]);
+    }
+  }
+
+  // Score candidate paths and pick the cleanest route
   let best = candidates[0];
   let bestScore = Number.POSITIVE_INFINITY;
+
   for (const candidate of candidates) {
     const cleaned = cleanCollinearPoints(candidate);
     const hits = countPathIntersections(cleaned, infl);
-    const score = hits * 100000 + routeBends(cleaned) * 800 + routeLength(cleaned);
+    const bends = routeBends(cleaned);
+    const length = routeLength(cleaned);
+
+    // Primary preference: 0 obstacle hits, minimal bends, shortest length
+    const score = hits * 1000000 + bends * 500 + length;
     if (score < bestScore) {
       best = cleaned;
       bestScore = score;
     }
   }
+
   return cleanCollinearPoints(best.map((point) => clampPointToScene(point, bounds)));
 }

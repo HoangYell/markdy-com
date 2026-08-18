@@ -34,7 +34,7 @@ It allows you to define architecture scenes, nodes, groups, beats, and routed fl
 Instead of hooking into component lifecycles, I just declare my nodes and how they connect:
 
 ```text
-scene "Hello World" theme=paper
+scene theme=paper
 layout LR
 
 browser Web
@@ -63,7 +63,7 @@ Now, inside my `.mdx` or `.astro` files, I just drop in the `<Markdy>` component
 import { Markdy } from "@markdy/astro";
 
 const code = `
-scene "Hydrated on scroll" theme=paper
+scene theme=paper
 browser Web
 service API
 beat main:

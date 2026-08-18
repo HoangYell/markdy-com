@@ -45,7 +45,7 @@ import { createDiagram } from "@markdy/renderer-dom";
 const diagram = createDiagram({
   container: document.getElementById("scene")!,
   code: `
-    scene "Request" theme=paper
+    scene theme=paper
     browser Web
     service API
     beat main:

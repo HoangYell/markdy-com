@@ -74,6 +74,28 @@ export function ensureSceneStyles(doc: Document): void {
   from { opacity: 0.24; transform: scale(0.85); }
   to { opacity: 0.9; transform: scale(1.15); }
 }
+@keyframes markdy-flow-dash {
+  to { stroke-dashoffset: -24; }
+}
+.markdy-edge {
+  transition: opacity 0.2s ease;
+}
+.markdy-edge-path--flowing {
+  animation: markdy-flow-dash 1.2s linear infinite;
+}
+.markdy-edge-path {
+  transition: stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
+}
+.markdy-edge-plate {
+  transition: opacity 0.2s ease, fill-opacity 0.2s ease, stroke 0.2s ease;
+  pointer-events: none;
+}
+.markdy-edge-label {
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+  transition: fill 0.2s ease, opacity 0.2s ease, filter 0.2s ease;
+}
 .markdy-constellation-star {
   transform-box: fill-box;
   transform-origin: center;
@@ -150,13 +172,17 @@ export function ensureSceneStyles(doc: Document): void {
 @media (prefers-reduced-motion: reduce) {
   .markdy-node,
   .markdy-beat-caption,
-  .markdy-constellation-star {
+  .markdy-constellation-star,
+  .markdy-edge-path,
+  .markdy-edge-path--flowing {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+    animation: none !important;
   }
   .markdy-node { opacity: 1 !important; transform: none !important; }
   .markdy-constellation-star { animation: none !important; opacity: 0.7 !important; }
+  .markdy-edge-path--flowing { animation: none !important; }
 }
 @media print {
   .markdy-node { opacity: 1 !important; transform: none !important; }

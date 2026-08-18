@@ -1,7 +1,7 @@
 # database-radar-benchmark.markdy
 # Demonstrates 5-Axis Multi-Dimensional System Benchmark Radar Topology.
 
-scene "Distributed Database Architecture Benchmark" theme=paper type=radar width=1100 height=900
+scene theme=paper type=radar width=1100 height=900
 
 metric Latency "Read/Write Latency"
 metric Scalability "Horizontal Scalability" focal=true

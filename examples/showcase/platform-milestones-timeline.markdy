@@ -1,7 +1,7 @@
 # 15-project-timeline.markdy
 # Demonstrates Horizontal Timeline Diagram for Release History & Milestones.
 
-scene "Platform Engineering Milestones" theme=editorial type=timeline width=1200 height=600
+scene theme=editorial type=timeline width=1200 height=600
 
 service AlphaRelease "v0.1 Alpha Launch"
 service BetaRelease "v0.5 Public Beta" focal=true

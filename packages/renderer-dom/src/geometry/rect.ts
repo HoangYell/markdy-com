@@ -61,6 +61,14 @@ export function segmentIntersectsRect(a: Point, b: Point, rect: Rect): boolean {
   return false;
 }
 
+export function rectsOverlap(a: Rect, b: Rect): boolean {
+  return a.x1 < b.x2 && a.x2 > b.x1 && a.y1 < b.y2 && a.y2 > b.y1;
+}
+
+export function pointInsideRect(p: Point, rect: Rect): boolean {
+  return p.x >= rect.x1 && p.x <= rect.x2 && p.y >= rect.y1 && p.y <= rect.y2;
+}
+
 export function countPathIntersections(points: Point[], obstacles: Rect[]): number {
   let hits = 0;
   for (let i = 0; i < points.length - 1; i++) {
@@ -70,3 +78,4 @@ export function countPathIntersections(points: Point[], obstacles: Rect[]): numb
   }
   return hits;
 }
+

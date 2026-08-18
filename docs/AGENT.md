@@ -27,7 +27,7 @@ Every Markdy diagram follows a clean, predictable 4-part structure:
 # ─────────────────────────────────────────────────────────────────────────────
 # 1. Scene Directives & Configuration
 # ─────────────────────────────────────────────────────────────────────────────
-scene "E-Commerce Checkout" theme=paper width=1280 height=720
+scene theme=paper width=1280 height=720
 layout LR
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -76,7 +76,7 @@ beat payment "Asynchronous Payment Processing":
 The `scene` declaration sets canvas dimensions, theme, and runtime behavior:
 
 ```markdy
-scene "Architecture Title" theme=paper width=1280 height=720 type=architecture
+scene theme=paper width=1280 height=720 type=architecture
 layout LR
 ```
 
@@ -213,7 +213,7 @@ When asked to generate architecture diagrams, pick and adapt one of these battle
 ### 1. Cloud Microservices & Database Tier
 
 ```markdy
-scene "Microservices Platform" theme=paper width=1440 height=760
+scene theme=paper width=1440 height=760
 layout LR
 
 browser WebApp "Web Application"
@@ -251,7 +251,7 @@ beat checkout "Process Order":
 ### 2. AI Agent & RAG (Retrieval-Augmented Generation) Pipeline
 
 ```markdy
-scene "AI Agent RAG Architecture" theme=editorial width=1440 height=760
+scene theme=editorial width=1440 height=760
 layout LR
 
 user User "Engineer"
@@ -288,7 +288,7 @@ beat generate "Synthesis & Tool Execution":
 ### 3. Event-Driven Architecture & Kafka Fan-Out
 
 ```markdy
-scene "Event-Driven Fanout" theme=midnight width=1440 height=760
+scene theme=midnight width=1440 height=760
 layout LR
 
 service IngestionAPI "Ingestion API"
@@ -322,7 +322,7 @@ beat fanout "Parallel Fan-out Processing":
 ### 4. Kubernetes Cluster & Cloud Ingress
 
 ```markdy
-scene "Kubernetes Production Cluster" theme=blueprint width=1440 height=800
+scene theme=blueprint width=1440 height=800
 layout LR
 
 cloud CDN "Cloudflare CDN"
@@ -353,7 +353,7 @@ beat routing "Ingress Traffic Routing":
 ### 5. CI/CD GitOps Delivery Pipeline
 
 ```markdy
-scene "GitOps Delivery Pipeline" theme=graphite width=1440 height=720
+scene theme=graphite width=1440 height=720
 layout LR
 
 user Dev "Developer"
@@ -387,7 +387,7 @@ beat deploy "GitOps Sync & Deployment":
 ### 6. OAuth2 / OIDC Authentication Flow
 
 ```markdy
-scene "OAuth2 Authorization Code Flow" theme=paper width=1440 height=720
+scene theme=paper width=1440 height=720
 layout LR
 
 browser User "End User Browser"
@@ -419,7 +419,7 @@ beat exchange "Token Exchange & API Access":
 ### 7. Resilient Multi-Region High Availability & Cache-Aside
 
 ```markdy
-scene "Multi-Region Cache-Aside" theme=midnight width=1440 height=760
+scene theme=midnight width=1440 height=760
 layout LR
 
 gateway GeoDNS "Global Route53 / Anycast"
@@ -453,7 +453,7 @@ beat replication "Global Storage Replication":
 ### 8. Decision Tree / Flowchart Workflow
 
 ```markdy
-scene "Pull Request Quality Gate" theme=sketchy width=1280 height=720 type=flowchart
+scene theme=sketchy width=1280 height=720 type=flowchart
 layout TB
 
 start PR "New Pull Request"
@@ -488,7 +488,7 @@ beat failure "Fallback Reject Path":
 | **Flows placed outside `beat` blocks**<br>`service A`<br>`A -> B "data"` | **Place flows inside named `beat` blocks**<br>`beat process:`<br>`  A -> B "data"` |
 | **Hallucinating non-existent cues**<br>`pulse NodeA`<br>`camera zoom=2`<br>`say "Hello"` | **Use standard Markdy cues**<br>`focus NodeA`<br>`frame NodeA zoom=1.2`<br>*(Beat labels act as captions)* |
 | **Unquoted multi-word node labels**<br>`service API API Gateway Server` | **Wrap multi-word strings in double quotes**<br>`service API "API Gateway Server"` |
-| **Undersized canvas for dense architectures**<br>15 nodes on `width=1280 height=720` | **Apply canvas sizing rule**<br>`scene "Title" width=1600 height=860` |
+| **Undersized canvas for dense architectures**<br>15 nodes on `width=1280 height=720` | **Apply canvas sizing rule**<br>`scene width=1600 height=860` |
 
 ---
 

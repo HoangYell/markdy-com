@@ -57,7 +57,7 @@ const structuredData = [
   <p>
     Lays out milestones along a central hairline baseline, alternating node placements above and below to eliminate label collision.
   </p>
-  <pre><code>scene "Platform Roadmap" theme=editorial type=timeline width=1200 height=600
+  <pre><code>scene theme=editorial type=timeline width=1200 height=600
 
 service AlphaRelease "v0.1 Alpha Launch"
 service BetaRelease "v0.5 Public Beta" focal=true
@@ -72,7 +72,7 @@ beat timeline_reveal "Platform Evolution":
   <p>
     Stacks task rows vertically while positioning horizontal bar spans along the timeline based on <code>phase=</code> and <code>span=</code> properties.
   </p>
-  <pre><code>scene "Q3-Q4 Engineering Roadmap" theme=paper type=gantt width=1200 height=600
+  <pre><code>scene theme=paper type=gantt width=1200 height=600
 
 service CoreRefactor "Core Architecture Refactor" phase=0 span=3
 service APIDesign "API Design & Review" phase=1 span=2 focal=true
@@ -89,7 +89,7 @@ beat roadmap_reveal "Engineering Phases":
   <p>
     Places 2&ndash;3 intersecting circles with automatic proximity scaling and compounding opacity tints, highlighting the focal sweet spot.
   </p>
-  <pre><code>scene "Product-Market Fit" theme=editorial type=venn width=1000 height=800
+  <pre><code>scene theme=editorial type=venn width=1000 height=800
 
 service Desirability "Customer Desirability"
 service Feasibility "Technical Feasibility" focal=true

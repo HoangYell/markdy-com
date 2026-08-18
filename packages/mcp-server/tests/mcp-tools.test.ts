@@ -9,7 +9,7 @@ import {
 describe("@markdy/mcp-server: MCP Tool Handlers", () => {
   it("validates valid Markdy code and reports stats", () => {
     const code = `
-      scene "Valid App" theme=paper
+      scene theme=paper
       layout LR
       service API
       database DB
@@ -45,7 +45,7 @@ describe("@markdy/mcp-server: MCP Tool Handlers", () => {
 
   it("explains architecture and components", () => {
     const code = `
-      scene "Architecture" theme=paper
+      scene theme=paper
       layout LR
       browser UI
       gateway GW

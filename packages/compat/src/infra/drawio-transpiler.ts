@@ -213,7 +213,8 @@ export async function transpileDrawioToMarkdy(
   }
 
   const lines: string[] = [];
-  lines.push(`scene "${customTitle || model.title || "Imported Draw.io Architecture"}" theme=paper`);
+  const sceneName = customTitle || model.title;
+  lines.push(sceneName ? `scene "${sceneName}" theme=paper` : `scene theme=paper`);
   lines.push(`layout LR`);
   lines.push(``);
 

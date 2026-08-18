@@ -21,7 +21,7 @@ Hi HN! I got tired of writing 80-line GSAP timelines for simple animated diagram
 So I built Markdy: a diagram-native DSL where you declare semantic nodes, connect them with flow operators, and sequence reveals in beats, then render it using the browser-native Web Animations API.
 
 ```
-scene "Request path" theme=paper
+scene theme=paper
 layout LR
 
 client Client

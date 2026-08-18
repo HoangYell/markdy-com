@@ -365,7 +365,7 @@ flowchart LR<br/>
         </div>
         <div class="card-body">
           <div class="code-box" style="border-color: rgba(16, 185, 129, 0.3); color: #e2e8f0;">
-scene "Order Flow" theme=editorial<br/>
+scene theme=editorial<br/>
 user Customer & gateway API & db Postgres<br/>
 beat: Customer -&gt; API "POST /order" -&gt; Postgres
           </div>

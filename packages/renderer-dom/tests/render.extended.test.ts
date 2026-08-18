@@ -18,7 +18,7 @@ import { mountTimelineLayer } from "../src/timeline";
 import { mountSequenceLayer } from "../src/sequence";
 
 const SAMPLE = `
-scene "Test" theme=midnight
+scene theme=midnight
 browser Web
 service API
 

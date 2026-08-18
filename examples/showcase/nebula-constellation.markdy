@@ -1,4 +1,4 @@
-scene "Signal Constellation" theme=nebula type=constellation width=1280 height=760
+scene theme=nebula type=constellation width=1280 height=760
 layout LR
 
 annotation "The signal finds its center" target=SignalCore position=top-right

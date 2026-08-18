@@ -77,7 +77,7 @@ export function transpileTerraformStateToMarkdy(
   }
 
   if (!parsed.resources || !Array.isArray(parsed.resources)) {
-    return `scene "${sceneTitle}" theme=paper\nlayout LR\n`;
+    return sceneTitle ? `scene "${sceneTitle}" theme=paper\nlayout LR\n` : `scene theme=paper\nlayout LR\n`;
   }
 
   const nodes: Array<{ id: string; kind: string; label: string; vpcId?: string }> = [];
@@ -123,7 +123,7 @@ export function transpileTerraformStateToMarkdy(
   }
 
   const out: string[] = [];
-  out.push(`scene "${sceneTitle}" theme=paper`);
+  out.push(sceneTitle ? `scene "${sceneTitle}" theme=paper` : `scene theme=paper`);
   out.push("layout LR");
   out.push("");
 

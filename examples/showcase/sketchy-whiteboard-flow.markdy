@@ -1,7 +1,7 @@
 # showcase/sketchy-whiteboard-flow.markdy
 # Demonstrates Sketchy Editorial Theme (hand-drawn displacement filter, offset drop shadow, organic borders).
 
-scene "Whiteboard Product Discovery" theme=sketchy type=flowchart width=1100 height=650
+scene theme=sketchy type=flowchart width=1100 height=650
 
 service UserInterview "User Research"
 service ProblemDef "Define Core Pain" focal=true

@@ -1,7 +1,7 @@
 # 14-fanin-queue-bottleneck.markdy
 # Demonstrates Fan-In Concurrency & Constrained Bottleneck Queue Pattern.
 
-scene "High-Throughput Fan-In Batch Pipeline" theme=paper width=1200 height=800
+scene theme=paper width=1200 height=800
 
 service ProducerA "Payment Ingestion Worker"
 service ProducerB "Webhook Receiver"

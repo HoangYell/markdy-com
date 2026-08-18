@@ -1,7 +1,7 @@
 # showcase/nested-security-perimeter.markdy
 # Demonstrates Nested Containment Hierarchy for Scope & Security Boundaries.
 
-scene "Zero-Trust Security Perimeter" theme=paper type=nested width=1100 height=750
+scene theme=paper type=nested width=1100 height=750
 
 security PublicInternet "External DMZ Perimeter"
 security VPCNetwork "Protected VPC Network"

@@ -41,7 +41,7 @@ Astro integration provides an island wrapper for lazy client-side hydration.
 import { Markdy } from "@markdy/astro";
 
 const code = `
-  scene "Request" theme=paper width=800 height=400
+  scene theme=paper width=800 height=400
   browser Web
   service API
   beat main:
@@ -59,7 +59,7 @@ const code = `
 import { Markdy } from "@markdy/astro";
 
 export const code = `
-  scene "Request" theme=paper width=600 height=300
+  scene theme=paper width=600 height=300
   browser Web
   service API
   beat main:

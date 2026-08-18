@@ -254,7 +254,7 @@ markdy render architecture.markdy --open</code></pre>
           <div class="code-header">
             <span class="code-title">architecture.markdy</span>
           </div>
-          <pre><code>scene "Cache-Aside Architecture" theme=paper layout=LR
+          <pre><code>scene theme=paper layout=LR
 
 client WebBrowser "Client App"
 gateway ApiGateway "API Gateway"
@@ -297,7 +297,7 @@ beat flow "Cache Lookup & Fallback":
           <div class="code-header">
             <span class="code-title">Scene Header Syntax</span>
           </div>
-          <pre><code>scene "System Title" theme=paper layout=LR width=1280 height=720</code></pre>
+          <pre><code>scene theme=paper layout=LR width=1280 height=720</code></pre>
         </div>
 
         <div class="table-wrap mt-4">
@@ -577,7 +577,7 @@ diagram.play();</code></pre>
               <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy snippet">Copy</button>
             </div>
             <pre><code>```markdy
-scene "Docs Architecture" theme=paper
+scene theme=paper
 client Browser -> service Api -> database DB
 ```</code></pre>
           </div>
@@ -647,7 +647,7 @@ client Browser -> service Api -> database DB
     const declaredLang = (codeEl.closest("pre") as HTMLElement | null)?.dataset.lang;
     const isMarkdy = declaredLang
       ? declaredLang === "markdy"
-      : codeText.includes("scene ") || codeText.includes("beat ") || codeText.includes(" -> ") || codeText.includes("service ");
+      : codeText.includes("scene beat ") || codeText.includes(" -> ") || codeText.includes("service ");
     
     let header = card.querySelector(".code-header") as HTMLElement;
     if (!header) {

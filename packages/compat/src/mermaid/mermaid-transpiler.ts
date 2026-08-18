@@ -47,7 +47,7 @@ export function transpileMermaidToMarkdy(mermaidSource: string, sceneTitle = "Im
   const lines = mermaidSource.split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith("%%"));
   if (lines.length === 0) {
     return {
-      code: `scene "${sceneTitle}" theme=paper\nlayout LR\n`,
+      code: `scene theme=paper\nlayout LR\n`,
       diagramType: "architecture",
       nodeCount: 0,
       edgeCount: 0,
@@ -97,7 +97,7 @@ function transpileSequenceDiagram(lines: string[], title: string): MermaidTransp
   }
 
   const out: string[] = [];
-  out.push(`scene "${title}" type=sequence theme=paper`);
+  out.push(title ? `scene "${title}" type=sequence theme=paper` : `scene type=sequence theme=paper`);
   out.push("");
 
   for (const p of participants.values()) {
@@ -203,7 +203,7 @@ function transpileFlowchart(lines: string[], title: string): MermaidTranspileRes
   }
 
   const out: string[] = [];
-  out.push(`scene "${title}" theme=paper`);
+  out.push(title ? `scene "${title}" theme=paper` : `scene theme=paper`);
   out.push(`layout ${direction}`);
   out.push("");
 

@@ -93,7 +93,7 @@ const {
       const declaredLang = pre.dataset.lang;
       const isMarkdy = declaredLang
         ? declaredLang === "markdy"
-        : codeText.includes("scene ") || codeText.includes("beat ") || codeText.includes(" -> ") || codeText.includes("service ");
+        : codeText.includes("scene beat ") || codeText.includes(" -> ") || codeText.includes("service ");
       const isBash = declaredLang
         ? declaredLang === "bash"
         : codeText.startsWith("npm ") || codeText.startsWith("pnpm ") || codeText.startsWith("npx ") || codeText.startsWith("markdy ");

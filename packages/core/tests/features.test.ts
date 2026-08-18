@@ -18,7 +18,7 @@ import {
 describe("@markdy/core: Architecture Governance Linter", () => {
   it("detects forbidden direct client-to-database connection", () => {
     const code = `
-      scene "Direct DB Violation" theme=paper
+      scene theme=paper
       layout LR
       browser Client
       database DB
@@ -33,7 +33,7 @@ describe("@markdy/core: Architecture Governance Linter", () => {
 
   it("passes when communication flows properly through an API service", () => {
     const code = `
-      scene "Clean Request Path" theme=paper
+      scene theme=paper
       layout LR
       browser Client
       service Api
@@ -49,7 +49,7 @@ describe("@markdy/core: Architecture Governance Linter", () => {
 
   it("detects forbidden circular request storms", () => {
     const code = `
-      scene "Cycle Test" theme=paper
+      scene theme=paper
       layout LR
       service ServiceA
       service ServiceB
@@ -86,7 +86,7 @@ describe("@markdy/core: Technology & Semantic Classifier", () => {
 describe("@markdy/core: Semantic AST Diff Engine", () => {
   it("computes added, removed, and modified nodes and generates PR summary", () => {
     const v1Code = `
-      scene "V1 Arch" theme=paper
+      scene theme=paper
       layout LR
       browser Client
       service Monolith
@@ -96,7 +96,7 @@ describe("@markdy/core: Semantic AST Diff Engine", () => {
     `;
 
     const v2Code = `
-      scene "V2 Microservices Arch" theme=paper
+      scene theme=paper
       layout LR
       browser Client
       gateway ApiGateway
@@ -113,7 +113,7 @@ describe("@markdy/core: Semantic AST Diff Engine", () => {
     expect(diff.addedNodesCount).toBe(2); // ApiGateway, OrderService
     expect(diff.removedNodesCount).toBe(1); // Monolith
     expect(diff.summaryMarkdown).toContain("Markdy Architectural Diff Summary");
-    expect(diff.evolutionMarkdyScript).toContain("scene \"Architecture Evolution\"");
+    expect(diff.evolutionMarkdyScript).toContain("scene theme=paper");
     expect(diff.evolutionMarkdyScript).toContain("beat transition");
   });
 });
@@ -121,7 +121,7 @@ describe("@markdy/core: Semantic AST Diff Engine", () => {
 describe("@markdy/core: Native URL State Codec", () => {
   it("compresses and decompresses MarkdyScript code losslessly", async () => {
     const sampleCode = `
-      scene "Authentication Flow" theme=paper
+      scene theme=paper
       layout LR
       browser App
       service Auth
@@ -166,7 +166,7 @@ describe("@markdy/core: Self-Healing AI Diagnostic Loop", () => {
 
   it("detects architectural violations and creates a self-healing prompt", () => {
     const invalidArch = `
-      scene "Bad Arch" theme=paper
+      scene theme=paper
       layout LR
       browser Web
       database PrivateDB

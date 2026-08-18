@@ -58,7 +58,7 @@ AI prompt starter:
 Every scene starts with a `scene` line, then node declarations. A node is `<kind> <Id> ["Label"]`.
 
 ```markdy
-scene "First Diagram" theme=paper
+scene theme=paper
 layout LR
 
 browser Client
@@ -163,7 +163,7 @@ beat main:
 Pick a semantic `theme` on the scene line, and a `layout` direction. Override an individual node with a named `style`.
 
 ```markdy
-scene "Replication" theme=paper
+scene theme=paper
 layout TB
 
 style hot = fill=#f59e0b
@@ -186,7 +186,7 @@ database Replica "Read Replica"
 ## 7. Putting It All Together
 
 ```markdy
-scene "URL Shortener" theme=paper
+scene theme=paper
 layout LR
 
 user Visitor
@@ -230,7 +230,7 @@ beat finish "Storage keeps it fast":
 
 | Statement | Example |
 |---|---|
-| Scene | `scene "Title" theme=paper` |
+| Scene | `scene theme=paper` |
 | Layout | `layout LR` |
 | Node | `service API "Checkout API"` |
 | Group | `group storage: DB Redis` |

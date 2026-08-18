@@ -1,4 +1,4 @@
-scene "Transpiled Microservices Mesh" theme=paper
+scene theme=paper
 layout LR
 
 group ingress_mesh "Ingress Controller": IngressController EnvoyProxy

@@ -1,4 +1,4 @@
-scene "Groups And Patterns" theme=midnight
+scene theme=midnight
 layout LR
 
 service API

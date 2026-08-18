@@ -1,7 +1,7 @@
 # 07-flywheel-loop.markdy
 # Demonstrates circular feedback loops, flywheels, and operating reinforcement cycles with a shared state hub.
 
-scene "Self-Improving AI Data Flywheel" theme=paper type=loop width=1200 height=800
+scene theme=paper type=loop width=1200 height=800
 
 hub SharedMemory "Shared Vector Memory & Knowledge Hub"
 station Capture "Signal Ingestion"

@@ -1,4 +1,4 @@
-scene "Order Lifecycle" theme=editorial type=state width=1100 height=720
+scene theme=editorial type=state width=1100 height=720
 layout LR
 
 state Pending "Pending"

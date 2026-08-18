@@ -1,4 +1,4 @@
-scene "Org Chart" theme=editorial type=tree width=1280 height=720
+scene theme=editorial type=tree width=1280 height=720
 layout TB
 
 service CEO "Chief Executive"

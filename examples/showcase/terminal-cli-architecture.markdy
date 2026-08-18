@@ -1,7 +1,7 @@
 # showcase/terminal-cli-architecture.markdy
 # Demonstrates Terminal Theme (CLI/TUI aesthetics, dark paper, monospace typography, neon accents).
 
-scene "Terminal Infrastructure Topology" theme=terminal type=architecture width=1200 height=700
+scene theme=terminal type=architecture width=1200 height=700
 
 terminal EdgeGateway "gateway.internal" focal=true
 terminal AuthProxy "auth-proxy:8080"

@@ -21,7 +21,7 @@ Fetch and follow the canonical guide above before generating MarkdyScript. This 
 ## Minimal example
 
 ```markdy
-scene "Request path" theme=paper
+scene theme=paper
 layout LR
 
 browser Client

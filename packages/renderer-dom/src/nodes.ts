@@ -12,6 +12,8 @@ export function ensureNodeStyles(doc: Document): void {
   box-sizing: border-box;
   width: var(--md-node-w, 180px);
   height: var(--md-node-h, 76px);
+  min-width: 140px;
+  min-height: 64px;
   border-radius: 12px;
   background:
     linear-gradient(180deg,
@@ -19,10 +21,10 @@ export function ensureNodeStyles(doc: Document): void {
       var(--md-node-surface, var(--md-surface)));
   color: var(--md-text);
   box-shadow:
-    0 1px 2px color-mix(in srgb, var(--md-shadow, rgba(2, 6, 23, 0.4)) 40%, transparent),
-    0 8px 20px -8px var(--md-shadow, rgba(2, 6, 23, 0.45)),
-    inset 0 0 0 1px var(--md-hairline, color-mix(in srgb, var(--md-border) 45%, transparent)),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    0 1px 3px color-mix(in srgb, var(--md-shadow, rgba(2, 6, 23, 0.35)) 35%, transparent),
+    0 10px 24px -10px var(--md-shadow, rgba(2, 6, 23, 0.45)),
+    inset 0 0 0 1px var(--md-hairline, color-mix(in srgb, var(--md-border) 50%, transparent)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
   font-family: var(--md-font-node, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif);
   overflow: hidden;
   opacity: 0;
@@ -36,16 +38,16 @@ export function ensureNodeStyles(doc: Document): void {
 .markdy-node[data-focused="1"] {
   box-shadow:
     0 2px 6px rgba(2, 6, 23, 0.35),
-    0 16px 36px -12px rgba(2, 6, 23, 0.65),
-    inset 0 0 0 1.5px color-mix(in srgb, var(--md-accent) 75%, transparent),
-    0 0 0 3px color-mix(in srgb, var(--md-accent) 22%, transparent);
+    0 18px 38px -10px rgba(2, 6, 23, 0.7),
+    inset 0 0 0 1.5px color-mix(in srgb, var(--md-accent) 80%, transparent),
+    0 0 0 3px color-mix(in srgb, var(--md-accent) 24%, transparent);
 }
 .markdy-node[data-glow="1"] {
   box-shadow:
     0 2px 6px rgba(2, 6, 23, 0.35),
-    0 0 0 1.5px color-mix(in srgb, var(--md-glow-color, var(--md-accent)) 65%, transparent),
-    0 0 24px -2px color-mix(in srgb, var(--md-glow-color, var(--md-accent)) 48%, transparent),
-    inset 0 0 18px -8px color-mix(in srgb, var(--md-glow-color, var(--md-accent)) 45%, transparent);
+    0 0 0 1.5px color-mix(in srgb, var(--md-glow-color, var(--md-accent)) 70%, transparent),
+    0 0 28px -2px color-mix(in srgb, var(--md-glow-color, var(--md-accent)) 55%, transparent),
+    inset 0 0 18px -8px color-mix(in srgb, var(--md-glow-color, var(--md-accent)) 50%, transparent);
 }
 .markdy-node__rail { display: none; }
 .markdy-node__type { display: none; }
@@ -54,13 +56,14 @@ export function ensureNodeStyles(doc: Document): void {
   padding: 0 14px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
+  box-sizing: border-box;
 }
 .markdy-node__icon {
   flex: 0 0 auto;
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 9px;
   display: flex;
   align-items: center;
@@ -68,15 +71,15 @@ export function ensureNodeStyles(doc: Document): void {
   color: var(--md-role-color, var(--md-accent));
   background:
     linear-gradient(180deg,
-      color-mix(in srgb, var(--md-role-color, var(--md-accent)) 22%, transparent),
+      color-mix(in srgb, var(--md-role-color, var(--md-accent)) 24%, transparent),
       color-mix(in srgb, var(--md-role-color, var(--md-accent)) 10%, transparent));
   box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--md-role-color, var(--md-accent)) 35%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    inset 0 0 0 1px color-mix(in srgb, var(--md-role-color, var(--md-accent)) 38%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 .markdy-node__icon svg {
-  width: 17px;
-  height: 17px;
+  width: 18px;
+  height: 18px;
   display: block;
   stroke: currentColor;
 }
@@ -107,7 +110,8 @@ export function ensureNodeStyles(doc: Document): void {
   font-size: 13.5px;
   font-weight: 600;
   letter-spacing: -0.01em;
-  line-height: 1.22;
+  line-height: 1.24;
+  color: var(--md-text);
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
@@ -119,13 +123,13 @@ export function ensureNodeStyles(doc: Document): void {
 }
 .markdy-node__value {
   flex: 0 0 auto;
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--md-ink, var(--md-text));
   font-variant-numeric: tabular-nums;
 }
 .markdy-node[data-role="client"] { border-radius: 14px 14px 10px 10px; }
-.markdy-node[data-role="data"] { border-radius: 12px 12px 18px 18px; }
+.markdy-node[data-role="data"] { border-radius: 12px 12px 16px 16px; }
 .markdy-scene-title {
   position: absolute;
   left: 48px;
@@ -199,16 +203,18 @@ export function ensureNodeStyles(doc: Document): void {
 }
 .markdy-node[data-is-container="1"] {
   background: color-mix(in srgb, var(--md-surface-raised) 25%, transparent);
-  border: 1.5px dashed color-mix(in srgb, var(--md-role-color, var(--md-accent)) 45%, var(--md-border) 55%);
-  box-shadow: inset 0 0 0 1px var(--md-hairline);
+  border: 1px solid color-mix(in srgb, var(--md-role-color, var(--md-accent)) 40%, var(--md-border) 60%);
+  box-shadow: inset 0 0 0 1px var(--md-hairline), 0 4px 16px -4px var(--md-shadow, rgba(0,0,0,0.25));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 .markdy-node[data-is-container="1"] .markdy-node__body {
   align-items: flex-start;
   padding: 12px 16px;
 }
 .markdy-node[data-is-container="1"][data-focal="1"] {
-  background: color-mix(in srgb, var(--md-accent-tint, var(--md-accent)) 14%, transparent);
-  border: 1.5px solid color-mix(in srgb, var(--md-accent) 65%, transparent);
+  background: color-mix(in srgb, var(--md-accent-tint, var(--md-accent)) 16%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--md-accent) 70%, transparent);
 }
 .markdy-node[data-shape="rounded"] {
   border-radius: 16px;
@@ -655,5 +661,8 @@ export function createTitleEl(title: string): HTMLElement {
   const el = document.createElement("div");
   el.className = "markdy-scene-title";
   el.textContent = title;
+  if (!title) {
+    el.style.display = "none";
+  }
   return el;
 }

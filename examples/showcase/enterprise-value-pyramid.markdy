@@ -1,7 +1,7 @@
 # enterprise-value-pyramid.markdy
 # Demonstrates Hierarchical Value Pyramid & Stacked Abstraction Tiers.
 
-scene "Platform Engineering Value Pyramid" theme=editorial type=pyramid width=1200 height=800
+scene theme=editorial type=pyramid width=1200 height=800
 
 service UserValue "Developer Velocity & Business Value" tier=0 focal=true
 service InternalDevPortal "Internal Developer Portal (Backstage)" tier=1

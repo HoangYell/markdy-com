@@ -33,9 +33,9 @@ const rectsOverlap = (a: Rect, b: Rect) => a.x1 < b.x2 && a.x2 > b.x1 && a.y1 < 
 describe("placeFlowLabel", () => {
   const horizontalEdge = [{ x: 300, y: 200 }, { x: 700, y: 200 }];
 
-  it("parks a label clear of the edge line", () => {
+  it("places a label along the connector path", () => {
     const p = placeFlowLabel(horizontalEdge, 80, [], BOUNDS);
-    expect(p.y).not.toBe(200);
+    expect(p.y).toBe(200);
     expect(Math.abs(p.x - 500)).toBeLessThan(1);
   });
 

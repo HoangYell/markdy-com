@@ -1,7 +1,7 @@
 # 16-gantt-roadmap.markdy
 # Demonstrates Gantt Chart Layout for Engineering Roadmap.
 
-scene "Q3-Q4 Engineering Roadmap" theme=paper type=gantt width=1200 height=600
+scene theme=paper type=gantt width=1200 height=600
 
 service CoreRefactor "Core Architecture Refactor" phase=0 span=3
 service APIDesign "API Design & Review" phase=1 span=2 focal=true

@@ -166,7 +166,7 @@ export function handleGenerateMarkdyPrompt(userGoal: string): ToolResult {
     ``,
     `### Instructions & Authoritative Reference:`,
     `1. Follow the canonical MarkdyScript 0.8+ syntax and specification hosted at: https://markdy.com/AGENT.md`,
-    `2. Start the scene with: \`scene "<Title>" theme=paper layout=LR\``,
+    `2. Start the scene with: \`scene theme=paper layout=LR\``,
     `3. Define nodes using semantic types (e.g. \`browser client\`, \`gateway api_gw\`, \`service auth_svc\`, \`database pg_db\`, \`cache redis\`, \`queue kafka\`, \`worker worker\`).`,
     `4. Organize components in \`group <id> "<Label>": <members...>\` boundaries.`,
     `5. Animate flows with canonical operators: \`->\` (request), \`<-\` (response), \`~>\` (event), and \`--\` (dependency).`,

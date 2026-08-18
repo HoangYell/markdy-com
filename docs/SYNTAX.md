@@ -20,7 +20,7 @@ interactive true
 progressColor "#3b82f6"
 loop false
 
-scene "URL Shortener" theme=paper
+scene theme=paper
 layout LR
 ```
 
@@ -134,7 +134,7 @@ Add `type=` on the scene line to tune layout and node shapes without changing th
 | `constellation` | Radial focal-node layout with deterministic orbit decoration |
 
 ```markdy
-scene "Platform Roadmap" theme=editorial type=timeline
+scene theme=editorial type=timeline
 service Alpha "Alpha v0.1"
 service Beta "Beta v0.5" focal=true
 service GA "GA v1.0"

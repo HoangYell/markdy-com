@@ -1332,7 +1332,7 @@ export function compilePlan(ast: DiagramAST, theme: ThemeTokens): RenderPlan {
     1,
   );
 
-  const title = ast.meta.title ?? "Architecture Diagram";
+  const title = ast.meta.title ?? "";
 
   return {
     meta: ast.meta,

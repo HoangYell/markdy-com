@@ -34,7 +34,7 @@ const scenesMetadata = [
   {
     file: 'scene-url-shortener.webp',
     title: 'URL Shortener Architecture (Cache-Aside)',
-    sceneTag: 'scene "URL Shortener" theme=paper',
+    sceneTag: 'scene theme=paper',
     stickyNote: '📌 <b>How it works:</b><br/><b>1.</b> Check Redis cache (<b>0.5ms</b>) ⚡<br/><b>2.</b> Cache miss? Query DB (<b>50ms</b>) + warm cache 🔥',
     explanation: '<b>URL Shortener Architecture:</b><br/>When a visitor opens <code>short.ly/a7</code>, the API Gateway queries in-memory <b>Redis cache</b> first. If found, it returns a <b>301 redirect</b> in under 2ms! 🚀',
     badge1: '⚡ Cache-Aside Pattern',
@@ -43,7 +43,7 @@ const scenesMetadata = [
   {
     file: 'scene-kubernetes-cluster.webp',
     title: 'Kubernetes Cloud Native Platform Blueprint',
-    sceneTag: 'scene "Kubernetes Blueprint" theme=blueprint',
+    sceneTag: 'scene theme=blueprint',
     stickyNote: '☸️ <b>K8s Orchestration:</b><br/>• Ingress terminates SSL & routes paths<br/>• HPA auto-scales stateless pods<br/>• StatefulSet guards persistent DB 💾',
     explanation: '<b>Kubernetes Cluster Blueprint:</b><br/>Traffic enters at the <b>Ingress Controller</b>, load balances across auto-scaling <b>Pods</b>, and writes to <b>PostgreSQL StatefulSet</b> with persistent volumes! 🛡️',
     badge1: '☸️ Kubernetes Cloud Native',
@@ -52,7 +52,7 @@ const scenesMetadata = [
   {
     file: 'scene-lakehouse-medallion.webp',
     title: 'Lakehouse Medallion Data Pipeline',
-    sceneTag: 'scene "Medallion Pipeline" theme=editorial type=medallion',
+    sceneTag: 'scene theme=editorial type=medallion',
     stickyNote: '📊 <b>3-Stage Pipeline:</b><br/>🥉 <b>Bronze:</b> Raw event streams<br/>🥈 <b>Silver:</b> Cleaned & deduplicated<br/>🥇 <b>Gold:</b> Business aggregate KPIs 🏆',
     explanation: '<b>Lakehouse Medallion Pipeline:</b><br/>Raw streaming logs land in the <b>Bronze layer</b>, Spark cleans them into <b>Silver tables</b>, and aggregates produce <b>Gold insights</b> for BI & AI models! ✨',
     badge1: '🥉 ➔ 🥈 ➔ 🥇 Medallion Tiers',
@@ -61,7 +61,7 @@ const scenesMetadata = [
   {
     file: 'scene-twitter-timeline.webp',
     title: 'Twitter Timeline Fan-Out Architecture',
-    sceneTag: 'scene "Timeline Service" theme=midnight',
+    sceneTag: 'scene theme=midnight',
     stickyNote: '⚡ <b>High Concurrency:</b><br/>• Kafka decouples write spikes<br/>• Workers fan-out to Redis caches<br/>• Home feeds load in &lt;10ms!',
     explanation: '<b>Twitter Timeline Fan-Out:</b><br/>When an author tweets, <b>Kafka</b> streams the event to workers who push the tweet into each active follower\'s <b>Redis timeline cache</b>! 🐦⚡',
     badge1: '🐦 500M Tweets / Day',
@@ -70,7 +70,7 @@ const scenesMetadata = [
   {
     file: 'scene-oauth-oidc-flow.webp',
     title: 'OAuth2 & OIDC Authentication Flow',
-    sceneTag: 'scene "OAuth2 OIDC Flow" theme=midnight type=sequence',
+    sceneTag: 'scene theme=midnight type=sequence',
     stickyNote: '🔐 <b>Auth Handshake:</b><br/><b>1.</b> Redirect with Auth Code<br/><b>2.</b> Backend exchanges Code for JWT<br/><b>3.</b> Verified session cookie stored!',
     explanation: '<b>OAuth2 / OIDC Auth Flow:</b><br/>The browser initiates login, the <b>Identity Provider</b> returns an auth code, and the backend securely exchanges it for <b>JWT access tokens</b>! 🛡️',
     badge1: '🔐 Zero-Trust Auth',
@@ -79,7 +79,7 @@ const scenesMetadata = [
   {
     file: 'scene-ecommerce-swimlanes.webp',
     title: 'E-Commerce Checkout Cross-Functional Swimlanes',
-    sceneTag: 'scene "Checkout Swimlanes" theme=paper type=swimlane',
+    sceneTag: 'scene theme=paper type=swimlane',
     stickyNote: '🛍️ <b>Cross-Functional Flow:</b><br/>Frontend ➔ Gateway ➔ Orders ➔ Payments ➔ Fulfillment',
     explanation: '<b>E-Commerce Swimlanes:</b><br/>Separating frontend, microservices, and third-party payment gateways into <b>horizontal swimlanes</b> makes team boundaries crystal clear! 🛒',
     badge1: '🛍️ Checkout Architecture',
@@ -88,7 +88,7 @@ const scenesMetadata = [
   {
     file: 'scene-zero-trust-paved-road.webp',
     title: 'Zero-Trust Secure Paved Road & Perimeter',
-    sceneTag: 'scene "Zero-Trust Paved Road" theme=paper',
+    sceneTag: 'scene theme=paper',
     stickyNote: '🛡️ <b>Security Perimeter:</b><br/>• WAF & mTLS mutual auth<br/>• Policy engine checks every RPC<br/>• Automated audit telemetry',
     explanation: '<b>Zero-Trust Paved Road:</b><br/>Every request is authenticated at the perimeter by <b>WAF + Envoy Proxy</b>, with fine-grained RBAC policy enforcement at every microservice hop! 🔒',
     badge1: '🛡️ Zero-Trust Security',
@@ -97,7 +97,7 @@ const scenesMetadata = [
   {
     file: 'scene-platform-pyramid.webp',
     title: 'Platform Engineering Value Pyramid',
-    sceneTag: 'scene "Platform Pyramid" theme=editorial type=pyramid',
+    sceneTag: 'scene theme=editorial type=pyramid',
     stickyNote: '📐 <b>Tier Stack:</b><br/>• Top: Golden Developer Paths<br/>• Mid: Observability & CI/CD<br/>• Base: Multi-Cloud Infrastructure',
     explanation: '<b>Platform Value Pyramid:</b><br/>A strong infrastructure foundation enables self-service developer portals and automated golden paths that 10x shipping velocity! 🚀',
     badge1: '📐 Value Pyramid',
@@ -106,7 +106,7 @@ const scenesMetadata = [
   {
     file: 'scene-database-radar.webp',
     title: 'Distributed Database Radar Benchmark',
-    sceneTag: 'scene "Database Benchmark" theme=paper type=radar',
+    sceneTag: 'scene theme=paper type=radar',
     stickyNote: '📈 <b>Benchmark Axes:</b><br/>• Read/Write Latency<br/>• Linear Scalability<br/>• Global Consistency (CAP)',
     explanation: '<b>Database Radar Benchmark:</b><br/>Compare distributed databases across latency, consistency, availability, and operational overhead in a <b>multi-axis polygon radar</b>! 📊',
     badge1: '📈 Multi-Axis Benchmark',
@@ -115,7 +115,7 @@ const scenesMetadata = [
   {
     file: 'scene-strategic-quadrant.webp',
     title: 'Strategic Technology Decision Quadrant',
-    sceneTag: 'scene "Tech Radar" theme=editorial type=quadrant',
+    sceneTag: 'scene theme=editorial type=quadrant',
     stickyNote: '🧭 <b>2x2 Decision Matrix:</b><br/>• High Impact / Low Effort = Quick Wins<br/>• High Impact / High Effort = Strategic Bets',
     explanation: '<b>Strategic 2x2 Quadrant:</b><br/>Categorize architecture proposals into Adopt, Trial, Assess, and Hold quadrants with automatic proximity layout! 🎯',
     badge1: '🧭 Strategic Tech Radar',
@@ -124,7 +124,7 @@ const scenesMetadata = [
   {
     file: 'scene-terminal-cli.webp',
     title: 'Terminal Infrastructure CLI Topology',
-    sceneTag: 'scene "Terminal Infra" theme=terminal',
+    sceneTag: 'scene theme=terminal',
     stickyNote: '💻 <b>Cyberpunk CLI Theme:</b><br/>• Monospace font stack<br/>• Dark TUI background<br/>• Neon green & amber glows',
     explanation: '<b>Terminal / TUI Theme:</b><br/>Perfect for DevOps engineers and CLI lovers! High-contrast monospace design with glowing server nodes and status probes! 💻🟢',
     badge1: '💻 Hacker / TUI Theme',
@@ -133,7 +133,7 @@ const scenesMetadata = [
   {
     file: 'scene-sketchy-whiteboard.webp',
     title: 'Hand-Drawn Whiteboard Product Discovery',
-    sceneTag: 'scene "Whiteboard Discovery" theme=sketchy',
+    sceneTag: 'scene theme=sketchy',
     stickyNote: '✏️ <b>Organic Hand-Drawn:</b><br/>• Organic displacement filter<br/>• Soft hand-drawn strokes<br/>• Great for RFC brainstorming!',
     explanation: '<b>Sketchy Whiteboard Theme:</b><br/>Gives your architecture diagrams an organic, hand-drawn Excalidraw feel while retaining 100% diagram-as-code editability! ✏️🎨',
     badge1: '✏️ Hand-Drawn Theme',
@@ -142,7 +142,7 @@ const scenesMetadata = [
   {
     file: 'scene-nebula-constellation.webp',
     title: 'Nebula Radial Signal Constellation',
-    sceneTag: 'scene "Signal Constellation" theme=nebula type=constellation',
+    sceneTag: 'scene theme=nebula type=constellation',
     stickyNote: '🌌 <b>Deep Space Theme:</b><br/>• Radial orbit rings<br/>• Signal halo emitters<br/>• Constellation twinkling stars',
     explanation: '<b>Nebula Constellation:</b><br/>Focal-node layout with radial orbit geometry and pulsating signal halos — ideal for IoT telemetry and AI neural networks! 🌌✨',
     badge1: '🌌 Nebula Deep Space',
@@ -151,7 +151,7 @@ const scenesMetadata = [
   {
     file: 'scene-cicd-pipeline.webp',
     title: 'GitOps CI/CD Delivery Pipeline',
-    sceneTag: 'scene "CI/CD Pipeline" theme=paper',
+    sceneTag: 'scene theme=paper',
     stickyNote: '🚀 <b>Continuous Delivery:</b><br/>Code ➔ Unit Tests ➔ Security Scan ➔ Staging ➔ Production Canary',
     explanation: '<b>GitOps CI/CD Pipeline:</b><br/>Automate the release path from GitHub pull request to production canary deployments with progressive reveal beats! 🚢',
     badge1: '🚀 Automated Delivery',
@@ -160,7 +160,7 @@ const scenesMetadata = [
   {
     file: 'scene-fintech-governance.webp',
     title: 'Fintech Real-Time Transaction Engine',
-    sceneTag: 'scene "Fintech Governance" theme=paper',
+    sceneTag: 'scene theme=paper',
     stickyNote: '💳 <b>Anti-Fraud Engine:</b><br/>• 50ms ML risk scoring<br/>• Ledger double-entry validation<br/>• Real-time webhook notifications',
     explanation: '<b>Fintech Governance Engine:</b><br/>Animate transactions traveling through API gateways, fraud detection ML models, and ACID ledger databases! 💳🛡️',
     badge1: '💳 High-Assurance Fintech',
@@ -169,7 +169,7 @@ const scenesMetadata = [
   {
     file: 'scene-youtube-pipeline.webp',
     title: 'Video Transcoding & CDN Pipeline',
-    sceneTag: 'scene "YouTube Pipeline" theme=paper',
+    sceneTag: 'scene theme=paper',
     stickyNote: '📹 <b>Media Processing:</b><br/>Upload ➔ Chunking ➔ Distributed Transcoding ➔ Multi-bitrate CDN',
     explanation: '<b>Video Transcoding Pipeline:</b><br/>Shows how raw 4K video uploads are split into chunks, transcoded in parallel, and cached across global Edge CDNs! 🎬🌐',
     badge1: '📹 Video Transcoding',
@@ -178,7 +178,7 @@ const scenesMetadata = [
   {
     file: 'scene-engineering-roadmap.webp',
     title: 'Engineering Gantt & Phase Roadmap',
-    sceneTag: 'scene "Engineering Roadmap" theme=paper type=gantt',
+    sceneTag: 'scene theme=paper type=gantt',
     stickyNote: '📅 <b>Schedule Tracking:</b><br/>• Horizontal phase bars<br/>• Span & milestone tracking<br/>• Critical path highlighting',
     explanation: '<b>Gantt Phase Roadmap:</b><br/>Track quarterly engineering milestones, API refactors, and compliance audits with proportional task spans! 📅✨',
     badge1: '📅 Gantt Schedule Engine',
@@ -187,7 +187,7 @@ const scenesMetadata = [
   {
     file: 'scene-osi-layers.webp',
     title: 'OSI & Abstraction Layer Stack',
-    sceneTag: 'scene "OSI Layers" theme=editorial type=layers',
+    sceneTag: 'scene theme=editorial type=layers',
     stickyNote: '🥞 <b>Full-Width Bands:</b><br/>Application ➔ Transport ➔ Network ➔ Data Link ➔ Physical',
     explanation: '<b>Layer Stack Engine:</b><br/>Render stacked horizontal bands for network OSI models, CSS cascade layers, and system memory abstractions! 🥞',
     badge1: '🥞 Stacked Layer Bands',
@@ -196,7 +196,7 @@ const scenesMetadata = [
   {
     file: 'scene-concurrency-fanin.webp',
     title: 'Fan-In Queue & Concurrency Bottleneck',
-    sceneTag: 'scene "Queue Bottleneck" theme=paper',
+    sceneTag: 'scene theme=paper',
     stickyNote: '⚠️ <b>Bottleneck Analysis:</b><br/>10,000 producer requests ➔ Queue buffer ➔ Worker concurrency limit',
     explanation: '<b>Concurrency Bottleneck:</b><br/>Visualize queue saturation, worker starvation, and deadlocks with built-in architecture diagnostic rules! 🚦',
     badge1: '⚠️ Queue Saturation Analysis',
@@ -205,7 +205,7 @@ const scenesMetadata = [
   {
     file: 'scene-data-flywheel.webp',
     title: 'AI Compounding Data Flywheel',
-    sceneTag: 'scene "Data Flywheel" theme=paper type=flywheel',
+    sceneTag: 'scene theme=paper type=flywheel',
     stickyNote: '🔄 <b>Compounding Loop:</b><br/>User Data ➔ Model Training ➔ Better Features ➔ More Users!',
     explanation: '<b>Compounding Data Flywheel:</b><br/>A circular closed-loop engine with tangential flow paths that illustrates self-reinforcing AI flywheel mechanics! 🔄🤖',
     badge1: '🔄 Circular Compounding Loop',
@@ -214,7 +214,7 @@ const scenesMetadata = [
   {
     file: 'scene-editorial-api-platform.webp',
     title: 'Multi-Tier API Platform Architecture',
-    sceneTag: 'scene "API Platform" theme=editorial',
+    sceneTag: 'scene theme=editorial',
     stickyNote: '📰 <b>Editorial Theme:</b><br/>Warm cream paper, serif typography, and elegant card styling.',
     explanation: '<b>Editorial API Platform:</b><br/>Styled with warm serif headings and ink accents, built for technical blog posts, whitepapers, and pitch decks! 📰🖋️',
     badge1: '📰 Publication Theme',
@@ -223,7 +223,7 @@ const scenesMetadata = [
   {
     file: 'scene-product-market-fit-venn.webp',
     title: 'Product-Market Fit 3-Circle Venn',
-    sceneTag: 'scene "Product Market Fit" theme=editorial type=venn',
+    sceneTag: 'scene theme=editorial type=venn',
     stickyNote: '🎯 <b>The Sweet Spot:</b><br/>Desirability ∩ Feasibility ∩ Viability = Product-Market Fit!',
     explanation: '<b>3-Circle Venn Diagram:</b><br/>Automatic proximity scaling and compounding opacity tints highlight the intersection sweet spot! 🎯✨',
     badge1: '🎯 3-Circle Venn Engine',
@@ -232,7 +232,7 @@ const scenesMetadata = [
   {
     file: 'scene-nested-security.webp',
     title: 'Nested Defense-in-Depth Security',
-    sceneTag: 'scene "Defense in Depth" theme=paper type=nested',
+    sceneTag: 'scene theme=paper type=nested',
     stickyNote: '🏰 <b>Concentric Security:</b><br/>Public Internet ➔ DMZ Perimeter ➔ Private VPC ➔ Secure Enclave',
     explanation: '<b>Nested Containment Engine:</b><br/>Renders concentric rounded perimeters with stepped insets for defense-in-depth security architectures! 🏰🛡️',
     badge1: '🏰 Defense in Depth',
@@ -241,7 +241,7 @@ const scenesMetadata = [
   {
     file: 'markdy-studio-hero.webp',
     title: 'Markdy Live Interactive Studio',
-    sceneTag: 'scene "Interactive Studio" theme=paper',
+    sceneTag: 'scene theme=paper',
     stickyNote: '🎬 <b>Interactive Features:</b><br/>• Monaco Code Editor<br/>• Live WAAPI Canvas<br/>• Scannable Timeline<br/>• Parsed Node AST Inspector',
     explanation: '<b>Markdy Interactive Studio:</b><br/>Type MarkdyScript in the editor and watch your architecture diagram render, lay itself out, and animate instantly! 🪄💻',
     badge1: '🎬 Live Interactive Studio',
@@ -250,7 +250,7 @@ const scenesMetadata = [
   {
     file: 'markdy-split-editor.webp',
     title: 'MarkdyScript Code-to-Diagram Studio',
-    sceneTag: 'scene "Split Editor" theme=paper',
+    sceneTag: 'scene theme=paper',
     stickyNote: '💡 <b>Diagram-as-Code:</b><br/>Write simple text on the left, get an animated interactive diagram on the right!',
     explanation: '<b>Code-to-Visual Workflow:</b><br/>Declare semantic nodes, beats, and flows. Markdy compiles layout and routes collision-free orthogonal edges automatically! 🪄',
     badge1: '💡 Text-to-Diagram DSL',
@@ -259,7 +259,7 @@ const scenesMetadata = [
   {
     file: 'markdy-vs-mermaid-comparison.webp',
     title: 'Mermaid vs Markdy Side-by-Side Comparison',
-    sceneTag: 'scene "Comparison" theme=paper',
+    sceneTag: 'scene theme=paper',
     stickyNote: '⚔️ <b>Static vs Dynamic:</b><br/>• Mermaid: Static SVG chart<br/>• Markdy: Animated 60fps seekable story',
     explanation: '<b>Mermaid vs Markdy:</b><br/>Mermaid is great for static docs; Markdy brings architecture to life with choreography, camera zooms, and beats! 🥊✨',
     badge1: '⚔️ Architectural Showdown',
@@ -268,7 +268,7 @@ const scenesMetadata = [
   {
     file: 'markdy-themes-showcase.webp',
     title: '8 Built-in Semantic Themes',
-    sceneTag: 'scene "Theme Showcase" theme=paper',
+    sceneTag: 'scene theme=paper',
     stickyNote: '🎨 <b>8 Built-in Themes:</b><br/>Paper, Editorial, Midnight, Blueprint, Terminal, Graphite, Nebula, Sketchy',
     explanation: '<b>8 Semantic Themes:</b><br/>Switch themes instantly with a single attribute! Every theme features tailored typography, node glyphs, and WCAG AAA contrast! 🎨',
     badge1: '🎨 8 Aesthetic Themes',
@@ -277,7 +277,7 @@ const scenesMetadata = [
   {
     file: 'markdy-ai-agent-workflow.webp',
     title: 'AI Agent Prompting & Workflow Hub',
-    sceneTag: 'scene "AI Agents" theme=paper',
+    sceneTag: 'scene theme=paper',
     stickyNote: '🤖 <b>Supported AI Agents:</b><br/>• Cursor IDE (Composer)<br/>• Claude Desktop (MCP)<br/>• Google Antigravity<br/>• GitHub Copilot',
     explanation: '<b>AI Agent Integration:</b><br/>AI coding models love Markdy\'s strict single-line grammar! Feed it <code>AGENT.md</code> and prompt in plain English! 🤖🪄',
     badge1: '🤖 AI-Native Architecture',
@@ -286,7 +286,7 @@ const scenesMetadata = [
   {
     file: 'markdy-universal-ingestion.webp',
     title: 'Universal Ingestion Transpilers',
-    sceneTag: 'scene "Universal Ingestion" theme=paper',
+    sceneTag: 'scene theme=paper',
     stickyNote: '🪄 <b>1-Command Ingestion:</b><br/>• Mermaid (.mmd)<br/>• Draw.io (.drawio / .xml)<br/>• Docker Compose<br/>• Kubernetes Manifests<br/>• Terraform State (.tfstate)',
     explanation: '<b>Universal Ingestion Transpilers:</b><br/>Easily migrate your existing Mermaid charts, Draw.io files, Docker Compose, or K8s manifests into animated MarkdyScript scenes! 🪄',
     badge1: '🪄 Universal Transpilers',
@@ -295,7 +295,7 @@ const scenesMetadata = [
   {
     file: 'markdy-framework-integrations.webp',
     title: 'Astro, MDX & Next.js Framework Islands',
-    sceneTag: 'scene "Integrations" theme=paper',
+    sceneTag: 'scene theme=paper',
     stickyNote: '🟡 <b>Drop-in Components:</b><br/>• Astro: &lt;Markdy client:visible /&gt;<br/>• MDX: fenced ```markdy blocks<br/>• Zero bundle bloat (~34kb)',
     explanation: '<b>Framework Integrations:</b><br/>Embed animated architecture diagrams inside Astro, MDX, React, or Web Components with lazy hydration on scroll! 🟡⚡',
     badge1: '🟡 Astro & MDX Ready',
@@ -304,7 +304,7 @@ const scenesMetadata = [
   {
     file: 'markdy-governance-audit.webp',
     title: 'Architecture Governance & Linting Audit',
-    sceneTag: 'scene "Governance Audit" theme=paper',
+    sceneTag: 'scene theme=paper',
     stickyNote: '🛡️ <b>Well-Architected Rules:</b><br/>• Layer isolation check<br/>• Cycle & deadlock detection<br/>• Gateway bypass warnings',
     explanation: '<b>Architecture Governance Audit:</b><br/>Run <code>markdy lint --arch-rules</code> in CI/CD to catch structural anti-patterns before merging pull requests! 🛡️🔍',
     badge1: '🛡️ Well-Architected Governance',
@@ -313,7 +313,7 @@ const scenesMetadata = [
   {
     file: 'scene-editorial-api-platform.webp',
     title: 'Enterprise API Platform Architecture',
-    sceneTag: 'scene "API Platform" theme=editorial',
+    sceneTag: 'scene theme=editorial',
     stickyNote: '📰 <b>Editorial Style:</b><br/>Structured gateway, microservices, and database clustering in warm cream aesthetics.',
     explanation: '<b>Enterprise API Platform:</b><br/>Multi-tier gateway routing requests to auth, user, and inventory microservices with distributed database caching! 🏛️⚡',
     badge1: '🏛️ Enterprise API Gateway',

@@ -122,7 +122,7 @@ export function diffDiagramASTs(beforeAST: DiagramAST, afterAST: DiagramAST): Di
 
   // 5. Generate Evolution Animation Scene (Visual Morphing V1 -> V2)
   const evolutionLines: string[] = [
-    `scene "Architecture Evolution" theme=${afterAST.meta.theme || "paper"}`,
+    `scene theme=${afterAST.meta.theme || "paper"}`,
     `layout ${afterAST.meta.direction || "LR"}`,
     "",
   ];

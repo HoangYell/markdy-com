@@ -1,4 +1,4 @@
-scene "Login Sequence" theme=editorial type=sequence width=1280 height=720
+scene theme=editorial type=sequence width=1280 height=720
 layout LR
 
 participant Browser

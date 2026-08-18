@@ -17,7 +17,7 @@ Use this guide when you want to answer: "How do I turn semantic nodes, groups, b
 Create `architecture.markdy`:
 
 ```markdy
-scene "Request" theme=paper
+scene theme=paper
 layout LR
 
 browser WebApp

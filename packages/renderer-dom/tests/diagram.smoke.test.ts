@@ -30,7 +30,7 @@ function pointerEvent(type: string, props: { pointerId?: number; clientX: number
 }
 
 const SCENE = `
-scene "Smoke" theme=paper
+scene theme=paper
 layout LR
 
 browser Web
@@ -288,7 +288,7 @@ describe("createDiagram integration", () => {
     document.body.appendChild(container2);
     const diagram2 = createDiagram({
       container: container2,
-      code: `scene "Custom" theme=paper progressColor="#3b82f6"\nservice A\nbeat b1:\n  show A\n`,
+      code: `scene theme=paper progressColor="#3b82f6"\nservice A\nbeat b1:\n  show A\n`,
       autoplay: false,
       copyright: false,
     });
@@ -326,7 +326,7 @@ autoplay false
 loop false
 speed 2
 
-scene "Self Contained" theme=paper
+scene theme=paper
 service A
 beat b1:
   show A
@@ -384,7 +384,7 @@ beat b1:
       const container = document.createElement("div");
       document.body.appendChild(container);
       const code = `
-scene "Test ${dtype}" type=${dtype} theme=paper width=1000 height=700
+scene type=${dtype} theme=paper width=1000 height=700
 service A "Node Alpha" focal=true
 service B "Node Beta"
 service C "Node Gamma"
@@ -415,7 +415,7 @@ beat main:
       const container = document.createElement("div");
       document.body.appendChild(container);
       const code = `
-scene "Theme ${themeName}" theme=${themeName} width=900 height=600
+scene theme=${themeName} width=900 height=600
 service API "API Gateway" focal=true
 database DB "PostgreSQL"
 

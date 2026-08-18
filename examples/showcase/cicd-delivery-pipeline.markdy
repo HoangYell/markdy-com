@@ -1,4 +1,4 @@
-scene "CI/CD Delivery Pipeline" theme=paper width=1600 height=740
+scene theme=paper width=1600 height=740
 layout LR
 
 user Developer

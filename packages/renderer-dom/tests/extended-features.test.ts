@@ -89,7 +89,7 @@ describe("@markdy/renderer-dom: Vector SVG Exporter", () => {
 describe("@markdy/renderer-dom: Diagram Presentation Controller", () => {
   it("navigates beats and sets speeds", () => {
     const code = `
-      scene "Controller Test" theme=paper
+      scene theme=paper
       layout LR
       service A
       service B

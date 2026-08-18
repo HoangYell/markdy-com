@@ -26,7 +26,7 @@ describe("markdy cli", () => {
   it("lints valid diagram scenes", async () => {
     const dir = await tempDir();
     const file = join(dir, "scene.markdy");
-    await writeFile(file, `scene "Demo" theme=midnight\nbrowser Web\nservice API\n\nbeat main:\n  show $nodes\n  Web -> API "ping"\n`, "utf8");
+    await writeFile(file, `scene theme=midnight\nbrowser Web\nservice API\n\nbeat main:\n  show $nodes\n  Web -> API "ping"\n`, "utf8");
     const io = new BufferIo();
     const result = await runCli(["lint", file], io, { openBrowser: async () => {} });
     expect(result.exitCode).toBe(0);
@@ -58,7 +58,7 @@ describe("markdy cli", () => {
   it("formats idempotently and preserves response-edge direction", async () => {
     const dir = await tempDir();
     const file = join(dir, "flows.markdy");
-    const source = `scene "Flows" theme=midnight\nclient Web\nservice API\n\nbeat main:\n  Web -> API "request"\n  API <- Web "response"\n`;
+    const source = `scene theme=midnight\nclient Web\nservice API\n\nbeat main:\n  Web -> API "request"\n  API <- Web "response"\n`;
     await writeFile(file, source, "utf8");
     const io = new BufferIo();
 
@@ -76,7 +76,7 @@ describe("markdy cli", () => {
   it("formats frame cues and preserves node props", async () => {
     const dir = await tempDir();
     const file = join(dir, "story.markdy");
-    await writeFile(file, `scene "Story" theme=paper\nservice API icon=server\nbeat main "Inspect API":\n  frame API zoom=1.2 dur=500ms\n`, "utf8");
+    await writeFile(file, `scene theme=paper\nservice API icon=server\nbeat main "Inspect API":\n  frame API zoom=1.2 dur=500ms\n`, "utf8");
     const io = new BufferIo();
 
     const result = await runCli(["fmt", file, "--write"], io, { openBrowser: async () => {} });

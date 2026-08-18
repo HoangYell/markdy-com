@@ -1,7 +1,7 @@
 # 17-venn-overlap.markdy
 # Demonstrates Venn / Set Overlap Diagram for Concept Intersection.
 
-scene "Product-Market Fit Intersection" theme=editorial type=venn width=1000 height=800
+scene theme=editorial type=venn width=1000 height=800
 
 service Desirability "Customer Desirability"
 service Feasibility "Technical Feasibility" focal=true

@@ -508,4 +508,14 @@ service M3 "GA"
     expect(m2.y).toBeGreaterThan(m1.y);
     expect(m2.y).toBeGreaterThan(m3.y);
   });
+
+  it("leaves plan.title empty when no scene name is defined", () => {
+    const source = `
+scene theme=paper width=800 height=600
+browser Client
+service API
+`;
+    const plan = compile(parse(source));
+    expect(plan.title).toBe("");
+  });
 });

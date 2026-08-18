@@ -1,4 +1,4 @@
-scene "Kubernetes Platform Blueprint" theme=blueprint width=1320 height=780
+scene theme=blueprint width=1320 height=780
 layout LR
 
 user Operator

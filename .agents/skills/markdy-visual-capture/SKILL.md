@@ -73,7 +73,7 @@ When adding a new diagram scene to documentation:
    {
      file: 'scene-my-new-architecture.webp',
      title: 'My New Architecture Title',
-     sceneTag: 'scene "My Scene" theme=paper',
+     sceneTag: 'scene theme=paper',
      stickyNote: '📌 <b>How it works:</b><br/>• Step 1...<br/>• Step 2...',
      explanation: '<b>Architecture Overview:</b><br/>Explaining how the components communicate in real time! 🚀',
      badge1: '⚡ High Performance',

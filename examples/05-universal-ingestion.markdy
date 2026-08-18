@@ -1,7 +1,7 @@
 # 05-universal-ingestion.markdy
 # Demonstrates a microservice architecture transpiled from Docker Compose / Kubernetes.
 
-scene "Container Mesh & Ingress" theme=paper
+scene theme=paper
 layout TB
 
 group ingress_layer "Public Edge": alb edge_gw

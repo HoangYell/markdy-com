@@ -10,9 +10,14 @@ export function ensureGroupStyles(doc: Document): void {
 .markdy-group-boundary {
   position: absolute;
   box-sizing: border-box;
-  border: 1px dashed var(--md-group-border, color-mix(in srgb, var(--md-border) 60%, transparent));
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--md-surface-raised) 25%, transparent);
+  border: 1px solid var(--md-group-border, color-mix(in srgb, var(--md-border) 45%, transparent));
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--md-surface-raised) 32%, transparent);
+  box-shadow:
+    0 4px 20px -4px var(--md-shadow, rgba(0, 0, 0, 0.25)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   pointer-events: none;
   z-index: 40;
 }
@@ -20,17 +25,19 @@ export function ensureGroupStyles(doc: Document): void {
   position: absolute;
   left: 14px;
   top: 10px;
-  padding: 3px 8px;
-  font-size: 10px;
+  padding: 4px 10px;
+  font-size: 10.5px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--md-text-muted);
-  background: color-mix(in srgb, var(--md-surface-raised) 80%, transparent);
+  color: var(--md-text);
+  background: color-mix(in srgb, var(--md-surface-raised) 85%, transparent);
   border: 1px solid var(--md-group-border, color-mix(in srgb, var(--md-border) 50%, transparent));
-  border-radius: 5px;
+  border-radius: 6px;
   font-family: var(--md-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 `;
   doc.head.appendChild(style);
@@ -50,10 +57,11 @@ export function createGroupBoundaryEl(
   el.style.height = `${boundary.height}px`;
   el.style.setProperty("--md-group-border", theme.hairline ?? theme.border);
 
-  if (boundary.label) {
-    const label = document.createElement("div");
+  const displayLabel = boundary.label || boundary.id;
+  if (displayLabel) {
+    const label = doc.createElement("div");
     label.className = "markdy-group-boundary__label";
-    label.textContent = boundary.label;
+    label.textContent = displayLabel;
     el.appendChild(label);
   }
   return el;

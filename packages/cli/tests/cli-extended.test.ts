@@ -42,8 +42,8 @@ describe("@markdy/cli: Extended CLI Commands", () => {
     const file1 = join(testDir, "v1.markdy");
     const file2 = join(testDir, "v2.markdy");
 
-    await writeFile(file1, 'scene "V1"\nlayout LR\nservice Old\nbeat main:\n  show Old', "utf8");
-    await writeFile(file2, 'scene "V2"\nlayout LR\nservice New\nbeat main:\n  show New', "utf8");
+    await writeFile(file1, 'scene \nlayout LR\nservice Old\nbeat main:\n  show Old', "utf8");
+    await writeFile(file2, 'scene \nlayout LR\nservice New\nbeat main:\n  show New', "utf8");
 
     const { stdoutBuf, io } = createMockIo();
     const result = await runCli(["diff", file1, file2], io);
@@ -59,7 +59,7 @@ describe("@markdy/cli: Extended CLI Commands", () => {
   it("generates a shareable playground URL via markdy share", async () => {
     await mkdir(testDir, { recursive: true });
     const file = join(testDir, "share.markdy");
-    await writeFile(file, 'scene "Share Test"\nlayout LR\nservice API\nbeat main:\n  show API', "utf8");
+    await writeFile(file, 'scene \nlayout LR\nservice API\nbeat main:\n  show API', "utf8");
 
     const { stdoutBuf, io } = createMockIo();
     const result = await runCli(["share", file], io);
@@ -76,7 +76,7 @@ describe("@markdy/cli: Extended CLI Commands", () => {
     const file = join(testDir, "bad-arch.markdy");
     await writeFile(
       file,
-      'scene "Bad"\nlayout LR\nbrowser UI\ndatabase DB\nbeat main:\n  UI -> DB "bypass"',
+      'scene \nlayout LR\nbrowser UI\ndatabase DB\nbeat main:\n  UI -> DB "bypass"',
       "utf8"
     );
 
@@ -98,7 +98,7 @@ describe("@markdy/cli: Extended CLI Commands", () => {
 
     await writeFile(
       file,
-      'scene "Warn"\nlayout LR\nbrowser UI\ndatabase DB\nbeat main:\n  UI -> DB "bypass"',
+      'scene \nlayout LR\nbrowser UI\ndatabase DB\nbeat main:\n  UI -> DB "bypass"',
       "utf8"
     );
     await writeFile(

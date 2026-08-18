@@ -1,4 +1,4 @@
-scene "API Platform" theme=editorial type=architecture width=1280 height=760
+scene theme=editorial type=architecture width=1280 height=760
 layout LR
 annotation "Public edge" target=Gateway position=top-right
 

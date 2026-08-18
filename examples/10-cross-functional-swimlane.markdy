@@ -1,7 +1,7 @@
 # 10-cross-functional-swimlane.markdy
 # Demonstrates Cross-Functional Responsibility Swimlanes (Client -> Edge -> Domain -> Persistence).
 
-scene "E-Commerce Checkout Swimlanes" theme=paper type=swimlane width=1300 height=850
+scene theme=paper type=swimlane width=1300 height=850
 
 group client_lane "Client Tier": WebApp MobileApp
 group edge_lane "Edge & Security Tier": CloudflareWAF KongGateway

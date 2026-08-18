@@ -1,7 +1,7 @@
 # 09-strategic-quadrant.markdy
 # Demonstrates 2x2 Strategic Decision Matrix (Impact vs Effort / Scenario Matrix).
 
-scene "Engineering Strategy 2x2 Matrix" theme=editorial type=quadrant width=1200 height=800
+scene theme=editorial type=quadrant width=1200 height=800
 
 service RealTimeEngine "Real-Time Streaming" quadrant=Q1 focal=true
 service GraphCatalog "Graph Data Catalog" quadrant=Q2

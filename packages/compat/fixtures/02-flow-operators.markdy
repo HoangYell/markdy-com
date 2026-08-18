@@ -1,4 +1,4 @@
-scene "Flow Operators" theme=midnight
+scene theme=midnight
 
 client Web
 service API
