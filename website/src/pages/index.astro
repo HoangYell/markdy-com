@@ -1039,7 +1039,7 @@ markdy check-all ./docs/diagrams</code></pre>
       if (examples[nextIdx]) {
         if (exampleSelect) exampleSelect.value = String(nextIdx);
         presetChips.forEach((c) => c.classList.toggle("active", c.dataset.index === String(nextIdx)));
-        setEditorCode(examples[nextIdx].code, false);
+        setEditorCode(examples[nextIdx].code, true);
       }
     }, 1500);
   }
@@ -1099,7 +1099,7 @@ markdy check-all ./docs/diagrams</code></pre>
     }
   }
 
-  async function render(code: string, shouldAutoplay = false) {
+  async function render(code: string, shouldAutoplay = true) {
     if (!stage) return;
     try {
       const { createDiagram } = await getEditorModules();
@@ -1207,7 +1207,7 @@ markdy check-all ./docs/diagrams</code></pre>
             clearAutoShuffleTimer();
           }
           if (debounce) clearTimeout(debounce);
-          debounce = setTimeout(() => render(getEditorCode()), 500);
+          debounce = setTimeout(() => render(getEditorCode(), true), 500);
         }
       }),
     ];
@@ -1221,7 +1221,7 @@ markdy check-all ./docs/diagrams</code></pre>
     });
   }
 
-  function setEditorCode(code: string, shouldAutoplay = false) {
+  function setEditorCode(code: string, shouldAutoplay = true) {
     if (!editorView) return;
     editorView.dispatch({
       changes: { from: 0, to: editorView.state.doc.length, insert: code },
@@ -1237,7 +1237,7 @@ markdy check-all ./docs/diagrams</code></pre>
       const index = Number(chip.dataset.index || "0");
       currentExampleIndex = index;
       if (examples[index]) {
-        setEditorCode(examples[index].code, false);
+        setEditorCode(examples[index].code, true);
         if (exampleSelect) exampleSelect.value = String(index);
         presetChips.forEach((c) => c.classList.toggle("active", c === chip));
       }
@@ -1251,7 +1251,7 @@ markdy check-all ./docs/diagrams</code></pre>
     const idx = Number(exampleSelect.value);
     currentExampleIndex = idx;
     if (examples[idx]) {
-      setEditorCode(examples[idx].code, false);
+      setEditorCode(examples[idx].code, true);
       presetChips.forEach((c) => c.classList.toggle("active", c.dataset.index === String(idx)));
     }
   });
@@ -1780,12 +1780,12 @@ markdy check-all ./docs/diagrams</code></pre>
   if ("requestIdleCallback" in window) {
     (window as any).requestIdleCallback(() => {
       createEditor(initialCode);
-      render(initialCode, false);
+      render(initialCode, true);
     }, { timeout: 1200 });
   } else {
     setTimeout(() => {
       createEditor(initialCode);
-      render(initialCode, false);
+      render(initialCode, true);
     }, 40);
   }
 </script>
