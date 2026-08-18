@@ -139,25 +139,25 @@ const LAYOUT_CATEGORIES = [
 ];
 
 const LAYOUT_SNIPPETS: Record<string, string> = {
-  architecture: `scene "Microservices Topology" theme=paper\nlayout LR\n\nuser Client\ngateway ApiGateway\nservice Auth\nservice Payments\ndatabase Postgres\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> ApiGateway "POST /checkout"\n  ApiGateway -> Auth "verify"\n  ApiGateway -> Payments "charge"\n  Payments -> Postgres "persist"`,
-  flowchart: `scene "Decision Flowchart" theme=paper type=flowchart\nlayout TB\n\nclient User\ngateway Validate\nservice Process\nservice Reject\n\nbeat evaluate:\n  show $nodes stagger=70ms\n  User -> Validate "Submit Payload"\n  Validate -> Process "Valid"\n  Validate -> Reject "Invalid"`,
-  tree: `scene "Taxonomy Tree" theme=editorial type=tree\nlayout TB\n\nservice Root "Root Domain"\nservice Sub1 "Identity"\nservice Sub2 "Billing"\nservice Sub3 "Storage"\n\nbeat expand:\n  show $nodes stagger=60ms\n  Root -> Sub1\n  Root -> Sub2\n  Root -> Sub3`,
-  state: `scene "Connection State Machine" theme=paper type=state\nlayout LR\n\nservice Disconnected\nservice Connecting\nservice Connected\nservice Reconnecting\n\nbeat transition:\n  show $nodes stagger=60ms\n  Disconnected -> Connecting "initiate"\n  Connecting -> Connected "ACK"\n  Connected -> Reconnecting "timeout"\n  Reconnecting -> Connected "retry"`,
-  sequence: `scene "OAuth Handshake" theme=paper type=sequence\nlayout LR\n\nuser User\nbrowser App\ngateway AuthServer\nservice Api\n\nbeat handshake:\n  show $nodes stagger=60ms\n  User -> App "Login"\n  App -> AuthServer "GET /auth"\n  AuthServer -> App "Auth Token"\n  App -> Api "GET /data (Bearer Token)"`,
-  layers: `scene "OSI Stack Abstraction" theme=editorial type=layers\nlayout TB\n\nservice App "Layer 7: Application"\nservice Transport "Layer 4: Transport (TCP/UDP)"\nservice Network "Layer 3: Network (IP)"\nservice Link "Layer 2: Data Link"\n\nbeat traverse:\n  show $nodes stagger=70ms\n  App -> Transport "Payload"\n  Transport -> Network "Packets"\n  Network -> Link "Frames"`,
-  nested: `scene "Kubernetes Security Perimeter" theme=blueprint type=nested\nlayout TB\n\nservice Internet "Public Traffic"\nservice IngressController "DMZ Gateway"\nservice AuthPod "Secure Pod"\nservice SecretsStore "Vault"\n\ngroup public: Internet\ngroup dmz: IngressController\ngroup perimeter: AuthPod SecretsStore\n\nbeat trace:\n  show public\n  show dmz\n  show perimeter\n  Internet -> IngressController "HTTPS"\n  IngressController -> AuthPod "mTLS"\n  AuthPod -> SecretsStore "Fetch Key"`,
-  swimlane: `scene "Order Fulfillment Swimlane" theme=paper type=swimlane\nlayout LR\n\nuser Customer\nservice Storefront\nservice Warehouse\nservice Logistics\n\nbeat fulfill:\n  show $nodes stagger=60ms\n  Customer -> Storefront "Place Order"\n  Storefront -> Warehouse "Check Stock"\n  Warehouse -> Logistics "Dispatch Parcel"`,
-  timeline: `scene "Release Milestone Timeline" theme=paper type=timeline\nlayout LR\n\nservice V1 "v1.0 Core Engine"\nservice V2 "v2.0 Motion Runtime"\nservice V3 "v3.0 Governance Linter"\nservice V4 "v4.0 MCP AI Integration"\n\nbeat progress:\n  show $nodes stagger=100ms\n  V1 -> V2 -> V3 -> V4`,
-  gantt: `scene "Sprint Roadmap" theme=paper type=gantt\nlayout LR\n\nservice Design "Architecture Design"\nservice Core "Parser & Diffing"\nservice UI "Playground Studio"\nservice Docs "Guides & AI Reference"\n\nbeat schedule:\n  show $nodes stagger=80ms\n  Design -> Core -> UI -> Docs`,
-  medallion: `scene "Lakehouse Medallion Architecture" theme=editorial type=medallion\nlayout LR\n\nservice Raw "Bronze: Raw Ingest"\nservice Cleansed "Silver: Validated & Clean"\nservice Enriched "Gold: Business Aggregates"\n\nbeat stream:\n  show $nodes stagger=80ms\n  Raw -> Cleansed "dbt Transform"\n  Cleansed -> Enriched "Analytics Model"`,
-  flywheel: `scene "Compounding Growth Flywheel" theme=paper type=flywheel\nlayout LR\n\nservice Content "Rich Technical Docs"\nservice Developers "Developer Adoption"\nservice Ecosystem "Plugin Contributions"\nservice Value "Enterprise Value"\n\nbeat cycle:\n  show $nodes stagger=70ms\n  Content -> Developers "engage"\n  Developers -> Ecosystem "build"\n  Ecosystem -> Value "compound"\n  Value -> Content "invest"`,
-  constellation: `scene "Distributed Consensus Constellation" theme=nebula type=constellation\nlayout LR\n\nservice Leader "Raft Leader"\nservice Follower1 "Node Alpha"\nservice Follower2 "Node Beta"\nservice Follower3 "Node Gamma"\nservice Follower4 "Node Delta"\n\nbeat sync:\n  show $nodes stagger=60ms\n  Leader -> Follower1 "Heartbeat"\n  Leader -> Follower2 "Heartbeat"\n  Leader -> Follower3 "Heartbeat"\n  Leader -> Follower4 "Heartbeat"`,
-  paper: `scene "Paper Theme Architecture" theme=paper\nlayout LR\n\nbrowser WebApp\ngateway API\ndatabase Orders\n\nbeat flow:\n  show $nodes stagger=60ms\n  WebApp -> API "POST /order"\n  API -> Orders "INSERT"`,
-  editorial: `scene "Editorial Print Theme" theme=editorial\nlayout LR\n\nclient MobileApp\nservice ApiGateway\ndatabase Postgres\n\nbeat flow:\n  show $nodes stagger=60ms\n  MobileApp -> ApiGateway "fetch"\n  ApiGateway -> Postgres "query"`,
-  terminal: `scene "Terminal TUI Glow" theme=terminal\nlayout LR\n\nservice Monitor "Alert Manager"\nservice PagerDuty "On-Call Pager"\nservice SRE "Incident Commander"\n\nbeat alert:\n  show $nodes stagger=60ms\n  Monitor -> PagerDuty "CRITICAL P0"\n  PagerDuty -> SRE "Dispatch"`,
-  sketchy: `scene "Whiteboard Brainstorming" theme=sketchy\nlayout LR\n\nuser User\nservice Frontend\nservice Backend\n\nbeat sketch:\n  show $nodes stagger=60ms\n  User -> Frontend "Click"\n  Frontend -> Backend "API Call"`,
-  blueprint: `scene "Infrastructure Blueprint" theme=blueprint\nlayout LR\n\nservice LB "Network Load Balancer"\nservice Kube "EKS Worker Pool"\nservice RDS "Aurora Multi-AZ"\n\nbeat provision:\n  show $nodes stagger=60ms\n  LB -> Kube "Ingress"\n  Kube -> RDS "Query"`,
-  midnight: `scene "Midnight Developer Dark" theme=midnight\nlayout LR\n\ngateway Cloudflare\nservice Firewall\nservice PrivateApi\n\nbeat filter:\n  show $nodes stagger=60ms\n  Cloudflare -> Firewall "TLS Traffic"\n  Firewall -> PrivateApi "Clean Packet"`,
+  architecture: `scene theme=paper\nlayout LR\n\nuser Client\ngateway ApiGateway\nservice Auth\nservice Payments\ndatabase Postgres\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> ApiGateway "POST /checkout"\n  ApiGateway -> Auth "verify"\n  ApiGateway -> Payments "charge"\n  Payments -> Postgres "persist"`,
+  flowchart: `scene theme=paper type=flowchart\nlayout TB\n\nclient User\ngateway Validate\nservice Process\nservice Reject\n\nbeat evaluate:\n  show $nodes stagger=70ms\n  User -> Validate "Submit Payload"\n  Validate -> Process "Valid"\n  Validate -> Reject "Invalid"`,
+  tree: `scene theme=editorial type=tree\nlayout TB\n\nservice Root "Root Domain"\nservice Sub1 "Identity"\nservice Sub2 "Billing"\nservice Sub3 "Storage"\n\nbeat expand:\n  show $nodes stagger=60ms\n  Root -> Sub1\n  Root -> Sub2\n  Root -> Sub3`,
+  state: `scene theme=paper type=state\nlayout LR\n\nservice Disconnected\nservice Connecting\nservice Connected\nservice Reconnecting\n\nbeat transition:\n  show $nodes stagger=60ms\n  Disconnected -> Connecting "initiate"\n  Connecting -> Connected "ACK"\n  Connected -> Reconnecting "timeout"\n  Reconnecting -> Connected "retry"`,
+  sequence: `scene theme=paper type=sequence\nlayout LR\n\nuser User\nbrowser App\ngateway AuthServer\nservice Api\n\nbeat handshake:\n  show $nodes stagger=60ms\n  User -> App "Login"\n  App -> AuthServer "GET /auth"\n  AuthServer -> App "Auth Token"\n  App -> Api "GET /data (Bearer Token)"`,
+  layers: `scene theme=editorial type=layers\nlayout TB\n\nservice App "Layer 7: Application"\nservice Transport "Layer 4: Transport (TCP/UDP)"\nservice Network "Layer 3: Network (IP)"\nservice Link "Layer 2: Data Link"\n\nbeat traverse:\n  show $nodes stagger=70ms\n  App -> Transport "Payload"\n  Transport -> Network "Packets"\n  Network -> Link "Frames"`,
+  nested: `scene theme=blueprint type=nested\nlayout TB\n\nservice Internet "Public Traffic"\nservice IngressController "DMZ Gateway"\nservice AuthPod "Secure Pod"\nservice SecretsStore "Vault"\n\ngroup public: Internet\ngroup dmz: IngressController\ngroup perimeter: AuthPod SecretsStore\n\nbeat trace:\n  show public\n  show dmz\n  show perimeter\n  Internet -> IngressController "HTTPS"\n  IngressController -> AuthPod "mTLS"\n  AuthPod -> SecretsStore "Fetch Key"`,
+  swimlane: `scene theme=paper type=swimlane\nlayout LR\n\nuser Customer\nservice Storefront\nservice Warehouse\nservice Logistics\n\nbeat fulfill:\n  show $nodes stagger=60ms\n  Customer -> Storefront "Place Order"\n  Storefront -> Warehouse "Check Stock"\n  Warehouse -> Logistics "Dispatch Parcel"`,
+  timeline: `scene theme=paper type=timeline\nlayout LR\n\nservice V1 "v1.0 Core Engine"\nservice V2 "v2.0 Motion Runtime"\nservice V3 "v3.0 Governance Linter"\nservice V4 "v4.0 MCP AI Integration"\n\nbeat progress:\n  show $nodes stagger=100ms\n  V1 -> V2 -> V3 -> V4`,
+  gantt: `scene theme=paper type=gantt\nlayout LR\n\nservice Design "Architecture Design"\nservice Core "Parser & Diffing"\nservice UI "Playground Studio"\nservice Docs "Guides & AI Reference"\n\nbeat schedule:\n  show $nodes stagger=80ms\n  Design -> Core -> UI -> Docs`,
+  medallion: `scene theme=editorial type=medallion\nlayout LR\n\nservice Raw "Bronze: Raw Ingest"\nservice Cleansed "Silver: Validated & Clean"\nservice Enriched "Gold: Business Aggregates"\n\nbeat stream:\n  show $nodes stagger=80ms\n  Raw -> Cleansed "dbt Transform"\n  Cleansed -> Enriched "Analytics Model"`,
+  flywheel: `scene theme=paper type=flywheel\nlayout LR\n\nservice Content "Rich Technical Docs"\nservice Developers "Developer Adoption"\nservice Ecosystem "Plugin Contributions"\nservice Value "Enterprise Value"\n\nbeat cycle:\n  show $nodes stagger=70ms\n  Content -> Developers "engage"\n  Developers -> Ecosystem "build"\n  Ecosystem -> Value "compound"\n  Value -> Content "invest"`,
+  constellation: `scene theme=nebula type=constellation\nlayout LR\n\nservice Leader "Raft Leader"\nservice Follower1 "Node Alpha"\nservice Follower2 "Node Beta"\nservice Follower3 "Node Gamma"\nservice Follower4 "Node Delta"\n\nbeat sync:\n  show $nodes stagger=60ms\n  Leader -> Follower1 "Heartbeat"\n  Leader -> Follower2 "Heartbeat"\n  Leader -> Follower3 "Heartbeat"\n  Leader -> Follower4 "Heartbeat"`,
+  paper: `scene theme=paper\nlayout LR\n\nbrowser WebApp\ngateway API\ndatabase Orders\n\nbeat flow:\n  show $nodes stagger=60ms\n  WebApp -> API "POST /order"\n  API -> Orders "INSERT"`,
+  editorial: `scene theme=editorial\nlayout LR\n\nclient MobileApp\nservice ApiGateway\ndatabase Postgres\n\nbeat flow:\n  show $nodes stagger=60ms\n  MobileApp -> ApiGateway "fetch"\n  ApiGateway -> Postgres "query"`,
+  terminal: `scene theme=terminal\nlayout LR\n\nservice Monitor "Alert Manager"\nservice PagerDuty "On-Call Pager"\nservice SRE "Incident Commander"\n\nbeat alert:\n  show $nodes stagger=60ms\n  Monitor -> PagerDuty "CRITICAL P0"\n  PagerDuty -> SRE "Dispatch"`,
+  sketchy: `scene theme=sketchy\nlayout LR\n\nuser User\nservice Frontend\nservice Backend\n\nbeat sketch:\n  show $nodes stagger=60ms\n  User -> Frontend "Click"\n  Frontend -> Backend "API Call"`,
+  blueprint: `scene theme=blueprint\nlayout LR\n\nservice LB "Network Load Balancer"\nservice Kube "EKS Worker Pool"\nservice RDS "Aurora Multi-AZ"\n\nbeat provision:\n  show $nodes stagger=60ms\n  LB -> Kube "Ingress"\n  Kube -> RDS "Query"`,
+  midnight: `scene theme=midnight\nlayout LR\n\ngateway Cloudflare\nservice Firewall\nservice PrivateApi\n\nbeat filter:\n  show $nodes stagger=60ms\n  Cloudflare -> Firewall "TLS Traffic"\n  Firewall -> PrivateApi "Clean Packet"`,
 };
 
 const INGESTION_SOURCES = [
@@ -174,7 +174,7 @@ const INGESTION_SOURCES = [
   Gateway --> Auth[Auth Service]
   Auth --> DB[(PostgreSQL)]
   Auth -.-> Cache[(Redis Session)]`,
-    snippet: `scene "Transpiled Mermaid Flow" theme=paper type=flowchart\nlayout TB\n\nservice Client "Client Browser"\ngateway Gateway "API Gateway"\nservice Auth "Auth Microservice"\ncache Cache "Redis Session"\ndatabase DB "PostgreSQL"\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> Gateway "POST /login"\n  Gateway -> Auth "Validate"\n  Auth -> DB "Query Credentials"\n  Auth -> Cache "Set Session"\n  Gateway <- Auth "JWT Token"`,
+    snippet: `scene theme=paper type=flowchart\nlayout TB\n\nservice Client "Client Browser"\ngateway Gateway "API Gateway"\nservice Auth "Auth Microservice"\ncache Cache "Redis Session"\ndatabase DB "PostgreSQL"\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> Gateway "POST /login"\n  Gateway -> Auth "Validate"\n  Auth -> DB "Query Credentials"\n  Auth -> Cache "Set Session"\n  Gateway <- Auth "JWT Token"`,
   },
   {
     id: "docker",
@@ -197,7 +197,7 @@ services:
     image: redis:7-alpine
   db:
     image: postgres:16-alpine`,
-    snippet: `scene "Docker Compose Stack" theme=terminal type=nested\nlayout TB\n\nservice Web "nginx:alpine"\nservice Api "node:20-alpine"\nservice Cache "redis:7-alpine"\ndatabase Db "postgres:16-alpine"\n\ngroup ingress: Web\ngroup app: Api Cache\ngroup data: Db\n\nbeat boot:\n  show ingress stagger=50ms & show app stagger=50ms & show data\n  Web -> Api "proxy_pass :3000"\n  Api -> Cache "connect :6379"\n  Api -> Db "connect :5432"`,
+    snippet: `scene theme=terminal type=nested\nlayout TB\n\nservice Web "nginx:alpine"\nservice Api "node:20-alpine"\nservice Cache "redis:7-alpine"\ndatabase Db "postgres:16-alpine"\n\ngroup ingress: Web\ngroup app: Api Cache\ngroup data: Db\n\nbeat boot:\n  show ingress stagger=50ms & show app stagger=50ms & show data\n  Web -> Api "proxy_pass :3000"\n  Api -> Cache "connect :6379"\n  Api -> Db "connect :5432"`,
   },
   {
     id: "k8s",
@@ -221,7 +221,7 @@ spec:
           service:
             name: order-service
             port: { number: 80 }`,
-    snippet: `scene "Kubernetes Cluster Ingress" theme=midnight type=nested\nlayout TB\n\nservice Ingress "nginx-ingress"\nservice Svc "order-service:80"\nservice PodA "order-pod-1"\nservice PodB "order-pod-2"\n\ngroup ingress: Ingress\ngroup cluster: Svc PodA PodB\n\nbeat route:\n  show ingress & show cluster stagger=60ms\n  Ingress -> Svc "Host: api.markdy.com"\n  Svc -> PodA "round_robin"\n  Svc -> PodB "round_robin"`,
+    snippet: `scene theme=midnight type=nested\nlayout TB\n\nservice Ingress "nginx-ingress"\nservice Svc "order-service:80"\nservice PodA "order-pod-1"\nservice PodB "order-pod-2"\n\ngroup ingress: Ingress\ngroup cluster: Svc PodA PodB\n\nbeat route:\n  show ingress & show cluster stagger=60ms\n  Ingress -> Svc "Host: api.markdy.com"\n  Svc -> PodA "round_robin"\n  Svc -> PodB "round_robin"`,
   },
   {
     id: "drawio",
@@ -243,7 +243,7 @@ spec:
     </mxGraphModel>
   </diagram>
 </mxfile>`,
-    snippet: `scene "Draw.io Transpiled Flow" theme=blueprint\nlayout LR\n\nservice CDN "Cloudflare Edge"\nservice Origin "App Server"\ndatabase Storage "S3 Object Store"\n\nbeat cache:\n  show $nodes stagger=50ms\n  CDN -> Origin "Cache Miss -> fetch"\n  Origin -> Storage "GET /assets"`,
+    snippet: `scene theme=blueprint\nlayout LR\n\nservice CDN "Cloudflare Edge"\nservice Origin "App Server"\ndatabase Storage "S3 Object Store"\n\nbeat cache:\n  show $nodes stagger=50ms\n  CDN -> Origin "Cache Miss -> fetch"\n  Origin -> Storage "GET /assets"`,
   },
   {
     id: "terraform",
@@ -262,7 +262,7 @@ spec:
     { "type": "aws_db_instance", "name": "postgres" }
   ]
 }`,
-    snippet: `scene "Terraform AWS Multi-AZ VPC" theme=blueprint type=layers\nlayout TB\n\nservice IGW "Internet Gateway"\nservice PublicSubnet "Public Subnet (AZ-1a)"\nservice PrivateSubnet "Private Subnet (AZ-1b)"\nservice RDS "RDS Multi-AZ (AZ-1c)"\n\nbeat provision:\n  show $nodes stagger=70ms\n  IGW -> PublicSubnet "0.0.0.0/0"\n  PublicSubnet -> PrivateSubnet "NAT Route"\n  PrivateSubnet -> RDS "Port 5432"`,
+    snippet: `scene theme=blueprint type=layers\nlayout TB\n\nservice IGW "Internet Gateway"\nservice PublicSubnet "Public Subnet (AZ-1a)"\nservice PrivateSubnet "Private Subnet (AZ-1b)"\nservice RDS "RDS Multi-AZ (AZ-1c)"\n\nbeat provision:\n  show $nodes stagger=70ms\n  IGW -> PublicSubnet "0.0.0.0/0"\n  PublicSubnet -> PrivateSubnet "NAT Route"\n  PrivateSubnet -> RDS "Port 5432"`,
   },
 ];
 
@@ -563,7 +563,7 @@ const homepageStructuredData = [
                 <svg id="pause-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
                 <span id="play-label">Play</span>
               </button>
-              <button id="auto-shuffle-btn" class="btn-transport auto-shuffle-btn active" title="Auto-Shuffle ON: Automatically plays random examples &amp; demos on scene end" aria-pressed="true">
+              <button id="auto-shuffle-btn" class="btn-transport auto-shuffle-btn" title="Auto-Shuffle OFF: Click to enable auto-cycling examples on scene end" aria-pressed="false">
                 <span class="shuffle-icon">🔀</span>
                 <span class="shuffle-label">Shuffle</span>
               </button>
@@ -808,7 +808,7 @@ const homepageStructuredData = [
 const diagram = createDiagram(&#123;
   container: document.getElementById("scene"),
   code: `
-    scene "System Flow" theme=paper
+    scene theme=paper
     client WebApp -> service Api -> database Postgres
   `,
 &#125;);
@@ -825,7 +825,7 @@ diagram.play();</code></pre>
 import &#123; Markdy &#125; from "@markdy/astro";
 
 const sceneCode = `
-  scene "System Flow" theme=paper
+  scene theme=paper
   client WebApp -> service Api -> database Postgres
 `;
 ---
@@ -840,7 +840,7 @@ const sceneCode = `
           </div>
           <pre><code>// In your MDX documentation file:
 ```markdy
-scene "Cache Lookup" theme=paper
+scene theme=paper
 client Browser -> gateway API -> cache Redis
 ```</code></pre>
         </div>
@@ -972,7 +972,7 @@ markdy check-all ./docs/diagrams</code></pre>
   let editorView: any = null;
   let isScrubbing = false;
   let selectedPlaybackRate = 1;
-  let isAutoShuffleEnabled = true;
+  let isAutoShuffleEnabled = false;
   let autoShuffleTimer: ReturnType<typeof setTimeout> | null = null;
   let currentExampleIndex = 0;
   let userEditedCode = false;
@@ -1039,7 +1039,7 @@ markdy check-all ./docs/diagrams</code></pre>
       if (examples[nextIdx]) {
         if (exampleSelect) exampleSelect.value = String(nextIdx);
         presetChips.forEach((c) => c.classList.toggle("active", c.dataset.index === String(nextIdx)));
-        setEditorCode(examples[nextIdx].code);
+        setEditorCode(examples[nextIdx].code, false);
       }
     }, 1500);
   }
@@ -1099,7 +1099,7 @@ markdy check-all ./docs/diagrams</code></pre>
     }
   }
 
-  async function render(code: string) {
+  async function render(code: string, shouldAutoplay = false) {
     if (!stage) return;
     try {
       const { createDiagram } = await getEditorModules();
@@ -1108,7 +1108,8 @@ markdy check-all ./docs/diagrams</code></pre>
       diagram = createDiagram({
         container: stage,
         code,
-        autoplay: true,
+        autoplay: shouldAutoplay,
+        loop: false,
         copyright: false,
         sceneBoundaryProgress: false,
         playbackRate: selectedPlaybackRate,
@@ -1116,10 +1117,17 @@ markdy check-all ./docs/diagrams</code></pre>
         onTimeUpdate: setTimeline,
         onPlayStateChange: setPlayState,
         onEnded: () => {
-          triggerAutoShuffleNext();
+          setPlayState(false);
+          if (diagram) {
+            diagram.pause();
+            diagram.seek(diagram.duration());
+          }
+          if (isAutoShuffleEnabled) {
+            triggerAutoShuffleNext();
+          }
         },
       });
-      setPlayState(true);
+      setPlayState(shouldAutoplay);
       setTimeline(diagram.currentTime(), diagram.duration());
       populateSceneJump(diagram.beats());
       setStatus(true);
@@ -1213,12 +1221,12 @@ markdy check-all ./docs/diagrams</code></pre>
     });
   }
 
-  function setEditorCode(code: string) {
+  function setEditorCode(code: string, shouldAutoplay = false) {
     if (!editorView) return;
     editorView.dispatch({
       changes: { from: 0, to: editorView.state.doc.length, insert: code },
     });
-    render(code);
+    render(code, shouldAutoplay);
   }
 
   // Preset chips handler
@@ -1229,7 +1237,7 @@ markdy check-all ./docs/diagrams</code></pre>
       const index = Number(chip.dataset.index || "0");
       currentExampleIndex = index;
       if (examples[index]) {
-        setEditorCode(examples[index].code);
+        setEditorCode(examples[index].code, false);
         if (exampleSelect) exampleSelect.value = String(index);
         presetChips.forEach((c) => c.classList.toggle("active", c === chip));
       }
@@ -1243,7 +1251,7 @@ markdy check-all ./docs/diagrams</code></pre>
     const idx = Number(exampleSelect.value);
     currentExampleIndex = idx;
     if (examples[idx]) {
-      setEditorCode(examples[idx].code);
+      setEditorCode(examples[idx].code, false);
       presetChips.forEach((c) => c.classList.toggle("active", c.dataset.index === String(idx)));
     }
   });
@@ -1411,7 +1419,8 @@ markdy check-all ./docs/diagrams</code></pre>
   });
 
   runBtn?.addEventListener("click", () => {
-    render(getEditorCode());
+    clearAutoShuffleTimer();
+    render(getEditorCode(), true);
   });
 
   const afterPaint = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
@@ -1552,7 +1561,7 @@ markdy check-all ./docs/diagrams</code></pre>
   });
 
   // Copy buttons
-  document.querySelectorAll<HTMLButtonElement>(".copy-btn").forEach((btn) => {
+  document.querySelectorAll<HTMLButtonElement>(".copy-btn:not(#ingestion-cmd-copy-btn)").forEach((btn) => {
     btn.addEventListener("click", () => {
       const container = btn.closest(".ai-config-card, .f-panel, .cmd-row, .ingestion-box, .ingestion-cmd-box") || btn.closest("div");
       const codeBlock = container?.querySelector("code");
@@ -1613,10 +1622,17 @@ markdy check-all ./docs/diagrams</code></pre>
 
   ingestionCmdCopyBtn?.addEventListener("click", () => {
     const cmd = ingestionCmdText?.textContent || "";
-    navigator.clipboard.writeText(cmd).then(() => {
+    navigator.clipboard.writeText(cmd.trim()).then(() => {
+      const orig = ingestionCmdCopyBtn.textContent;
+      ingestionCmdCopyBtn.textContent = "Copied!";
+      ingestionCmdCopyBtn.classList.add("copied");
       if (typeof (window as any).showToast === "function") {
         (window as any).showToast("Copied CLI import command", "💻");
       }
+      setTimeout(() => {
+        ingestionCmdCopyBtn.textContent = orig;
+        ingestionCmdCopyBtn.classList.remove("copied");
+      }, 2000);
     });
   });
 
@@ -1760,16 +1776,16 @@ markdy check-all ./docs/diagrams</code></pre>
   const initialTheme = document.documentElement.getAttribute("data-theme") || "light";
   updateThemeIcons(initialTheme);
 
-  const initialCode = examples[0]?.code || 'scene "Demo" theme=paper\nclient Browser -> service API -> database DB\nbeat flow:\n  show $nodes';
+  const initialCode = examples[0]?.code || 'scene theme=paper\nclient Browser -> service API -> database DB\nbeat flow:\n  show $nodes';
   if ("requestIdleCallback" in window) {
     (window as any).requestIdleCallback(() => {
       createEditor(initialCode);
-      render(initialCode);
+      render(initialCode, false);
     }, { timeout: 1200 });
   } else {
     setTimeout(() => {
       createEditor(initialCode);
-      render(initialCode);
+      render(initialCode, false);
     }, 40);
   }
 </script>
