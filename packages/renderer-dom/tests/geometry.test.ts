@@ -150,14 +150,29 @@ describe("polyline measurement", () => {
   });
 
   it("renders semicircular arc bridge hops over intersecting perpendicular paths", () => {
-    const horizontalLine = [{ x: 100, y: 200 }, { x: 300, y: 200 }];
-    const crossingVertical = [{ x: 200, y: 100 }, { x: 200, y: 300 }];
-    const hops = findSegmentHops(horizontalLine[0], horizontalLine[1], [crossingVertical]);
-    expect(hops).toHaveLength(1);
-    expect(hops[0]).toEqual({ x: 200, y: 200 });
+    const horizontalLR = [{ x: 100, y: 200 }, { x: 300, y: 200 }];
+    const horizontalRL = [{ x: 300, y: 200 }, { x: 100, y: 200 }];
+    const verticalTB = [{ x: 200, y: 100 }, { x: 200, y: 300 }];
+    const verticalBT = [{ x: 200, y: 300 }, { x: 200, y: 100 }];
 
-    const pathD = toPathD(horizontalLine, 14, [crossingVertical]);
-    expect(pathD).toContain("A 5 5 0 0 0 205 200");
+    // Left-to-right horizontal hop
+    const hopsLR = findSegmentHops(horizontalLR[0], horizontalLR[1], [verticalTB]);
+    expect(hopsLR).toHaveLength(1);
+    expect(hopsLR[0]).toEqual({ x: 200, y: 200 });
+    const pathLR = toPathD(horizontalLR, 14, [verticalTB]);
+    expect(pathLR).toContain("A 5 5 0 0 0 205 200");
+
+    // Right-to-left horizontal hop (consistently arches upward)
+    const pathRL = toPathD(horizontalRL, 14, [verticalTB]);
+    expect(pathRL).toContain("A 5 5 0 0 1 195 200");
+
+    // Top-to-bottom vertical hop (consistently arches rightward)
+    const pathTB = toPathD(verticalTB, 14, [horizontalLR]);
+    expect(pathTB).toContain("A 5 5 0 0 1 200 205");
+
+    // Bottom-to-top vertical hop (consistently arches rightward)
+    const pathBT = toPathD(verticalBT, 14, [horizontalLR]);
+    expect(pathBT).toContain("A 5 5 0 0 0 200 195");
   });
 
   it("places labels on the longest segment with lane-aware offset", () => {

@@ -237,19 +237,19 @@ export function createEdgeRuntime(
     const placement = placeFlowLabel(points, textWidth, labelObstacles, bounds);
     labelRect = placement.rect;
     const plate = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    const padX = 5;
+    const padX = 6;
     const halfW = textWidth / 2;
     plate.setAttribute("class", "markdy-edge-plate");
     plate.setAttribute("x", String(placement.x - halfW - padX));
     plate.setAttribute("y", String(placement.y - 9));
     plate.setAttribute("width", String(textWidth + padX * 2));
     plate.setAttribute("height", "18");
-    plate.setAttribute("rx", "3");
-    plate.setAttribute("ry", "3");
-    plate.setAttribute("fill", theme.canvas ?? theme.surface);
-    plate.setAttribute("fill-opacity", "0.82");
-    plate.setAttribute("stroke", translucentColor(color, "22"));
-    plate.setAttribute("stroke-width", "0.75");
+    plate.setAttribute("rx", "4");
+    plate.setAttribute("ry", "4");
+    plate.setAttribute("fill", theme.canvas ?? theme.surface ?? "#ffffff");
+    plate.setAttribute("fill-opacity", "0.85");
+    plate.setAttribute("stroke", translucentColor(color, "28"));
+    plate.setAttribute("stroke-width", "0.85");
     plate.style.opacity = "0";
     plate.style.filter = "none";
     group.appendChild(plate);
@@ -524,10 +524,7 @@ export function buildCueAnimations(
     const from = nodeById.get(edge.from);
     const to = nodeById.get(edge.to);
     if (!from || !to) continue;
-    const nodeObstacles = [...edgeRectById.entries()]
-      .filter(([id]) => id !== from.id && id !== to.id)
-      .map(([, rect]) => rect);
-    const routeObstacles = [...nodeObstacles, ...edgeLabels.map((l) => inflateRect(l, 4))];
+    const routeObstacles = [...allNodeRects, ...edgeLabels.map((l) => inflateRect(l, 4))];
     const lane = nextEdgeLane(edgeLanes, from, to);
     const runtime = createEdgeRuntime(
       svg,
@@ -538,7 +535,7 @@ export function buildCueAnimations(
       theme,
       sceneId,
       routeObstacles,
-      [...edgeRects, ...edgeLabels],
+      [...allNodeRects, ...edgeLabels],
       bounds,
       lane,
       placedPaths,
@@ -559,6 +556,69 @@ export function buildCueAnimations(
   for (const cue of cues) {
     const startMs = cue.start * 1000;
     const durMs = cue.duration * 1000;
+
+    if (cue.kind === "reveal") {
+      for (const id of cue.targets) {
+        const el = nodeEls.get(id);
+        if (el) {
+          anims.push(
+            el.animate(
+              [
+                { opacity: 0, transform: "translateY(8px)" },
+                { opacity: 1, transform: "translateY(0)" },
+              ],
+              { duration: durMs, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+            ),
+          );
+        }
+      }
+      continue;
+    }
+
+    if (cue.kind === "dim") {
+      const targetSet = new Set(cue.targets);
+      for (const [id, el] of nodeEls) {
+        if (!targetSet.has(id)) {
+          anims.push(
+            el.animate(
+              [{ opacity: 1 }, { opacity: 0.2 }],
+              { duration: durMs, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+            ),
+          );
+        }
+      }
+      for (const [id, runtime] of edgeRuntimes) {
+        if (!targetSet.has(id)) {
+          anims.push(
+            runtime.group.animate(
+              [{ opacity: 1 }, { opacity: 0.15 }],
+              { duration: durMs, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+            ),
+          );
+        }
+      }
+      continue;
+    }
+
+    if (cue.kind === "undim") {
+      for (const el of nodeEls.values()) {
+        anims.push(
+          el.animate(
+            [{ opacity: 0.2 }, { opacity: 1 }],
+            { duration: durMs, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+          ),
+        );
+      }
+      for (const runtime of edgeRuntimes.values()) {
+        anims.push(
+          runtime.group.animate(
+            [{ opacity: 0.15 }, { opacity: 1 }],
+            { duration: durMs, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+          ),
+        );
+      }
+      continue;
+    }
 
     if (cue.kind === "show") {
       cue.targets.forEach((id, idx) => {
@@ -668,11 +728,7 @@ export function buildCueAnimations(
       const from = nodeById.get(seg.from);
       const to = nodeById.get(seg.to);
       if (!from || !to) continue;
-      const nodeObstacles: Rect[] = [];
-      for (const [id, rect] of rectById) {
-        if (id !== seg.from && id !== seg.to) nodeObstacles.push(rect);
-      }
-      const routeObstacles = [...nodeObstacles, ...placedLabels.map((l) => inflateRect(l, 4))];
+      const routeObstacles = [...allNodeRects, ...placedLabels.map((l) => inflateRect(l, 4))];
       const lane = nextEdgeLane(laneByPair, from, to);
       const labelObstacles = [...allNodeRects, ...placedLabels];
       const edgeId = cue.edgeId ?? edges.find((edge) =>
@@ -755,11 +811,7 @@ export function buildStructuralEdgeAnimations(
     const from = nodeById.get(edge.from);
     const to = nodeById.get(edge.to);
     if (!from || !to) continue;
-    const nodeObstacles: Rect[] = [];
-    for (const [id, rect] of rectById) {
-      if (id !== edge.from && id !== edge.to) nodeObstacles.push(rect);
-    }
-    const routeObstacles = [...nodeObstacles, ...placedLabels.map((l) => inflateRect(l, 4))];
+    const routeObstacles = [...allNodeRects, ...placedLabels.map((l) => inflateRect(l, 4))];
     const lane = nextEdgeLane(laneByPair, edge.from, edge.to);
     const labelObstacles = [...allNodeRects, ...placedLabels];
     const runtime = createEdgeRuntime(
