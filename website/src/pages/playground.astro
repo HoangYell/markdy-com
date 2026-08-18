@@ -1893,13 +1893,19 @@ const playgroundStructuredData = [
     }
   });
 
+  const SPLIT_STORAGE_KEY = "markdy_workspace_split";
+
   function setWorkspaceSplit(percent: number) {
-    const next = Math.min(75, Math.max(25, percent));
-    workspace.style.setProperty("--editor-pane", `${next}%`);
-    splitter.setAttribute("aria-valuenow", String(Math.round(next)));
+    const next = Math.min(80, Math.max(20, percent));
+    workspace?.style.setProperty("--editor-pane", `${next}%`);
+    splitter?.setAttribute("aria-valuenow", String(Math.round(next)));
+    try {
+      localStorage.setItem(SPLIT_STORAGE_KEY, String(next));
+    } catch {}
   }
 
   function setWorkspaceSplitFromClientX(clientX: number) {
+    if (!workspace) return;
     const rect = workspace.getBoundingClientRect();
     if (rect.width <= 0) return;
     setWorkspaceSplit(((clientX - rect.left) / rect.width) * 100);
@@ -2305,23 +2311,57 @@ Requirements:
     }
   });
 
-  // Drag splitter
+  // Drag splitter with Pointer Events API
   let draggingSplitter = false;
-  splitter?.addEventListener("mousedown", (event) => {
+  splitter?.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) return;
     draggingSplitter = true;
-    splitter?.classList.add("dragging");
+    splitter.setPointerCapture(event.pointerId);
+    splitter.classList.add("dragging");
+    document.body.classList.add("is-resizing-workspace");
     event.preventDefault();
   });
-  window.addEventListener("mousemove", (event) => {
+
+  splitter?.addEventListener("pointermove", (event) => {
     if (!draggingSplitter) return;
     setWorkspaceSplitFromClientX(event.clientX);
   });
-  window.addEventListener("mouseup", () => {
+
+  const stopDraggingSplitter = (event: PointerEvent) => {
     if (!draggingSplitter) return;
     draggingSplitter = false;
     splitter?.classList.remove("dragging");
-  });
+    document.body.classList.remove("is-resizing-workspace");
+    if (splitter?.hasPointerCapture(event.pointerId)) {
+      splitter.releasePointerCapture(event.pointerId);
+    }
+  };
+
+  splitter?.addEventListener("pointerup", stopDraggingSplitter);
+  splitter?.addEventListener("pointercancel", stopDraggingSplitter);
+
   splitter?.addEventListener("dblclick", () => setWorkspaceSplit(50));
+
+  splitter?.addEventListener("keydown", (event) => {
+    const raw = workspace?.style.getPropertyValue("--editor-pane") || "50";
+    const current = parseFloat(raw.replace("%", "")) || 50;
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      setWorkspaceSplit(current - 2);
+    } else if (event.key === "ArrowRight") {
+      event.preventDefault();
+      setWorkspaceSplit(current + 2);
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      setWorkspaceSplit(25);
+    } else if (event.key === "End") {
+      event.preventDefault();
+      setWorkspaceSplit(75);
+    } else if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setWorkspaceSplit(50);
+    }
+  });
 
   // Initialize
   const params = new URLSearchParams(window.location.hash.slice(1));
@@ -2340,6 +2380,17 @@ Requirements:
         ? savedTheme
         : window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light",
     );
+
+    try {
+      const savedSplit = localStorage.getItem(SPLIT_STORAGE_KEY);
+      if (savedSplit) {
+        const parsed = parseFloat(savedSplit);
+        if (!isNaN(parsed) && parsed >= 20 && parsed <= 80) {
+          setWorkspaceSplit(parsed);
+        }
+      }
+    } catch {}
+
     createEditor(initialCode);
     render(initialCode);
     setActiveExample(sharedCodeParam ? -1 : 0);
@@ -2658,12 +2709,13 @@ Requirements:
   /* ── Workspace Layout ────────────────────────────────────────────────── */
   .workspace {
     display: grid;
-    grid-template-columns: minmax(400px, var(--editor-pane, 50%)) 12px minmax(420px, 1fr);
-    gap: 0.5rem;
+    grid-template-columns: minmax(260px, var(--editor-pane, 50%)) 16px minmax(280px, 1fr);
+    gap: 0;
     align-items: stretch;
     height: clamp(680px, calc(100vh - 100px), 940px);
     min-height: 640px;
     margin-bottom: 1.25rem;
+    position: relative;
   }
 
   .workspace[data-view-mode="canvas"] {
@@ -3434,30 +3486,73 @@ Requirements:
 
   /* ── Splitter ──────────────────────────────────────────────────────── */
   .splitter {
+    width: 16px;
     height: 100%;
-    min-height: 640px;
+    min-height: 100%;
     border: 0;
     background: transparent;
     padding: 0;
+    margin: 0;
     cursor: col-resize;
     display: flex;
     align-items: center;
     justify-content: center;
+    position: relative;
+    z-index: 15;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    outline: none;
+  }
+
+  .splitter::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -6px;
+    right: -6px;
+    cursor: col-resize;
   }
 
   .splitter-grip {
     width: 4px;
-    height: 40px;
+    height: 48px;
     border-radius: 999px;
     background: var(--border);
     transition: all 0.16s ease;
+    pointer-events: none;
   }
 
   .splitter:hover .splitter-grip,
+  .splitter:focus-visible .splitter-grip,
   .splitter.dragging .splitter-grip {
     background: var(--accent);
     width: 6px;
-    height: 56px;
+    height: 64px;
+    box-shadow: 0 0 12px rgba(56, 189, 248, 0.45);
+  }
+
+  .splitter:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  body.is-resizing-workspace {
+    cursor: col-resize !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+  }
+
+  body.is-resizing-workspace * {
+    cursor: col-resize !important;
+    pointer-events: none !important;
+  }
+
+  body.is-resizing-workspace .workspace,
+  body.is-resizing-workspace .splitter {
+    pointer-events: auto !important;
   }
 
   /* ── Canvas Panel & Stage ───────────────────────────────────────────── */
