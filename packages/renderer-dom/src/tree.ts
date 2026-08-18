@@ -1,4 +1,5 @@
 import type { ThemeTokens, TreeBus } from "@markdy/core";
+import { toPathD } from "./geometry/path.js";
 
 export function mountTreeBuses(
   layer: HTMLElement,
@@ -28,28 +29,32 @@ export function mountTreeBuses(
   for (const bus of buses) {
     const group = doc.createElementNS("http://www.w3.org/2000/svg", "g");
     group.setAttribute("data-tree-bus", bus.id);
-    const parentLeg = doc.createElementNS("http://www.w3.org/2000/svg", "path");
-    parentLeg.setAttribute("d", `M ${bus.parentX} ${bus.parentY} L ${bus.parentX} ${bus.branchY}`);
-    const childXs = [...bus.childXs].sort((a, b) => a - b);
-    const branch = doc.createElementNS("http://www.w3.org/2000/svg", "path");
-    const branchStart = childXs[0] ?? bus.parentX;
-    const branchEnd = childXs[childXs.length - 1] ?? bus.parentX;
-    branch.setAttribute("d", `M ${branchStart} ${bus.branchY} L ${branchEnd} ${bus.branchY}`);
-    group.append(parentLeg, branch);
 
     for (const childX of bus.childXs) {
-      const leg = doc.createElementNS("http://www.w3.org/2000/svg", "path");
-      leg.setAttribute("d", `M ${childX} ${bus.branchY} L ${childX} ${bus.childY}`);
-      group.appendChild(leg);
+      const pathEl = doc.createElementNS("http://www.w3.org/2000/svg", "path");
+      let d: string;
+      if (Math.abs(childX - bus.parentX) < 1) {
+        d = toPathD([
+          { x: bus.parentX, y: bus.parentY },
+          { x: childX, y: bus.childY },
+        ], 12);
+      } else {
+        d = toPathD([
+          { x: bus.parentX, y: bus.parentY },
+          { x: bus.parentX, y: bus.branchY },
+          { x: childX, y: bus.branchY },
+          { x: childX, y: bus.childY },
+        ], 12);
+      }
+      pathEl.setAttribute("d", d);
+      pathEl.setAttribute("fill", "none");
+      pathEl.setAttribute("stroke", stroke);
+      pathEl.setAttribute("stroke-width", "1.6");
+      pathEl.setAttribute("stroke-linecap", "round");
+      pathEl.setAttribute("stroke-linejoin", "round");
+      group.appendChild(pathEl);
     }
 
-    for (const path of Array.from(group.querySelectorAll<SVGPathElement>("path"))) {
-      path.setAttribute("fill", "none");
-      path.setAttribute("stroke", stroke);
-      path.setAttribute("stroke-width", "1.5");
-      path.setAttribute("stroke-linecap", "round");
-      path.setAttribute("stroke-linejoin", "round");
-    }
     svg.appendChild(group);
   }
 }

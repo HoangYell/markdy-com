@@ -27,7 +27,7 @@ export type DiagramType =
   | "layers"
   | "nested";
 
-export type NodeShape = "card" | "rounded" | "diamond" | "circle" | "pill" | "terminal";
+export type NodeShape = "card" | "rounded" | "diamond" | "circle" | "pill" | "terminal" | "container";
 
 export type SceneMeta = {
   title?: string;
