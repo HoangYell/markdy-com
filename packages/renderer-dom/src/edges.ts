@@ -1,6 +1,6 @@
 import type { DiagramType, EdgeKind, PositionedNode, RoutedEdge, ThemeTokens, TimedCue } from "@markdy/core";
 import { placeFlowLabel, polylineLength, routeOrthogonal, selfLoopPath, toPathD } from "./geometry/path.js";
-import { boxRect, type Point, type Rect } from "./geometry/rect.js";
+import { boxRect, inflateRect, type Point, type Rect } from "./geometry/rect.js";
 
 const EDGE_LAYER_ATTR = "data-markdy-edge-layer";
 
