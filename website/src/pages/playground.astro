@@ -342,6 +342,11 @@ const playgroundStructuredData = [
 
           <!-- Tab 4: Diagnostics & Governance -->
           <div id="tab-panel-diagnostics" class="assistant-panel">
+            <div class="diagnostics-toolbar" style="margin-bottom: 8px; display: flex; justify-content: flex-end;">
+              <button id="audit-btn" class="tool-btn tool-btn-primary" type="button" title="Run Cloud Architecture Governance Audit">
+                <span>🛡️ Run Governance Audit</span>
+              </button>
+            </div>
             <div id="diagnostics" class="diagnostics" aria-live="polite"></div>
             <div id="audit-results" class="audit-results"></div>
           </div>
@@ -1311,7 +1316,7 @@ const playgroundStructuredData = [
     if (flowPopover) flowPopover.hidden = true;
   }
 
-  stage.addEventListener("click", (e) => {
+  stage?.addEventListener("click", (e) => {
     const target = e.target as HTMLElement;
     if (target.closest(".markdy-node") || target.closest(".node-floating-hud") || target.closest(".flow-popover")) return;
     deselectCanvas();
@@ -1546,14 +1551,14 @@ const playgroundStructuredData = [
     });
   });
 
-  stage.addEventListener("dragover", (e) => {
+  stage?.addEventListener("dragover", (e) => {
     e.preventDefault();
     if (e.dataTransfer) e.dataTransfer.dropEffect = "copy";
     if (stageDropOverlay) stageDropOverlay.hidden = false;
   });
 
-  stage.addEventListener("dragleave", (e) => {
-    if (!stage.contains(e.relatedTarget as Node)) {
+  stage?.addEventListener("dragleave", (e) => {
+    if (!stage?.contains(e.relatedTarget as Node)) {
       if (stageDropOverlay) stageDropOverlay.hidden = true;
     }
   });
@@ -1580,14 +1585,14 @@ const playgroundStructuredData = [
     }, 80);
   }
 
-  stage.addEventListener("drop", (e) => {
+  stage?.addEventListener("drop", (e) => {
     e.preventDefault();
     if (stageDropOverlay) stageDropOverlay.hidden = true;
     if (!draggedToken) return;
     addNodeFromPalette(draggedToken.kind || "service");
   });
 
-  stage.addEventListener("keydown", (event) => {
+  stage?.addEventListener("keydown", (event) => {
     if (event.key === "Delete" || event.key === "Backspace") {
       if (selectedNodeId && !event.defaultPrevented && !(document.activeElement instanceof HTMLInputElement) && !(document.activeElement instanceof HTMLTextAreaElement)) {
         hudDeleteBtn?.click();
@@ -2000,19 +2005,19 @@ Requirements:
     drawio: `<mxGraphModel>\n  <root>\n    <mxCell id="0"/>\n    <mxCell id="1" parent="0"/>\n    <mxCell id="2" value="Web Client" vertex="1" parent="1"/>\n    <mxCell id="3" value="API Gateway" style="shape=hexagon;" vertex="1" parent="1"/>\n    <mxCell id="4" value="PostgreSQL" style="shape=cylinder;" vertex="1" parent="1"/>\n    <mxCell id="5" value="HTTPS Request" edge="1" source="2" target="3" parent="1"/>\n    <mxCell id="6" value="SQL Query" edge="1" source="3" target="4" parent="1"/>\n  </root>\n</mxGraphModel>`,
   };
 
-  importBtn.addEventListener("click", () => {
+  importBtn?.addEventListener("click", () => {
     if (importError) importError.hidden = true;
-    importModal.showModal();
-    importSource.value = SAMPLES[activeImportFormat] ?? "";
+    importModal?.showModal();
+    if (importSource) importSource.value = SAMPLES[activeImportFormat] ?? "";
   });
 
-  closeModalBtn.addEventListener("click", () => importModal.close());
-  importModal.addEventListener("click", (e) => {
-    if (e.target === importModal) importModal.close();
+  closeModalBtn?.addEventListener("click", () => importModal?.close());
+  importModal?.addEventListener("click", (e) => {
+    if (e.target === importModal) importModal?.close();
   });
 
-  loadSampleBtn.addEventListener("click", () => {
-    importSource.value = SAMPLES[activeImportFormat] ?? "";
+  loadSampleBtn?.addEventListener("click", () => {
+    if (importSource) importSource.value = SAMPLES[activeImportFormat] ?? "";
   });
 
   pasteImportBtn?.addEventListener("click", async () => {
@@ -2022,7 +2027,7 @@ Requirements:
       if (fallback === null) return;
       text = fallback;
     }
-    if (text.trim()) {
+    if (text.trim() && importSource) {
       importSource.value = text;
       const old = pasteImportBtn.textContent;
       pasteImportBtn.textContent = "Pasted!";
@@ -2035,12 +2040,12 @@ Requirements:
       formatTabs.forEach((t) => t.classList.remove("active"));
       tab.classList.add("active");
       activeImportFormat = tab.dataset.format ?? "mermaid";
-      importSource.value = SAMPLES[activeImportFormat] ?? "";
+      if (importSource) importSource.value = SAMPLES[activeImportFormat] ?? "";
     });
   });
 
-  doImportBtn.addEventListener("click", async () => {
-    const src = importSource.value.trim();
+  doImportBtn?.addEventListener("click", async () => {
+    const src = importSource?.value?.trim() || "";
     if (!src) return;
     try {
       let markdyCode = "";
@@ -2060,7 +2065,7 @@ Requirements:
         throw new Error(`Unknown format: ${activeImportFormat}`);
       }
 
-      importModal.close();
+      importModal?.close();
       createEditor(markdyCode);
       render(markdyCode);
       setActiveExample(-1);
@@ -2073,7 +2078,7 @@ Requirements:
   });
 
   // Architecture Governance Audit
-  auditBtn.addEventListener("click", () => {
+  auditBtn?.addEventListener("click", () => {
     try {
       const code = getCode();
       const ast = parse(code);
@@ -2108,12 +2113,13 @@ Requirements:
         }
         html += `</ul>`;
       }
-      auditResults.innerHTML = html;
+      if (auditResults) auditResults.innerHTML = html;
 
       // Expand drawer & switch to diagnostics tab
-      if (!assistantDrawer.classList.contains("expanded")) {
+      if (assistantDrawer && !assistantDrawer.classList.contains("expanded")) {
         assistantDrawer.classList.add("expanded");
-        drawerToggleBtn.querySelector(".drawer-toggle-icon")!.textContent = "▼";
+        const icon = drawerToggleBtn?.querySelector(".drawer-toggle-icon");
+        if (icon) icon.textContent = "▼";
       }
       assistantTabs.forEach(t => t.classList.toggle("active", t.dataset.tab === "diagnostics"));
       document.querySelectorAll(".assistant-panel").forEach(p => {
@@ -2139,7 +2145,7 @@ Requirements:
   });
   async function withFinalFrame<T>(action: (scene: HTMLElement) => Promise<T> | T): Promise<T> {
     if (!diagram) throw new Error("No diagram is available to export");
-    const scene = stage.querySelector(".markdy-scene-root") as HTMLElement | null;
+    const scene = stage?.querySelector(".markdy-scene-root") as HTMLElement | null;
     if (!scene) throw new Error("No diagram scene is available to export");
     const previousTime = diagram.currentTime();
     const wasPlaying = diagram.isPlaying();
@@ -2165,11 +2171,11 @@ Requirements:
     setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 
-  exportSvgBtn.addEventListener("click", async () => {
+  exportSvgBtn?.addEventListener("click", async () => {
     try {
       const svg = await withFinalFrame((scene) => exportDiagramAsVectorSvg(scene, { includeThemeStyles: true }));
       download(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }), "markdy-diagram.svg");
-      showButtonStatus(exportSvgBtn, "Saved SVG");
+      if (exportSvgBtn) showButtonStatus(exportSvgBtn, "Saved SVG");
     } catch (err) {
       alert("SVG export error: " + (err as Error).message);
     }
@@ -2179,7 +2185,7 @@ Requirements:
     try {
       const blob = await withFinalFrame((scene) => exportDiagramAsPng(scene, { includeThemeStyles: true, pixelRatio: 2 }));
       download(blob, "markdy-diagram.png");
-      showButtonStatus(exportPngBtn, "Saved PNG");
+      if (exportPngBtn) showButtonStatus(exportPngBtn, "Saved PNG");
     } catch (err) {
       alert("PNG export error: " + (err as Error).message);
     }
@@ -2189,42 +2195,48 @@ Requirements:
     let saved = false;
     try {
       if (!diagram) throw new Error("No diagram is available to export");
-      const scene = stage.querySelector(".markdy-scene-root") as HTMLElement | null;
+      const scene = stage?.querySelector(".markdy-scene-root") as HTMLElement | null;
       if (!scene) throw new Error("No diagram scene is available to export");
-      exportGifBtn.disabled = true;
-      exportGifBtn.textContent = "GIF…";
+      if (exportGifBtn) {
+        exportGifBtn.disabled = true;
+        exportGifBtn.textContent = "GIF…";
+      }
       download(await exportDiagramAsGif(scene, diagram, { fps: 6, pixelRatio: 0.3, includeThemeStyles: true }), "markdy-diagram.gif");
       saved = true;
     } catch (err) {
       alert("GIF export error: " + (err as Error).message);
     } finally {
-      exportGifBtn.disabled = false;
-      if (saved) {
-        exportGifBtn.textContent = "Saved GIF";
-        setTimeout(() => { exportGifBtn.textContent = "GIF"; }, 1800);
-      } else {
-        exportGifBtn.textContent = "GIF";
+      if (exportGifBtn) {
+        exportGifBtn.disabled = false;
+        if (saved) {
+          exportGifBtn.textContent = "Saved GIF";
+          setTimeout(() => { exportGifBtn.textContent = "GIF"; }, 1800);
+        } else {
+          exportGifBtn.textContent = "GIF";
+        }
       }
     }
   });
 
-  runBtn.addEventListener("click", () => render(getCode()));
-  resetBtn.addEventListener("click", () => loadExample(selectedExample >= 0 ? selectedExample : 0));
+  runBtn?.addEventListener("click", () => render(getCode()));
+  resetBtn?.addEventListener("click", () => loadExample(selectedExample >= 0 ? selectedExample : 0));
   pasteCodeBtn?.addEventListener("click", () => pasteCodeToEditor(pasteCodeBtn));
-  copyCodeBtn.addEventListener("click", () => writeClipboard(getCode(), copyCodeBtn, "Copied"));
-  shareBtn.addEventListener("click", async () => {
+  copyCodeBtn?.addEventListener("click", () => {
+    if (copyCodeBtn) writeClipboard(getCode(), copyCodeBtn, "Copied");
+  });
+  shareBtn?.addEventListener("click", async () => {
     const hash = await encodeShare(getCode());
     const url = `${window.location.origin}${window.location.pathname}#code=${hash}`;
-    writeClipboard(url, shareBtn, "Copied Link");
+    if (shareBtn) writeClipboard(url, shareBtn, "Copied Link");
   });
 
-  restartBtn.addEventListener("click", () => {
+  restartBtn?.addEventListener("click", () => {
     if (!diagram) return;
     diagram.seek(0);
     diagram.play();
   });
 
-  playBtn.addEventListener("click", () => {
+  playBtn?.addEventListener("click", () => {
     if (!diagram) return;
     if (diagram.isPlaying()) diagram.pause();
     else diagram.play();
@@ -2242,17 +2254,17 @@ Requirements:
     });
   });
 
-  timelineRange.addEventListener("mousedown", () => { isScrubbing = true; });
-  timelineRange.addEventListener("touchstart", () => { isScrubbing = true; }, { passive: true });
+  timelineRange?.addEventListener("mousedown", () => { isScrubbing = true; });
+  timelineRange?.addEventListener("touchstart", () => { isScrubbing = true; }, { passive: true });
   window.addEventListener("mouseup", () => { isScrubbing = false; });
   window.addEventListener("touchend", () => { isScrubbing = false; });
-  timelineRange.addEventListener("input", () => {
-    if (!diagram) return;
+  timelineRange?.addEventListener("input", () => {
+    if (!diagram || !timelineRange) return;
     diagram.seek(Number(timelineRange.value));
   });
 
-  beatJump.addEventListener("change", () => {
-    if (!diagram || !beatJump.value) return;
+  beatJump?.addEventListener("change", () => {
+    if (!diagram || !beatJump?.value) return;
     diagram.seekToBeat(beatJump.value);
   });
 
@@ -2295,9 +2307,9 @@ Requirements:
 
   // Drag splitter
   let draggingSplitter = false;
-  splitter.addEventListener("mousedown", (event) => {
+  splitter?.addEventListener("mousedown", (event) => {
     draggingSplitter = true;
-    splitter.classList.add("dragging");
+    splitter?.classList.add("dragging");
     event.preventDefault();
   });
   window.addEventListener("mousemove", (event) => {
@@ -2307,9 +2319,9 @@ Requirements:
   window.addEventListener("mouseup", () => {
     if (!draggingSplitter) return;
     draggingSplitter = false;
-    splitter.classList.remove("dragging");
+    splitter?.classList.remove("dragging");
   });
-  splitter.addEventListener("dblclick", () => setWorkspaceSplit(50));
+  splitter?.addEventListener("dblclick", () => setWorkspaceSplit(50));
 
   // Initialize
   const params = new URLSearchParams(window.location.hash.slice(1));
