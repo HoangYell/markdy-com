@@ -557,69 +557,6 @@ export function buildCueAnimations(
     const startMs = cue.start * 1000;
     const durMs = cue.duration * 1000;
 
-    if (cue.kind === "reveal") {
-      for (const id of cue.targets) {
-        const el = nodeEls.get(id);
-        if (el) {
-          anims.push(
-            el.animate(
-              [
-                { opacity: 0, transform: "translateY(8px)" },
-                { opacity: 1, transform: "translateY(0)" },
-              ],
-              { duration: durMs, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-            ),
-          );
-        }
-      }
-      continue;
-    }
-
-    if (cue.kind === "dim") {
-      const targetSet = new Set(cue.targets);
-      for (const [id, el] of nodeEls) {
-        if (!targetSet.has(id)) {
-          anims.push(
-            el.animate(
-              [{ opacity: 1 }, { opacity: 0.2 }],
-              { duration: durMs, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-            ),
-          );
-        }
-      }
-      for (const [id, runtime] of edgeRuntimes) {
-        if (!targetSet.has(id)) {
-          anims.push(
-            runtime.group.animate(
-              [{ opacity: 1 }, { opacity: 0.15 }],
-              { duration: durMs, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-            ),
-          );
-        }
-      }
-      continue;
-    }
-
-    if (cue.kind === "undim") {
-      for (const el of nodeEls.values()) {
-        anims.push(
-          el.animate(
-            [{ opacity: 0.2 }, { opacity: 1 }],
-            { duration: durMs, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-          ),
-        );
-      }
-      for (const runtime of edgeRuntimes.values()) {
-        anims.push(
-          runtime.group.animate(
-            [{ opacity: 0.15 }, { opacity: 1 }],
-            { duration: durMs, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-          ),
-        );
-      }
-      continue;
-    }
-
     if (cue.kind === "show") {
       cue.targets.forEach((id, idx) => {
         const el = nodeEls.get(id);
