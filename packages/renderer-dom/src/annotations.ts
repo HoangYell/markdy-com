@@ -81,6 +81,8 @@ export function mountAnnotations(
     const pos = positionForAnnotation(ann.position, bounds, index);
     const textEl = doc.createElement("div");
     textEl.className = "markdy-annotation";
+    textEl.dataset.visible = "1";
+    if (ann.intent) textEl.dataset.intent = ann.intent;
     textEl.textContent = ann.text;
     textEl.style.left = `${pos.x}px`;
     textEl.style.top = `${pos.y}px`;
@@ -90,11 +92,13 @@ export function mountAnnotations(
     if (!target) return;
 
     const tx = target.x + target.width / 2;
-    const ty = target.y + target.height / 2;
-    const ax = pos.x + 8;
-    const ay = pos.y + 16;
+    const ty = target.y - 2;
+    const ax = pos.x > tx ? pos.x : pos.x + 160;
+    const ay = pos.y + 12;
     const path = doc.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute("d", `M ${ax} ${ay} Q ${(ax + tx) / 2} ${(ay + ty) / 2 - 20} ${tx} ${ty}`);
+    const midX = (ax + tx) / 2;
+    const midY = Math.min(ay, ty) - 16;
+    path.setAttribute("d", `M ${ax} ${ay} Q ${midX} ${midY} ${tx} ${ty}`);
     path.setAttribute("fill", "none");
     const intent = typeof ann.intent === "string" ? ann.intent : "neutral";
     const leaderColor = intent === "accent" ? theme.accent : intent === "muted" ? (theme.soft ?? theme.textMuted) : theme.textMuted;
@@ -108,8 +112,8 @@ export function mountAnnotations(
     const dot = doc.createElementNS("http://www.w3.org/2000/svg", "circle");
     dot.setAttribute("cx", String(tx));
     dot.setAttribute("cy", String(ty));
-    dot.setAttribute("r", "2");
-    dot.setAttribute("fill", theme.text);
+    dot.setAttribute("r", "2.5");
+    dot.setAttribute("fill", leaderColor);
     svg.appendChild(dot);
   });
 }

@@ -10,26 +10,27 @@ export function ensureGroupStyles(doc: Document): void {
 .markdy-group-boundary {
   position: absolute;
   box-sizing: border-box;
-  border: 1px dashed var(--md-group-border, color-mix(in srgb, var(--md-border) 70%, transparent));
-  border-radius: var(--md-radius-md, 8px);
-  background: color-mix(in srgb, var(--md-surface-raised) 40%, transparent);
+  border: 1px dashed var(--md-group-border, color-mix(in srgb, var(--md-border) 60%, transparent));
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--md-surface-raised) 25%, transparent);
   pointer-events: none;
   z-index: 40;
 }
 .markdy-group-boundary__label {
   position: absolute;
-  left: 12px;
-  top: -10px;
-  padding: 2px 8px;
+  left: 14px;
+  top: 10px;
+  padding: 3px 8px;
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--md-text-muted);
-  background: var(--md-canvas);
-  border: 1px solid var(--md-group-border, color-mix(in srgb, var(--md-border) 60%, transparent));
-  border-radius: 4px;
-  font-family: var(--md-font-mono, ui-monospace, monospace);
+  background: color-mix(in srgb, var(--md-surface-raised) 80%, transparent);
+  border: 1px solid var(--md-group-border, color-mix(in srgb, var(--md-border) 50%, transparent));
+  border-radius: 5px;
+  font-family: var(--md-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  backdrop-filter: blur(4px);
 }
 `;
   doc.head.appendChild(style);

@@ -472,15 +472,15 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "observability",
     },
     {
-      "icon": "storage",
-      "id": "AuditStorage",
-      "kind": "storage",
-      "role": "data",
-    },
-    {
       "icon": "database",
       "id": "LedgerDB",
       "kind": "database",
+      "role": "data",
+    },
+    {
+      "icon": "storage",
+      "id": "AuditStorage",
+      "kind": "storage",
       "role": "data",
     },
   ],
@@ -1164,16 +1164,16 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "compute",
     },
     {
-      "icon": "queue",
-      "id": "KafkaTopic",
-      "kind": "queue",
-      "role": "messaging",
-    },
-    {
       "icon": "cache",
       "id": "RedisCache",
       "kind": "cache",
       "role": "data",
+    },
+    {
+      "icon": "queue",
+      "id": "KafkaTopic",
+      "kind": "queue",
+      "role": "messaging",
     },
     {
       "icon": "worker",
@@ -1190,10 +1190,10 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
   ],
   "examples/showcase/kubernetes-cluster-architecture.markdy": [
     {
-      "icon": "platform",
-      "id": "Config",
-      "kind": "configmap",
-      "role": "platform",
+      "icon": "user",
+      "id": "Operator",
+      "kind": "user",
+      "role": "client",
     },
     {
       "icon": "gateway",
@@ -1202,10 +1202,10 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "network",
     },
     {
-      "icon": "user",
-      "id": "Operator",
-      "kind": "user",
-      "role": "client",
+      "icon": "platform",
+      "id": "Config",
+      "kind": "configmap",
+      "role": "platform",
     },
     {
       "icon": "storage",
@@ -1220,16 +1220,16 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "security",
     },
     {
-      "icon": "gateway",
-      "id": "IngressGateway",
-      "kind": "ingress",
-      "role": "platform",
-    },
-    {
       "icon": "code",
       "id": "kubectl",
       "kind": "cli",
       "role": "code",
+    },
+    {
+      "icon": "gateway",
+      "id": "IngressGateway",
+      "kind": "ingress",
+      "role": "platform",
     },
     {
       "icon": "server",
@@ -1250,16 +1250,16 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "compute",
     },
     {
-      "icon": "scheduler",
-      "id": "Scheduler",
-      "kind": "scheduler",
-      "role": "compute",
-    },
-    {
       "icon": "database",
       "id": "etcd",
       "kind": "database",
       "role": "data",
+    },
+    {
+      "icon": "scheduler",
+      "id": "Scheduler",
+      "kind": "scheduler",
+      "role": "compute",
     },
     {
       "icon": "pod",
@@ -1604,15 +1604,15 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "observability",
     },
     {
-      "icon": "storage",
-      "id": "AuditStorage",
-      "kind": "storage",
-      "role": "data",
-    },
-    {
       "icon": "database",
       "id": "LedgerDB",
       "kind": "database",
+      "role": "data",
+    },
+    {
+      "icon": "storage",
+      "id": "AuditStorage",
+      "kind": "storage",
       "role": "data",
     },
   ],
@@ -1777,13 +1777,13 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
     },
     {
       "icon": "server",
-      "id": "TimelineService",
+      "id": "TweetService",
       "kind": "service",
       "role": "compute",
     },
     {
       "icon": "server",
-      "id": "TweetService",
+      "id": "TimelineService",
       "kind": "service",
       "role": "compute",
     },
@@ -1800,12 +1800,6 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "compute",
     },
     {
-      "icon": "server",
-      "id": "NotificationService",
-      "kind": "service",
-      "role": "compute",
-    },
-    {
       "icon": "cache",
       "id": "RedisTimelineCache",
       "kind": "cache",
@@ -1816,6 +1810,12 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "id": "TimelineDb",
       "kind": "database",
       "role": "data",
+    },
+    {
+      "icon": "server",
+      "id": "NotificationService",
+      "kind": "service",
+      "role": "compute",
     },
   ],
   "examples/showcase/url-shortener-architecture.markdy": [

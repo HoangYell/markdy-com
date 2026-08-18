@@ -5,6 +5,20 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.9] — 2026-08-18
+
+### Added
+- **Modern Diagram Rendering Engine Upgrade** — Re-architected Markdy's layout and rendering pipeline for publication-grade HTML/SVG presentation across all 18 diagram archetypes:
+  - **Circuit-Grade Orthogonal Routing & Stubs**: Enforced $18\text{px}$ initial perpendicular exit/entry stubs ensuring filleted corners ($r=14\text{px}$) never cut into card boundaries; added `cleanCollinearPoints` pruning of redundant collinear vertices.
+  - **Adaptive Space-Aware Layout Math**: Bounded safe content canvas calculations in `layoutRanked` eliminating right-side clipping on wide flows (e.g. 8-stage CI/CD pipelines) and clustering nodes by group within ranks.
+  - **Radar Benchmark Web Layer (`type=radar`)**: Added concentric regular polygon grid rings, radial spoke axes from center to each metric card, and subtle translucent benchmark polygon overlays.
+  - **Milestone Timeline Track (`type=timeline`)**: Added a central horizontal baseline track with circular milestone pips, vertical stem lines, and focal pulse styling.
+  - **Executive Value Pyramids (`type=pyramid`)**: Dynamically widens tier card widths from apex to base, creating an executive pyramid hierarchy.
+  - **Concentric Security Perimeters (`type=nested`)**: Concentric boundary frames with clean top-left badges enclosing a centered focal Hardware Security Enclave (HSM) core.
+  - **Gantt Chart Centering & Spacing (`type=gantt`)**: Adaptive row spacing and centered baseline positioning for staggered phase spans.
+  - **Modern Card Glassmorphism & Elevation**: Specular top highlights (`inset 0 1px 0 rgba(...)`), multi-layer drop shadows, role-colored icon containers, and container boundary differentiation.
+- **Comprehensive Unit Testing Suite** — Added 155 automated unit tests across `@markdy/core` and `@markdy/renderer-dom` verifying all DSL syntax constructs, geometry routing math, layer renderers, 18 diagram archetypes, and 8 themes.
+
 ## [1.0.8] — 2026-08-17
 
 ### Added

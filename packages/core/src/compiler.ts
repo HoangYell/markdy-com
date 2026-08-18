@@ -15,12 +15,12 @@ import type {
 } from "./ast.js";
 import { nodeRole } from "./registry.js";
 
-const SAFE = 44;
-const TITLE_BAND = 76;
-const NODE_W = 168;
-const NODE_H = 72;
-const VENN_NODE_SIZE = 136;
-const GROUP_PAD = 24;
+const SAFE = 48;
+const TITLE_BAND = 84;
+const NODE_W = 180;
+const NODE_H = 76;
+const VENN_NODE_SIZE = 220;
+const GROUP_PAD = 28;
 
 const DEFAULTS = {
   show: 0.35,
@@ -138,7 +138,7 @@ function assignRanks(
 }
 
 function snapGrid(n: number): number {
-  return Math.round(n / 8) * 8;
+  return Math.round(n / 4) * 4;
 }
 
 function layoutRanked(
@@ -156,35 +156,122 @@ function layoutRanked(
     if (!byRank.has(r)) byRank.set(r, []);
     byRank.get(r)!.push(id);
   }
-  for (const ids of byRank.values()) ids.sort();
+
+  // Group membership index for group-aware clustering within ranks
+  const nodeGroupIndex = new Map<string, number>();
+  const groupIds = Object.keys(ast.groups);
+  groupIds.forEach((gId, gIdx) => {
+    for (const memberId of ast.groups[gId].members) {
+      nodeGroupIndex.set(memberId, gIdx);
+    }
+  });
+
+  // Sort nodes within each rank: first by group index (so grouped nodes stay adjacent), then by id
+  for (const ids of byRank.values()) {
+    ids.sort((a, b) => {
+      const ga = nodeGroupIndex.has(a) ? nodeGroupIndex.get(a)! : 9999;
+      const gb = nodeGroupIndex.has(b) ? nodeGroupIndex.get(b)! : 9999;
+      if (ga !== gb) return ga - gb;
+      return a.localeCompare(b);
+    });
+  }
 
   const isVertical = direction === "TB" || direction === "BT";
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
   const maxRank = Math.max(...byRank.keys(), 0);
   const rankCount = maxRank + 1;
+  const maxInRank = Math.max(...[...byRank.values()].map((v) => v.length), 1);
 
   const nodes: PositionedNode[] = [];
-  for (const [rank, ids] of [...byRank.entries()].sort((a, b) => a[0] - b[0])) {
-    const rowCount = ids.length;
-    const orderedIds = opts.columnLayout
-      ? nodeIds.filter((id) => ids.includes(id))
-      : [...ids].sort();
-    orderedIds.forEach((id, idx) => {
+
+  if (opts.columnLayout) {
+    // Sequence participant column layout
+    const count = nodeIds.length;
+    const colSpacing = Math.max(NODE_W + 32, contentW / Math.max(count, 1));
+    const totalW = (count - 1) * colSpacing + NODE_W;
+    const startX = SAFE + Math.max(0, (contentW - totalW) / 2);
+    nodeIds.forEach((id, idx) => {
       const decl = ast.nodes[id];
       const role = nodeRole(decl.kind);
-      let x: number;
-      let y: number;
-      if (opts.columnLayout) {
-        x = SAFE + (contentW / (rowCount + 1)) * (idx + 1) - NODE_W / 2;
-        y = TITLE_BAND + 48;
-      } else if (isVertical) {
-        x = SAFE + (contentW / (rowCount + 1)) * (idx + 1) - NODE_W / 2;
-        y = TITLE_BAND + (contentH / Math.max(rankCount, 1)) * rank + (contentH / Math.max(rankCount, 1) - NODE_H) / 2;
-      } else {
-        x = SAFE + (contentW / Math.max(rankCount, 1)) * rank + (contentW / Math.max(rankCount, 1) - NODE_W) / 2;
-        y = TITLE_BAND + (contentH / (rowCount + 1)) * (idx + 1) - NODE_H / 2;
-      }
+      const x = startX + idx * colSpacing;
+      const y = TITLE_BAND + 32;
+      nodes.push({
+        id,
+        kind: decl.kind,
+        role,
+        label: decl.label,
+        x: snapGrid(x),
+        y: snapGrid(y),
+        width: NODE_W,
+        height: NODE_H,
+        style: decl.style ? ast.styles[decl.style]?.props : undefined,
+        props: decl.props,
+        opacity: 0,
+        shape: nodeShape(decl.kind, dtype),
+        focal: decl.props.focal === true || decl.props.accent === true,
+        column: idx,
+      });
+    });
+    return nodes;
+  }
+
+  if (isVertical) {
+    // Vertical top-to-bottom flowchart/rank
+    const rowGap = Math.max(NODE_H + 40, Math.min(180, contentH / Math.max(rankCount, 1)));
+    const totalH = (rankCount - 1) * rowGap + NODE_H;
+    const startY = TITLE_BAND + Math.max(0, (contentH - totalH) / 2);
+
+    for (const [rank, ids] of [...byRank.entries()].sort((a, b) => a[0] - b[0])) {
+      const rowCount = ids.length;
+      const colSpacing = Math.max(NODE_W + 36, Math.min(260, contentW / Math.max(rowCount, 1)));
+      const rankW = (rowCount - 1) * colSpacing + NODE_W;
+      const rankStartX = SAFE + Math.max(0, (contentW - rankW) / 2);
+      const y = startY + rank * rowGap;
+
+      ids.forEach((id, idx) => {
+        const decl = ast.nodes[id];
+        const role = nodeRole(decl.kind);
+        const x = rankStartX + idx * colSpacing;
+        const focal = decl.props.focal === true || decl.props.accent === true;
+        nodes.push({
+          id,
+          kind: decl.kind,
+          role,
+          label: decl.label,
+          x: snapGrid(x),
+          y: snapGrid(y),
+          width: NODE_W,
+          height: NODE_H,
+          style: decl.style ? ast.styles[decl.style]?.props : undefined,
+          props: decl.props,
+          opacity: 0,
+          shape: nodeShape(decl.kind, dtype),
+          focal,
+        });
+      });
+    }
+    return nodes;
+  }
+
+  // Horizontal left-to-right architecture layout
+  const maxPossibleStep = rankCount > 1 ? (contentW - NODE_W) / (rankCount - 1) : 0;
+  const colGap = rankCount > 1 ? Math.min(220, Math.max(50, maxPossibleStep)) : 0;
+  const totalW = (rankCount - 1) * colGap + NODE_W;
+  const startX = SAFE + Math.max(0, (contentW - totalW) / 2);
+
+  for (const [rank, ids] of [...byRank.entries()].sort((a, b) => a[0] - b[0])) {
+    const rowCount = ids.length;
+    const maxPossibleRowStep = rowCount > 1 ? (contentH - NODE_H) / (rowCount - 1) : 0;
+    const rowSpacing = rowCount > 1 ? Math.min(150, Math.max(36, maxPossibleRowStep)) : 0;
+    const colH = (rowCount - 1) * rowSpacing + NODE_H;
+    const colStartY = TITLE_BAND + Math.max(0, (contentH - colH) / 2);
+    const x = startX + rank * colGap;
+
+    ids.forEach((id, idx) => {
+      const decl = ast.nodes[id];
+      const role = nodeRole(decl.kind);
+      const y = colStartY + idx * rowSpacing;
       const focal = decl.props.focal === true || decl.props.accent === true;
       nodes.push({
         id,
@@ -200,7 +287,6 @@ function layoutRanked(
         opacity: 0,
         shape: nodeShape(decl.kind, dtype),
         focal,
-        column: opts.columnLayout ? idx : undefined,
       });
     });
   }
@@ -209,6 +295,8 @@ function layoutRanked(
 
 function layoutTree(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
   const nodeIds = Object.keys(ast.nodes);
+  if (nodeIds.length === 0) return [];
+
   const children = new Map<string, string[]>();
   const parent = new Map<string, string>();
   for (const id of nodeIds) children.set(id, []);
@@ -219,52 +307,112 @@ function layoutTree(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
     parent.set(e.to, e.from);
     children.get(e.from)!.push(e.to);
   }
-  const root = nodeIds.find((id) => !parent.has(id)) ?? nodeIds[0];
+
+  // Find root(s)
+  const roots = nodeIds.filter((id) => !parent.has(id));
+  if (roots.length === 0) roots.push(nodeIds[0]);
+
+  // Compute depth and max depth
   const depth = new Map<string, number>();
-  const queue = [root];
-  depth.set(root, 0);
+  const queue = [...roots];
+  for (const r of roots) depth.set(r, 0);
   while (queue.length) {
     const id = queue.shift()!;
+    const d = depth.get(id)!;
     for (const child of children.get(id) ?? []) {
-      if (depth.has(child)) continue;
-      depth.set(child, (depth.get(id) ?? 0) + 1);
-      queue.push(child);
+      if (!depth.has(child)) {
+        depth.set(child, d + 1);
+        queue.push(child);
+      }
     }
   }
   for (const id of nodeIds) if (!depth.has(id)) depth.set(id, 0);
+  const maxDepth = Math.max(...depth.values(), 0);
 
-  const byDepth = new Map<number, string[]>();
-  for (const id of nodeIds) {
-    const d = depth.get(id) ?? 0;
-    if (!byDepth.has(d)) byDepth.set(d, []);
-    byDepth.get(d)!.push(id);
+  // Subtree width calculation (recursive)
+  const subtreeSpan = new Map<string, number>();
+  const minLeafWidth = NODE_W + 48;
+
+  function measureSubtree(id: string): number {
+    const kids = children.get(id) ?? [];
+    if (kids.length === 0) {
+      subtreeSpan.set(id, minLeafWidth);
+      return minLeafWidth;
+    }
+    let total = 0;
+    for (const kid of kids) {
+      total += measureSubtree(kid);
+    }
+    const span = Math.max(minLeafWidth, total);
+    subtreeSpan.set(id, span);
+    return span;
   }
-  for (const ids of byDepth.values()) ids.sort();
+
+  let totalRootsWidth = 0;
+  for (const r of roots) {
+    totalRootsWidth += measureSubtree(r);
+  }
 
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
-  const maxDepth = Math.max(...byDepth.keys(), 0);
-  const nodes: PositionedNode[] = [];
+  const treeStartX = SAFE + Math.max(0, (contentW - totalRootsWidth) / 2);
+  const levelHeight = Math.max(NODE_H + 48, Math.min(160, contentH / Math.max(maxDepth + 1, 1)));
+  const totalTreeHeight = maxDepth * levelHeight + NODE_H;
+  const treeStartY = TITLE_BAND + Math.max(16, (contentH - totalTreeHeight) / 2);
 
-  for (const [d, ids] of [...byDepth.entries()].sort((a, b) => a[0] - b[0])) {
-    ids.forEach((id, idx) => {
-      const decl = ast.nodes[id];
-      const x = SAFE + (contentW / (ids.length + 1)) * (idx + 1) - NODE_W / 2;
-      const y = TITLE_BAND + (contentH / Math.max(maxDepth + 1, 1)) * d + 24;
-      nodes.push({
-        id,
-        kind: decl.kind,
-        role: nodeRole(decl.kind),
-        label: decl.label,
-        x: snapGrid(x),
-        y: snapGrid(y),
-        width: NODE_W,
-        height: NODE_H,
-        style: decl.style ? ast.styles[decl.style]?.props : undefined,
-        props: decl.props,
-        opacity: 0,
-        shape: "card",
-      });
+  const nodePositions = new Map<string, { x: number; y: number }>();
+
+  function positionSubtree(id: string, leftX: number): void {
+    const d = depth.get(id) ?? 0;
+    const y = treeStartY + d * levelHeight;
+    const kids = children.get(id) ?? [];
+    const span = subtreeSpan.get(id) ?? minLeafWidth;
+
+    if (kids.length === 0) {
+      const centerX = leftX + span / 2;
+      nodePositions.set(id, { x: centerX - NODE_W / 2, y });
+      return;
+    }
+
+    let curX = leftX;
+    for (const kid of kids) {
+      const kidSpan = subtreeSpan.get(kid) ?? minLeafWidth;
+      positionSubtree(kid, curX);
+      curX += kidSpan;
+    }
+
+    // Parent centered over first and last child
+    const firstChild = nodePositions.get(kids[0])!;
+    const lastChild = nodePositions.get(kids[kids.length - 1])!;
+    const parentCenterX = (firstChild.x + NODE_W / 2 + lastChild.x + NODE_W / 2) / 2;
+    nodePositions.set(id, { x: parentCenterX - NODE_W / 2, y });
+  }
+
+  let currentRootLeft = treeStartX;
+  for (const r of roots) {
+    const span = subtreeSpan.get(r) ?? minLeafWidth;
+    positionSubtree(r, currentRootLeft);
+    currentRootLeft += span;
+  }
+
+  const nodes: PositionedNode[] = [];
+  for (const id of nodeIds) {
+    const decl = ast.nodes[id];
+    const pos = nodePositions.get(id) ?? { x: SAFE, y: TITLE_BAND };
+    nodes.push({
+      id,
+      kind: decl.kind,
+      role: nodeRole(decl.kind),
+      label: decl.label,
+      x: snapGrid(pos.x),
+      y: snapGrid(pos.y),
+      width: NODE_W,
+      height: NODE_H,
+      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      props: decl.props,
+      opacity: 0,
+      shape: "card",
+      focal: decl.props.focal === true || decl.props.accent === true,
     });
   }
   return nodes;
@@ -366,8 +514,8 @@ function layoutLoop(ast: DiagramAST): PositionedNode[] {
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
   const centerX = SAFE + contentW / 2;
   const centerY = TITLE_BAND + contentH / 2;
-  const radiusX = Math.max(140, contentW / 2 - NODE_W / 2 - SAFE);
-  const radiusY = Math.max(120, contentH / 2 - NODE_H / 2 - SAFE);
+  const radiusX = Math.min(contentW * 0.40, Math.max(220, (contentW - NODE_W) / 2 - 32));
+  const radiusY = Math.min(contentH * 0.38, Math.max(150, (contentH - NODE_H) / 2 - 32));
 
   const nodes: PositionedNode[] = [];
 
@@ -378,8 +526,8 @@ function layoutLoop(ast: DiagramAST): PositionedNode[] {
     let y: number;
 
     if (isHub) {
-      x = centerX - (NODE_W * 1.2) / 2;
-      y = centerY - (NODE_H * 1.1) / 2;
+      x = centerX - (NODE_W * 1.25) / 2;
+      y = centerY - (NODE_H * 1.15) / 2;
     } else {
       const idx = stationIds.indexOf(id);
       const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / Math.max(stationIds.length, 1);
@@ -395,8 +543,8 @@ function layoutLoop(ast: DiagramAST): PositionedNode[] {
       label: decl.label,
       x: snapGrid(x),
       y: snapGrid(y),
-      width: isHub ? snapGrid(NODE_W * 1.2) : NODE_W,
-      height: isHub ? snapGrid(NODE_H * 1.1) : NODE_H,
+      width: isHub ? snapGrid(NODE_W * 1.25) : NODE_W,
+      height: isHub ? snapGrid(NODE_H * 1.15) : NODE_H,
       style: decl.style ? ast.styles[decl.style]?.props : undefined,
       props: decl.props,
       opacity: 0,
@@ -435,15 +583,21 @@ function layoutMedallion(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[]
 
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const colGap = Math.max(NODE_W + 48, contentW / (tierCount + 1));
+  const totalW = (tierCount - 1) * colGap + NODE_W;
+  const startX = SAFE + Math.max(0, (contentW - totalW) / 2);
   const nodes: PositionedNode[] = [];
 
   activeTiers.forEach(([_, ids], colIdx) => {
     const colCount = ids.length;
-    const colX = SAFE + (contentW / (tierCount + 1)) * (colIdx + 1) - NODE_W / 2;
+    const colX = startX + colIdx * colGap;
+    const rowSpacing = Math.max(NODE_H + 32, contentH / (colCount + 1));
+    const colH = (colCount - 1) * rowSpacing + NODE_H;
+    const startY = TITLE_BAND + Math.max(0, (contentH - colH) / 2);
 
     ids.forEach((id, rowIdx) => {
       const decl = ast.nodes[id];
-      const rowY = TITLE_BAND + (contentH / (colCount + 1)) * (rowIdx + 1) - NODE_H / 2;
+      const rowY = startY + rowIdx * rowSpacing;
       const focal = decl.props.focal === true || decl.props.accent === true;
       nodes.push({
         id,
@@ -510,7 +664,7 @@ function layoutQuadrant(ast: DiagramAST): PositionedNode[] {
     ids.forEach((id, idx) => {
       const decl = ast.nodes[id];
       const offsetCount = ids.length;
-      const rowOffset = (idx - (offsetCount - 1) / 2) * (NODE_H + 16);
+      const rowOffset = (idx - (offsetCount - 1) / 2) * (NODE_H + 20);
       const x = center.x - NODE_W / 2;
       const y = center.y + rowOffset - NODE_H / 2;
       const focal = decl.props.focal === true || decl.props.accent === true;
@@ -567,10 +721,13 @@ function layoutSwimlane(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] 
   activeLanes.forEach(([_, ids], laneIdx) => {
     const laneY = TITLE_BAND + laneIdx * laneHeight + (laneHeight - NODE_H) / 2;
     const count = ids.length;
+    const colSpacing = Math.max(NODE_W + 48, Math.min(260, contentW / Math.max(count + 1, 2)));
+    const totalW = (count - 1) * colSpacing + NODE_W;
+    const startX = SAFE + Math.max(0, (contentW - totalW) / 2);
 
     ids.forEach((id, colIdx) => {
       const decl = ast.nodes[id];
-      const colX = SAFE + (contentW / (count + 1)) * (colIdx + 1) - NODE_W / 2;
+      const colX = startX + colIdx * colSpacing;
       const focal = decl.props.focal === true || decl.props.accent === true;
       nodes.push({
         id,
@@ -610,18 +767,23 @@ function layoutPyramid(ast: DiagramAST): PositionedNode[] {
 
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const centerX = SAFE + contentW / 2;
+  const totalH = tierCount * NODE_H + (tierCount - 1) * 24;
+  const startY = TITLE_BAND + Math.max(16, (contentH - totalH) / 2);
   const nodes: PositionedNode[] = [];
 
   sortedTiers.forEach(([_, ids], tierIdx) => {
-    const tierY = TITLE_BAND + (contentH / (tierCount + 1)) * (tierIdx + 1) - NODE_H / 2;
-    const spreadFraction = 0.4 + (0.6 * tierIdx) / Math.max(tierCount - 1, 1);
-    const tierWidth = contentW * spreadFraction;
-    const tierStartX = SAFE + (contentW - tierWidth) / 2;
+    const tierY = startY + tierIdx * (NODE_H + 24);
+    const baseFraction = 0.32 + (0.44 * tierIdx) / Math.max(tierCount - 1, 1);
+    const tierWidth = contentW * baseFraction;
     const count = ids.length;
+    const nodeW = Math.max(NODE_W, Math.min(tierWidth / count - 12, 480));
+    const totalTierW = count * nodeW + (count - 1) * 16;
+    const tierStartX = centerX - totalTierW / 2;
 
     ids.forEach((id, idx) => {
       const decl = ast.nodes[id];
-      const x = tierStartX + (tierWidth / (count + 1)) * (idx + 1) - NODE_W / 2;
+      const x = tierStartX + idx * (nodeW + 16);
       const focal = decl.props.focal === true || decl.props.accent === true;
       nodes.push({
         id,
@@ -630,7 +792,7 @@ function layoutPyramid(ast: DiagramAST): PositionedNode[] {
         label: decl.label,
         x: snapGrid(x),
         y: snapGrid(tierY),
-        width: NODE_W,
+        width: snapGrid(nodeW),
         height: NODE_H,
         style: decl.style ? ast.styles[decl.style]?.props : undefined,
         props: decl.props,
@@ -675,8 +837,12 @@ function layoutGantt(ast: DiagramAST): PositionedNode[] {
   if (nodeIds.length === 0) return [];
 
   const contentW = ast.meta.width - SAFE * 2;
-  const rowH = 56;
-  const barH = 40;
+  const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const N = nodeIds.length;
+  const rowH = Math.min(68, Math.max(52, (contentH - 24) / Math.max(N, 1)));
+  const barH = Math.min(44, rowH - 16);
+  const totalH = N * rowH;
+  const startY = TITLE_BAND + Math.max(16, (contentH - totalH) / 2);
   const nodes: PositionedNode[] = [];
 
   nodeIds.forEach((id, idx) => {
@@ -691,7 +857,7 @@ function layoutGantt(ast: DiagramAST): PositionedNode[] {
     const unitW = contentW / totalPhases;
     const x = SAFE + phase * unitW;
     const w = Math.max(span * unitW - 8, NODE_W);
-    const y = TITLE_BAND + idx * rowH + (rowH - barH) / 2;
+    const y = startY + idx * rowH + (rowH - barH) / 2;
     const focal = decl.props.focal === true || decl.props.accent === true;
     nodes.push({
       id, kind: decl.kind, role: nodeRole(decl.kind), label: decl.label,
@@ -712,19 +878,19 @@ function layoutVenn(ast: DiagramAST): PositionedNode[] {
   const centerX = SAFE + contentW / 2;
   const centerY = TITLE_BAND + contentH / 2;
   const N = nodeIds.length;
-  const radius = Math.min(contentW, contentH) * 0.22;
+  const radius = Math.min(contentW, contentH) * 0.24;
   const nodes: PositionedNode[] = [];
 
   nodeIds.forEach((id, idx) => {
     const decl = ast.nodes[id];
     let x: number, y: number;
     if (N === 2) {
-      x = centerX + (idx === 0 ? -radius * 0.55 : radius * 0.55) - VENN_NODE_SIZE / 2;
+      x = centerX + (idx === 0 ? -radius * 0.7 : radius * 0.7) - VENN_NODE_SIZE / 2;
       y = centerY - VENN_NODE_SIZE / 2;
     } else {
       const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / N;
-      x = centerX + radius * 0.6 * Math.cos(angle) - VENN_NODE_SIZE / 2;
-      y = centerY + radius * 0.6 * Math.sin(angle) - VENN_NODE_SIZE / 2;
+      x = centerX + radius * 0.85 * Math.cos(angle) - VENN_NODE_SIZE / 2;
+      y = centerY + radius * 0.85 * Math.sin(angle) - VENN_NODE_SIZE / 2;
     }
     const focal = decl.props.focal === true || decl.props.accent === true;
     nodes.push({
@@ -744,23 +910,25 @@ function layoutLayers(ast: DiagramAST): PositionedNode[] {
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
   const N = nodeIds.length;
-  const layerH = Math.min(Math.max((contentH - (N - 1) * 12) / N, 52), 76);
-  const totalH = N * layerH + (N - 1) * 12;
+  const layerH = Math.min(Math.max((contentH - (N - 1) * 14) / N, 52), 68);
+  const totalH = N * layerH + (N - 1) * 14;
   const startY = TITLE_BAND + (contentH - totalH) / 2;
+  const layerW = Math.min(contentW, 880);
+  const startX = SAFE + (contentW - layerW) / 2;
   const nodes: PositionedNode[] = [];
 
   nodeIds.forEach((id, idx) => {
     const decl = ast.nodes[id];
-    const y = startY + idx * (layerH + 12);
+    const y = startY + idx * (layerH + 14);
     const focal = decl.props.focal === true || decl.props.accent === true;
     nodes.push({
       id,
       kind: decl.kind,
       role: nodeRole(decl.kind),
       label: decl.label,
-      x: snapGrid(SAFE),
+      x: snapGrid(startX),
       y: snapGrid(y),
-      width: snapGrid(contentW),
+      width: snapGrid(layerW),
       height: snapGrid(layerH),
       style: decl.style ? ast.styles[decl.style]?.props : undefined,
       props: decl.props,
@@ -778,18 +946,29 @@ function layoutNested(ast: DiagramAST): PositionedNode[] {
 
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const centerX = SAFE + contentW / 2;
+  const centerY = TITLE_BAND + contentH / 2;
   const N = nodeIds.length;
-  const padX = Math.min(36, (contentW * 0.4) / N);
-  const padY = Math.min(32, (contentH * 0.4) / N);
+  const padX = Math.min(54, (contentW * 0.42) / Math.max(N, 1));
+  const padY = Math.min(48, (contentH * 0.42) / Math.max(N, 1));
   const nodes: PositionedNode[] = [];
 
   nodeIds.forEach((id, idx) => {
     const decl = ast.nodes[id];
-    const x = SAFE + idx * padX;
-    const y = TITLE_BAND + idx * padY;
-    const w = contentW - idx * padX * 2;
-    const h = contentH - idx * padY * 2;
-    const focal = decl.props.focal === true || decl.props.accent === true || idx === N - 1;
+    const isCore = idx === N - 1;
+    let x: number, y: number, w: number, h: number;
+    if (isCore) {
+      w = Math.min(320, contentW - idx * padX * 2);
+      h = 84;
+      x = centerX - w / 2;
+      y = centerY - h / 2 + (N > 1 ? 16 : 0);
+    } else {
+      x = SAFE + idx * padX;
+      y = TITLE_BAND + idx * padY;
+      w = contentW - idx * padX * 2;
+      h = contentH - idx * padY * 2;
+    }
+    const focal = decl.props.focal === true || decl.props.accent === true || isCore;
     nodes.push({
       id,
       kind: decl.kind,
@@ -802,7 +981,7 @@ function layoutNested(ast: DiagramAST): PositionedNode[] {
       style: decl.style ? ast.styles[decl.style]?.props : undefined,
       props: decl.props,
       opacity: 0,
-      shape: "rounded",
+      shape: isCore ? "card" : "container",
       focal,
     });
   });
@@ -1087,11 +1266,17 @@ function buildSequencePlan(
   if (diagramType(ast) !== "sequence") return { messages: [], activations: [] };
 
   const flowCues = cues.filter((cue) => cue.kind === "flow" && cue.segments?.[0]);
-  const firstY = TITLE_BAND + NODE_H + 64;
-  const lastY = ast.meta.height - SAFE - 40;
+  const firstY = TITLE_BAND + NODE_H + 56;
+  const lastY = ast.meta.height - SAFE - 48;
+  const availH = Math.max(120, lastY - firstY);
   const step = flowCues.length > 1
-    ? Math.max(36, Math.min(64, (lastY - firstY) / (flowCues.length - 1)))
+    ? Math.max(52, Math.min(90, availH / flowCues.length))
     : 0;
+  const totalSeqH = (flowCues.length - 1) * step;
+  const startY = flowCues.length > 1
+    ? firstY + Math.max(0, (availH - totalSeqH) / 2)
+    : firstY + 40;
+
   const messages: SequenceMessage[] = [];
   const activations: SequenceActivation[] = [];
 
@@ -1104,7 +1289,7 @@ function buildSequencePlan(
       to: segment.to,
       kind: segment.op,
       label: segment.label,
-      y: snapGrid(firstY + step * index),
+      y: snapGrid(startY + step * index),
       start: cue.start,
       duration: cue.duration,
       beat: cue.beat,

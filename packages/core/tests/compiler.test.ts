@@ -426,5 +426,86 @@ security Core "Hardware Enclave" focal=true
     expect(middle.x).toBeGreaterThan(outer.x);
     expect(core.x).toBeGreaterThan(middle.x);
     expect(core.focal).toBe(true);
+    expect(outer.shape).toBe("container");
+    expect(core.shape).toBe("card");
+  });
+
+  it("lays out value pyramid with proportional tier widening", () => {
+    const source = `
+scene type=pyramid theme=paper width=1000 height=800
+service Apex "Executive Strategy" level=0
+service Middle "Platform Core" level=1
+service Base "Infrastructure" level=2
+`;
+    const plan = compile(parse(source));
+    expect(plan.diagramType).toBe("pyramid");
+    expect(plan.nodes).toHaveLength(3);
+    const apex = plan.nodes.find((n) => n.id === "Apex")!;
+    const middle = plan.nodes.find((n) => n.id === "Middle")!;
+    const base = plan.nodes.find((n) => n.id === "Base")!;
+    expect(base.y).toBeGreaterThan(middle.y);
+    expect(middle.y).toBeGreaterThan(apex.y);
+    expect(base.width).toBeGreaterThan(middle.width);
+    expect(middle.width).toBeGreaterThan(apex.width);
+  });
+
+  it("lays out gantt chart with phase-based horizontal positioning and vertical row spacing", () => {
+    const source = `
+scene type=gantt theme=minimal width=1200 height=600
+service Design "API Design" phase=0 span=2
+service Impl "Implementation" phase=2 span=3
+service Test "Testing" phase=4 span=2
+`;
+    const plan = compile(parse(source));
+    expect(plan.diagramType).toBe("gantt");
+    expect(plan.nodes).toHaveLength(3);
+    const design = plan.nodes.find((n) => n.id === "Design")!;
+    const impl = plan.nodes.find((n) => n.id === "Impl")!;
+    const test = plan.nodes.find((n) => n.id === "Test")!;
+    expect(impl.x).toBeGreaterThan(design.x);
+    expect(test.x).toBeGreaterThan(impl.x);
+    expect(impl.y).toBeGreaterThan(design.y);
+    expect(test.y).toBeGreaterThan(impl.y);
+  });
+
+  it("lays out radar diagram in a regular radial polygon distribution", () => {
+    const source = `
+scene type=radar theme=midnight width=1000 height=800
+metric Latency "Read/Write Latency"
+metric Scalability "Horizontal Scale"
+metric Consistency "ACID Safety"
+metric Simplicity "Operational Cost"
+metric Availability "Multi-Region"
+`;
+    const plan = compile(parse(source));
+    expect(plan.diagramType).toBe("radar");
+    expect(plan.nodes).toHaveLength(5);
+    // All 5 metric nodes must be positioned within the canvas bounds
+    for (const node of plan.nodes) {
+      expect(node.x).toBeGreaterThanOrEqual(0);
+      expect(node.x + node.width).toBeLessThanOrEqual(1000);
+      expect(node.y).toBeGreaterThanOrEqual(0);
+      expect(node.y + node.height).toBeLessThanOrEqual(800);
+    }
+  });
+
+  it("lays out milestone timeline with alternating vertical placement along baseline", () => {
+    const source = `
+scene type=timeline theme=editorial width=1000 height=600
+service M1 "Alpha"
+service M2 "Beta"
+service M3 "GA"
+`;
+    const plan = compile(parse(source));
+    expect(plan.diagramType).toBe("timeline");
+    expect(plan.nodes).toHaveLength(3);
+    const m1 = plan.nodes.find((n) => n.id === "M1")!;
+    const m2 = plan.nodes.find((n) => n.id === "M2")!;
+    const m3 = plan.nodes.find((n) => n.id === "M3")!;
+    expect(m2.x).toBeGreaterThan(m1.x);
+    expect(m3.x).toBeGreaterThan(m2.x);
+    // M1 and M3 are above baseline, M2 is below baseline
+    expect(m2.y).toBeGreaterThan(m1.y);
+    expect(m2.y).toBeGreaterThan(m3.y);
   });
 });

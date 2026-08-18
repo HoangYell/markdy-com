@@ -563,4 +563,132 @@ beat main:
     expect(ast3.meta.progressColor).toBe("#10b981");
     expect(ast3.diagnostics).toEqual([]);
   });
+
+  it("parses style declarations and custom style references on nodes", () => {
+    const code = `
+style Highlight = fill="#0f172a" stroke="#38bdf8" text="#ffffff" accent="#f59e0b"
+service API "API Gateway" style=Highlight
+database DB "PostgreSQL"
+`;
+    const ast = parse(code);
+    expect(ast.styles.Highlight).toBeDefined();
+    expect(ast.styles.Highlight.props.fill).toBe("#0f172a");
+    expect(ast.styles.Highlight.props.stroke).toBe("#38bdf8");
+    expect(ast.styles.Highlight.props.accent).toBe("#f59e0b");
+    expect(ast.nodes.API.style).toBe("Highlight");
+  });
+
+  it("parses advanced node props including shapes, metrics, images, and hierarchy levels", () => {
+    const code = `
+scene theme=paper
+service CardNode "Card" shape=card focal=true
+service DiamondNode "Decision" shape=diamond accent=true
+service PillNode "Status" shape=pill value="99.99%" metric="Uptime"
+service ContainerNode "VPC" shape=container
+service ImageNode "Brand" image="https://example.com/logo.svg" imageFit=contain
+service LevelNode "Tier" level=2 phase=3 span=4 hub=true icon=custom_icon
+`;
+    const ast = parse(code);
+    expect(ast.nodes.CardNode.props.shape).toBe("card");
+    expect(ast.nodes.CardNode.props.focal).toBe(true);
+    expect(ast.nodes.DiamondNode.props.shape).toBe("diamond");
+    expect(ast.nodes.DiamondNode.props.accent).toBe(true);
+    expect(ast.nodes.PillNode.props.shape).toBe("pill");
+    expect(ast.nodes.PillNode.props.value).toBe("99.99%");
+    expect(ast.nodes.PillNode.props.metric).toBe("Uptime");
+    expect(ast.nodes.ContainerNode.props.shape).toBe("container");
+    expect(ast.nodes.ImageNode.props.image).toBe("https://example.com/logo.svg");
+    expect(ast.nodes.ImageNode.props.imageFit).toBe("contain");
+    expect(ast.nodes.LevelNode.props.level).toBe(2);
+    expect(ast.nodes.LevelNode.props.phase).toBe(3);
+    expect(ast.nodes.LevelNode.props.span).toBe(4);
+    expect(ast.nodes.LevelNode.props.hub).toBe(true);
+    expect(ast.nodes.LevelNode.props.icon).toBe("custom_icon");
+  });
+
+  it("parses all edge operators (->, <-, ~>, --) and multi-hop edge declarations", () => {
+    const code = `
+scene theme=midnight
+service A
+service B
+service C
+service D
+
+edge req: A -> B "Sync Call"
+edge resp: A <- B "Sync Response"
+edge evt: B ~> C "Async Event"
+edge dep: C -- D "Dependency"
+edge chain: A -> B "hop 1" -> C "hop 2" -> D
+`;
+    const ast = parse(code);
+    expect(ast.edges).toHaveLength(7);
+    expect(ast.edges[0].kind).toBe("request");
+    expect(ast.edges[0].label).toBe("Sync Call");
+    expect(ast.edges[1].kind).toBe("response");
+    expect(ast.edges[1].label).toBe("Sync Response");
+    expect(ast.edges[2].kind).toBe("event");
+    expect(ast.edges[2].label).toBe("Async Event");
+    expect(ast.edges[3].kind).toBe("dependency");
+    expect(ast.edges[3].label).toBe("Dependency");
+    // chain expands to 3 segments
+    expect(ast.edges[4].from).toBe("A");
+    expect(ast.edges[4].to).toBe("B");
+    expect(ast.edges[5].from).toBe("B");
+    expect(ast.edges[5].to).toBe("C");
+    expect(ast.edges[6].from).toBe("C");
+    expect(ast.edges[6].to).toBe("D");
+  });
+
+  it("parses annotation declarations with positions, intents, and target bindings", () => {
+    const code = `
+scene theme=editorial
+service Worker "Worker Node"
+annotation "Critical Bottleneck" position=top_right intent=accent target=Worker
+annotation "Low Memory Footprint" position=bottom_left intent=muted
+`;
+    const ast = parse(code);
+    expect(ast.annotations).toHaveLength(2);
+    expect(ast.annotations[0].text).toBe("Critical Bottleneck");
+    expect(ast.annotations[0].position).toBe("top_right");
+    expect(ast.annotations[0].target).toBe("Worker");
+    expect(ast.annotations[0].props.intent).toBe("accent");
+
+    expect(ast.annotations[1].text).toBe("Low Memory Footprint");
+    expect(ast.annotations[1].position).toBe("bottom_left");
+    expect(ast.annotations[1].props.intent).toBe("muted");
+  });
+
+  it("parses cue variations: show, hide, glow, focus, frame, and concurrent cues with &", () => {
+    const code = `
+scene theme=paper
+service A
+service B
+database DB
+
+beat intro "System Reveal":
+  show A B DB stagger=40ms dur=0.5s
+
+beat inspect "Inspect Node":
+  glow A "Inspecting API" color="#38bdf8" strength=2 dur=0.8s
+  focus B zoom=1.2 dur=0.6s
+  frame A B DB zoom=1.3 dur=1s
+
+beat transition "Cleanup & Concurrent Flow":
+  hide A
+  glow DB color="#22c55e" & B -> DB "query"
+`;
+    const ast = parse(code);
+    expect(ast.beats).toHaveLength(3);
+    const [b1, b2, b3] = ast.beats;
+    expect(b1.cues[0].kind).toBe("show");
+    expect(b2.cues.map((c) => c.kind)).toEqual(["glow", "focus", "frame"]);
+    expect(b3.cues.some((c) => c.kind === "hide")).toBe(true);
+    const parallel = b3.cues.find((c) => c.kind === "parallel");
+    expect(parallel).toBeDefined();
+    if (parallel && parallel.kind === "parallel") {
+      expect(parallel.cues).toHaveLength(2);
+      expect(parallel.cues[0].kind).toBe("glow");
+      expect(parallel.cues[1].kind).toBe("flow");
+    }
+  });
 });

@@ -87,23 +87,25 @@ function ensureDefs(svg: SVGSVGElement, theme: ThemeTokens, id: string): void {
   for (const [kind, color] of Object.entries(theme.edges) as [EdgeKind, string][]) {
     const arrow = document.createElementNS("http://www.w3.org/2000/svg", "marker");
     arrow.setAttribute("id", `${id}-arrow-${kind}`);
-    arrow.setAttribute("viewBox", "0 0 10 10");
-    arrow.setAttribute("refX", "8.5");
-    arrow.setAttribute("refY", "5");
-    arrow.setAttribute("markerWidth", "7");
-    arrow.setAttribute("markerHeight", "7");
+    arrow.setAttribute("viewBox", "0 0 12 12");
+    arrow.setAttribute("refX", "9.5");
+    arrow.setAttribute("refY", "6");
+    arrow.setAttribute("markerWidth", "8");
+    arrow.setAttribute("markerHeight", "8");
     arrow.setAttribute("orient", "auto-start-reverse");
     const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
     if (kind === "response") {
-      path.setAttribute("d", "M 1.5 1.6 L 9 5 L 1.5 8.4");
+      path.setAttribute("d", "M 2.5 2.5 L 9.5 6 L 2.5 9.5");
       path.setAttribute("fill", "none");
       path.setAttribute("stroke", color);
-      path.setAttribute("stroke-width", "1.4");
+      path.setAttribute("stroke-width", "1.6");
+      path.setAttribute("stroke-linecap", "round");
+      path.setAttribute("stroke-linejoin", "round");
     } else if (kind === "event") {
-      path.setAttribute("d", "M 5 2 A 3 3 0 1 1 5 8 A 3 3 0 1 1 5 2");
+      path.setAttribute("d", "M 6 2.5 A 3.5 3.5 0 1 1 6 9.5 A 3.5 3.5 0 1 1 6 2.5");
       path.setAttribute("fill", color);
     } else {
-      path.setAttribute("d", "M 1.5 1.6 L 9 5 L 1.5 8.4 L 3.4 5 Z");
+      path.setAttribute("d", "M 2 2.5 L 10 6 L 2 9.5 L 4 6 Z");
       path.setAttribute("fill", color);
     }
     arrow.appendChild(path);
@@ -188,49 +190,51 @@ export function createEdgeRuntime(
     path.setAttribute("marker-end", `url(#${sceneId}-arrow-${kind})`);
   }
   if (kind !== "dependency") {
-    path.style.filter = `drop-shadow(0 0 3px ${translucentColor(color, "33")})`;
+    path.style.filter = `drop-shadow(0 0 4px ${translucentColor(color, "44")})`;
   }
 
   const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  dot.setAttribute("r", "3.5");
+  dot.setAttribute("r", "4");
   dot.setAttribute("fill", color);
   dot.style.opacity = "0";
-  dot.style.filter = `drop-shadow(0 0 4px ${color}aa)`;
+  dot.style.filter = `drop-shadow(0 0 6px ${color}) drop-shadow(0 0 12px ${color}88)`;
 
   group.append(path, dot);
 
   let labelEl: SVGTextElement | undefined;
   let labelRect: Rect | undefined;
   if (label) {
-    const textWidth = label.length * 6.6 + 10;
+    const textWidth = label.length * 6.8 + 14;
     const placement = placeFlowLabel(points, textWidth, labelObstacles, bounds);
     labelRect = placement.rect;
     const plate = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    const padX = 7;
+    const padX = 8;
     const halfW = textWidth / 2;
     plate.setAttribute("x", String(placement.x - halfW - padX));
-    plate.setAttribute("y", String(placement.y - 9));
+    plate.setAttribute("y", String(placement.y - 10));
     plate.setAttribute("width", String(textWidth + padX * 2));
-    plate.setAttribute("height", "18");
+    plate.setAttribute("height", "20");
     plate.setAttribute("rx", "6");
     plate.setAttribute("fill", theme.labelPlate ?? theme.surface);
-    plate.setAttribute("fill-opacity", "0.9");
-    plate.setAttribute("stroke", theme.hairline ?? `color-mix(in srgb, ${theme.border} 60%, transparent)`);
+    plate.setAttribute("fill-opacity", "0.96");
+    plate.setAttribute("stroke", theme.hairline ?? `color-mix(in srgb, ${theme.border} 70%, transparent)`);
     plate.setAttribute("stroke-width", "1");
     plate.style.opacity = "0";
+    plate.style.filter = "drop-shadow(0 1px 3px rgba(0,0,0,0.12))";
     group.appendChild(plate);
     labelEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
     labelEl.setAttribute("x", String(placement.x));
-    labelEl.setAttribute("y", String(placement.y));
+    labelEl.setAttribute("y", String(placement.y + 0.5));
     labelEl.setAttribute("text-anchor", "middle");
     labelEl.setAttribute("dominant-baseline", "middle");
     labelEl.setAttribute("font-size", "11");
+    labelEl.setAttribute("font-weight", "500");
+    labelEl.setAttribute("letter-spacing", "0.02em");
     labelEl.setAttribute("font-family", "ui-monospace, SFMono-Regular, Menlo, monospace");
     labelEl.setAttribute("fill", theme.text);
     labelEl.textContent = label;
     labelEl.style.opacity = "0";
     group.appendChild(labelEl);
-    // Reveal the plate together with the label text.
     (labelEl as unknown as { __plate?: SVGRectElement }).__plate = plate;
   }
 
@@ -302,21 +306,36 @@ export function animateEdgeReveal(runtime: EdgeRuntime, startMs: number, durMs: 
     path.style.strokeDashoffset = String(pathLen);
   }
 
-  const drawMs = Math.min(220, durMs * 0.5);
-  anims.push(group.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 120, delay: startMs, fill: "forwards" }));
+  const drawMs = Math.min(260, durMs * 0.65);
+  anims.push(
+    group.animate(
+      [{ opacity: 0 }, { opacity: 1 }],
+      { duration: 140, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+    ),
+  );
   if (runtime.drawReveal) {
     anims.push(
       path.animate(
         [{ strokeDashoffset: pathLen }, { strokeDashoffset: 0 }],
-        { duration: drawMs, delay: startMs, fill: "forwards", easing: "ease-out" },
+        { duration: drawMs, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
       ),
     );
   }
 
   if (label) {
-    anims.push(label.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, delay: startMs + 80, fill: "forwards" }));
+    anims.push(
+      label.animate(
+        [{ opacity: 0 }, { opacity: 1 }],
+        { duration: 200, delay: startMs + 90, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+      ),
+    );
     if (runtime.labelPlate) {
-      anims.push(runtime.labelPlate.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 180, delay: startMs + 80, fill: "forwards" }));
+      anims.push(
+        runtime.labelPlate.animate(
+          [{ opacity: 0 }, { opacity: 1 }],
+          { duration: 200, delay: startMs + 90, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+        ),
+      );
     }
   }
 
@@ -326,7 +345,7 @@ export function animateEdgeReveal(runtime: EdgeRuntime, startMs: number, durMs: 
         duration: Math.max(drawMs, durMs),
         delay: startMs,
         fill: "forwards",
-        easing: "ease-in-out",
+        easing: "cubic-bezier(0.2, 0.85, 0.4, 1)",
       }),
     );
   }
@@ -457,14 +476,14 @@ export function buildCueAnimations(
         if (el) {
           anims.push(
             el.animate(
-              [{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "translateY(0)" }],
-              { duration: durMs, delay, fill: "forwards", easing: "ease-out" },
+              [{ opacity: 0, transform: "translateY(10px) scale(0.98)" }, { opacity: 1, transform: "translateY(0) scale(1)" }],
+              { duration: durMs, delay, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
             ),
           );
           return;
         }
         const runtime = edgeRuntimes.get(id);
-        if (runtime) anims.push(runtime.group.animate([{ opacity: 0 }, { opacity: 1 }], { duration: durMs, delay, fill: "forwards", easing: "ease-out" }));
+        if (runtime) anims.push(runtime.group.animate([{ opacity: 0 }, { opacity: 1 }], { duration: durMs, delay, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" }));
       });
       continue;
     }
@@ -497,7 +516,7 @@ export function buildCueAnimations(
                 { filter: `drop-shadow(0 0 ${Math.max(4, 4 + strength * 5)}px ${glowColor}) brightness(${peak})` },
                 { filter: "brightness(1)" },
               ],
-              { duration: durMs, delay: startMs, fill: "none", easing: "ease-in-out" },
+              { duration: durMs, delay: startMs, fill: "none", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
             ),
           );
           continue;
@@ -520,7 +539,7 @@ export function buildCueAnimations(
                 { transform: `scale(${zoom})`, filter: "drop-shadow(0 0 7px var(--md-accent))" },
                 { transform: "scale(1)", filter: "none" },
               ],
-              { duration: durMs, delay: startMs, fill: "none", easing: "ease-in-out" },
+              { duration: durMs, delay: startMs, fill: "none", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
             ),
           );
           continue;
@@ -546,7 +565,7 @@ export function buildCueAnimations(
       anims.push(
         scene.animate(
           [{ transform: cameraTransform }, { transform: nextTransform }],
-          { duration: durMs, delay: startMs, fill: "forwards", easing: "ease-in-out" },
+          { duration: durMs, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
         ),
       );
       cameraTransform = nextTransform;
@@ -578,6 +597,21 @@ export function buildCueAnimations(
         if (edgeId) edgeRuntimes.set(edgeId, runtime);
       }
       anims.push(...animateEdgeReveal(runtime, startMs, durMs));
+
+      // Destination arrival micro-pulse on target node
+      const toEl = nodeEls.get(seg.to);
+      if (toEl) {
+        anims.push(
+          toEl.animate(
+            [
+              { transform: "scale(1)", filter: "none" },
+              { transform: "scale(1.02)", filter: `drop-shadow(0 0 8px ${translucentColor(runtime.color, "66")})` },
+              { transform: "scale(1)", filter: "none" },
+            ],
+            { duration: 280, delay: startMs + durMs * 0.75, fill: "none", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+          ),
+        );
+      }
     }
   }
 

@@ -16,6 +16,7 @@ import {
 } from "../src/geometry/rect.js";
 import type { Rect } from "../src/geometry/rect.js";
 import {
+  cleanCollinearPoints,
   labelPointForPath,
   placeFlowLabel,
   pointAtDistance,
@@ -142,13 +143,14 @@ describe("polyline measurement", () => {
 
   it("emits compact SVG path data", () => {
     expect(toPathD(path, 0)).toBe("M 0 0 L 30 0 L 30 40");
-    expect(toPathD(path)).toMatch(/^M 0 0 L 22 0 Q 30 0 30 8 L 30 40$/);
+    expect(toPathD(path, 8)).toMatch(/^M 0 0 L 22 0 Q 30 0 30 8 L 30 40$/);
+    expect(toPathD(path)).toMatch(/^M 0 0 L 16 0 Q 30 0 30 14 L 30 40$/);
     expect(round1(12.349)).toBe(12.3);
   });
 
   it("places labels on the longest segment with lane-aware offset", () => {
-    expect(labelPointForPath(path, 0)).toEqual({ x: 40, y: 20 });
-    expect(labelPointForPath(path, 2)).toEqual({ x: 56, y: 20 });
+    expect(labelPointForPath(path, 0)).toEqual({ x: 42, y: 20 });
+    expect(labelPointForPath(path, 2)).toEqual({ x: 62, y: 20 });
   });
 });
 
@@ -190,5 +192,46 @@ describe("routeOrthogonal", () => {
     const second = routeOrthogonal(from, to, [], BOUNDS, 1);
     expect(second[0].y).not.toBe(first[0].y);
     expect(second[1].y).not.toBe(first[1].y);
+  });
+
+  it("produces perpendicular stubs when routing doglegs between offset cards", () => {
+    const from = boxRect({ x: 100, y: 100, width: 120, height: 60 });
+    const to = boxRect({ x: 400, y: 300, width: 120, height: 60 });
+    const route = routeOrthogonal(from, to, [], BOUNDS);
+    expect(route.length).toBeGreaterThanOrEqual(4);
+    // Initial segment must exit horizontally with a straight stub before turning
+    expect(route[1].y).toBe(route[0].y);
+    expect(route[1].x).toBeGreaterThan(route[0].x);
+    // Final segment must enter horizontally with a straight stub
+    const last = route[route.length - 1];
+    const prev = route[route.length - 2];
+    expect(prev.y).toBe(last.y);
+    expect(prev.x).toBeLessThan(last.x);
+  });
+});
+
+describe("cleanCollinearPoints", () => {
+  it("removes redundant intermediate points on a horizontal line", () => {
+    const raw = [{ x: 0, y: 50 }, { x: 50, y: 50 }, { x: 100, y: 50 }, { x: 200, y: 50 }];
+    const cleaned = cleanCollinearPoints(raw);
+    expect(cleaned).toEqual([{ x: 0, y: 50 }, { x: 200, y: 50 }]);
+  });
+
+  it("removes redundant intermediate points on a vertical line", () => {
+    const raw = [{ x: 50, y: 0 }, { x: 50, y: 30 }, { x: 50, y: 100 }];
+    const cleaned = cleanCollinearPoints(raw);
+    expect(cleaned).toEqual([{ x: 50, y: 0 }, { x: 50, y: 100 }]);
+  });
+
+  it("preserves corner turn points in an L-shaped or Z-shaped path", () => {
+    const raw = [{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 200 }];
+    const cleaned = cleanCollinearPoints(raw);
+    expect(cleaned).toEqual([{ x: 0, y: 0 }, { x: 100, y: 0 }, { x: 100, y: 200 }]);
+  });
+
+  it("removes duplicate consecutive points", () => {
+    const raw = [{ x: 10, y: 10 }, { x: 10, y: 10 }, { x: 50, y: 10 }];
+    const cleaned = cleanCollinearPoints(raw);
+    expect(cleaned).toEqual([{ x: 10, y: 10 }, { x: 50, y: 10 }]);
   });
 });

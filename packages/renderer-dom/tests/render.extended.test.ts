@@ -13,6 +13,8 @@ import { mountGroupBoundaries } from "../src/groups";
 import { createNodeEl, ICON_REGISTRY } from "../src/nodes";
 import { selfLoopPath } from "../src/geometry/path";
 import { mountConstellationLayer } from "../src/constellation";
+import { mountRadarLayer } from "../src/radar";
+import { mountTimelineLayer } from "../src/timeline";
 import { mountSequenceLayer } from "../src/sequence";
 
 const SAMPLE = `
@@ -419,5 +421,35 @@ describe("diagram render plan", () => {
     const node = { id: "Loop", kind: "state", role: "flow", label: "Loop", x: 200, y: 200, width: 168, height: 72, opacity: 1 };
     const points = selfLoopPath(node);
     expect(points.length).toBeGreaterThan(3);
+  });
+
+  it("renders radar web axes, concentric rings, and benchmark polygon", () => {
+    const layer = document.createElement("div");
+    const nodes = [
+      { id: "A", kind: "metric", role: "data", label: "Metric A", x: 500, y: 100, width: 140, height: 50, opacity: 1 },
+      { id: "B", kind: "metric", role: "data", label: "Metric B", x: 750, y: 300, width: 140, height: 50, opacity: 1 },
+      { id: "C", kind: "metric", role: "data", label: "Metric C", x: 650, y: 550, width: 140, height: 50, opacity: 1 },
+      { id: "D", kind: "metric", role: "data", label: "Metric D", x: 350, y: 550, width: 140, height: 50, opacity: 1 },
+      { id: "E", kind: "metric", role: "data", label: "Metric E", x: 250, y: 300, width: 140, height: 50, opacity: 1 },
+    ];
+    mountRadarLayer(layer, nodes, THEMES.default, { width: 1000, height: 700 });
+    // 5 radial spoke lines
+    expect(layer.querySelectorAll("line")).toHaveLength(5);
+    // 3 concentric polygon rings + 1 benchmark area polygon = 4 polygons
+    expect(layer.querySelectorAll("polygon")).toHaveLength(4);
+  });
+
+  it("renders milestone timeline horizontal track, vertical stems, and milestone pips", () => {
+    const layer = document.createElement("div");
+    const nodes = [
+      { id: "M1", kind: "milestone", role: "flow", label: "v1.0", x: 100, y: 200, width: 140, height: 50, opacity: 1 },
+      { id: "M2", kind: "milestone", role: "flow", label: "v2.0", x: 400, y: 440, width: 140, height: 50, opacity: 1, focal: true },
+      { id: "M3", kind: "milestone", role: "flow", label: "v3.0", x: 700, y: 200, width: 140, height: 50, opacity: 1 },
+    ];
+    mountTimelineLayer(layer, nodes, THEMES.editorial, { width: 1000, height: 700 });
+    // 1 baseline line + 3 vertical stem lines = 4 lines
+    expect(layer.querySelectorAll("line")).toHaveLength(4);
+    // 3 milestone circle pips
+    expect(layer.querySelectorAll("circle")).toHaveLength(3);
   });
 });

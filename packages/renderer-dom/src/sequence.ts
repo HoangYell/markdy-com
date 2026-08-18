@@ -112,12 +112,12 @@ export function mountSequenceLayer(
     lifeline.classList.add("markdy-sequence-lifeline");
     lifeline.setAttribute("x1", String(x));
     lifeline.setAttribute("x2", String(x));
-    lifeline.setAttribute("y1", String(node.y + node.height + 12));
-    lifeline.setAttribute("y2", String(bounds.height - 28));
-    lifeline.setAttribute("stroke", theme.rule ?? theme.soft ?? theme.border);
-    lifeline.setAttribute("stroke-width", "1");
-    lifeline.setAttribute("stroke-dasharray", "4 5");
-    lifeline.setAttribute("opacity", "0.75");
+    lifeline.setAttribute("y1", String(node.y + node.height + 8));
+    lifeline.setAttribute("y2", String(bounds.height - 32));
+    lifeline.setAttribute("stroke", theme.hairline ?? theme.border);
+    lifeline.setAttribute("stroke-width", "1.2");
+    lifeline.setAttribute("stroke-dasharray", "4 6");
+    lifeline.setAttribute("opacity", "0.85");
     svg.appendChild(lifeline);
   }
 
@@ -125,13 +125,14 @@ export function mountSequenceLayer(
     const x = centerX(activation.participant);
     const bar = doc.createElementNS("http://www.w3.org/2000/svg", "rect");
     bar.classList.add("markdy-sequence-activation");
-    bar.setAttribute("x", String(x - 5));
+    bar.setAttribute("x", String(x - 6));
     bar.setAttribute("y", String(activation.y));
-    bar.setAttribute("width", "10");
+    bar.setAttribute("width", "12");
     bar.setAttribute("height", String(activation.height));
-    bar.setAttribute("rx", "3");
+    bar.setAttribute("rx", "4");
     bar.setAttribute("fill", theme.accent);
     bar.setAttribute("opacity", "0");
+    bar.style.filter = `drop-shadow(0 0 6px ${theme.accent}66)`;
     svg.appendChild(bar);
   }
 
@@ -163,17 +164,19 @@ export function mountSequenceLayer(
     if (message.label) {
       const midX = (fromX + toX) / 2;
       const plate = doc.createElementNS("http://www.w3.org/2000/svg", "rect");
-      const width = message.label.length * 6.6 + 16;
+      const width = message.label.length * 6.8 + 16;
       plate.setAttribute("x", String(midX - width / 2));
-      plate.setAttribute("y", String(message.y - 24));
+      plate.setAttribute("y", String(message.y - 25));
       plate.setAttribute("width", String(width));
-      plate.setAttribute("height", "18");
-      plate.setAttribute("rx", "5");
+      plate.setAttribute("height", "20");
+      plate.setAttribute("rx", "6");
       plate.setAttribute("fill", theme.labelPlate ?? theme.surface);
-      plate.setAttribute("stroke", theme.hairline ?? theme.border);
+      plate.setAttribute("fill-opacity", "0.96");
+      plate.setAttribute("stroke", theme.hairline ?? `color-mix(in srgb, ${theme.border} 70%, transparent)`);
       plate.setAttribute("stroke-width", "1");
+      plate.style.filter = "drop-shadow(0 1px 3px rgba(0,0,0,0.12))";
       group.appendChild(plate);
-      group.appendChild(createText(doc, midX, message.y - 15, message.label, theme));
+      group.appendChild(createText(doc, midX, message.y - 14.5, message.label, theme));
     }
 
     svg.appendChild(group);

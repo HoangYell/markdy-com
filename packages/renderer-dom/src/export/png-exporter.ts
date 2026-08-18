@@ -8,7 +8,6 @@
  * canvas whenever it references any external URL, so every resource must be
  * inlined first.
  */
-import html2canvas from "html2canvas";
 import {
   exportDiagramAsVectorSvg,
   getDiagramSceneElement,
@@ -101,6 +100,8 @@ export async function rasterizeDiagramToCanvas(
 
     try {
       await document.fonts?.ready;
+      const html2canvasModule = await import("html2canvas");
+      const html2canvas = html2canvasModule.default ?? html2canvasModule;
       return await html2canvas(clonedScene, {
         allowTaint: false,
         backgroundColor: options.transparentBackground ? null : undefined,

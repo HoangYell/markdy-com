@@ -357,4 +357,85 @@ beat b1:
     expect(toolbar2).toBeNull();
     diagram2.destroy();
   });
+
+  it("mounts and destroys diagrams across all supported diagram archetypes without throwing", () => {
+    const archetypes = [
+      "architecture",
+      "flowchart",
+      "tree",
+      "sequence",
+      "state",
+      "constellation",
+      "loop",
+      "flywheel",
+      "medallion",
+      "quadrant",
+      "swimlane",
+      "pyramid",
+      "radar",
+      "timeline",
+      "gantt",
+      "venn",
+      "layers",
+      "nested",
+    ];
+
+    for (const dtype of archetypes) {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+      const code = `
+scene "Test ${dtype}" type=${dtype} theme=paper width=1000 height=700
+service A "Node Alpha" focal=true
+service B "Node Beta"
+service C "Node Gamma"
+
+beat main:
+  show $nodes
+  A -> B "flow" -> C
+`;
+      const diagram = createDiagram({
+        container,
+        code,
+        autoplay: false,
+        controls: false,
+      });
+
+      expect(container.querySelector(".markdy-scene-root")).not.toBeNull();
+      expect(container.querySelectorAll(".markdy-node").length).toBeGreaterThan(0);
+      expect(() => diagram.seek(0.5)).not.toThrow();
+      expect(() => diagram.destroy()).not.toThrow();
+      container.remove();
+    }
+  });
+
+  it("mounts and destroys diagrams across all 8 registered themes cleanly", () => {
+    const themes = ["midnight", "paper", "blueprint", "graphite", "editorial", "nebula", "terminal", "sketchy"];
+
+    for (const themeName of themes) {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+      const code = `
+scene "Theme ${themeName}" theme=${themeName} width=900 height=600
+service API "API Gateway" focal=true
+database DB "PostgreSQL"
+
+beat main:
+  show $nodes
+  API -> DB "query"
+`;
+      const diagram = createDiagram({
+        container,
+        code,
+        autoplay: false,
+        controls: false,
+      });
+
+      const sceneRoot = container.querySelector<HTMLElement>(".markdy-scene-root");
+      expect(sceneRoot).not.toBeNull();
+      expect(sceneRoot?.dataset.markdyTheme).toBe(themeName);
+      expect(() => diagram.seek(1)).not.toThrow();
+      expect(() => diagram.destroy()).not.toThrow();
+      container.remove();
+    }
+  });
 });

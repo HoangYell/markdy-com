@@ -10,6 +10,8 @@ import {
 } from "./edges.js";
 import { mountAnnotations } from "./annotations.js";
 import { mountConstellationLayer } from "./constellation.js";
+import { mountRadarLayer } from "./radar.js";
+import { mountTimelineLayer } from "./timeline.js";
 import { mountGroupBoundaries } from "./groups.js";
 import { createNodeEl, createTitleEl, ensureNodeStyles } from "./nodes.js";
 import { mountSequenceLayer } from "./sequence.js";
@@ -326,6 +328,20 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       plan.theme,
       { width: plan.meta.width, height: plan.meta.height },
     );
+  } else if (plan.diagramType === "radar") {
+    mountRadarLayer(
+      constellationLayer,
+      plan.nodes,
+      plan.theme,
+      { width: plan.meta.width, height: plan.meta.height },
+    );
+  } else if (plan.diagramType === "timeline") {
+    mountTimelineLayer(
+      constellationLayer,
+      plan.nodes,
+      plan.theme,
+      { width: plan.meta.width, height: plan.meta.height },
+    );
   }
 
   const groupLayer = document.createElement("div");
@@ -429,20 +445,9 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
     const canvasScaleX = vWidth / plan.meta.width;
     const canvasScaleY = vHeight / plan.meta.height;
-    const baseCanvasScale = Math.min(canvasScaleX, canvasScaleY);
+    fitScale = Math.min(canvasScaleX, canvasScaleY);
 
-    const bounds = computeContentBounds();
-    const contentScaleX = (vWidth * 0.94) / bounds.width;
-    const contentScaleY = (vHeight * 0.94) / bounds.height;
-    const optimalContentScale = Math.min(contentScaleX, contentScaleY);
-
-    // Boost compact scenes (up to 1.45x of base canvas scale) so nodes and labels fill the container boldly
-    const chosenScale = Math.max(
-      baseCanvasScale,
-      Math.min(optimalContentScale, baseCanvasScale * 1.45),
-    );
-
-    fitScale = Number.isFinite(chosenScale) && chosenScale > 0 ? chosenScale : 1;
+    if (!Number.isFinite(fitScale) || fitScale <= 0) fitScale = 1;
 
     const scaledWidth = plan.meta.width * fitScale;
     const scaledHeight = plan.meta.height * fitScale;
