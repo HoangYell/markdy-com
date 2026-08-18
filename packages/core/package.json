@@ -1,6 +1,6 @@
 {
   "name": "@markdy/core",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Diagram-native MarkdyScript parser and compiler (auto-layout, edge routing, cue scheduling) — zero runtime dependencies.",
   "license": "MIT",
   "type": "module",
