@@ -28,6 +28,12 @@ import {
   RESERVED_SELECTORS,
   SCENE_KEYS,
 } from "./registry.js";
+import {
+  applyPlayerSetting,
+  parseBooleanToken,
+  PLAYER_FLAT_KEYS,
+  type PlayerScope,
+} from "./player.js";
 import { compilePlan } from "./compiler.js";
 import { resolveTheme } from "./themes.js";
 
@@ -483,16 +489,39 @@ function readIndentedBody(blocks: Block[], startIdx: number, parentIndent: numbe
   return { body, nextIdx: i };
 }
 
-function parseBooleanToken(raw: unknown): boolean | undefined {
-  if (typeof raw === "boolean") return raw;
-  const s = String(raw).trim().toLowerCase();
-  if (["true", "on", "yes", "1"].includes(s)) return true;
-  if (["false", "off", "no", "0"].includes(s)) return false;
-  return undefined;
-}
+const PLAYER_KEYWORDS = [...PLAYER_FLAT_KEYS].sort((a, b) => b.length - a.length).join("|");
 
-const TOP_LEVEL_KEYWORDS_RE =
-  /^(scene|layout|pattern|group|annotation|edge|beat|var|style|controls|interactive|interactiveViewport|interactive_viewport|autoplay|loop|copyright|playbackRate|playback_rate|speed|progressColor|progressBarColor|progress_color|progress_bar_color|progress|progressBar)\b/;
+const TOP_LEVEL_KEYWORDS_RE = new RegExp(
+  `^(scene|player|layout|pattern|group|annotation|edge|beat|var|style|${PLAYER_KEYWORDS})\\b`,
+);
+
+const PLAYER_DIRECTIVE_RE = new RegExp(`^(${PLAYER_KEYWORDS})\\b(?:\\s*[:=]?\\s*(.+))?$`);
+
+const PLAYER_GROUP_RE = /^(playback|controls|interaction|chrome)\s*:\s*$/;
+
+const PLAYER_SETTING_RE = /^(\w+)(?:\s*[:=]\s*|\s+)?(.*)$/;
+
+const PLAYER_FLAT_KEY_SET = new Set(PLAYER_FLAT_KEYS);
+
+/** `player` is the source of truth; deprecated SceneMeta fields mirror it. */
+function mirrorLegacySceneMeta(meta: SceneMeta): SceneMeta {
+  const player = meta.player;
+  if (!player) return meta;
+  const { playback, controls, interaction, chrome } = player;
+
+  if (playback?.autoplay !== undefined) meta.autoplay = playback.autoplay;
+  if (playback?.loop !== undefined) meta.loop = playback.loop;
+  if (playback?.rate !== undefined) meta.playbackRate = playback.rate;
+  if (controls) meta.controls = Object.values(controls).some(Boolean);
+  if (interaction) {
+    meta.interactiveViewport = Boolean(interaction.zoom ?? true) || Boolean(interaction.pan ?? true);
+  }
+  if (chrome?.badge !== undefined) meta.copyright = chrome.badge;
+  if (chrome?.progress === "none") meta.progressColor = "none";
+  else if (chrome?.progressColor !== undefined) meta.progressColor = chrome.progressColor;
+
+  return meta;
+}
 
 /**
  * True for statements that open a new top-level construct. Used to recover
@@ -814,6 +843,38 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
     const unsupportedMessage = unsupportedSyntaxMessage(line);
     if (unsupportedMessage) throw new ParseError(unsupportedMessage, lineNo);
 
+    if (/^player\s*:\s*$/.test(line)) {
+      const { body, nextIdx } = readIndentedBody(blocks, i + 1, block.indent);
+      if (body.length === 0) throw new ParseError("player block requires at least one setting", lineNo);
+      const player = (meta.player ??= {});
+
+      const applySetting = (scope: PlayerScope, setting: Block): void => {
+        const match = setting.text.match(PLAYER_SETTING_RE);
+        const error = applyPlayerSetting(player, scope, match?.[1] ?? "", match?.[2] ?? "");
+        if (error) diagnostics.push({ severity: "warning", message: error, line: setting.line });
+      };
+
+      let settingIdx = 0;
+      while (settingIdx < body.length) {
+        const setting = body[settingIdx];
+        const groupMatch = setting.text.match(PLAYER_GROUP_RE);
+        if (groupMatch) {
+          const scope = groupMatch[1] as PlayerScope;
+          const { body: childBody, nextIdx: childNextIdx } = readIndentedBody(body, settingIdx + 1, setting.indent);
+          if (childBody.length === 0) {
+            throw new ParseError(`player ${scope} block requires at least one setting`, setting.line);
+          }
+          for (const child of childBody) applySetting(scope, child);
+          settingIdx = childNextIdx;
+          continue;
+        }
+        applySetting("player", setting);
+        settingIdx++;
+      }
+      i = nextIdx;
+      continue;
+    }
+
     if (line.startsWith("scene")) {
       const rest = line.slice(5).trim();
       if (line.endsWith("{")) {
@@ -840,28 +901,9 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
         else if (k === "duration") meta.duration = Number(v);
         else if (k === "theme") meta.theme = String(v);
         else if (k === "direction" || k === "layout") meta.direction = String(v).toUpperCase() as LayoutDirection;
-        else if (k === "progressColor" || k === "progressBarColor" || k === "progress_color" || k === "progress_bar_color" || k === "progress") {
-          meta.progressColor = String(v);
-        } else if (k === "progressBar" || k === "sceneBoundaryProgress") {
-          const bool = parseBooleanToken(v);
-          if (bool !== undefined) {
-            if (!bool) meta.progressColor = "none";
-          } else {
-            meta.progressColor = String(v);
-          }
-        } else if (k === "controls") {
-          meta.controls = parseBooleanToken(v) ?? true;
-        } else if (k === "interactive" || k === "interactiveViewport" || k === "interactive_viewport") {
-          meta.interactiveViewport = parseBooleanToken(v) ?? true;
-        } else if (k === "autoplay") {
-          meta.autoplay = parseBooleanToken(v) ?? true;
-        } else if (k === "loop") {
-          meta.loop = parseBooleanToken(v) ?? true;
-        } else if (k === "copyright") {
-          meta.copyright = parseBooleanToken(v) ?? true;
-        } else if (k === "playbackRate" || k === "playback_rate" || k === "speed") {
-          const r = Number(v);
-          if (!Number.isNaN(r) && r > 0) meta.playbackRate = r;
+        else if (PLAYER_FLAT_KEY_SET.has(k)) {
+          const error = applyPlayerSetting((meta.player ??= {}), "player", k, String(v));
+          if (error) diagnostics.push({ severity: "warning", message: error, line: lineNo });
         } else if (k === "type") {
           const t = String(v).toLowerCase();
           if (!DIAGRAM_TYPES.has(t)) {
@@ -875,47 +917,10 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
       continue;
     }
 
-    const directiveMatch = line.match(
-      /^(controls|interactive|interactiveViewport|interactive_viewport|autoplay|loop|copyright|playbackRate|playback_rate|speed|progressColor|progressBarColor|progress_color|progress_bar_color|progress|progressBar)\b(?:\s*[:=]?\s*(.+))?$/,
-    );
+    const directiveMatch = line.match(PLAYER_DIRECTIVE_RE);
     if (directiveMatch) {
-      const keyword = directiveMatch[1];
-      const rawVal = (directiveMatch[2] ?? "").trim();
-      const val =
-        (rawVal.startsWith('"') && rawVal.endsWith('"')) || (rawVal.startsWith("'") && rawVal.endsWith("'"))
-          ? rawVal.slice(1, -1)
-          : rawVal;
-
-      if (keyword === "controls") {
-        meta.controls = val ? (parseBooleanToken(val) ?? true) : true;
-      } else if (
-        keyword === "interactive" ||
-        keyword === "interactiveViewport" ||
-        keyword === "interactive_viewport"
-      ) {
-        meta.interactiveViewport = val ? (parseBooleanToken(val) ?? true) : true;
-      } else if (keyword === "autoplay") {
-        meta.autoplay = val ? (parseBooleanToken(val) ?? true) : true;
-      } else if (keyword === "loop") {
-        meta.loop = val ? (parseBooleanToken(val) ?? true) : true;
-      } else if (keyword === "copyright") {
-        meta.copyright = val ? (parseBooleanToken(val) ?? true) : true;
-      } else if (keyword === "playbackRate" || keyword === "playback_rate" || keyword === "speed") {
-        const r = Number(val);
-        if (!Number.isNaN(r) && r > 0) meta.playbackRate = r;
-      } else if (
-        keyword === "progressColor" ||
-        keyword === "progressBarColor" ||
-        keyword === "progress_color" ||
-        keyword === "progress_bar_color" ||
-        keyword === "progress"
-      ) {
-        if (val) meta.progressColor = val;
-      } else if (keyword === "progressBar") {
-        const bool = parseBooleanToken(val);
-        if (bool === false) meta.progressColor = "none";
-        else if (val) meta.progressColor = val;
-      }
+      const error = applyPlayerSetting((meta.player ??= {}), "player", directiveMatch[1], directiveMatch[2] ?? "");
+      if (error) diagnostics.push({ severity: "warning", message: error, line: lineNo });
       i++;
       continue;
     }
@@ -1085,7 +1090,7 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
   }
 
   const ast: DiagramAST = {
-    meta: { ...meta, title: title || undefined },
+    meta: { ...mirrorLegacySceneMeta(meta), title: title || undefined },
     styles,
     nodes,
     edges,

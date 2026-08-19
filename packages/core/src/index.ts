@@ -15,6 +15,13 @@ export type {
   NodeDecl,
   NodeShape,
   PatternDecl,
+  PlayerConfig,
+  PlayerChromeConfig,
+  PlayerControlsConfig,
+  PlayerInteractionConfig,
+  PlayerPlaybackConfig,
+  PlayerProgress,
+  ResolvedPlayer,
   PositionedNode,
   RenderPlan,
   RoutedEdge,
@@ -29,6 +36,9 @@ export type {
 
 export { parse, compile, parseAndCompile, ParseError, compilePlan } from "./parser.js";
 export type { ParseOptions, ParseResult } from "./parser.js";
+
+export { resolvePlayer, applyPlayerSetting, PLAYER_GROUPS, PLAYER_FLAT_KEYS } from "./player.js";
+export type { PlayerOverrides, PlayerScope } from "./player.js";
 
 export { resolveTheme, THEMES } from "./themes.js";
 export { generateThemeFromBrand } from "./theme-generator.js";

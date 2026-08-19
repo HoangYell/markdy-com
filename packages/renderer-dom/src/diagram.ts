@@ -1,7 +1,14 @@
 /**
  * Markdy diagram runtime — renders a RenderPlan via WAAPI.
  */
-import { parseAndCompile, type BeatRange, type Diagnostic } from "@markdy/core";
+import {
+  compressMarkdyToUrlHash,
+  parseAndCompile,
+  resolvePlayer,
+  type BeatRange,
+  type Diagnostic,
+  type PlayerProgress,
+} from "@markdy/core";
 import {
   buildCueAnimations,
   buildStructuralEdgeAnimations,
@@ -19,11 +26,11 @@ import { mountTreeBuses } from "./tree.js";
 import { applyThemeToScene, ensureSceneStyles } from "./theme.js";
 
 const NORMAL_PLAYBACK_RATE = 4 / 5;
-const DEFAULT_PLAYBACK_RATE = 1;
 const MIN_VIEWPORT_ZOOM = 0.5;
 const MAX_VIEWPORT_ZOOM = 3;
 const VIEWPORT_ZOOM_STEP = 0.0015;
 const DRAG_CLICK_THRESHOLD_PX = 4;
+const BEAT_NAV_EPSILON_S = 0.05;
 const MARKDY_PLAYGROUND_URL = "https://markdy.com/playground/";
 
 function encodeCodeForPlaygroundHash(code: string): string {
@@ -54,6 +61,8 @@ export interface DiagramOptions {
   playbackRate?: number;
   /** Enable wheel zoom and drag pan on the rendered viewport. Defaults to false. */
   interactiveViewport?: boolean;
+  /** Base URL for the Share control. Defaults to the Markdy playground. */
+  shareUrl?: string;
   /** Show built-in playback and viewport controls. Also enables viewport interaction. Defaults to false. */
   controls?: boolean;
   onWarning?: (warning: Diagnostic) => void;
@@ -73,6 +82,8 @@ export interface Diagram {
   isPlaying(): boolean;
   beats(): BeatRange[];
   seekToBeat(name: string): void;
+  nextBeat(): void;
+  prevBeat(): void;
   destroy(): void;
 }
 
@@ -126,6 +137,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     playbackRate: initialPlaybackRate,
     controls: explicitControls,
     interactiveViewport: explicitInteractiveViewport,
+    shareUrl,
     autoplay: explicitAutoplay,
     loop: explicitLoop,
     copyright: explicitCopyright,
@@ -140,34 +152,60 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     if (w.severity === "warning") onWarning(w);
   }
 
-  const controls = explicitControls ?? plan.meta.controls ?? false;
-  const interactiveViewport =
-    explicitInteractiveViewport ??
-    (explicitControls !== undefined ? explicitControls : (plan.meta.interactiveViewport ?? plan.meta.controls ?? false));
-  const autoplay = explicitAutoplay ?? plan.meta.autoplay ?? true;
-  const loop = explicitLoop ?? plan.meta.loop ?? true;
-  const copyright = explicitCopyright ?? plan.meta.copyright ?? true;
-
-  const rawPlaybackRate = initialPlaybackRate ?? plan.meta.playbackRate ?? DEFAULT_PLAYBACK_RATE;
-  let playbackRate = Number.isFinite(rawPlaybackRate) && rawPlaybackRate > 0 ? rawPlaybackRate : DEFAULT_PLAYBACK_RATE;
-
-  const showSceneBoundaryProgress =
+  const hostProgress: PlayerProgress | undefined =
     sceneBoundaryProgress === false || (sceneBoundaryProgress === undefined && progressBar === false)
-      ? false
-      : plan.meta.progressColor === "none"
-        ? false
-        : true;
-
-  const rawColor =
+      ? "none"
+      : undefined;
+  const hostProgressColor =
     progressColor ??
     progressBarColor ??
     (typeof sceneBoundaryProgress === "string" && sceneBoundaryProgress !== "true" && sceneBoundaryProgress !== "false"
       ? sceneBoundaryProgress
       : typeof progressBar === "string" && progressBar !== "true" && progressBar !== "false"
         ? progressBar
-        : undefined) ??
-    (plan.meta.progressColor && plan.meta.progressColor !== "none" ? plan.meta.progressColor : undefined);
+        : undefined);
 
+  const player = resolvePlayer(plan.meta.player, {
+    autoplay: explicitAutoplay,
+    loop: explicitLoop,
+    playbackRate: initialPlaybackRate,
+    copyright: explicitCopyright,
+    controls: explicitControls,
+    interactiveViewport: explicitInteractiveViewport,
+    progress: hostProgress,
+    progressColor: hostProgressColor,
+  });
+
+  const { autoplay, loop } = player.playback;
+  const {
+    enabled: interactiveViewport,
+    zoom: allowZoom,
+    pan: allowPan,
+    clickToPlay,
+    doubleClickToReset,
+    keyboard: keyboardShortcuts,
+  } = player.interaction;
+  const {
+    enabled: showControls,
+    play: playButton,
+    restart: restartButton,
+    prevBeat: prevBeatButton,
+    nextBeat: nextBeatButton,
+    seek: seekBar,
+    speed: speedControls,
+    speeds: speedOptions,
+    fit: fitViewButton,
+    resetView: resetViewButton,
+    svg: svgButton,
+    share: shareButton,
+  } = player.controls;
+  const copyright = player.chrome.badge;
+  const progressMode = player.chrome.progress;
+  const showProgress = progressMode !== "none";
+
+  let playbackRate = player.playback.rate;
+
+  const rawColor = player.chrome.progressColor;
   const customColor = rawColor && rawColor.trim() !== "rainbow" ? rawColor.trim() : null;
   const DEFAULT_RAINBOW =
     "hsl(0,90%,60%), hsl(45,90%,55%), hsl(90,80%,50%), hsl(180,80%,50%), hsl(270,80%,55%), hsl(330,90%,60%)";
@@ -190,11 +228,11 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   container.appendChild(viewport);
 
   let progressEl: HTMLElement | null = null;
-  if (showSceneBoundaryProgress) {
+  if (showProgress) {
     progressEl = document.createElement("div");
     Object.assign(progressEl.style, {
       position: "absolute",
-      inset: "0",
+      ...(progressMode === "bar" ? { left: "0", right: "0", bottom: "0", height: "3px" } : { inset: "0" }),
       zIndex: "9999",
       pointerEvents: "none",
       borderRadius: "inherit",
@@ -207,6 +245,12 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
   function updateProgressBar(pct: number): void {
     if (!progressEl) return;
+    if (progressMode === "bar") {
+      progressEl.style.background = customColor ?? "#2563eb";
+      progressEl.style.transformOrigin = "left center";
+      progressEl.style.transform = `scaleX(${pct})`;
+      return;
+    }
     const deg = pct * 360;
     const colorStops = customColor
       ? customColor.includes(",")
@@ -520,16 +564,46 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   let suppressNextClick = false;
   let controlsPlayButton: HTMLButtonElement | null = null;
   let controlsRateButtons: HTMLButtonElement[] = [];
+  let controlsSeekBar: HTMLInputElement | null = null;
+  let controlsFitButton: HTMLButtonElement | null = null;
+  let fitViewActive = false;
 
   function applyViewportTransform(): void {
     viewportTransform.style.transform = `translate(${viewportPanX}px, ${viewportPanY}px) scale(${viewportScale})`;
   }
 
   function resetViewportTransform(): void {
+    releaseFitView();
     viewportScale = 1;
     viewportPanX = 0;
     viewportPanY = 0;
     applyViewportTransform();
+  }
+
+  /** Inline `!important` outranks cue animations, pinning the camera. */
+  function releaseFitView(): void {
+    if (!fitViewActive) return;
+    fitViewActive = false;
+    cameraLayer.style.removeProperty("transform");
+  }
+
+  function toggleFitView(): void {
+    if (fitViewActive) {
+      resetViewportTransform();
+      syncControls();
+      return;
+    }
+
+    const bounds = computeContentBounds();
+    const scale = Math.min(plan.meta.width / bounds.width, plan.meta.height / bounds.height);
+    viewportScale = Number.isFinite(scale) && scale > 0 ? scale : 1;
+    viewportPanX = -bounds.minX * viewportScale + (plan.meta.width - bounds.width * viewportScale) / 2;
+    viewportPanY = -bounds.minY * viewportScale + (plan.meta.height - bounds.height * viewportScale) / 2;
+    applyViewportTransform();
+
+    fitViewActive = true;
+    cameraLayer.style.setProperty("transform", "none", "important");
+    syncControls();
   }
 
   function handleViewportWheel(event: WheelEvent): void {
@@ -550,6 +624,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   }
 
   function handleViewportPointerDown(event: PointerEvent): void {
+    if (!allowPan) return;
     if (event.button !== 0 || activePointerId !== null) return;
     activePointerId = event.pointerId;
     dragStartX = event.clientX;
@@ -607,6 +682,13 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       button.style.background = active ? "#1e293b" : "rgba(248, 250, 252, 0.92)";
       button.style.color = active ? "#ffffff" : "#475569";
       button.style.borderColor = active ? "#0f172a" : "rgba(148, 163, 184, 0.55)";
+    }
+    if (controlsSeekBar) controlsSeekBar.value = String(sceneMs / 1000);
+    if (controlsFitButton) {
+      controlsFitButton.setAttribute("aria-pressed", fitViewActive ? "true" : "false");
+      controlsFitButton.style.background = fitViewActive ? "#1e293b" : "rgba(248, 250, 252, 0.92)";
+      controlsFitButton.style.color = fitViewActive ? "#ffffff" : "#475569";
+      controlsFitButton.style.borderColor = fitViewActive ? "#0f172a" : "rgba(148, 163, 184, 0.55)";
     }
   }
 
@@ -688,8 +770,23 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       const beat = plan.beats.find((b) => b.name === name);
       if (beat) diagram.seek(beat.start);
     },
+    nextBeat() {
+      const next = plan.beats.find((beat) => beat.start > sceneMs / 1000 + BEAT_NAV_EPSILON_S);
+      if (next) diagram.seek(next.start);
+    },
+    prevBeat() {
+      const current = sceneMs / 1000;
+      let target = 0;
+      for (const beat of plan.beats) {
+        if (beat.start < current - BEAT_NAV_EPSILON_S) target = beat.start;
+      }
+      diagram.seek(target);
+    },
     destroy() {
       diagram.pause();
+      if (keyboardShortcuts && typeof window !== "undefined") {
+        window.removeEventListener("keydown", handleKeyDown);
+      }
       for (const anim of allAnims) anim.cancel();
       resizeObserver?.disconnect();
       if (progressEl?.parentNode === viewport) viewport.removeChild(progressEl);
@@ -729,6 +826,178 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     return button;
   }
 
+  function mountPlayControl(toolbar: HTMLElement): void {
+    if (!playButton) return;
+    controlsPlayButton = makeControlButton("Play", "Play diagram");
+    controlsPlayButton.className = "markdy-control-play";
+    controlsPlayButton.addEventListener("click", togglePlayback);
+    toolbar.appendChild(controlsPlayButton);
+  }
+
+  function mountBeatNavControls(toolbar: HTMLElement, position: "prev" | "next"): void {
+    const wanted = position === "prev" ? prevBeatButton : nextBeatButton;
+    if (!wanted || plan.beats.length < 2) return;
+    const label = position === "prev" ? "Prev" : "Next";
+    const button = makeControlButton(label, `${label === "Prev" ? "Previous" : "Next"} beat`);
+    button.className = `markdy-control-${position}-beat`;
+    button.addEventListener("click", () => (position === "prev" ? diagram.prevBeat() : diagram.nextBeat()));
+    toolbar.appendChild(button);
+  }
+
+  function mountRestartControl(toolbar: HTMLElement): void {
+    if (!restartButton) return;
+    const button = makeControlButton("Restart", "Restart diagram");
+    button.className = "markdy-control-restart";
+    button.addEventListener("click", () => {
+      diagram.seek(0);
+      diagram.play();
+    });
+    toolbar.appendChild(button);
+  }
+
+  function mountSeekControl(toolbar: HTMLElement): void {
+    if (!seekBar) return;
+    controlsSeekBar = document.createElement("input");
+    controlsSeekBar.className = "markdy-control-seek";
+    controlsSeekBar.type = "range";
+    controlsSeekBar.min = "0";
+    controlsSeekBar.max = String(durationSeconds);
+    controlsSeekBar.step = "0.01";
+    controlsSeekBar.value = String(sceneMs / 1000);
+    controlsSeekBar.setAttribute("aria-label", "Seek diagram timeline");
+    controlsSeekBar.addEventListener("input", () => diagram.seek(Number(controlsSeekBar?.value ?? 0)));
+    toolbar.appendChild(controlsSeekBar);
+  }
+
+  function mountSpeedControls(toolbar: HTMLElement): void {
+    if (!speedControls) return;
+    controlsRateButtons = speedOptions.map((rate) => {
+      const button = makeControlButton(`${rate}x`, `Set playback speed to ${rate}x`);
+      button.className = "markdy-control-rate";
+      button.dataset.rate = String(rate);
+      button.setAttribute("aria-pressed", "false");
+      button.addEventListener("click", () => diagram.setPlaybackRate(rate));
+      toolbar.appendChild(button);
+      return button;
+    });
+  }
+
+  function flashControlLabel(button: HTMLButtonElement, message: string): void {
+    const original = button.textContent ?? "";
+    button.textContent = message;
+    setTimeout(() => {
+      button.textContent = original;
+    }, 1400);
+  }
+
+  function downloadFile(filename: string, contents: string, type: string): void {
+    const blob = new Blob([contents], { type });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  function mountSvgControl(toolbar: HTMLElement): void {
+    if (!svgButton) return;
+    const button = makeControlButton("SVG", "Export diagram as SVG");
+    button.className = "markdy-control-svg";
+    button.addEventListener("click", async () => {
+      const resumeAt = sceneMs;
+      const wasPlaying = isPlaying;
+      try {
+        // Export the settled frame so every revealed node is present.
+        diagram.pause();
+        diagram.seek(durationSeconds);
+        const { exportDiagramAsVectorSvg } = await import("./export/svg-exporter.js");
+        const svg = exportDiagramAsVectorSvg(container);
+        const name = (plan.title || "markdy-diagram").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        downloadFile(`${name || "markdy-diagram"}.svg`, svg, "image/svg+xml");
+      } catch (error) {
+        onWarning({ severity: "warning", message: `SVG export failed: ${String(error)}`, line: 0 });
+        flashControlLabel(button, "Failed");
+      } finally {
+        diagram.seek(resumeAt / 1000);
+        if (wasPlaying) diagram.play();
+      }
+    });
+    toolbar.appendChild(button);
+  }
+
+  function mountShareControl(toolbar: HTMLElement): void {
+    if (!shareButton) return;
+    const button = makeControlButton("Share", "Copy a share link for this diagram");
+    button.className = "markdy-control-share";
+    button.addEventListener("click", async () => {
+      try {
+        const hash = await compressMarkdyToUrlHash(code);
+        const base = shareUrl ?? MARKDY_PLAYGROUND_URL;
+        await navigator.clipboard.writeText(`${base}#code=${hash}`);
+        flashControlLabel(button, "Copied");
+      } catch (error) {
+        onWarning({ severity: "warning", message: `Share link failed: ${String(error)}`, line: 0 });
+        flashControlLabel(button, "Failed");
+      }
+    });
+    toolbar.appendChild(button);
+  }
+
+  function mountFitControl(toolbar: HTMLElement): void {
+    if (!fitViewButton) return;
+    controlsFitButton = makeControlButton("Fit", "Fit all items in view and ignore camera zoom");
+    controlsFitButton.className = "markdy-control-fit";
+    controlsFitButton.setAttribute("aria-pressed", "false");
+    controlsFitButton.addEventListener("click", toggleFitView);
+    toolbar.appendChild(controlsFitButton);
+  }
+
+  function mountResetViewControl(toolbar: HTMLElement): void {
+    if (!resetViewButton) return;
+    const button = makeControlButton("Reset", "Reset diagram view");
+    button.className = "markdy-control-reset-view";
+    button.addEventListener("click", resetViewportTransform);
+    toolbar.appendChild(button);
+  }
+
+  function handleKeyDown(event: KeyboardEvent): void {
+    const target = event.target as HTMLElement | null;
+    if (
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      target instanceof HTMLSelectElement ||
+      target?.isContentEditable
+    ) {
+      return;
+    }
+
+    switch (event.key) {
+      case "ArrowRight":
+      case "PageDown":
+        event.preventDefault();
+        diagram.nextBeat();
+        break;
+      case "ArrowLeft":
+      case "PageUp":
+        event.preventDefault();
+        diagram.prevBeat();
+        break;
+      case " ":
+        event.preventDefault();
+        togglePlayback();
+        break;
+      case "Home":
+        event.preventDefault();
+        diagram.seek(0);
+        break;
+      default:
+    }
+  }
+
   function mountControls(): void {
     const toolbar = document.createElement("div");
     toolbar.className = "markdy-controls";
@@ -755,35 +1024,16 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       toolbar.addEventListener(eventName, (event) => event.stopPropagation());
     }
 
-    controlsPlayButton = makeControlButton("Play", "Play diagram");
-    controlsPlayButton.className = "markdy-control-play";
-    controlsPlayButton.addEventListener("click", togglePlayback);
-    toolbar.appendChild(controlsPlayButton);
-
-    const restartButton = makeControlButton("Restart", "Restart diagram");
-    restartButton.className = "markdy-control-restart";
-    restartButton.addEventListener("click", () => {
-      diagram.seek(0);
-      diagram.play();
-    });
-    toolbar.appendChild(restartButton);
-
-    controlsRateButtons = [0.5, 1, 2].map((rate) => {
-      const button = makeControlButton(`${rate}x`, `Set playback speed to ${rate}x`);
-      button.className = "markdy-control-rate";
-      button.dataset.rate = String(rate);
-      button.setAttribute("aria-pressed", "false");
-      button.addEventListener("click", () => diagram.setPlaybackRate(rate));
-      toolbar.appendChild(button);
-      return button;
-    });
-
-    if (interactiveViewport) {
-      const resetButton = makeControlButton("Reset", "Reset diagram view");
-      resetButton.className = "markdy-control-reset-view";
-      resetButton.addEventListener("click", resetViewportTransform);
-      toolbar.appendChild(resetButton);
-    }
+    mountPlayControl(toolbar);
+    mountBeatNavControls(toolbar, "prev");
+    mountBeatNavControls(toolbar, "next");
+    mountRestartControl(toolbar);
+    mountSeekControl(toolbar);
+    mountSpeedControls(toolbar);
+    mountFitControl(toolbar);
+    mountResetViewControl(toolbar);
+    mountSvgControl(toolbar);
+    mountShareControl(toolbar);
 
     ensureFooter().insertBefore(toolbar, badge ?? null);
     syncControls();
@@ -792,21 +1042,29 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   viewport.style.cursor = interactiveViewport ? "grab" : "pointer";
   if (interactiveViewport) {
     viewport.style.touchAction = "none";
-    viewport.addEventListener("wheel", handleViewportWheel, { passive: false });
-    viewport.addEventListener("pointerdown", handleViewportPointerDown);
-    viewport.addEventListener("pointermove", handleViewportPointerMove);
-    viewport.addEventListener("pointerup", handleViewportPointerEnd);
-    viewport.addEventListener("pointercancel", handleViewportPointerEnd);
-    viewport.addEventListener("dblclick", handleViewportDoubleClick);
-  }
-  if (controls) mountControls();
-  viewport.addEventListener("click", () => {
-    if (suppressNextClick) {
-      suppressNextClick = false;
-      return;
+    if (allowZoom) viewport.addEventListener("wheel", handleViewportWheel, { passive: false });
+    if (allowPan) {
+      viewport.addEventListener("pointerdown", handleViewportPointerDown);
+      viewport.addEventListener("pointermove", handleViewportPointerMove);
+      viewport.addEventListener("pointerup", handleViewportPointerEnd);
+      viewport.addEventListener("pointercancel", handleViewportPointerEnd);
     }
-    togglePlayback();
-  });
+    if (doubleClickToReset) viewport.addEventListener("dblclick", handleViewportDoubleClick);
+  }
+  if (showControls) mountControls();
+  if (clickToPlay) {
+    viewport.addEventListener("click", () => {
+      if (suppressNextClick) {
+        suppressNextClick = false;
+        return;
+      }
+      togglePlayback();
+    });
+  }
+
+  if (keyboardShortcuts && typeof window !== "undefined") {
+    window.addEventListener("keydown", handleKeyDown);
+  }
 
   if (autoplay) diagram.play();
   return diagram;

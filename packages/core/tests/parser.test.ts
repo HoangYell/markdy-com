@@ -564,6 +564,128 @@ beat main:
     expect(ast3.diagnostics).toEqual([]);
   });
 
+  it("parses grouped player configuration", () => {
+    const ast = parse(`
+player:
+  playback:
+    autoplay false
+    loop true
+    rate 1.5
+  controls:
+    play true
+    restart false
+    seek true
+    speed false
+    fit true
+    reset_view true
+  interaction:
+    zoom false
+    pan true
+    click_to_play false
+    double_click_to_reset true
+  chrome:
+    badge false
+    progress bar
+    color "#10b981"
+
+scene "Configured player"
+service API
+beat main:
+  show API
+`);
+
+    expect(ast.meta.player).toEqual({
+      playback: { autoplay: false, loop: true, rate: 1.5 },
+      controls: { play: true, restart: false, seek: true, speed: false, fit: true, resetView: true },
+      interaction: { zoom: false, pan: true, clickToPlay: false, doubleClickToReset: true },
+      chrome: { badge: false, progress: "bar", progressColor: "#10b981" },
+    });
+    expect(ast.diagnostics).toEqual([]);
+  });
+
+  it("normalizes legacy directives and flat player keys into grouped configuration", () => {
+    const ast = parse(`
+controls true
+interactive true
+speed 2
+copyright false
+
+player:
+  allow_zoom false
+  seek_bar true
+
+scene "Legacy" autoplay=false
+service API
+beat main:
+  show API
+`);
+
+    expect(ast.meta.player).toEqual({
+      playback: { rate: 2, autoplay: false },
+      controls: {
+        play: true,
+        restart: true,
+        prevBeat: true,
+        nextBeat: true,
+        seek: true,
+        speed: true,
+        fit: true,
+        resetView: true,
+        svg: true,
+        share: true,
+      },
+      interaction: { zoom: false, pan: true, doubleClickToReset: true },
+      chrome: { badge: false },
+    });
+    // Deprecated mirrors stay populated for existing consumers.
+    expect(ast.meta.controls).toBe(true);
+    expect(ast.meta.interactiveViewport).toBe(true);
+    expect(ast.meta.playbackRate).toBe(2);
+    expect(ast.meta.autoplay).toBe(false);
+    expect(ast.meta.copyright).toBe(false);
+    expect(ast.diagnostics).toEqual([]);
+  });
+
+  it("parses beat navigation, custom speed options, and keyboard opt-in", () => {
+    const ast = parse(`
+player:
+  controls:
+    prev_beat true
+    next_beat false
+    speeds "0.25, 1, 3"
+  interaction:
+    keyboard true
+
+scene "Presentation"
+service API
+beat main:
+  show API
+`);
+
+    expect(ast.meta.player?.controls).toEqual({ prevBeat: true, nextBeat: false, speeds: [0.25, 1, 3] });
+    expect(ast.meta.player?.interaction).toEqual({ keyboard: true });
+    expect(ast.diagnostics).toEqual([]);
+  });
+
+  it("warns on unknown or malformed player settings", () => {
+    const ast = parse(`
+player:
+  controls:
+    play maybe
+    teleport true
+
+scene "Bad player"
+service API
+beat main:
+  show API
+`);
+
+    expect(ast.diagnostics.map((d) => d.message)).toEqual([
+      "player property 'play' expects true or false",
+      "unknown player property 'teleport'",
+    ]);
+  });
+
   it("parses style declarations and custom style references on nodes", () => {
     const code = `
 style Highlight = fill="#0f172a" stroke="#38bdf8" text="#ffffff" accent="#f59e0b"

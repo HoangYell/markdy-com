@@ -297,6 +297,48 @@ Cues live inside a `beat` and are scheduled in order; put `&` between two cues t
 
 Selectors: `$nodes` targets every node, `$edges` targets structural and animated edges, and a group name targets its members.
 
+### Player Configuration
+
+Everything outside the scene itself lives in one `player:` block, grouped by concern:
+
+```markdy
+player:
+  playback:
+    autoplay false
+    loop true
+    rate 1
+  controls:
+    play true
+    restart false
+    prev_beat true
+    next_beat true
+    seek true
+    speed true
+    speeds "0.5 1 2"
+    fit true
+    reset_view true
+    svg true
+    share true
+  interaction:
+    zoom true
+    pan true
+    click_to_play false
+    keyboard true
+  chrome:
+    badge false
+    progress boundary
+    color "#3b82f6"
+```
+
+| Group | Owns |
+|---|---|
+| `playback` | when and how fast the timeline runs |
+| `controls` | which toolbar affordances are mounted |
+| `interaction` | what pointer and key input do |
+| `chrome` | non-interactive decoration (badge, progress) |
+
+Declaring a group opts in and every affordance defaults on, so you only list what to turn off. A group turns itself off when all of its affordances are false. `fit` frames every item and pins the camera so `frame`/`focus` zoom cues stop moving the view; `prev_beat`/`next_beat` step through beats. `keyboard` is opt-in (<kbd>←</kbd>/<kbd>→</kbd> beats, <kbd>Space</kbd> play, <kbd>Home</kbd> restart) because it captures window key events. Legacy directives and flat keys are normalized into the same groups, and explicit renderer or component options override script settings.
+
 ### Themes & Layout Modes
 
 **Themes (`theme=`):**
@@ -371,7 +413,10 @@ interface Diagram {
   seek(seconds: number): void;  // Jump to time
   setPlaybackRate(rate: number): void; // Set timeline speed, e.g. 0.5 or 2
   playbackRate(): number;    // Current timeline speed multiplier
+  beats(): BeatRange[];         // Beat ranges in the compiled scene
   seekToBeat(name: string): void;  // Jump to a named beat
+  nextBeat(): void;         // Step to the next beat from the current time
+  prevBeat(): void;         // Step to the previous beat from the current time
   destroy(): void;          // Remove DOM + cancel animations
 }
 ```

@@ -29,6 +29,64 @@ export type DiagramType =
 
 export type NodeShape = "card" | "rounded" | "diamond" | "circle" | "pill" | "terminal" | "container";
 
+export type PlayerProgress = "none" | "bar" | "boundary";
+
+/** When and how fast the timeline runs. */
+export type PlayerPlaybackConfig = {
+  autoplay?: boolean;
+  loop?: boolean;
+  rate?: number;
+};
+
+/** Which toolbar affordances are mounted. Declaring the group opts in. */
+export type PlayerControlsConfig = {
+  play?: boolean;
+  restart?: boolean;
+  prevBeat?: boolean;
+  nextBeat?: boolean;
+  seek?: boolean;
+  speed?: boolean;
+  fit?: boolean;
+  resetView?: boolean;
+  svg?: boolean;
+  share?: boolean;
+  /** Speed multipliers offered by the speed buttons. */
+  speeds?: number[];
+};
+
+/** What pointer and key input do. Declaring the group opts in. */
+export type PlayerInteractionConfig = {
+  zoom?: boolean;
+  pan?: boolean;
+  clickToPlay?: boolean;
+  doubleClickToReset?: boolean;
+  /** Window-level shortcuts; opt-in because they capture space and arrows. */
+  keyboard?: boolean;
+};
+
+/** Non-interactive decoration drawn around the scene. */
+export type PlayerChromeConfig = {
+  badge?: boolean;
+  progress?: PlayerProgress;
+  progressColor?: string;
+};
+
+export type PlayerConfig = {
+  playback?: PlayerPlaybackConfig;
+  controls?: PlayerControlsConfig;
+  interaction?: PlayerInteractionConfig;
+  chrome?: PlayerChromeConfig;
+};
+
+/** Fully defaulted player behavior produced by `resolvePlayer`. `enabled` is
+ * derived: a group is on when at least one of its affordances is on. */
+export type ResolvedPlayer = {
+  playback: Required<PlayerPlaybackConfig>;
+  controls: Required<PlayerControlsConfig> & { enabled: boolean };
+  interaction: Required<PlayerInteractionConfig> & { enabled: boolean };
+  chrome: { badge: boolean; progress: PlayerProgress; progressColor?: string };
+};
+
 export type SceneMeta = {
   title?: string;
   width: number;
@@ -39,19 +97,21 @@ export type SceneMeta = {
   duration?: number;
   /** Opt-in diagram mode; defaults to architecture. */
   type?: DiagramType;
-  /** Optional custom progress bar color or gradient. Defaults to rainbow. */
+  /** Playback, controls, interaction, and chrome behavior. Source of truth. */
+  player?: PlayerConfig;
+  /** @deprecated Mirror of `player.chrome.progressColor`. */
   progressColor?: string;
-  /** Enable playback and view reset controls toolbar. */
+  /** @deprecated Mirror of `player.controls.enabled`. */
   controls?: boolean;
-  /** Enable wheel zoom and drag pan. */
+  /** @deprecated Mirror of `player.interaction.enabled`. */
   interactiveViewport?: boolean;
-  /** Autoplay timeline on load. */
+  /** @deprecated Mirror of `player.playback.autoplay`. */
   autoplay?: boolean;
-  /** Loop playback when reaching the end. */
+  /** @deprecated Mirror of `player.playback.loop`. */
   loop?: boolean;
-  /** Show copyright badge. */
+  /** @deprecated Mirror of `player.chrome.badge`. */
   copyright?: boolean;
-  /** Default playback speed multiplier. */
+  /** @deprecated Mirror of `player.playback.rate`. */
   playbackRate?: number;
 };
 

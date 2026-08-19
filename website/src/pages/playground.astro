@@ -141,14 +141,6 @@ const playgroundStructuredData = [
           <span>⚡ Import / Transpile</span>
         </button>
 
-        <button id="export-svg-btn" class="tool-btn" type="button" title="Export current scene as scalable, styled Vector SVG">
-          <span>🎨 SVG</span>
-        </button>
-
-        <button id="share-btn" class="tool-btn" type="button" title="Copy compressed shareable URL to clipboard">
-          <span>🔗 Share</span>
-        </button>
-
         <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="tool-btn tool-btn-icon" aria-label="GitHub Repository" title="GitHub Repository">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
@@ -389,14 +381,8 @@ const playgroundStructuredData = [
             <div class="canvas-view-controls" role="group" aria-label="Canvas View Controls">
               <button id="canvas-zoom-in-btn" class="canvas-tool-btn" type="button" title="Zoom In (+)">+</button>
               <button id="canvas-zoom-out-btn" class="canvas-tool-btn" type="button" title="Zoom Out (-)">−</button>
-              <button id="canvas-zoom-fit-btn" class="canvas-tool-btn" type="button" title="Reset View (100%)">⛶ Fit</button>
               <button id="canvas-grid-toggle-btn" class="canvas-tool-btn" type="button" title="Toggle Canvas Background Grid (Dots / Mesh / Plain)">▦ Grid</button>
             </div>
-          </div>
-
-          <div class="toolbar preview-actions" aria-label="Canvas actions">
-            <button id="restart-btn" class="tool-btn" type="button" title="Restart animation from beginning">↺ Restart</button>
-            <button id="play-btn" class="tool-btn tool-btn-primary" type="button">Pause</button>
           </div>
         </div>
 
@@ -475,8 +461,8 @@ const playgroundStructuredData = [
         </div>
         <p id="canvas-interaction-help" class="sr-only">Drag a node from the palette onto the canvas. Click any node to open the contextual editor HUD. Drag ports to connect flows.</p>
 
-        <!-- ── Unified Choreography & Storyboard Timeline Dock ── -->
-        <div class="choreography-dock" aria-label="Storyboard beats and animation timeline">
+        <!-- ── Storyboard Dock (transport lives in the built-in player toolbar) ── -->
+        <div class="choreography-dock" aria-label="Storyboard beats">
           <div class="dock-top-row">
             <div class="dock-storyboard-box">
               <span class="dock-label">🎬 Storyboard:</span>
@@ -485,23 +471,6 @@ const playgroundStructuredData = [
               </div>
               <button id="storyboard-add-beat-btn" class="dock-add-beat-btn" type="button" title="Append new animation beat">+ Beat</button>
             </div>
-
-            <div class="dock-speed-box">
-              <select id="beat-jump" class="beat-jump-select" aria-label="Jump to beat" hidden></select>
-              <div class="speed-group" role="group" aria-label="Playback speed">
-                <button class="speed-btn active" type="button" data-speed="1" aria-pressed="true">1x</button>
-                <button class="speed-btn" type="button" data-speed="1.5" aria-pressed="false">1.5x</button>
-                <button class="speed-btn" type="button" data-speed="2" aria-pressed="false">2x</button>
-                <button class="speed-btn" type="button" data-speed="0.5" aria-pressed="false">0.5x</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="dock-timeline-row">
-            <button id="step-prev-btn" class="timeline-step-btn" type="button" title="Step backward">⏮</button>
-            <input id="timeline-range" class="timeline-slider" type="range" min="0" max="0" step="0.01" value="0" aria-label="Scrub animation timeline" />
-            <button id="step-next-btn" class="timeline-step-btn" type="button" title="Step forward">⏭</button>
-            <span id="timeline-label" class="timeline-timestamp">0:00 / 0:00</span>
           </div>
         </div>
       </section>
@@ -673,12 +642,11 @@ const playgroundStructuredData = [
 
   import { markdyLanguage, markdyAutocomplete, markdyHighlightLight, markdyHighlightDark } from "../editor/markdy-language";
   import { baseTheme, lightTheme, darkTheme } from "../editor/editor-theme";
-  import { createDiagram, exportDiagramAsVectorSvg, exportDiagramAsPng, exportDiagramAsGif } from "@markdy/renderer-dom";
+  import { createDiagram, exportDiagramAsPng, exportDiagramAsGif } from "@markdy/renderer-dom";
   import type { Diagram } from "@markdy/renderer-dom";
   import {
     parse,
     validateArchitecture,
-    compressMarkdyToUrlHash,
     decompressMarkdyFromUrlHash,
     type Diagnostic,
   } from "@markdy/core";
@@ -744,7 +712,6 @@ const playgroundStructuredData = [
   const loadSampleBtn = document.getElementById("load-sample-btn") as HTMLButtonElement;
   const pasteImportBtn = document.getElementById("paste-import-btn") as HTMLButtonElement;
   const doImportBtn = document.getElementById("do-import-btn") as HTMLButtonElement;
-  const exportSvgBtn = document.getElementById("export-svg-btn") as HTMLButtonElement;
   const exportPngBtn = document.getElementById("export-png-btn") as HTMLButtonElement | null;
   const exportGifBtn = document.getElementById("export-gif-btn") as HTMLButtonElement | null;
   const formatTabs = document.querySelectorAll<HTMLButtonElement>(".format-tab");
@@ -759,19 +726,10 @@ const playgroundStructuredData = [
   const pasteCodeBtn = document.getElementById("paste-code-btn") as HTMLButtonElement;
   const copyCodeBtn = document.getElementById("copy-code-btn") as HTMLButtonElement;
   const formatCodeBtn = document.getElementById("format-code-btn") as HTMLButtonElement;
-  const shareBtn = document.getElementById("share-btn") as HTMLButtonElement;
-  const restartBtn = document.getElementById("restart-btn") as HTMLButtonElement;
-  const playBtn = document.getElementById("play-btn") as HTMLButtonElement;
-  const stepPrevBtn = document.getElementById("step-prev-btn") as HTMLButtonElement;
-  const stepNextBtn = document.getElementById("step-next-btn") as HTMLButtonElement;
 
-  const timelineRange = document.getElementById("timeline-range") as HTMLInputElement;
-  const timelineLabel = document.getElementById("timeline-label") as HTMLSpanElement;
-  const beatJump = document.getElementById("beat-jump") as HTMLSelectElement;
   const exampleSourceLink = document.getElementById("example-source-link") as HTMLAnchorElement;
   const quickExampleSelect = document.getElementById("quick-example-select") as HTMLSelectElement;
   const exampleBtns = document.querySelectorAll<HTMLButtonElement>(".example-btn");
-  const speedBtns = document.querySelectorAll<HTMLButtonElement>(".speed-btn");
   const themeToggle = (document.getElementById("theme-toggle") || document.getElementById("theme-toggle-btn")) as HTMLButtonElement;
   const workspace = document.getElementById("workspace") as HTMLElement;
   const splitter = document.getElementById("splitter") as HTMLButtonElement;
@@ -785,7 +743,6 @@ const playgroundStructuredData = [
   // Canvas zoom & view controls
   const canvasZoomInBtn = document.getElementById("canvas-zoom-in-btn") as HTMLButtonElement;
   const canvasZoomOutBtn = document.getElementById("canvas-zoom-out-btn") as HTMLButtonElement;
-  const canvasZoomFitBtn = document.getElementById("canvas-zoom-fit-btn") as HTMLButtonElement;
   const canvasGridToggleBtn = document.getElementById("canvas-grid-toggle-btn") as HTMLButtonElement;
 
   // Assistant Drawer
@@ -809,8 +766,6 @@ const playgroundStructuredData = [
   let diagram: Diagram | null = null;
   let debounce: ReturnType<typeof setTimeout> | null = null;
   let selectedExample = 0;
-  let playbackRate = 1;
-  let isScrubbing = false;
 
   let parsedAst: any = null;
   let selectedNodeId: string | null = null;
@@ -843,12 +798,6 @@ const playgroundStructuredData = [
       sun.style.display = theme === "dark" ? "none" : "block";
       moon.style.display = theme === "dark" ? "block" : "none";
     }
-  }
-
-  function formatTime(seconds: number): string {
-    if (!Number.isFinite(seconds) || seconds <= 0) return "0:00";
-    const total = Math.floor(seconds);
-    return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, "0")}`;
   }
 
   function updateStatusIndicator(ok: boolean, nodeCount: number = 0, edgeCount: number = 0, errorMsg?: string) {
@@ -890,35 +839,6 @@ const playgroundStructuredData = [
       list.appendChild(li);
     }
     diagnostics.appendChild(list);
-  }
-
-  function setTimeline(current: number, duration: number) {
-    const safeDuration = Number.isFinite(duration) && duration > 0 ? duration : 0;
-    const safeCurrent = safeDuration > 0 ? Math.min(Math.max(current, 0), safeDuration) : 0;
-    timelineRange.max = safeDuration.toFixed(2);
-    if (!isScrubbing) timelineRange.value = safeCurrent.toFixed(2);
-    timelineRange.disabled = safeDuration <= 0;
-    timelineLabel.textContent = `${formatTime(safeCurrent)} / ${formatTime(safeDuration)}`;
-  }
-
-  function populateBeatJump(beats: Array<{ name: string; label?: string }>) {
-    beatJump.innerHTML = "";
-    if (beats.length === 0) {
-      beatJump.hidden = true;
-      return;
-    }
-    beatJump.hidden = false;
-    const placeholder = document.createElement("option");
-    placeholder.value = "";
-    placeholder.textContent = "Jump to beat...";
-    beatJump.appendChild(placeholder);
-    for (const beat of beats) {
-      const option = document.createElement("option");
-      option.value = beat.name;
-      option.textContent = beat.label ? `${beat.name} - ${beat.label}` : beat.name;
-      beatJump.appendChild(option);
-    }
-    beatJump.value = "";
   }
 
   function getCode(): string {
@@ -1181,20 +1101,15 @@ const playgroundStructuredData = [
         loop: true,
         copyright: false,
         sceneBoundaryProgress: false,
-        playbackRate,
+        controls: true,
         interactiveViewport: true,
+        shareUrl: `${window.location.origin}${window.location.pathname}`,
         onWarning(warning: Diagnostic) {
           warnings.push(`line ${warning.line}: ${warning.message}`);
-        },
-        onTimeUpdate: setTimeline,
-        onPlayStateChange(playing) {
-          playBtn.textContent = playing ? "Pause" : "Play";
         },
       });
       announce("Preview updated successfully.");
       showDiagnostics(warnings);
-      setTimeline(diagram.currentTime(), diagram.duration());
-      populateBeatJump(diagram.beats());
       updateEntitiesAndSuggestions(code);
       attachCanvasInteraction();
     } catch (error) {
@@ -1203,9 +1118,6 @@ const playgroundStructuredData = [
       updateStatusIndicator(false, 0, 0, message);
       announce(`Preview could not update. ${message}`);
       showDiagnostics([message]);
-      setTimeline(0, 0);
-      populateBeatJump([]);
-      playBtn.textContent = "Play";
     }
   }
 
@@ -1647,16 +1559,6 @@ const playgroundStructuredData = [
     viewport.dispatchEvent(wheelEvent);
   });
 
-  canvasZoomFitBtn?.addEventListener("click", () => {
-    const viewport = stageCanvas?.querySelector<HTMLElement>(".markdy-viewport");
-    if (!viewport) return;
-    const dblEvent = new MouseEvent("dblclick", {
-      bubbles: true,
-      cancelable: true,
-    });
-    viewport.dispatchEvent(dblEvent);
-  });
-
   const GRID_CLASSES = ["stage-grid--dots", "stage-grid--mesh", "stage-grid--plain"];
   const GRID_LABELS = ["▦ Dots", "▦ Mesh", "▦ Plain"];
 
@@ -1704,28 +1606,6 @@ const playgroundStructuredData = [
     const existingCount = (parsedAst?.beats || []).length;
     const newBeatName = `step_${existingCount + 1}`;
     insertCodeAtCursor(`\nbeat ${newBeatName} "Step ${existingCount + 1}":\n  show $nodes stagger=50ms\n`);
-  });
-
-  stepPrevBtn?.addEventListener("click", () => {
-    if (!diagram) return;
-    const beats = diagram.beats();
-    if (beats.length === 0) {
-      diagram.seek(Math.max(0, diagram.currentTime() - 1));
-      return;
-    }
-    const curr = diagram.currentTime();
-    diagram.seek(Math.max(0, curr - 1.5));
-  });
-
-  stepNextBtn?.addEventListener("click", () => {
-    if (!diagram) return;
-    const beats = diagram.beats();
-    if (beats.length === 0) {
-      diagram.seek(Math.min(diagram.duration(), diagram.currentTime() + 1));
-      return;
-    }
-    const curr = diagram.currentTime();
-    diagram.seek(Math.min(diagram.duration(), curr + 1.5));
   });
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -1787,14 +1667,6 @@ const playgroundStructuredData = [
     setActiveExample(index);
     createEditor(example.code);
     render(example.code);
-  }
-
-  async function encodeShare(code: string): Promise<string> {
-    try {
-      return await compressMarkdyToUrlHash(code);
-    } catch {
-      return btoa(encodeURIComponent(code));
-    }
   }
 
   async function decodeShare(value: string): Promise<string | null> {
@@ -2177,16 +2049,6 @@ Requirements:
     setTimeout(() => URL.revokeObjectURL(url), 0);
   }
 
-  exportSvgBtn?.addEventListener("click", async () => {
-    try {
-      const svg = await withFinalFrame((scene) => exportDiagramAsVectorSvg(scene, { includeThemeStyles: true }));
-      download(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }), "markdy-diagram.svg");
-      if (exportSvgBtn) showButtonStatus(exportSvgBtn, "Saved SVG");
-    } catch (err) {
-      alert("SVG export error: " + (err as Error).message);
-    }
-  });
-
   exportPngBtn?.addEventListener("click", async () => {
     try {
       const blob = await withFinalFrame((scene) => exportDiagramAsPng(scene, { includeThemeStyles: true, pixelRatio: 2 }));
@@ -2229,49 +2091,6 @@ Requirements:
   pasteCodeBtn?.addEventListener("click", () => pasteCodeToEditor(pasteCodeBtn));
   copyCodeBtn?.addEventListener("click", () => {
     if (copyCodeBtn) writeClipboard(getCode(), copyCodeBtn, "Copied");
-  });
-  shareBtn?.addEventListener("click", async () => {
-    const hash = await encodeShare(getCode());
-    const url = `${window.location.origin}${window.location.pathname}#code=${hash}`;
-    if (shareBtn) writeClipboard(url, shareBtn, "Copied Link");
-  });
-
-  restartBtn?.addEventListener("click", () => {
-    if (!diagram) return;
-    diagram.seek(0);
-    diagram.play();
-  });
-
-  playBtn?.addEventListener("click", () => {
-    if (!diagram) return;
-    if (diagram.isPlaying()) diagram.pause();
-    else diagram.play();
-  });
-
-  speedBtns.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      playbackRate = Number(btn.dataset.speed ?? "1");
-      speedBtns.forEach((item) => {
-        const active = item === btn;
-        item.classList.toggle("active", active);
-        item.setAttribute("aria-pressed", active ? "true" : "false");
-      });
-      diagram?.setPlaybackRate(playbackRate);
-    });
-  });
-
-  timelineRange?.addEventListener("mousedown", () => { isScrubbing = true; });
-  timelineRange?.addEventListener("touchstart", () => { isScrubbing = true; }, { passive: true });
-  window.addEventListener("mouseup", () => { isScrubbing = false; });
-  window.addEventListener("touchend", () => { isScrubbing = false; });
-  timelineRange?.addEventListener("input", () => {
-    if (!diagram || !timelineRange) return;
-    diagram.seek(Number(timelineRange.value));
-  });
-
-  beatJump?.addEventListener("change", () => {
-    if (!diagram || !beatJump?.value) return;
-    diagram.seekToBeat(beatJump.value);
   });
 
   themeToggle?.addEventListener("click", () => {
@@ -2416,7 +2235,8 @@ Requirements:
       formatCodeBtn?.click();
     } else if (event.key === " " && document.activeElement !== editorHost && !(document.activeElement instanceof HTMLInputElement) && !(document.activeElement instanceof HTMLTextAreaElement) && !editor?.hasFocus) {
       event.preventDefault();
-      playBtn?.click();
+      if (diagram?.isPlaying()) diagram.pause();
+      else diagram?.play();
     } else if (event.key === "Escape") {
       deselectCanvas();
       importModal?.close();
@@ -4154,121 +3974,6 @@ Requirements:
     font-style: italic;
   }
 
-  /* ── Speed controls ── */
-  .dock-speed-box {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    flex-shrink: 0;
-  }
-
-  .beat-jump-select {
-    height: 30px;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    padding: 0 1.8rem 0 0.65rem;
-    font-family: inherit;
-    font-size: 0.72rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: border-color 0.12s ease, box-shadow 0.12s ease;
-    box-shadow: var(--shadow-xs);
-  }
-
-  .beat-jump-select:hover {
-    border-color: var(--border-hover);
-  }
-
-  .beat-jump-select:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 2px var(--accent-light);
-  }
-
-  .speed-group {
-    display: inline-flex;
-    align-items: center;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 2px;
-    gap: 1px;
-    box-shadow: var(--shadow-xs);
-  }
-
-  .speed-btn {
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    font-family: inherit;
-    font-size: 0.67rem;
-    font-weight: 700;
-    padding: 0.15rem 0.42rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.1s ease, color 0.1s ease;
-    white-space: nowrap;
-  }
-
-  .speed-btn:hover {
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-  }
-
-  .speed-btn.active {
-    background: var(--accent);
-    color: #ffffff;
-    box-shadow: 0 1px 3px var(--accent-glow);
-  }
-
-  .dock-timeline-row {
-    display: flex;
-    align-items: center;
-    gap: 0.65rem;
-  }
-
-  .timeline-step-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    border: 1px solid var(--border);
-    background: var(--bg-secondary);
-    color: var(--text-secondary);
-    font-size: 0.72rem;
-    font-weight: 700;
-    padding: 0;
-    border-radius: 7px;
-    cursor: pointer;
-    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease, transform 0.12s ease;
-    box-shadow: var(--shadow-xs);
-  }
-
-  .timeline-step-btn:hover {
-    color: var(--text-primary);
-    border-color: var(--border-hover);
-    background: var(--bg-tertiary);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-sm);
-  }
-
-  .timeline-slider {
-    flex: 1;
-    accent-color: var(--accent);
-    height: 4px;
-  }
-
-  .timeline-timestamp {
-    font-family: "JetBrains Mono", monospace;
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    min-width: 72px;
-    text-align: right;
-  }
-
   /* ── Resource Strip & Showcase Gallery ─────────────────────────────── */
   .resource-strip {
     display: grid;
@@ -4885,9 +4590,6 @@ Requirements:
       flex-direction: column;
       align-items: stretch;
       gap: 0.4rem;
-    }
-    .dock-speed-box {
-      justify-content: space-between;
     }
   }
 </style>

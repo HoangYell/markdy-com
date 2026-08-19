@@ -3,6 +3,8 @@ import {
   NODE_KINDS,
   ParseError,
   parse,
+  PLAYER_FLAT_KEYS,
+  PLAYER_GROUPS,
   type Diagnostic,
 } from "@markdy/core";
 import {
@@ -23,15 +25,9 @@ const documents: TextDocuments<TextDocument> = new TextDocuments(TextDocument);
 const KEYWORDS = [
   "scene",
   "layout",
-  "controls",
-  "interactive",
-  "interactiveViewport",
-  "autoplay",
-  "loop",
-  "copyright",
-  "speed",
-  "playbackRate",
-  "progressColor",
+  "player",
+  ...PLAYER_GROUPS,
+  ...PLAYER_FLAT_KEYS,
   "var",
   "group",
   "beat",

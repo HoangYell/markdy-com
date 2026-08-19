@@ -87,12 +87,8 @@ function toCodeAttribute(code: string): MdxAttribute {
 
 export function remarkMarkdy(opts: RemarkMarkdyOptions = {}) {
   const componentName = opts.componentName ?? "MarkdyDiagram";
-  const defaultProps: MarkdyFenceDefaults = {
-    autoplay: false,
-    loop: false,
-    progressBar: false,
-    ...opts.defaults,
-  };
+  // No implicit defaults: the scene's own `player:` config stays authoritative.
+  const defaultProps: MarkdyFenceDefaults = { ...opts.defaults };
 
   return (tree: Root): void => {
     visit(tree, "code", (node, index, parent) => {

@@ -61,7 +61,7 @@ beat main:
 
 ## Performance Notes
 
-- Default transform options set `autoplay=false`, `loop=false`, `progressBar=false`.
+- The transform adds no implicit props, so a scene's own `player:` config stays authoritative. Pass `remarkMarkdy({ defaults: { autoplay: false, loop: false, progressBar: false } })` to restore the previous static-page behavior for every block.
 - Runtime diagram component does not import renderer code until the block enters viewport.
 - Placeholder is SSR-safe and keeps stable layout ratio to avoid CLS.
 
