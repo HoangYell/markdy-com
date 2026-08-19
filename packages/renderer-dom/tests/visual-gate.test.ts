@@ -54,7 +54,7 @@ describe("renderer visual gate", () => {
     expect(scene.style.getPropertyValue("--md-shadow")).not.toBe("");
   });
 
-  it("every node in every scene renders a glyph/image and a label", () => {
+  it("every node in every scene renders the expected media treatment and a label", () => {
     for (const scene of SCENES) {
       const { plan } = parseAndCompile(scene.code);
       expect(plan.nodes.length, `${scene.name} has nodes`).toBeGreaterThan(0);
@@ -63,7 +63,7 @@ describe("renderer visual gate", () => {
         const media = el.querySelector(".markdy-node__icon");
         const hasGlyph = !!media?.querySelector("svg") || !!media?.querySelector("img");
         const label = el.querySelector(".markdy-node__label")?.textContent ?? "";
-        expect(hasGlyph, `${scene.name}:${node.id} has a glyph/image`).toBe(true);
+        expect(hasGlyph, `${scene.name}:${node.id} media matches its shape`).toBe(node.shape !== "diamond");
         expect(label.length, `${scene.name}:${node.id} has a label`).toBeGreaterThan(0);
         expect(el.querySelector(".markdy-node__rail"), `${scene.name}:${node.id} has no rail`).toBeNull();
       }

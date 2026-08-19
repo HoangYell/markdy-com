@@ -211,6 +211,9 @@ describe("diagram render plan", () => {
     }, THEMES.editorial);
     expect(el.dataset.shape).toBe("diamond");
     expect(el.dataset.focal).toBe("1");
+    expect(el.querySelector(".markdy-node__icon")).toBeNull();
+    expect(el.querySelector(".markdy-node__label")?.textContent).toBe("Valid?");
+    expect(el.getAttribute("aria-label")).toBe("Valid? (decision)");
     expect(THEMES.editorial.flatCards).toBe(true);
     expect(THEMES.editorial.accent).toBe("#047857");
     expect(THEMES.editorial.spacing?.md).toBe(16);
