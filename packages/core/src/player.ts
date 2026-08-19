@@ -39,6 +39,7 @@ export const CONTROL_KEYS = [
   "speed",
   "fit",
   "resetView",
+  "fullscreen",
   "svg",
   "share",
 ] as const;
@@ -83,6 +84,11 @@ const CONTROLS: Record<string, Setting> = {
   reset_view: { group: "controls", key: "resetView", type: "boolean" },
   resetViewButton: { group: "controls", key: "resetView", type: "boolean" },
   reset_view_button: { group: "controls", key: "resetView", type: "boolean" },
+  fullscreen: { group: "controls", key: "fullscreen", type: "boolean" },
+  fullScreen: { group: "controls", key: "fullscreen", type: "boolean" },
+  full_screen: { group: "controls", key: "fullscreen", type: "boolean" },
+  fullscreenButton: { group: "controls", key: "fullscreen", type: "boolean" },
+  fullscreen_button: { group: "controls", key: "fullscreen", type: "boolean" },
   svg: { group: "controls", key: "svg", type: "boolean" },
   exportSvg: { group: "controls", key: "svg", type: "boolean" },
   export_svg: { group: "controls", key: "svg", type: "boolean" },
@@ -152,6 +158,11 @@ const FLAT: Record<string, Setting> = {
   fit_view_button: CONTROLS.fit_view_button,
   resetViewButton: CONTROLS.resetViewButton,
   reset_view_button: CONTROLS.reset_view_button,
+  fullscreen: CONTROLS.fullscreen,
+  fullScreen: CONTROLS.fullScreen,
+  full_screen: CONTROLS.full_screen,
+  fullscreenButton: CONTROLS.fullscreenButton,
+  fullscreen_button: CONTROLS.fullscreen_button,
   exportSvg: CONTROLS.exportSvg,
   export_svg: CONTROLS.export_svg,
   shareLink: CONTROLS.shareLink,
@@ -288,6 +299,7 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     speed: controlsOn && (config.controls?.speed ?? true),
     fit: controlsOn && (config.controls?.fit ?? true),
     resetView: controlsOn && (config.controls?.resetView ?? true),
+    fullscreen: controlsOn && (config.controls?.fullscreen ?? true),
     svg: controlsOn && (config.controls?.svg ?? true),
     share: controlsOn && (config.controls?.share ?? true),
   };
@@ -312,6 +324,8 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     controls.seek ||
     controls.speed ||
     controls.fit ||
+    controls.resetView ||
+    controls.fullscreen ||
     controls.svg ||
     controls.share ||
     resetView;

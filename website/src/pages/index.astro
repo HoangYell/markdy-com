@@ -533,14 +533,17 @@ const homepageStructuredData = [
               <option value={i}>{ex.title} ({ex.pattern ?? ex.category})</option>
             ))}
           </select>
+          <span id="status" class="status-indicator status-ok" title="Compiler status: OK"></span>
         </div>
 
         <div class="studio-actions">
+          <button id="auto-shuffle-btn" class="btn-studio-tool auto-shuffle-btn" title="Auto-Shuffle OFF: Click to enable auto-cycling examples on scene end" aria-pressed="false">
+            <span class="shuffle-icon">🔀</span>
+            <span class="shuffle-label">Shuffle</span>
+          </button>
           <button id="run-btn" class="btn-studio-run" title="Compile & Run">Run ▶</button>
           <button id="home-paste-btn" class="btn-studio-tool" title="Paste MarkdyScript code from clipboard">Paste</button>
           <button id="home-copy-btn" class="btn-studio-tool" title="Copy code to clipboard">Copy</button>
-          <button id="home-export-svg-btn" class="btn-studio-tool" title="Export Vector SVG">SVG</button>
-          <button id="share-btn" class="btn-studio-tool" title="Copy shareable URL">Share</button>
           <a href="/playground/" class="btn-studio-tool" title="Open full studio in new page">Popout ↗</a>
         </div>
       </div>
@@ -554,17 +557,6 @@ const homepageStructuredData = [
 
         <!-- Preview Right Column -->
         <div class="studio-preview-pane">
-          <div class="preview-transport-bar">
-            <div class="transport-controls">
-              <button id="auto-shuffle-btn" class="btn-transport auto-shuffle-btn" title="Auto-Shuffle OFF: Click to enable auto-cycling examples on scene end" aria-pressed="false">
-                <span class="shuffle-icon">🔀</span>
-                <span class="shuffle-label">Shuffle</span>
-              </button>
-            </div>
-
-            <span id="status" class="status-indicator status-ok"></span>
-          </div>
-
           <div id="stage-wrap" class="stage-wrap">
             <div id="stage"></div>
           </div>
@@ -1030,12 +1022,6 @@ markdy check-all ./docs/diagrams</code></pre>
       diagram = createDiagram({
         container: stage,
         code,
-        autoplay: shouldAutoplay,
-        loop: false,
-        copyright: false,
-        sceneBoundaryProgress: false,
-        controls: true,
-        interactiveViewport: true,
         onEnded: () => {
           isAnimPlaying = false;
           if (diagram) {
@@ -2539,17 +2525,17 @@ markdy check-all ./docs/diagrams</code></pre>
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.5rem 0.85rem;
+    padding: 0.55rem 0.9rem;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border);
-    gap: 1rem;
+    gap: 0.75rem;
     flex-wrap: wrap;
   }
 
   .studio-left {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.6rem;
   }
 
   .studio-dot {
@@ -2572,7 +2558,7 @@ markdy check-all ./docs/diagrams</code></pre>
     background: var(--bg-tertiary);
     border: 1px solid var(--border);
     color: var(--text-primary);
-    padding: 0.2rem 0.5rem;
+    padding: 0.25rem 0.55rem;
     border-radius: 6px;
     cursor: pointer;
   }
@@ -2581,6 +2567,7 @@ markdy check-all ./docs/diagrams</code></pre>
     display: flex;
     align-items: center;
     gap: 0.35rem;
+    flex-wrap: wrap;
   }
 
   .btn-studio-run {
@@ -2588,7 +2575,7 @@ markdy check-all ./docs/diagrams</code></pre>
     color: #ffffff;
     font-size: 0.74rem;
     font-weight: 700;
-    padding: 0.25rem 0.65rem;
+    padding: 0.28rem 0.7rem;
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -2615,10 +2602,33 @@ markdy check-all ./docs/diagrams</code></pre>
     border-color: var(--border-hover);
   }
 
+  .auto-shuffle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 600;
+  }
+
+  .auto-shuffle-btn.active {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .status-indicator {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    display: inline-block;
+  }
+
+  .status-ok { background: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.6); }
+  .status-error { background: #ef4444; box-shadow: 0 0 6px rgba(239, 68, 68, 0.6); }
+
   .studio-split-body {
     display: grid;
     grid-template-columns: 460px 1fr;
-    height: 480px;
+    height: 500px;
   }
 
   .studio-editor-pane {
@@ -2639,64 +2649,13 @@ markdy check-all ./docs/diagrams</code></pre>
     background: var(--bg-primary);
     position: relative;
     overflow: hidden;
+    min-width: 0;
   }
-
-  .preview-transport-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.4rem 0.75rem;
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border);
-  }
-
-  .transport-controls {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-  }
-
-  .btn-transport {
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-    font-size: 0.72rem;
-    padding: 0.3rem 0.55rem;
-    min-height: 28px;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .btn-transport:hover {
-    color: var(--text-primary);
-    border-color: var(--border-hover);
-  }
-
-  .auto-shuffle-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-weight: 600;
-  }
-
-  .auto-shuffle-btn.active {
-    background: var(--accent-light);
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-
-  .status-indicator {
-    width: 7px;
-    height: 7px;
-    border-radius: 999px;
-  }
-
-  .status-ok { background: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.6); }
-  .status-error { background: #ef4444; box-shadow: 0 0 6px rgba(239, 68, 68, 0.6); }
 
   .stage-wrap {
     flex: 1;
+    display: flex;
+    flex-direction: column;
     position: relative;
     overflow: hidden;
     background: var(--bg-primary);
@@ -2705,9 +2664,23 @@ markdy check-all ./docs/diagrams</code></pre>
   }
 
   #stage {
+    flex: 1 1 auto;
     width: 100%;
     height: 100%;
+    min-height: 0;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stage-wrap .markdy-footer {
+    flex-shrink: 0;
+    width: 100%;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border);
+    padding: 0.35rem 0.75rem;
+    z-index: 10;
   }
 
   /* ─── Main Sections ────────────────────────────────────────────────── */
@@ -3785,11 +3758,6 @@ markdy check-all ./docs/diagrams</code></pre>
       justify-content: center;
       text-align: center;
       padding: 0.5rem 0.75rem;
-    }
-    .preview-transport-bar {
-      flex-wrap: wrap;
-      gap: 0.4rem;
-      padding: 0.45rem 0.6rem;
     }
     .footer-bottom-bar {
       flex-direction: column;

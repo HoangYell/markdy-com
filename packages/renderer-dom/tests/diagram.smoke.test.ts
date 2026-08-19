@@ -265,6 +265,10 @@ describe("createDiagram integration", () => {
     expect(footer?.firstElementChild).toBe(toolbar);
     expect(footer?.lastElementChild).toBe(badge);
 
+    const fullButton = toolbar?.querySelector<HTMLButtonElement>(".markdy-control-fullscreen");
+    expect(fullButton).not.toBeNull();
+    expect(fullButton?.getAttribute("aria-pressed")).toBe("false");
+
     diagram.destroy();
   });
 
@@ -433,6 +437,7 @@ player:
     speed false
     fit false
     reset_view false
+    fullscreen false
     svg false
     share false
   interaction:
