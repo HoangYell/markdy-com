@@ -2,9 +2,9 @@
 
 > ### DOCUMENTATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.10
+> - **Current Version**: v1.0.11
 > - **Specification Version**: 1.0.x
-> - **Last Updated**: 2026-08-18
+> - **Last Updated**: 2026-08-19
 > - **Documentation Hub**: <https://markdy.com/docs/>
 > - **AI Reference**: <https://markdy.com/AGENT.md>
 
