@@ -556,24 +556,10 @@ const homepageStructuredData = [
         <div class="studio-preview-pane">
           <div class="preview-transport-bar">
             <div class="transport-controls">
-              <button id="restart-btn" class="btn-transport" title="Restart">⏮</button>
-              <button id="rewind-btn" class="btn-transport" title="Back 1s">⏪ 1s</button>
-              <button id="play-btn" class="btn-transport-play" title="Play / Pause">
-                <svg id="play-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-                <svg id="pause-icon" width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-                <span id="play-label">Play</span>
-              </button>
               <button id="auto-shuffle-btn" class="btn-transport auto-shuffle-btn" title="Auto-Shuffle OFF: Click to enable auto-cycling examples on scene end" aria-pressed="false">
                 <span class="shuffle-icon">🔀</span>
                 <span class="shuffle-label">Shuffle</span>
               </button>
-            </div>
-
-            <div class="speed-group">
-              <button class="speed-btn" type="button" data-speed="0.5">0.5×</button>
-              <button class="speed-btn active" type="button" data-speed="1">1×</button>
-              <button class="speed-btn" type="button" data-speed="1.5">1.5×</button>
-              <button class="speed-btn" type="button" data-speed="2">2×</button>
             </div>
 
             <span id="status" class="status-indicator status-ok"></span>
@@ -581,12 +567,6 @@ const homepageStructuredData = [
 
           <div id="stage-wrap" class="stage-wrap">
             <div id="stage"></div>
-          </div>
-
-          <div class="timeline-bar">
-            <select id="scene-jump" class="scene-jump" aria-label="Jump to scene" hidden></select>
-            <input id="timeline-range" class="timeline-range" type="range" min="0" max="0" step="0.01" value="0" aria-label="Scrub timeline" />
-            <span id="timeline-time" class="timeline-time">0:00 / 0:00</span>
           </div>
         </div>
       </div>
@@ -952,16 +932,6 @@ markdy check-all ./docs/diagrams</code></pre>
   const stageWrap = document.getElementById("stage-wrap") as HTMLDivElement;
   const runBtn = document.getElementById("run-btn") as HTMLButtonElement;
   const statusEl = document.getElementById("status") as HTMLSpanElement;
-  const playBtn = document.getElementById("play-btn") as HTMLButtonElement;
-  const restartBtn = document.getElementById("restart-btn") as HTMLButtonElement;
-  const rewindBtn = document.getElementById("rewind-btn") as HTMLButtonElement;
-  const playIcon = document.getElementById("play-icon") as SVGElement;
-  const pauseIcon = document.getElementById("pause-icon") as SVGElement;
-  const playLabel = document.getElementById("play-label") as HTMLSpanElement;
-  const speedBtns = document.querySelectorAll<HTMLButtonElement>(".speed-btn");
-  const timelineRange = document.getElementById("timeline-range") as HTMLInputElement;
-  const timelineTime = document.getElementById("timeline-time") as HTMLSpanElement;
-  const sceneJump = document.getElementById("scene-jump") as HTMLSelectElement;
   const exampleSelect = document.getElementById("example-select") as HTMLSelectElement;
   const presetChips = document.querySelectorAll<HTMLButtonElement>(".preset-chip");
   const autoShuffleBtn = document.getElementById("auto-shuffle-btn") as HTMLButtonElement | null;
@@ -970,8 +940,6 @@ markdy check-all ./docs/diagrams</code></pre>
   let isAnimPlaying = false;
   let debounce: ReturnType<typeof setTimeout> | null = null;
   let editorView: any = null;
-  let isScrubbing = false;
-  let selectedPlaybackRate = 1;
   let isAutoShuffleEnabled = false;
   let autoShuffleTimer: ReturnType<typeof setTimeout> | null = null;
   let currentExampleIndex = 0;
@@ -1053,52 +1021,6 @@ markdy check-all ./docs/diagrams</code></pre>
     statusEl.className = `status-indicator ${ok ? "status-ok" : "status-error"}`;
   }
 
-  function formatTime(seconds: number): string {
-    if (!Number.isFinite(seconds) || seconds <= 0) return "0:00";
-    const total = Math.floor(seconds);
-    const mins = Math.floor(total / 60);
-    const secs = total % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  }
-
-  function setTimeline(current: number, duration: number) {
-    if (!timelineRange || !timelineTime) return;
-    const safeDuration = Number.isFinite(duration) && duration > 0 ? duration : 0;
-    const safeCurrent = safeDuration > 0 ? Math.min(Math.max(current, 0), safeDuration) : 0;
-    timelineRange.max = safeDuration.toFixed(2);
-    if (!isScrubbing) timelineRange.value = safeCurrent.toFixed(2);
-    timelineRange.disabled = safeDuration <= 0;
-    timelineTime.textContent = `${formatTime(safeCurrent)} / ${formatTime(safeDuration)}`;
-  }
-
-  function setPlayState(playing: boolean) {
-    isAnimPlaying = playing;
-    if (playIcon) playIcon.style.display = playing ? "none" : "";
-    if (pauseIcon) pauseIcon.style.display = playing ? "" : "none";
-    if (playLabel) playLabel.textContent = playing ? "Pause" : "Play";
-    if (playBtn) playBtn.setAttribute("aria-label", playing ? "Pause" : "Play");
-  }
-
-  function populateSceneJump(beats: { name: string; start: number }[]) {
-    if (!sceneJump) return;
-    sceneJump.innerHTML = "";
-    if (beats.length === 0) {
-      sceneJump.hidden = true;
-      return;
-    }
-    sceneJump.hidden = false;
-    const placeholder = document.createElement("option");
-    placeholder.value = "";
-    placeholder.textContent = "Jump to beat…";
-    sceneJump.appendChild(placeholder);
-    for (const beat of beats) {
-      const option = document.createElement("option");
-      option.value = beat.name;
-      option.textContent = beat.name;
-      sceneJump.appendChild(option);
-    }
-  }
-
   async function render(code: string, shouldAutoplay = true) {
     if (!stage) return;
     try {
@@ -1112,12 +1034,10 @@ markdy check-all ./docs/diagrams</code></pre>
         loop: false,
         copyright: false,
         sceneBoundaryProgress: false,
-        playbackRate: selectedPlaybackRate,
+        controls: true,
         interactiveViewport: true,
-        onTimeUpdate: setTimeline,
-        onPlayStateChange: setPlayState,
         onEnded: () => {
-          setPlayState(false);
+          isAnimPlaying = false;
           if (diagram) {
             diagram.pause();
             diagram.seek(diagram.duration());
@@ -1127,15 +1047,13 @@ markdy check-all ./docs/diagrams</code></pre>
           }
         },
       });
-      setPlayState(shouldAutoplay);
-      setTimeline(diagram.currentTime(), diagram.duration());
-      populateSceneJump(diagram.beats());
+      isAnimPlaying = shouldAutoplay;
       setStatus(true);
     } catch (e) {
       const msg = (e as Error).message ?? String(e);
       stage.innerHTML = `<p class="parse-error" style="color:var(--danger);padding:1rem;font-family:monospace;font-size:0.8rem;">${msg}</p>`;
       setStatus(false);
-      setPlayState(false);
+      isAnimPlaying = false;
     }
   }
 
@@ -1354,34 +1272,6 @@ markdy check-all ./docs/diagrams</code></pre>
     }
   });
 
-  // Playback transport buttons
-  playBtn?.addEventListener("click", () => {
-    clearAutoShuffleTimer();
-    if (!diagram) return;
-    if (isAnimPlaying) {
-      diagram.pause();
-    } else {
-      if (diagram.currentTime() >= diagram.duration() && diagram.duration() > 0) {
-        diagram.seek(0);
-      }
-      diagram.play();
-    }
-  });
-
-  restartBtn?.addEventListener("click", () => {
-    clearAutoShuffleTimer();
-    if (diagram) {
-      diagram.seek(0);
-      diagram.play();
-    }
-  });
-
-  rewindBtn?.addEventListener("click", () => {
-    clearAutoShuffleTimer();
-    if (!diagram) return;
-    diagram.seek(Math.max(0, diagram.currentTime() - 1));
-  });
-
   autoShuffleBtn?.addEventListener("click", () => {
     isAutoShuffleEnabled = !isAutoShuffleEnabled;
     autoShuffleBtn.classList.toggle("active", isAutoShuffleEnabled);
@@ -1391,30 +1281,6 @@ markdy check-all ./docs/diagrams</code></pre>
       : "Auto-Shuffle OFF: Click to enable auto-cycling examples on scene end";
     if (!isAutoShuffleEnabled) {
       clearAutoShuffleTimer();
-    }
-  });
-
-  speedBtns.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const speed = Number(btn.dataset.speed || "1");
-      selectedPlaybackRate = speed;
-      speedBtns.forEach((b) => b.classList.toggle("active", b === btn));
-      diagram?.setPlaybackRate(speed);
-    });
-  });
-
-  timelineRange?.addEventListener("input", () => {
-    isScrubbing = true;
-    diagram?.seek(Number(timelineRange.value));
-  });
-
-  timelineRange?.addEventListener("change", () => {
-    isScrubbing = false;
-  });
-
-  sceneJump?.addEventListener("change", () => {
-    if (sceneJump.value) {
-      diagram?.jumpTo(sceneJump.value);
     }
   });
 
@@ -1690,9 +1556,17 @@ markdy check-all ./docs/diagrams</code></pre>
     }
     if (e.code === "Space") {
       e.preventDefault();
-      playBtn?.click();
+      clearAutoShuffleTimer();
+      if (!diagram) return;
+      if (diagram.isPlaying()) diagram.pause();
+      else {
+        if (diagram.currentTime() >= diagram.duration() && diagram.duration() > 0) diagram.seek(0);
+        diagram.play();
+      }
     } else if (e.key === "r" || e.key === "R") {
-      restartBtn?.click();
+      clearAutoShuffleTimer();
+      diagram?.seek(0);
+      diagram?.play();
     }
   });
 
@@ -2812,46 +2686,6 @@ markdy check-all ./docs/diagrams</code></pre>
     color: var(--accent);
   }
 
-  .btn-transport-play {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    background: var(--accent-light);
-    border: 1px solid var(--accent);
-    color: var(--accent);
-    font-size: 0.74rem;
-    font-weight: 700;
-    padding: 0.3rem 0.65rem;
-    min-height: 28px;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  .speed-group {
-    display: flex;
-    gap: 0.25rem;
-  }
-
-  .speed-btn {
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 0.3rem 0.5rem;
-    min-height: 28px;
-    min-width: 28px;
-    border: 1px solid var(--border);
-    background: var(--bg-tertiary);
-    color: var(--text-secondary);
-    border-radius: 6px;
-    cursor: pointer;
-    text-align: center;
-  }
-
-  .speed-btn.active {
-    background: var(--accent);
-    color: #ffffff;
-    border-color: var(--accent);
-  }
-
   .status-indicator {
     width: 7px;
     height: 7px;
@@ -2874,38 +2708,6 @@ markdy check-all ./docs/diagrams</code></pre>
     width: 100%;
     height: 100%;
     position: relative;
-  }
-
-  .timeline-bar {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.35rem 0.75rem;
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border);
-  }
-
-  .scene-jump {
-    font-size: 0.7rem;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border);
-    color: var(--text-primary);
-    padding: 0.15rem 0.35rem;
-    border-radius: 4px;
-  }
-
-  .timeline-range {
-    flex: 1;
-    accent-color: var(--accent);
-    cursor: pointer;
-  }
-
-  .timeline-time {
-    font-size: 0.68rem;
-    font-family: "JetBrains Mono", monospace;
-    color: var(--text-muted);
-    min-width: 72px;
-    text-align: right;
   }
 
   /* ─── Main Sections ────────────────────────────────────────────────── */

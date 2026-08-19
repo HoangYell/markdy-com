@@ -77,8 +77,9 @@ diagram.destroy();    // clean up DOM + cancel animations
 | `sceneBoundaryProgress` | `boolean \| string` | `true` | Show boundary progress bar, or pass a custom color/gradient string |
 | `progressColor` | `string` | `plan.meta.progressColor ?? "rainbow"` | Custom progress bar color (e.g. `"#3b82f6"`) or gradient (e.g. `"#ec4899, #8b5cf6"`) |
 | `playbackRate` | `number` | `plan.meta.playbackRate ?? 1` | Normalized timeline speed multiplier; `1` is Markdy's normal pace |
-| `interactiveViewport` | `boolean` | `controls \|\| plan.meta.interactiveViewport` | Enable wheel zoom and drag pan on the rendered viewport |
-| `controls` | `boolean` | `plan.meta.controls ?? false` | Show left-aligned footer controls toolbar (play/pause, restart, speed, reset view); also enables viewport interaction |
+| `interactiveViewport` | `boolean` | `controls \|\| player.interaction` | Enable wheel zoom and drag pan on the rendered viewport |
+| `controls` | `boolean` | `player.controls` | Show the footer toolbar (play, prev/next beat, restart, seek, speed, fit, reset view, SVG, share); also enables viewport interaction |
+| `shareUrl` | `string` | Markdy playground | Base URL used by the Share control when building `#code=` links |
 | `onWarning` | `(warning: Diagnostic) => void` | `console.warn` | Called for each soft parse warning |
 | `onTimeUpdate` | `(seconds: number, durationSeconds: number) => void` | — | Called whenever playback or seek changes the current time |
 | `onPlayStateChange` | `(playing: boolean) => void` | — | Called when playback starts or pauses |

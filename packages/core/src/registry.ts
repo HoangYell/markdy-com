@@ -4,6 +4,7 @@ import {
   VISUAL_PRIMITIVE_KINDS,
   VISUAL_PRIMITIVE_TYPES,
 } from "./system-vocabulary.js";
+import { PLAYER_FLAT_KEYS } from "./player.js";
 
 export const NODE_KINDS = new Set<string>([
   ...TECHNICAL_NODE_TYPES,
@@ -66,23 +67,7 @@ export const SCENE_KEYS = new Set([
   "direction",
   "layout",
   "type",
-  "progressColor",
-  "progressBarColor",
-  "progress_color",
-  "progress_bar_color",
-  "progress",
-  "progressBar",
-  "sceneBoundaryProgress",
-  "controls",
-  "interactive",
-  "interactiveViewport",
-  "interactive_viewport",
-  "autoplay",
-  "loop",
-  "copyright",
-  "playbackRate",
-  "playback_rate",
-  "speed",
+  ...PLAYER_FLAT_KEYS,
 ]);
 
 export function nodeRole(kind: string): string {

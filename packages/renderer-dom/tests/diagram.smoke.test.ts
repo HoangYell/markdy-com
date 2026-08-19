@@ -358,6 +358,270 @@ beat b1:
     diagram2.destroy();
   });
 
+  it("applies granular player controls without coupling interaction behavior", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const diagram = createDiagram({
+      container,
+      code: `
+player:
+  playback:
+    autoplay false
+  chrome:
+    badge false
+    progress bar
+  controls:
+    play true
+    restart false
+    seek true
+    speed false
+    reset_view false
+  interaction:
+    zoom false
+    pan true
+    click_to_play false
+
+scene theme=paper
+service A
+beat b1:
+  show A
+`,
+    });
+
+    const viewport = container.firstElementChild as HTMLElement;
+    const footer = document.body.querySelector<HTMLElement>(".markdy-footer");
+    const seek = footer?.querySelector<HTMLInputElement>(".markdy-control-seek") ?? null;
+    expect(footer?.querySelector(".markdy-control-play")).not.toBeNull();
+    expect(footer?.querySelector(".markdy-control-restart")).toBeNull();
+    expect(footer?.querySelector(".markdy-control-rate")).toBeNull();
+    expect(footer?.querySelector(".markdy-control-reset-view")).toBeNull();
+    expect(seek).not.toBeNull();
+
+    viewport.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(diagram.isPlaying()).toBe(false);
+    viewport.dispatchEvent(pointerEvent("pointerdown", { clientX: 20, clientY: 20 }));
+    viewport.dispatchEvent(pointerEvent("pointermove", { clientX: 40, clientY: 25 }));
+    viewport.dispatchEvent(pointerEvent("pointerup", { clientX: 40, clientY: 25 }));
+    expect(container.querySelector<HTMLElement>(".markdy-viewport-transform")?.style.transform).toContain("translate(20px, 5px)");
+
+    seek!.value = "0.5";
+    seek!.dispatchEvent(new Event("input", { bubbles: true }));
+    expect(diagram.currentTime()).toBe(0.5);
+    const progress = viewport.querySelector<HTMLElement>("div[style*='z-index: 9999']");
+    expect(progress?.style.height).toBe("3px");
+    expect(progress?.style.transform).toContain("scaleX");
+    diagram.destroy();
+  });
+
+  it("turns a player group off when every affordance in it is false", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const diagram = createDiagram({
+      container,
+      code: `
+player:
+  playback:
+    autoplay false
+  chrome:
+    badge false
+  controls:
+    play false
+    restart false
+    prev_beat false
+    next_beat false
+    seek false
+    speed false
+    fit false
+    reset_view false
+    svg false
+    share false
+  interaction:
+    zoom false
+    pan false
+    double_click_to_reset false
+
+scene theme=paper
+service A
+beat b1:
+  show A
+`,
+    });
+
+    const viewport = container.firstElementChild as HTMLElement;
+    expect(document.body.querySelector(".markdy-controls")).toBeNull();
+    expect(viewport.style.cursor).toBe("pointer");
+
+    viewport.dispatchEvent(pointerEvent("pointerdown", { clientX: 20, clientY: 20 }));
+    viewport.dispatchEvent(pointerEvent("pointermove", { clientX: 60, clientY: 40 }));
+    viewport.dispatchEvent(pointerEvent("pointerup", { clientX: 60, clientY: 40 }));
+    expect(container.querySelector<HTMLElement>(".markdy-viewport-transform")?.style.transform).not.toContain("translate(40px");
+
+    // click-to-play stays independent of viewport gestures
+    viewport.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(diagram.isPlaying()).toBe(true);
+    diagram.destroy();
+  });
+
+  it("fits every item in view and pins the camera against zoom cues", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const diagram = createDiagram({
+      container,
+      code: `
+player:
+  playback:
+    autoplay false
+  chrome:
+    badge false
+  controls:
+    play false
+    restart false
+    seek false
+    speed false
+    reset_view false
+
+scene theme=paper
+service A
+service B
+beat b1:
+  show A
+  frame A zoom=1.18
+`,
+    });
+
+    const cameraLayer = container.querySelector<HTMLElement>(".markdy-camera-layer")!;
+    const transformLayer = container.querySelector<HTMLElement>(".markdy-viewport-transform")!;
+    const fitButton = document.body.querySelector<HTMLButtonElement>(".markdy-control-fit")!;
+
+    expect(fitButton).not.toBeNull();
+    expect(fitButton.getAttribute("aria-pressed")).toBe("false");
+
+    fitButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(fitButton.getAttribute("aria-pressed")).toBe("true");
+    // Camera zoom cues are outranked while fitted.
+    expect(cameraLayer.style.getPropertyPriority("transform")).toBe("important");
+    expect(cameraLayer.style.transform).toBe("none");
+    expect(transformLayer.style.transform).toMatch(/translate\(.+\) scale\(.+\)/);
+
+    fitButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(fitButton.getAttribute("aria-pressed")).toBe("false");
+    expect(cameraLayer.style.transform).toBe("");
+    expect(transformLayer.style.transform).toBe("translate(0px, 0px) scale(1)");
+
+    diagram.destroy();
+  });
+
+  it("navigates beats from the toolbar, keyboard, and custom speed options", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const diagram = createDiagram({
+      container,
+      code: `
+player:
+  playback:
+    autoplay false
+  chrome:
+    badge false
+  controls:
+    seek false
+    fit false
+    speeds "0.25 1 3"
+  interaction:
+    keyboard true
+
+scene theme=paper
+service A
+service B
+beat one:
+  show A
+beat two:
+  show B
+`,
+    });
+
+    const footer = document.body.querySelector<HTMLElement>(".markdy-footer")!;
+    const nextButton = footer.querySelector<HTMLButtonElement>(".markdy-control-next-beat")!;
+    const prevButton = footer.querySelector<HTMLButtonElement>(".markdy-control-prev-beat")!;
+    const rates = [...footer.querySelectorAll<HTMLButtonElement>(".markdy-control-rate")].map((b) => b.dataset.rate);
+
+    expect(rates).toEqual(["0.25", "1", "3"]);
+
+    const secondBeat = diagram.beats()[1];
+    expect(secondBeat.start).toBeGreaterThan(0);
+
+    nextButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(diagram.currentTime()).toBeCloseTo(secondBeat.start);
+
+    prevButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(diagram.currentTime()).toBe(0);
+
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    expect(diagram.currentTime()).toBeCloseTo(secondBeat.start);
+
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true }));
+    expect(diagram.isPlaying()).toBe(true);
+
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "Home", bubbles: true }));
+    expect(diagram.currentTime()).toBe(0);
+
+    diagram.destroy();
+    // Listeners are removed with the diagram.
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+    expect(diagram.currentTime()).toBe(0);
+  });
+
+  it("leaves keyboard shortcuts off unless the scene opts in", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const diagram = createDiagram({ container, code: SCENE, autoplay: false, copyright: false });
+
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: " ", bubbles: true }));
+    expect(diagram.isPlaying()).toBe(false);
+
+    diagram.destroy();
+  });
+
+  it("copies a share link from the toolbar", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+
+    const diagram = createDiagram({
+      container,
+      code: `
+player:
+  playback:
+    autoplay false
+  chrome:
+    badge false
+  controls:
+    play false
+    restart false
+    seek false
+    speed false
+    fit false
+    reset_view false
+
+scene theme=paper
+service A
+beat b1:
+  show A
+`,
+      shareUrl: "https://example.test/studio/",
+    });
+
+    const footer = document.body.querySelector<HTMLElement>(".markdy-footer")!;
+    expect(footer.querySelector(".markdy-control-svg")).not.toBeNull();
+    const shareControl = footer.querySelector<HTMLButtonElement>(".markdy-control-share")!;
+
+    shareControl.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    await vi.waitFor(() => expect(writeText).toHaveBeenCalledTimes(1));
+    expect(writeText.mock.calls[0][0]).toMatch(/^https:\/\/example\.test\/studio\/#code=/);
+
+    diagram.destroy();
+  });
+
   it("mounts and destroys diagrams across all supported diagram archetypes without throwing", () => {
     const archetypes = [
       "architecture",

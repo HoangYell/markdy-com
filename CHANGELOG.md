@@ -5,6 +5,59 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.11] — 2026-08-19
+
+### Added
+- **Unified `player:` block (`@markdy/core`)** — One declarative home for everything outside the diagram scene itself, organised into four groups so every leaf belongs to exactly one concern:
+
+  ```markdy
+  player:
+    playback:
+      autoplay false
+      loop true
+      rate 1.5
+    controls:
+      play true
+      restart true
+      prev_beat true
+      next_beat true
+      seek true
+      speed true
+      speeds "0.5 1 2"
+      fit true
+      reset_view true
+      svg true
+      share true
+    interaction:
+      zoom true
+      pan true
+      click_to_play true
+      double_click_to_reset true
+      keyboard true
+    chrome:
+      badge false
+      progress boundary
+      color "#3b82f6"
+  ```
+
+  - **Opt-in by declaration**: declaring a group turns it on and every affordance inside defaults to on, so authors only list what they want to switch off. A group disables itself when all of its affordances are `false`, which removes the need for a separate `enabled` flag to keep in sync.
+  - **Scope-local aliases**: `speed` means playback rate at the player root but the speed buttons inside `controls:`, which the previous flat model could not express. Keys accept camel case or snake case and `key value`, `key: value`, or `key = value`.
+- **New player controls (`@markdy/renderer-dom`)**:
+  - **Fit** — frames every item in the scene using real content bounds and pins the camera, so `frame`/`focus` zoom cues (e.g. `zoom=1.18`) stop moving the view while active. Implemented with an inline `!important` transform that outranks cue animations in the cascade.
+  - **Prev/Next beat** — time-aware beat stepping that mounts only when a scene has more than one beat.
+  - **Seek bar**, **configurable speed options** (`speeds "0.25 1 3"`), **SVG export**, and **Share**.
+  - **SVG** exports the settled final frame so no revealed node is missing, and loads the exporter through a dynamic import to keep the default bundle lean. **Share** copies a compressed `#code=` link, aimed at the Markdy playground by default and redirectable with the new `shareUrl` option.
+- **Keyboard shortcuts** — <kbd>←</kbd>/<kbd>→</kbd> step beats, <kbd>Space</kbd> toggles playback, <kbd>Home</kbd> restarts. Opt-in through `interaction: keyboard true` because the listener is window-level and captures space and arrow keys.
+- **`Diagram.nextBeat()` / `Diagram.prevBeat()`** — public beat navigation derived from the current playhead.
+
+### Changed
+- **`@markdy/core` owns player resolution** — new `player.ts` module holds the schema, a single alias registry, `applyPlayerSetting`, and `resolvePlayer`. The parser's `player:` block, `scene` properties, top-level directives, `SCENE_KEYS`, and the language-server keyword list all derive from that one source instead of four hand-maintained lists, and hosts resolve behaviour through `resolvePlayer` rather than re-deriving defaults.
+- **Live Studio and homepage now use the built-in player** — removed the duplicated transport UI (play, restart, rewind, speed buttons, timeline scrubber, step buttons, beat/scene jump selects, canvas "Fit", and the topbar SVG and Share buttons) along with their handlers and CSS. Auto-shuffle, grid, zoom in/out, Import, Live Director, PNG/GIF export, and theme remain, since they are not player duplicates.
+- **`@markdy/mdx` no longer overrides scene configuration** — `remarkMarkdy()` previously injected `autoplay=false`, `loop=false`, and `progressBar=false` as explicit props, which silently outranked a scene's own settings. The transform now adds no implicit props, so a diagram behaves the same in DOM, Astro, and MDX. Pass `remarkMarkdy({ defaults: { autoplay: false, loop: false, progressBar: false } })` to restore the previous static-page behaviour.
+
+### Deprecated
+- `SceneMeta.controls`, `interactiveViewport`, `autoplay`, `loop`, `copyright`, `playbackRate`, and `progressColor` are now mirrors of `meta.player`, kept populated for existing consumers. Legacy top-level directives, flat `player:` keys, and inline `scene` properties such as `controls true`, `interactive true`, and `speed 1.5` are normalised into the grouped model and continue to work.
+
 ## [1.0.10] — 2026-08-18
 
 ### Added

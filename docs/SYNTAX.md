@@ -15,10 +15,36 @@ MarkdyScript is diagram-native. Declare semantic nodes, groups, beats, flow oper
 ### Scene & Directives
 
 ```markdy
-controls true
-interactive true
-progressColor "#3b82f6"
-loop false
+player:
+  playback:
+    autoplay true
+    loop false
+    rate 1.5
+
+  controls:
+    play true
+    restart true
+    prev_beat true
+    next_beat true
+    seek true
+    speed true
+    speeds "0.5 1 2"
+    fit true
+    reset_view true
+    svg true
+    share true
+
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard true
+
+  chrome:
+    badge false
+    progress boundary
+    color "#3b82f6"
 
 scene theme=paper
 layout LR
@@ -26,19 +52,26 @@ layout LR
 
 Canonical scenes put `layout LR|RL|TB|BT` on its own line. For AI-generated compatibility, the parser also accepts `layout LR` or `layout=LR` on the `scene` line.
 
-You can declare diagram runtime and presentation settings directly at the top of the file as standalone directives or inline on the `scene` line:
+`player:` owns everything outside the diagram scene itself, split into four groups:
 
-| Top-Level Directive | `scene` Prop | Description |
+| Group | Owns | Settings |
 |---|---|---|
-| `controls [true\|false\|on\|off]` | `controls=true` | Mount playback, speed, and reset view buttons in footer |
-| `interactive [true\|false\|on\|off]` | `interactive=true` | Enable wheel zoom and drag pan |
-| `progressColor <color>` | `progressColor="#3b82f6"` | Custom progress bar color or gradient (e.g. `progressColor="#ec4899, #8b5cf6"`) |
-| `speed <number>` | `playbackRate=1.5` | Timeline speed multiplier |
-| `autoplay [true\|false\|on\|off]` | `autoplay=true` | Start playback automatically on load |
-| `loop [true\|false\|on\|off]` | `loop=false` | Loop timeline playback when reaching the end |
-| `copyright [true\|false\|on\|off]` | `copyright=false` | Show/hide "Powered by Markdy" badge |
+| `playback:` | when and how fast the timeline runs | `autoplay`, `loop`, `rate` |
+| `controls:` | which toolbar affordances are mounted | `play`, `restart`, `prev_beat`, `next_beat`, `seek`, `speed`, `speeds`, `fit`, `reset_view`, `svg`, `share` |
+| `interaction:` | what pointer and key input do | `zoom`, `pan`, `click_to_play`, `double_click_to_reset`, `keyboard` |
+| `chrome:` | non-interactive decoration | `badge`, `progress` (`none\|bar\|boundary`), `color` |
 
-Directives support space, colon (`controls: true`), and equals (`controls = true`) syntax. Directives defined in the script allow `<Markdy code={code} />` embeds to be completely self-contained without needing wrapper props.
+Declaring a group opts in, and every affordance in it defaults on — so list only what you want to turn off. A group switches itself off when all of its affordances are false, which means there is no separate enable flag to keep in sync. `reset_view` additionally requires interaction, and `click_to_play` is independent of viewport gestures.
+
+`fit` mounts a toggle that frames every item in the scene and pins the camera, so `frame`/`focus` zoom cues stop moving the view while it is active. Toggling it off, pressing `reset_view`, or double-clicking restores normal camera motion.
+
+`prev_beat` and `next_beat` step through beats and only appear when the scene has more than one. `speeds` sets the multipliers offered by the speed buttons (`speeds "0.25 1 3"`).
+
+`keyboard` is the one affordance that stays **off** unless you ask for it, because it listens on the window and captures space and arrow keys: <kbd>←</kbd>/<kbd>→</kbd> step beats, <kbd>Space</kbd> toggles playback, and <kbd>Home</kbd> restarts.
+
+`svg` downloads the settled final frame as vector SVG. `share` copies a compressed share link; hosts can point it at their own editor with the renderer's `shareUrl` option, and it defaults to the Markdy playground.
+
+Settings accept camel case or snake case, and `key value`, `key: value`, or `key = value`. Explicit renderer, Astro, or MDX props override script configuration. Legacy top-level directives, flat `player:` keys, and inline scene properties such as `controls true`, `interactive true`, `speed 1.5`, and `scene autoplay=false` are normalized into the same groups.
 
 ### Nodes
 
