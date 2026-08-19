@@ -1,6 +1,6 @@
 {
   "name": "@markdy/stdlib-systems",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Diagram-native system node vocabulary for MarkdyScript architecture diagrams.",
   "license": "MIT",
   "type": "module",
