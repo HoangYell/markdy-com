@@ -153,6 +153,16 @@ export function ensureNodeStyles(doc: Document): void {
   transform: rotate(0deg);
   clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
 }
+.markdy-node[data-shape="diamond"] .markdy-node__body {
+  justify-content: center;
+  padding: 6px 16%;
+  text-align: center;
+}
+.markdy-node[data-shape="diamond"] .markdy-node__label {
+  flex: 0 1 auto;
+  line-height: 1.18;
+  text-align: center;
+}
 .markdy-node[data-shape="pill"] {
   border-radius: 999px;
   min-height: 54px;
@@ -641,11 +651,11 @@ export function createNodeEl(node: PositionedNode, theme: ThemeTokens, assets?: 
 
   const body = document.createElement("div");
   body.className = "markdy-node__body";
-  const icon = createNodeMediaEl(document, node, assets);
   const label = document.createElement("div");
   label.className = "markdy-node__label";
   label.textContent = node.label;
-  body.append(icon, label);
+  if (node.shape !== "diamond") body.append(createNodeMediaEl(document, node, assets));
+  body.append(label);
   const value = node.props?.value ?? node.props?.metric;
   if (value !== undefined && value !== null) {
     const valueEl = document.createElement("div");

@@ -97,6 +97,11 @@ describe("createDiagram integration", () => {
     // Nodes live inside the camera layer so frame cues move them together.
     const camera = container.querySelector(".markdy-camera-layer")!;
     expect(camera.querySelectorAll(".markdy-node")).toHaveLength(3);
+    const structuralEdges = camera.querySelector<HTMLElement>(".markdy-structural-edge-host")!;
+    const groups = camera.querySelector<HTMLElement>(".markdy-group-layer")!;
+    const nodes = camera.querySelector<HTMLElement>(".markdy-scene-node-layer")!;
+    expect(Number(groups.style.zIndex)).toBeLessThan(Number(structuralEdges.style.zIndex));
+    expect(Number(structuralEdges.style.zIndex)).toBeLessThan(Number(nodes.style.zIndex));
 
     expect(diagram.duration()).toBeGreaterThan(0);
     expect(diagram.beats().map((b) => b.name)).toEqual(["intro", "trace", "finish"]);

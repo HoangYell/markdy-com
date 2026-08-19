@@ -353,7 +353,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   Object.assign(structuralEdgeHost.style, {
     position: "absolute",
     inset: "0",
-    zIndex: "45",
+    zIndex: "55",
     pointerEvents: "none",
   });
   cameraLayer.appendChild(structuralEdgeHost);

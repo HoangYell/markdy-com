@@ -5,6 +5,12 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.13] — 2026-08-19
+
+### Fixed
+- **Diamond / Decision Node Rendering (`@markdy/renderer-dom`)** — Decision (`decision` kind) and diamond-shape nodes no longer render a glyph/icon inside the rhombus body. The clipped geometry leaves too little horizontal room for an icon alongside the label, causing truncation and visual noise. Diamond nodes now render label-only with a centred body and tighter horizontal padding (`padding: 6px 16%`), matching the visual convention of standard flowchart diamond shapes. Updated the visual gate test so the "every node has a glyph" assertion correctly exempts diamond-shape nodes.
+- **Structural Edge Layer Z-Index (`@markdy/renderer-dom`)** — Raised the `markdy-structural-edge-host` layer z-index from `45` to `55`, placing it correctly between the group boundary layer (`z:48` → edges draw above group fills) and the scene node layer (`z:60` → nodes always sit on top of edges). Edges connecting nodes inside or across group boundaries are now fully visible and no longer obscured by group background panels.
+
 ## [1.0.12] — 2026-08-19
 
 ### Added
