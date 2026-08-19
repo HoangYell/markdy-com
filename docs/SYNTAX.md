@@ -2,7 +2,7 @@
 
 > ### SPECIFICATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.11
+> - **Current Version**: v1.0.12
 > - **Specification Version**: 1.0.x
 > - **Last Updated**: 2026-08-19
 > - **Documentation Hub**: <https://markdy.com/docs/>
@@ -31,6 +31,7 @@ player:
     speeds "0.5 1 2"
     fit true
     reset_view true
+    fullscreen true
     svg true
     share true
 
@@ -57,13 +58,13 @@ Canonical scenes put `layout LR|RL|TB|BT` on its own line. For AI-generated comp
 | Group | Owns | Settings |
 |---|---|---|
 | `playback:` | when and how fast the timeline runs | `autoplay`, `loop`, `rate` |
-| `controls:` | which toolbar affordances are mounted | `play`, `restart`, `prev_beat`, `next_beat`, `seek`, `speed`, `speeds`, `fit`, `reset_view`, `svg`, `share` |
+| `controls:` | which toolbar affordances are mounted | `play`, `restart`, `prev_beat`, `next_beat`, `seek`, `speed`, `speeds`, `fit`, `reset_view`, `fullscreen`, `svg`, `share` |
 | `interaction:` | what pointer and key input do | `zoom`, `pan`, `click_to_play`, `double_click_to_reset`, `keyboard` |
 | `chrome:` | non-interactive decoration | `badge`, `progress` (`none\|bar\|boundary`), `color` |
 
 Declaring a group opts in, and every affordance in it defaults on — so list only what you want to turn off. A group switches itself off when all of its affordances are false, which means there is no separate enable flag to keep in sync. `reset_view` additionally requires interaction, and `click_to_play` is independent of viewport gestures.
 
-`fit` mounts a toggle that frames every item in the scene and pins the camera, so `frame`/`focus` zoom cues stop moving the view while it is active. Toggling it off, pressing `reset_view`, or double-clicking restores normal camera motion.
+`fit` mounts a toggle that frames every item in the scene and pins the camera, so `frame`/`focus` zoom cues stop moving the view while it is active. Toggling it off, pressing `reset_view`, or double-clicking restores normal camera motion. `fullscreen` toggles browser fullscreen presentation for the diagram container.
 
 `prev_beat` and `next_beat` step through beats and only appear when the scene has more than one. `speeds` sets the multipliers offered by the speed buttons (`speeds "0.25 1 3"`).
 

@@ -631,6 +631,7 @@ beat main:
         speed: true,
         fit: true,
         resetView: true,
+        fullscreen: true,
         svg: true,
         share: true,
       },

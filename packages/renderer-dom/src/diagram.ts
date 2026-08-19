@@ -196,6 +196,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     speeds: speedOptions,
     fit: fitViewButton,
     resetView: resetViewButton,
+    fullscreen: fullscreenButton,
     svg: svgButton,
     share: shareButton,
   } = player.controls;
@@ -679,16 +680,10 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       const rate = Number(button.dataset.rate ?? "1");
       const active = Math.abs(rate - playbackRate) < 0.001;
       button.setAttribute("aria-pressed", active ? "true" : "false");
-      button.style.background = active ? "#1e293b" : "rgba(248, 250, 252, 0.92)";
-      button.style.color = active ? "#ffffff" : "#475569";
-      button.style.borderColor = active ? "#0f172a" : "rgba(148, 163, 184, 0.55)";
     }
     if (controlsSeekBar) controlsSeekBar.value = String(sceneMs / 1000);
     if (controlsFitButton) {
       controlsFitButton.setAttribute("aria-pressed", fitViewActive ? "true" : "false");
-      controlsFitButton.style.background = fitViewActive ? "#1e293b" : "rgba(248, 250, 252, 0.92)";
-      controlsFitButton.style.color = fitViewActive ? "#ffffff" : "#475569";
-      controlsFitButton.style.borderColor = fitViewActive ? "#0f172a" : "rgba(148, 163, 184, 0.55)";
     }
   }
 
@@ -810,19 +805,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     button.textContent = label;
     button.setAttribute("aria-label", ariaLabel);
     button.title = ariaLabel;
-    Object.assign(button.style, {
-      appearance: "none",
-      border: "1px solid rgba(148, 163, 184, 0.55)",
-      borderRadius: "5px",
-      background: "rgba(248, 250, 252, 0.92)",
-      color: "#475569",
-      cursor: "pointer",
-      font: "600 10px/1.1 system-ui, sans-serif",
-      padding: "4px 6px",
-      minWidth: "28px",
-      whiteSpace: "nowrap",
-      boxShadow: "none",
-    });
     return button;
   }
 
@@ -964,6 +946,47 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     toolbar.appendChild(button);
   }
 
+  function mountFullscreenControl(toolbar: HTMLElement): void {
+    if (!fullscreenButton) return;
+    const button = makeControlButton("Full", "Toggle fullscreen view");
+    button.className = "markdy-control-fullscreen";
+    button.setAttribute("aria-pressed", "false");
+
+    const host = container.parentElement ?? container;
+
+    function syncFullscreenState(): void {
+      const isFull =
+        document.fullscreenElement === host ||
+        document.fullscreenElement === container ||
+        document.fullscreenElement === viewport;
+      button.setAttribute("aria-pressed", isFull ? "true" : "false");
+      button.title = isFull ? "Exit fullscreen" : "Toggle fullscreen view";
+    }
+
+    button.addEventListener("click", async () => {
+      try {
+        if (!document.fullscreenElement) {
+          if (host.requestFullscreen) {
+            await host.requestFullscreen();
+          } else if ((host as any).webkitRequestFullscreen) {
+            await (host as any).webkitRequestFullscreen();
+          }
+        } else {
+          if (document.exitFullscreen) {
+            await document.exitFullscreen();
+          } else if ((document as any).webkitExitFullscreen) {
+            await (document as any).webkitExitFullscreen();
+          }
+        }
+      } catch (err) {
+        onWarning({ severity: "warning", message: `Fullscreen toggle failed: ${String(err)}`, line: 0 });
+      }
+    });
+
+    document.addEventListener("fullscreenchange", syncFullscreenState);
+    toolbar.appendChild(button);
+  }
+
   function handleKeyDown(event: KeyboardEvent): void {
     const target = event.target as HTMLElement | null;
     if (
@@ -1008,8 +1031,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       display: "flex",
       alignItems: "center",
       justifyContent: "flex-start",
-      flexWrap: "wrap",
-      gap: "4px",
       maxWidth: "100%",
       padding: "0",
       border: "0",
@@ -1032,6 +1053,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     mountSpeedControls(toolbar);
     mountFitControl(toolbar);
     mountResetViewControl(toolbar);
+    mountFullscreenControl(toolbar);
     mountSvgControl(toolbar);
     mountShareControl(toolbar);
 

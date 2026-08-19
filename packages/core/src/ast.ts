@@ -48,6 +48,7 @@ export type PlayerControlsConfig = {
   speed?: boolean;
   fit?: boolean;
   resetView?: boolean;
+  fullscreen?: boolean;
   svg?: boolean;
   share?: boolean;
   /** Speed multipliers offered by the speed buttons. */

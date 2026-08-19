@@ -5,6 +5,18 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.12] — 2026-08-19
+
+### Added
+- **`fullscreen` Player Control Flag (`@markdy/core`, `@markdy/renderer-dom`)** — Declarative `fullscreen true/false` flag inside `player.controls:`. Features native HTML5 Fullscreen API integration with dynamic `aria-pressed` synchronization and `fullscreenchange` lifecycle tracking.
+- **Micro-Icon Glyphs & Thematic Tokens (`@markdy/renderer-dom`)** — Added crisp CSS pseudo-element icons for all player buttons (`▶`/`⏸`, `⏮`, `⏭`, `↺`, `⛶ Fit`, `⊙ Reset`, `⛶ Full`, `📥 SVG`, `🔗 Share`) alongside dark-mode and theme-specific styling tokens across all 8 themes.
+
+### Changed
+- **Playground & Live Studio Respect DSL `player:` Directives** — Removed overriding host options in `playground.astro` and `index.astro` so that user-defined `player:` directives in MarkdyScript are 100% authoritative in both the Playground and Homepage Live Studio.
+- **Pixel-Perfect Single-Row Toolbar** — Refined toolbar button padding, gaps, and slider dimensions so all 14 player affordances comfortably sit on a single desktop row without wrapping, with clean centered wrapping on mobile viewports.
+- **Streamlined Live Studio Header** — Consolidated homepage studio actions (`🔀 Shuffle`, `Run ▶`, `Paste`, `Copy`, `Popout ↗`) and compiler status pill into the topbar, eliminating duplicated SVG/Share buttons.
+- **Showcase Example Parity** — Updated showcase examples (`url-shortener-architecture.markdy`) to showcase all 23 player flags across playback, controls, interaction, and chrome.
+
 ## [1.0.11] — 2026-08-19
 
 ### Added
