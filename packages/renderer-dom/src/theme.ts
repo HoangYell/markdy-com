@@ -636,6 +636,69 @@ export function ensureSceneStyles(doc: Document): void {
   opacity: 1 !important;
   color: #64748b !important;
 }
+/* Fullscreen & Fallback Pseudo-Fullscreen Views */
+.markdy-fullscreen-host,
+:fullscreen {
+  background-color: var(--md-canvas, #0b101b) !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 16px 20px 12px !important;
+  overflow: hidden !important;
+}
+.markdy-fullscreen-host .markdy-viewport,
+:fullscreen .markdy-viewport {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: calc(100vh - 64px) !important;
+}
+.markdy-fullscreen-host .markdy-footer,
+:fullscreen .markdy-footer {
+  flex-shrink: 0 !important;
+  width: 100% !important;
+  max-width: 1400px !important;
+  margin: 0 auto !important;
+  padding: 8px 12px 4px !important;
+}
+.markdy--pseudo-fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 999999 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: 100vw !important;
+  max-height: 100vh !important;
+  background-color: var(--md-canvas, #0b101b) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 16px 20px 12px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+}
+.markdy--pseudo-fullscreen .markdy-viewport {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: calc(100vh - 64px) !important;
+}
+.markdy--pseudo-fullscreen .markdy-footer {
+  flex-shrink: 0 !important;
+  width: 100% !important;
+  max-width: 1400px !important;
+  margin: 0 auto !important;
+  padding: 8px 12px 4px !important;
+}
 @media (prefers-reduced-motion: reduce) {
   .markdy-node,
   .markdy-beat-caption,

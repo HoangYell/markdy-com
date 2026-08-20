@@ -803,6 +803,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       }
       for (const anim of allAnims) anim.cancel();
       resizeObserver?.disconnect();
+      removeFullscreenListeners?.();
       if (progressEl?.parentNode === viewport) viewport.removeChild(progressEl);
       if (badge?.parentNode) badge.parentNode.removeChild(badge);
       if (footer?.parentNode) footer.parentNode.removeChild(footer);
@@ -1131,44 +1132,137 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     toolbar.appendChild(button);
   }
 
+  let removeFullscreenListeners: (() => void) | null = null;
+
   function mountFullscreenControl(toolbar: HTMLElement): void {
     if (!fullscreenButton) return;
     const button = makeControlButton("Full", "Toggle fullscreen view", ICONS.fullscreen);
     button.className = "markdy-control-fullscreen";
     button.setAttribute("aria-pressed", "false");
 
-    const host = container.parentElement ?? container;
+    const host = (footer && footer.parentElement) ? footer.parentElement : (container.parentElement ?? container);
+    let isPseudoFull = false;
 
     function syncFullscreenState(): void {
       const isFull =
+        isPseudoFull ||
         document.fullscreenElement === host ||
         document.fullscreenElement === container ||
-        document.fullscreenElement === viewport;
+        document.fullscreenElement === viewport ||
+        (document as any).webkitFullscreenElement === host ||
+        (document as any).webkitFullscreenElement === container;
+
       button.setAttribute("aria-pressed", isFull ? "true" : "false");
       button.title = isFull ? "Exit fullscreen" : "Toggle fullscreen view";
+      button.innerHTML = isFull ? `${ICONS.fullscreen}Exit` : `${ICONS.fullscreen}Full`;
+
+      if (isFull) {
+        host.classList.add("markdy-fullscreen-host");
+      } else {
+        host.classList.remove("markdy-fullscreen-host");
+        host.classList.remove("markdy--pseudo-fullscreen");
+      }
+
+      // Re-sync controls and transforms
+      requestAnimationFrame(() => {
+        applyViewportTransform();
+        syncControls();
+      });
     }
 
-    button.addEventListener("click", async () => {
+    async function toggleFullscreen(): Promise<void> {
       try {
-        if (!document.fullscreenElement) {
-          if (host.requestFullscreen) {
-            await host.requestFullscreen();
-          } else if ((host as any).webkitRequestFullscreen) {
-            await (host as any).webkitRequestFullscreen();
+        const isCurrentlyFull =
+          isPseudoFull ||
+          document.fullscreenElement ||
+          (document as any).webkitFullscreenElement ||
+          (document as any).mozFullScreenElement ||
+          (document as any).msFullscreenElement;
+
+        if (!isCurrentlyFull) {
+          const req =
+            host.requestFullscreen?.bind(host) ||
+            (host as any).webkitRequestFullscreen?.bind(host) ||
+            (host as any).mozRequestFullScreen?.bind(host) ||
+            (host as any).msRequestFullscreen?.bind(host) ||
+            container.requestFullscreen?.bind(container) ||
+            (container as any).webkitRequestFullscreen?.bind(container);
+
+          if (req) {
+            try {
+              await req();
+            } catch {
+              // If permissions policy or iframe sandbox blocks native fullscreen, fallback to CSS pseudo-fullscreen
+              isPseudoFull = true;
+              host.classList.add("markdy--pseudo-fullscreen");
+              syncFullscreenState();
+            }
+          } else {
+            isPseudoFull = true;
+            host.classList.add("markdy--pseudo-fullscreen");
+            syncFullscreenState();
           }
         } else {
-          if (document.exitFullscreen) {
-            await document.exitFullscreen();
-          } else if ((document as any).webkitExitFullscreen) {
-            await (document as any).webkitExitFullscreen();
+          if (isPseudoFull) {
+            isPseudoFull = false;
+            host.classList.remove("markdy--pseudo-fullscreen");
+            syncFullscreenState();
+          } else {
+            const exit =
+              document.exitFullscreen?.bind(document) ||
+              (document as any).webkitExitFullscreen?.bind(document) ||
+              (document as any).mozCancelFullScreen?.bind(document) ||
+              (document as any).msExitFullscreen?.bind(document);
+
+            if (exit) {
+              await exit();
+            }
           }
         }
       } catch (err) {
-        onWarning({ severity: "warning", message: `Fullscreen toggle failed: ${String(err)}`, line: 0 });
+        if (!isPseudoFull) {
+          isPseudoFull = true;
+          host.classList.add("markdy--pseudo-fullscreen");
+          syncFullscreenState();
+        } else {
+          isPseudoFull = false;
+          host.classList.remove("markdy--pseudo-fullscreen");
+          syncFullscreenState();
+        }
       }
+    }
+
+    button.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleFullscreen();
     });
 
+    const handleEscKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isPseudoFull) {
+        isPseudoFull = false;
+        host.classList.remove("markdy--pseudo-fullscreen");
+        syncFullscreenState();
+      }
+    };
+
     document.addEventListener("fullscreenchange", syncFullscreenState);
+    document.addEventListener("webkitfullscreenchange", syncFullscreenState);
+    document.addEventListener("mozfullscreenchange", syncFullscreenState);
+    document.addEventListener("MSFullscreenChange", syncFullscreenState);
+    window.addEventListener("keydown", handleEscKey);
+
+    removeFullscreenListeners = () => {
+      document.removeEventListener("fullscreenchange", syncFullscreenState);
+      document.removeEventListener("webkitfullscreenchange", syncFullscreenState);
+      document.removeEventListener("mozfullscreenchange", syncFullscreenState);
+      document.removeEventListener("MSFullscreenChange", syncFullscreenState);
+      window.removeEventListener("keydown", handleEscKey);
+      if (isPseudoFull) {
+        host.classList.remove("markdy--pseudo-fullscreen");
+        host.classList.remove("markdy-fullscreen-host");
+      }
+    };
+
     toolbar.appendChild(button);
   }
 
