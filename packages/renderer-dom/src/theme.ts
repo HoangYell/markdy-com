@@ -265,28 +265,37 @@ export function ensureSceneStyles(doc: Document): void {
   transform: translateY(-1px) scale(1.02);
 }
 .markdy-badge {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 25;
   display: inline-flex;
   align-items: center;
   gap: 4px;
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--md-control-text, #94a3b8);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--md-text-muted, #94a3b8);
   text-decoration: none;
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: var(--md-control-bg, rgba(255, 255, 255, 0.05));
-  border: 1px solid var(--md-control-border, rgba(148, 163, 184, 0.18));
-  margin-left: auto;
-  flex-shrink: 0;
-  transition: all 0.15s ease;
-  white-space: nowrap;
+  padding: 2.5px 7px;
+  border-radius: 5px;
+  background: var(--md-surface, rgba(15, 23, 42, 0.45));
+  border: 1px solid var(--md-border, rgba(148, 163, 184, 0.15));
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0.65;
+  transition: all 0.2s ease;
+  pointer-events: auto;
+  user-select: none;
 }
 .markdy-badge:hover {
+  opacity: 1;
   color: var(--accent, #10b981);
-  background: var(--accent-light, rgba(16, 185, 129, 0.12));
   border-color: var(--accent, #10b981);
+  background: var(--md-surface-raised, rgba(15, 23, 42, 0.75));
   transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 .markdy-speed-group {
   display: inline-flex;

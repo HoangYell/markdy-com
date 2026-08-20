@@ -244,7 +244,7 @@ describe("createDiagram integration", () => {
     diagram.destroy();
   });
 
-  it("aligns controls on left and copyright badge on right when both are present", () => {
+  it("mounts controls in footer and copyright badge in viewport top right", () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
 
@@ -257,18 +257,15 @@ describe("createDiagram integration", () => {
     });
     const footer = document.body.querySelector<HTMLElement>(".markdy-footer");
     const toolbar = footer?.querySelector<HTMLElement>(".markdy-controls") ?? null;
-    const badge = footer?.querySelector<HTMLAnchorElement>("a") ?? null;
+    const badge = container.querySelector<HTMLAnchorElement>(".markdy-viewport a.markdy-badge") ?? null;
 
     expect(footer).not.toBeNull();
     expect(toolbar).not.toBeNull();
     expect(badge).not.toBeNull();
-    expect(footer?.style.justifyContent).toBe("space-between");
-    expect(toolbar?.style.justifyContent).toBe("flex-start");
-    expect(badge?.style.marginLeft).toBe("auto");
-    expect(badge?.href).toContain("https://markdy.com/playground/#code=");
+    expect(badge?.textContent).toBe("Powered by Markdy");
+    expect(badge?.href).toBe("https://markdy.com/");
     expect(badge?.target).toBe("_blank");
     expect(footer?.firstElementChild).toBe(toolbar);
-    expect(footer?.lastElementChild).toBe(badge);
 
     const fullButton = toolbar?.querySelector<HTMLButtonElement>(".markdy-control-fullscreen");
     expect(fullButton).not.toBeNull();
