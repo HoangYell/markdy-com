@@ -533,6 +533,8 @@ player:
   chrome:
     badge false
   controls:
+    prev_beat true
+    next_beat true
     seek false
     fit false
     speeds "0.25 1 3"

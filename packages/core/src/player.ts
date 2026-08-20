@@ -314,8 +314,8 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
   const controls = {
     play: controlsOn && (config.controls?.play ?? true),
     restart: controlsOn && (config.controls?.restart ?? true),
-    prevBeat: controlsOn && (config.controls?.prevBeat ?? true),
-    nextBeat: controlsOn && (config.controls?.nextBeat ?? true),
+    prevBeat: controlsOn && (config.controls?.prevBeat ?? false),
+    nextBeat: controlsOn && (config.controls?.nextBeat ?? false),
     seek: controlsOn && (config.controls?.seek ?? true),
     speed: controlsOn && (config.controls?.speed ?? true),
     fit: controlsOn && (config.controls?.fit ?? true),
