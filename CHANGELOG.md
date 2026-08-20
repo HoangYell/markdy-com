@@ -5,6 +5,11 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.17] — 2026-08-20
+
+### Fixed
+- **Robust Fullscreen Viewport & Fallback Modal (`@markdy/renderer-dom`)** — Enhanced fullscreen handling with multi-vendor browser support (`webkit`, `moz`, `ms`), `:fullscreen` canvas scaling, auto-refit on fullscreen transitions, and automatic CSS pseudo-fullscreen fallback (`.markdy--pseudo-fullscreen`) when native `requestFullscreen()` is blocked by iframe sandboxes or browser permission policies.
+
 ## [1.0.16] — 2026-08-20
 
 ### Changed
