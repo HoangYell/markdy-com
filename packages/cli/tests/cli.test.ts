@@ -73,6 +73,25 @@ describe("markdy cli", () => {
     expect(second.exitCode).toBe(0);
   });
 
+  it("formats grouped player configuration without changing behavior", async () => {
+    const dir = await tempDir();
+    const file = join(dir, "player.markdy");
+    const source = `player:\n  playback:\n    autoplay false\n    loop true\n    rate 1.5\n  controls:\n    speed true\n    speeds "0.25 1 2"\n    reset_view true\n    code true\n  interaction:\n    zoom true\n    keyboard false\n  chrome:\n    badge true\n    progress boundary\n    color "#3b82f6"\n\nscene theme=paper\nservice API\nbeat main:\n  show API\n`;
+    await writeFile(file, source, "utf8");
+
+    const result = await runCli(["fmt", file, "--write"], new BufferIo(), { openBrowser: async () => {} });
+    expect(result.exitCode).toBe(0);
+    const formatted = await readFile(file, "utf8");
+    expect(formatted).toContain("player:\n  playback:\n    autoplay false\n    loop true\n    rate 1.5");
+    expect(formatted).toContain('speed true\n    speeds "0.25 1 2"');
+    expect(formatted).toContain("reset_view true\n    code true");
+    expect(formatted).toContain('progress boundary\n    color "#3b82f6"');
+    expect(formatted.indexOf("scene theme=paper")).toBeLessThan(formatted.indexOf("player:"));
+
+    const second = await runCli(["fmt", file, "--check"], new BufferIo(), { openBrowser: async () => {} });
+    expect(second.exitCode).toBe(0);
+  });
+
   it("formats frame cues and preserves node props", async () => {
     const dir = await tempDir();
     const file = join(dir, "story.markdy");

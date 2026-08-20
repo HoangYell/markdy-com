@@ -15,6 +15,16 @@ MarkdyScript is diagram-native. Declare semantic nodes, groups, beats, flow oper
 ### Scene & Directives
 
 ```markdy
+scene theme=paper
+layout LR
+
+browser Client
+service API
+
+beat request:
+  show $nodes
+  Client -> API "GET /orders"
+
 player:
   playback:
     autoplay true
@@ -46,12 +56,9 @@ player:
     badge false
     progress boundary
     color "#3b82f6"
-
-scene theme=paper
-layout LR
 ```
 
-Canonical scenes put `layout LR|RL|TB|BT` on its own line. For AI-generated compatibility, the parser also accepts `layout LR` or `layout=LR` on the `scene` line.
+Canonical scenes put `layout LR|RL|TB|BT` on its own line and optional `player:` configuration at the bottom. The parser accepts `player:` elsewhere, plus `layout LR` or `layout=LR` on the `scene` line, for compatibility.
 
 `player:` owns everything outside the diagram scene itself, split into four groups:
 
@@ -62,17 +69,21 @@ Canonical scenes put `layout LR|RL|TB|BT` on its own line. For AI-generated comp
 | `interaction:` | what pointer and key input do | `zoom`, `pan`, `click_to_play`, `double_click_to_reset`, `keyboard` |
 | `chrome:` | non-interactive decoration | `badge`, `progress` (`none\|bar\|boundary`), `color` |
 
-Declaring a group opts in, and every affordance in it defaults on — so list only what you want to turn off. A group switches itself off when all of its affordances are false, which means there is no separate enable flag to keep in sync. `reset_view` additionally requires interaction, and `click_to_play` is independent of viewport gestures.
+Toolbar controls are opt-in: only affordances explicitly set to `true` are mounted. When none are enabled, the toolbar is omitted; the footer remains only when the badge is enabled. `reset_view` additionally requires interaction, and `click_to_play` is independent of viewport gestures.
+
+The subtle "Powered by Markdy" link remains visible at the right edge of the footer by default. It links to the Markdy playground with the current source encoded in the URL; set `chrome.badge false` or the renderer's `copyright` option to `false` to hide it.
 
 `fit` mounts a toggle that frames every item in the scene and pins the camera, so `frame`/`focus` zoom cues stop moving the view while it is active. Toggling it off, pressing `reset_view`, or double-clicking restores normal camera motion. `fullscreen` toggles browser fullscreen presentation for the diagram container.
 
-`prev_beat` and `next_beat` step through beats and only appear when the scene has more than one. `speeds` sets the multipliers offered by the speed buttons (`speeds "0.25 1 3"`).
+`prev_beat` and `next_beat` step through beats and only appear when the scene has more than one. `rate` sets the initial playback multiplier; `speeds` sets the choices offered to viewers (`speeds "0.25 1 3"`). The speed selector is omitted unless `speed true` provides at least two distinct positive choices.
 
 `keyboard` is the one affordance that stays **off** unless you ask for it, because it listens on the window and captures space and arrow keys: <kbd>←</kbd>/<kbd>→</kbd> step beats, <kbd>Space</kbd> toggles playback, and <kbd>Home</kbd> restarts.
 
 `svg` downloads the settled final frame as vector SVG. `share` copies a compressed share link; hosts can point it at their own editor with the renderer's `shareUrl` option, and it defaults to the Markdy playground. `code` opens a dialog displaying the raw MarkdyScript source code with syntax tinting and copy button.
 
-Settings accept camel case or snake case, and `key value`, `key: value`, or `key = value`. Explicit renderer, Astro, or MDX props override script configuration. Legacy top-level directives, flat `player:` keys, and inline scene properties such as `controls true`, `interactive true`, `speed 1.5`, and `scene autoplay=false` are normalized into the same groups.
+Settings accept camel case or snake case, and `key value`, `key: value`, or `key = value`. Omitted renderer, Astro, or MDX props preserve script configuration; host `false` gates controls or interaction, while host `true` supplies legacy defaults for unset leaves. Legacy top-level directives, flat `player:` keys, and inline scene properties such as `controls true`, `interactive true`, `speed 1.5`, and `scene autoplay=false` are normalized into the same groups.
+
+`markdy fmt` preserves this behavior while canonicalizing aliases and indentation into a grouped block at the bottom.
 
 ### Nodes
 

@@ -23,7 +23,7 @@ import { mountGroupBoundaries } from "./groups.js";
 import { createNodeEl, createTitleEl, ensureNodeStyles } from "./nodes.js";
 import { mountSequenceLayer } from "./sequence.js";
 import { mountTreeBuses } from "./tree.js";
-import { applyThemeToScene, ensureSceneStyles } from "./theme.js";
+import { applyThemeToScene, applyThemeVariables, ensureSceneStyles } from "./theme.js";
 
 const NORMAL_PLAYBACK_RATE = 4 / 5;
 const MIN_VIEWPORT_ZOOM = 0.5;
@@ -59,11 +59,11 @@ export interface DiagramOptions {
   progressBarColor?: string;
   /** Playback speed multiplier. Defaults to 1, where 1 is Markdy's normal pace. */
   playbackRate?: number;
-  /** Enable wheel zoom and drag pan on the rendered viewport. Defaults to false. */
+  /** Host interaction override. `true` enables default gestures; `false` suppresses script interaction. */
   interactiveViewport?: boolean;
   /** Base URL for the Share control. Defaults to the Markdy playground. */
   shareUrl?: string;
-  /** Show built-in playback and viewport controls. Also enables viewport interaction. Defaults to false. */
+  /** Host controls override. `true` enables the legacy default set; `false` suppresses script controls. */
   controls?: boolean;
   onWarning?: (warning: Diagnostic) => void;
   onTimeUpdate?: (seconds: number, durationSeconds: number) => void;
@@ -273,11 +273,12 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     if (footer) return footer;
     footer = document.createElement("div");
     footer.className = "markdy-footer";
+    applyThemeVariables(footer, plan.theme);
     Object.assign(footer.style, {
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
-      flexWrap: "wrap",
+      flexWrap: "nowrap",
       gap: "6px",
       width: "100%",
       boxSizing: "border-box",
@@ -286,6 +287,24 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     if (container.parentNode) container.parentNode.insertBefore(footer, container.nextSibling);
     else container.appendChild(footer);
     return footer;
+  }
+
+  let badge: HTMLAnchorElement | null = null;
+  if (copyright) {
+    badge = document.createElement("a");
+    badge.className = "markdy-badge";
+    badge.href = `${MARKDY_PLAYGROUND_URL}#code=${encodeCodeForPlaygroundHash(code)}`;
+    badge.target = "_blank";
+    badge.rel = "noopener noreferrer";
+    badge.title = "Open and edit in Markdy Playground";
+    badge.textContent = "Powered by Markdy";
+    ensureFooter().appendChild(badge);
+    const badgeLink = badge;
+    void compressMarkdyToUrlHash(code)
+      .then((hash) => {
+        badgeLink.href = `${MARKDY_PLAYGROUND_URL}#code=${hash}`;
+      })
+      .catch(() => undefined);
   }
 
   ensureSceneStyles(document);
@@ -305,18 +324,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   });
   applyThemeToScene(scene, plan.theme);
   viewport.appendChild(scene);
-
-  let badge: HTMLAnchorElement | null = null;
-  if (copyright) {
-    badge = document.createElement("a");
-    badge.className = "markdy-badge";
-    badge.href = "https://markdy.com";
-    badge.target = "_blank";
-    badge.rel = "noopener noreferrer";
-    badge.title = "Powered by Markdy - Diagram as Code";
-    badge.textContent = "Powered by Markdy";
-    viewport.appendChild(badge);
-  }
 
   const viewportTransform = document.createElement("div");
   viewportTransform.className = "markdy-viewport-transform";
@@ -560,6 +567,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   let controlsSeekBar: HTMLInputElement | null = null;
   let controlsTimeEl: HTMLSpanElement | null = null;
   let controlsFitButton: HTMLButtonElement | null = null;
+  let closeCodePanel: (() => void) | null = null;
   let fitViewActive = false;
 
   const ICONS = {
@@ -803,8 +811,9 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       for (const anim of allAnims) anim.cancel();
       resizeObserver?.disconnect();
       removeFullscreenListeners?.();
+      closeCodePanel?.();
+      closeCodePanel = null;
       if (progressEl?.parentNode === viewport) viewport.removeChild(progressEl);
-      if (badge?.parentNode) badge.parentNode.removeChild(badge);
       if (footer?.parentNode) footer.parentNode.removeChild(footer);
       if (viewport.parentNode === container) container.removeChild(viewport);
     },
@@ -984,30 +993,44 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     toolbar.appendChild(button);
   }
 
-  /** Lightweight client-side syntax tinting — wraps recognisable tokens in
-   *  coloured spans without importing a full highlighter. */
+  /** Lightweight client-side syntax tinting without importing a full highlighter. */
   function tintCode(raw: string): string {
     return raw
       .split("\n")
       .map((line) => {
-        // Comments — must be tested first so the rest don't taint comment text.
-        if (/^\s*\/\//.test(line)) {
-          return `<span class="t-comment">${escHtml(line)}</span>`;
-        }
-        // Edge operators at word boundaries.
-        line = line.replace(/(->|<-|~>|--|<~)/g, '<span class="t-edge">$1</span>');
-        // Quoted strings.
-        line = line.replace(/"([^"]*)"/g, '"<span class="t-string">$1</span>"');
-        // Leading DSL keywords (scene, beat, group, show, frame, glow…).
-        line = line.replace(
+        if (/^\s*\/\//.test(line)) return `<span class="t-comment">${escHtml(line)}</span>`;
+
+        const keyword = line.match(
           /^(\s*)(scene|beat|group|player|show|frame|glow|focus|layout|edge|annotation|start|end|decision|service|browser|gateway|database|cache|queue|worker|function|pod|user|client|hub|station|metric|mobile)\b/,
-          '$1<span class="t-keyword">$2</span>',
         );
-        // Bare numbers / units (e.g. zoom=1.2, stagger=80ms).
-        line = line.replace(/\b(\d[\d.]*(?:ms|px|s)?)\b/g, '<span class="t-number">$1</span>');
-        return line;
+        const prefix = keyword
+          ? `${escHtml(keyword[1])}<span class="t-keyword">${keyword[2]}</span>`
+          : "";
+        return prefix + tintInlineCode(line.slice(keyword?.[0].length ?? 0));
       })
       .join("\n");
+  }
+
+  function tintInlineCode(raw: string): string {
+    const tokenPattern = /"[^"]*"|->|<-|~>|--|<~|\b\d[\d.]*(?:ms|px|s)?\b/g;
+    let output = "";
+    let cursor = 0;
+
+    for (const match of raw.matchAll(tokenPattern)) {
+      const token = match[0];
+      const index = match.index ?? 0;
+      output += escHtml(raw.slice(cursor, index));
+      if (token.startsWith('"')) {
+        output += `"<span class="t-string">${escHtml(token.slice(1, -1))}</span>"`;
+      } else if (/^\d/.test(token)) {
+        output += `<span class="t-number">${token}</span>`;
+      } else {
+        output += `<span class="t-edge">${escHtml(token)}</span>`;
+      }
+      cursor = index + token.length;
+    }
+
+    return output + escHtml(raw.slice(cursor));
   }
 
   function escHtml(str: string): string {
@@ -1021,6 +1044,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     button.setAttribute("aria-haspopup", "dialog");
 
     button.addEventListener("click", () => {
+      closeCodePanel?.();
+
       const overlay = document.createElement("div");
       overlay.className = "markdy-code-panel-overlay";
       overlay.setAttribute("role", "dialog");
@@ -1090,10 +1115,19 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       // Focus the close button for keyboard accessibility.
       closeBtn.focus();
 
+      let closing = false;
+      function removePanel(): void {
+        document.removeEventListener("keydown", handleEscape);
+        overlay.remove();
+        if (closeCodePanel === removePanel) closeCodePanel = null;
+      }
+
       function closePanel(): void {
+        if (closing) return;
+        closing = true;
         overlay.dataset.closing = "1";
-        // Wait for the closing animation before removing the element.
-        overlay.addEventListener("animationend", () => overlay.remove(), { once: true });
+        document.removeEventListener("keydown", handleEscape);
+        overlay.addEventListener("animationend", removePanel, { once: true });
       }
 
       closeBtn.addEventListener("click", closePanel);
@@ -1103,12 +1137,10 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       });
       // Escape key closes the panel.
       function handleEscape(e: KeyboardEvent): void {
-        if (e.key === "Escape") { closePanel(); document.removeEventListener("keydown", handleEscape); }
+        if (e.key === "Escape") closePanel();
       }
       document.addEventListener("keydown", handleEscape);
-      overlay.addEventListener("animationend", () => {
-        if (overlay.dataset.closing === "1") document.removeEventListener("keydown", handleEscape);
-      }, { once: true });
+      closeCodePanel = removePanel;
     });
 
     toolbar.appendChild(button);
@@ -1376,7 +1408,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
     if (toolsGroup.children.length > 0) toolbar.appendChild(toolsGroup);
 
-    ensureFooter().appendChild(toolbar);
+    ensureFooter().insertBefore(toolbar, badge);
     syncControls();
   }
 

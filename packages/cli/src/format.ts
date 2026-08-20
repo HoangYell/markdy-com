@@ -1,4 +1,4 @@
-import type { BeatDecl, Cue, DiagramAST, GroupDecl, NodeDecl, StyleDecl } from "@markdy/core";
+import type { BeatDecl, Cue, DiagramAST, GroupDecl, NodeDecl, PlayerConfig, StyleDecl } from "@markdy/core";
 
 export function formatScene(ast: DiagramAST): string {
   const lines: string[] = [];
@@ -45,7 +45,66 @@ export function formatScene(ast: DiagramAST): string {
     lines.push("");
   }
 
+  const player = formatPlayer(ast.meta.player);
+  if (player.length > 0) {
+    if (lines.at(-1) !== "") lines.push("");
+    lines.push(...player);
+  }
+
   return `${lines.join("\n").trim()}\n`;
+}
+
+function formatPlayer(player: PlayerConfig | undefined): string[] {
+  if (!player) return [];
+
+  const groups: Array<[string, Array<[string, boolean | number | string | undefined]>]> = [
+    ["playback", [
+      ["autoplay", player.playback?.autoplay],
+      ["loop", player.playback?.loop],
+      ["rate", player.playback?.rate],
+    ]],
+    ["controls", [
+      ["play", player.controls?.play],
+      ["restart", player.controls?.restart],
+      ["prev_beat", player.controls?.prevBeat],
+      ["next_beat", player.controls?.nextBeat],
+      ["seek", player.controls?.seek],
+      ["speed", player.controls?.speed],
+      ["speeds", player.controls?.speeds?.join(" ")],
+      ["fit", player.controls?.fit],
+      ["reset_view", player.controls?.resetView],
+      ["fullscreen", player.controls?.fullscreen],
+      ["svg", player.controls?.svg],
+      ["share", player.controls?.share],
+      ["code", player.controls?.code],
+      ["theme", player.controls?.theme],
+    ]],
+    ["interaction", [
+      ["zoom", player.interaction?.zoom],
+      ["pan", player.interaction?.pan],
+      ["click_to_play", player.interaction?.clickToPlay],
+      ["double_click_to_reset", player.interaction?.doubleClickToReset],
+      ["keyboard", player.interaction?.keyboard],
+    ]],
+    ["chrome", [
+      ["badge", player.chrome?.badge],
+      ["progress", player.chrome?.progress],
+      ["color", player.chrome?.progressColor],
+    ]],
+  ];
+
+  const lines = ["player:"];
+  for (const [group, settings] of groups) {
+    const configured = settings.filter(([, value]) => value !== undefined);
+    if (configured.length === 0) continue;
+    lines.push(`  ${group}:`);
+    for (const [key, value] of configured) {
+      const formatted = typeof value === "string" && key !== "progress" ? JSON.stringify(value) : String(value);
+      lines.push(`    ${key} ${formatted}`);
+    }
+  }
+
+  return lines.length > 1 ? lines : [];
 }
 
 function formatStyle(style: StyleDecl): string {

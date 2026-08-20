@@ -68,7 +68,8 @@ try {
 | `ParseError` | class | Error with `.line` number for diagnostics |
 | `DiagramAST` | type | Parsed scene: meta, nodes, edges, groups, patterns, beats |
 | `RenderPlan` | type | Positioned nodes, routed edges, group zones, sequence messages, timed cues, beat ranges |
-| `SceneMeta` | type | Scene configuration (width, height, fps, theme, direction, controls, interactive, progressColor, playbackRate, loop, autoplay, copyright) |
+| `SceneMeta` | type | Scene configuration; `meta.player` is authoritative, with deprecated flat mirrors retained for compatibility |
+| `PlayerConfig` / `resolvePlayer` | type / function | Grouped playback, controls, interaction, and chrome configuration with host resolution |
 | `NodeDecl` | type | Node declaration (kind, id, label, style) |
 | `EdgeDecl` | type | Edge declaration (kind, from, to, label) |
 | `BeatDecl` | type | Named beat with cues |

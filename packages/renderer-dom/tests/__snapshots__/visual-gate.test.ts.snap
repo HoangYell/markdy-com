@@ -676,6 +676,26 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "security",
     },
   ],
+  "examples/20-player-configuration.markdy": [
+    {
+      "icon": "browser",
+      "id": "Viewer",
+      "kind": "browser",
+      "role": "client",
+    },
+    {
+      "icon": "server",
+      "id": "ApiGateway",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
+      "icon": "database",
+      "id": "Orders",
+      "kind": "database",
+      "role": "data",
+    },
+  ],
   "examples/showcase/cicd-delivery-pipeline.markdy": [
     {
       "icon": "user",

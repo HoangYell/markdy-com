@@ -16,7 +16,7 @@ const structuredData = [
     "@id": `${canonicalURL}#article`,
     headline: "Markdy Playground: Learn, Test, and Share Animated Architecture Diagrams",
     description:
-      "Use the Markdy playground to edit MarkdyScript, preview animated architecture diagrams, jump between beats, inspect diagnostics, and share runnable scenes.",
+      "Use the Markdy playground to edit MarkdyScript, configure script-owned player controls, inspect animated architecture diagrams, and share runnable scenes.",
     inLanguage: "en",
     url: canonicalURL,
     mainEntityOfPage: canonicalURL,
@@ -46,11 +46,11 @@ const structuredData = [
 
 <ArticleLayout
   title="Markdy Playground — Learn, Test, and Share Animated Diagrams"
-  description="Use the Markdy playground to edit MarkdyScript, preview animated architecture diagrams, jump between beats, inspect diagnostics, and share runnable scenes."
+  description="Use the Markdy playground to edit MarkdyScript, configure script-owned player controls, inspect animated architecture diagrams, and share runnable scenes."
   keywords="Markdy playground, animated diagram playground, architecture diagram playground, diagram as code playground, Mermaid alternative playground, MarkdyScript editor"
   canonicalURL={canonicalURL}
   headline="Markdy Playground: Learn, Test, and Share Animated Architecture Diagrams"
-  dek="The dedicated Markdy playground is the fastest way to try animated diagrams as code: edit MarkdyScript, preview the motion, inspect diagnostics, and share runnable scenes without installing anything."
+  dek="Edit MarkdyScript, define the viewer contract, preview motion, inspect diagnostics, and share runnable scenes without installing anything."
   structuredData={structuredData}
 >
   <p>
@@ -95,7 +95,7 @@ const structuredData = [
   <h2>A small scene to try</h2>
   <p>
     Paste this into the <a href="/playground/">playground</a>. It demonstrates nodes, a group, a labeled beat,
-    a camera <code>frame</code>, a request flow, a response flow, and a clean reset back to the full diagram.
+    a camera <code>frame</code>, request/response flow, and a compact viewer contract.
   </p>
   <pre><code>scene theme=paper
 layout LR
@@ -115,7 +115,32 @@ beat request "Trace the request":
   Client &lt;- API "201 Created"
 
 beat reset "Return to overview":
-  frame $nodes dur=600ms</code></pre>
+  frame $nodes dur=600ms
+
+player:
+  playback:
+    loop false
+  controls:
+    speed true
+    speeds "0.5 1"
+    fit true
+    fullscreen true
+    share true
+  interaction:
+    zoom true
+    pan true
+    double_click_to_reset true
+  chrome:
+    badge true
+    progress boundary</code></pre>
+
+  <h2>Let the script own its player</h2>
+  <p>
+    The grouped <code>player:</code> block travels with the diagram through the playground, CLI, Astro, MDX,
+    and the DOM renderer. Controls are explicit opt-ins. <code>rate</code> sets the initial playback multiplier;
+    <code>speeds</code> supplies viewer choices, so the selector appears only when at least two distinct positive
+    values are available. Controls stay on the footer's left; the linked <code>Powered by Markdy</code> badge stays right.
+  </p>
 
   <h2>Best practices while experimenting</h2>
   <ol>
@@ -133,6 +158,7 @@ beat reset "Return to overview":
   </p>
   <pre><code>pnpm add -D @markdy/cli
 pnpm markdy lint architecture.markdy
+pnpm markdy fmt architecture.markdy --check
 pnpm markdy render architecture.markdy --out architecture.html</code></pre>
   <p>
     For deeper syntax details, open the <a href="/docs/">docs</a> or the

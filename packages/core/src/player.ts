@@ -291,7 +291,7 @@ function unquote(raw: string): string {
   return value;
 }
 
-/** Host-supplied overrides always win over script configuration. */
+/** Host behavior overrides. `false` gates a feature off; `true` supplies legacy defaults when script values are absent. */
 export type PlayerOverrides = {
   autoplay?: boolean;
   loop?: boolean;
@@ -305,28 +305,28 @@ export type PlayerOverrides = {
 
 export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverrides = {}): ResolvedPlayer {
   const playback = config.playback ?? {};
+  const configuredControls = config.controls ?? {};
   const interaction = config.interaction ?? {};
   const chrome = config.chrome ?? {};
 
-  // Declaring a group opts in; every affordance then defaults on.
-  const controlsOn =
-    overrides.controls !== false && (overrides.controls === true || config.controls !== undefined);
-  const controls = {
-    play: controlsOn && (config.controls?.play ?? true),
-    restart: controlsOn && (config.controls?.restart ?? true),
-    prevBeat: controlsOn && (config.controls?.prevBeat ?? false),
-    nextBeat: controlsOn && (config.controls?.nextBeat ?? false),
-    seek: controlsOn && (config.controls?.seek ?? true),
-    speed: controlsOn && (config.controls?.speed ?? true),
-    fit: controlsOn && (config.controls?.fit ?? true),
-    resetView: controlsOn && (config.controls?.resetView ?? true),
-    fullscreen: controlsOn && (config.controls?.fullscreen ?? true),
-    svg: controlsOn && (config.controls?.svg ?? true),
-    share: controlsOn && (config.controls?.share ?? true),
-    // `code` is opt-in: off by default, on only when explicitly declared true.
-    code: controlsOn && (config.controls?.code ?? false),
-    // `theme` is opt-in: off by default, on only when explicitly declared true.
-    theme: controlsOn && (config.controls?.theme ?? false),
+  const controlsAllowed = overrides.controls !== false;
+  const hostControlDefault = overrides.controls === true;
+  const resolveControl = (value: boolean | undefined, fallback = hostControlDefault): boolean =>
+    controlsAllowed && (value ?? fallback);
+  const requestedControls = {
+    play: resolveControl(configuredControls.play),
+    restart: resolveControl(configuredControls.restart),
+    prevBeat: resolveControl(configuredControls.prevBeat, false),
+    nextBeat: resolveControl(configuredControls.nextBeat, false),
+    seek: resolveControl(configuredControls.seek),
+    speed: resolveControl(configuredControls.speed),
+    fit: resolveControl(configuredControls.fit),
+    resetView: resolveControl(configuredControls.resetView),
+    fullscreen: resolveControl(configuredControls.fullscreen),
+    svg: resolveControl(configuredControls.svg),
+    share: resolveControl(configuredControls.share),
+    code: resolveControl(configuredControls.code, false),
+    theme: resolveControl(configuredControls.theme, false),
   };
 
   // Legacy host coupling: `controls` as a host option also unlocks the viewport.
@@ -339,23 +339,17 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     doubleClickToReset: interactionOn && (interaction.doubleClickToReset ?? true),
   };
   const interactionEnabled = gestures.zoom || gestures.pan || gestures.doubleClickToReset;
+  const configuredSpeeds = configuredControls.speeds?.length ? configuredControls.speeds : [0.25, 1];
+  const speeds = configuredSpeeds.filter(
+    (rate, index) => Number.isFinite(rate) && rate > 0 && configuredSpeeds.indexOf(rate) === index,
+  );
 
-  const resetView = controls.resetView && interactionEnabled;
-  const controlsEnabled =
-    controls.play ||
-    controls.restart ||
-    controls.prevBeat ||
-    controls.nextBeat ||
-    controls.seek ||
-    controls.speed ||
-    controls.fit ||
-    controls.resetView ||
-    controls.fullscreen ||
-    controls.svg ||
-    controls.share ||
-    controls.code ||
-    controls.theme ||
-    resetView;
+  const controls = {
+    ...requestedControls,
+    speed: requestedControls.speed && speeds.length > 1,
+    resetView: requestedControls.resetView && interactionEnabled,
+  };
+  const controlsEnabled = Object.values(controls).some(Boolean);
 
   const rate = overrides.playbackRate ?? playback.rate ?? 1;
 
@@ -367,9 +361,8 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     },
     controls: {
       ...controls,
-      resetView,
       enabled: controlsEnabled,
-      speeds: config.controls?.speeds?.length ? config.controls.speeds : [0.25, 1],
+      speeds,
     },
     interaction: {
       ...gestures,

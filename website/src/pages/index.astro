@@ -4,7 +4,46 @@ import { join } from "node:path";
 import { loadExamples } from "../data/examples";
 
 const ROOT = join(process.cwd(), "..");
-const EXAMPLES = await loadExamples(ROOT);
+const HOMEPAGE_HIDDEN_CONTROLS = new Set(["play", "restart", "prev_beat", "next_beat", "seek"]);
+
+function prepareHomepageCode(code: string): string {
+  let playerGroup: "controls" | "playback" | null = null;
+  let groupIndent: number | null = null;
+
+  return code
+    .split("\n")
+    .filter((line) => {
+      const trimmed = line.trim();
+      const indent = line.length - line.trimStart().length;
+
+      if (groupIndent !== null && trimmed && indent <= groupIndent) {
+        playerGroup = null;
+        groupIndent = null;
+      }
+
+      const group = trimmed.match(/^(controls|playback)\s*:\s*$/)?.[1] as typeof playerGroup;
+      if (group) {
+        playerGroup = group;
+        groupIndent = indent;
+        return true;
+      }
+      if (!playerGroup || !trimmed) return true;
+
+      if (playerGroup === "playback") {
+        return !/^autoplay\s+true$/.test(trimmed) && !/^rate\s+1(?:\.0+)?$/.test(trimmed);
+      }
+
+      const [key, value, ...extra] = trimmed.split(/\s+/);
+      const isBooleanSetting = extra.length === 0 && (value === "true" || value === "false");
+      return !isBooleanSetting || !HOMEPAGE_HIDDEN_CONTROLS.has(key);
+    })
+    .join("\n");
+}
+
+const EXAMPLES = (await loadExamples(ROOT)).map((example) => ({
+  ...example,
+  code: prepareHomepageCode(example.code),
+}));
 
 const FLOWER_ASSET: Record<string, string> = {
   flower: "data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'36'%20height%3D'36'%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'16'%20fill%3D'%23ff69b4'%2F%3E%3Ccircle%20cx%3D'18'%20cy%3D'18'%20r%3D'6'%20fill%3D'%23ffff00'%2F%3E%3C%2Fsvg%3E",
@@ -138,7 +177,7 @@ const LAYOUT_CATEGORIES = [
   },
 ];
 
-const DEFAULT_PLAYER_YAML = `\n\nplayer:\n  playback:\n    autoplay true\n    loop true\n    rate 1.0\n  controls:\n    play true\n    restart true\n    prev_beat false\n    next_beat false\n    seek true\n    speed true\n    speeds "0.25 1"\n    fit true\n    reset_view true\n    fullscreen true\n    svg true\n    share true\n    code true\n    theme false\n  interaction:\n    zoom true\n    pan true\n    click_to_play true\n    double_click_to_reset true\n    keyboard false\n  chrome:\n    badge true\n    progress boundary\n    color "#3b82f6"`;
+const DEFAULT_PLAYER_YAML = `\n\nplayer:\n  playback:\n    loop true\n  interaction:\n    zoom true\n    pan true\n    click_to_play true\n    double_click_to_reset true\n    keyboard false\n  chrome:\n    badge true\n    progress boundary\n    color "#3b82f6"`;
 
 const LAYOUT_SNIPPETS: Record<string, string> = {
   architecture: `scene theme=paper\nlayout LR\n\nuser Client\ngateway ApiGateway\nservice Auth\nservice Payments\ndatabase Postgres\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> ApiGateway "POST /checkout"\n  ApiGateway -> Auth "verify"\n  ApiGateway -> Payments "charge"\n  Payments -> Postgres "persist"` + DEFAULT_PLAYER_YAML,
@@ -544,13 +583,6 @@ const homepageStructuredData = [
             </select>
           </div>
         </div>
-
-        <div class="studio-right">
-          <div class="studio-compiler-pill">
-            <span id="status" class="status-indicator status-ok" title="Compiler status: OK"></span>
-            <span class="status-text">Synced</span>
-          </div>
-        </div>
       </div>
 
       <div class="studio-split-body">
@@ -579,7 +611,6 @@ const homepageStructuredData = [
                 <span class="theme-btn-icon">🎨</span>
                 <span id="theme-btn-name">Theme</span>
               </button>
-              <span class="preview-badge">Zero Keyframes</span>
             </div>
           </div>
           <div id="stage-wrap" class="stage-wrap">
@@ -947,14 +978,13 @@ markdy check-all ./docs/diagrams</code></pre>
   const editorContainer = document.getElementById("code-editor") as HTMLDivElement;
   const stage = document.getElementById("stage") as HTMLDivElement;
   const stageWrap = document.getElementById("stage-wrap") as HTMLDivElement;
-  const statusEl = document.getElementById("status") as HTMLSpanElement;
   const exampleSelect = document.getElementById("example-select") as HTMLSelectElement;
   const presetChips = document.querySelectorAll<HTMLButtonElement>(".preset-chip");
 
   let diagram: Diagram | null = null;
-  let isAnimPlaying = false;
   let debounce: ReturnType<typeof setTimeout> | null = null;
   let editorView: any = null;
+  let isSettingEditorCode = false;
   let currentExampleIndex = 0;
   let userEditedCode = false;
   let isAutoShuffleEnabled = false;
@@ -1022,7 +1052,7 @@ markdy check-all ./docs/diagrams</code></pre>
       if (examples[nextIdx]) {
         if (exampleSelect) exampleSelect.value = String(nextIdx);
         presetChips.forEach((c) => c.classList.toggle("active", c.dataset.index === String(nextIdx)));
-        setEditorCode(examples[nextIdx].code, true);
+        setEditorCode(examples[nextIdx].code);
       }
     }, 1500);
   }
@@ -1031,26 +1061,16 @@ markdy check-all ./docs/diagrams</code></pre>
     return document.documentElement.getAttribute("data-theme") === "dark";
   }
 
-  function setStatus(ok: boolean) {
-    if (!statusEl) return;
-    statusEl.className = `status-indicator ${ok ? "status-ok" : "status-error"}`;
-  }
-
-  async function render(code: string, shouldAutoplay = true) {
+  async function render(code: string) {
     if (!stage) return;
     try {
       const { createDiagram } = await getEditorModules();
       if (diagram) { diagram.destroy(); diagram = null; }
-      stage.innerHTML = "";
+      stage.replaceChildren();
       diagram = createDiagram({
         container: stage,
         code,
-        controls: true,
-        autoplay: shouldAutoplay,
-        loop: true,
-        sceneBoundaryProgress: true,
         onEnded: () => {
-          isAnimPlaying = false;
           if (diagram) {
             diagram.pause();
             diagram.seek(diagram.duration());
@@ -1060,13 +1080,18 @@ markdy check-all ./docs/diagrams</code></pre>
           }
         },
       });
-      isAnimPlaying = shouldAutoplay;
-      setStatus(true);
     } catch (e) {
       const msg = (e as Error).message ?? String(e);
-      stage.innerHTML = `<p class="parse-error" style="color:var(--danger);padding:1rem;font-family:monospace;font-size:0.8rem;">${msg}</p>`;
-      setStatus(false);
-      isAnimPlaying = false;
+      const error = document.createElement("p");
+      error.className = "parse-error";
+      Object.assign(error.style, {
+        color: "var(--danger)",
+        padding: "1rem",
+        fontFamily: "monospace",
+        fontSize: "0.8rem",
+      });
+      error.textContent = msg;
+      stage.replaceChildren(error);
     }
   }
 
@@ -1133,12 +1158,16 @@ markdy check-all ./docs/diagrams</code></pre>
       EditorView.contentAttributes.of({ "aria-label": "Code Editor" }),
       EditorView.updateListener.of((update: any) => {
         if (update.docChanged) {
+          if (isSettingEditorCode) return;
           if (update.transactions.some((tr: any) => tr.isUserEvent("input") || tr.isUserEvent("delete"))) {
             userEditedCode = true;
             clearAutoShuffleTimer();
           }
           if (debounce) clearTimeout(debounce);
-          debounce = setTimeout(() => render(getEditorCode(), true), 500);
+          debounce = setTimeout(() => {
+            debounce = null;
+            void render(getEditorCode());
+          }, 500);
         }
       }),
     ];
@@ -1152,12 +1181,21 @@ markdy check-all ./docs/diagrams</code></pre>
     });
   }
 
-  function setEditorCode(code: string, shouldAutoplay = true) {
+  function setEditorCode(code: string) {
     if (!editorView) return;
-    editorView.dispatch({
-      changes: { from: 0, to: editorView.state.doc.length, insert: code },
-    });
-    render(code, shouldAutoplay);
+    if (debounce) {
+      clearTimeout(debounce);
+      debounce = null;
+    }
+    isSettingEditorCode = true;
+    try {
+      editorView.dispatch({
+        changes: { from: 0, to: editorView.state.doc.length, insert: code },
+      });
+    } finally {
+      isSettingEditorCode = false;
+    }
+    void render(code);
   }
 
   // Preset chips handler
@@ -1168,7 +1206,7 @@ markdy check-all ./docs/diagrams</code></pre>
       const index = Number(chip.dataset.index || "0");
       currentExampleIndex = index;
       if (examples[index]) {
-        setEditorCode(examples[index].code, true);
+        setEditorCode(examples[index].code);
         if (exampleSelect) exampleSelect.value = String(index);
         presetChips.forEach((c) => c.classList.toggle("active", c === chip));
       }
@@ -1182,7 +1220,7 @@ markdy check-all ./docs/diagrams</code></pre>
     const idx = Number(exampleSelect.value);
     currentExampleIndex = idx;
     if (examples[idx]) {
-      setEditorCode(examples[idx].code, true);
+      setEditorCode(examples[idx].code);
       presetChips.forEach((c) => c.classList.toggle("active", c.dataset.index === String(idx)));
     }
   });
@@ -1219,7 +1257,7 @@ markdy check-all ./docs/diagrams</code></pre>
     const current = getEditorCode();
     const { newCode, themeName } = toggleRandomThemeInCode(current);
     if (themeBtnName) themeBtnName.textContent = themeName;
-    setEditorCode(newCode, true);
+    setEditorCode(newCode);
   });
 
   stage?.addEventListener("markdy-theme-switch", ((e: CustomEvent) => {
@@ -1236,7 +1274,7 @@ markdy check-all ./docs/diagrams</code></pre>
       newCode = `scene theme=${themeName}\n\n` + current;
     }
     if (themeBtnName) themeBtnName.textContent = themeName;
-    setEditorCode(newCode, true);
+    setEditorCode(newCode);
   }) as EventListener);
 
   // Snippet trigger buttons
@@ -1587,12 +1625,12 @@ markdy check-all ./docs/diagrams</code></pre>
   if ("requestIdleCallback" in window) {
     (window as any).requestIdleCallback(() => {
       createEditor(initialCode);
-      render(initialCode, true);
+      render(initialCode);
     }, { timeout: 1200 });
   } else {
     setTimeout(() => {
       createEditor(initialCode);
-      render(initialCode, true);
+      render(initialCode);
     }, 40);
   }
 </script>
@@ -2566,35 +2604,6 @@ markdy check-all ./docs/diagrams</code></pre>
     box-shadow: 0 0 0 2px var(--accent-light);
   }
 
-  .studio-right {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-  }
-
-  .studio-compiler-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    padding: 0.28rem 0.7rem;
-    border-radius: 999px;
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-  }
-
-  .status-indicator {
-    width: 7px;
-    height: 7px;
-    border-radius: 999px;
-    display: inline-block;
-  }
-
-  .status-ok { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
-  .status-error { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
-
   .studio-split-body {
     display: grid;
     grid-template-columns: 460px 1fr;
@@ -2682,16 +2691,6 @@ markdy check-all ./docs/diagrams</code></pre>
     border-color: var(--accent);
     color: var(--accent);
     transform: translateY(-1px);
-  }
-
-  .preview-badge {
-    font-size: 0.65rem;
-    padding: 0.15rem 0.45rem;
-    border-radius: 999px;
-    background: var(--accent-light);
-    color: var(--accent);
-    font-weight: 700;
-    border: 1px solid var(--accent);
   }
 
   .studio-editor-pane {

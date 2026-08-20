@@ -79,18 +79,18 @@ export const code = `
 | `height` | `number` | `400` | Placeholder height in pixels |
 | `bg` | `string` | `"white"` | Placeholder background colour |
 | `assets` | `Record<string, string>` | `{}` | Asset URL overrides |
-| `autoplay` | `boolean` | `plan.meta.autoplay ?? true` | Start playing on hydration |
-| `loop` | `boolean` | `plan.meta.loop ?? true` | Loop the animation when it ends |
-| `copyright` | `boolean` | `plan.meta.copyright ?? true` | Show a "Powered by Markdy" badge below the animation |
+| `autoplay` | `boolean` | script or `true` | Override whether playback starts on hydration |
+| `loop` | `boolean` | script or `true` | Override whether playback loops |
+| `copyright` | `boolean` | script or `true` | Show the linked badge at the footer's right edge |
 | `progressBar` | `boolean \| string` | `true` | Deprecated compatibility flag for the scene-boundary progress bar |
-| `sceneBoundaryProgress` | `boolean \| string` | `true` | Show boundary progress bar, or pass a custom color/gradient string |
-| `progressColor` | `string` | `plan.meta.progressColor ?? "rainbow"` | Custom progress bar color (e.g. `"#3b82f6"`) or gradient (e.g. `"#ec4899, #8b5cf6"`) |
-| `playbackRate` | `number` | `plan.meta.playbackRate ?? 1` | Normalized timeline speed multiplier; `1` is Markdy's normal pace |
-| `interactiveViewport` | `boolean` | `controls \|\| player.interaction` | Enable wheel zoom and drag pan after hydration |
-| `controls` | `boolean` | `player.controls` | Show the footer toolbar (play, prev/next beat, restart, seek, speed, fit, reset view, SVG, share); also enables viewport interaction |
+| `sceneBoundaryProgress` | `boolean \| string` | script | Override boundary progress or its color |
+| `progressColor` | `string` | script or rainbow | Override the progress color or gradient |
+| `playbackRate` | `number` | script or `1` | Override the initial timeline multiplier |
+| `interactiveViewport` | `boolean` | script | `true` supplies default gestures; `false` suppresses script gestures |
+| `controls` | `boolean` | script | `true` supplies legacy toolbar defaults; `false` suppresses script controls |
 | `class` | `string` | — | CSS class for the outer wrapper |
 
-> **Self-Contained MarkdyScript:** You can declare `controls true`, `interactive true`, `progressColor "#3b82f6"`, `loop false`, etc. directly inside the `.markdy` code so you only need `<Markdy code={code} />`. Explicit props passed to `<Markdy />` will override in-script directives.
+> **Self-Contained MarkdyScript:** Prefer grouped `player:` settings inside the `.markdy` code so `<Markdy code={code} />` preserves scene behavior. Pass props only when the host intentionally gates or supplies defaults.
 >
 > **Tip:** Match `width`, `height`, and `bg` props to your `scene` declaration values to avoid a visual flash on hydration.
 

@@ -54,7 +54,7 @@ markdy check-all . --arch-rules          # batch lint entire workspace
 ## Notes
 
 - The CLI resolves `import "file.markdy" as ns` from disk before parsing.
-- `fmt` prints a canonicalized scene and may expand higher-level sugar into its parsed form.
+- `fmt` canonicalizes aliases and indentation, places optional `player:` configuration last, and preserves its behavior; it may expand higher-level scene sugar into parsed form.
 - `render --out` writes a self-contained HTML preview to the exact path you pass in.
 - If the path is relative, it is resolved from the current working directory.
 - If you see `zsh: command not found: markdy`, the package is installed locally but that directory is not on your PATH.

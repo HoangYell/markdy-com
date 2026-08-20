@@ -879,6 +879,7 @@ const playgroundStructuredData = [
   function formatMarkdyScript(rawCode: string): string {
     const lines = rawCode.split("\n");
     const formatted: string[] = [];
+    const playerBlock: string[] = [];
     let inBeatOrPattern = false;
     let inPlayer = false;
     let inPlayerScope = false;
@@ -887,8 +888,9 @@ const playgroundStructuredData = [
       const trimmed = line.trim();
       if (!trimmed) {
         // Keep at most 1 empty line
-        if (formatted.length > 0 && formatted[formatted.length - 1] !== "") {
-          formatted.push("");
+        const target = inPlayer ? playerBlock : formatted;
+        if (target.length > 0 && target[target.length - 1] !== "") {
+          target.push("");
         }
         continue;
       }
@@ -898,7 +900,7 @@ const playgroundStructuredData = [
         inBeatOrPattern = false;
         inPlayer = true;
         inPlayerScope = false;
-        formatted.push("player:");
+        playerBlock.push("player:");
         continue;
       }
 
@@ -906,7 +908,7 @@ const playgroundStructuredData = [
         // Sub-scopes: playback:, controls:, interaction:, chrome:
         if (/^(playback|controls|interaction|chrome)\s*:\s*$/.test(trimmed)) {
           inPlayerScope = true;
-          formatted.push(`  ${trimmed}`);
+          playerBlock.push(`  ${trimmed}`);
           continue;
         }
 
@@ -917,9 +919,9 @@ const playgroundStructuredData = [
         } else {
           // Setting within player
           if (inPlayerScope) {
-            formatted.push(`    ${trimmed}`);
+            playerBlock.push(`    ${trimmed}`);
           } else {
-            formatted.push(`  ${trimmed}`);
+            playerBlock.push(`  ${trimmed}`);
           }
           continue;
         }
@@ -938,7 +940,9 @@ const playgroundStructuredData = [
       }
     }
 
-    return formatted.join("\n") + "\n";
+    while (formatted.at(-1) === "") formatted.pop();
+    while (playerBlock.at(-1) === "") playerBlock.pop();
+    return [...formatted, ...(playerBlock.length > 0 ? ["", ...playerBlock] : [])].join("\n") + "\n";
   }
 
   function updateEntitiesAndSuggestions(code: string) {

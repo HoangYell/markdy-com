@@ -13,7 +13,7 @@ Web Animations API renderer for [MarkdyScript](../../docs/SYNTAX.md) scenes. Tra
 - **Seek-safe** — manual `currentTime` control enables reliable `seek()` in any direction
 - **Playback-rate controls** — set normalized timeline speed to slow down or speed up diagrams without rebuilding animations
 - **Interactive viewport** — opt into wheel zoom and drag pan while click-to-pause stays available
-- **Embed controls** — opt into a compact playback toolbar with restart, speed, and view reset controls
+- **Embed controls** — opt into only the playback, timeline, viewport, export, and sharing controls a scene needs
 - **Semantic themes** — `paper`, `editorial`, `nebula`, `midnight`, `blueprint`, and `graphite`, with per-role node and edge colors
 - **Single dependency** — only `@markdy/core`
 
@@ -70,21 +70,21 @@ diagram.destroy();    // clean up DOM + cancel animations
 |---|---|---|---|
 | `container` | `HTMLElement` | *(required)* | DOM element to mount the scene into |
 | `code` | `string` | *(required)* | MarkdyScript source code |
-| `autoplay` | `boolean` | `plan.meta.autoplay ?? true` | Start playing immediately |
-| `loop` | `boolean` | `plan.meta.loop ?? true` | Loop the animation when it reaches the end |
-| `copyright` | `boolean` | `plan.meta.copyright ?? true` | Show a small "Powered by Markdy" badge below the animation |
+| `autoplay` | `boolean` | `player.playback.autoplay ?? true` | Override whether playback starts immediately |
+| `loop` | `boolean` | `player.playback.loop ?? true` | Override whether playback loops at the end |
+| `copyright` | `boolean` | `player.chrome.badge ?? true` | Show the linked badge at the footer's right edge |
 | `progressBar` | `boolean \| string` | `true` | Deprecated compatibility flag for the scene-boundary progress bar |
-| `sceneBoundaryProgress` | `boolean \| string` | `true` | Show boundary progress bar, or pass a custom color/gradient string |
-| `progressColor` | `string` | `plan.meta.progressColor ?? "rainbow"` | Custom progress bar color (e.g. `"#3b82f6"`) or gradient (e.g. `"#ec4899, #8b5cf6"`) |
-| `playbackRate` | `number` | `plan.meta.playbackRate ?? 1` | Normalized timeline speed multiplier; `1` is Markdy's normal pace |
-| `interactiveViewport` | `boolean` | `controls \|\| player.interaction` | Enable wheel zoom and drag pan on the rendered viewport |
-| `controls` | `boolean` | `player.controls` | Show the footer toolbar (play, prev/next beat, restart, seek, speed, fit, reset view, SVG, share); also enables viewport interaction |
+| `sceneBoundaryProgress` | `boolean \| string` | `player.chrome.progress` | Override boundary progress, or pass a custom color/gradient |
+| `progressColor` | `string` | `player.chrome.color` or rainbow | Override the progress color or gradient |
+| `playbackRate` | `number` | `player.playback.rate ?? 1` | Override the initial timeline multiplier |
+| `interactiveViewport` | `boolean` | `player.interaction` | `true` supplies default gestures; `false` suppresses script gestures |
+| `controls` | `boolean` | `player.controls` | `true` supplies legacy toolbar defaults; `false` suppresses script controls |
 | `shareUrl` | `string` | Markdy playground | Base URL used by the Share control when building `#code=` links |
 | `onWarning` | `(warning: Diagnostic) => void` | `console.warn` | Called for each soft parse warning |
 | `onTimeUpdate` | `(seconds: number, durationSeconds: number) => void` | — | Called whenever playback or seek changes the current time |
 | `onPlayStateChange` | `(playing: boolean) => void` | — | Called when playback starts or pauses |
 
-> **Note:** Directives declared inside the MarkdyScript code (e.g. `controls true`, `interactive true`, `progressColor "#3b82f6"`) apply automatically if the corresponding JavaScript option is omitted (`undefined`). Options passed to `createDiagram()` override the in-script declarations.
+> **Note:** Prefer grouped `player:` configuration in MarkdyScript. Omitted host options preserve it; host `false` suppresses controls or interaction, while host `true` supplies legacy defaults for leaves the script does not set. A speed selector renders only with at least two distinct positive `speeds` values.
 
 ### `Diagram`
 

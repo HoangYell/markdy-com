@@ -299,35 +299,33 @@ Selectors: `$nodes` targets every node, `$edges` targets structural and animated
 
 ### Player Configuration
 
-Everything outside the scene itself lives in one `player:` block, grouped by concern:
+Everything outside the scene itself can live in one optional `player:` block. Keep it at the bottom so the diagram remains the first thing readers see:
 
 ```markdy
+scene theme=paper
+layout LR
+
+browser Client
+service API
+
+beat request:
+  show $nodes
+  Client -> API "GET /orders"
+
 player:
   playback:
-    autoplay false
-    loop true
-    rate 1
+    loop false
   controls:
-    play true
-    restart false
-    prev_beat true
-    next_beat true
-    seek true
     speed true
-    speeds "0.5 1 2"
+    speeds "0.5 1"
     fit true
-    reset_view true
-    svg true
     share true
   interaction:
     zoom true
     pan true
-    click_to_play false
-    keyboard true
   chrome:
-    badge false
+    badge true
     progress boundary
-    color "#3b82f6"
 ```
 
 | Group | Owns |
@@ -337,7 +335,7 @@ player:
 | `interaction` | what pointer and key input do |
 | `chrome` | non-interactive decoration (badge, progress) |
 
-Declaring a group opts in and every affordance defaults on, so you only list what to turn off. A group turns itself off when all of its affordances are false. `fit` frames every item and pins the camera so `frame`/`focus` zoom cues stop moving the view; `prev_beat`/`next_beat` step through beats. `keyboard` is opt-in (<kbd>←</kbd>/<kbd>→</kbd> beats, <kbd>Space</kbd> play, <kbd>Home</kbd> restart) because it captures window key events. Legacy directives and flat keys are normalized into the same groups, and explicit renderer or component options override script settings.
+Controls are explicit opt-ins: only leaves set to `true` are mounted. `fit` frames every item and pins the camera so `frame`/`focus` zoom cues stop moving the view; `prev_beat`/`next_beat` step through beats. `rate` sets the initial multiplier, while `speeds` provides viewer choices; the speed selector needs at least two distinct positive values. The linked badge stays at the footer's right edge. `keyboard` is opt-in (<kbd>←</kbd>/<kbd>→</kbd> beats, <kbd>Space</kbd> play, <kbd>Home</kbd> restart) because it captures window key events. Legacy directives and flat keys normalize into the same groups; explicit host options gate or supply defaults for script settings.
 
 ### Themes & Layout Modes
 
@@ -402,6 +400,9 @@ interface DiagramOptions {
   progressBar?: boolean;    // Deprecated: use sceneBoundaryProgress
   sceneBoundaryProgress?: boolean; // Rainbow border progress bar (default: true)
   playbackRate?: number;    // Timeline speed multiplier (default: 1)
+  interactiveViewport?: boolean; // true: default gestures; false: suppress script gestures
+  controls?: boolean;       // true: legacy defaults; false: suppress script controls
+  shareUrl?: string;        // Base URL for Share links
   onWarning?: (w: Diagnostic) => void;                 // Soft parse warnings
   onTimeUpdate?: (seconds: number, duration: number) => void;
   onPlayStateChange?: (playing: boolean) => void;
@@ -432,10 +433,12 @@ interface Diagram {
 | `assets` | `Record<string, string>` | `{}` | Asset URL overrides |
 | `autoplay` | `boolean` | `true` | Auto-play when fully visible in viewport |
 | `loop` | `boolean` | `true` | Loop the animation when it ends |
-| `copyright` | `boolean` | `true` | Show a "Powered by Markdy" badge below the animation |
+| `copyright` | `boolean` | script or `true` | Show the linked badge at the footer's right edge |
 | `progressBar` | `boolean` | `true` | Show a rainbow progress bar around the viewport border |
 | `sceneBoundaryProgress` | `boolean` | `progressBar` | Preferred flag for the rainbow scene-boundary progress bar |
-| `playbackRate` | `number` | `1` | Timeline speed multiplier |
+| `playbackRate` | `number` | script or `1` | Initial timeline speed multiplier |
+| `interactiveViewport` | `boolean` | script | `true` supplies default gestures; `false` suppresses script gestures |
+| `controls` | `boolean` | script | `true` supplies legacy defaults; `false` suppresses script controls |
 | `class` | `string` | — | CSS class for outer wrapper |
 
 ---
