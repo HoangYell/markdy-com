@@ -160,9 +160,9 @@ const jsonLd = {
     </script>
     <style is:global>
       :root {
-        --bg-primary: #ffffff;
-        --bg-secondary: #f8fafc;
-        --bg-tertiary: #f1f5f9;
+        --bg-primary: #fbfcfd;
+        --bg-secondary: #f3f6f9;
+        --bg-tertiary: #e9eef4;
         --bg-elevated: #ffffff;
         --text-primary: #0f172a;
         --text-secondary: #475569;
@@ -173,18 +173,23 @@ const jsonLd = {
         --accent: #059669;
         --accent-hover: #047857;
         --accent-light: rgba(5, 150, 105, 0.08);
-        --accent-glow: rgba(5, 150, 105, 0.18);
+        --accent-glow: rgba(5, 150, 105, 0.2);
+        --accent-gradient: linear-gradient(135deg, #059669 0%, #0284c7 100%);
         --danger: #ef4444;
+        --danger-light: rgba(239, 68, 68, 0.08);
         --warning: #f59e0b;
+        --warning-light: rgba(245, 158, 11, 0.08);
         --code-bg: #f8fafc;
         --code-border: #e2e8f0;
         --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
-        --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-        --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06), 0 2px 4px rgba(0, 0, 0, 0.03);
-        --shadow-lg: 0 12px 24px -4px rgba(0, 0, 0, 0.08), 0 6px 12px -2px rgba(0, 0, 0, 0.04);
+        --shadow-sm: 0 2px 6px -1px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.03);
+        --shadow-md: 0 8px 20px -4px rgba(0, 0, 0, 0.08), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
+        --shadow-lg: 0 20px 35px -8px rgba(0, 0, 0, 0.1), 0 4px 12px -2px rgba(0, 0, 0, 0.05);
+        --shadow-glow: 0 0 24px -4px rgba(5, 150, 105, 0.25);
         --selection-bg: #d1fae5;
         --selection-text: #064e3b;
-        --grid-dot: rgba(15, 23, 42, 0.06);
+        --grid-dot: rgba(15, 23, 42, 0.07);
+        --grid-mesh: rgba(15, 23, 42, 0.04);
         --sat: env(safe-area-inset-top, 0px);
         --sab: env(safe-area-inset-bottom, 0px);
         --sal: env(safe-area-inset-left, 0px);
@@ -192,31 +197,36 @@ const jsonLd = {
       }
 
       [data-theme="dark"] {
-        --bg-primary: #090d16;
-        --bg-secondary: #0f172a;
-        --bg-tertiary: #1e293b;
-        --bg-elevated: #131d31;
+        --bg-primary: #070a11;
+        --bg-secondary: #0d121d;
+        --bg-tertiary: #141c2c;
+        --bg-elevated: #101726;
         --text-primary: #f8fafc;
         --text-secondary: #94a3b8;
         --text-muted: #64748b;
-        --border: #1e293b;
-        --border-hover: #334155;
-        --border-subtle: #141f32;
+        --border: rgba(255, 255, 255, 0.08);
+        --border-hover: rgba(255, 255, 255, 0.16);
+        --border-subtle: rgba(255, 255, 255, 0.04);
         --accent: #10b981;
         --accent-hover: #34d399;
         --accent-light: rgba(16, 185, 129, 0.12);
-        --accent-glow: rgba(16, 185, 129, 0.25);
+        --accent-glow: rgba(16, 185, 129, 0.3);
+        --accent-gradient: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
         --danger: #f87171;
+        --danger-light: rgba(248, 113, 113, 0.12);
         --warning: #fbbf24;
-        --code-bg: #0b1120;
-        --code-border: #1e293b;
-        --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
-        --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.4);
-        --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.45);
-        --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.55);
+        --warning-light: rgba(251, 191, 36, 0.12);
+        --code-bg: #090e18;
+        --code-border: rgba(255, 255, 255, 0.07);
+        --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.4);
+        --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.5);
+        --shadow-md: 0 10px 25px -4px rgba(0, 0, 0, 0.6), 0 4px 10px -2px rgba(0, 0, 0, 0.4);
+        --shadow-lg: 0 24px 48px -10px rgba(0, 0, 0, 0.7), 0 8px 18px -4px rgba(0, 0, 0, 0.5);
+        --shadow-glow: 0 0 30px -4px rgba(16, 185, 129, 0.35);
         --selection-bg: #064e3b;
         --selection-text: #6ee7b7;
-        --grid-dot: rgba(255, 255, 255, 0.05);
+        --grid-dot: rgba(255, 255, 255, 0.06);
+        --grid-mesh: rgba(255, 255, 255, 0.035);
       }
 
       *, *::before, *::after {

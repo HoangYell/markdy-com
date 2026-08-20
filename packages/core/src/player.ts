@@ -42,6 +42,8 @@ export const CONTROL_KEYS = [
   "fullscreen",
   "svg",
   "share",
+  "code",
+  "theme",
 ] as const;
 export const INTERACTION_KEYS = ["zoom", "pan", "doubleClickToReset"] as const;
 
@@ -95,6 +97,18 @@ const CONTROLS: Record<string, Setting> = {
   share: { group: "controls", key: "share", type: "boolean" },
   shareLink: { group: "controls", key: "share", type: "boolean" },
   share_link: { group: "controls", key: "share", type: "boolean" },
+  code: { group: "controls", key: "code", type: "boolean" },
+  codeButton: { group: "controls", key: "code", type: "boolean" },
+  code_button: { group: "controls", key: "code", type: "boolean" },
+  exposeCode: { group: "controls", key: "code", type: "boolean" },
+  expose_code: { group: "controls", key: "code", type: "boolean" },
+  viewSource: { group: "controls", key: "code", type: "boolean" },
+  view_source: { group: "controls", key: "code", type: "boolean" },
+  theme: { group: "controls", key: "theme", type: "boolean" },
+  themeButton: { group: "controls", key: "theme", type: "boolean" },
+  theme_button: { group: "controls", key: "theme", type: "boolean" },
+  switchTheme: { group: "controls", key: "theme", type: "boolean" },
+  switch_theme: { group: "controls", key: "theme", type: "boolean" },
 };
 
 const INTERACTION: Record<string, Setting> = {
@@ -167,6 +181,13 @@ const FLAT: Record<string, Setting> = {
   export_svg: CONTROLS.export_svg,
   shareLink: CONTROLS.shareLink,
   share_link: CONTROLS.share_link,
+  code: CONTROLS.code,
+  codeButton: CONTROLS.codeButton,
+  code_button: CONTROLS.code_button,
+  exposeCode: CONTROLS.exposeCode,
+  expose_code: CONTROLS.expose_code,
+  viewSource: CONTROLS.viewSource,
+  view_source: CONTROLS.view_source,
   interactive: INTERACTION.interactive,
   interactiveViewport: INTERACTION.interactiveViewport,
   interactive_viewport: INTERACTION.interactive_viewport,
@@ -302,6 +323,10 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     fullscreen: controlsOn && (config.controls?.fullscreen ?? true),
     svg: controlsOn && (config.controls?.svg ?? true),
     share: controlsOn && (config.controls?.share ?? true),
+    // `code` is opt-in: off by default, on only when explicitly declared true.
+    code: controlsOn && (config.controls?.code ?? false),
+    // `theme` is opt-in: off by default, on only when explicitly declared true.
+    theme: controlsOn && (config.controls?.theme ?? false),
   };
 
   // Legacy host coupling: `controls` as a host option also unlocks the viewport.
@@ -328,6 +353,8 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     controls.fullscreen ||
     controls.svg ||
     controls.share ||
+    controls.code ||
+    controls.theme ||
     resetView;
 
   const rate = overrides.playbackRate ?? playback.rate ?? 1;
@@ -342,7 +369,7 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
       ...controls,
       resetView,
       enabled: controlsEnabled,
-      speeds: config.controls?.speeds?.length ? config.controls.speeds : [0.5, 1, 2],
+      speeds: config.controls?.speeds?.length ? config.controls.speeds : [0.1, 0.25, 0.5, 1, 1.5],
     },
     interaction: {
       ...gestures,

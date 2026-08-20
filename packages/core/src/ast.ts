@@ -51,6 +51,10 @@ export type PlayerControlsConfig = {
   fullscreen?: boolean;
   svg?: boolean;
   share?: boolean;
+  /** Show the MarkdyScript source code when clicked. */
+  code?: boolean;
+  /** Theme switcher toggle (dark / light palettes). */
+  theme?: boolean;
   /** Speed multipliers offered by the speed buttons. */
   speeds?: number[];
 };

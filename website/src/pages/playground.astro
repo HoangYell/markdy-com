@@ -195,6 +195,16 @@ const playgroundStructuredData = [
               <button id="reset-btn" class="tool-btn" type="button" title="Reset scene to initial template">↺ Reset</button>
             </div>
 
+            <div class="toolbar-divider" aria-hidden="true"></div>
+
+            <!-- Theme group: Random Dark / Light Toggle -->
+            <div class="toolbar-group">
+              <button id="switch-theme-btn" class="tool-btn" type="button" title="Toggle Theme (Random Dark / Light Mode Palette)">
+                <span>🎨</span>
+                <span id="playground-theme-label">Theme</span>
+              </button>
+            </div>
+
             <!-- Spacer pushes Run to the right -->
             <div class="toolbar-spacer" aria-hidden="true"></div>
 
@@ -726,6 +736,8 @@ const playgroundStructuredData = [
   const pasteCodeBtn = document.getElementById("paste-code-btn") as HTMLButtonElement;
   const copyCodeBtn = document.getElementById("copy-code-btn") as HTMLButtonElement;
   const formatCodeBtn = document.getElementById("format-code-btn") as HTMLButtonElement;
+  const switchThemeBtn = document.getElementById("switch-theme-btn") as HTMLButtonElement | null;
+  const playgroundThemeLabel = document.getElementById("playground-theme-label") as HTMLSpanElement | null;
 
   const exampleSourceLink = document.getElementById("example-source-link") as HTMLAnchorElement;
   const quickExampleSelect = document.getElementById("quick-example-select") as HTMLSelectElement;
@@ -868,6 +880,8 @@ const playgroundStructuredData = [
     const lines = rawCode.split("\n");
     const formatted: string[] = [];
     let inBeatOrPattern = false;
+    let inPlayer = false;
+    let inPlayerScope = false;
 
     for (let line of lines) {
       const trimmed = line.trim();
@@ -879,10 +893,42 @@ const playgroundStructuredData = [
         continue;
       }
 
-      if (/^(beat|pattern|group)\b.*:\s*$/.test(trimmed)) {
+      // Check if entering player block
+      if (/^player\s*:\s*$/.test(trimmed)) {
+        inBeatOrPattern = false;
+        inPlayer = true;
+        inPlayerScope = false;
+        formatted.push("player:");
+        continue;
+      }
+
+      if (inPlayer) {
+        // Sub-scopes: playback:, controls:, interaction:, chrome:
+        if (/^(playback|controls|interaction|chrome)\s*:\s*$/.test(trimmed)) {
+          inPlayerScope = true;
+          formatted.push(`  ${trimmed}`);
+          continue;
+        }
+
+        // Check if a root DSL keyword exits player block
+        if (/^(scene|layout|beat|pattern|group|service|client|browser|mobile|gateway|database|db|cache|queue|worker|storage|firewall|lambda|pod|user|edge|annotation)\b/.test(trimmed)) {
+          inPlayer = false;
+          inPlayerScope = false;
+        } else {
+          // Setting within player
+          if (inPlayerScope) {
+            formatted.push(`    ${trimmed}`);
+          } else {
+            formatted.push(`  ${trimmed}`);
+          }
+          continue;
+        }
+      }
+
+      if (/^(beat|pattern)\b.*:\s*$/.test(trimmed)) {
         inBeatOrPattern = true;
         formatted.push(trimmed);
-      } else if (inBeatOrPattern && (/^(beat|pattern|layout|scene|theme|service|client|browser|mobile|gateway|database|db|cache|queue|worker|storage|firewall|lambda|pod|user)\b/.test(trimmed))) {
+      } else if (inBeatOrPattern && (/^(beat|pattern|layout|scene|theme|service|client|browser|mobile|gateway|database|db|cache|queue|worker|storage|firewall|lambda|pod|user|group|edge|annotation|player)\b/.test(trimmed))) {
         inBeatOrPattern = false;
         formatted.push(trimmed);
       } else if (inBeatOrPattern) {
@@ -1097,6 +1143,7 @@ const playgroundStructuredData = [
       diagram = createDiagram({
         container: stageCanvas || stage,
         code,
+        controls: true,
         shareUrl: `${window.location.origin}${window.location.pathname}`,
         onWarning(warning: Diagnostic) {
           warnings.push(`line ${warning.line}: ${warning.message}`);
@@ -1114,6 +1161,60 @@ const playgroundStructuredData = [
       showDiagnostics([message]);
     }
   }
+
+  // ─── Theme Switcher (Random Dark / Random Light Toggle) ───────────
+  const DARK_THEMES = ["midnight", "blueprint", "graphite", "nebula", "terminal"];
+  const LIGHT_THEMES = ["paper", "editorial", "sketchy"];
+
+  function toggleRandomThemeInPlayground(): void {
+    const current = getCode();
+    const match = current.match(/theme=([a-zA-Z0-9_-]+)/);
+    const currentTheme = match ? match[1].toLowerCase() : "paper";
+    const isDark = DARK_THEMES.includes(currentTheme);
+    const targetThemes = isDark ? LIGHT_THEMES : DARK_THEMES;
+    const filtered = targetThemes.filter((t) => t !== currentTheme);
+    const nextTheme = filtered[Math.floor(Math.random() * filtered.length)] || targetThemes[0];
+
+    let newCode: string;
+    if (match) {
+      newCode = current.replace(/theme=[a-zA-Z0-9_-]+/, `theme=${nextTheme}`);
+    } else if (/^scene\b/m.test(current)) {
+      newCode = current.replace(/^scene\b(.*)$/m, `scene theme=${nextTheme}$1`);
+    } else {
+      newCode = `scene theme=${nextTheme}\n\n` + current;
+    }
+    if (playgroundThemeLabel) playgroundThemeLabel.textContent = nextTheme;
+    if (editor) {
+      editor.dispatch({
+        changes: { from: 0, to: editor.state.doc.length, insert: newCode },
+      });
+    }
+    render(newCode);
+  }
+
+  switchThemeBtn?.addEventListener("click", toggleRandomThemeInPlayground);
+
+  (stageCanvas || stage)?.addEventListener("markdy-theme-switch", ((e: CustomEvent) => {
+    const themeName = e.detail?.theme;
+    if (!themeName) return;
+    const current = getCode();
+    const match = current.match(/theme=([a-zA-Z0-9_-]+)/);
+    let newCode: string;
+    if (match) {
+      newCode = current.replace(/theme=[a-zA-Z0-9_-]+/, `theme=${themeName}`);
+    } else if (/^scene\b/m.test(current)) {
+      newCode = current.replace(/^scene\b(.*)$/m, `scene theme=${themeName}$1`);
+    } else {
+      newCode = `scene theme=${themeName}\n\n` + current;
+    }
+    if (playgroundThemeLabel) playgroundThemeLabel.textContent = themeName;
+    if (editor) {
+      editor.dispatch({
+        changes: { from: 0, to: editor.state.doc.length, insert: newCode },
+      });
+    }
+    render(newCode);
+  }) as EventListener);
 
   function setActiveExample(index: number) {
     selectedExample = index;
@@ -2181,10 +2282,14 @@ Requirements:
   const sharedCodeParam = params.get("code");
 
   (async () => {
-    let initialCode = examples[0].code;
+    let initialIndex = examples.length > 0 ? Math.floor(Math.random() * examples.length) : 0;
+    let initialCode = examples[initialIndex]?.code || "";
     if (sharedCodeParam) {
       const decoded = await decodeShare(sharedCodeParam);
-      if (decoded) initialCode = decoded;
+      if (decoded) {
+        initialCode = decoded;
+        initialIndex = -1;
+      }
     }
 
     const savedTheme = localStorage.getItem(STORAGE_KEY);
@@ -2206,7 +2311,7 @@ Requirements:
 
     createEditor(initialCode);
     render(initialCode);
-    setActiveExample(sharedCodeParam ? -1 : 0);
+    setActiveExample(initialIndex);
   })();
 
   exampleBtns.forEach((btn) => {

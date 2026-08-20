@@ -2,9 +2,9 @@
 
 > ### SPECIFICATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.13
+> - **Current Version**: v1.0.14
 > - **Specification Version**: 1.0.x
-> - **Last Updated**: 2026-08-19
+> - **Last Updated**: 2026-08-20
 > - **Documentation Hub**: <https://markdy.com/docs/>
 > - **AI Agent Guide**: <https://markdy.com/AGENT.md>
 
@@ -58,7 +58,7 @@ Canonical scenes put `layout LR|RL|TB|BT` on its own line. For AI-generated comp
 | Group | Owns | Settings |
 |---|---|---|
 | `playback:` | when and how fast the timeline runs | `autoplay`, `loop`, `rate` |
-| `controls:` | which toolbar affordances are mounted | `play`, `restart`, `prev_beat`, `next_beat`, `seek`, `speed`, `speeds`, `fit`, `reset_view`, `fullscreen`, `svg`, `share` |
+| `controls:` | which toolbar affordances are mounted | `play`, `restart`, `prev_beat`, `next_beat`, `seek`, `speed`, `speeds`, `fit`, `reset_view`, `fullscreen`, `svg`, `share`, `code` |
 | `interaction:` | what pointer and key input do | `zoom`, `pan`, `click_to_play`, `double_click_to_reset`, `keyboard` |
 | `chrome:` | non-interactive decoration | `badge`, `progress` (`none\|bar\|boundary`), `color` |
 
@@ -70,7 +70,7 @@ Declaring a group opts in, and every affordance in it defaults on — so list on
 
 `keyboard` is the one affordance that stays **off** unless you ask for it, because it listens on the window and captures space and arrow keys: <kbd>←</kbd>/<kbd>→</kbd> step beats, <kbd>Space</kbd> toggles playback, and <kbd>Home</kbd> restarts.
 
-`svg` downloads the settled final frame as vector SVG. `share` copies a compressed share link; hosts can point it at their own editor with the renderer's `shareUrl` option, and it defaults to the Markdy playground.
+`svg` downloads the settled final frame as vector SVG. `share` copies a compressed share link; hosts can point it at their own editor with the renderer's `shareUrl` option, and it defaults to the Markdy playground. `code` opens a dialog displaying the raw MarkdyScript source code with syntax tinting and copy button.
 
 Settings accept camel case or snake case, and `key value`, `key: value`, or `key = value`. Explicit renderer, Astro, or MDX props override script configuration. Legacy top-level directives, flat `player:` keys, and inline scene properties such as `controls true`, `interactive true`, `speed 1.5`, and `scene autoplay=false` are normalized into the same groups.
 

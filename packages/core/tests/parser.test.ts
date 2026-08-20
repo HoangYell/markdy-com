@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { parse, compile, ParseError } from "../src/parser.js";
+import { resolvePlayer } from "../src/player.js";
 import type { Cue } from "../src/ast.js";
 
 const isFlow = (c: Cue): c is Extract<Cue, { kind: "flow" }> => c.kind === "flow";
@@ -634,6 +635,8 @@ beat main:
         fullscreen: true,
         svg: true,
         share: true,
+        code: true,
+        theme: true,
       },
       interaction: { zoom: false, pan: true, doubleClickToReset: true },
       chrome: { badge: false },
@@ -666,6 +669,43 @@ beat main:
     expect(ast.meta.player?.controls).toEqual({ prevBeat: true, nextBeat: false, speeds: [0.25, 1, 3] });
     expect(ast.meta.player?.interaction).toEqual({ keyboard: true });
     expect(ast.diagnostics).toEqual([]);
+  });
+
+  it("parses the code button affordance and keeps it opt-in by default", () => {
+    // Explicitly opting in.
+    const astOn = parse(`
+player:
+  controls:
+    code true
+
+scene
+service API
+beat main:
+  show API
+`);
+    expect(astOn.meta.player?.controls).toEqual({ code: true });
+    expect(astOn.diagnostics).toEqual([]);
+
+    // Aliases should also parse.
+    const astAlias = parse(`
+player:
+  controls:
+    expose_code true
+
+scene
+service API
+beat main:
+  show API
+`);
+    expect(astAlias.meta.player?.controls).toEqual({ code: true });
+
+    // When controls group is declared, code must remain false unless explicitly set.
+    const resolved = resolvePlayer({ controls: { play: true, restart: true, prevBeat: true, nextBeat: true, seek: true, speed: true, fit: true, resetView: true, fullscreen: true, svg: true, share: true } });
+    expect(resolved.controls.code).toBe(false);
+
+    // When explicitly set, it should be true.
+    const resolvedWithCode = resolvePlayer({ controls: { code: true } });
+    expect(resolvedWithCode.controls.code).toBe(true);
   });
 
   it("warns on unknown or malformed player settings", () => {

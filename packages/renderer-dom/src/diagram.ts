@@ -199,6 +199,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     fullscreen: fullscreenButton,
     svg: svgButton,
     share: shareButton,
+    code: codeButton,
+    theme: themeButton,
   } = player.controls;
   const copyright = player.chrome.badge;
   const progressMode = player.chrome.progress;
@@ -289,22 +291,13 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   let badge: HTMLAnchorElement | null = null;
   if (copyright) {
     badge = document.createElement("a");
+    badge.className = "markdy-badge";
     badge.href = `${MARKDY_PLAYGROUND_URL}#code=${encodeCodeForPlaygroundHash(code)}`;
     badge.target = "_blank";
     badge.rel = "noopener noreferrer";
-    badge.textContent = "Powered by Markdy";
-    Object.assign(badge.style, {
-      display: "inline-flex",
-      alignItems: "center",
-      textAlign: "right",
-      fontSize: "10px",
-      fontFamily: "system-ui, sans-serif",
-      color: "#999",
-      textDecoration: "none",
-      padding: "0",
-      opacity: "0.7",
-      marginLeft: "auto",
-    });
+    badge.title = "Open and edit in Markdy Playground";
+    badge.style.marginLeft = "auto";
+    badge.innerHTML = `<span style="opacity:0.9">⚡</span> Markdy`;
     ensureFooter().appendChild(badge);
   }
 
@@ -566,8 +559,25 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   let controlsPlayButton: HTMLButtonElement | null = null;
   let controlsRateButtons: HTMLButtonElement[] = [];
   let controlsSeekBar: HTMLInputElement | null = null;
+  let controlsTimeEl: HTMLSpanElement | null = null;
   let controlsFitButton: HTMLButtonElement | null = null;
   let fitViewActive = false;
+
+  const ICONS = {
+    play: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
+    pause: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>',
+    restart: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>',
+    prevBeat: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>',
+    nextBeat: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>',
+    fit: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>',
+    resetView: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>',
+    fullscreen: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>',
+    svg: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+    share: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
+    code: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
+    theme: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>',
+    check: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  };
 
   function applyViewportTransform(): void {
     viewportTransform.style.transform = `translate(${viewportPanX}px, ${viewportPanY}px) scale(${viewportScale})`;
@@ -671,7 +681,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   function syncControls(): void {
     if (controlsPlayButton) {
       const playing = isPlaying;
-      controlsPlayButton.textContent = playing ? "Pause" : "Play";
+      controlsPlayButton.innerHTML = `${playing ? ICONS.pause : ICONS.play}${playing ? "Pause" : "Play"}`;
       const playLabel = playing ? "Pause diagram" : "Play diagram";
       controlsPlayButton.setAttribute("aria-label", playLabel);
       controlsPlayButton.title = playLabel;
@@ -681,7 +691,16 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       const active = Math.abs(rate - playbackRate) < 0.001;
       button.setAttribute("aria-pressed", active ? "true" : "false");
     }
-    if (controlsSeekBar) controlsSeekBar.value = String(sceneMs / 1000);
+    if (controlsSeekBar) {
+      controlsSeekBar.value = String(sceneMs / 1000);
+      const pct = totalDurationMs > 0 ? (sceneMs / totalDurationMs) * 100 : 0;
+      controlsSeekBar.style.setProperty("--seek-pct", `${pct}%`);
+    }
+    if (controlsTimeEl) {
+      const cur = (sceneMs / 1000).toFixed(1);
+      const tot = durationSeconds.toFixed(1);
+      controlsTimeEl.textContent = `${cur}s / ${tot}s`;
+    }
     if (controlsFitButton) {
       controlsFitButton.setAttribute("aria-pressed", fitViewActive ? "true" : "false");
     }
@@ -799,18 +818,22 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     }
   }
 
-  function makeControlButton(label: string, ariaLabel: string): HTMLButtonElement {
+  function makeControlButton(label: string, ariaLabel: string, iconSvg?: string): HTMLButtonElement {
     const button = document.createElement("button");
     button.type = "button";
-    button.textContent = label;
     button.setAttribute("aria-label", ariaLabel);
     button.title = ariaLabel;
+    if (iconSvg) {
+      button.innerHTML = `${iconSvg}${label}`;
+    } else {
+      button.textContent = label;
+    }
     return button;
   }
 
   function mountPlayControl(toolbar: HTMLElement): void {
     if (!playButton) return;
-    controlsPlayButton = makeControlButton("Play", "Play diagram");
+    controlsPlayButton = makeControlButton("Play", "Play diagram", ICONS.play);
     controlsPlayButton.className = "markdy-control-play";
     controlsPlayButton.addEventListener("click", togglePlayback);
     toolbar.appendChild(controlsPlayButton);
@@ -820,7 +843,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     const wanted = position === "prev" ? prevBeatButton : nextBeatButton;
     if (!wanted || plan.beats.length < 2) return;
     const label = position === "prev" ? "Prev" : "Next";
-    const button = makeControlButton(label, `${label === "Prev" ? "Previous" : "Next"} beat`);
+    const icon = position === "prev" ? ICONS.prevBeat : ICONS.nextBeat;
+    const button = makeControlButton(label, `${label === "Prev" ? "Previous" : "Next"} beat`, icon);
     button.className = `markdy-control-${position}-beat`;
     button.addEventListener("click", () => (position === "prev" ? diagram.prevBeat() : diagram.nextBeat()));
     toolbar.appendChild(button);
@@ -828,7 +852,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
   function mountRestartControl(toolbar: HTMLElement): void {
     if (!restartButton) return;
-    const button = makeControlButton("Restart", "Restart diagram");
+    const button = makeControlButton("Restart", "Restart diagram", ICONS.restart);
     button.className = "markdy-control-restart";
     button.addEventListener("click", () => {
       diagram.seek(0);
@@ -849,6 +873,11 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     controlsSeekBar.setAttribute("aria-label", "Seek diagram timeline");
     controlsSeekBar.addEventListener("input", () => diagram.seek(Number(controlsSeekBar?.value ?? 0)));
     toolbar.appendChild(controlsSeekBar);
+
+    controlsTimeEl = document.createElement("span");
+    controlsTimeEl.className = "markdy-control-time";
+    controlsTimeEl.textContent = `${(sceneMs / 1000).toFixed(1)}s / ${durationSeconds.toFixed(1)}s`;
+    toolbar.appendChild(controlsTimeEl);
   }
 
   function mountSpeedControls(toolbar: HTMLElement): void {
@@ -865,11 +894,14 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   }
 
   function flashControlLabel(button: HTMLButtonElement, message: string): void {
-    const original = button.textContent ?? "";
-    button.textContent = message;
+    const originalHtml = button.innerHTML;
+    const isSuccess = !message.toLowerCase().includes("fail");
+    button.innerHTML = isSuccess ? `${ICONS.check}${message}` : message;
+    button.classList.add("markdy-btn-flashed");
     setTimeout(() => {
-      button.textContent = original;
-    }, 1400);
+      button.innerHTML = originalHtml;
+      button.classList.remove("markdy-btn-flashed");
+    }, 1500);
   }
 
   function downloadFile(filename: string, contents: string, type: string): void {
@@ -887,7 +919,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
   function mountSvgControl(toolbar: HTMLElement): void {
     if (!svgButton) return;
-    const button = makeControlButton("SVG", "Export diagram as SVG");
+    const button = makeControlButton("SVG", "Export diagram as SVG", ICONS.svg);
     button.className = "markdy-control-svg";
     button.addEventListener("click", async () => {
       const resumeAt = sceneMs;
@@ -900,6 +932,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
         const svg = exportDiagramAsVectorSvg(container);
         const name = (plan.title || "markdy-diagram").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
         downloadFile(`${name || "markdy-diagram"}.svg`, svg, "image/svg+xml");
+        flashControlLabel(button, "Saved");
       } catch (error) {
         onWarning({ severity: "warning", message: `SVG export failed: ${String(error)}`, line: 0 });
         flashControlLabel(button, "Failed");
@@ -913,7 +946,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
   function mountShareControl(toolbar: HTMLElement): void {
     if (!shareButton) return;
-    const button = makeControlButton("Share", "Copy a share link for this diagram");
+    const button = makeControlButton("Share", "Copy a share link for this diagram", ICONS.share);
     button.className = "markdy-control-share";
     button.addEventListener("click", async () => {
       try {
@@ -929,9 +962,161 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     toolbar.appendChild(button);
   }
 
+  function mountThemeControl(toolbar: HTMLElement): void {
+    if (!themeButton) return;
+    const button = makeControlButton("Theme", "Toggle dark/light theme palette", ICONS.theme);
+    button.className = "markdy-control-theme";
+    button.addEventListener("click", () => {
+      const darkThemes = ["midnight", "blueprint", "graphite", "nebula", "terminal"];
+      const lightThemes = ["paper", "editorial", "sketchy"];
+      const currentName = plan.theme.name || "paper";
+      const isDark = darkThemes.includes(currentName);
+      const targetThemes = isDark ? lightThemes : darkThemes;
+      const nextTheme = targetThemes[Math.floor(Math.random() * targetThemes.length)];
+      flashControlLabel(button, nextTheme);
+      container.dispatchEvent(
+        new CustomEvent("markdy-theme-switch", {
+          bubbles: true,
+          detail: { theme: nextTheme, isDark: !isDark },
+        }),
+      );
+    });
+    toolbar.appendChild(button);
+  }
+
+  /** Lightweight client-side syntax tinting — wraps recognisable tokens in
+   *  coloured spans without importing a full highlighter. */
+  function tintCode(raw: string): string {
+    return raw
+      .split("\n")
+      .map((line) => {
+        // Comments — must be tested first so the rest don't taint comment text.
+        if (/^\s*\/\//.test(line)) {
+          return `<span class="t-comment">${escHtml(line)}</span>`;
+        }
+        // Edge operators at word boundaries.
+        line = line.replace(/(->|<-|~>|--|<~)/g, '<span class="t-edge">$1</span>');
+        // Quoted strings.
+        line = line.replace(/"([^"]*)"/g, '"<span class="t-string">$1</span>"');
+        // Leading DSL keywords (scene, beat, group, show, frame, glow…).
+        line = line.replace(
+          /^(\s*)(scene|beat|group|player|show|frame|glow|focus|layout|edge|annotation|start|end|decision|service|browser|gateway|database|cache|queue|worker|function|pod|user|client|hub|station|metric|mobile)\b/,
+          '$1<span class="t-keyword">$2</span>',
+        );
+        // Bare numbers / units (e.g. zoom=1.2, stagger=80ms).
+        line = line.replace(/\b(\d[\d.]*(?:ms|px|s)?)\b/g, '<span class="t-number">$1</span>');
+        return line;
+      })
+      .join("\n");
+  }
+
+  function escHtml(str: string): string {
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function mountCodeControl(toolbar: HTMLElement): void {
+    if (!codeButton) return;
+    const button = makeControlButton("Code", "View MarkdyScript source");
+    button.className = "markdy-control-code";
+    button.setAttribute("aria-haspopup", "dialog");
+
+    button.addEventListener("click", () => {
+      const overlay = document.createElement("div");
+      overlay.className = "markdy-code-panel-overlay";
+      overlay.setAttribute("role", "dialog");
+      overlay.setAttribute("aria-modal", "true");
+      overlay.setAttribute("aria-label", "MarkdyScript source code");
+
+      const panel = document.createElement("div");
+      panel.className = "markdy-code-panel";
+
+      // ── Header ─────────────────────────────────────────────────────────
+      const header = document.createElement("div");
+      header.className = "markdy-code-panel__header";
+
+      const title = document.createElement("div");
+      title.className = "markdy-code-panel__title";
+      title.textContent = "MarkdyScript source";
+
+      const actions = document.createElement("div");
+      actions.className = "markdy-code-panel__actions";
+
+      const copyBtn = document.createElement("button");
+      copyBtn.type = "button";
+      copyBtn.className = "markdy-code-panel__copy";
+      copyBtn.textContent = "Copy";
+      copyBtn.setAttribute("aria-label", "Copy source code to clipboard");
+      copyBtn.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(code);
+          copyBtn.textContent = "Copied ✓";
+          setTimeout(() => { copyBtn.textContent = "Copy"; }, 1800);
+        } catch {
+          copyBtn.textContent = "Failed";
+          setTimeout(() => { copyBtn.textContent = "Copy"; }, 1800);
+        }
+      });
+
+      const playgroundBtn = document.createElement("a");
+      playgroundBtn.className = "markdy-code-panel__playground";
+      playgroundBtn.href = `${shareUrl ?? MARKDY_PLAYGROUND_URL}#code=${encodeCodeForPlaygroundHash(code)}`;
+      playgroundBtn.target = "_blank";
+      playgroundBtn.rel = "noopener noreferrer";
+      playgroundBtn.textContent = "Open in Studio ↗";
+      playgroundBtn.setAttribute("aria-label", "Open diagram in Markdy Studio playground");
+
+      const closeBtn = document.createElement("button");
+      closeBtn.type = "button";
+      closeBtn.className = "markdy-code-panel__close";
+      closeBtn.textContent = "✕ Close";
+      closeBtn.setAttribute("aria-label", "Close code panel");
+
+      actions.append(copyBtn, playgroundBtn, closeBtn);
+      header.append(title, actions);
+
+      // ── Body ───────────────────────────────────────────────────────────
+      const body = document.createElement("div");
+      body.className = "markdy-code-panel__body";
+
+      const pre = document.createElement("pre");
+      pre.className = "markdy-code-panel__pre";
+      pre.innerHTML = tintCode(code);
+      body.appendChild(pre);
+
+      panel.append(header, body);
+      overlay.appendChild(panel);
+      document.body.appendChild(overlay);
+
+      // Focus the close button for keyboard accessibility.
+      closeBtn.focus();
+
+      function closePanel(): void {
+        overlay.dataset.closing = "1";
+        // Wait for the closing animation before removing the element.
+        overlay.addEventListener("animationend", () => overlay.remove(), { once: true });
+      }
+
+      closeBtn.addEventListener("click", closePanel);
+      // Click on backdrop (outside the panel card) closes the panel.
+      overlay.addEventListener("click", (e) => {
+        if (e.target === overlay) closePanel();
+      });
+      // Escape key closes the panel.
+      function handleEscape(e: KeyboardEvent): void {
+        if (e.key === "Escape") { closePanel(); document.removeEventListener("keydown", handleEscape); }
+      }
+      document.addEventListener("keydown", handleEscape);
+      overlay.addEventListener("animationend", () => {
+        if (overlay.dataset.closing === "1") document.removeEventListener("keydown", handleEscape);
+      }, { once: true });
+    });
+
+    toolbar.appendChild(button);
+  }
+
   function mountFitControl(toolbar: HTMLElement): void {
     if (!fitViewButton) return;
-    controlsFitButton = makeControlButton("Fit", "Fit all items in view and ignore camera zoom");
+    controlsFitButton = makeControlButton("Fit", "Fit all items in view and ignore camera zoom", ICONS.fit);
     controlsFitButton.className = "markdy-control-fit";
     controlsFitButton.setAttribute("aria-pressed", "false");
     controlsFitButton.addEventListener("click", toggleFitView);
@@ -940,7 +1125,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
   function mountResetViewControl(toolbar: HTMLElement): void {
     if (!resetViewButton) return;
-    const button = makeControlButton("Reset", "Reset diagram view");
+    const button = makeControlButton("Reset", "Reset diagram view", ICONS.resetView);
     button.className = "markdy-control-reset-view";
     button.addEventListener("click", resetViewportTransform);
     toolbar.appendChild(button);
@@ -948,7 +1133,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
   function mountFullscreenControl(toolbar: HTMLElement): void {
     if (!fullscreenButton) return;
-    const button = makeControlButton("Full", "Toggle fullscreen view");
+    const button = makeControlButton("Full", "Toggle fullscreen view", ICONS.fullscreen);
     button.className = "markdy-control-fullscreen";
     button.setAttribute("aria-pressed", "false");
 
@@ -1045,17 +1230,58 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       toolbar.addEventListener(eventName, (event) => event.stopPropagation());
     }
 
-    mountPlayControl(toolbar);
-    mountBeatNavControls(toolbar, "prev");
-    mountBeatNavControls(toolbar, "next");
-    mountRestartControl(toolbar);
-    mountSeekControl(toolbar);
-    mountSpeedControls(toolbar);
-    mountFitControl(toolbar);
-    mountResetViewControl(toolbar);
-    mountFullscreenControl(toolbar);
-    mountSvgControl(toolbar);
-    mountShareControl(toolbar);
+    // 1. Playback Group
+    const playbackGroup = document.createElement("div");
+    playbackGroup.className = "markdy-controls-group markdy-controls-playback";
+    mountPlayControl(playbackGroup);
+    mountBeatNavControls(playbackGroup, "prev");
+    mountBeatNavControls(playbackGroup, "next");
+    mountRestartControl(playbackGroup);
+    if (playbackGroup.children.length > 0) toolbar.appendChild(playbackGroup);
+
+    // 2. Timeline Group
+    if (seekBar) {
+      const timelineGroup = document.createElement("div");
+      timelineGroup.className = "markdy-controls-group markdy-controls-timeline";
+      mountSeekControl(timelineGroup);
+      toolbar.appendChild(timelineGroup);
+    }
+
+    // 3. Tools Group
+    const toolsGroup = document.createElement("div");
+    toolsGroup.className = "markdy-controls-group markdy-controls-tools";
+
+    if (speedControls) {
+      const speedGroup = document.createElement("div");
+      speedGroup.className = "markdy-speed-group";
+      mountSpeedControls(speedGroup);
+      toolsGroup.appendChild(speedGroup);
+    }
+
+    if (fitViewButton || resetViewButton || fullscreenButton) {
+      if (toolsGroup.children.length > 0) {
+        const divider = document.createElement("div");
+        divider.className = "markdy-control-divider";
+        toolsGroup.appendChild(divider);
+      }
+      mountFitControl(toolsGroup);
+      mountResetViewControl(toolsGroup);
+      mountFullscreenControl(toolsGroup);
+    }
+
+    if (svgButton || shareButton || codeButton || themeButton) {
+      if (toolsGroup.children.length > 0) {
+        const divider = document.createElement("div");
+        divider.className = "markdy-control-divider";
+        toolsGroup.appendChild(divider);
+      }
+      mountThemeControl(toolsGroup);
+      mountSvgControl(toolsGroup);
+      mountShareControl(toolsGroup);
+      mountCodeControl(toolsGroup);
+    }
+
+    if (toolsGroup.children.length > 0) toolbar.appendChild(toolsGroup);
 
     ensureFooter().insertBefore(toolbar, badge ?? null);
     syncControls();

@@ -2,10 +2,10 @@
 
 > ### CURRENT AUTHORITATIVE SPECIFICATION
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.13
+> - **Current Version**: v1.0.14
 > - **Specification Version**: 1.0.x
-> - **Time Updated**: 2026-08-19T14:09:36.353Z
-> - **Last Updated**: 2026-08-19
+> - **Time Updated**: 2026-08-20T13:35:06.719Z
+> - **Last Updated**: 2026-08-20
 > - **Canonical URL**: <https://markdy.com/AGENT.md>
 > - **Human-Readable Mirror**: <https://markdy.com/agent/>
 > - **LLM Index**: <https://markdy.com/llms.txt>

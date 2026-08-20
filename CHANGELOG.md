@@ -5,6 +5,21 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.14] — 2026-08-20
+
+### Added
+- **Micro-Inspection Speed Pill (`@markdy/core`, `@markdy/renderer-dom`)** — Default speeds updated to `[0.1, 0.25, 0.5, 1, 1.5]`. Features a high-contrast segmented pill UI for ultra-slow motion step-through of complex distributed flows and race conditions.
+- **Embedded Source Code Drawer (`<> Code`) with Direct Studio Forking (`@markdy/renderer-dom`)** — Enhanced the `<> Code` modal overlay with an **`Open in Studio ↗`** primary action button, allowing readers of embedded diagrams on third-party documentation/blogs to 1-click fork the diagram into `https://markdy.com/playground#code=...`.
+- **Dynamic Theme Switcher Control (`@markdy/core`, `@markdy/renderer-dom`)** — Added `player.controls.theme` support with random dark-to-dark and light-to-light palette toggling across Studio, Playground, and embedded viewports via `markdy-theme-switch` custom events.
+- **Glassmorphic Brand Badge (`.markdy-badge`)** — Upgraded the default diagram watermark to an interactive `⚡ Markdy` pill badge with hover elevation and direct playground deep linking.
+
+### Changed
+- **Canonical Embed Player Defaults** — Standardized embed defaults across `@markdy/core` and all 49+ showcase `.markdy` files (`keyboard: false` to prevent article scroll-jacking, `badge: true` and `code: true` for viral discovery, `speeds: "0.1 0.25 0.5 1 1.5"` for micro-inspection).
+- **Playground MarkdyScript Formatter** — Enhanced `formatMarkdyScript` in `playground.astro` to properly format nested YAML `player:` blocks with 2-space category indentation and 4-space setting indentation.
+
+### Fixed
+- **Client Runtime State in Live Studio (`index.astro`)** — Declared missing `autoShuffleTimer` and `isAutoShuffleEnabled` variables in the homepage client script, eliminating runtime reference errors during manual code edits and preset switches.
+
 ## [1.0.13] — 2026-08-19
 
 ### Fixed

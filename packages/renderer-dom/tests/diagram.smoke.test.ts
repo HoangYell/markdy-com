@@ -712,4 +712,73 @@ beat main:
       container.remove();
     }
   });
+
+  it("mounts a code button that opens a panel containing the raw MarkdyScript source", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const CODE_WITH_CODE_BTN = `\
+player:
+  controls:
+    code true
+
+scene theme=paper
+layout LR
+
+browser Web
+service API
+`;
+
+    const diagram = createDiagram({
+      container,
+      code: CODE_WITH_CODE_BTN,
+      autoplay: false,
+      copyright: false,
+    });
+
+    const footer = document.body.querySelector<HTMLElement>(".markdy-footer");
+    const codeBtn = footer?.querySelector<HTMLButtonElement>(".markdy-control-code");
+
+    expect(codeBtn).not.toBeNull();
+    expect(codeBtn?.getAttribute("aria-haspopup")).toBe("dialog");
+
+    // Clicking the button should insert a dialog overlay into the body.
+    codeBtn!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    const overlay = document.body.querySelector<HTMLElement>(".markdy-code-panel-overlay");
+    expect(overlay).not.toBeNull();
+    expect(overlay?.getAttribute("role")).toBe("dialog");
+
+    const pre = overlay?.querySelector<HTMLElement>(".markdy-code-panel__pre");
+    expect(pre).not.toBeNull();
+    // The raw source text should be present somewhere in the pre content.
+    expect(pre?.textContent).toContain("scene");
+
+    // The close button should dismiss the panel.
+    const closeBtn = overlay?.querySelector<HTMLButtonElement>(".markdy-code-panel__close");
+    expect(closeBtn).not.toBeNull();
+
+    diagram.destroy();
+    container.remove();
+  });
+
+  it("code button is OFF by default when controls=true", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const diagram = createDiagram({
+      container,
+      code: SCENE,
+      autoplay: false,
+      copyright: false,
+      controls: true,
+    });
+
+    const footer = document.body.querySelector<HTMLElement>(".markdy-footer");
+    const codeBtn = footer?.querySelector<HTMLButtonElement>(".markdy-control-code");
+    // The code button must NOT appear unless explicitly opted in.
+    expect(codeBtn).toBeNull();
+
+    diagram.destroy();
+    container.remove();
+  });
 });
