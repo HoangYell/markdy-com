@@ -2,9 +2,9 @@
 
 > ### CURRENT AUTHORITATIVE SPECIFICATION
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.14
+> - **Current Version**: v1.0.15
 > - **Specification Version**: 1.0.x
-> - **Time Updated**: 2026-08-20T13:35:06.719Z
+> - **Time Updated**: 2026-08-20T13:56:42.429Z
 > - **Last Updated**: 2026-08-20
 > - **Canonical URL**: <https://markdy.com/AGENT.md>
 > - **Human-Readable Mirror**: <https://markdy.com/agent/>
