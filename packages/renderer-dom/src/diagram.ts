@@ -288,19 +288,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     return footer;
   }
 
-  let badge: HTMLAnchorElement | null = null;
-  if (copyright) {
-    badge = document.createElement("a");
-    badge.className = "markdy-badge";
-    badge.href = `${MARKDY_PLAYGROUND_URL}#code=${encodeCodeForPlaygroundHash(code)}`;
-    badge.target = "_blank";
-    badge.rel = "noopener noreferrer";
-    badge.title = "Open and edit in Markdy Playground";
-    badge.style.marginLeft = "auto";
-    badge.innerHTML = `<span style="opacity:0.9">⚡</span> Markdy`;
-    ensureFooter().appendChild(badge);
-  }
-
   ensureSceneStyles(document);
   ensureNodeStyles(document);
 
@@ -318,6 +305,18 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   });
   applyThemeToScene(scene, plan.theme);
   viewport.appendChild(scene);
+
+  let badge: HTMLAnchorElement | null = null;
+  if (copyright) {
+    badge = document.createElement("a");
+    badge.className = "markdy-badge";
+    badge.href = "https://markdy.com";
+    badge.target = "_blank";
+    badge.rel = "noopener noreferrer";
+    badge.title = "Powered by Markdy - Diagram as Code";
+    badge.textContent = "Powered by Markdy";
+    viewport.appendChild(badge);
+  }
 
   const viewportTransform = document.createElement("div");
   viewportTransform.className = "markdy-viewport-transform";
@@ -1377,7 +1376,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
     if (toolsGroup.children.length > 0) toolbar.appendChild(toolsGroup);
 
-    ensureFooter().insertBefore(toolbar, badge ?? null);
+    ensureFooter().appendChild(toolbar);
     syncControls();
   }
 
