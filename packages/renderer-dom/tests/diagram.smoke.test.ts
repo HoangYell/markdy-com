@@ -211,7 +211,7 @@ describe("createDiagram integration", () => {
     const toolbar = footer?.querySelector<HTMLElement>(".markdy-controls") ?? null;
     const playButton = footer?.querySelector<HTMLButtonElement>(".markdy-control-play")!;
     const restartButton = footer?.querySelector<HTMLButtonElement>(".markdy-control-restart")!;
-    const halfSpeedButton = [...footer!.querySelectorAll<HTMLButtonElement>(".markdy-control-rate")].find((button) => button.dataset.rate === "0.5")!;
+    const quarterSpeedButton = [...footer!.querySelectorAll<HTMLButtonElement>(".markdy-control-rate")].find((button) => button.dataset.rate === "0.25")!;
     const resetButton = footer?.querySelector<HTMLButtonElement>(".markdy-control-reset-view")!;
 
     expect(container.querySelector(".markdy-controls")).toBeNull();
@@ -223,9 +223,9 @@ describe("createDiagram integration", () => {
     expect(diagram.isPlaying()).toBe(true);
     expect(playButton.textContent).toBe("Pause");
 
-    halfSpeedButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    expect(diagram.playbackRate()).toBe(0.5);
-    expect(halfSpeedButton.getAttribute("aria-pressed")).toBe("true");
+    quarterSpeedButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(diagram.playbackRate()).toBe(0.25);
+    expect(quarterSpeedButton.getAttribute("aria-pressed")).toBe("true");
 
     viewport.dispatchEvent(pointerEvent("pointerdown", { clientX: 20, clientY: 20 }));
     viewport.dispatchEvent(pointerEvent("pointermove", { clientX: 40, clientY: 25 }));

@@ -5,6 +5,11 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.16] — 2026-08-20
+
+### Changed
+- **Default Speed Segmented Pill (`@markdy/core`)** — Simplified canonical default speeds to `[0.25, 1]` (`0.25x` for slow-motion inspection and `1x` for normal pace) for a clean, minimal 2-option segmented pill across all standalone and embedded players.
+
 ## [1.0.15] — 2026-08-20
 
 ### Changed

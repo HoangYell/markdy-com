@@ -369,7 +369,7 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
       ...controls,
       resetView,
       enabled: controlsEnabled,
-      speeds: config.controls?.speeds?.length ? config.controls.speeds : [0.1, 0.25, 0.5, 1, 1.5],
+      speeds: config.controls?.speeds?.length ? config.controls.speeds : [0.25, 1],
     },
     interaction: {
       ...gestures,
