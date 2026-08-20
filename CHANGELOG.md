@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.19] — 2026-08-20
+
 ### Changed
 - **Predictable player resolution** — Homepage previews no longer apply host playback or progress overrides; their intentionally compact control subset remains. Controls are explicit opt-ins, and single-choice speed selectors are omitted.
 - **Unified footer** — Player controls stay left-aligned while the linked `Powered by Markdy` badge occupies the right edge.
