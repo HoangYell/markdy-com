@@ -1,6 +1,7 @@
 # MarkdyScript examples
 
-Every file in this tree parses cleanly on the current 0.8 diagram grammar. Changes that break an example also break the `verify:examples` gate in CI.
+Every file in this tree parses cleanly on the current grammar. Changes that break an example also break the `verify:examples` gate in CI.
+Examples lead with scene content and keep optional `player:` configuration at the bottom.
 
 ## Layout
 
@@ -24,6 +25,7 @@ Every file in this tree parses cleanly on the current 0.8 diagram grammar. Chang
   - [`17-venn-overlap.markdy`](17-venn-overlap.markdy) — 2&ndash;3 circle set overlap and sweet-spot intersection.
   - [`18-layer-stack.markdy`](18-layer-stack.markdy) — OSI & abstraction layer stacked horizontal bands.
   - [`19-nested-containment.markdy`](19-nested-containment.markdy) — concentric defense-in-depth security perimeters.
+  - [`20-player-configuration.markdy`](20-player-configuration.markdy) — script-owned playback, focused controls, interaction, and footer chrome.
 - `showcase/` — 30 curated showcase demo scenes shown on the homepage playground and docs page.
 - `astro-starter/` — a minimal Astro project embedding the `<Markdy />` component.
 

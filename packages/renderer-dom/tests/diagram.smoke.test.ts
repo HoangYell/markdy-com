@@ -244,7 +244,35 @@ describe("createDiagram integration", () => {
     diagram.destroy();
   });
 
-  it("mounts controls in footer and copyright badge in viewport top right", () => {
+  it("matches footer colors to light and dark scene themes", () => {
+    const lightContainer = document.createElement("div");
+    const darkContainer = document.createElement("div");
+    document.body.append(lightContainer, darkContainer);
+
+    const lightDiagram = createDiagram({ container: lightContainer, code: SCENE, controls: true, copyright: false });
+    const darkDiagram = createDiagram({
+      container: darkContainer,
+      code: SCENE.replace("theme=paper", "theme=midnight"),
+      controls: true,
+      copyright: false,
+    });
+
+    const footers = document.body.querySelectorAll<HTMLElement>(".markdy-footer");
+    const lightFooter = footers[0];
+    const darkFooter = footers[1];
+
+    expect(lightFooter.dataset.markdyTheme).toBe("paper");
+    expect(lightFooter.style.getPropertyValue("--md-footer-bg")).toContain("#ffffff");
+    expect(lightFooter.style.getPropertyValue("--md-control-text")).toBe("#475569");
+    expect(darkFooter.dataset.markdyTheme).toBe("midnight");
+    expect(darkFooter.style.getPropertyValue("--md-footer-bg")).toContain("#0e1a2c");
+    expect(darkFooter.style.getPropertyValue("--md-control-text")).toBe("#93a4bb");
+
+    lightDiagram.destroy();
+    darkDiagram.destroy();
+  });
+
+  it("mounts controls and the Powered by Markdy link in the footer", async () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
 
@@ -257,19 +285,37 @@ describe("createDiagram integration", () => {
     });
     const footer = document.body.querySelector<HTMLElement>(".markdy-footer");
     const toolbar = footer?.querySelector<HTMLElement>(".markdy-controls") ?? null;
-    const badge = container.querySelector<HTMLAnchorElement>(".markdy-viewport a.markdy-badge") ?? null;
+    const badge = footer?.querySelector<HTMLAnchorElement>("a.markdy-badge") ?? null;
 
     expect(footer).not.toBeNull();
     expect(toolbar).not.toBeNull();
     expect(badge).not.toBeNull();
     expect(badge?.textContent).toBe("Powered by Markdy");
-    expect(badge?.href).toBe("https://markdy.com/");
+    await vi.waitFor(() => expect(badge?.href).toMatch(/^https:\/\/markdy\.com\/playground\/#code=~m.+/));
     expect(badge?.target).toBe("_blank");
+    expect(footer?.style.flexWrap).toBe("nowrap");
     expect(footer?.firstElementChild).toBe(toolbar);
+    expect(footer?.lastElementChild).toBe(badge);
 
     const fullButton = toolbar?.querySelector<HTMLButtonElement>(".markdy-control-fullscreen");
     expect(fullButton).not.toBeNull();
     expect(fullButton?.getAttribute("aria-pressed")).toBe("false");
+
+    diagram.destroy();
+  });
+
+  it("keeps only the linked Markdy badge in the footer by default", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const diagram = createDiagram({ container, code: SCENE, autoplay: false });
+    const footer = document.body.querySelector<HTMLElement>(".markdy-footer");
+    const badge = footer?.querySelector<HTMLAnchorElement>(".markdy-badge");
+
+    expect(footer).not.toBeNull();
+    expect(footer?.querySelector(".markdy-controls")).toBeNull();
+    expect(badge?.textContent).toBe("Powered by Markdy");
+    await vi.waitFor(() => expect(badge?.href).toMatch(/^https:\/\/markdy\.com\/playground\/#code=~m.+/));
 
     diagram.destroy();
   });
@@ -485,6 +531,7 @@ player:
     restart false
     seek false
     speed false
+    fit true
     reset_view false
 
 scene theme=paper
@@ -534,6 +581,7 @@ player:
     next_beat true
     seek false
     fit false
+    speed true
     speeds "0.25 1 3"
   interaction:
     keyboard true
@@ -590,6 +638,32 @@ beat two:
     diagram.destroy();
   });
 
+  it("omits speed controls when the script offers only one speed", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const diagram = createDiagram({
+      container,
+      code: `
+player:
+  controls:
+    speed true
+    speeds "0.25"
+  chrome:
+    badge false
+
+scene theme=paper
+service A
+beat one:
+  show A
+`,
+    });
+
+    expect(document.body.querySelector(".markdy-footer")).toBeNull();
+    expect(document.body.querySelector(".markdy-control-rate")).toBeNull();
+
+    diagram.destroy();
+  });
+
   it("copies a share link from the toolbar", async () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
@@ -611,6 +685,8 @@ player:
     speed false
     fit false
     reset_view false
+    svg true
+    share true
 
 scene theme=paper
 service A
@@ -725,7 +801,7 @@ scene theme=paper
 layout LR
 
 browser Web
-service API
+service API "<img data-test=unsafe>"
 `;
 
     const diagram = createDiagram({
@@ -749,14 +825,15 @@ service API
 
     const pre = overlay?.querySelector<HTMLElement>(".markdy-code-panel__pre");
     expect(pre).not.toBeNull();
-    // The raw source text should be present somewhere in the pre content.
     expect(pre?.textContent).toContain("scene");
+    expect(pre?.textContent).toContain("<img data-test=unsafe>");
+    expect(pre?.querySelector("img")).toBeNull();
 
-    // The close button should dismiss the panel.
     const closeBtn = overlay?.querySelector<HTMLButtonElement>(".markdy-code-panel__close");
     expect(closeBtn).not.toBeNull();
 
     diagram.destroy();
+    expect(document.body.querySelector(".markdy-code-panel-overlay")).toBeNull();
     container.remove();
   });
 

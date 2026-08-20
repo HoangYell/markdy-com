@@ -699,13 +699,32 @@ beat main:
 `);
     expect(astAlias.meta.player?.controls).toEqual({ code: true });
 
-    // When controls group is declared, code must remain false unless explicitly set.
-    const resolved = resolvePlayer({ controls: { play: true, restart: true, prevBeat: true, nextBeat: true, seek: true, speed: true, fit: true, resetView: true, fullscreen: true, svg: true, share: true } });
-    expect(resolved.controls.code).toBe(false);
+    // A controls group enables only the buttons it explicitly declares.
+    const resolved = resolvePlayer({ controls: { play: true } });
+    expect(resolved.controls).toMatchObject({
+      enabled: true,
+      play: true,
+      restart: false,
+      seek: false,
+      speed: false,
+      fit: false,
+      resetView: false,
+      fullscreen: false,
+      svg: false,
+      share: false,
+      code: false,
+      theme: false,
+    });
 
     // When explicitly set, it should be true.
     const resolvedWithCode = resolvePlayer({ controls: { code: true } });
     expect(resolvedWithCode.controls.code).toBe(true);
+
+    const resolvedWithUnavailableReset = resolvePlayer({ controls: { resetView: true } });
+    expect(resolvedWithUnavailableReset.controls).toMatchObject({ enabled: false, resetView: false });
+
+    const resolvedWithOneSpeed = resolvePlayer({ controls: { speed: true, speeds: [0.25] } });
+    expect(resolvedWithOneSpeed.controls).toMatchObject({ enabled: false, speed: false, speeds: [0.25] });
   });
 
   it("warns on unknown or malformed player settings", () => {

@@ -150,6 +150,7 @@ export function ensureSceneStyles(doc: Document): void {
   justify-content: space-between;
   gap: 8px;
   padding: 6px 12px;
+  color: var(--md-text, #f8fafc);
   background: var(--md-footer-bg, rgba(15, 23, 42, 0.85));
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -160,7 +161,9 @@ export function ensureSceneStyles(doc: Document): void {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  width: 100%;
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
   gap: 8px;
   max-width: 100%;
   overflow-x: auto;
@@ -194,7 +197,6 @@ export function ensureSceneStyles(doc: Document): void {
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
-  margin-left: auto;
 }
 .markdy-control-divider {
   width: 1px;
@@ -265,37 +267,24 @@ export function ensureSceneStyles(doc: Document): void {
   transform: translateY(-1px) scale(1.02);
 }
 .markdy-badge {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  z-index: 25;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  text-align: right;
+  font-family: system-ui, sans-serif;
   font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.02em;
-  color: var(--md-text-muted, #94a3b8);
+  font-weight: 400;
+  color: var(--md-control-text, #94a3b8);
   text-decoration: none;
-  padding: 2.5px 7px;
-  border-radius: 5px;
-  background: var(--md-surface, rgba(15, 23, 42, 0.45));
-  border: 1px solid var(--md-border, rgba(148, 163, 184, 0.15));
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  opacity: 0.65;
-  transition: all 0.2s ease;
-  pointer-events: auto;
-  user-select: none;
+  padding: 0;
+  opacity: 0.7;
+  margin-left: auto;
+  flex-shrink: 0;
+  transition: opacity 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
 }
 .markdy-badge:hover {
   opacity: 1;
-  color: var(--accent, #10b981);
-  border-color: var(--accent, #10b981);
-  background: var(--md-surface-raised, rgba(15, 23, 42, 0.75));
-  transform: translateY(-1px);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  color: var(--md-text, #f8fafc);
 }
 .markdy-speed-group {
   display: inline-flex;
@@ -327,57 +316,6 @@ export function ensureSceneStyles(doc: Document): void {
   background: var(--accent, #10b981) !important;
   color: #ffffff !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
-}
-.markdy-control-seek {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 100%;
-  height: 5px;
-  border-radius: 999px;
-  background: linear-gradient(
-    to right,
-    var(--accent, #10b981) 0%,
-    var(--accent, #10b981) var(--seek-pct, 0%),
-    rgba(148, 163, 184, 0.22) var(--seek-pct, 0%),
-    rgba(148, 163, 184, 0.22) 100%
-  );
-  outline: none;
-  cursor: pointer;
-  margin: 0;
-  transition: height 0.15s ease;
-}
-.markdy-control-seek:hover {
-  height: 7px;
-}
-.markdy-control-seek::-webkit-slider-thumb {
-  appearance: none;
-  -webkit-appearance: none;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 2px solid var(--accent, #10b981);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.markdy-control-seek:hover::-webkit-slider-thumb {
-  transform: scale(1.25);
-  box-shadow: 0 0 8px var(--accent-glow, rgba(16, 185, 129, 0.6));
-}
-.markdy-control-seek::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: #ffffff;
-  border: 2px solid var(--accent, #10b981);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-}
-.markdy-control-seek:hover::-moz-range-thumb {
-  transform: scale(1.25);
-  box-shadow: 0 0 8px var(--accent-glow, rgba(16, 185, 129, 0.6));
 }
 .markdy-control-time {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -564,44 +502,61 @@ export function ensureSceneStyles(doc: Document): void {
 .markdy-control-seek::-webkit-slider-runnable-track {
   width: 100%;
   height: 4.5px;
-  background: rgba(148, 163, 184, 0.35);
+  background: linear-gradient(
+    to right,
+    var(--accent, #10b981) 0%,
+    var(--accent, #10b981) var(--seek-pct, 0%),
+    rgba(148, 163, 184, 0.35) var(--seek-pct, 0%),
+    rgba(148, 163, 184, 0.35) 100%
+  );
   border-radius: 9999px;
-  transition: background 0.15s ease;
-}
-.markdy-control-seek:hover::-webkit-slider-runnable-track {
-  background: rgba(148, 163, 184, 0.55);
 }
 .markdy-control-seek::-webkit-slider-thumb {
+  appearance: none;
   -webkit-appearance: none;
   height: 13px;
   width: 13px;
   border-radius: 50%;
-  background: #2563eb;
+  background: var(--accent, #10b981);
   border: 2px solid #ffffff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   margin-top: -4.25px;
   cursor: grab;
-  transition: transform 0.1s ease, background 0.15s ease;
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+}
+.markdy-control-seek:hover::-webkit-slider-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 0 8px var(--accent-glow, rgba(16, 185, 129, 0.6));
 }
 .markdy-control-seek:active::-webkit-slider-thumb {
   cursor: grabbing;
   transform: scale(1.2);
-  background: #1d4ed8;
 }
 .markdy-control-seek::-moz-range-track {
   width: 100%;
   height: 4.5px;
-  background: rgba(148, 163, 184, 0.35);
+  background: linear-gradient(
+    to right,
+    var(--accent, #10b981) 0%,
+    var(--accent, #10b981) var(--seek-pct, 0%),
+    rgba(148, 163, 184, 0.35) var(--seek-pct, 0%),
+    rgba(148, 163, 184, 0.35) 100%
+  );
   border-radius: 9999px;
 }
 .markdy-control-seek::-moz-range-thumb {
   height: 13px;
   width: 13px;
   border-radius: 50%;
-  background: #2563eb;
+  background: var(--accent, #10b981);
   border: 2px solid #ffffff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   cursor: grab;
+  transition: transform 0.1s ease, box-shadow 0.15s ease;
+}
+.markdy-control-seek:hover::-moz-range-thumb {
+  transform: scale(1.2);
+  box-shadow: 0 0 8px var(--accent-glow, rgba(16, 185, 129, 0.6));
 }
 
 [data-markdy-theme="midnight"] .markdy-controls button,
@@ -622,9 +577,9 @@ export function ensureSceneStyles(doc: Document): void {
 [data-markdy-theme="nebula"] .markdy-controls button:hover:not([aria-pressed="true"]),
 :root[data-theme="dark"] .markdy-controls button:hover:not([aria-pressed="true"]),
 .theme-dark .markdy-controls button:hover:not([aria-pressed="true"]) {
-  background: rgba(51, 65, 85, 0.95);
-  color: #f8fafc;
-  border-color: #94a3b8;
+  background: var(--md-control-hover-bg, rgba(51, 65, 85, 0.95));
+  color: var(--md-control-hover-text, #f8fafc);
+  border-color: var(--md-control-hover-border, #94a3b8);
 }
 [data-markdy-theme="midnight"] .markdy-controls button[aria-pressed="true"],
 [data-markdy-theme="blueprint"] .markdy-controls button[aria-pressed="true"],
@@ -633,10 +588,10 @@ export function ensureSceneStyles(doc: Document): void {
 [data-markdy-theme="nebula"] .markdy-controls button[aria-pressed="true"],
 :root[data-theme="dark"] .markdy-controls button[aria-pressed="true"],
 .theme-dark .markdy-controls button[aria-pressed="true"] {
-  background: #3b82f6 !important;
+  background: var(--accent, #3b82f6) !important;
   color: #ffffff !important;
-  border-color: #3b82f6 !important;
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5) !important;
+  border-color: var(--accent, #3b82f6) !important;
+  box-shadow: 0 0 10px var(--accent-glow, rgba(59, 130, 246, 0.5)) !important;
 }
 .markdy-footer a {
   transition: opacity 0.15s ease, color 0.15s ease;
@@ -731,39 +686,55 @@ export function ensureSceneStyles(doc: Document): void {
   doc.head.appendChild(style);
 }
 
-export function applyThemeToScene(scene: HTMLElement, theme: ThemeTokens): void {
-  scene.style.background = theme.canvas;
-  scene.style.color = theme.text;
-  scene.style.setProperty("--md-canvas", theme.canvas);
-  scene.style.setProperty("--md-surface", theme.surface);
-  scene.style.setProperty("--md-surface-raised", theme.surfaceRaised);
-  scene.style.setProperty("--md-border", theme.border);
-  scene.style.setProperty("--md-text", theme.text);
-  scene.style.setProperty("--md-text-muted", theme.textMuted);
-  scene.style.setProperty("--md-paper", theme.paper ?? theme.canvas);
-  scene.style.setProperty("--md-ink", theme.ink ?? theme.text);
-  scene.style.setProperty("--md-muted", theme.muted ?? theme.textMuted);
-  scene.style.setProperty("--md-rule", theme.rule ?? theme.border);
-  scene.style.setProperty("--md-grid-minor", theme.gridMinor);
-  scene.style.setProperty("--md-grid-major", theme.gridMajor);
-  scene.style.setProperty("--md-vignette", theme.vignette);
-  scene.style.setProperty("--md-accent", theme.accent);
-  if (theme.link) scene.style.setProperty("--md-link", theme.link);
-  if (theme.soft) scene.style.setProperty("--md-soft", theme.soft);
-  if (theme.accentTint) scene.style.setProperty("--md-accent-tint", theme.accentTint);
-  scene.style.setProperty("--md-node-surface", theme.nodeSurface ?? theme.surface);
-  scene.style.setProperty("--md-node-surface-raised", theme.nodeSurfaceRaised ?? theme.surfaceRaised);
-  scene.style.setProperty("--md-hairline", theme.hairline ?? `color-mix(in srgb, ${theme.border} 50%, transparent)`);
-  scene.style.setProperty("--md-shadow", theme.shadow ?? "rgba(2, 6, 23, 0.55)");
-  if (theme.fonts?.title) scene.style.setProperty("--md-font-title", theme.fonts.title);
-  if (theme.fonts?.nodeName) scene.style.setProperty("--md-font-node", theme.fonts.nodeName);
-  if (theme.fonts?.mono) scene.style.setProperty("--md-font-mono", theme.fonts.mono);
-  if (theme.radiusMd) scene.style.setProperty("--md-radius-md", `${theme.radiusMd}px`);
+export function applyThemeVariables(element: HTMLElement, theme: ThemeTokens): void {
+  element.style.setProperty("--md-canvas", theme.canvas);
+  element.style.setProperty("--md-surface", theme.surface);
+  element.style.setProperty("--md-surface-raised", theme.surfaceRaised);
+  element.style.setProperty("--md-border", theme.border);
+  element.style.setProperty("--md-text", theme.text);
+  element.style.setProperty("--md-text-muted", theme.textMuted);
+  element.style.setProperty("--md-paper", theme.paper ?? theme.canvas);
+  element.style.setProperty("--md-ink", theme.ink ?? theme.text);
+  element.style.setProperty("--md-muted", theme.muted ?? theme.textMuted);
+  element.style.setProperty("--md-rule", theme.rule ?? theme.border);
+  element.style.setProperty("--md-grid-minor", theme.gridMinor);
+  element.style.setProperty("--md-grid-major", theme.gridMajor);
+  element.style.setProperty("--md-vignette", theme.vignette);
+  element.style.setProperty("--md-accent", theme.accent);
+  element.style.setProperty("--accent", theme.accent);
+  element.style.setProperty("--accent-glow", `color-mix(in srgb, ${theme.accent} 40%, transparent)`);
+  element.style.setProperty("--accent-light", theme.accentTint ?? `color-mix(in srgb, ${theme.accent} 15%, transparent)`);
+  if (theme.link) element.style.setProperty("--md-link", theme.link);
+  if (theme.soft) element.style.setProperty("--md-soft", theme.soft);
+  if (theme.accentTint) element.style.setProperty("--md-accent-tint", theme.accentTint);
+  element.style.setProperty("--md-node-surface", theme.nodeSurface ?? theme.surface);
+  element.style.setProperty("--md-node-surface-raised", theme.nodeSurfaceRaised ?? theme.surfaceRaised);
+  element.style.setProperty("--md-hairline", theme.hairline ?? `color-mix(in srgb, ${theme.border} 50%, transparent)`);
+  element.style.setProperty("--md-shadow", theme.shadow ?? "rgba(2, 6, 23, 0.55)");
+  element.style.setProperty("--md-footer-bg", `color-mix(in srgb, ${theme.surface} 92%, transparent)`);
+  element.style.setProperty("--md-footer-border", theme.border);
+  element.style.setProperty("--md-control-bg", theme.surfaceRaised);
+  element.style.setProperty("--md-control-border", theme.border);
+  element.style.setProperty("--md-control-text", theme.textMuted);
+  element.style.setProperty("--md-control-hover-bg", theme.canvas);
+  element.style.setProperty("--md-control-hover-text", theme.text);
+  element.style.setProperty("--md-control-hover-border", theme.accent);
+  element.style.setProperty("--md-divider", theme.border);
+  if (theme.fonts?.title) element.style.setProperty("--md-font-title", theme.fonts.title);
+  if (theme.fonts?.nodeName) element.style.setProperty("--md-font-node", theme.fonts.nodeName);
+  if (theme.fonts?.mono) element.style.setProperty("--md-font-mono", theme.fonts.mono);
+  if (theme.radiusMd) element.style.setProperty("--md-radius-md", `${theme.radiusMd}px`);
   if (theme.spacing) {
     for (const [key, value] of Object.entries(theme.spacing)) {
-      scene.style.setProperty(`--md-space-${key}`, `${value}px`);
+      element.style.setProperty(`--md-space-${key}`, `${value}px`);
     }
   }
-  scene.dataset.markdyTheme = theme.name;
-  if (theme.flatCards) scene.dataset.flat = "1";
+  element.dataset.markdyTheme = theme.name;
+  if (theme.flatCards) element.dataset.flat = "1";
+}
+
+export function applyThemeToScene(scene: HTMLElement, theme: ThemeTokens): void {
+  applyThemeVariables(scene, theme);
+  scene.style.background = theme.canvas;
+  scene.style.color = theme.text;
 }

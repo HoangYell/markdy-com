@@ -5,6 +5,16 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- **Predictable player resolution** — Homepage previews no longer apply host playback or progress overrides; their intentionally compact control subset remains. Controls are explicit opt-ins, and single-choice speed selectors are omitted.
+- **Unified footer** — Player controls stay left-aligned while the linked `Powered by Markdy` badge occupies the right edge.
+
+### Fixed
+- **Safe player formatting** — CLI and Playground formatters preserve grouped `player:` behavior and place the optional block after scene content.
+- **Renderer lifecycle** — Code panels are escaped and removed with their diagram; duplicate seek styles and homepage render paths were consolidated.
+
 ## [1.0.18] — 2026-08-20
 
 ### Changed

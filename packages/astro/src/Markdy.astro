@@ -34,11 +34,11 @@ export interface Props {
    * Useful for CDN assets or data URIs in demos.
    */
   assets?: Record<string, string>;
-  /** Start playing as soon as the scene is hydrated. Defaults to true. */
+  /** Override whether playback starts when the scene is hydrated. */
   autoplay?: boolean;
-  /** Loop the animation when it ends. Defaults to true. */
+  /** Override whether playback loops when it ends. */
   loop?: boolean;
-  /** Show a small "Powered by Markdy" badge below the animation. Defaults to true. */
+  /** Show the linked "Powered by Markdy" badge at the footer's right edge. */
   copyright?: boolean;
   /** Show a rainbow progress bar around the viewport border, or specify a custom color/gradient. Defaults to true. */
   progressBar?: boolean | string;
@@ -50,9 +50,9 @@ export interface Props {
   progressBarColor?: string;
   /** Playback speed multiplier. Defaults to 1, where 1 is Markdy's normal pace. */
   playbackRate?: number;
-  /** Enable wheel zoom and drag pan after hydration. Defaults to false. */
+  /** Host interaction override: true supplies default gestures; false suppresses script gestures. */
   interactiveViewport?: boolean;
-  /** Show built-in playback and viewport controls. Also enables viewport interaction. Defaults to false. */
+  /** Host controls override: true supplies legacy defaults; false suppresses script controls. */
   controls?: boolean;
   class?: string;
   /**

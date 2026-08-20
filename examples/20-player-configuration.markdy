@@ -1,0 +1,38 @@
+scene "Script-Owned Player" theme=paper
+layout LR
+
+browser Viewer
+service ApiGateway "API Gateway"
+database Orders "Orders DB"
+
+beat reveal "Reveal the system":
+  show $nodes stagger=80ms
+
+beat request "Trace one request":
+  frame ApiGateway Orders zoom=1.15 dur=600ms
+  Viewer -> ApiGateway "POST /orders" -> Orders "persist"
+  Viewer <- ApiGateway "201 Created"
+
+beat overview "Return to overview":
+  frame $nodes dur=600ms
+
+player:
+  playback:
+    loop false
+  controls:
+    speed true
+    speeds "0.5 1"
+    fit true
+    fullscreen true
+    share true
+    code true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress boundary
+    color "#3b82f6"
