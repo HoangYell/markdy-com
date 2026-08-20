@@ -41,7 +41,7 @@ player:
     next_beat false
     seek true
     speed true
-    speeds "0.1 0.25 0.5 1 1.5"
+    speeds "0.25 1"
     fit true
     reset_view true
     fullscreen true

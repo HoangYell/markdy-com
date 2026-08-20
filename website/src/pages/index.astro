@@ -138,7 +138,7 @@ const LAYOUT_CATEGORIES = [
   },
 ];
 
-const DEFAULT_PLAYER_YAML = `\n\nplayer:\n  playback:\n    autoplay true\n    loop true\n    rate 1.0\n  controls:\n    play true\n    restart true\n    prev_beat false\n    next_beat false\n    seek true\n    speed true\n    speeds "0.1 0.25 0.5 1 1.5"\n    fit true\n    reset_view true\n    fullscreen true\n    svg true\n    share true\n    code true\n    theme false\n  interaction:\n    zoom true\n    pan true\n    click_to_play true\n    double_click_to_reset true\n    keyboard false\n  chrome:\n    badge true\n    progress boundary\n    color "#3b82f6"`;
+const DEFAULT_PLAYER_YAML = `\n\nplayer:\n  playback:\n    autoplay true\n    loop true\n    rate 1.0\n  controls:\n    play true\n    restart true\n    prev_beat false\n    next_beat false\n    seek true\n    speed true\n    speeds "0.25 1"\n    fit true\n    reset_view true\n    fullscreen true\n    svg true\n    share true\n    code true\n    theme false\n  interaction:\n    zoom true\n    pan true\n    click_to_play true\n    double_click_to_reset true\n    keyboard false\n  chrome:\n    badge true\n    progress boundary\n    color "#3b82f6"`;
 
 const LAYOUT_SNIPPETS: Record<string, string> = {
   architecture: `scene theme=paper\nlayout LR\n\nuser Client\ngateway ApiGateway\nservice Auth\nservice Payments\ndatabase Postgres\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> ApiGateway "POST /checkout"\n  ApiGateway -> Auth "verify"\n  ApiGateway -> Payments "charge"\n  Payments -> Postgres "persist"` + DEFAULT_PLAYER_YAML,
