@@ -138,26 +138,28 @@ const LAYOUT_CATEGORIES = [
   },
 ];
 
+const DEFAULT_PLAYER_YAML = `\n\nplayer:\n  playback:\n    autoplay true\n    loop true\n    rate 1.0\n  controls:\n    play true\n    restart true\n    prev_beat false\n    next_beat false\n    seek true\n    speed true\n    speeds "0.1 0.25 0.5 1 1.5"\n    fit true\n    reset_view true\n    fullscreen true\n    svg true\n    share true\n    code true\n    theme false\n  interaction:\n    zoom true\n    pan true\n    click_to_play true\n    double_click_to_reset true\n    keyboard false\n  chrome:\n    badge true\n    progress boundary\n    color "#3b82f6"`;
+
 const LAYOUT_SNIPPETS: Record<string, string> = {
-  architecture: `scene theme=paper\nlayout LR\n\nuser Client\ngateway ApiGateway\nservice Auth\nservice Payments\ndatabase Postgres\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> ApiGateway "POST /checkout"\n  ApiGateway -> Auth "verify"\n  ApiGateway -> Payments "charge"\n  Payments -> Postgres "persist"`,
-  flowchart: `scene theme=paper type=flowchart\nlayout TB\n\nclient User\ngateway Validate\nservice Process\nservice Reject\n\nbeat evaluate:\n  show $nodes stagger=70ms\n  User -> Validate "Submit Payload"\n  Validate -> Process "Valid"\n  Validate -> Reject "Invalid"`,
-  tree: `scene theme=editorial type=tree\nlayout TB\n\nservice Root "Root Domain"\nservice Sub1 "Identity"\nservice Sub2 "Billing"\nservice Sub3 "Storage"\n\nbeat expand:\n  show $nodes stagger=60ms\n  Root -> Sub1\n  Root -> Sub2\n  Root -> Sub3`,
-  state: `scene theme=paper type=state\nlayout LR\n\nservice Disconnected\nservice Connecting\nservice Connected\nservice Reconnecting\n\nbeat transition:\n  show $nodes stagger=60ms\n  Disconnected -> Connecting "initiate"\n  Connecting -> Connected "ACK"\n  Connected -> Reconnecting "timeout"\n  Reconnecting -> Connected "retry"`,
-  sequence: `scene theme=paper type=sequence\nlayout LR\n\nuser User\nbrowser App\ngateway AuthServer\nservice Api\n\nbeat handshake:\n  show $nodes stagger=60ms\n  User -> App "Login"\n  App -> AuthServer "GET /auth"\n  AuthServer -> App "Auth Token"\n  App -> Api "GET /data (Bearer Token)"`,
-  layers: `scene theme=editorial type=layers\nlayout TB\n\nservice App "Layer 7: Application"\nservice Transport "Layer 4: Transport (TCP/UDP)"\nservice Network "Layer 3: Network (IP)"\nservice Link "Layer 2: Data Link"\n\nbeat traverse:\n  show $nodes stagger=70ms\n  App -> Transport "Payload"\n  Transport -> Network "Packets"\n  Network -> Link "Frames"`,
-  nested: `scene theme=blueprint type=nested\nlayout TB\n\nservice Internet "Public Traffic"\nservice IngressController "DMZ Gateway"\nservice AuthPod "Secure Pod"\nservice SecretsStore "Vault"\n\ngroup public: Internet\ngroup dmz: IngressController\ngroup perimeter: AuthPod SecretsStore\n\nbeat trace:\n  show public\n  show dmz\n  show perimeter\n  Internet -> IngressController "HTTPS"\n  IngressController -> AuthPod "mTLS"\n  AuthPod -> SecretsStore "Fetch Key"`,
-  swimlane: `scene theme=paper type=swimlane\nlayout LR\n\nuser Customer\nservice Storefront\nservice Warehouse\nservice Logistics\n\nbeat fulfill:\n  show $nodes stagger=60ms\n  Customer -> Storefront "Place Order"\n  Storefront -> Warehouse "Check Stock"\n  Warehouse -> Logistics "Dispatch Parcel"`,
-  timeline: `scene theme=paper type=timeline\nlayout LR\n\nservice V1 "v1.0 Core Engine"\nservice V2 "v2.0 Motion Runtime"\nservice V3 "v3.0 Governance Linter"\nservice V4 "v4.0 MCP AI Integration"\n\nbeat progress:\n  show $nodes stagger=100ms\n  V1 -> V2 -> V3 -> V4`,
-  gantt: `scene theme=paper type=gantt\nlayout LR\n\nservice Design "Architecture Design"\nservice Core "Parser & Diffing"\nservice UI "Playground Studio"\nservice Docs "Guides & AI Reference"\n\nbeat schedule:\n  show $nodes stagger=80ms\n  Design -> Core -> UI -> Docs`,
-  medallion: `scene theme=editorial type=medallion\nlayout LR\n\nservice Raw "Bronze: Raw Ingest"\nservice Cleansed "Silver: Validated & Clean"\nservice Enriched "Gold: Business Aggregates"\n\nbeat stream:\n  show $nodes stagger=80ms\n  Raw -> Cleansed "dbt Transform"\n  Cleansed -> Enriched "Analytics Model"`,
-  flywheel: `scene theme=paper type=flywheel\nlayout LR\n\nservice Content "Rich Technical Docs"\nservice Developers "Developer Adoption"\nservice Ecosystem "Plugin Contributions"\nservice Value "Enterprise Value"\n\nbeat cycle:\n  show $nodes stagger=70ms\n  Content -> Developers "engage"\n  Developers -> Ecosystem "build"\n  Ecosystem -> Value "compound"\n  Value -> Content "invest"`,
-  constellation: `scene theme=nebula type=constellation\nlayout LR\n\nservice Leader "Raft Leader"\nservice Follower1 "Node Alpha"\nservice Follower2 "Node Beta"\nservice Follower3 "Node Gamma"\nservice Follower4 "Node Delta"\n\nbeat sync:\n  show $nodes stagger=60ms\n  Leader -> Follower1 "Heartbeat"\n  Leader -> Follower2 "Heartbeat"\n  Leader -> Follower3 "Heartbeat"\n  Leader -> Follower4 "Heartbeat"`,
-  paper: `scene theme=paper\nlayout LR\n\nbrowser WebApp\ngateway API\ndatabase Orders\n\nbeat flow:\n  show $nodes stagger=60ms\n  WebApp -> API "POST /order"\n  API -> Orders "INSERT"`,
-  editorial: `scene theme=editorial\nlayout LR\n\nclient MobileApp\nservice ApiGateway\ndatabase Postgres\n\nbeat flow:\n  show $nodes stagger=60ms\n  MobileApp -> ApiGateway "fetch"\n  ApiGateway -> Postgres "query"`,
-  terminal: `scene theme=terminal\nlayout LR\n\nservice Monitor "Alert Manager"\nservice PagerDuty "On-Call Pager"\nservice SRE "Incident Commander"\n\nbeat alert:\n  show $nodes stagger=60ms\n  Monitor -> PagerDuty "CRITICAL P0"\n  PagerDuty -> SRE "Dispatch"`,
-  sketchy: `scene theme=sketchy\nlayout LR\n\nuser User\nservice Frontend\nservice Backend\n\nbeat sketch:\n  show $nodes stagger=60ms\n  User -> Frontend "Click"\n  Frontend -> Backend "API Call"`,
-  blueprint: `scene theme=blueprint\nlayout LR\n\nservice LB "Network Load Balancer"\nservice Kube "EKS Worker Pool"\nservice RDS "Aurora Multi-AZ"\n\nbeat provision:\n  show $nodes stagger=60ms\n  LB -> Kube "Ingress"\n  Kube -> RDS "Query"`,
-  midnight: `scene theme=midnight\nlayout LR\n\ngateway Cloudflare\nservice Firewall\nservice PrivateApi\n\nbeat filter:\n  show $nodes stagger=60ms\n  Cloudflare -> Firewall "TLS Traffic"\n  Firewall -> PrivateApi "Clean Packet"`,
+  architecture: `scene theme=paper\nlayout LR\n\nuser Client\ngateway ApiGateway\nservice Auth\nservice Payments\ndatabase Postgres\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> ApiGateway "POST /checkout"\n  ApiGateway -> Auth "verify"\n  ApiGateway -> Payments "charge"\n  Payments -> Postgres "persist"` + DEFAULT_PLAYER_YAML,
+  flowchart: `scene theme=paper type=flowchart\nlayout TB\n\nclient User\ngateway Validate\nservice Process\nservice Reject\n\nbeat evaluate:\n  show $nodes stagger=70ms\n  User -> Validate "Submit Payload"\n  Validate -> Process "Valid"\n  Validate -> Reject "Invalid"` + DEFAULT_PLAYER_YAML,
+  tree: `scene theme=editorial type=tree\nlayout TB\n\nservice Root "Root Domain"\nservice Sub1 "Identity"\nservice Sub2 "Billing"\nservice Sub3 "Storage"\n\nbeat expand:\n  show $nodes stagger=60ms\n  Root -> Sub1\n  Root -> Sub2\n  Root -> Sub3"` + DEFAULT_PLAYER_YAML,
+  state: `scene theme=paper type=state\nlayout LR\n\nservice Disconnected\nservice Connecting\nservice Connected\nservice Reconnecting\n\nbeat transition:\n  show $nodes stagger=60ms\n  Disconnected -> Connecting "initiate"\n  Connecting -> Connected "ACK"\n  Connected -> Reconnecting "timeout"\n  Reconnecting -> Connected "retry"` + DEFAULT_PLAYER_YAML,
+  sequence: `scene theme=paper type=sequence\nlayout LR\n\nuser User\nbrowser App\ngateway AuthServer\nservice Api\n\nbeat handshake:\n  show $nodes stagger=60ms\n  User -> App "Login"\n  App -> AuthServer "GET /auth"\n  AuthServer -> App "Auth Token"\n  App -> Api "GET /data (Bearer Token)"` + DEFAULT_PLAYER_YAML,
+  layers: `scene theme=editorial type=layers\nlayout TB\n\nservice App "Layer 7: Application"\nservice Transport "Layer 4: Transport (TCP/UDP)"\nservice Network "Layer 3: Network (IP)"\nservice Link "Layer 2: Data Link"\n\nbeat traverse:\n  show $nodes stagger=70ms\n  App -> Transport "Payload"\n  Transport -> Network "Packets"\n  Network -> Link "Frames"` + DEFAULT_PLAYER_YAML,
+  nested: `scene theme=blueprint type=nested\nlayout TB\n\nservice Internet "Public Traffic"\nservice IngressController "DMZ Gateway"\nservice AuthPod "Secure Pod"\nservice SecretsStore "Vault"\n\ngroup public: Internet\ngroup dmz: IngressController\ngroup perimeter: AuthPod SecretsStore\n\nbeat trace:\n  show public\n  show dmz\n  show perimeter\n  Internet -> IngressController "HTTPS"\n  IngressController -> AuthPod "mTLS"\n  AuthPod -> SecretsStore "Fetch Key"` + DEFAULT_PLAYER_YAML,
+  swimlane: `scene theme=paper type=swimlane\nlayout LR\n\nuser Customer\nservice Storefront\nservice Warehouse\nservice Logistics\n\nbeat fulfill:\n  show $nodes stagger=60ms\n  Customer -> Storefront "Place Order"\n  Storefront -> Warehouse "Check Stock"\n  Warehouse -> Logistics "Dispatch Parcel"` + DEFAULT_PLAYER_YAML,
+  timeline: `scene theme=paper type=timeline\nlayout LR\n\nservice V1 "v1.0 Core Engine"\nservice V2 "v2.0 Motion Runtime"\nservice V3 "v3.0 Governance Linter"\nservice V4 "v4.0 MCP AI Integration"\n\nbeat progress:\n  show $nodes stagger=100ms\n  V1 -> V2 -> V3 -> V4` + DEFAULT_PLAYER_YAML,
+  gantt: `scene theme=paper type=gantt\nlayout LR\n\nservice Design "Architecture Design"\nservice Core "Parser & Diffing"\nservice UI "Playground Studio"\nservice Docs "Guides & AI Reference"\n\nbeat schedule:\n  show $nodes stagger=80ms\n  Design -> Core -> UI -> Docs` + DEFAULT_PLAYER_YAML,
+  medallion: `scene theme=editorial type=medallion\nlayout LR\n\nservice Raw "Bronze: Raw Ingest"\nservice Cleansed "Silver: Validated & Clean"\nservice Enriched "Gold: Business Aggregates"\n\nbeat stream:\n  show $nodes stagger=80ms\n  Raw -> Cleansed "dbt Transform"\n  Cleansed -> Enriched "Analytics Model"` + DEFAULT_PLAYER_YAML,
+  flywheel: `scene theme=paper type=flywheel\nlayout LR\n\nservice Content "Rich Technical Docs"\nservice Developers "Developer Adoption"\nservice Ecosystem "Plugin Contributions"\nservice Value "Enterprise Value"\n\nbeat cycle:\n  show $nodes stagger=70ms\n  Content -> Developers "engage"\n  Developers -> Ecosystem "build"\n  Ecosystem -> Value "compound"\n  Value -> Content "invest"` + DEFAULT_PLAYER_YAML,
+  constellation: `scene theme=nebula type=constellation\nlayout LR\n\nservice Leader "Raft Leader"\nservice Follower1 "Node Alpha"\nservice Follower2 "Node Beta"\nservice Follower3 "Node Gamma"\nservice Follower4 "Node Delta"\n\nbeat sync:\n  show $nodes stagger=60ms\n  Leader -> Follower1 "Heartbeat"\n  Leader -> Follower2 "Heartbeat"\n  Leader -> Follower3 "Heartbeat"\n  Leader -> Follower4 "Heartbeat"` + DEFAULT_PLAYER_YAML,
+  paper: `scene theme=paper\nlayout LR\n\nbrowser WebApp\ngateway API\ndatabase Orders\n\nbeat flow:\n  show $nodes stagger=60ms\n  WebApp -> API "POST /order"\n  API -> Orders "INSERT"` + DEFAULT_PLAYER_YAML,
+  editorial: `scene theme=editorial\nlayout LR\n\nclient MobileApp\nservice ApiGateway\ndatabase Postgres\n\nbeat flow:\n  show $nodes stagger=60ms\n  MobileApp -> ApiGateway "fetch"\n  ApiGateway -> Postgres "query"` + DEFAULT_PLAYER_YAML,
+  terminal: `scene theme=terminal\nlayout LR\n\nservice Monitor "Alert Manager"\nservice PagerDuty "On-Call Pager"\nservice SRE "Incident Commander"\n\nbeat alert:\n  show $nodes stagger=60ms\n  Monitor -> PagerDuty "CRITICAL P0"\n  PagerDuty -> SRE "Dispatch"` + DEFAULT_PLAYER_YAML,
+  sketchy: `scene theme=sketchy\nlayout LR\n\nuser User\nservice Frontend\nservice Backend\n\nbeat sketch:\n  show $nodes stagger=60ms\n  User -> Frontend "Click"\n  Frontend -> Backend "API Call"` + DEFAULT_PLAYER_YAML,
+  blueprint: `scene theme=blueprint\nlayout LR\n\nservice LB "Network Load Balancer"\nservice Kube "EKS Worker Pool"\nservice RDS "Aurora Multi-AZ"\n\nbeat provision:\n  show $nodes stagger=60ms\n  LB -> Kube "Ingress"\n  Kube -> RDS "Query"` + DEFAULT_PLAYER_YAML,
+  midnight: `scene theme=midnight\nlayout LR\n\ngateway Cloudflare\nservice Firewall\nservice PrivateApi\n\nbeat filter:\n  show $nodes stagger=60ms\n  Cloudflare -> Firewall "TLS Traffic"\n  Firewall -> PrivateApi "Clean Packet"` + DEFAULT_PLAYER_YAML,
 };
 
 const INGESTION_SOURCES = [
@@ -174,7 +176,7 @@ const INGESTION_SOURCES = [
   Gateway --> Auth[Auth Service]
   Auth --> DB[(PostgreSQL)]
   Auth -.-> Cache[(Redis Session)]`,
-    snippet: `scene theme=paper type=flowchart\nlayout TB\n\nservice Client "Client Browser"\ngateway Gateway "API Gateway"\nservice Auth "Auth Microservice"\ncache Cache "Redis Session"\ndatabase DB "PostgreSQL"\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> Gateway "POST /login"\n  Gateway -> Auth "Validate"\n  Auth -> DB "Query Credentials"\n  Auth -> Cache "Set Session"\n  Gateway <- Auth "JWT Token"`,
+    snippet: `scene theme=paper type=flowchart\nlayout TB\n\nservice Client "Client Browser"\ngateway Gateway "API Gateway"\nservice Auth "Auth Microservice"\ncache Cache "Redis Session"\ndatabase DB "PostgreSQL"\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> Gateway "POST /login"\n  Gateway -> Auth "Validate"\n  Auth -> DB "Query Credentials"\n  Auth -> Cache "Set Session"\n  Gateway <- Auth "JWT Token"` + DEFAULT_PLAYER_YAML,
   },
   {
     id: "docker",
@@ -197,7 +199,7 @@ services:
     image: redis:7-alpine
   db:
     image: postgres:16-alpine`,
-    snippet: `scene theme=terminal type=nested\nlayout TB\n\nservice Web "nginx:alpine"\nservice Api "node:20-alpine"\nservice Cache "redis:7-alpine"\ndatabase Db "postgres:16-alpine"\n\ngroup ingress: Web\ngroup app: Api Cache\ngroup data: Db\n\nbeat boot:\n  show ingress stagger=50ms & show app stagger=50ms & show data\n  Web -> Api "proxy_pass :3000"\n  Api -> Cache "connect :6379"\n  Api -> Db "connect :5432"`,
+    snippet: `scene theme=terminal type=nested\nlayout TB\n\nservice Web "nginx:alpine"\nservice Api "node:20-alpine"\nservice Cache "redis:7-alpine"\ndatabase Db "postgres:16-alpine"\n\ngroup ingress: Web\ngroup app: Api Cache\ngroup data: Db\n\nbeat boot:\n  show ingress stagger=50ms & show app stagger=50ms & show data\n  Web -> Api "proxy_pass :3000"\n  Api -> Cache "connect :6379"\n  Api -> Db "connect :5432"` + DEFAULT_PLAYER_YAML,
   },
   {
     id: "k8s",
@@ -221,7 +223,7 @@ spec:
           service:
             name: order-service
             port: { number: 80 }`,
-    snippet: `scene theme=midnight type=nested\nlayout TB\n\nservice Ingress "nginx-ingress"\nservice Svc "order-service:80"\nservice PodA "order-pod-1"\nservice PodB "order-pod-2"\n\ngroup ingress: Ingress\ngroup cluster: Svc PodA PodB\n\nbeat route:\n  show ingress & show cluster stagger=60ms\n  Ingress -> Svc "Host: api.markdy.com"\n  Svc -> PodA "round_robin"\n  Svc -> PodB "round_robin"`,
+    snippet: `scene theme=midnight type=nested\nlayout TB\n\nservice Ingress "nginx-ingress"\nservice Svc "order-service:80"\nservice PodA "order-pod-1"\nservice PodB "order-pod-2"\n\ngroup ingress: Ingress\ngroup cluster: Svc PodA PodB\n\nbeat route:\n  show ingress & show cluster stagger=60ms\n  Ingress -> Svc "Host: api.markdy.com"\n  Svc -> PodA "round_robin"\n  Svc -> PodB "round_robin"` + DEFAULT_PLAYER_YAML,
   },
   {
     id: "drawio",
@@ -243,7 +245,7 @@ spec:
     </mxGraphModel>
   </diagram>
 </mxfile>`,
-    snippet: `scene theme=blueprint\nlayout LR\n\nservice CDN "Cloudflare Edge"\nservice Origin "App Server"\ndatabase Storage "S3 Object Store"\n\nbeat cache:\n  show $nodes stagger=50ms\n  CDN -> Origin "Cache Miss -> fetch"\n  Origin -> Storage "GET /assets"`,
+    snippet: `scene theme=blueprint\nlayout LR\n\nservice CDN "Cloudflare Edge"\nservice Origin "App Server"\ndatabase Storage "S3 Object Store"\n\nbeat cache:\n  show $nodes stagger=50ms\n  CDN -> Origin "Cache Miss -> fetch"\n  Origin -> Storage "GET /assets"` + DEFAULT_PLAYER_YAML,
   },
   {
     id: "terraform",
@@ -262,7 +264,7 @@ spec:
     { "type": "aws_db_instance", "name": "postgres" }
   ]
 }`,
-    snippet: `scene theme=blueprint type=layers\nlayout TB\n\nservice IGW "Internet Gateway"\nservice PublicSubnet "Public Subnet (AZ-1a)"\nservice PrivateSubnet "Private Subnet (AZ-1b)"\nservice RDS "RDS Multi-AZ (AZ-1c)"\n\nbeat provision:\n  show $nodes stagger=70ms\n  IGW -> PublicSubnet "0.0.0.0/0"\n  PublicSubnet -> PrivateSubnet "NAT Route"\n  PrivateSubnet -> RDS "Port 5432"`,
+    snippet: `scene theme=blueprint type=layers\nlayout TB\n\nservice IGW "Internet Gateway"\nservice PublicSubnet "Public Subnet (AZ-1a)"\nservice PrivateSubnet "Private Subnet (AZ-1b)"\nservice RDS "RDS Multi-AZ (AZ-1c)"\n\nbeat provision:\n  show $nodes stagger=70ms\n  IGW -> PublicSubnet "0.0.0.0/0"\n  PublicSubnet -> PrivateSubnet "NAT Route"\n  PrivateSubnet -> RDS "Port 5432"` + DEFAULT_PLAYER_YAML,
   },
 ];
 
@@ -526,37 +528,60 @@ const homepageStructuredData = [
     <div id="playground" class="hero-studio-card">
       <div class="studio-topbar">
         <div class="studio-left">
-          <span class="studio-dot"></span>
-          <span class="studio-title">MarkdyScript Live Studio</span>
-          <select id="example-select" class="studio-select" aria-label="Load Architecture Example">
-            {EXAMPLES.map((ex, i) => (
-              <option value={i}>{ex.title} ({ex.pattern ?? ex.category})</option>
-            ))}
-          </select>
-          <span id="status" class="status-indicator status-ok" title="Compiler status: OK"></span>
+          <div class="window-traffic-lights" aria-hidden="true">
+            <span class="traffic-dot traffic-dot--red"></span>
+            <span class="traffic-dot traffic-dot--yellow"></span>
+            <span class="traffic-dot traffic-dot--green"></span>
+          </div>
+          <div class="studio-title-box">
+            <span class="studio-title">MarkdyScript Live Studio</span>
+          </div>
+          <div class="studio-select-wrap">
+            <select id="example-select" class="studio-select" aria-label="Load Architecture Example">
+              {EXAMPLES.map((ex, i) => (
+                <option value={i}>{ex.title} ({ex.pattern ?? ex.category})</option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        <div class="studio-actions">
-          <button id="auto-shuffle-btn" class="btn-studio-tool auto-shuffle-btn" title="Auto-Shuffle OFF: Click to enable auto-cycling examples on scene end" aria-pressed="false">
-            <span class="shuffle-icon">🔀</span>
-            <span class="shuffle-label">Shuffle</span>
-          </button>
-          <button id="run-btn" class="btn-studio-run" title="Compile & Run">Run ▶</button>
-          <button id="home-paste-btn" class="btn-studio-tool" title="Paste MarkdyScript code from clipboard">Paste</button>
-          <button id="home-copy-btn" class="btn-studio-tool" title="Copy code to clipboard">Copy</button>
-          <a href="/playground/" class="btn-studio-tool" title="Open full studio in new page">Popout ↗</a>
+        <div class="studio-right">
+          <div class="studio-compiler-pill">
+            <span id="status" class="status-indicator status-ok" title="Compiler status: OK"></span>
+            <span class="status-text">Synced</span>
+          </div>
         </div>
       </div>
 
       <div class="studio-split-body">
         <!-- Editor Left Column -->
         <div class="studio-editor-pane">
+          <div class="editor-pane-header">
+            <div class="pane-tab active">
+              <span class="tab-icon">📄</span>
+              <span>scene.markdy</span>
+            </div>
+            <span class="pane-hint">Live Editable</span>
+          </div>
           <div id="code-editor" class="code-editor-wrap"></div>
-          <textarea id="code-input" style="display:none" spellcheck="false" aria-label="Code Editor">{EXAMPLES[0].code}</textarea>
+          <textarea id="code-input" style="display:none" spellcheck="false" aria-label="Code Editor"></textarea>
         </div>
 
         <!-- Preview Right Column -->
         <div class="studio-preview-pane">
+          <div class="preview-pane-header">
+            <div class="preview-title-box">
+              <span class="preview-live-dot"></span>
+              <span class="preview-title">WAAPI Motion Canvas</span>
+            </div>
+            <div class="preview-header-actions">
+              <button id="btn-switch-theme" class="studio-theme-toggle-btn" type="button" title="Switch Theme (Toggle Random Dark / Light Mode Palette)">
+                <span class="theme-btn-icon">🎨</span>
+                <span id="theme-btn-name">Theme</span>
+              </button>
+              <span class="preview-badge">Zero Keyframes</span>
+            </div>
+          </div>
           <div id="stage-wrap" class="stage-wrap">
             <div id="stage"></div>
           </div>
@@ -922,20 +947,18 @@ markdy check-all ./docs/diagrams</code></pre>
   const editorContainer = document.getElementById("code-editor") as HTMLDivElement;
   const stage = document.getElementById("stage") as HTMLDivElement;
   const stageWrap = document.getElementById("stage-wrap") as HTMLDivElement;
-  const runBtn = document.getElementById("run-btn") as HTMLButtonElement;
   const statusEl = document.getElementById("status") as HTMLSpanElement;
   const exampleSelect = document.getElementById("example-select") as HTMLSelectElement;
   const presetChips = document.querySelectorAll<HTMLButtonElement>(".preset-chip");
-  const autoShuffleBtn = document.getElementById("auto-shuffle-btn") as HTMLButtonElement | null;
 
   let diagram: Diagram | null = null;
   let isAnimPlaying = false;
   let debounce: ReturnType<typeof setTimeout> | null = null;
   let editorView: any = null;
-  let isAutoShuffleEnabled = false;
-  let autoShuffleTimer: ReturnType<typeof setTimeout> | null = null;
   let currentExampleIndex = 0;
   let userEditedCode = false;
+  let isAutoShuffleEnabled = false;
+  let autoShuffleTimer: ReturnType<typeof setTimeout> | null = null;
   let editorModulesPromise: Promise<any> | null = null;
 
   async function getEditorModules() {
@@ -1022,6 +1045,11 @@ markdy check-all ./docs/diagrams</code></pre>
       diagram = createDiagram({
         container: stage,
         code,
+        controls: true,
+        autoplay: shouldAutoplay,
+        loop: true,
+        sceneBoundaryProgress: true,
+        copyright: false,
         onEnded: () => {
           isAnimPlaying = false;
           if (diagram) {
@@ -1160,6 +1188,58 @@ markdy check-all ./docs/diagrams</code></pre>
     }
   });
 
+  // ─── Theme Switcher (Random Dark / Random Light Toggle) ───────────
+  const btnSwitchTheme = document.getElementById("btn-switch-theme");
+  const themeBtnName = document.getElementById("theme-btn-name");
+
+  const DARK_THEMES = ["midnight", "blueprint", "graphite", "nebula", "terminal"];
+  const LIGHT_THEMES = ["paper", "editorial", "sketchy"];
+
+  function toggleRandomThemeInCode(currentCode: string): { newCode: string; themeName: string } {
+    const match = currentCode.match(/theme=([a-zA-Z0-9_-]+)/);
+    const currentTheme = match ? match[1].toLowerCase() : "paper";
+    const isDark = DARK_THEMES.includes(currentTheme);
+    const targetThemes = isDark ? LIGHT_THEMES : DARK_THEMES;
+    const filtered = targetThemes.filter((t) => t !== currentTheme);
+    const nextTheme = filtered[Math.floor(Math.random() * filtered.length)] || targetThemes[0];
+
+    let newCode: string;
+    if (match) {
+      newCode = currentCode.replace(/theme=[a-zA-Z0-9_-]+/, `theme=${nextTheme}`);
+    } else if (/^scene\b/m.test(currentCode)) {
+      newCode = currentCode.replace(/^scene\b(.*)$/m, `scene theme=${nextTheme}$1`);
+    } else {
+      newCode = `scene theme=${nextTheme}\n\n` + currentCode;
+    }
+    return { newCode, themeName: nextTheme };
+  }
+
+  btnSwitchTheme?.addEventListener("click", () => {
+    userEditedCode = true;
+    clearAutoShuffleTimer();
+    const current = getEditorCode();
+    const { newCode, themeName } = toggleRandomThemeInCode(current);
+    if (themeBtnName) themeBtnName.textContent = themeName;
+    setEditorCode(newCode, true);
+  });
+
+  stage?.addEventListener("markdy-theme-switch", ((e: CustomEvent) => {
+    const themeName = e.detail?.theme;
+    if (!themeName) return;
+    const current = getEditorCode();
+    const match = current.match(/theme=([a-zA-Z0-9_-]+)/);
+    let newCode: string;
+    if (match) {
+      newCode = current.replace(/theme=[a-zA-Z0-9_-]+/, `theme=${themeName}`);
+    } else if (/^scene\b/m.test(current)) {
+      newCode = current.replace(/^scene\b(.*)$/m, `scene theme=${themeName}$1`);
+    } else {
+      newCode = `scene theme=${themeName}\n\n` + current;
+    }
+    if (themeBtnName) themeBtnName.textContent = themeName;
+    setEditorCode(newCode, true);
+  }) as EventListener);
+
   // Snippet trigger buttons
   document.querySelectorAll<HTMLButtonElement>(".try-chip-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -1254,143 +1334,6 @@ markdy check-all ./docs/diagrams</code></pre>
       }
       if (typeof (window as any).showToast === "function") {
         (window as any).showToast("Loaded AI prompt result into Studio", "⚡");
-      }
-    }
-  });
-
-  autoShuffleBtn?.addEventListener("click", () => {
-    isAutoShuffleEnabled = !isAutoShuffleEnabled;
-    autoShuffleBtn.classList.toggle("active", isAutoShuffleEnabled);
-    autoShuffleBtn.setAttribute("aria-pressed", isAutoShuffleEnabled ? "true" : "false");
-    autoShuffleBtn.title = isAutoShuffleEnabled
-      ? "Auto-Shuffle ON: Automatically plays random examples & demos on scene end"
-      : "Auto-Shuffle OFF: Click to enable auto-cycling examples on scene end";
-    if (!isAutoShuffleEnabled) {
-      clearAutoShuffleTimer();
-    }
-  });
-
-  runBtn?.addEventListener("click", () => {
-    clearAutoShuffleTimer();
-    render(getEditorCode(), true);
-  });
-
-  const afterPaint = () => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
-  async function withFinalFrame<T>(action: (scene: HTMLElement) => Promise<T> | T): Promise<T> {
-    if (!diagram) throw new Error("No diagram is available to export");
-    const scene = stage.querySelector(".markdy-scene-root") as HTMLElement | null;
-    if (!scene) throw new Error("No diagram scene is available to export");
-    const previousTime = diagram.currentTime();
-    const wasPlaying = diagram.isPlaying();
-    diagram.pause();
-    diagram.seek(diagram.duration());
-    await afterPaint();
-    try {
-      return await action(scene);
-    } finally {
-      diagram.seek(previousTime);
-      if (wasPlaying) diagram.play();
-    }
-  }
-
-  function download(blob: Blob, filename: string): void {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 0);
-  }
-
-  // Static exports always capture the completed last frame.
-  document.getElementById("home-export-svg-btn")?.addEventListener("click", async () => {
-    if (!diagram) return;
-    const { exportDiagramAsVectorSvg } = await getEditorModules();
-    const svg = await withFinalFrame((scene) => exportDiagramAsVectorSvg(scene, { includeThemeStyles: true }));
-    download(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }), "diagram.svg");
-    if (typeof (window as any).showToast === "function") {
-      (window as any).showToast("Exported Vector SVG diagram", "🎨");
-    }
-  });
-
-  // Copy code button
-  const homeCopyBtn = document.getElementById("home-copy-btn") as HTMLButtonElement | null;
-  homeCopyBtn?.addEventListener("click", async () => {
-    const code = getEditorCode();
-    try {
-      await navigator.clipboard.writeText(code);
-      const orig = homeCopyBtn.textContent;
-      homeCopyBtn.textContent = "Copied!";
-      if (typeof (window as any).showToast === "function") {
-        (window as any).showToast("Copied MarkdyScript code to clipboard", "📋");
-      }
-      setTimeout(() => { homeCopyBtn.textContent = orig; }, 1800);
-    } catch {
-      homeCopyBtn.title = "Copy failed";
-    }
-  });
-
-  // Paste code button
-  const homePasteBtn = document.getElementById("home-paste-btn") as HTMLButtonElement | null;
-  homePasteBtn?.addEventListener("click", async () => {
-    let text = "";
-    try {
-      if (navigator.clipboard && navigator.clipboard.readText) {
-        text = await navigator.clipboard.readText();
-      } else {
-        text = prompt("Paste your MarkdyScript code here:") || "";
-      }
-    } catch {
-      const fallback = prompt("Clipboard read access was blocked. Paste your MarkdyScript code below:");
-      if (fallback !== null) {
-        text = fallback;
-      } else {
-        return;
-      }
-    }
-
-    const trimmed = text.trim();
-    if (!trimmed) {
-      const orig = homePasteBtn.textContent;
-      homePasteBtn.textContent = "Empty!";
-      setTimeout(() => { homePasteBtn.textContent = orig; }, 1800);
-      return;
-    }
-
-    setEditorCode(text);
-    render(text);
-    const orig = homePasteBtn.textContent;
-    homePasteBtn.textContent = "Pasted!";
-    if (typeof (window as any).showToast === "function") {
-      (window as any).showToast("Pasted MarkdyScript into Studio", "📥");
-    }
-    setTimeout(() => { homePasteBtn.textContent = orig; }, 1800);
-  });
-
-  // Share button
-  document.getElementById("share-btn")?.addEventListener("click", async () => {
-    const code = getEditorCode();
-    try {
-      const { compressMarkdyToUrlHash } = await import("@markdy/core");
-      const hash = await compressMarkdyToUrlHash(code);
-      const url = `${window.location.origin}/playground/#code=${hash}`;
-      navigator.clipboard.writeText(url).then(() => {
-        const shareBtn = document.getElementById("share-btn") as HTMLButtonElement;
-        if (shareBtn) {
-          const orig = shareBtn.textContent;
-          shareBtn.textContent = "Copied!";
-          if (typeof (window as any).showToast === "function") {
-            (window as any).showToast("Shareable diagram link copied to clipboard", "🔗");
-          }
-          setTimeout(() => (shareBtn.textContent = orig), 2000);
-        }
-      });
-    } catch {
-      const encoded = encodeURIComponent(code);
-      const url = `${window.location.origin}/playground/#code=${encoded}`;
-      navigator.clipboard.writeText(url);
-      if (typeof (window as any).showToast === "function") {
-        (window as any).showToast("Shareable diagram link copied to clipboard", "🔗");
       }
     }
   });
@@ -1636,7 +1579,12 @@ markdy check-all ./docs/diagrams</code></pre>
   const initialTheme = document.documentElement.getAttribute("data-theme") || "light";
   updateThemeIcons(initialTheme);
 
-  const initialCode = examples[0]?.code || 'scene theme=paper\nclient Browser -> service API -> database DB\nbeat flow:\n  show $nodes';
+  const initialIndex = examples.length > 0 ? Math.floor(Math.random() * examples.length) : 0;
+  currentExampleIndex = initialIndex;
+  if (exampleSelect) exampleSelect.value = String(initialIndex);
+  presetChips.forEach((c) => c.classList.toggle("active", c.dataset.index === String(initialIndex)));
+  const initialCode = examples[initialIndex]?.code || 'scene theme=paper\nclient Browser -> service API -> database DB\nbeat flow:\n  show $nodes';
+
   if ("requestIdleCallback" in window) {
     (window as any).requestIdleCallback(() => {
       createEditor(initialCode);
@@ -2219,9 +2167,9 @@ markdy check-all ./docs/diagrams</code></pre>
     gap: 0.45rem;
     background: var(--bg-secondary);
     border: 1px solid var(--border);
-    padding: 0.25rem 0.65rem;
+    padding: 0.3rem 0.75rem;
     border-radius: 999px;
-    font-size: 0.75rem;
+    font-size: 0.76rem;
     font-weight: 600;
     color: var(--text-secondary);
     cursor: pointer;
@@ -2238,7 +2186,7 @@ markdy check-all ./docs/diagrams</code></pre>
     background: var(--accent-light);
     color: var(--accent);
     border-color: var(--accent);
-    box-shadow: 0 0 10px var(--accent-glow);
+    box-shadow: 0 0 12px var(--accent-glow);
   }
 
   .tool-chip-name {
@@ -2247,14 +2195,15 @@ markdy check-all ./docs/diagrams</code></pre>
 
   .tool-chip-badge {
     font-size: 0.62rem;
-    padding: 0.05rem 0.35rem;
+    padding: 0.1rem 0.4rem;
     border-radius: 999px;
     background: var(--bg-tertiary);
     color: var(--text-muted);
+    font-weight: 600;
   }
 
   .ai-tool-chip.active .tool-chip-badge {
-    background: color-mix(in srgb, var(--accent) 15%, transparent);
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
     color: var(--accent);
   }
 
@@ -2262,23 +2211,23 @@ markdy check-all ./docs/diagrams</code></pre>
   .ai-tool-tip-bar {
     display: flex;
     align-items: center;
-    gap: 0.55rem;
-    background: color-mix(in srgb, var(--accent-light) 30%, var(--bg-secondary));
-    border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
-    padding: 0.5rem 0.85rem;
-    border-radius: 8px;
-    font-size: 0.78rem;
+    gap: 0.6rem;
+    background: color-mix(in srgb, var(--accent-light) 40%, var(--bg-secondary));
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border));
+    padding: 0.55rem 0.95rem;
+    border-radius: 10px;
+    font-size: 0.8rem;
     color: var(--text-primary);
-    margin-bottom: 1.15rem;
+    margin-bottom: 1.25rem;
   }
 
   .tip-icon {
-    font-size: 0.95rem;
+    font-size: 1rem;
     flex-shrink: 0;
   }
 
   .tip-text {
-    line-height: 1.45;
+    line-height: 1.5;
   }
 
   /* Presets Bar */
@@ -2300,7 +2249,7 @@ markdy check-all ./docs/diagrams</code></pre>
 
   .prompt-preset-tabs {
     display: flex;
-    gap: 0.4rem;
+    gap: 0.45rem;
     flex-wrap: wrap;
   }
 
@@ -2308,10 +2257,10 @@ markdy check-all ./docs/diagrams</code></pre>
     background: var(--bg-secondary);
     border: 1px solid var(--border);
     color: var(--text-secondary);
-    font-size: 0.74rem;
+    font-size: 0.75rem;
     font-weight: 600;
-    padding: 0.25rem 0.65rem;
-    border-radius: 6px;
+    padding: 0.3rem 0.75rem;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.15s ease;
   }
@@ -2326,24 +2275,24 @@ markdy check-all ./docs/diagrams</code></pre>
     background: var(--accent);
     color: #ffffff !important;
     border-color: var(--accent);
-    box-shadow: 0 0 10px var(--accent-glow);
+    box-shadow: 0 0 12px var(--accent-glow);
   }
 
   /* Prompt Display Box */
   .prompt-display-box {
     background: var(--code-bg);
     border: 1px solid var(--code-border);
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
-    margin-bottom: 1.35rem;
-    box-shadow: var(--shadow-xs);
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-sm);
   }
 
   .prompt-display-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.55rem 0.85rem;
+    padding: 0.6rem 0.95rem;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border);
     gap: 0.75rem;
@@ -2354,7 +2303,7 @@ markdy check-all ./docs/diagrams</code></pre>
     display: flex;
     align-items: center;
     gap: 0.45rem;
-    font-size: 0.76rem;
+    font-size: 0.78rem;
     color: var(--text-secondary);
   }
 
@@ -2380,10 +2329,10 @@ markdy check-all ./docs/diagrams</code></pre>
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    font-size: 0.74rem;
+    font-size: 0.75rem;
     font-weight: 700;
-    padding: 0.35rem 0.85rem;
-    border-radius: 6px;
+    padding: 0.38rem 0.85rem;
+    border-radius: 7px;
     cursor: pointer;
     transition: all 0.15s ease;
     border: none;
@@ -2420,7 +2369,7 @@ markdy check-all ./docs/diagrams</code></pre>
   }
 
   .prompt-code-wrap {
-    padding: 1.1rem 1.25rem;
+    padding: 1.15rem 1.35rem;
     overflow-x: auto;
   }
 
@@ -2449,46 +2398,53 @@ markdy check-all ./docs/diagrams</code></pre>
 
   .tutorial-step-card {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.85rem;
     background: var(--bg-secondary);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1rem;
+    border-radius: 12px;
+    padding: 1.1rem;
     align-items: flex-start;
+    transition: transform 0.15s ease, border-color 0.15s ease;
+  }
+
+  .tutorial-step-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-hover);
   }
 
   .step-badge {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 22px;
-    height: 22px;
-    border-radius: 6px;
-    background: var(--accent);
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    background: var(--accent-gradient);
     color: #ffffff;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 800;
     flex-shrink: 0;
+    box-shadow: 0 2px 8px var(--accent-glow);
   }
 
   .step-content strong {
     display: block;
-    font-size: 0.84rem;
+    font-size: 0.86rem;
     color: var(--text-primary);
     margin-bottom: 0.25rem;
   }
 
   .step-content p {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     color: var(--text-secondary);
-    line-height: 1.45;
+    line-height: 1.5;
     margin: 0;
   }
 
   .step-content code {
     font-size: 0.74rem;
     background: var(--bg-tertiary);
-    padding: 0.1rem 0.3rem;
+    padding: 0.1rem 0.35rem;
     border-radius: 4px;
     color: var(--accent);
   }
@@ -2515,104 +2471,119 @@ markdy check-all ./docs/diagrams</code></pre>
     width: 100%;
     background: var(--bg-elevated);
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-subtle);
     text-align: left;
+    transition: box-shadow 0.25s ease, border-color 0.25s ease;
+  }
+
+  .hero-studio-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-lg), var(--shadow-glow);
   }
 
   .studio-topbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.55rem 0.9rem;
+    padding: 0.65rem 1.1rem;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border);
-    gap: 0.75rem;
-    flex-wrap: wrap;
+    gap: 1rem;
   }
 
   .studio-left {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-  }
-
-  .studio-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 999px;
-    background: #10b981;
-    box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
-  }
-
-  .studio-title {
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    font-family: "JetBrains Mono", monospace;
-  }
-
-  .studio-select {
-    font-size: 0.74rem;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border);
-    color: var(--text-primary);
-    padding: 0.25rem 0.55rem;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  .studio-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
+    gap: 0.85rem;
     flex-wrap: wrap;
   }
 
-  .btn-studio-run {
-    background: var(--accent);
-    color: #ffffff;
-    font-size: 0.74rem;
-    font-weight: 700;
-    padding: 0.28rem 0.7rem;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    box-shadow: 0 0 8px var(--accent-glow);
-    transition: opacity 0.15s ease;
+  /* macOS Traffic Lights */
+  .window-traffic-lights {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
   }
 
-  .btn-studio-run:hover { opacity: 0.9; }
+  .traffic-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
 
-  .btn-studio-tool {
-    background: var(--bg-tertiary);
+  .traffic-dot--red { background: #ff5f56; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
+  .traffic-dot--yellow { background: #ffbd2e; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
+  .traffic-dot--green { background: #27c93f; box-shadow: inset 0 0 0 1px rgba(0,0,0,0.15); }
+
+  .studio-title-box {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .studio-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-family: "JetBrains Mono", monospace;
+    letter-spacing: -0.01em;
+  }
+
+  .studio-select-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .studio-select {
+    font-size: 0.76rem;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 500;
+    background: var(--bg-elevated);
     border: 1px solid var(--border);
-    color: var(--text-secondary);
-    font-size: 0.72rem;
-    font-weight: 600;
-    padding: 0.25rem 0.55rem;
-    border-radius: 6px;
+    color: var(--text-primary);
+    padding: 0.32rem 2rem 0.32rem 0.75rem;
+    border-radius: 8px;
     cursor: pointer;
+    box-shadow: var(--shadow-xs);
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.6rem center;
     transition: all 0.15s ease;
   }
 
-  .btn-studio-tool:hover {
+  .studio-select:hover {
+    border-color: var(--accent);
     color: var(--text-primary);
-    border-color: var(--border-hover);
   }
 
-  .auto-shuffle-btn {
+  .studio-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-light);
+  }
+
+  .studio-right {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .studio-compiler-pill {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.45rem;
+    padding: 0.28rem 0.7rem;
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    font-size: 0.72rem;
     font-weight: 600;
-  }
-
-  .auto-shuffle-btn.active {
-    background: var(--accent-light);
-    border-color: var(--accent);
-    color: var(--accent);
+    color: var(--text-secondary);
   }
 
   .status-indicator {
@@ -2622,23 +2593,118 @@ markdy check-all ./docs/diagrams</code></pre>
     display: inline-block;
   }
 
-  .status-ok { background: #10b981; box-shadow: 0 0 6px rgba(16, 185, 129, 0.6); }
-  .status-error { background: #ef4444; box-shadow: 0 0 6px rgba(239, 68, 68, 0.6); }
+  .status-ok { background: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
+  .status-error { background: #ef4444; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
 
   .studio-split-body {
     display: grid;
     grid-template-columns: 460px 1fr;
-    height: 500px;
+    height: 520px;
+    background: var(--bg-primary);
+  }
+
+  /* Pane Headers */
+  .editor-pane-header,
+  .preview-pane-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.45rem 0.9rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  .pane-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    color: var(--text-primary);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.75rem;
+  }
+
+  .pane-hint {
+    color: var(--text-muted);
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .preview-title-box {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .preview-live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+    animation: pulseDot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  .preview-title {
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+
+  .preview-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .studio-theme-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+    padding: 0.18rem 0.55rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 0.68rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .studio-theme-toggle-btn:hover {
+    background: var(--accent-light);
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  .preview-badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 999px;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-weight: 700;
+    border: 1px solid var(--accent);
   }
 
   .studio-editor-pane {
+    display: flex;
+    flex-direction: column;
     border-right: 1px solid var(--border);
     background: var(--code-bg);
     overflow: hidden;
   }
 
   .code-editor-wrap {
-    height: 100%;
+    flex: 1;
     overflow-y: auto;
     font-size: 0.82rem;
   }
@@ -2660,7 +2726,7 @@ markdy check-all ./docs/diagrams</code></pre>
     overflow: hidden;
     background: var(--bg-primary);
     background-image: radial-gradient(circle, var(--grid-dot) 1.2px, transparent 1.2px);
-    background-size: 20px 20px;
+    background-size: 22px 22px;
   }
 
   #stage {
@@ -2672,6 +2738,7 @@ markdy check-all ./docs/diagrams</code></pre>
     display: flex;
     align-items: center;
     justify-content: center;
+    padding: 0.5rem;
   }
 
   .stage-wrap .markdy-footer {
@@ -2679,8 +2746,11 @@ markdy check-all ./docs/diagrams</code></pre>
     width: 100%;
     background: var(--bg-secondary);
     border-top: 1px solid var(--border);
-    padding: 0.35rem 0.75rem;
+    padding: 0.35rem 0.85rem;
     z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 
   /* ─── Main Sections ────────────────────────────────────────────────── */
@@ -2733,19 +2803,19 @@ markdy check-all ./docs/diagrams</code></pre>
   .pillar-card {
     background: var(--bg-elevated);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 1.4rem;
+    border-radius: 14px;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: 0.75rem;
     box-shadow: var(--shadow-xs);
-    transition: all 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   }
 
   .pillar-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--border-hover);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: var(--shadow-md), var(--shadow-glow);
   }
 
   .pillar-card-header {
@@ -2754,38 +2824,42 @@ markdy check-all ./docs/diagrams</code></pre>
     justify-content: space-between;
   }
 
-  .pillar-icon { font-size: 1.5rem; }
+  .pillar-icon { font-size: 1.6rem; }
 
   .pillar-tag {
     font-size: 0.65rem;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    padding: 0.15rem 0.45rem;
-    background: var(--bg-tertiary);
-    color: var(--text-muted);
-    border-radius: 4px;
+    letter-spacing: 0.08em;
+    padding: 0.2rem 0.55rem;
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 999px;
   }
 
   .pillar-card h3 {
-    font-size: 1.05rem;
-    font-weight: 700;
+    font-size: 1.1rem;
+    font-weight: 800;
     color: var(--text-primary);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
   }
 
   .pillar-card p {
-    font-size: 0.85rem;
+    font-size: 0.86rem;
     color: var(--text-secondary);
-    line-height: 1.55;
+    line-height: 1.6;
     flex: 1;
   }
 
   .pillar-learn-more {
-    font-size: 0.78rem;
-    font-weight: 600;
+    font-size: 0.8rem;
+    font-weight: 700;
     color: var(--accent);
-    margin-top: 0.35rem;
+    margin-top: 0.4rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
   }
 
   /* ─── Layouts Category Grid ────────────────────────────────────────── */
@@ -2798,35 +2872,36 @@ markdy check-all ./docs/diagrams</code></pre>
   .layout-group-card {
     background: var(--bg-elevated);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.35rem;
-    box-shadow: var(--shadow-xs);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
     display: flex;
     flex-direction: column;
     height: 100%;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
 
   .layout-group-card:hover {
     border-color: var(--border-hover);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--shadow-md);
   }
 
   .group-header {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 0.85rem;
-    padding-bottom: 0.65rem;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
     border-bottom: 1px solid var(--border-subtle);
     flex-shrink: 0;
   }
 
-  .group-icon { font-size: 1.2rem; }
+  .group-icon { font-size: 1.3rem; }
 
   .group-header h3 {
-    font-size: 1rem;
-    font-weight: 700;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
     color: var(--text-primary);
   }
 
@@ -2834,7 +2909,7 @@ markdy check-all ./docs/diagrams</code></pre>
     display: flex;
     flex-direction: column;
     gap: 0.65rem;
-    max-height: 330px;
+    max-height: 340px;
     overflow-y: auto;
     overflow-x: hidden;
     padding-right: 0.35rem;
@@ -2865,17 +2940,18 @@ markdy check-all ./docs/diagrams</code></pre>
   .group-item {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
-    padding: 0.45rem 0.55rem;
-    border-radius: 6px;
+    gap: 0.3rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 10px;
     background: var(--bg-secondary);
-    border: 1px solid transparent;
+    border: 1px solid var(--border-subtle);
     transition: all 0.15s ease;
   }
 
   .group-item:hover {
     border-color: var(--border);
     background: var(--bg-tertiary);
+    transform: translateX(2px);
   }
 
   .item-head {
@@ -2885,52 +2961,61 @@ markdy check-all ./docs/diagrams</code></pre>
   }
 
   .item-head code {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     background: var(--bg-tertiary);
-    padding: 0.15rem 0.4rem;
-    border-radius: 4px;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
     color: var(--accent);
-    font-weight: 600;
+    font-weight: 700;
+    font-family: "JetBrains Mono", monospace;
   }
 
   .try-chip-btn {
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border);
-    color: var(--text-secondary);
-    font-size: 0.68rem;
-    font-weight: 600;
-    padding: 0.15rem 0.45rem;
-    border-radius: 4px;
+    background: var(--accent-light);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--border));
+    color: var(--accent);
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
     cursor: pointer;
     transition: all 0.15s ease;
   }
 
   .try-chip-btn:hover {
-    color: var(--text-primary);
+    background: var(--accent);
+    color: #ffffff;
     border-color: var(--accent);
-    background: var(--accent-light);
+    box-shadow: 0 0 8px var(--accent-glow);
   }
 
   .group-item p {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     color: var(--text-secondary);
+    line-height: 1.45;
   }
 
   /* ─── Ingestion Before-After Comparison Dock ─── */
   .ingestion-dock-container {
     background: var(--bg-elevated);
     border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 1.25rem;
+    border-radius: 18px;
+    padding: 1.5rem;
     box-shadow: var(--shadow-sm);
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.25rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .ingestion-dock-container:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
   }
 
   .ingestion-tabs-shelf {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.55rem;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
@@ -2944,14 +3029,14 @@ markdy check-all ./docs/diagrams</code></pre>
   .ingestion-format-tab {
     display: flex;
     align-items: center;
-    gap: 0.45rem;
-    padding: 0.5rem 0.85rem;
-    border-radius: 8px;
-    background: var(--bg-tertiary);
+    gap: 0.5rem;
+    padding: 0.55rem 0.95rem;
+    border-radius: 10px;
+    background: var(--bg-secondary);
     border: 1px solid var(--border);
     color: var(--text-secondary);
-    font-size: 0.78rem;
-    font-weight: 600;
+    font-size: 0.8rem;
+    font-weight: 700;
     cursor: pointer;
     white-space: nowrap;
     transition: all 0.15s ease;
@@ -2961,20 +3046,23 @@ markdy check-all ./docs/diagrams</code></pre>
   .ingestion-format-tab:hover {
     color: var(--text-primary);
     border-color: var(--border-hover);
+    background: var(--bg-tertiary);
   }
 
   .ingestion-format-tab.active {
     background: var(--accent-light);
     border-color: var(--accent);
     color: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
   }
 
   .ingestion-tab-badge {
     font-size: 0.65rem;
-    padding: 0.1rem 0.35rem;
-    border-radius: 4px;
-    background: var(--bg-primary);
+    padding: 0.1rem 0.4rem;
+    border-radius: 6px;
+    background: var(--bg-tertiary);
     color: var(--text-muted);
+    font-weight: 600;
   }
 
   .ingestion-format-tab.active .ingestion-tab-badge {
@@ -2986,18 +3074,18 @@ markdy check-all ./docs/diagrams</code></pre>
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.75rem;
+    gap: 0.85rem;
     flex-wrap: wrap;
   }
 
   .ingestion-cmd-box {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.6rem;
     background: var(--code-bg);
     border: 1px solid var(--code-border);
-    padding: 0.4rem 0.75rem;
-    border-radius: 8px;
+    padding: 0.45rem 0.85rem;
+    border-radius: 10px;
     flex: 1;
     min-width: 260px;
   }
@@ -3005,11 +3093,11 @@ markdy check-all ./docs/diagrams</code></pre>
   .cmd-prompt {
     color: var(--accent);
     font-weight: 800;
-    font-family: monospace;
+    font-family: "JetBrains Mono", monospace;
   }
 
   .ingestion-cmd-box code {
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-family: "JetBrains Mono", monospace;
     color: var(--text-primary);
     flex: 1;
@@ -3027,27 +3115,28 @@ markdy check-all ./docs/diagrams</code></pre>
   .ingestion-compare-split {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
-    gap: 1rem;
+    gap: 1.25rem;
     align-items: stretch;
   }
 
   .ingestion-code-pane {
     background: var(--code-bg);
     border: 1px solid var(--code-border);
-    border-radius: 10px;
+    border-radius: 14px;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    box-shadow: var(--shadow-xs);
   }
 
   .code-pane-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.6rem 0.85rem;
+    padding: 0.65rem 1rem;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-subtle);
-    font-size: 0.72rem;
+    font-size: 0.74rem;
   }
 
   .pane-header-left {
@@ -3653,16 +3742,7 @@ markdy check-all ./docs/diagrams</code></pre>
       max-width: 100%;
       min-width: 0;
     }
-    .studio-actions {
-      display: flex;
-      gap: 0.3rem;
-      overflow-x: auto;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-    .studio-actions::-webkit-scrollbar {
-      display: none;
-    }
+
     .footer-inner {
       grid-template-columns: 1fr;
       gap: 2.75rem;

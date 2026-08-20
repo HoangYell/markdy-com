@@ -13,3 +13,34 @@ beat flows:
   Api <- WebApp "response"         // <- dashed response (drawn back toward API)
   Api ~> EventQueue "event"        // ~> dotted event edge
   Api -- RecordsDb "dependency"    // -- thin dependency link
+
+player:
+  playback:
+    autoplay true
+    loop true
+    rate 1.0
+  controls:
+    play true
+    restart true
+    prev_beat false
+    next_beat false
+    seek true
+    speed true
+    speeds "0.1 0.25 0.5 1 1.5"
+    fit true
+    reset_view true
+    fullscreen true
+    svg true
+    share true
+    code true
+    theme false
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress boundary
+    color "#3b82f6"
