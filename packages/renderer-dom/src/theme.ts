@@ -151,10 +151,10 @@ export function ensureSceneStyles(doc: Document): void {
   gap: 8px;
   padding: 6px 12px;
   color: var(--md-text, #f8fafc);
-  background: var(--md-footer-bg, rgba(15, 23, 42, 0.85));
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid var(--md-footer-border, rgba(148, 163, 184, 0.15));
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-top: none;
   z-index: 20;
 }
 .markdy-controls {
@@ -711,14 +711,15 @@ export function applyThemeVariables(element: HTMLElement, theme: ThemeTokens): v
   element.style.setProperty("--md-node-surface-raised", theme.nodeSurfaceRaised ?? theme.surfaceRaised);
   element.style.setProperty("--md-hairline", theme.hairline ?? `color-mix(in srgb, ${theme.border} 50%, transparent)`);
   element.style.setProperty("--md-shadow", theme.shadow ?? "rgba(2, 6, 23, 0.55)");
-  element.style.setProperty("--md-footer-bg", `color-mix(in srgb, ${theme.surface} 92%, transparent)`);
-  element.style.setProperty("--md-footer-border", theme.border);
+  element.style.setProperty("--md-footer-bg", "transparent");
+  element.style.setProperty("--md-footer-border", "transparent");
   element.style.setProperty("--md-control-bg", theme.surfaceRaised);
   element.style.setProperty("--md-control-border", theme.border);
   element.style.setProperty("--md-control-text", theme.textMuted);
   element.style.setProperty("--md-control-hover-bg", theme.canvas);
   element.style.setProperty("--md-control-hover-text", theme.text);
   element.style.setProperty("--md-control-hover-border", theme.accent);
+  element.style.setProperty("--md-segmented-bg", `color-mix(in srgb, ${theme.surfaceRaised} 60%, transparent)`);
   element.style.setProperty("--md-divider", theme.border);
   if (theme.fonts?.title) element.style.setProperty("--md-font-title", theme.fonts.title);
   if (theme.fonts?.nodeName) element.style.setProperty("--md-font-node", theme.fonts.nodeName);

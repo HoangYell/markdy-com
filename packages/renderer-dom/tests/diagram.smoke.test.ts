@@ -262,14 +262,74 @@ describe("createDiagram integration", () => {
     const darkFooter = footers[1];
 
     expect(lightFooter.dataset.markdyTheme).toBe("paper");
-    expect(lightFooter.style.getPropertyValue("--md-footer-bg")).toContain("#ffffff");
+    expect(lightFooter.style.getPropertyValue("--md-footer-bg")).toBe("transparent");
     expect(lightFooter.style.getPropertyValue("--md-control-text")).toBe("#475569");
     expect(darkFooter.dataset.markdyTheme).toBe("midnight");
-    expect(darkFooter.style.getPropertyValue("--md-footer-bg")).toContain("#0e1a2c");
+    expect(darkFooter.style.getPropertyValue("--md-footer-bg")).toBe("transparent");
     expect(darkFooter.style.getPropertyValue("--md-control-text")).toBe("#93a4bb");
 
     lightDiagram.destroy();
     darkDiagram.destroy();
+  });
+
+  it("dynamically switches theme via diagram.setTheme and player theme toggle button", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    let switchedTheme = "";
+    container.addEventListener("markdy-theme-switch", ((e: CustomEvent) => {
+      switchedTheme = e.detail?.theme;
+    }) as EventListener);
+
+    const diagram = createDiagram({
+      container,
+      code: SCENE,
+      autoplay: false,
+      copyright: false,
+      controls: true,
+    });
+
+    const sceneRoot = container.querySelector<HTMLElement>(".markdy-scene-root")!;
+    expect(sceneRoot.dataset.markdyTheme).toBe("paper");
+
+    // Test programmatic setTheme
+    diagram.setTheme("midnight");
+    expect(sceneRoot.dataset.markdyTheme).toBe("midnight");
+    expect(sceneRoot.style.getPropertyValue("--md-canvas")).toBe("#070d18");
+
+    // Test player theme toggle button
+    const footer = document.body.querySelector<HTMLElement>(".markdy-footer");
+    const themeBtn = footer?.querySelector<HTMLButtonElement>(".markdy-control-theme");
+    expect(themeBtn).not.toBeNull();
+
+    themeBtn!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(switchedTheme).toBeTruthy();
+    expect(["paper", "editorial", "sketchy"]).toContain(sceneRoot.dataset.markdyTheme);
+
+    diagram.destroy();
+    container.remove();
+  });
+
+  it("dynamically switches theme on sequence diagrams via setTheme", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const seqCode = `scene type=sequence theme=paper
+client Client
+service Backend
+beat b1:
+  Client -> Backend "Login request"
+`;
+    const diagram = createDiagram({ container, code: seqCode, autoplay: false, copyright: false });
+    const sceneRoot = container.querySelector<HTMLElement>(".markdy-scene-root")!;
+    expect(sceneRoot.dataset.markdyTheme).toBe("paper");
+
+    diagram.setTheme("midnight");
+    expect(sceneRoot.dataset.markdyTheme).toBe("midnight");
+    expect(sceneRoot.style.getPropertyValue("--md-canvas")).toBe("#070d18");
+
+    diagram.destroy();
+    container.remove();
   });
 
   it("mounts controls and the Powered by Markdy link in the footer", async () => {

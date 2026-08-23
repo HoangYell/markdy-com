@@ -166,13 +166,40 @@ function layoutRanked(
     }
   });
 
-  // Sort nodes within each rank: first by group index (so grouped nodes stay adjacent), then by id
-  for (const ids of byRank.values()) {
+  // Maintain a rank order that minimizes crossings while respecting declaration order
+  const nodeDeclOrder = new Map(nodeIds.map((id, idx) => [id, idx]));
+  const incomingParents = new Map<string, string[]>();
+  for (const id of nodeIds) incomingParents.set(id, []);
+  for (const e of edges) {
+    if (e.kind !== "response" && !e.selfLoop && ast.nodes[e.from] && ast.nodes[e.to]) {
+      incomingParents.get(e.to)?.push(e.from);
+    }
+  }
+
+  const rankOrder = new Map<string, number>();
+  const sortedRanks = [...byRank.keys()].sort((a, b) => a - b);
+  for (const r of sortedRanks) {
+    const ids = byRank.get(r)!;
     ids.sort((a, b) => {
       const ga = nodeGroupIndex.has(a) ? nodeGroupIndex.get(a)! : 9999;
       const gb = nodeGroupIndex.has(b) ? nodeGroupIndex.get(b)! : 9999;
       if (ga !== gb) return ga - gb;
-      return a.localeCompare(b);
+
+      // Barycenter heuristic: align child nodes under the average position of their parents in previous ranks
+      const parentsA = (incomingParents.get(a) ?? []).filter((p) => rankOrder.has(p));
+      const parentsB = (incomingParents.get(b) ?? []).filter((p) => rankOrder.has(p));
+      if (parentsA.length > 0 && parentsB.length > 0) {
+        const avgA = parentsA.reduce((sum, p) => sum + (rankOrder.get(p) ?? 0), 0) / parentsA.length;
+        const avgB = parentsB.reduce((sum, p) => sum + (rankOrder.get(p) ?? 0), 0) / parentsB.length;
+        if (Math.abs(avgA - avgB) > 0.001) return avgA - avgB;
+      }
+
+      // Preserve author declaration order
+      return (nodeDeclOrder.get(a) ?? 0) - (nodeDeclOrder.get(b) ?? 0);
+    });
+
+    ids.forEach((id, idx) => {
+      rankOrder.set(id, idx);
     });
   }
 
@@ -1032,7 +1059,7 @@ function layoutNodes(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
   const dtype = diagramType(ast);
   switch (dtype) {
     case "flowchart":
-      return layoutRanked(ast, edges, { forceVertical: true });
+      return layoutRanked(ast, edges, { forceVertical: ast.meta.direction === "TB" || ast.meta.direction === "BT" });
     case "tree":
       return layoutTree(ast, edges.some((edge) => edge.structural) ? edges.filter((edge) => edge.structural) : edges);
     case "sequence":

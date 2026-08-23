@@ -152,6 +152,10 @@ export function ensureNodeStyles(doc: Document): void {
   border-radius: 4px;
   transform: rotate(0deg);
   clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  filter: drop-shadow(0 0 1px var(--md-hairline, rgba(15, 23, 42, 0.2))) drop-shadow(0 4px 12px var(--md-shadow, rgba(2, 6, 23, 0.15)));
+}
+.markdy-node[data-shape="diamond"][data-focal="1"] {
+  filter: drop-shadow(0 0 1.5px var(--md-accent)) drop-shadow(0 4px 16px color-mix(in srgb, var(--md-accent) 30%, transparent));
 }
 .markdy-node[data-shape="diamond"] .markdy-node__body {
   justify-content: center;
@@ -166,6 +170,13 @@ export function ensureNodeStyles(doc: Document): void {
 .markdy-node[data-shape="pill"] {
   border-radius: 999px;
   min-height: 54px;
+}
+.markdy-node[data-shape="pill"] .markdy-node__body {
+  justify-content: center;
+  padding: 0 20px;
+}
+.markdy-node[data-shape="pill"] .markdy-node__label {
+  text-align: center;
 }
 .markdy-node[data-shape="circle"],
 .markdy-node[data-kind="dot"] {
@@ -236,9 +247,13 @@ export function ensureNodeStyles(doc: Document): void {
   background: var(--md-node-surface, var(--md-surface));
 }
 .markdy-node[data-focal="1"] {
-  background: color-mix(in srgb, var(--md-accent-tint, var(--md-accent)) 100%, transparent);
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--md-accent) 12%, var(--md-node-surface-raised, var(--md-surface-raised, #ffffff))),
+      color-mix(in srgb, var(--md-accent) 6%, var(--md-node-surface, var(--md-surface, #ffffff))));
   box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--md-accent) 55%, transparent);
+    0 2px 8px color-mix(in srgb, var(--md-accent) 20%, transparent),
+    inset 0 0 0 1.5px color-mix(in srgb, var(--md-accent) 60%, transparent);
 }
 .markdy-scene-root[data-markdy-theme="nebula"] .markdy-node {
   border: 1px solid color-mix(in srgb, var(--md-role-color, var(--md-accent)) 34%, transparent);
@@ -261,8 +276,8 @@ export function ensureNodeStyles(doc: Document): void {
   box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--md-accent) 60%, transparent);
   background:
     linear-gradient(180deg,
-      color-mix(in srgb, var(--md-accent-tint, var(--md-accent)) 8%, transparent),
-      color-mix(in srgb, var(--md-accent-tint, var(--md-accent)) 4%, transparent));
+      color-mix(in srgb, var(--md-accent) 10%, var(--md-node-surface-raised, var(--md-surface-raised, #ffffff))),
+      color-mix(in srgb, var(--md-accent) 5%, var(--md-node-surface, var(--md-surface, #ffffff))));
 }
 .markdy-node[data-kind="external"] {
   border: 1.2px dashed color-mix(in srgb, var(--md-ink, var(--md-text)) 30%, transparent);
@@ -285,16 +300,31 @@ export function ensureNodeStyles(doc: Document): void {
   border-color: #ff5a36;
   box-shadow: 0 0 18px -8px rgba(255, 90, 54, 0.45);
 }
+.markdy-scene-root[data-markdy-theme="terminal"] .markdy-node[data-shape="diamond"] {
+  filter: drop-shadow(0 0 1px #2b2b2b);
+}
+.markdy-scene-root[data-markdy-theme="terminal"] .markdy-node[data-shape="diamond"][data-focal="1"] {
+  filter: drop-shadow(0 0 2px #ff5a36) drop-shadow(0 0 12px rgba(255, 90, 54, 0.35));
+}
 .markdy-scene-root[data-markdy-theme="sketchy"] .markdy-node {
   background: #ffffff;
   border: 1.5px solid #2d3142;
   box-shadow: 3px 3px 0 rgba(45, 49, 66, 0.10);
   border-radius: var(--md-radius-md, 4px);
 }
+.markdy-scene-root[data-markdy-theme="sketchy"] .markdy-node[data-shape="diamond"] {
+  filter: drop-shadow(0 0 1px #2d3142) drop-shadow(3px 3px 0 rgba(45, 49, 66, 0.12));
+}
 .markdy-scene-root[data-markdy-theme="sketchy"] .markdy-node[data-focal="1"] {
   border-color: #eb6c36;
   background: rgba(235, 108, 54, 0.06);
   box-shadow: 3px 3px 0 rgba(235, 108, 54, 0.12);
+}
+.markdy-scene-root[data-markdy-theme="nebula"] .markdy-node[data-shape="diamond"] {
+  filter: drop-shadow(0 0 1px var(--md-hairline)) drop-shadow(0 0 18px -4px color-mix(in srgb, var(--md-role-color, var(--md-accent)) 60%, transparent));
+}
+.markdy-scene-root[data-markdy-theme="nebula"] .markdy-node[data-shape="diamond"][data-focal="1"] {
+  filter: drop-shadow(0 0 2px var(--md-accent)) drop-shadow(0 0 24px -2px color-mix(in srgb, var(--md-accent) 70%, transparent));
 }
 `;
   doc.head.appendChild(style);
@@ -602,7 +632,7 @@ function createNodeMediaEl(doc: Document, node: PositionedNode, assets?: Record<
   return wrap;
 }
 
-function applyDeclaredNodeStyle(el: HTMLElement, style?: Record<string, unknown>): void {
+export function applyDeclaredNodeStyle(el: HTMLElement, style?: Record<string, unknown>): void {
   if (!style) return;
   const fill = typeof style.fill === "string" ? style.fill : undefined;
   const surface = typeof style.surface === "string" ? style.surface : fill;

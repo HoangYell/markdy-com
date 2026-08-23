@@ -326,7 +326,7 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     svg: resolveControl(configuredControls.svg),
     share: resolveControl(configuredControls.share),
     code: resolveControl(configuredControls.code, false),
-    theme: resolveControl(configuredControls.theme, false),
+    theme: resolveControl(configuredControls.theme, hostControlDefault),
   };
 
   // Legacy host coupling: `controls` as a host option also unlocks the viewport.

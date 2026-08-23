@@ -1172,7 +1172,7 @@ const playgroundStructuredData = [
 
   function toggleRandomThemeInPlayground(): void {
     const current = getCode();
-    const match = current.match(/theme=([a-zA-Z0-9_-]+)/);
+    const match = current.match(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/);
     const currentTheme = match ? match[1].toLowerCase() : "paper";
     const isDark = DARK_THEMES.includes(currentTheme);
     const targetThemes = isDark ? LIGHT_THEMES : DARK_THEMES;
@@ -1181,7 +1181,7 @@ const playgroundStructuredData = [
 
     let newCode: string;
     if (match) {
-      newCode = current.replace(/theme=[a-zA-Z0-9_-]+/, `theme=${nextTheme}`);
+      newCode = current.replace(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/, `theme=${nextTheme}`);
     } else if (/^scene\b/m.test(current)) {
       newCode = current.replace(/^scene\b(.*)$/m, `scene theme=${nextTheme}$1`);
     } else {
@@ -1202,10 +1202,10 @@ const playgroundStructuredData = [
     const themeName = e.detail?.theme;
     if (!themeName) return;
     const current = getCode();
-    const match = current.match(/theme=([a-zA-Z0-9_-]+)/);
+    const match = current.match(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/);
     let newCode: string;
     if (match) {
-      newCode = current.replace(/theme=[a-zA-Z0-9_-]+/, `theme=${themeName}`);
+      newCode = current.replace(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/, `theme=${themeName}`);
     } else if (/^scene\b/m.test(current)) {
       newCode = current.replace(/^scene\b(.*)$/m, `scene theme=${themeName}$1`);
     } else {
@@ -3551,8 +3551,8 @@ Requirements:
   .stage .markdy-footer {
     flex-shrink: 0;
     width: 100%;
-    background: var(--bg-secondary);
-    border-top: 1px solid var(--border);
+    background: transparent;
+    border-top: none;
     padding: 0.35rem 0.85rem;
     z-index: 20;
   }

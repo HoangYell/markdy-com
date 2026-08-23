@@ -78,11 +78,16 @@ export function ensureEdgeLayer(scene: HTMLElement): SVGSVGElement {
   return svg;
 }
 
-function ensureDefs(svg: SVGSVGElement, theme: ThemeTokens, id: string): void {
+export function ensureDefs(svg: SVGSVGElement, theme: ThemeTokens, id: string): void {
   const key = `data-markdy-defs-${id}`;
-  if (svg.querySelector(`defs[${key}='1']`)) return;
-  const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
-  defs.setAttribute(key, "1");
+  let defs = svg.querySelector<SVGDefsElement>(`defs[${key}='1']`);
+  if (!defs) {
+    defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    defs.setAttribute(key, "1");
+    svg.prepend(defs);
+  } else {
+    defs.replaceChildren();
+  }
 
   for (const [kind, color] of Object.entries(theme.edges) as [EdgeKind, string][]) {
     const arrow = document.createElementNS("http://www.w3.org/2000/svg", "marker");
@@ -131,8 +136,33 @@ function ensureDefs(svg: SVGSVGElement, theme: ThemeTokens, id: string): void {
   filter.appendChild(turb);
   filter.appendChild(disp);
   defs.appendChild(filter);
+}
 
-  svg.prepend(defs);
+export function updateEdgeLayerTheme(
+  svg: SVGSVGElement,
+  edgeRuntimeMap: EdgeRuntimeMap,
+  theme: ThemeTokens,
+  sceneId: string,
+): void {
+  ensureDefs(svg, theme, sceneId);
+  const isDark = isDarkTheme(theme);
+  for (const runtime of edgeRuntimeMap.values()) {
+    const color = theme.edges[runtime.kind];
+    runtime.color = color;
+    runtime.path.setAttribute("stroke", color);
+    if (runtime.kind !== "dependency") {
+      runtime.path.style.filter = `drop-shadow(0 0 4px ${translucentColor(color, "44")})`;
+    }
+    runtime.dot.setAttribute("fill", color);
+    runtime.dot.style.filter = `drop-shadow(0 0 6px ${color}) drop-shadow(0 0 12px ${color}88)`;
+    if (runtime.labelPlate) {
+      runtime.labelPlate.setAttribute("fill", theme.canvas ?? theme.surface ?? "#ffffff");
+      runtime.labelPlate.setAttribute("stroke", translucentColor(color, "28"));
+    }
+    if (runtime.label) {
+      runtime.label.setAttribute("fill", computeEdgeLabelColor(color, isDark));
+    }
+  }
 }
 
 export interface EdgeRuntime {
