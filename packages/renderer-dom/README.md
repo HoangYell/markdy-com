@@ -99,6 +99,9 @@ diagram.destroy();    // clean up DOM + cancel animations
 | `currentTime()` | Current playback position in seconds |
 | `duration()` | Total scene duration in seconds |
 | `isPlaying()` | Whether the scene is currently playing |
+| `setTheme(themeName)` | Switch theme dynamically at runtime across all 8 supported themes |
+| `exportGif(options?)` | Render zero-dependency animated GIF89a with LZW compression |
+| `exportSvg()` | Export Figma-compatible vector SVG snapshot of the current frame |
 | `beats()` | Named `beat` ranges, in author order (empty if none) |
 | `seekToBeat(name)` | Seek to the start of a named beat; no-op if the name doesn't match |
 | `destroy()` | Remove DOM elements and cancel all animations |

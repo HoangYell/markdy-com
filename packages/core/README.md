@@ -77,10 +77,11 @@ try {
 | `RenderPlan` | type | Positioned nodes, routed edges, group zones, sequence messages, timed cues, beat ranges |
 | `SceneMeta` | type | Scene configuration; `meta.player` is authoritative, with deprecated flat mirrors retained for compatibility |
 | `PlayerConfig` / `resolvePlayer` | type / function | Grouped playback, controls, interaction, and chrome configuration with host resolution |
-| `NodeDecl` | type | Node declaration (kind, id, label, style) |
-| `EdgeDecl` | type | Edge declaration (kind, from, to, label) |
-| `BeatDecl` | type | Named beat with cues |
-| `THEMES` / `resolveTheme` | tokens | Semantic theme palettes (`paper`, `editorial`, `nebula`, `midnight`, `blueprint`, `graphite`) |
+| `generateThemeFromBrand` | `(hexColor, name?) => { light, dark }` | Generate WCAG-compliant light and dark theme palettes from any brand hex color |
+| `validateArchitectureRules` | `(ast) => Diagnostic[]` | Run Well-Architected rules: cycle detection, layer boundaries, and gateway checks |
+| `diffAST` | `(astA, astB) => ASTDiffResult` | Compare architecture versions, calculate diff metrics, and generate migration scenes |
+| `compressUrlState` / `decompressUrlState` | `(code, opts?) => string` | Zero-dependency URL hash state encoder for shareable playground links |
+| `THEMES` / `resolveTheme` | tokens / function | 8 Semantic theme palettes (`paper`, `editorial`, `nebula`, `midnight`, `blueprint`, `graphite`, `terminal`, `sketchy`) |
 
 ## Documentation
 
