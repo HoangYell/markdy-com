@@ -214,7 +214,7 @@ describe("createDiagram integration", () => {
     const quarterSpeedButton = [...footer!.querySelectorAll<HTMLButtonElement>(".markdy-control-rate")].find((button) => button.dataset.rate === "0.25")!;
     const resetButton = footer?.querySelector<HTMLButtonElement>(".markdy-control-reset-view")!;
 
-    expect(container.querySelector(".markdy-controls")).toBeNull();
+    expect(container.querySelector(".markdy-controls")).not.toBeNull();
     expect(footer).not.toBeNull();
     expect(toolbar).not.toBeNull();
     expect(footer?.style.justifyContent).toBe("space-between");
