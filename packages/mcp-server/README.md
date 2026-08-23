@@ -5,10 +5,14 @@ Official **Model Context Protocol (MCP)** server for Markdy — the animated dia
 Equip Claude Desktop, Cursor, Google Antigravity, and autonomous AI agents with tools to parse, validate, transpile, explain, and craft animated Markdy architecture diagrams.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-ai-agent-workflow.webp" alt="Markdy AI Agent & MCP Integration" width="900" />
+  <a href="https://markdy.com/agent/">
+    <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-ai-agent-workflow.webp" alt="Markdy AI Agent & MCP Integration" width="900" />
+  </a>
 </p>
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-oauth-pkce-sequence.webp" alt="Markdy AI-Generated OAuth Sequence Preview" width="900" />
+  <a href="https://markdy.com/playground/">
+    <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-oauth-pkce-sequence.webp" alt="Markdy AI-Generated OAuth Sequence Preview" width="900" />
+  </a>
 </p>
 
 ---

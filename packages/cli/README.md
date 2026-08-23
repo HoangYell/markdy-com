@@ -23,10 +23,14 @@ To make `markdy` available as a shell command everywhere, install it globally wi
 ## Output preview
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-concurrency-decision-flowchart.webp" alt="Markdy CLI Flowchart Generation" width="900" />
+  <a href="https://markdy.com/playground/">
+    <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-concurrency-decision-flowchart.webp" alt="Markdy CLI Flowchart Generation" width="900" />
+  </a>
 </p>
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-terminal-cli.webp" alt="Markdy CLI Terminal Infrastructure Preview" width="900" />
+  <a href="https://markdy.com/playground/">
+    <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-terminal-cli.webp" alt="Markdy CLI Terminal Infrastructure Preview" width="900" />
+  </a>
 </p>
 
 Use this command to generate a local HTML preview:

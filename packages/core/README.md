@@ -29,10 +29,14 @@ pnpm add @markdy/core
 ## Output preview
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-url-shortener.webp" alt="Markdy Core Parser Architecture Preview" width="900" />
+  <a href="https://markdy.com/playground/">
+    <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-url-shortener.webp" alt="Markdy Core Parser Architecture Preview" width="900" />
+  </a>
 </p>
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-concurrency-decision-flowchart.webp" alt="Markdy Concurrency Flowchart Preview" width="900" />
+  <a href="https://markdy.com/playground/">
+    <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-concurrency-decision-flowchart.webp" alt="Markdy Concurrency Flowchart Preview" width="900" />
+  </a>
 </p>
 
 ## Usage

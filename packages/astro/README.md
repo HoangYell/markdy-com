@@ -28,10 +28,14 @@ Astro integration provides an island wrapper for lazy client-side hydration.
 ## Output preview
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-framework-integrations.webp" alt="Markdy Astro Integration" width="900" />
+  <a href="https://markdy.com/playground/">
+    <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-framework-integrations.webp" alt="Markdy Astro Integration" width="900" />
+  </a>
 </p>
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-ecommerce-swimlanes.webp" alt="Markdy Rendered Swimlane Scene in Astro" width="900" />
+  <a href="https://markdy.com/playground/">
+    <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-ecommerce-swimlanes.webp" alt="Markdy Rendered Swimlane Scene in Astro" width="900" />
+  </a>
 </p>
 
 ## Usage

@@ -32,10 +32,14 @@ This package consumes parsed AST and drives DOM + Web Animations API timelines.
 ## Output preview
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-lakehouse-medallion.webp" alt="Markdy DOM Renderer Lakehouse Medallion Output" width="900" />
+  <a href="https://markdy.com/playground/">
+    <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-lakehouse-medallion.webp" alt="Markdy DOM Renderer Lakehouse Medallion Output" width="900" />
+  </a>
 </p>
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-nebula-constellation.webp" alt="Markdy DOM Renderer Nebula Constellation Output" width="900" />
+  <a href="https://markdy.com/playground/">
+    <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-nebula-constellation.webp" alt="Markdy DOM Renderer Nebula Constellation Output" width="900" />
+  </a>
 </p>
 
 ## Usage
