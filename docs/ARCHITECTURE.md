@@ -96,8 +96,8 @@ for each block in source:
 - **Indent recovery:** Soft-body fallback silently recovers de-indented colon groups/beats/patterns instead of failing empty
 - **Comment stripping:** `//` line comments are removed before parsing
 - **Flow labels:** A trailing quoted string on a flow target becomes the edge label; response (`<-`) segments are stored in data-flow direction
-- **Pattern expansion:** `use name(args)` expands a `pattern` body with `$param` substitution
-- **Compilation:** `compile(ast)` assigns ranks, positions nodes, routes edges, and schedules cues; `scene duration=` is otherwise derived from cue timing
+- **Content-Adaptive Sizing:** When `width` and/or `height` are omitted from `scene`, `computeAdaptiveDimensions(ast)` analyzes diagram topology, rank depth, lifeline count, and tree span to derive the optimal canvas aspect ratio and dimensions (snapped to 16px grid multiples). Explicit user overrides (`width=... height=...`) are preserved untouched.
+- **Compilation:** `compile(ast)` resolves dimensions, assigns ranks, positions nodes, routes edges, and schedules cues; `scene duration=` is otherwise derived from cue timing
 
 #### AST Shape
 

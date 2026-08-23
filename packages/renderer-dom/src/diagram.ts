@@ -237,6 +237,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   let progressEl: HTMLElement | null = null;
   if (showProgress) {
     progressEl = document.createElement("div");
+    progressEl.className = progressMode === "bar" ? "markdy-progress-bar" : "markdy-boundary-progress";
     Object.assign(progressEl.style, {
       position: "absolute",
       ...(progressMode === "bar" ? { left: "0", right: "0", bottom: "0", height: "3px" } : { inset: "0" }),
@@ -279,6 +280,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     footer.className = "markdy-footer";
     applyThemeVariables(footer, plan.theme);
     Object.assign(footer.style, {
+      position: "relative",
+      zIndex: "100",
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
@@ -286,7 +289,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       gap: "6px",
       width: "100%",
       boxSizing: "border-box",
-      padding: "4px 6px 0",
+      padding: "6px 8px 2px",
       background: "transparent",
     });
     if (container.parentNode) container.parentNode.insertBefore(footer, container.nextSibling);
@@ -1214,7 +1217,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
       panel.append(header, body);
       overlay.appendChild(panel);
-      document.body.appendChild(overlay);
+      const mountHost = document.fullscreenElement ?? document.body;
+      mountHost.appendChild(overlay);
 
       // Focus the close button for keyboard accessibility.
       closeBtn.focus();

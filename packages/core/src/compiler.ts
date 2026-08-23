@@ -137,8 +137,8 @@ function assignRanks(
   return ranks;
 }
 
-function snapGrid(n: number): number {
-  return Math.round(n / 4) * 4;
+function snapGrid(n: number, step = 4): number {
+  return Math.round(n / step) * step;
 }
 
 function layoutRanked(
@@ -1338,8 +1338,191 @@ function buildSequencePlan(
   return { messages, activations };
 }
 
+/**
+ * Computes optimal, content-adaptive canvas width and height for a diagram AST
+ * when dimensions are omitted or partially specified in the script.
+ */
+export function computeAdaptiveDimensions(
+  ast: DiagramAST,
+  edges?: RoutedEdge[],
+): { width: number; height: number } {
+  const explicitW = ast.meta.explicitWidth === true;
+  const explicitH = ast.meta.explicitHeight === true;
+
+  if (explicitW && explicitH) {
+    return { width: ast.meta.width, height: ast.meta.height };
+  }
+
+  const effectiveEdges = edges ?? collectStructuralEdges(ast);
+  const nodeIds = Object.keys(ast.nodes);
+  const nodeCount = nodeIds.length;
+  const dtype = diagramType(ast);
+  const direction = ast.meta.direction ?? "LR";
+  const isVertical = direction === "TB" || direction === "BT";
+  const groupCount = Object.keys(ast.groups).length;
+
+  let autoW = 1280;
+  let autoH = 720;
+
+  if (nodeCount === 0) {
+    autoW = 1280;
+    autoH = 720;
+  } else if (dtype === "sequence") {
+    const flowCues = ast.beats.flatMap((b) => b.cues).filter((c) => c.kind === "flow");
+    const count = Math.max(nodeCount, 1);
+    const flowCount = flowCues.length;
+    const requiredW = SAFE * 2 + Math.max(count * 220, 800);
+    const requiredH = TITLE_BAND + NODE_H + 56 + Math.max(flowCount * 76, 280) + SAFE + 48;
+    autoW = Math.max(1088, Math.min(2560, requiredW));
+    autoH = Math.max(640, Math.min(1800, requiredH));
+  } else if (dtype === "tree") {
+    const children = new Map<string, string[]>();
+    const hasParent = new Set<string>();
+    for (const id of nodeIds) children.set(id, []);
+    const treeEdges = effectiveEdges.some((e) => e.structural)
+      ? effectiveEdges.filter((e) => e.structural)
+      : effectiveEdges;
+    for (const e of treeEdges) {
+      if (ast.nodes[e.from] && ast.nodes[e.to] && e.from !== e.to) {
+        children.get(e.from)?.push(e.to);
+        hasParent.add(e.to);
+      }
+    }
+    const roots = nodeIds.filter((id) => !hasParent.has(id));
+    const depth = new Map<string, number>();
+    const queue = [...roots];
+    for (const r of roots) depth.set(r, 0);
+    while (queue.length > 0) {
+      const cur = queue.shift()!;
+      const d = depth.get(cur) ?? 0;
+      for (const child of children.get(cur) ?? []) {
+        if (!depth.has(child)) {
+          depth.set(child, d + 1);
+          queue.push(child);
+        }
+      }
+    }
+    for (const id of nodeIds) if (!depth.has(id)) depth.set(id, 0);
+    const maxDepth = Math.max(...depth.values(), 0);
+
+    const minLeafWidth = NODE_W + 48;
+    const subtreeSpan = new Map<string, number>();
+    function measureSubtree(id: string): number {
+      const kids = children.get(id) ?? [];
+      if (kids.length === 0) {
+        subtreeSpan.set(id, minLeafWidth);
+        return minLeafWidth;
+      }
+      let total = 0;
+      for (const kid of kids) total += measureSubtree(kid);
+      const span = Math.max(minLeafWidth, total);
+      subtreeSpan.set(id, span);
+      return span;
+    }
+    let totalRootsWidth = 0;
+    const activeRoots = roots.length > 0 ? roots : nodeIds;
+    for (const r of activeRoots) totalRootsWidth += measureSubtree(r);
+
+    const requiredW = SAFE * 2 + totalRootsWidth;
+    const requiredH = TITLE_BAND + SAFE * 2 + (maxDepth + 1) * 140;
+    autoW = Math.max(1120, Math.min(2560, requiredW));
+    autoH = Math.max(640, Math.min(1600, requiredH));
+  } else if (dtype === "swimlane") {
+    const laneCount = Math.max(groupCount, 1);
+    const maxInLane = Math.max(
+      ...Object.values(ast.groups).map((g) => g.members.length),
+      Math.ceil(nodeCount / laneCount),
+      1,
+    );
+    const requiredW = SAFE * 2 + 140 + maxInLane * 220;
+    const requiredH = TITLE_BAND + SAFE * 2 + laneCount * 140;
+    autoW = Math.max(1152, Math.min(2560, requiredW));
+    autoH = Math.max(640, Math.min(1600, requiredH));
+  } else if (dtype === "pyramid") {
+    const tierCount = Math.max(nodeCount, 1);
+    autoW = 1280;
+    const requiredH = TITLE_BAND + SAFE * 2 + tierCount * 110;
+    autoH = Math.max(640, Math.min(1440, requiredH));
+  } else if (dtype === "layers") {
+    const layerCount = Math.max(nodeCount, 1);
+    autoW = 1280;
+    const requiredH = TITLE_BAND + SAFE * 2 + layerCount * 96;
+    autoH = Math.max(640, Math.min(1440, requiredH));
+  } else if (dtype === "timeline" || dtype === "gantt") {
+    const milestones = Math.max(nodeCount, 1);
+    const requiredW = SAFE * 2 + milestones * 240;
+    const requiredH = TITLE_BAND + SAFE * 2 + 380;
+    autoW = Math.max(1200, Math.min(2560, requiredW));
+    autoH = Math.max(640, Math.min(1200, requiredH));
+  } else if (dtype === "loop" || dtype === "flywheel" || dtype === "radar" || dtype === "venn" || dtype === "constellation") {
+    const N = Math.max(nodeCount, 3);
+    const minRadius = 200;
+    const radiusNeeded = Math.max(minRadius, (N * 180) / (2 * Math.PI));
+    const requiredW = SAFE * 2 + radiusNeeded * 2 + 240;
+    const requiredH = TITLE_BAND + SAFE * 2 + radiusNeeded * 2 + 140;
+    autoW = Math.max(1088, Math.min(2200, requiredW));
+    autoH = Math.max(720, Math.min(1600, requiredH));
+  } else if (dtype === "quadrant") {
+    autoW = 1200;
+    autoH = 800;
+  } else {
+    // Ranked Architecture, Flowchart, State, Nested
+    const forceVertical = (dtype === "flowchart" && isVertical) || isVertical;
+    const ranks = assignRanks(nodeIds, effectiveEdges, forceVertical ? "TB" : "LR");
+    const byRank = new Map<number, string[]>();
+    for (const id of nodeIds) {
+      const r = ranks.get(id) ?? 0;
+      if (!byRank.has(r)) byRank.set(r, []);
+      byRank.get(r)!.push(id);
+    }
+    const rankCount = Math.max(...byRank.keys(), 0) + 1;
+    const maxInRank = Math.max(...[...byRank.values()].map((v) => v.length), 1);
+    const groupPaddingBonus = groupCount > 0 ? GROUP_PAD * 2 : 0;
+
+    if (forceVertical) {
+      const requiredW = SAFE * 2 + maxInRank * NODE_W + (maxInRank - 1) * 44 + groupPaddingBonus;
+      const requiredH = SAFE * 2 + TITLE_BAND + rankCount * NODE_H + (rankCount - 1) * 56 + groupPaddingBonus;
+
+      if (nodeCount <= 2) {
+        autoW = 960;
+        autoH = 640;
+      } else if (nodeCount <= 4 && rankCount <= 3) {
+        autoW = 1024;
+        autoH = 720;
+      } else {
+        autoW = Math.max(960, Math.min(2400, requiredW));
+        autoH = Math.max(720, Math.min(2000, requiredH));
+      }
+    } else {
+      const requiredW = SAFE * 2 + rankCount * NODE_W + (rankCount - 1) * 44 + groupPaddingBonus;
+      const requiredH = SAFE * 2 + TITLE_BAND + maxInRank * NODE_H + (maxInRank - 1) * 36 + groupPaddingBonus;
+
+      if (nodeCount <= 2 && rankCount <= 2) {
+        autoW = 1024;
+        autoH = 576;
+      } else if (nodeCount <= 4 && rankCount <= 3 && maxInRank <= 2) {
+        autoW = 1152;
+        autoH = 648;
+      } else {
+        autoW = Math.max(1152, Math.min(2560, requiredW));
+        autoH = Math.max(648, Math.min(1600, requiredH));
+      }
+    }
+  }
+
+  return {
+    width: explicitW ? ast.meta.width : snapGrid(autoW, 16),
+    height: explicitH ? ast.meta.height : snapGrid(autoH, 16),
+  };
+}
+
 export function compilePlan(ast: DiagramAST, theme: ThemeTokens): RenderPlan {
   const structuralEdges = collectStructuralEdges(ast);
+  if (!ast.meta.explicitWidth || !ast.meta.explicitHeight) {
+    const dims = computeAdaptiveDimensions(ast, structuralEdges);
+    if (!ast.meta.explicitWidth) ast.meta.width = dims.width;
+    if (!ast.meta.explicitHeight) ast.meta.height = dims.height;
+  }
   const nodes = layoutNodes(ast, structuralEdges);
   const groupBoundaries = computeGroupBoundaries(ast, nodes);
   const treeBuses = computeTreeBuses(ast, nodes, structuralEdges.filter((edge) => edge.structural));

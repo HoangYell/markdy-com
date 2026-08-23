@@ -223,7 +223,7 @@ export function createEdgeRuntime(
   const style = EDGE_STYLES[kind];
   const isSelfLoop = from.id === to.id;
   const points = isSelfLoop
-    ? dedupePoints(selfLoopPath(from))
+    ? dedupePoints(selfLoopPath(from, bounds))
     : dedupePoints(routeEdgePoints(from, to, routeObstacles, bounds, lane));
   const d = toPathD(points, 14, existingPaths);
   const len = polylineLength(points);

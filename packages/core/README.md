@@ -64,6 +64,8 @@ try {
 |---|---|---|
 | `parse` | `(source, opts?) => DiagramAST` | Parse MarkdyScript source into a diagram AST |
 | `compile` | `(ast) => RenderPlan` | Lay out nodes, route edges, and schedule cues |
+| `compilePlan` | `(ast, theme) => RenderPlan` | Compile AST against a resolved theme token set |
+| `computeAdaptiveDimensions` | `(ast, edges?) => { width, height }` | Compute content-adaptive canvas dimensions from topology & items |
 | `parseAndCompile` | `(source) => { ast, plan }` | Parse and compile in one call |
 | `ParseError` | class | Error with `.line` number for diagnostics |
 | `DiagramAST` | type | Parsed scene: meta, nodes, edges, groups, patterns, beats |

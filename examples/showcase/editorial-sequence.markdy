@@ -16,24 +16,9 @@ beat auth "Authenticate user":
 
 player:
   playback:
-    autoplay true
     loop true
-    rate 1.0
   controls:
-    play true
-    restart true
-    prev_beat false
-    next_beat false
-    seek true
-    speed true
-    speeds "0.25 1"
-    fit true
-    reset_view true
-    fullscreen true
-    svg true
-    share true
-    code true
-    theme false
+    theme true
   interaction:
     zoom true
     pan true

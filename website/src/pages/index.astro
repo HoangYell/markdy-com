@@ -177,7 +177,7 @@ const LAYOUT_CATEGORIES = [
   },
 ];
 
-const DEFAULT_PLAYER_YAML = `\n\nplayer:\n  playback:\n    loop true\n  interaction:\n    zoom true\n    pan true\n    click_to_play true\n    double_click_to_reset true\n    keyboard false\n  chrome:\n    badge true\n    progress boundary\n    color "#3b82f6"`;
+const DEFAULT_PLAYER_YAML = `\n\nplayer:\n  playback:\n    loop true\n  controls:\n    theme true\n  interaction:\n    zoom true\n    pan true\n    click_to_play true\n    double_click_to_reset true\n    keyboard false\n  chrome:\n    badge true\n    progress boundary\n    color "#3b82f6"`;
 
 const LAYOUT_SNIPPETS: Record<string, string> = {
   architecture: `scene theme=paper\nlayout LR\n\nuser Client\ngateway ApiGateway\nservice Auth\nservice Payments\ndatabase Postgres\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> ApiGateway "POST /checkout"\n  ApiGateway -> Auth "verify"\n  ApiGateway -> Payments "charge"\n  Payments -> Postgres "persist"` + DEFAULT_PLAYER_YAML,
@@ -605,12 +605,6 @@ const homepageStructuredData = [
             <div class="preview-title-box">
               <span class="preview-live-dot"></span>
               <span class="preview-title">WAAPI Motion Canvas</span>
-            </div>
-            <div class="preview-header-actions">
-              <button id="btn-switch-theme" class="studio-theme-toggle-btn" type="button" title="Switch Theme (Toggle Random Dark / Light Mode Palette)">
-                <span class="theme-btn-icon">🎨</span>
-                <span id="theme-btn-name">Theme</span>
-              </button>
             </div>
           </div>
           <div id="stage-wrap" class="stage-wrap">
@@ -1225,41 +1219,7 @@ markdy check-all ./docs/diagrams</code></pre>
     }
   });
 
-  // ─── Theme Switcher (Random Dark / Random Light Toggle) ───────────
-  const btnSwitchTheme = document.getElementById("btn-switch-theme");
-  const themeBtnName = document.getElementById("theme-btn-name");
-
-  const DARK_THEMES = ["midnight", "blueprint", "graphite", "nebula", "terminal"];
-  const LIGHT_THEMES = ["paper", "editorial", "sketchy"];
-
-  function toggleRandomThemeInCode(currentCode: string): { newCode: string; themeName: string } {
-    const match = currentCode.match(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/);
-    const currentTheme = match ? match[1].toLowerCase() : "paper";
-    const isDark = DARK_THEMES.includes(currentTheme);
-    const targetThemes = isDark ? LIGHT_THEMES : DARK_THEMES;
-    const filtered = targetThemes.filter((t) => t !== currentTheme);
-    const nextTheme = filtered[Math.floor(Math.random() * filtered.length)] || targetThemes[0];
-
-    let newCode: string;
-    if (match) {
-      newCode = currentCode.replace(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/, `theme=${nextTheme}`);
-    } else if (/^scene\b/m.test(currentCode)) {
-      newCode = currentCode.replace(/^scene\b(.*)$/m, `scene theme=${nextTheme}$1`);
-    } else {
-      newCode = `scene theme=${nextTheme}\n\n` + currentCode;
-    }
-    return { newCode, themeName: nextTheme };
-  }
-
-  btnSwitchTheme?.addEventListener("click", () => {
-    userEditedCode = true;
-    clearAutoShuffleTimer();
-    const current = getEditorCode();
-    const { newCode, themeName } = toggleRandomThemeInCode(current);
-    if (themeBtnName) themeBtnName.textContent = themeName;
-    setEditorCode(newCode);
-  });
-
+  // ─── Theme Switcher (Sync Editor on Player Theme Control Click) ───
   stage?.addEventListener("markdy-theme-switch", ((e: CustomEvent) => {
     const themeName = e.detail?.theme;
     if (!themeName) return;
@@ -1273,7 +1233,6 @@ markdy check-all ./docs/diagrams</code></pre>
     } else {
       newCode = `scene theme=${themeName}\n\n` + current;
     }
-    if (themeBtnName) themeBtnName.textContent = themeName;
     setEditorCode(newCode);
   }) as EventListener);
 
@@ -2663,34 +2622,6 @@ markdy check-all ./docs/diagrams</code></pre>
   .preview-title {
     color: var(--text-primary);
     font-weight: 700;
-  }
-
-  .preview-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.45rem;
-  }
-
-  .studio-theme-toggle-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.28rem;
-    padding: 0.18rem 0.55rem;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: var(--bg-tertiary);
-    color: var(--text-primary);
-    font-size: 0.68rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .studio-theme-toggle-btn:hover {
-    background: var(--accent-light);
-    border-color: var(--accent);
-    color: var(--accent);
-    transform: translateY(-1px);
   }
 
   .studio-editor-pane {

@@ -26,6 +26,7 @@ player:
     fullscreen true
     share true
     code true
+    theme true
   interaction:
     zoom true
     pan true
