@@ -220,6 +220,17 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   const totalDurationMs = plan.duration * 1000;
   const durationSeconds = plan.duration;
 
+  container.classList.add("markdy-diagram-root");
+  Object.assign(container.style, {
+    position: "relative",
+    display: "flex",
+    flexDirection: "column",
+    boxSizing: "border-box",
+    width: "100%",
+  });
+  if (container.style.aspectRatio) container.style.aspectRatio = "unset";
+  if (container.style.overflow === "hidden") container.style.overflow = "visible";
+
   const viewport = document.createElement("div");
   viewport.className = "markdy-viewport";
   Object.assign(viewport.style, {
@@ -292,8 +303,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       padding: "6px 8px 2px",
       background: "transparent",
     });
-    if (container.parentNode) container.parentNode.insertBefore(footer, container.nextSibling);
-    else container.appendChild(footer);
+    container.appendChild(footer);
     return footer;
   }
 
@@ -919,8 +929,11 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       removeFullscreenListeners?.();
       closeCodePanel?.();
       closeCodePanel = null;
+      container.classList.remove("markdy-diagram-root");
+      container.classList.remove("markdy-fullscreen-host");
+      container.classList.remove("markdy--pseudo-fullscreen");
       if (progressEl?.parentNode === viewport) viewport.removeChild(progressEl);
-      if (footer?.parentNode) footer.parentNode.removeChild(footer);
+      if (footer?.parentNode === container) container.removeChild(footer);
       if (viewport.parentNode === container) container.removeChild(viewport);
     },
   };
@@ -1279,17 +1292,18 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     button.className = "markdy-control-fullscreen";
     button.setAttribute("aria-pressed", "false");
 
-    const host = (footer && footer.parentElement) ? footer.parentElement : (container.parentElement ?? container);
+    const host = container;
     let isPseudoFull = false;
 
     function syncFullscreenState(): void {
       const isFull =
         isPseudoFull ||
         document.fullscreenElement === host ||
-        document.fullscreenElement === container ||
         document.fullscreenElement === viewport ||
         (document as any).webkitFullscreenElement === host ||
-        (document as any).webkitFullscreenElement === container;
+        (document as any).webkitFullscreenElement === viewport ||
+        (document as any).mozFullScreenElement === host ||
+        (document as any).msFullscreenElement === host;
 
       button.setAttribute("aria-pressed", isFull ? "true" : "false");
       button.title = isFull ? "Exit fullscreen" : "Toggle fullscreen view";
@@ -1304,6 +1318,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
       // Re-sync controls and transforms
       requestAnimationFrame(() => {
+        scaleScene();
         applyViewportTransform();
         syncControls();
       });
@@ -1313,10 +1328,11 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       try {
         const isCurrentlyFull =
           isPseudoFull ||
-          document.fullscreenElement ||
-          (document as any).webkitFullscreenElement ||
-          (document as any).mozFullScreenElement ||
-          (document as any).msFullscreenElement;
+          document.fullscreenElement === host ||
+          document.fullscreenElement === viewport ||
+          (document as any).webkitFullscreenElement === host ||
+          (document as any).mozFullScreenElement === host ||
+          (document as any).msFullscreenElement === host;
 
         if (!isCurrentlyFull) {
           const req =
@@ -1324,8 +1340,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
             (host as any).webkitRequestFullscreen?.bind(host) ||
             (host as any).mozRequestFullScreen?.bind(host) ||
             (host as any).msRequestFullscreen?.bind(host) ||
-            container.requestFullscreen?.bind(container) ||
-            (container as any).webkitRequestFullscreen?.bind(container);
+            viewport.requestFullscreen?.bind(viewport) ||
+            (viewport as any).webkitRequestFullscreen?.bind(viewport);
 
           if (req) {
             try {
@@ -1358,7 +1374,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
             }
           }
         }
-      } catch (err) {
+      } catch {
         if (!isPseudoFull) {
           isPseudoFull = true;
           host.classList.add("markdy--pseudo-fullscreen");

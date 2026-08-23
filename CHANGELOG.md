@@ -5,6 +5,11 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.22] — 2026-08-23
+
+### Fixed
+- **Scoped Fullscreen & Embedded Diagram Host Isolation (`@markdy/renderer-dom`)** — Resolved fullscreen failure on embedded websites (Astro, MDX, React, blogs, docs). The diagram container now self-hosts both the `.markdy-viewport` and `.markdy-footer`, ensuring `requestFullscreen()` targets the diagram itself instead of parent article/document elements. Scoped vendor-prefixed and pseudo-fullscreen CSS rules to `.markdy-diagram-root`, guaranteeing the diagram centers and scales seamlessly to fill the screen while leaving the surrounding host webpage layout untouched.
+
 ## [1.0.21] — 2026-08-23
 
 ### Added
