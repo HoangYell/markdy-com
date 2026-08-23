@@ -1,35 +1,41 @@
 # lakehouse-medallion-pipeline.markdy
-# Demonstrates Multi-Tier Medallion Data Architecture (Bronze -> Silver -> Gold -> Consumers).
+# Real-Time Streaming Lakehouse Medallion Pipeline
 
-scene theme=editorial type=medallion width=1300 height=750
+scene "Streaming Lakehouse Medallion Pipeline" theme=editorial type=medallion width=1380 height=760
 
-service CDCStream "Debezium CDC Stream"
-service BatchLogs "S3 Ingestion Bucket"
+bronze BronzeRaw "Bronze: Raw Ingest (Kafka Events)"
+bronze BronzeDelta "Bronze: Delta Lake (Append-Only)"
 
-bronze BronzeParquet "Bronze Raw Delta Lake"
-silver SilverEnriched "Silver Cleaned & Conformed DB"
-gold GoldMarts "Gold Analytics & Feature Store"
+silver SilverCleanse "Silver: Cleanse (Schema Validate)" focal=true
+silver SilverEnrich "Silver: Curated (De-duplicated)"
 
-client BIDashboard "Executive PowerBI / Looker"
-service MLInference "Real-Time Scoring API"
+gold GoldAggregates "Gold: Business Metrics (Rollups)"
+gold GoldFeatureStore "Gold: Low-Latency Feature Store"
 
-beat ingestion_tier "1. Bronze Ingestion Tier":
-  show CDCStream BatchLogs BronzeParquet stagger=30ms
-  CDCStream -> BronzeParquet "append-only transaction log"
-  BatchLogs -> BronzeParquet "bulk hourly parquet load"
+client BIDashboards "Executive BI Dashboards"
+client MLServing "Real-Time ML Inference"
 
-beat transformation_tier "2. Silver Cleaning & Deduplication":
-  show SilverEnriched stagger=30ms
-  BronzeParquet -> SilverEnriched "dbt schema validation & dedup"
+edge e1: BronzeRaw -> BronzeDelta "ingest"
+edge e2: BronzeDelta -> SilverCleanse "stream"
+edge e3: SilverCleanse -> SilverEnrich "cleanse"
+edge e4: SilverEnrich -> GoldAggregates "aggregate"
+edge e5: SilverEnrich -> GoldFeatureStore
+edge e6: GoldAggregates -> BIDashboards
+edge e7: GoldFeatureStore -> MLServing
 
-beat aggregation_tier "3. Gold Analytics Aggregation":
-  show GoldMarts stagger=30ms
-  SilverEnriched -> GoldMarts "star schema & rollup marts"
+beat reveal "1. Multi-Tier Medallion Data Topology":
+  show $nodes stagger=35ms
+  glow SilverCleanse color=#047857
 
-beat consumer_tier "4. Business Value Delivery":
-  show BIDashboard MLInference stagger=30ms
-  GoldMarts -> BIDashboard "sub-second analytical queries"
-  GoldMarts -> MLInference "low-latency feature lookups"
+beat stream_pipeline "2. Real-Time Streaming Ingestion & Validation":
+  BronzeRaw -> BronzeDelta
+  BronzeDelta -> SilverCleanse
+  SilverCleanse -> SilverEnrich
+  SilverEnrich -> GoldAggregates
+  SilverEnrich -> GoldFeatureStore
+  GoldAggregates -> BIDashboards
+  GoldFeatureStore -> MLServing
+  glow GoldAggregates color=#22c55e & glow GoldFeatureStore color=#38bdf8
 
 player:
   playback:
@@ -45,4 +51,4 @@ player:
   chrome:
     badge true
     progress boundary
-    color "#3b82f6"
+    color "#047857"

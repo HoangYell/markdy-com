@@ -15,7 +15,7 @@ const structuredData = [
     "@id": `${canonicalURL}#article`,
     headline: "Advanced Diagram Layouts & Editorial Themes in Markdy",
     description:
-      "Explore 13 diagram layout engines—from Timelines, Gantt charts, and Venn diagrams to Radars, Medallion pipelines, and Flywheels—paired with 8 publication-grade themes.",
+      "Explore 17 diagram layout engines—from Timelines, Gantt charts, Layers, and Venn diagrams to Radars, Medallion pipelines, and Flywheels—paired with 8 publication-grade themes.",
     inLanguage: "en",
     url: canonicalURL,
     mainEntityOfPage: canonicalURL,
@@ -31,20 +31,21 @@ const structuredData = [
 
 <ArticleLayout
   title="Advanced Diagram Layouts & Editorial Themes | Markdy"
-  description="Explore 13 diagram layout engines—from Timelines, Gantt charts, and Venn diagrams to Radars, Medallion pipelines, and Flywheels—paired with 8 publication-grade themes."
+  description="Explore 17 diagram layout engines—from Timelines, Gantt charts, Layers, and Venn diagrams to Radars, Medallion pipelines, and Flywheels—paired with 8 publication-grade themes."
   keywords="timeline diagram as code, gantt chart as code, venn diagram code, radar chart diagram, medallion lakehouse diagram, flywheel diagram, diagram themes, terminal theme, sketchy theme"
   canonicalURL={canonicalURL}
   headline="Advanced Diagram Layouts & Editorial Themes"
-  dek="Move beyond simple box-and-arrow graphs. Markdy now supports 13 specialized layout engines—including Timelines, Gantt charts, Venn diagrams, Radars, Medallion lakehouse tiers, and Flywheels—styled with 8 publication-grade themes."
+  dek="Move beyond simple box-and-arrow graphs. Markdy supports 17 specialized layout engines—including Architecture, Flowchart, Tree, Sequence, State, Layers, Nested, Swimlanes, Timelines, Gantt charts, Venn diagrams, Radars, Medallion lakehouse tiers, and Flywheels—styled with 8 publication-grade themes."
   structuredData={structuredData}
 >
   <p>
     System diagrams come in many shapes. An engineering roadmap requires a temporal timeline or Gantt schedule;
+    a layered network requires an OSI abstraction stack; concentric security scopes require defense-in-depth boundaries;
     a data platform requires a multi-tier Bronze &rarr; Silver &rarr; Gold medallion pipeline; an algorithm benchmark requires
     a multi-axis radar chart; and a product discovery workshop thrives on hand-drawn whiteboard aesthetics.
   </p>
   <p>
-    Markdy's compiler provides <strong>13 specialized layout engines</strong> and <strong>8 publication themes</strong>
+    Markdy's compiler provides <strong>17 specialized layout engines</strong> and <strong>8 publication themes</strong>
     while maintaining a single, unified MarkdyScript grammar.
   </p>
 
@@ -109,11 +110,13 @@ beat reveal "Finding the Sweet Spot":
     <img src="/images/scene-lakehouse-medallion.webp" alt="Lakehouse Medallion Pipeline Architecture" width="1600" height="900" loading="lazy" decoding="async" style="width:100%; height:auto; border-radius:12px; margin: 16px 0;" />
   </p>
   <ul>
+    <li><strong>Layers (<code>type=layers</code>):</strong> Full-width horizontal stacked abstraction bands for protocol stacks (OSI 7-layer) and memory hierarchies.</li>
+    <li><strong>Nested (<code>type=nested</code>):</strong> Concentric rounded boundaries with stepped insets for defense-in-depth and zero-trust security perimeters.</li>
     <li><strong>Medallion (<code>type=medallion</code>):</strong> Three-stage data lakehouse pipeline with Bronze raw ingestion, Silver cleansed tables, and Gold aggregate data products.</li>
     <li><strong>Flywheel (<code>type=flywheel</code> / <code>type=loop</code>):</strong> Circular compounding loop with tangential flow paths for AI training cycles and data flywheels.</li>
-    <li><strong>Quadrant (<code>type=quadrant</code>):</strong> 2&times;2 strategic decision matrix for technology radar assessments.</li>
-    <li><strong>Pyramid (<code>type=pyramid</code>):</strong> Hierarchical value pyramid with step-proportional width scaling.</li>
-    <li><strong>Swimlane (<code>type=swimlane</code>):</strong> Multi-tier cross-functional horizontal lane partitions.</li>
+    <li><strong>Quadrant (<code>type=quadrant</code>):</strong> 2&times;2 strategic decision matrix for technology radar assessments and CAP theorem trade-offs.</li>
+    <li><strong>Pyramid (<code>type=pyramid</code>):</strong> Hierarchical value pyramid with step-proportional width scaling for telemetry and observability stacks.</li>
+    <li><strong>Swimlane (<code>type=swimlane</code>):</strong> Multi-tier cross-functional horizontal lane partitions for distributed saga transactions.</li>
   </ul>
 
   <h2>4. Publication Themes: Terminal & Sketchy</h2>

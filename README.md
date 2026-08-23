@@ -124,8 +124,8 @@ Use Mermaid, PlantUML, D2, Graphviz, Excalidraw, or draw.io when you need static
 Use one of these depending on where you installed it:
 
 ```sh
-npx markdy render examples/showcase/bullet-reveal.markdy --out examples/xscene.html
-npm exec markdy render examples/showcase/bullet-reveal.markdy --out examples/xscene.html
+npx markdy render examples/showcase/url-shortener-architecture.markdy --out examples/xscene.html
+npm exec markdy render examples/showcase/url-shortener-architecture.markdy --out examples/xscene.html
 npm i -g @markdy/cli
 ```
 

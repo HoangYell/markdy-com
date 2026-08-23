@@ -1,30 +1,28 @@
 # data-flywheel-loop.markdy
-# Demonstrates circular feedback loops, flywheels, and operating reinforcement cycles with a shared state hub.
+# Distributed Anti-Entropy Gossip Consensus Convergence Loop
 
-scene theme=paper type=loop width=1200 height=800
+scene "Gossip Protocol Anti-Entropy Convergence Loop" theme=paper type=flywheel width=1280 height=760
 
-hub SharedMemory "Shared Vector Memory & Knowledge Hub"
-station Capture "Signal Ingestion"
-station Synthesize "Context Synthesis"
-station Decide "Governance & Human Gate" focal=true
-station Act "Execution Engine"
-station Measure "Observability & Feedback"
-station Evolve "Model Fine-Tuning"
+hub ConvergenceCore "Gossip Anti-Entropy Core" focal=true
+service NodeMutation "1. Local State Mutation"
+service GossipBroadcast "2. Random Peer Gossip Push"
+service VectorClockCompare "3. Vector Clock Resolution"
+service MerkleTreeSync "4. Merkle Tree Range Sync"
+service QuorumReadRepair "5. Quorum Read-Repair"
 
-beat perimeter_operating_flow "1. Clockwise Operating Cycle":
-  show $nodes stagger=40ms
-  Capture -> Synthesize "raw telemetry & user prompts"
-  Synthesize -> Decide "structured context & citations"
-  Decide -> Act "approved execution plan"
-  Act -> Measure "runtime metrics & token latency"
-  Measure -> Evolve "curated evaluation dataset"
-  Evolve -> Capture "reinforced system capabilities"
+edge e1: NodeMutation -> GossipBroadcast
+edge e2: GossipBroadcast -> VectorClockCompare
+edge e3: VectorClockCompare -> MerkleTreeSync
+edge e4: MerkleTreeSync -> QuorumReadRepair
+edge e5: QuorumReadRepair -> NodeMutation
 
-beat memory_writeback "2. Inward State Synchronization":
-  glow Decide "focal gate"
-  Capture -> SharedMemory "embed raw signals"
-  Act -> SharedMemory "log verified execution traces"
-  Evolve -> SharedMemory "update embedding indices"
+beat compounding_loop "1. Continuous Anti-Entropy Convergence Cycle":
+  show $nodes stagger=50ms
+  NodeMutation -> GossipBroadcast -> VectorClockCompare -> MerkleTreeSync -> QuorumReadRepair -> NodeMutation
+  glow ConvergenceCore color=#047857
+
+beat convergence_pulse "2. Global Cluster Consistency Achieved":
+  glow QuorumReadRepair color=#22c55e & glow ConvergenceCore color=#047857
 
 player:
   playback:
@@ -40,4 +38,4 @@ player:
   chrome:
     badge true
     progress boundary
-    color "#3b82f6"
+    color "#047857"

@@ -1,42 +1,53 @@
-scene theme=paper width=1280 height=760
+# url-shortener-architecture.markdy
+# Distributed Cache-Aside & Sharded URL Shortener Architecture
+
+scene "Cache-Aside & Sharded Microservices" theme=paper type=architecture width=1380 height=780
 layout LR
 
-user Visitor
-browser WebClient
-gateway ApiGateway
-service UrlShortener
-service RedirectService
-cache HotUrlCache
-db UrlMappingDb
+user Visitor "Global Web Visitor"
+browser WebClient "Next.js Web App"
+gateway CloudflareWAF "Cloudflare Edge & WAF"
+gateway ApiGateway "Kong API Gateway"
+service ShortenerSvc "URL Shortener Service"
+service RedirectSvc "High-Throughput Redirect Service" focal=true
+cache RedisCluster "Redis Multi-AZ Cache Cluster"
+database ShardedPostgres "Sharded PostgreSQL 16 (Aurora)"
+queue KafkaAnalytics "Kafka Clickstream Analytics"
 
-group storage: HotUrlCache UrlMappingDb
-group ingress: Visitor WebClient ApiGateway
-group app: UrlShortener RedirectService
+group client_tier "Client Tier": Visitor WebClient
+group edge_tier "Edge & Security": CloudflareWAF
+group app_tier "Microservices & Gateway": ApiGateway ShortenerSvc RedirectSvc
+group data_tier "Persistence Tier": RedisCluster ShardedPostgres KafkaAnalytics
 
-beat layout "Reveal the moving parts":
-  show ingress stagger=45ms & show app stagger=45ms & show storage stagger=45ms
+beat reveal "1. Reveal System Topology":
+  show client_tier edge_tier stagger=40ms & show app_tier data_tier stagger=40ms
 
-beat create "Create a short URL":
-  frame WebClient ApiGateway UrlShortener UrlMappingDb zoom=1.1 dur=500ms
-  WebClient -> ApiGateway "POST /shorten"
-  ApiGateway -> UrlShortener "forward request"
-  UrlShortener -> UrlMappingDb "store slug" & UrlShortener ~> HotUrlCache "warm cache"
-  WebClient <- UrlShortener "short.ly/a7"
+beat write_path "2. Write Path: Create Short URL (Cache Warm)":
+  frame WebClient ApiGateway ShortenerSvc ShardedPostgres RedisCluster zoom=1.08 dur=500ms
+  WebClient -> CloudflareWAF "POST /api/v1/shorten" -> ApiGateway "mTLS"
+  ApiGateway -> ShortenerSvc "dispatch payload"
+  ShortenerSvc -> ShardedPostgres "INSERT slug mapping" & ShortenerSvc ~> RedisCluster "SETEX slug:url (Warm Cache)"
+  WebClient <- ShortenerSvc "201 Created (https://sh.rt/x9)"
 
-beat redirect "Resolve a short link":
-  frame ingress app zoom=1.06 dur=500ms
-  Visitor -> WebClient "open short link"
-  WebClient -> ApiGateway "GET /a7"
-  ApiGateway -> RedirectService "resolve slug"
-  RedirectService -> HotUrlCache "cache lookup"
-  HotUrlCache <- RedirectService "target URL"
-  RedirectService -> UrlMappingDb "miss fallback"
-  WebClient <- RedirectService "301 redirect"
+beat read_cache_hit "3. Read Path: Sub-5ms Cache Hit & 301 Redirect":
+  frame Visitor CloudflareWAF ApiGateway RedirectSvc RedisCluster KafkaAnalytics zoom=1.12 dur=500ms
+  Visitor -> CloudflareWAF "GET /x9" -> ApiGateway "route"
+  ApiGateway -> RedirectSvc "resolve slug"
+  RedirectSvc -> RedisCluster "GET slug:x9"
+  RedirectSvc <- RedisCluster "200 Target URL (Cache Hit)"
+  Visitor <- RedirectSvc "301 Redirect to Destination"
+  RedirectSvc ~> KafkaAnalytics "async click event"
 
-beat finish "Storage keeps redirects fast":
-  frame storage zoom=1.18 dur=600ms
-  glow storage color=#22c55e & glow UrlMappingDb color=#38bdf8
+beat read_cache_miss "4. Read Path: Cache Miss Fallback & Auto-Heal":
+  frame RedirectSvc RedisCluster ShardedPostgres zoom=1.15 dur=500ms
+  RedirectSvc -> ShardedPostgres "SELECT destination WHERE slug = 'x9'"
+  RedirectSvc <- ShardedPostgres "Row Found"
+  RedirectSvc ~> RedisCluster "Backfill Redis (TTL 24h)"
+  glow RedisCluster color=#22c55e & glow ShardedPostgres color=#38bdf8
+
+beat finish "5. Multi-AZ Resilient Architecture":
   frame $nodes dur=600ms
+  glow data_tier color=#047857
 
 player:
   playback:
@@ -52,4 +63,4 @@ player:
   chrome:
     badge true
     progress boundary
-    color "#3b82f6"
+    color "#047857"

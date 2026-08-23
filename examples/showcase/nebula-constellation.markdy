@@ -1,33 +1,32 @@
-scene theme=nebula type=constellation width=1280 height=760
-layout LR
+# nebula-constellation.markdy
+# Raft Quorum Consensus & Leader Heartbeat Constellation
 
-annotation "The signal finds its center" target=SignalCore position=top-right
+scene "Raft Leader Election & Quorum Heartbeat Constellation" theme=nebula type=constellation width=1280 height=760
 
-service SignalCore "Signal Core" focal=true
-gateway Aurora "Aurora Gateway"
-database Memory "Memory Lake"
-queue Echoes "Echo Queue"
-worker Dreamer "Dream Worker"
-monitor Watcher "Observability"
+service RaftLeader "Elected Raft Leader (Term 42)" focal=true
+service Follower1 "Raft Follower Node 1 (AZ-1a)"
+service Follower2 "Raft Follower Node 2 (AZ-1b)"
+service Follower3 "Raft Follower Node 3 (AZ-1c)"
+service Follower4 "Raft Follower Node 4 (AZ-1d)"
+service Candidate "Candidate Node (Standby Quorum)"
 
-edge orbit_a: SignalCore -> Aurora
-edge orbit_b: SignalCore -> Memory
-edge orbit_c: SignalCore -> Echoes
-edge orbit_d: SignalCore -> Dreamer
-edge orbit_e: SignalCore -> Watcher
+edge e1: RaftLeader -> Follower1
+edge e2: RaftLeader -> Follower2
+edge e3: RaftLeader -> Follower3
+edge e4: RaftLeader -> Follower4
+edge e5: RaftLeader -> Candidate
 
-beat arrival "Wake the constellation":
-  show $nodes stagger=55ms
+beat cluster_reveal "1. Raft Consensus Constellation Discovery":
+  show $nodes stagger=40ms
+  glow RaftLeader color=#38bdf8
 
-beat pulse "Send one signal":
-  frame SignalCore Aurora zoom=1.08 dur=500ms
-  SignalCore -> Aurora "open a path"
-  Aurora ~> Echoes "echo the pulse"
-  Echoes -> Dreamer "shape a response"
+beat heartbeat_sync "2. Heartbeat Ping & AppendEntries Log Replication":
+  RaftLeader -> Follower1 "Heartbeat (CommitIdx: 1042)" & RaftLeader -> Follower2 "Heartbeat (CommitIdx: 1042)" & RaftLeader -> Follower3 "Heartbeat (CommitIdx: 1042)" & RaftLeader -> Follower4 "Heartbeat (CommitIdx: 1042)"
+  glow Follower1 color=#22c55e & glow Follower2 color=#22c55e & glow Follower3 color=#22c55e & glow Follower4 color=#22c55e
 
-beat drift "Let the edges glow":
-  glow $edges color=#67e8f9 strength=1.2
-  focus SignalCore zoom=1.08
+beat quorum_ack "3. Majority Quorum ACK (3 of 5 Nodes)":
+  Follower1 -> RaftLeader "ACK" & Follower2 -> RaftLeader "ACK" & Follower3 -> RaftLeader "ACK"
+  glow RaftLeader color=#22c55e
 
 player:
   playback:
@@ -43,4 +42,4 @@ player:
   chrome:
     badge true
     progress boundary
-    color "#3b82f6"
+    color "#38bdf8"

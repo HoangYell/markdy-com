@@ -1,20 +1,18 @@
-# 17-venn-overlap.markdy
-# Demonstrates Venn / Set Overlap Diagram for Concept Intersection.
+# product-market-fit-venn.markdy
+# ACID vs BASE vs Distributed Consensus Storage Guarantees
 
-scene theme=editorial type=venn width=1000 height=800
+scene "ACID vs BASE vs Distributed Storage Guarantees" theme=editorial type=venn width=1280 height=760
 
-service Desirability "Customer Desirability"
-service Feasibility "Technical Feasibility" focal=true
-service Viability "Business Viability"
+service ACID "Strict ACID Storage (Postgres/MySQL)"
+service BASE "BASE Eventual (Cassandra/DynamoDB)"
+service DistributedSQL "Distributed Consensus (Spanner/CockroachDB)" focal=true
 
-beat venn_reveal "Finding the Sweet Spot":
-  show $nodes stagger=80ms
-  glow Feasibility "Engineering-led differentiation"
+beat reveal "1. Storage Model Set Overlaps":
+  show $nodes stagger=60ms
+  glow DistributedSQL color=#047857
 
-beat intersections "Overlap Insights":
-  Desirability -> Feasibility "Lovable & buildable"
-  Feasibility -> Viability "Sustainable engineering"
-  Viability -> Desirability "Market pull"
+beat intersection_highlight "2. Modern Distributed SQL Convergence":
+  glow ACID color=#22c55e & glow BASE color=#38bdf8 & glow DistributedSQL color=#047857
 
 player:
   playback:
@@ -30,4 +28,4 @@ player:
   chrome:
     badge true
     progress boundary
-    color "#3b82f6"
+    color "#047857"

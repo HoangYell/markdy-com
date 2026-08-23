@@ -5,6 +5,16 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.24] — 2026-08-23
+
+### Added
+- **Dedicated Examples Gallery (`/examples/`)** — Launched a dedicated gallery archive showcasing 30+ real-world distributed architectures, consensus algorithms, data pipelines, and infrastructure layouts. Features real-time search filtering, scene type & domain category chips, lazy-mounted live diagrams, copy actions, and 1-click studio launch.
+- **Top-Tier Interview & Advanced Systems Showcase Suite** — Curated 1-per-scene-type premier showcase diagrams across all 17 layout engines: Cache-Aside Architecture, Concurrency Decision Flowchart, Consistent Hash Ring Tree, OAuth 2.0 PKCE Sequence, Distributed 2PC State Machine, OSI Abstraction Layers, Zero-Trust Kubernetes Perimeter, Saga Distributed Transaction Swimlanes, Database WAL & CDC Timeline, Zero-Downtime Migration Gantt, Lakehouse Medallion Pipeline, Gossip Protocol Flywheel, Raft Quorum Constellation, CAP Theorem Trade-Off Quadrant, Telemetry Observability Pyramid, Distributed Database Radar Benchmark, and ACID vs BASE Venn Diagram.
+
+### Changed
+- **UI/UX & Design System Alignment** — Standardized semantic design system tokens (`var(--bg-primary)`, `var(--bg-elevated)`, `var(--bg-secondary)`, `var(--text-primary)`, `var(--text-secondary)`, `var(--border)`, `var(--border-hover)`) across Homepage Studio, Gallery, Playground, and Docs. Unified dark/light theme switching and responsive mobile navigation drawers across all pages.
+- **Documentation & Articles Synchronized** — Updated root `README.md`, `docs/SYNTAX.md`, `docs/AGENT.md`, `docs/GETTING_STARTED.md`, and all blog articles to accurately reflect all 17 layout engines and 8 semantic themes.
+
 ## [1.0.23] — 2026-08-23
 
 ### Fixed

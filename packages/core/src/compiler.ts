@@ -283,7 +283,7 @@ function layoutRanked(
 
   // Horizontal left-to-right architecture layout
   const maxPossibleStep = rankCount > 1 ? (contentW - NODE_W) / (rankCount - 1) : 0;
-  const colGap = rankCount > 1 ? Math.min(220, Math.max(50, maxPossibleStep)) : 0;
+  const colGap = rankCount > 1 ? Math.min(300, Math.max(50, maxPossibleStep)) : 0;
   const totalW = (rankCount - 1) * colGap + NODE_W;
   const startX = SAFE + Math.max(0, (contentW - totalW) / 2);
 
@@ -971,10 +971,12 @@ function layoutNested(ast: DiagramAST): PositionedNode[] {
   const nodeIds = Object.keys(ast.nodes);
   if (nodeIds.length === 0) return [];
 
+  const topHeadroom = 20;
+  const startY = TITLE_BAND + topHeadroom;
   const contentW = ast.meta.width - SAFE * 2;
-  const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const contentH = ast.meta.height - startY - SAFE;
   const centerX = SAFE + contentW / 2;
-  const centerY = TITLE_BAND + contentH / 2;
+  const centerY = startY + contentH / 2;
   const N = nodeIds.length;
   const padX = Math.min(54, (contentW * 0.42) / Math.max(N, 1));
   const padY = Math.min(48, (contentH * 0.42) / Math.max(N, 1));
@@ -991,7 +993,7 @@ function layoutNested(ast: DiagramAST): PositionedNode[] {
       y = centerY - h / 2 + (N > 1 ? 16 : 0);
     } else {
       x = SAFE + idx * padX;
-      y = TITLE_BAND + idx * padY;
+      y = startY + idx * padY;
       w = contentW - idx * padX * 2;
       h = contentH - idx * padY * 2;
     }

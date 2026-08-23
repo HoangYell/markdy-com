@@ -1,0 +1,990 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { join } from "node:path";
+import { loadAllExamples } from "../../data/examples";
+
+const ROOT = join(process.cwd(), "..");
+const ALL_EXAMPLES = await loadAllExamples(ROOT);
+
+const SCENE_TYPES = [
+  { id: "all", label: "All Types" },
+  { id: "architecture", label: "Architecture" },
+  { id: "flowchart", label: "Flowchart" },
+  { id: "tree", label: "Tree" },
+  { id: "sequence", label: "Sequence" },
+  { id: "state", label: "State" },
+  { id: "layers", label: "Layers" },
+  { id: "nested", label: "Nested" },
+  { id: "swimlane", label: "Swimlane" },
+  { id: "timeline", label: "Timeline" },
+  { id: "gantt", label: "Gantt" },
+  { id: "medallion", label: "Medallion" },
+  { id: "flywheel", label: "Flywheel" },
+  { id: "constellation", label: "Constellation" },
+  { id: "quadrant", label: "Quadrant" },
+  { id: "pyramid", label: "Pyramid" },
+  { id: "radar", label: "Radar" },
+  { id: "venn", label: "Venn" },
+];
+
+const DOMAIN_CATEGORIES = [
+  { id: "all", label: "All Domains" },
+  { id: "system-design", label: "System Design" },
+  { id: "distributed-systems", label: "Distributed Systems" },
+  { id: "cloud-infrastructure", label: "Cloud & K8s" },
+  { id: "data-engineering", label: "Data Engineering" },
+  { id: "security-auth", label: "Security & Auth" },
+];
+
+const structuredData = [
+  {
+    "@type": "CollectionPage",
+    "@id": "https://markdy.com/examples/#webpage",
+    url: "https://markdy.com/examples/",
+    name: "Markdy Architecture & System Design Diagram Gallery",
+    description: "Browse 30+ animated architecture, distributed consensus, data pipeline, and system design diagrams as code.",
+    isPartOf: { "@id": "https://markdy.com/#website" },
+  },
+];
+---
+
+<Layout
+  title="System Design & Architecture Examples Gallery — Markdy"
+  description="Explore real-world distributed architectures, database engines, consensus algorithms, and cloud infrastructure rendered as live animated diagrams as code."
+  keywords="Markdy examples, architecture diagram gallery, system design diagrams, distributed consensus diagrams, database architecture diagrams, animated mermaid alternative"
+  structuredData={structuredData}
+>
+  <!-- Navigation Header -->
+  <nav class="home-nav" aria-label="Main Navigation">
+    <div class="nav-pill">
+      <a href="/" class="nav-brand">
+        <img src="/icon.svg" class="nav-logo-svg" alt="Markdy Logo" width="22" height="22" loading="eager" decoding="async" />
+        <span class="nav-title">markdy</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/examples/" class="active">Gallery</a>
+        <a href="/docs/">Docs</a>
+        <a href="/blog/">Articles</a>
+      </div>
+
+      <div class="nav-actions">
+        <a href="/playground/" class="btn-nav-studio">⚡ Studio</a>
+        <button id="theme-toggle" class="btn-nav-icon" aria-label="Toggle dark/light mode" title="Toggle Theme">
+          <svg class="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          <svg class="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
+        <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="btn-nav-icon" title="GitHub Repository">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+        <button id="mobile-menu-btn" class="btn-nav-icon mobile-menu-btn" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobile-nav-drawer">
+          <svg class="icon-burger" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          <svg class="icon-close" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="display:none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-nav-drawer" class="mobile-nav-drawer" hidden>
+      <div class="mobile-drawer-inner">
+        <a href="/" class="mobile-nav-link">Home</a>
+        <a href="/examples/" class="mobile-nav-link mobile-nav-highlight">Gallery</a>
+        <a href="/docs/" class="mobile-nav-link">Docs</a>
+        <a href="/blog/" class="mobile-nav-link">Articles</a>
+        <a href="/playground/" class="mobile-nav-link">⚡ Interactive Studio</a>
+        <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="mobile-nav-link">GitHub Repository ↗</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="gallery-page">
+    <header class="gallery-hero">
+      <div class="gallery-hero-badge">⚡ MARKDY DIAGRAM GALLERY</div>
+      <h1>Architecture &amp; System Design Examples</h1>
+      <p class="gallery-hero-desc">
+        Explore 30+ real-world distributed architectures, consensus algorithms, data pipelines, and infrastructure layouts.
+        Click any diagram to inspect, copy, or open directly in the live interactive studio.
+      </p>
+
+      <!-- Filter Bar -->
+      <div class="gallery-filter-wrap">
+        <div class="search-input-wrap">
+          <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          <input type="search" id="gallery-search" placeholder="Search architectures, algorithms, or technologies (e.g. Redis, Raft, Kafka, OAuth)..." aria-label="Search diagrams" />
+        </div>
+
+        <div class="filter-group">
+          <span class="filter-label">Scene Type:</span>
+          <div class="filter-chips" id="type-filter">
+            {SCENE_TYPES.map((t) => (
+              <button class={`chip-btn ${t.id === 'all' ? 'active' : ''}`} data-type={t.id} type="button">
+                {t.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <span class="filter-label">Domain:</span>
+          <div class="filter-chips" id="domain-filter">
+            {DOMAIN_CATEGORIES.map((d) => (
+              <button class={`chip-btn ${d.id === 'all' ? 'active' : ''}`} data-domain={d.id} type="button">
+                {d.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Gallery Grid -->
+    <main class="gallery-container">
+      <div class="gallery-count-bar">
+        <span id="gallery-count">Showing <strong>{ALL_EXAMPLES.length}</strong> diagrams</span>
+      </div>
+
+      <div class="gallery-grid" id="gallery-grid">
+        {ALL_EXAMPLES.map((ex) => (
+          <article
+            class="gallery-card"
+            data-id={ex.id}
+            data-type={ex.sceneType}
+            data-domain={ex.category}
+            data-theme={ex.theme ?? "paper"}
+            data-title={ex.title.toLowerCase()}
+            data-desc={(ex.description ?? "").toLowerCase()}
+            data-pattern={(ex.pattern ?? "").toLowerCase()}
+          >
+            <div class="card-header">
+              <div class="card-tags">
+                <span class="tag-badge tag-type">{ex.sceneType}</span>
+                <span class="tag-badge tag-domain">{ex.category.replace("-", " ")}</span>
+                {ex.theme && <span class="tag-badge tag-theme">{ex.theme}</span>}
+              </div>
+              <h2 class="card-title">{ex.title}</h2>
+              {ex.description && <p class="card-desc">{ex.description}</p>}
+            </div>
+
+            <!-- Interactive Stage Frame -->
+            <div class="card-stage-wrap">
+              <div class="card-stage-mount" id={`stage-${ex.id}`} data-code={encodeURIComponent(ex.code)} data-theme={ex.theme ?? "paper"}>
+                <div class="stage-placeholder">
+                  <div class="loading-spinner"></div>
+                  <span>Rendering live diagram...</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Card Actions -->
+            <div class="card-actions">
+              <a href={`/playground/#code=${encodeURIComponent(btoa(encodeURIComponent(ex.code)))}`} class="btn-action-primary" target="_blank" rel="noopener noreferrer">
+                <span>⚡ Open in Studio</span>
+              </a>
+              <button class="btn-action-copy" data-code={ex.code} type="button" title="Copy MarkdyScript source">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span>Copy Code</span>
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </main>
+
+    <!-- Bottom Banner CTA -->
+    <footer class="gallery-footer-cta">
+      <div class="cta-box">
+        <h2>Design Your Own Architecture Diagram</h2>
+        <p>Start from scratch or remix existing templates in the Markdy Studio.</p>
+        <div class="cta-buttons">
+          <a href="/playground/" class="btn-hero-primary">⚡ Open Interactive Studio</a>
+          <a href="/docs/" class="btn-hero-secondary">Read Documentation ↗</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+</Layout>
+
+<script>
+  import { createDiagram } from "@markdy/renderer-dom";
+
+  // ── Client-side Gallery Filtering ─────────────────────────────────────────
+  const searchInput = document.getElementById("gallery-search") as HTMLInputElement | null;
+  const typeChips = document.querySelectorAll("#type-filter .chip-btn");
+  const domainChips = document.querySelectorAll("#domain-filter .chip-btn");
+  const cards = Array.from(document.querySelectorAll<HTMLElement>(".gallery-card"));
+  const countEl = document.getElementById("gallery-count");
+
+  let activeType = "all";
+  let activeDomain = "all";
+  let searchQuery = "";
+
+  function applyFilters() {
+    let visibleCount = 0;
+    const query = searchQuery.trim().toLowerCase();
+
+    for (const card of cards) {
+      const type = card.dataset.type || "";
+      const domain = card.dataset.domain || "";
+      const title = card.dataset.title || "";
+      const desc = card.dataset.desc || "";
+      const pattern = card.dataset.pattern || "";
+
+      const matchesType = activeType === "all" || type === activeType;
+      const matchesDomain = activeDomain === "all" || domain === activeDomain;
+      const matchesSearch =
+        !query ||
+        title.includes(query) ||
+        desc.includes(query) ||
+        pattern.includes(query) ||
+        type.includes(query);
+
+      if (matchesType && matchesDomain && matchesSearch) {
+        card.style.display = "";
+        visibleCount++;
+      } else {
+        card.style.display = "none";
+      }
+    }
+
+    if (countEl) {
+      countEl.innerHTML = `Showing <strong>${visibleCount}</strong> of <strong>${cards.length}</strong> diagrams`;
+    }
+  }
+
+  typeChips.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      typeChips.forEach((c) => c.classList.remove("active"));
+      btn.classList.add("active");
+      activeType = (btn as HTMLElement).dataset.type || "all";
+      applyFilters();
+    });
+  });
+
+  domainChips.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      domainChips.forEach((c) => c.classList.remove("active"));
+      btn.classList.add("active");
+      activeDomain = (btn as HTMLElement).dataset.domain || "all";
+      applyFilters();
+    });
+  });
+
+  searchInput?.addEventListener("input", (e) => {
+    searchQuery = (e.target as HTMLInputElement).value;
+    applyFilters();
+  });
+
+  // ── Theme Toggle ────────────────────────────────────────────────────────
+  const themeToggleBtn = document.getElementById("theme-toggle");
+  themeToggleBtn?.addEventListener("click", () => {
+    const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    const next = isDark ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    localStorage.setItem("markdy-theme", next);
+    updateThemeIcons(next);
+  });
+
+  function updateThemeIcons(theme: string) {
+    const sun = document.querySelector(".icon-sun") as HTMLElement | null;
+    const moon = document.querySelector(".icon-moon") as HTMLElement | null;
+    if (!sun || !moon) return;
+    if (theme === "dark") {
+      sun.style.display = "none";
+      moon.style.display = "block";
+    } else {
+      sun.style.display = "block";
+      moon.style.display = "none";
+    }
+  }
+
+  const initialTheme = document.documentElement.getAttribute("data-theme") || "light";
+  updateThemeIcons(initialTheme);
+
+  // ── Mobile Menu Drawer ──────────────────────────────────────────────────
+  const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+  const mobileDrawer = document.getElementById("mobile-nav-drawer");
+  const burgerIcon = mobileMenuBtn?.querySelector(".icon-burger") as HTMLElement | null;
+  const closeIcon = mobileMenuBtn?.querySelector(".icon-close") as HTMLElement | null;
+
+  function toggleMobileMenu(open?: boolean) {
+    if (!mobileDrawer || !mobileMenuBtn) return;
+    const shouldOpen = open !== undefined ? open : mobileDrawer.hidden;
+    if (shouldOpen) {
+      mobileDrawer.hidden = false;
+      mobileMenuBtn.setAttribute("aria-expanded", "true");
+      if (burgerIcon && closeIcon) {
+        burgerIcon.style.display = "none";
+        closeIcon.style.display = "block";
+      }
+    } else {
+      mobileDrawer.hidden = true;
+      mobileMenuBtn.setAttribute("aria-expanded", "false");
+      if (burgerIcon && closeIcon) {
+        burgerIcon.style.display = "block";
+        closeIcon.style.display = "none";
+      }
+    }
+  }
+
+  mobileMenuBtn?.addEventListener("click", () => toggleMobileMenu());
+  mobileDrawer?.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => toggleMobileMenu(false));
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && mobileDrawer && !mobileDrawer.hidden) {
+      toggleMobileMenu(false);
+    }
+  });
+
+  // ── Copy Code Buttons ───────────────────────────────────────────────────
+  document.querySelectorAll<HTMLButtonElement>(".btn-action-copy").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const code = btn.dataset.code || "";
+      try {
+        await navigator.clipboard.writeText(code);
+        const originalText = btn.querySelector("span")?.textContent || "Copy Code";
+        if (btn.querySelector("span")) {
+          btn.querySelector("span")!.textContent = "Copied! ✓";
+          setTimeout(() => {
+            btn.querySelector("span")!.textContent = originalText;
+          }, 2000);
+        }
+        if (typeof (window as any).showToast === "function") {
+          (window as any).showToast("Copied MarkdyScript to clipboard", "📋");
+        }
+      } catch (err) {
+        console.error("Failed to copy:", err);
+      }
+    });
+  });
+
+  // ── Lazy-Mount Live Diagrams on Intersection ────────────────────────────
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          const mount = entry.target as HTMLElement;
+          observer.unobserve(mount);
+          mountDiagram(mount);
+        }
+      }
+    },
+    { threshold: 0.1, rootMargin: "200px" }
+  );
+
+  function mountDiagram(mount: HTMLElement) {
+    const rawCode = mount.dataset.code;
+    if (!rawCode) return;
+    const code = decodeURIComponent(rawCode);
+
+    mount.innerHTML = "";
+    try {
+      createDiagram({
+        container: mount,
+        code,
+        autoplay: true,
+        loop: true,
+        controls: false,
+        interactiveViewport: false,
+      });
+    } catch (e) {
+      console.warn("Failed to render diagram:", e);
+      mount.innerHTML = `<div class="stage-error">Preview unavailable</div>`;
+    }
+  }
+
+  document.querySelectorAll<HTMLElement>(".card-stage-mount").forEach((mount) => {
+    observer.observe(mount);
+  });
+</script>
+
+<style>
+  /* ── Floating Pill Navigation ── */
+  .home-nav {
+    position: sticky;
+    top: max(0.75rem, var(--sat));
+    z-index: 100;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .nav-pill {
+    background: color-mix(in srgb, var(--bg-elevated) 88%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.4rem 0.6rem 0.4rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+
+  .nav-logo-svg {
+    display: block;
+    width: 22px;
+    height: 22px;
+    filter: drop-shadow(0 2px 4px rgba(24, 184, 135, 0.25));
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .nav-links a {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: color 0.15s ease;
+  }
+
+  .nav-links a:hover,
+  .nav-links a.active {
+    color: var(--accent);
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-nav-studio {
+    background: var(--accent);
+    color: #ffffff !important;
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    box-shadow: 0 0 12px var(--accent-glow);
+    transition: transform 0.15s ease, opacity 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .btn-nav-studio:hover {
+    transform: translateY(-1px);
+    opacity: 0.95;
+  }
+
+  .btn-nav-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+  }
+
+  .btn-nav-icon:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+  }
+
+  .mobile-menu-btn {
+    display: none;
+  }
+
+  .mobile-nav-drawer {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 1rem;
+    right: 1rem;
+    background: var(--bg-elevated);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg), 0 0 0 1px var(--border);
+    padding: 0.65rem;
+    z-index: 1000;
+    animation: drawerFade 0.16s ease-out;
+  }
+
+  .mobile-nav-drawer[hidden] {
+    display: none !important;
+  }
+
+  @keyframes drawerFade {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .mobile-drawer-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .mobile-nav-link {
+    display: flex;
+    align-items: center;
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    transition: background-color 0.14s ease, color 0.14s ease;
+  }
+
+  .mobile-nav-link:hover,
+  .mobile-nav-link:active {
+    background: var(--bg-tertiary);
+    color: var(--accent);
+  }
+
+  .mobile-nav-highlight {
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+
+  /* ── Gallery Page Main ── */
+  .gallery-page {
+    min-height: 100vh;
+    padding-top: 2rem;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+  }
+
+  .gallery-hero {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 2rem;
+    text-align: center;
+  }
+
+  .gallery-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+  }
+
+  .gallery-hero h1 {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    margin: 0 0 1rem;
+    line-height: 1.2;
+  }
+
+  .gallery-hero-desc {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    max-width: 720px;
+    margin: 0 auto 2.5rem;
+  }
+
+  .gallery-filter-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background: var(--bg-elevated);
+    padding: 1.5rem;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    text-align: left;
+  }
+
+  .search-input-wrap {
+    position: relative;
+    width: 100%;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  #gallery-search {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.65rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    font-size: 0.88rem;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+
+  #gallery-search:focus {
+    border-color: var(--accent);
+    background: var(--bg-elevated);
+    box-shadow: 0 0 0 3px var(--accent-light);
+  }
+
+  .filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    min-width: 80px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .filter-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .chip-btn {
+    padding: 0.32rem 0.7rem;
+    border-radius: 8px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .chip-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+    background: var(--bg-tertiary);
+  }
+
+  .chip-btn.active {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+
+  .gallery-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 1.5rem 5rem;
+  }
+
+  .gallery-count-bar {
+    font-size: 0.84rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+  }
+
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .gallery-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .gallery-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md), var(--shadow-glow);
+  }
+
+  .card-header {
+    padding: 1.25rem 1.25rem 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .tag-badge {
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    letter-spacing: 0.02em;
+  }
+
+  .tag-type {
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+
+  .tag-domain {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+
+  .tag-theme {
+    background: var(--bg-tertiary);
+    color: var(--text-muted);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .card-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+  }
+
+  .card-desc {
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+
+  .card-stage-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .card-stage-mount {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stage-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-weight: 500;
+  }
+
+  .loading-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.85rem 1.25rem;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-subtle);
+    margin-top: auto;
+  }
+
+  .btn-action-primary {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.95rem;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #ffffff !important;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 0 10px var(--accent-glow);
+    transition: transform 0.15s ease, opacity 0.15s ease;
+  }
+
+  .btn-action-primary:hover {
+    transform: translateY(-1px);
+    opacity: 0.95;
+  }
+
+  .btn-action-copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 0.85rem;
+    border-radius: 8px;
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-action-copy:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+    background: var(--bg-tertiary);
+  }
+
+  .gallery-footer-cta {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 5rem;
+    text-align: center;
+  }
+
+  .cta-box {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, var(--bg-elevated)), color-mix(in srgb, #3b82f6 10%, var(--bg-elevated)));
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 3rem 2rem;
+    box-shadow: var(--shadow-md);
+  }
+
+  .cta-box h2 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin: 0 0 0.75rem;
+  }
+
+  .cta-box p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin: 0 0 1.5rem;
+  }
+
+  .cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-hero-primary {
+    background: var(--accent);
+    color: #ffffff !important;
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 0.7rem 1.4rem;
+    border-radius: 9px;
+    box-shadow: 0 2px 16px var(--accent-glow);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    text-decoration: none;
+  }
+
+  .btn-hero-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px var(--accent-glow);
+  }
+
+  .btn-hero-secondary {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.7rem 1.35rem;
+    border-radius: 9px;
+    transition: all 0.15s ease;
+    text-decoration: none;
+  }
+
+  .btn-hero-secondary:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-secondary);
+  }
+
+  @media (max-width: 980px) {
+    .nav-links { display: none; }
+    .mobile-menu-btn { display: flex; }
+  }
+
+  @media (max-width: 768px) {
+    .gallery-grid {
+      grid-template-columns: 1fr;
+    }
+    .gallery-hero h1 {
+      font-size: 1.85rem;
+    }
+    .gallery-filter-wrap {
+      padding: 1.15rem;
+    }
+    .filter-group {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.4rem;
+    }
+    .cta-box {
+      padding: 2rem 1.25rem;
+    }
+    .cta-buttons {
+      flex-direction: column;
+      width: 100%;
+    }
+    .btn-hero-primary,
+    .btn-hero-secondary {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>

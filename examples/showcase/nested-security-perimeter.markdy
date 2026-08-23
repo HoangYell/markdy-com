@@ -1,16 +1,28 @@
-# showcase/nested-security-perimeter.markdy
-# Demonstrates Nested Containment Hierarchy for Scope & Security Boundaries.
+# nested-security-perimeter.markdy
+# Kubernetes Zero-Trust Security Perimeter & VPC Defense-in-Depth
 
-scene theme=paper type=nested width=1100 height=750
+scene "Kubernetes Zero-Trust Security Perimeter" theme=paper type=nested width=1280 height=760
 
-security PublicInternet "External DMZ Perimeter"
-security VPCNetwork "Protected VPC Network"
-security PrivateSubnet "Private Kubernetes Cluster"
-security EnclaveCore "Hardware Security Enclave (HSM)" focal=true
+security PublicEdge "Layer 1: Global Edge (Cloudflare WAF & DDoS Shield)"
+security DMZIngress "Layer 2: DMZ Ingress (Envoy Gateway & Rate Limiter)"
+security PrivateMesh "Layer 3: Private Pod Mesh (mTLS & NetworkPolicies)"
+security EnclaveCore "Layer 4: Hardware Enclave (HSM Vault & Master Keys)" focal=true
 
-beat perimeter_reveal "Defense in Depth":
-  show $nodes stagger=70ms
-  glow EnclaveCore "Root of trust & cryptographic isolation"
+beat edge_perimeter "1. Global Edge Perimeter Filtering":
+  show PublicEdge
+  glow PublicEdge color=#047857
+
+beat dmz_ingress "2. DMZ Ingress & Token Verification":
+  show DMZIngress
+  glow DMZIngress color=#38bdf8
+
+beat private_mesh "3. Zero-Trust Private Service Mesh":
+  show PrivateMesh
+  glow PrivateMesh color=#a855f7
+
+beat core_vault "4. Hardware Security Module Key Protection":
+  show EnclaveCore
+  glow EnclaveCore color=#22c55e
 
 player:
   playback:
@@ -26,4 +38,4 @@ player:
   chrome:
     badge true
     progress boundary
-    color "#3b82f6"
+    color "#047857"
