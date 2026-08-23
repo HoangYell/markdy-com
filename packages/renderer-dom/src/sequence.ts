@@ -215,12 +215,12 @@ export function mountSequenceLayer(
 }
 
 export function updateSequenceLayerTheme(layer: HTMLElement, theme: ThemeTokens): void {
-  const svg = layer.querySelector<SVGSVGElement>("svg");
+  const svg = layer.querySelector("svg");
   if (!svg) return;
 
   const defs = svg.querySelector("defs");
   if (defs) {
-    for (const marker of defs.querySelectorAll("marker")) {
+    Array.from(defs.querySelectorAll("marker")).forEach((marker) => {
       const id = marker.getAttribute("id") || "";
       const path = marker.querySelector("path");
       if (path) {
@@ -232,35 +232,35 @@ export function updateSequenceLayerTheme(layer: HTMLElement, theme: ThemeTokens)
           path.setAttribute("fill", theme.edges.request);
         }
       }
-    }
+    });
   }
 
-  for (const line of svg.querySelectorAll<SVGLineElement>(".markdy-sequence-lifeline")) {
+  Array.from(svg.querySelectorAll(".markdy-sequence-lifeline")).forEach((line) => {
     line.setAttribute("stroke", theme.hairline ?? theme.border);
-  }
+  });
 
-  for (const bar of svg.querySelectorAll<SVGRectElement>(".markdy-sequence-activation")) {
+  Array.from(svg.querySelectorAll(".markdy-sequence-activation")).forEach((bar) => {
     bar.setAttribute("fill", theme.accent);
-    bar.style.filter = `drop-shadow(0 0 6px ${theme.accent}66)`;
-  }
+    (bar as HTMLElement).style.filter = `drop-shadow(0 0 6px ${theme.accent}66)`;
+  });
 
-  for (const group of svg.querySelectorAll<SVGGElement>(".markdy-sequence-message")) {
-    const line = group.querySelector<SVGLineElement>("line");
+  Array.from(svg.querySelectorAll(".markdy-sequence-message")).forEach((group) => {
+    const line = group.querySelector("line");
     if (line) {
       const markerEnd = line.getAttribute("marker-end") || "";
       if (markerEnd.includes("response")) line.setAttribute("stroke", theme.edges.response);
       else if (markerEnd.includes("event")) line.setAttribute("stroke", theme.edges.event);
       else line.setAttribute("stroke", theme.edges.request);
     }
-    const plate = group.querySelector<SVGRectElement>("rect");
+    const plate = group.querySelector("rect");
     if (plate) {
       plate.setAttribute("fill", theme.labelPlate ?? theme.surface);
       plate.setAttribute("stroke", theme.hairline ?? `color-mix(in srgb, ${theme.border} 70%, transparent)`);
     }
-    const text = group.querySelector<SVGTextElement>("text");
+    const text = group.querySelector("text");
     if (text) {
       text.setAttribute("fill", theme.text);
       if (theme.fonts?.mono) text.setAttribute("font-family", theme.fonts.mono);
     }
-  }
+  });
 }
