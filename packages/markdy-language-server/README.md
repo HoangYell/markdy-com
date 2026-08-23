@@ -19,10 +19,10 @@ The server translates parse diagnostics and symbols into LSP responses.
 ## Output preview
 
 <p align="center">
-	<img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-split-editor.webp" alt="Markdy Language Server Code Completion & Hover Preview" width="900" />
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-split-editor.webp" alt="Markdy Language Server Code Completion & Hover Preview" width="900" />
 </p>
 <p align="center">
-	<img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-governance-audit.webp" alt="Markdy Language Server & Diagnostics Preview" width="900" />
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-governance-audit.webp" alt="Markdy Language Server & Diagnostics Preview" width="900" />
 </p>
 
 Run on stdio:

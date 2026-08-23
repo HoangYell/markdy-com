@@ -33,25 +33,17 @@ Examples lead with scene content and keep optional `player:` configuration at th
 
 Explore the full interactive archive at **[markdy.com/examples](https://markdy.com/examples/)** or test scenes in the **[Markdy Studio / Playground](https://markdy.com/playground/)**:
 
-| Architecture (Cache-Aside Pattern) | Concurrency Strategy Flowchart |
-|---|---|
-| [![Architecture](../docs/images/scene-url-shortener.webp)](https://markdy.com/playground/) | [![Flowchart](../docs/images/scene-concurrency-decision-flowchart.webp)](https://markdy.com/playground/) |
-| **Consistent Hash Ring Tree** | **OAuth 2.0 PKCE Auth Sequence** |
-| [![Tree](../docs/images/scene-consistent-hash-tree.webp)](https://markdy.com/playground/) | [![Sequence](../docs/images/scene-oauth-pkce-sequence.webp)](https://markdy.com/playground/) |
-| **Distributed 2PC Consensus State** | **OSI 7-Layer Protocol Stack** |
-| [![State](../docs/images/scene-distributed-2pc-state.webp)](https://markdy.com/playground/) | [![Layers](../docs/images/scene-osi-layers.webp)](https://markdy.com/playground/) |
-| **Zero-Trust Security Perimeter** | **Distributed Saga Order Swimlanes** |
-| [![Nested](../docs/images/scene-nested-security.webp)](https://markdy.com/playground/) | [![Swimlane](../docs/images/scene-ecommerce-swimlanes.webp)](https://markdy.com/playground/) |
-| **Database WAL & CDC Stream Timeline** | **Zero-Downtime Migration Gantt** |
-| [![Timeline](../docs/images/scene-platform-milestones-timeline.webp)](https://markdy.com/playground/) | [![Gantt](../docs/images/scene-engineering-roadmap.webp)](https://markdy.com/playground/) |
-| **Lakehouse Medallion Data Pipeline** | **Decentralized Gossip Flywheel** |
-| [![Medallion](../docs/images/scene-lakehouse-medallion.webp)](https://markdy.com/playground/) | [![Flywheel](../docs/images/scene-data-flywheel.webp)](https://markdy.com/playground/) |
-| **Raft Quorum Constellation (Nebula)** | **CAP Theorem Decision Quadrant** |
-| [![Constellation](../docs/images/scene-nebula-constellation.webp)](https://markdy.com/playground/) | [![Quadrant](../docs/images/scene-strategic-quadrant.webp)](https://markdy.com/playground/) |
-| **Cloud Observability Pyramid** | **Storage Benchmark Radar** |
-| [![Pyramid](../docs/images/scene-platform-pyramid.webp)](https://markdy.com/playground/) | [![Radar](../docs/images/scene-database-radar.webp)](https://markdy.com/playground/) |
-| **ACID vs BASE Consistency Venn** | **AI Agent Prompting & Workflow** |
-| [![Venn](../docs/images/scene-product-market-fit-venn.webp)](https://markdy.com/playground/) | [![AI Agent Workflow](../docs/images/markdy-ai-agent-workflow.webp)](https://markdy.com/agent/) |
+| ⚡ Systems & High Concurrency | 🚦 Decision Logic & Consensus |
+|:---:|:---:|
+| **Architecture (Cache-Aside Pattern)**<br><sub>Sub-2ms Redis cache redirection & database fallback</sub><br><br><a href="https://markdy.com/playground/"><img src="../docs/images/scene-url-shortener.webp" alt="Architecture" width="100%" /></a> | **Concurrency Strategy Flowchart**<br><sub>Thread safety, CAS atomics & mutex contention</sub><br><br><a href="https://markdy.com/playground/"><img src="../docs/images/scene-concurrency-decision-flowchart.webp" alt="Flowchart" width="100%" /></a> |
+| **Consistent Hash Ring Tree**<br><sub>$O(k/N)$ minimal data rebalancing & vNode partitions</sub><br><br><a href="https://markdy.com/playground/"><img src="../docs/images/scene-consistent-hash-tree.webp" alt="Tree" width="100%" /></a> | **OAuth 2.0 PKCE Auth Sequence**<br><sub>Zero-trust Single Page App authentication exchange</sub><br><br><a href="https://markdy.com/playground/"><img src="../docs/images/scene-oauth-pkce-sequence.webp" alt="Sequence" width="100%" /></a> |
+| **Distributed 2PC Consensus State**<br><sub>Prepare/Commit/Abort multi-partition consensus</sub><br><br><a href="https://markdy.com/playground/"><img src="../docs/images/scene-distributed-2pc-state.webp" alt="State" width="100%" /></a> | **OSI 7-Layer Protocol Stack**<br><sub>Full-width horizontal packet encapsulation bands</sub><br><br><a href="https://markdy.com/playground/"><img src="../docs/images/scene-osi-layers.webp" alt="Layers" width="100%" /></a> |
+| **Zero-Trust Security Perimeter**<br><sub>Concentric defense-in-depth Kubernetes security enclaves</sub><br><br><a href="https://markdy.com/playground/"><img src="../docs/images/scene-nested-security.webp" alt="Nested" width="100%" /></a> | **Distributed Saga Order Swimlanes**<br><sub>Cross-functional lanes & asynchronous rollback coordination</sub><br><br><a href="https://markdy.com/playground/"><img src="../docs/images/scene-ecommerce-swimlanes.webp" alt="Swimlane" width="100%" /></a> |
+| **Database WAL & CDC Stream Timeline**<br><sub>Zero-collision alternating milestone baseline</sub><br><br><a href="https://markdy.com/playground/"><img src="../docs/images/scene-platform-milestones-timeline.webp" alt="Timeline" width="100%" /></a> | **Zero-Downtime Migration Gantt**<br><sub>Multi-phase task spans & critical path dependencies</sub><br><br><a href="https://markdy.com/playground/"><img src="../docs/images/scene-engineering-roadmap.webp" alt="Gantt" width="100%" /></a> |
+| **Lakehouse Medallion Data Pipeline**<br><sub>Streaming Bronze ➔ Silver ➔ Gold transformations</sub><br><br><a href="https://markdy.com/playground/"><img src="../docs/images/scene-lakehouse-medallion.webp" alt="Medallion" width="100%" /></a> | **Decentralized Gossip Flywheel**<br><sub>Circular closed-loop anti-entropy sync engine</sub><br><br><a href="https://markdy.com/playground/"><img src="../docs/images/scene-data-flywheel.webp" alt="Flywheel" width="100%" /></a> |
+| **Raft Quorum Constellation (Nebula)**<br><sub>Radial orbit geometry & pulsating consensus halos</sub><br><br><a href="https://markdy.com/playground/"><img src="../docs/images/scene-nebula-constellation.webp" alt="Constellation" width="100%" /></a> | **CAP Theorem Decision Quadrant**<br><sub>Automated $2 \times 2$ matrix trade-off positioning</sub><br><br><a href="https://markdy.com/playground/"><img src="../docs/images/scene-strategic-quadrant.webp" alt="Quadrant" width="100%" /></a> |
+| **Cloud Observability Pyramid**<br><sub>Step-proportional telemetry & monitoring tier stack</sub><br><br><a href="https://markdy.com/playground/"><img src="../docs/images/scene-platform-pyramid.webp" alt="Pyramid" width="100%" /></a> | **Storage Benchmark Radar**<br><sub>Multi-axis polygon database performance evaluation</sub><br><br><a href="https://markdy.com/playground/"><img src="../docs/images/scene-database-radar.webp" alt="Radar" width="100%" /></a> |
+| **ACID vs BASE Consistency Venn**<br><sub>3-Circle concept intersection & sweet spot overlap</sub><br><br><a href="https://markdy.com/playground/"><img src="../docs/images/scene-product-market-fit-venn.webp" alt="Venn" width="100%" /></a> | **AI Agent Workflow & Prompting**<br><sub>Autonomous MCP tool execution & self-healing diagrams</sub><br><br><a href="https://markdy.com/agent/"><img src="../docs/images/markdy-ai-agent-workflow.webp" alt="AI Agent Workflow" width="100%" /></a> |
 
 Compat-gate fixtures (baseline snapshot corpus) live alongside their snapshots in `packages/compat/fixtures/` and are covered by `pnpm run gate`.
 
