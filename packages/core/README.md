@@ -4,10 +4,12 @@ The parser and AST types for [MarkdyScript](../../docs/SYNTAX.md) — a diagram-
 
 ## Features
 
-- **Zero runtime dependencies** — pure TypeScript, no DOM or platform APIs
-- **Single-pass parser** — line-by-line state machine with strict `ParseError` diagnostics
-- **Diagram-native grammar** — scene metadata, architecture nodes, groups, styles, beats, flow chains, annotations, visual primitives, and reusable patterns
-- **Focused modes** — `architecture`, `flowchart`, `tree`, `state`, `sequence`, and `constellation` compile into deterministic render-plan metadata
+- **Zero runtime dependencies** — pure TypeScript, no DOM or platform APIs (~14 KB minzipped)
+- **Single-pass parser** — line-by-line state machine with strict `ParseError` line-number diagnostics
+- **17 Specialized Layout Engines** — `architecture`, `flowchart`, `tree`, `sequence`, `state`, `layers`, `nested`, `swimlane`, `timeline`, `gantt`, `medallion`, `flywheel`, `constellation`, `quadrant`, `pyramid`, `radar`, `venn`
+- **8 Semantic Themes** — `paper`, `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `terminal`, `sketchy`
+- **Content-Adaptive Canvas Sizing** — automatically calculates optimal aspect ratio and bounds based on diagram items and topology
+- **Well-Architected Governance & AST Diffing** — layer boundaries, deadlock cycle detection, gateway isolation, and semantic AST evolution
 - **Isomorphic** — runs in Node.js, Deno, Bun, edge runtimes, and the browser
 
 ## Installation
@@ -27,7 +29,10 @@ pnpm add @markdy/core
 ## Output preview
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-split-editor.webp" alt="Markdy AST & DSL Editor Preview" width="900" />
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-url-shortener.webp" alt="Markdy Core Parser Architecture Preview" width="900" />
+</p>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-concurrency-decision-flowchart.webp" alt="Markdy Concurrency Flowchart Preview" width="900" />
 </p>
 
 ## Usage

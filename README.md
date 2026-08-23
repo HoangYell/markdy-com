@@ -156,14 +156,38 @@ npm i -g @markdy/cli
 ## Output preview
 
 <p align="center">
-  <img src="website/public/images/markdy-studio-hero.webp" alt="Markdy Interactive Studio Preview" width="1100" />
+  <img src="docs/images/markdy-studio-hero.webp" alt="Markdy Interactive Studio Preview" width="1100" />
 </p>
 
 The dedicated playground mirrors this workflow: choose a shipped `.markdy` scene, edit syntax-highlighted MarkdyScript, resize the editor/preview split, and watch the embedded architecture preview update in the browser.
 
 <p align="center">
-  <img src="website/public/images/markdy-vs-mermaid-comparison.webp" alt="Mermaid vs Markdy Comparison" width="950" />
+  <img src="docs/images/markdy-vs-mermaid-comparison.webp" alt="Mermaid vs Markdy Comparison" width="950" />
 </p>
+
+---
+
+## 🏛️ 17 Specialized Diagram Layout Engines
+
+Explore the [Live Examples Gallery](https://markdy.com/examples/) to see all 17 diagram topologies in action:
+
+| Architecture (Cache-Aside Pattern) | Concurrency Decision Flowchart |
+|---|---|
+| [![Architecture](docs/images/scene-url-shortener.webp)](https://markdy.com/playground/) | [![Flowchart](docs/images/scene-concurrency-decision-flowchart.webp)](https://markdy.com/playground/) |
+| **Consistent Hash Ring Tree** | **OAuth 2.0 PKCE Auth Sequence** |
+| [![Tree](docs/images/scene-consistent-hash-tree.webp)](https://markdy.com/playground/) | [![Sequence](docs/images/scene-oauth-pkce-sequence.webp)](https://markdy.com/playground/) |
+| **Distributed 2PC Consensus State** | **OSI 7-Layer Protocol Stack** |
+| [![State](docs/images/scene-distributed-2pc-state.webp)](https://markdy.com/playground/) | [![Layers](docs/images/scene-osi-layers.webp)](https://markdy.com/playground/) |
+| **Zero-Trust Security Perimeter** | **Distributed Saga Order Swimlanes** |
+| [![Nested](docs/images/scene-nested-security.webp)](https://markdy.com/playground/) | [![Swimlane](docs/images/scene-ecommerce-swimlanes.webp)](https://markdy.com/playground/) |
+| **Database WAL & CDC Stream Timeline** | **Zero-Downtime Migration Gantt** |
+| [![Timeline](docs/images/scene-platform-milestones-timeline.webp)](https://markdy.com/playground/) | [![Gantt](docs/images/scene-engineering-roadmap.webp)](https://markdy.com/playground/) |
+| **Lakehouse Medallion Data Pipeline** | **Decentralized Gossip Flywheel** |
+| [![Medallion](docs/images/scene-lakehouse-medallion.webp)](https://markdy.com/playground/) | [![Flywheel](docs/images/scene-data-flywheel.webp)](https://markdy.com/playground/) |
+| **Raft Quorum Constellation (Nebula)** | **CAP Theorem Decision Quadrant** |
+| [![Constellation](docs/images/scene-nebula-constellation.webp)](https://markdy.com/playground/) | [![Quadrant](docs/images/scene-strategic-quadrant.webp)](https://markdy.com/playground/) |
+| **Cloud Observability Pyramid** | **Storage Benchmark Radar** |
+| [![Pyramid](docs/images/scene-platform-pyramid.webp)](https://markdy.com/playground/) | [![Radar](docs/images/scene-database-radar.webp)](https://markdy.com/playground/) |
 
 To preview a full scene result locally, run:
 

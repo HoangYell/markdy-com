@@ -7,6 +7,9 @@ Equip Claude Desktop, Cursor, Google Antigravity, and autonomous AI agents with 
 <p align="center">
   <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-ai-agent-workflow.webp" alt="Markdy AI Agent & MCP Integration" width="900" />
 </p>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-oauth-pkce-sequence.webp" alt="Markdy AI-Generated OAuth Sequence Preview" width="900" />
+</p>
 
 ---
 

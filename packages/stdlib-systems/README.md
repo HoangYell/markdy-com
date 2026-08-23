@@ -58,5 +58,8 @@ re-export and manifest, not a runtime registration step.
 ## Output preview
 
 <p align="center">
+	<img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-consistent-hash-tree.webp" alt="Markdy Semantic Architecture Nodes & Consistent Hash Tree" width="900" />
+</p>
+<p align="center">
 	<img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-ecommerce-swimlanes.webp" alt="Markdy Semantic Nodes & Swimlanes Preview" width="900" />
 </p>

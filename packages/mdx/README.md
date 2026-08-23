@@ -25,6 +25,9 @@ MDX integration transforms fenced markdy blocks into lazy diagram components.
 <p align="center">
   <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-framework-integrations.webp" alt="Markdy MDX Framework Integration" width="900" />
 </p>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-osi-layers.webp" alt="Markdy Rendered Layer Stack in MDX" width="900" />
+</p>
 
 ## Usage
 

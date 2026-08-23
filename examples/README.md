@@ -26,22 +26,30 @@ Examples lead with scene content and keep optional `player:` configuration at th
   - [`18-layer-stack.markdy`](18-layer-stack.markdy) — OSI & abstraction layer stacked horizontal bands.
   - [`19-nested-containment.markdy`](19-nested-containment.markdy) — concentric defense-in-depth security perimeters.
   - [`20-player-configuration.markdy`](20-player-configuration.markdy) — script-owned playback, focused controls, interaction, and footer chrome.
-- `showcase/` — 30 curated showcase demo scenes shown on the homepage playground and docs page.
+- `showcase/` — 17 premier 1-per-scene-type showcase diagrams featured on the homepage, plus 30+ full archive scenes in the gallery.
 - `astro-starter/` — a minimal Astro project embedding the `<Markdy />` component.
 
-## Visual Showcase Gallery
+## 🏛️ Visual Showcase Gallery (17 Diagram Engines)
 
-| Kubernetes Cloud Blueprint | Lakehouse Medallion Data Pipeline |
-|---|---|
-| <img src="../docs/images/scene-kubernetes-cluster.webp" alt="Kubernetes Cluster Blueprint" width="450" /> | <img src="../docs/images/scene-lakehouse-medallion.webp" alt="Lakehouse Medallion Pipeline" width="450" /> |
+Explore the full interactive archive at **[markdy.com/examples](https://markdy.com/examples/)** or test scenes in the **[Markdy Studio / Playground](https://markdy.com/playground/)**:
 
-| Cross-Functional Swimlanes | Zero-Trust Secure Paved Road |
+| Architecture (Cache-Aside Pattern) | Concurrency Strategy Flowchart |
 |---|---|
-| <img src="../docs/images/scene-ecommerce-swimlanes.webp" alt="E-Commerce Checkout Swimlanes" width="450" /> | <img src="../docs/images/scene-zero-trust-paved-road.webp" alt="Zero-Trust Secure Paved Road" width="450" /> |
-
-| Signal Constellation (Nebula) | Terminal Infrastructure CLI |
-|---|---|
-| <img src="../docs/images/scene-nebula-constellation.webp" alt="Signal Constellation in Nebula Theme" width="450" /> | <img src="../docs/images/scene-terminal-cli.webp" alt="Terminal Infrastructure CLI Topology" width="450" /> |
+| [![Architecture](../docs/images/scene-url-shortener.webp)](https://markdy.com/playground/) | [![Flowchart](../docs/images/scene-concurrency-decision-flowchart.webp)](https://markdy.com/playground/) |
+| **Consistent Hash Ring Tree** | **OAuth 2.0 PKCE Auth Sequence** |
+| [![Tree](../docs/images/scene-consistent-hash-tree.webp)](https://markdy.com/playground/) | [![Sequence](../docs/images/scene-oauth-pkce-sequence.webp)](https://markdy.com/playground/) |
+| **Distributed 2PC Consensus State** | **OSI 7-Layer Protocol Stack** |
+| [![State](../docs/images/scene-distributed-2pc-state.webp)](https://markdy.com/playground/) | [![Layers](../docs/images/scene-osi-layers.webp)](https://markdy.com/playground/) |
+| **Zero-Trust Security Perimeter** | **Distributed Saga Order Swimlanes** |
+| [![Nested](../docs/images/scene-nested-security.webp)](https://markdy.com/playground/) | [![Swimlane](../docs/images/scene-ecommerce-swimlanes.webp)](https://markdy.com/playground/) |
+| **Database WAL & CDC Stream Timeline** | **Zero-Downtime Migration Gantt** |
+| [![Timeline](../docs/images/scene-platform-milestones-timeline.webp)](https://markdy.com/playground/) | [![Gantt](../docs/images/scene-engineering-roadmap.webp)](https://markdy.com/playground/) |
+| **Lakehouse Medallion Data Pipeline** | **Decentralized Gossip Flywheel** |
+| [![Medallion](../docs/images/scene-lakehouse-medallion.webp)](https://markdy.com/playground/) | [![Flywheel](../docs/images/scene-data-flywheel.webp)](https://markdy.com/playground/) |
+| **Raft Quorum Constellation (Nebula)** | **CAP Theorem Decision Quadrant** |
+| [![Constellation](../docs/images/scene-nebula-constellation.webp)](https://markdy.com/playground/) | [![Quadrant](../docs/images/scene-strategic-quadrant.webp)](https://markdy.com/playground/) |
+| **Cloud Observability Pyramid** | **Storage Benchmark Radar** |
+| [![Pyramid](../docs/images/scene-platform-pyramid.webp)](https://markdy.com/playground/) | [![Radar](../docs/images/scene-database-radar.webp)](https://markdy.com/playground/) |
 
 Compat-gate fixtures (baseline snapshot corpus) live alongside their snapshots in `packages/compat/fixtures/` and are covered by `pnpm run gate`.
 

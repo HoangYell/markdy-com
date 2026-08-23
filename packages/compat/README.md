@@ -18,6 +18,9 @@ Universal Ingestion Transpilers & Backwards-Compatibility Gate for Markdy.
 <p align="center">
   <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/markdy-universal-ingestion.webp" alt="Universal Ingestion Transpilers" width="900" />
 </p>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-nested-security.webp" alt="Kubernetes Manifest Ingestion Preview" width="900" />
+</p>
 
 ---
 

@@ -4,17 +4,15 @@ Web Animations API renderer for [MarkdyScript](../../docs/SYNTAX.md) scenes. Tra
 
 ## Features
 
-- **Browser-native** — Web Animations API + CSS transforms, no Canvas or GSAP
-- **Auto-layout diagrams** — renders positioned nodes and orthogonal, obstacle-aware edges from a compiled `RenderPlan`
-- **Flow edges** — `->` request, `<-` response, `~>` event, `--` dependency, each with its own stroke, plus a pulse that travels the edge as it draws
-- **Beat-driven cues** — `show`, `hide`, `glow`, and `focus`, sequenced by named beats
-- **Focused diagram visuals** — flowchart shapes, tree buses, state self-loops, sequence lifelines/messages, constellation orbits, group zones, and annotations
-- **Semantic node cards** — compact SVG glyphs for browsers, services, gateways, queues, workers, databases, storage, CDN, security, platform, and more
+- **Browser-native** — Web Animations API + CSS transforms, no Canvas or GSAP (~24 KB minzipped)
+- **17 Diagram Layout Topologies** — `architecture`, `flowchart`, `tree`, `sequence`, `state`, `layers`, `nested`, `swimlane`, `timeline`, `gantt`, `medallion`, `flywheel`, `constellation`, `quadrant`, `pyramid`, `radar`, `venn`
+- **Dynamic Theme Switching** — live runtime switching across 8 semantic themes (`paper`, `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `terminal`, `sketchy`)
+- **Flow edges** — `->` request, `<-` response, `~>` event, `--` dependency, each with its own stroke, plus animated traveling pulse
+- **Beat-driven cues** — `show`, `hide`, `glow`, `focus`, and `frame` camera zooms, sequenced by named beats
+- **Media Exporters** — zero-dep animated GIF89a exporter with LZW compression and Figma-ready vector SVG export
 - **Seek-safe** — manual `currentTime` control enables reliable `seek()` in any direction
 - **Playback-rate controls** — set normalized timeline speed to slow down or speed up diagrams without rebuilding animations
-- **Interactive viewport** — opt into wheel zoom and drag pan while click-to-pause stays available
-- **Embed controls** — opt into only the playback, timeline, viewport, export, and sharing controls a scene needs
-- **Semantic themes** — `paper`, `editorial`, `nebula`, `midnight`, `blueprint`, and `graphite`, with per-role node and edge colors
+- **Interactive viewport** — wheel zoom, drag pan, and double-click reset with responsive auto-fit
 - **Single dependency** — only `@markdy/core`
 
 ## Installation
@@ -34,7 +32,10 @@ This package consumes parsed AST and drives DOM + Web Animations API timelines.
 ## Output preview
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-kubernetes-cluster.webp" alt="Markdy DOM Renderer Output (Kubernetes Blueprint)" width="900" />
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-lakehouse-medallion.webp" alt="Markdy DOM Renderer Lakehouse Medallion Output" width="900" />
+</p>
+<p align="center">
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-nebula-constellation.webp" alt="Markdy DOM Renderer Nebula Constellation Output" width="900" />
 </p>
 
 ## Usage
