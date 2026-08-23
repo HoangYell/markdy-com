@@ -15,9 +15,9 @@ To make `markdy` available as a shell command everywhere, install it globally wi
 
 ```text
 @markdy/cli
-	-> reads .markdy files from disk
-	-> uses parser/runtime packages internally
-	-> outputs diagnostics, formatted source, or rendered HTML
+  -> reads .markdy files from disk
+  -> uses parser/runtime packages internally
+  -> outputs diagnostics, formatted source, or rendered HTML
 ```
 
 ## Output preview
