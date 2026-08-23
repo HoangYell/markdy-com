@@ -186,12 +186,28 @@ export function toPathD(points: Point[], cornerRadius = 14, existingPaths: Point
   return parts.join(" ");
 }
 
-/** Self-loop arc above a node card. */
-export function selfLoopPath(rect: { x: number; y: number; width: number; height: number }): Point[] {
+/** Self-loop arc above a node card (or below if close to the top boundary). */
+export function selfLoopPath(
+  rect: { x: number; y: number; width: number; height: number },
+  bounds?: { width: number; height: number },
+): Point[] {
   const top = rect.y;
+  const loopHeight = 36;
+  if (bounds && top - loopHeight < 16) {
+    const bottom = rect.y + rect.height;
+    const left = rect.x + rect.width * 0.3;
+    const right = rect.x + rect.width * 0.7;
+    const apex = Math.min(bounds.height - 16, bottom + loopHeight);
+    return [
+      { x: round1(right), y: round1(bottom) },
+      { x: round1(right), y: round1(apex) },
+      { x: round1(left), y: round1(apex) },
+      { x: round1(left), y: round1(bottom) },
+    ];
+  }
   const left = rect.x + rect.width * 0.3;
   const right = rect.x + rect.width * 0.7;
-  const apex = top - 40;
+  const apex = Math.max(12, top - loopHeight);
   return [
     { x: round1(left), y: round1(top) },
     { x: round1(left), y: round1(apex) },

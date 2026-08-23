@@ -143,19 +143,20 @@ export function ensureSceneStyles(doc: Document): void {
 }
 .markdy-footer {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  position: relative;
   width: 100%;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 6px 12px;
+  padding: 8px 12px 4px;
   color: var(--md-text, #f8fafc);
   background: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-top: none;
-  z-index: 20;
+  z-index: 100;
 }
 .markdy-controls {
   display: flex;
@@ -168,6 +169,8 @@ export function ensureSceneStyles(doc: Document): void {
   max-width: 100%;
   overflow-x: auto;
   scrollbar-width: none;
+  padding: 4px 2px;
+  margin: -4px -2px;
 }
 .markdy-controls::-webkit-scrollbar {
   display: none;
@@ -229,6 +232,8 @@ export function ensureSceneStyles(doc: Document): void {
   transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .markdy-controls button:hover:not([aria-pressed="true"]) {
+  position: relative;
+  z-index: 2;
   background: var(--md-control-hover-bg, rgba(255, 255, 255, 0.1));
   color: var(--md-control-hover-text, #f8fafc);
   border-color: var(--md-control-hover-border, rgba(148, 163, 184, 0.35));
@@ -236,12 +241,16 @@ export function ensureSceneStyles(doc: Document): void {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
 }
 .markdy-controls button[aria-pressed="true"] {
+  position: relative;
+  z-index: 2;
   background: var(--accent, #10b981) !important;
   color: #ffffff !important;
   border-color: var(--accent, #10b981) !important;
   box-shadow: 0 0 10px var(--accent-glow, rgba(16, 185, 129, 0.4)) !important;
 }
 .markdy-controls button:focus-visible {
+  position: relative;
+  z-index: 3;
   outline: 2px solid var(--accent, #10b981);
   outline-offset: 1px;
 }
@@ -335,10 +344,10 @@ export function ensureSceneStyles(doc: Document): void {
 .markdy-code-panel-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9000;
-  background: rgba(2, 6, 23, 0.55);
-  backdrop-filter: blur(3px);
-  -webkit-backdrop-filter: blur(3px);
+  z-index: 100000;
+  background: rgba(2, 6, 23, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;

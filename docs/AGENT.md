@@ -2,9 +2,9 @@
 
 > ### CURRENT AUTHORITATIVE SPECIFICATION
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.20
+> - **Current Version**: v1.0.21
 > - **Specification Version**: 1.0.x
-> - **Time Updated**: 2026-08-23T03:44:09.170Z
+> - **Time Updated**: 2026-08-23T05:20:15.094Z
 > - **Last Updated**: 2026-08-23
 > - **Canonical URL**: <https://markdy.com/AGENT.md>
 > - **Human-Readable Mirror**: <https://markdy.com/agent/>
@@ -84,19 +84,26 @@ layout LR
 |---|---|---|
 | `theme` | `paper` | `paper` (clean light), `editorial` (warm doc light), `midnight` (deep navy dark), `blueprint` (cyan engineering), `graphite` (charcoal dark), `nebula` (cyberpunk purple), `sketchy` (editorial hand-drawn), `terminal` (CLI retro green) |
 | `layout` | `LR` | Auto-layout direction: `LR` (left-to-right), `TB` (top-to-bottom), `RL` (right-to-left), `BT` (bottom-to-top) |
-| `width` | `1280` | Canvas width in pixels (see Sizing Formula below) |
-| `height` | `720` | Canvas height in pixels (see Sizing Formula below) |
+| `width` | `Auto` | Canvas width in pixels (optional; dynamically computed from topology and ranks when omitted) |
+| `height` | `Auto` | Canvas height in pixels (optional; dynamically computed from topology and flow density when omitted) |
 | `type` | `architecture` | Diagram composition mode: `architecture`, `flowchart`, `sequence`, `tree`, `state`, `constellation`, `loop`, `medallion`, `quadrant`, `swimlane`, `pyramid`, `radar`, `timeline`, `gantt`, `venn`, `layers` |
 | `controls` | `false` | When `true`, mounts playback transport controls and reset buttons |
 | `interactive` | `false` | When `true`, enables wheel zoom and pan gestures |
 | `autoplay` | `true` | When `true`, starts playback automatically on load |
 | `loop` | `true` | When `true`, restarts animation smoothly after completion |
 
-#### 📏 Canvas Sizing Formula
-Auto-layout distributes nodes into ranks (columns in `LR`, rows in `TB`). Nodes are ~170×72px. To prevent overlapping on dense diagrams:
-- `width` $\ge \max(1280, 190 \times \text{rank count})$
-- `height` $\ge \max(720, 110 \times \text{max nodes in busiest rank})$
-- *Example*: For 6 ranks deep and 6 services in the busiest rank, use `width=1440 height=800`.
+#### 📏 Content-Adaptive Canvas Sizing & Overrides
+Markdy features a built-in **content-adaptive sizing engine** that automatically analyzes diagram topology, rank depth, lifeline counts, and tree spans:
+- **Small diagrams** (1–3 nodes) automatically receive compact, tight framing ($1024 \times 576$) with zero excess void space.
+- **Dense architectures** (6+ ranks or vertical stacks) automatically expand ($1600+ \text{px}$) to provide ample breathing room for orthogonal arrows.
+- **Vertical flows (`TB`)** automatically adapt to portrait/card ratios ($960 \times 784$) without lateral blank margins.
+- **Sequence diagrams** dynamically scale vertical height based on flow message count ($F \times 76\text{px}$).
+
+> [!TIP]
+> You rarely need to specify `width` and `height` manually. If you wish to pin exact dimensions for a specific embed or slide presentation, you can explicitly override them:
+> ```text
+> scene "Pinned Slide Frame" width=1600 height=900 theme=midnight
+> ```
 
 ---
 

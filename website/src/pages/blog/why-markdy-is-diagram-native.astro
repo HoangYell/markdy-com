@@ -109,9 +109,8 @@ beat visit:
     Narrowing the language sounds like giving something up, but it's what makes the rest work:
   </p>
   <ul>
-    <li><strong>Layout is automatic.</strong> Because nodes carry semantic types — <code>service</code>,
-      <code>cache</code>, <code>database</code>, <code>browser</code> — the engine can place and route them without
-      you tuning pixels.</li>
+    <li><strong>Layout and canvas sizing are automatic.</strong> Because nodes carry semantic types — <code>service</code>,
+      <code>cache</code>, <code>database</code>, <code>browser</code> — the engine automatically places components, routes orthogonal edges, and calculates the optimal canvas aspect ratio without you tuning pixels or canvas resolutions.</li>
     <li><strong>Diffs stay readable.</strong> A change to the architecture is a one-line change to the text, so it
       reviews cleanly in a pull request instead of as a re-exported image.</li>
     <li><strong>LLMs get it right.</strong> A small, semantic vocabulary is far easier for Claude, ChatGPT, Gemini,

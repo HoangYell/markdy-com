@@ -2,7 +2,7 @@
 
 > ### SPECIFICATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.20
+> - **Current Version**: v1.0.21
 > - **Specification Version**: 1.0.x
 > - **Last Updated**: 2026-08-23
 > - **Documentation Hub**: <https://markdy.com/docs/>
@@ -27,22 +27,13 @@ beat request:
 
 player:
   playback:
-    autoplay true
     loop false
     rate 1.5
 
   controls:
-    play true
-    restart true
-    prev_beat true
-    next_beat true
-    seek true
-    speed true
+    theme true
     speeds "0.5 1 2"
-    fit true
-    reset_view true
     fullscreen true
-    svg true
     share true
 
   interaction:

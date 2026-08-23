@@ -128,17 +128,22 @@ const playgroundStructuredData = [
         <div class="view-mode-group" role="group" aria-label="Studio layout mode">
           <button id="view-split-btn" class="view-mode-btn active" type="button" data-mode="split" title="Split Screen (Code + Canvas)">⚡ Split</button>
           <button id="view-canvas-btn" class="view-mode-btn" type="button" data-mode="canvas" title="Canvas Visual Studio">🎨 Canvas</button>
+          <button id="view-code-btn" class="view-mode-btn" type="button" data-mode="code" title="Code Editor Only">📄 Code</button>
         </div>
       </div>
 
       <div class="topbar-right">
-        <!-- Presentation & Playback Mode Switcher -->
-        <button id="live-director-btn" class="tool-btn director-pulse" type="button" title="Open Stage Presentation & Director Mode (Fullscreen Motion Theatre)">
-          <span>🎬 Live Director</span>
+        <!-- Primary Quick Actions -->
+        <button id="import-btn" class="tool-btn" type="button" title="Import from Mermaid, Docker Compose, Kubernetes, Terraform or Draw.io">
+          <span>⚡ Import</span>
         </button>
 
-        <button id="import-btn" class="tool-btn" type="button" title="Import from Mermaid, Docker Compose, Kubernetes, Terraform or Draw.io">
-          <span>⚡ Import / Transpile</span>
+        <button id="live-director-btn" class="tool-btn" type="button" title="Open Stage Presentation & Director Mode (Fullscreen Motion Theatre)">
+          <span>🎬 Present</span>
+        </button>
+
+        <button id="open-cheatsheet-btn" class="tool-btn" type="button" title="Keyboard Shortcuts & Syntax Reference">
+          <span>⌨ Shortcuts</span>
         </button>
 
         <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="tool-btn tool-btn-icon" aria-label="GitHub Repository" title="GitHub Repository">
@@ -166,58 +171,37 @@ const playgroundStructuredData = [
       <section class="editor-panel" aria-label="Code editor">
         <!-- Editor Header Bar -->
         <div class="panel-head editor-panel-head">
-          <!-- Row 1: Title + Example selector -->
-          <div class="editor-head-row editor-head-row--top">
-            <div class="editor-title-box">
-              <span class="panel-kicker">MarkdyScript DSL</span>
-              <h2 class="panel-title-text">Source Editor</h2>
+          <div class="editor-head-left">
+            <div class="pane-tab active">
+              <span class="tab-icon">📄</span>
+              <span>scene.markdy</span>
             </div>
-            <select id="quick-example-select" class="tool-select" aria-label="Load Showcase Example">
+            <select id="quick-example-select" class="studio-select" aria-label="Load Showcase Example">
               {EXAMPLES.map((ex, i) => (
                 <option value={i}>{ex.title} ({ex.pattern ?? ex.category})</option>
               ))}
             </select>
+            <button id="palette-toggle-btn" class="tool-btn tool-btn-sm" type="button" title="Toggle Components & Token Palette">
+              <span>＋ Insert</span>
+            </button>
           </div>
 
-          <!-- Row 2: Action buttons -->
-          <div class="editor-head-row editor-head-row--actions" aria-label="Editor actions">
-            <!-- Clipboard group: Paste + Copy -->
-            <div class="toolbar-group">
-              <button id="paste-code-btn" class="tool-btn" type="button" title="Paste MarkdyScript code from clipboard">📋 Paste</button>
-              <button id="copy-code-btn" class="tool-btn" type="button" title="Copy MarkdyScript code to clipboard">📄 Copy</button>
-            </div>
-
-            <div class="toolbar-divider" aria-hidden="true"></div>
-
-            <!-- Edit group: Format + Reset -->
-            <div class="toolbar-group">
-              <button id="format-code-btn" class="tool-btn" type="button" title="Clean and format MarkdyScript indentation">✨ Format</button>
-              <button id="reset-btn" class="tool-btn" type="button" title="Reset scene to initial template">↺ Reset</button>
-            </div>
-
-            <div class="toolbar-divider" aria-hidden="true"></div>
-
-            <!-- Theme group: Random Dark / Light Toggle -->
-            <div class="toolbar-group">
-              <button id="switch-theme-btn" class="tool-btn" type="button" title="Toggle Theme (Random Dark / Light Mode Palette)">
-                <span>🎨</span>
-                <span id="playground-theme-label">Theme</span>
-              </button>
-            </div>
-
-            <!-- Spacer pushes Run to the right -->
-            <div class="toolbar-spacer" aria-hidden="true"></div>
-
-            <!-- Primary action -->
-            <button id="run-btn" class="tool-btn tool-btn-primary" type="button" aria-keyshortcuts="Control+Enter Meta+Enter" title="Compile & Run scene (Cmd/Ctrl+Enter)">
+          <div class="editor-head-actions" aria-label="Editor actions">
+            <button id="format-code-btn" class="tool-btn tool-btn-sm" type="button" title="Clean and format MarkdyScript indentation">✨ Format</button>
+            <button id="copy-code-btn" class="tool-btn tool-btn-sm" type="button" title="Copy MarkdyScript code to clipboard">📄 Copy</button>
+            <button id="reset-btn" class="tool-btn tool-btn-sm" type="button" title="Reset scene to initial template">↺ Reset</button>
+            <button id="run-btn" class="tool-btn tool-btn-sm tool-btn-primary" type="button" aria-keyshortcuts="Control+Enter Meta+Enter" title="Compile & Run scene (Cmd/Ctrl+Enter)">
               <span>Run</span>
               <span class="btn-icon-run" aria-hidden="true">▶</span>
             </button>
+            <!-- Hidden compatibility elements -->
+            <button id="paste-code-btn" type="button" style="display:none;" aria-hidden="true"></button>
+            <button id="switch-theme-btn" type="button" style="display:none;" aria-hidden="true"><span id="playground-theme-label">Theme</span></button>
           </div>
         </div>
 
-        <!-- ── Interactive Token & Component Palette ── -->
-        <div class="palette-shelf" aria-label="Component and Token Palette">
+        <!-- ── Collapsible Token & Component Palette ── -->
+        <div id="palette-shelf" class="palette-shelf is-collapsed" aria-label="Component and Token Palette">
           <div class="palette-tabs-header">
             <div class="palette-tabs-group" role="tablist">
               <button class="palette-tab active" type="button" data-shelf="nodes">Nodes</button>
@@ -226,7 +210,7 @@ const playgroundStructuredData = [
               <button class="palette-tab" type="button" data-shelf="themes">Themes</button>
               <button class="palette-tab" type="button" data-shelf="beats">Beats</button>
             </div>
-            <span class="palette-hint">Click to insert at cursor · Drag node onto canvas</span>
+            <button id="palette-close-btn" class="palette-close-btn" type="button" title="Close Palette">✕</button>
           </div>
 
           <!-- Shelf 1: Nodes -->
@@ -292,32 +276,46 @@ const playgroundStructuredData = [
         <div id="code-editor" class="code-editor" aria-label="MarkdyScript editor"></div>
 
         <!-- ── Editor Assistant & Architecture Inspector Drawer ── -->
-        <div id="assistant-drawer" class="assistant-drawer expanded" aria-label="Assistant and Inspector">
+        <div id="assistant-drawer" class="assistant-drawer" aria-label="Assistant and Inspector">
           <div class="assistant-tabs-bar">
             <div class="assistant-tabs" role="tablist" aria-label="Assistant Tabs">
-              <button class="assistant-tab active" type="button" data-tab="nodes" role="tab" aria-selected="true">
+              <button class="assistant-tab active" type="button" data-tab="diagnostics" role="tab" aria-selected="true">
+                <span>🛡️ Diagnostics &amp; Lint</span>
+                <span id="diag-count-badge" class="tab-badge tab-badge--diag" hidden>0</span>
+              </button>
+              <button class="assistant-tab" type="button" data-tab="nodes" role="tab" aria-selected="false">
                 <span>📦 Entities</span>
                 <span id="nodes-count-badge" class="tab-badge">0</span>
               </button>
               <button class="assistant-tab" type="button" data-tab="suggestions" role="tab" aria-selected="false">
-                <span>💡 Health &amp; Suggestions</span>
+                <span>💡 Suggestions</span>
                 <span id="sugg-count-badge" class="tab-badge">0</span>
               </button>
               <button class="assistant-tab" type="button" data-tab="ai" role="tab" aria-selected="false">
-                <span>🤖 AI Prompt Architect</span>
-              </button>
-              <button class="assistant-tab" type="button" data-tab="diagnostics" role="tab" aria-selected="false">
-                <span>🛡️ Diagnostics &amp; Lint</span>
-                <span id="diag-count-badge" class="tab-badge tab-badge--diag" hidden>0</span>
+                <span>🤖 AI Architect</span>
               </button>
             </div>
-            <button id="drawer-toggle-btn" class="drawer-toggle-btn" type="button" title="Toggle Inspector Drawer" aria-label="Toggle Inspector Drawer">
-              <span class="drawer-toggle-icon">▼</span>
-            </button>
+            <div class="drawer-right-controls">
+              <span class="drawer-shortcut-hint"><kbd>⌘↵</kbd> run · <kbd>Space</kbd> play</span>
+              <button id="drawer-toggle-btn" class="drawer-toggle-btn" type="button" title="Toggle Inspector Drawer" aria-label="Toggle Inspector Drawer">
+                <span class="drawer-toggle-icon">▲</span>
+              </button>
+            </div>
           </div>
 
-          <!-- Tab 1: Entities List -->
-          <div id="tab-panel-nodes" class="assistant-panel active">
+          <!-- Tab 1: Diagnostics & Governance -->
+          <div id="tab-panel-diagnostics" class="assistant-panel active">
+            <div class="diagnostics-toolbar" style="margin-bottom: 8px; display: flex; justify-content: flex-end;">
+              <button id="audit-btn" class="tool-btn tool-btn-primary" type="button" title="Run Cloud Architecture Governance Audit">
+                <span>🛡️ Run Governance Audit</span>
+              </button>
+            </div>
+            <div id="diagnostics" class="diagnostics" aria-live="polite"></div>
+            <div id="audit-results" class="audit-results"></div>
+          </div>
+
+          <!-- Tab 2: Entities List -->
+          <div id="tab-panel-nodes" class="assistant-panel">
             <div class="entities-head">
               <span class="entities-summary" id="entities-summary">Parsed Nodes &amp; Topology</span>
               <button id="quick-add-node-btn" class="tool-btn-sm" type="button">+ Add Service</button>
@@ -325,12 +323,12 @@ const playgroundStructuredData = [
             <div id="nodes-inspector-grid" class="nodes-inspector-grid"></div>
           </div>
 
-          <!-- Tab 2: Suggestions & Health -->
+          <!-- Tab 3: Suggestions & Health -->
           <div id="tab-panel-suggestions" class="assistant-panel">
             <div class="suggestions-container" id="suggestions-container"></div>
           </div>
 
-          <!-- Tab 3: AI Prompt Generator -->
+          <!-- Tab 4: AI Prompt Generator -->
           <div id="tab-panel-ai" class="assistant-panel">
             <div class="ai-builder-box">
               <label for="ai-user-prompt">Describe architectural changes or additions:</label>
@@ -341,23 +339,6 @@ const playgroundStructuredData = [
               <p class="ai-builder-hint">Generates an authoritative prompt embedding current AST &amp; strict rules from <a href="/AGENT.md" target="_blank" rel="noopener noreferrer"><code>markdy.com/AGENT.md</code></a>, ready for Claude, Cursor, ChatGPT, or Antigravity.</p>
             </div>
           </div>
-
-          <!-- Tab 4: Diagnostics & Governance -->
-          <div id="tab-panel-diagnostics" class="assistant-panel">
-            <div class="diagnostics-toolbar" style="margin-bottom: 8px; display: flex; justify-content: flex-end;">
-              <button id="audit-btn" class="tool-btn tool-btn-primary" type="button" title="Run Cloud Architecture Governance Audit">
-                <span>🛡️ Run Governance Audit</span>
-              </button>
-            </div>
-            <div id="diagnostics" class="diagnostics" aria-live="polite"></div>
-            <div id="audit-results" class="audit-results"></div>
-          </div>
-        </div>
-
-        <div class="editor-bottom-bar">
-          <span class="shortcut-tip"><kbd>⌘/Ctrl</kbd> + <kbd>Enter</kbd> to compile</span>
-          <span class="shortcut-tip"><kbd>Space</kbd> to play/pause</span>
-          <span class="shortcut-tip"><kbd>Esc</kbd> to clear selection</span>
         </div>
       </section>
 
@@ -382,17 +363,18 @@ const playgroundStructuredData = [
         <!-- Canvas Header Bar -->
         <div class="panel-head preview-panel-head">
           <div class="canvas-header-left">
-            <div class="canvas-title-box">
-              <span class="panel-kicker">Visual Studio</span>
-              <h2 class="panel-title-text">Canvas Stage</h2>
-            </div>
+            <span class="preview-live-dot"></span>
+            <h2 class="panel-title-text">WAAPI Motion Canvas</h2>
+          </div>
 
-            <!-- Canvas View & Zoom Controls -->
-            <div class="canvas-view-controls" role="group" aria-label="Canvas View Controls">
-              <button id="canvas-zoom-in-btn" class="canvas-tool-btn" type="button" title="Zoom In (+)">+</button>
-              <button id="canvas-zoom-out-btn" class="canvas-tool-btn" type="button" title="Zoom Out (-)">−</button>
-              <button id="canvas-grid-toggle-btn" class="canvas-tool-btn" type="button" title="Toggle Canvas Background Grid (Dots / Mesh / Plain)">▦ Grid</button>
-            </div>
+          <!-- Canvas View & Zoom Controls -->
+          <div class="canvas-view-controls" role="group" aria-label="Canvas View Controls">
+            <button id="canvas-grid-toggle-btn" class="canvas-tool-btn" type="button" title="Toggle Canvas Background Grid (Dots / Mesh / Plain)">▦ Grid</button>
+            <button id="canvas-zoom-in-btn" class="canvas-tool-btn" type="button" title="Zoom In (+)">+</button>
+            <button id="canvas-zoom-out-btn" class="canvas-tool-btn" type="button" title="Zoom Out (−)">−</button>
+            <button id="canvas-zoom-fit-btn" class="canvas-tool-btn" type="button" title="Fit to View">⊡ Fit</button>
+            <button id="export-png-btn" class="canvas-tool-btn" type="button" title="Export as PNG">PNG</button>
+            <button id="export-gif-btn" class="canvas-tool-btn" type="button" title="Export as GIF">GIF</button>
           </div>
         </div>
 
@@ -471,18 +453,9 @@ const playgroundStructuredData = [
         </div>
         <p id="canvas-interaction-help" class="sr-only">Drag a node from the palette onto the canvas. Click any node to open the contextual editor HUD. Drag ports to connect flows.</p>
 
-        <!-- ── Storyboard Dock (transport lives in the built-in player toolbar) ── -->
-        <div class="choreography-dock" aria-label="Storyboard beats">
-          <div class="dock-top-row">
-            <div class="dock-storyboard-box">
-              <span class="dock-label">🎬 Storyboard:</span>
-              <div id="storyboard-track" class="storyboard-track">
-                <!-- Dynamically populated with parsed beats -->
-              </div>
-              <button id="storyboard-add-beat-btn" class="dock-add-beat-btn" type="button" title="Append new animation beat">+ Beat</button>
-            </div>
-          </div>
-        </div>
+        <!-- Hidden container to preserve storyboard tracking for JS/test queries -->
+        <div id="storyboard-track" style="display:none;" aria-hidden="true"></div>
+        <button id="storyboard-add-beat-btn" style="display:none;" type="button" aria-hidden="true"></button>
       </section>
     </section>
 
@@ -748,13 +721,17 @@ const playgroundStructuredData = [
   const liveDirectorBtn = document.getElementById("live-director-btn") as HTMLButtonElement | null;
   const stagePane = document.getElementById("stage-pane") as HTMLElement | null;
 
-  // Palette shelf tabs
+  // Palette shelf & toggle
+  const paletteShelf = document.getElementById("palette-shelf") as HTMLDivElement | null;
+  const paletteToggleBtn = document.getElementById("palette-toggle-btn") as HTMLButtonElement | null;
+  const paletteCloseBtn = document.getElementById("palette-close-btn") as HTMLButtonElement | null;
   const paletteTabs = document.querySelectorAll<HTMLButtonElement>(".palette-tab");
   const shelfPanels = document.querySelectorAll<HTMLDivElement>(".shelf-panel");
 
   // Canvas zoom & view controls
   const canvasZoomInBtn = document.getElementById("canvas-zoom-in-btn") as HTMLButtonElement;
   const canvasZoomOutBtn = document.getElementById("canvas-zoom-out-btn") as HTMLButtonElement;
+  const canvasZoomFitBtn = document.getElementById("canvas-zoom-fit-btn") as HTMLButtonElement | null;
   const canvasGridToggleBtn = document.getElementById("canvas-grid-toggle-btn") as HTMLButtonElement;
 
   // Assistant Drawer
@@ -1525,10 +1502,19 @@ const playgroundStructuredData = [
   });
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // Palette Tabs & Drag-and-Drop onto Canvas
+  // Palette Tabs, Collapsing & Drag-and-Drop onto Canvas
   // ─────────────────────────────────────────────────────────────────────────────
+  paletteToggleBtn?.addEventListener("click", () => {
+    paletteShelf?.classList.toggle("is-collapsed");
+  });
+
+  paletteCloseBtn?.addEventListener("click", () => {
+    paletteShelf?.classList.add("is-collapsed");
+  });
+
   paletteTabs.forEach((tab) => {
     tab.addEventListener("click", () => {
+      paletteShelf?.classList.remove("is-collapsed");
       const targetShelf = tab.dataset.shelf;
       paletteTabs.forEach(t => t.classList.toggle("active", t === tab));
       shelfPanels.forEach(p => {
@@ -1656,6 +1642,12 @@ const playgroundStructuredData = [
       cancelable: true,
     });
     viewport.dispatchEvent(wheelEvent);
+  });
+
+  canvasZoomFitBtn?.addEventListener("click", () => {
+    if (diagram) {
+      diagram.resetCamera();
+    }
   });
 
   const GRID_CLASSES = ["stage-grid--dots", "stage-grid--mesh", "stage-grid--plain"];
@@ -2707,30 +2699,82 @@ Requirements:
     background: var(--bg-primary);
   }
 
-  /* Editor header: two stacked rows */
+  /* Unified Single-Row Editor Header */
   .editor-panel-head {
-    padding: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.35rem 0.65rem;
+    min-height: 42px;
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border);
+    gap: 0.5rem;
   }
 
-  .editor-head-row {
+  .editor-head-left {
     display: flex;
     align-items: center;
-    padding: 0.4rem 0.85rem;
-    gap: 0.5rem;
-    min-height: 40px;
+    gap: 0.45rem;
+    flex: 1;
+    min-width: 0;
   }
 
-  .editor-head-row--top {
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-primary);
-    gap: 0.65rem;
+  .pane-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
   }
 
-  .editor-head-row--actions {
-    background: var(--bg-tertiary);
+  .pane-tab.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .studio-select {
+    height: 26px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    padding: 0 0.45rem;
+    font: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    flex: 1;
+    min-width: 0;
+    max-width: 250px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    transition: all 0.14s ease;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .studio-select:hover {
+    border-color: var(--border-hover);
+  }
+
+  .studio-select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-light);
+  }
+
+  .editor-head-actions {
+    display: flex;
+    align-items: center;
     gap: 0.3rem;
-    padding: 0.3rem 0.85rem;
-    min-height: 36px;
+    flex-shrink: 0;
   }
 
   /* Generic non-editor panel header (preview panel etc.) */
@@ -2748,6 +2792,21 @@ Requirements:
     align-items: center;
     gap: 0.65rem;
     min-width: 0;
+  }
+
+  .preview-live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: #10b981;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.7);
+    animation: livePulse 2s ease-in-out infinite;
+    display: inline-block;
+  }
+
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.8); }
   }
 
   .editor-title-box,
@@ -2859,8 +2918,8 @@ Requirements:
   }
 
   .tool-btn-sm {
-    height: 22px;
-    padding: 0 0.45rem;
+    height: 24px;
+    padding: 0 0.5rem;
     border: 1px solid var(--border);
     border-radius: 5px;
     background: var(--bg-secondary);
@@ -2870,6 +2929,9 @@ Requirements:
     font-weight: 700;
     cursor: pointer;
     transition: all 0.14s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
   }
 
   .tool-btn-sm:hover {
@@ -2899,7 +2961,7 @@ Requirements:
     opacity: 0.85;
   }
 
-  /* ── Palette Shelf (Horizontal Categorized Ribbon) ──────────────────── */
+  /* ── Palette Shelf (Collapsible Ribbon) ──────────────────── */
   .palette-shelf {
     border-bottom: 1px solid var(--border);
     background: var(--bg-tertiary);
@@ -2907,6 +2969,27 @@ Requirements:
     flex-direction: column;
     padding: 0.35rem 0.65rem 0.45rem;
     gap: 0.35rem;
+    transition: all 0.2s ease-out;
+  }
+
+  .palette-shelf.is-collapsed {
+    display: none !important;
+  }
+
+  .palette-close-btn {
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    transition: all 0.12s ease;
+  }
+
+  .palette-close-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-secondary);
   }
 
   .palette-tabs-header {
@@ -3026,30 +3109,6 @@ Requirements:
     background: var(--bg-secondary);
   }
 
-  .editor-bottom-bar {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.85rem;
-    padding: 0.25rem 0.85rem;
-    border-top: 1px solid var(--border-subtle);
-    background: var(--bg-primary);
-    font-size: 0.65rem;
-    color: var(--text-muted);
-  }
-
-  .shortcut-tip kbd {
-    padding: 0.05rem 0.25rem;
-    border: 1px solid var(--border);
-    border-bottom-width: 2px;
-    border-radius: 4px;
-    background: var(--bg-secondary);
-    color: var(--text-secondary);
-    font-family: inherit;
-    font-size: 0.62rem;
-    font-weight: 700;
-  }
-
   /* ── Assistant & Inspector Drawer ───────────────────────────────────── */
   .assistant-drawer {
     border-top: 1px solid var(--border);
@@ -3071,6 +3130,28 @@ Requirements:
     padding: 0.25rem 0.65rem;
     background: var(--bg-tertiary);
     border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .drawer-right-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+  }
+
+  .drawer-shortcut-hint {
+    font-size: 0.62rem;
+    color: var(--text-muted);
+  }
+
+  .drawer-shortcut-hint kbd {
+    padding: 0.05rem 0.25rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.6rem;
+    font-weight: 700;
   }
 
   .assistant-tabs {

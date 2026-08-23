@@ -5,7 +5,22 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.21] — 2026-08-23
+
+### Added
+- **Content-Adaptive Canvas Sizing (`@markdy/core`)** — Automatically derives optimal, visually balanced `width` and `height` dimensions when omitted from `MarkdyScript` (`scene`). Analyzes diagram topology, rank depth, lifeline count, tree span, and item density across all 16 diagram types. Small 1–3 node flows snap to clean compact frames ($1024 \times 576$), vertical flows adapt to portrait/card ratios ($960 \times 784$), and dense architectures scale up smoothly ($1600+ \text{px}$) with 16px integer grid snapping (`snapGrid`). Explicit overrides (`width=... height=...`) are preserved untouched.
+- **`computeAdaptiveDimensions(ast, edges)` API (`@markdy/core`)** — Exported standalone helper for previewing, inspecting, or tooling calculated dimensions for any parsed AST.
+
+### Changed
+- **In-Tone Focal Surface & Theme Palette Harmony (`@markdy/renderer-dom`)** — Unified node card surfaces so focal nodes (`focal=true`) share the clean base surface of the active theme (`#ffffff` in `editorial`/`paper`, deep navy in `midnight`), emphasizing focus points with an in-tone accent hairline ring (`inset 0 0 0 1.5px var(--md-accent)`) and elevation drop shadows instead of colored gradient blocks.
+- **Diamond & Pill Shape Contrast Across All Themes (`@markdy/renderer-dom`)** — Added polygon-aware `filter: drop-shadow(...)` elevation and hairline outlines to diamond nodes across `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `terminal`, and `sketchy` themes.
+
+### Fixed
+- **Direction-Aware Orthogonal Edge Routing (`@markdy/renderer-dom`, `@markdy/core`)** — Implemented orientation-aware routing for vertical and horizontal diagrams. Downward flows exit cleanly from bottom ports (`source.y2`) and enter top ports (`target.y1`), strictly preventing backward looping detours across flowcharts.
+- **Branch Port Offsets & Crossing Minimization (`@markdy/renderer-dom`, `@markdy/core`)** — Added directional branch offsets that shift attachment points toward child nodes to eliminate exit crossings, and implemented a barycenter rank-ordering heuristic that groups child nodes under their parents while honoring author declaration order.
+- **Flowchart Layout Direction Overrides (`@markdy/core`)** — Flowcharts default to vertical (`TB`) while respecting explicit `layout LR`, `layout TB`, `layout BT`, and `layout RL` declarations.
+- **Toolbar Hover Stacking & Code Modal Z-Index (`@markdy/renderer-dom`)** — Added vertical breathing room to `.markdy-controls` and established a relative stacking context on `.markdy-footer` (`z-index: 100`), preventing button highlight borders from being clipped on hover. Elevated `.markdy-code-panel-overlay` to `z-index: 100000` with active fullscreen host binding.
+- **Canvas Boundary Safety for Self-Loops (`@markdy/renderer-dom`)** — Added viewport boundary checks to `selfLoopPath()`, routing loops along bottom/lateral corridors when nodes are positioned near the top canvas border.
 
 ## [1.0.20] — 2026-08-23
 

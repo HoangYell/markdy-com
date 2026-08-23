@@ -897,8 +897,15 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
           diagnostics.push({ severity: "warning", message: `unknown scene property '${k}'`, line: lineNo });
           continue;
         }
-        if (k === "width" || k === "height" || k === "fps") (meta as Record<string, unknown>)[k] = Number(v);
-        else if (k === "duration") meta.duration = Number(v);
+        if (k === "width") {
+          meta.width = Number(v);
+          meta.explicitWidth = true;
+        } else if (k === "height") {
+          meta.height = Number(v);
+          meta.explicitHeight = true;
+        } else if (k === "fps") {
+          meta.fps = Number(v);
+        } else if (k === "duration") meta.duration = Number(v);
         else if (k === "theme") meta.theme = String(v);
         else if (k === "direction" || k === "layout") meta.direction = String(v).toUpperCase() as LayoutDirection;
         else if (PLAYER_FLAT_KEY_SET.has(k)) {

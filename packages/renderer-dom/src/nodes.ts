@@ -155,7 +155,7 @@ export function ensureNodeStyles(doc: Document): void {
   filter: drop-shadow(0 0 1px var(--md-hairline, rgba(15, 23, 42, 0.2))) drop-shadow(0 4px 12px var(--md-shadow, rgba(2, 6, 23, 0.15)));
 }
 .markdy-node[data-shape="diamond"][data-focal="1"] {
-  filter: drop-shadow(0 0 1.5px var(--md-accent)) drop-shadow(0 4px 16px color-mix(in srgb, var(--md-accent) 30%, transparent));
+  filter: drop-shadow(0 0 1.5px var(--md-accent)) drop-shadow(0 4px 14px var(--md-shadow, rgba(2, 6, 23, 0.15)));
 }
 .markdy-node[data-shape="diamond"] .markdy-node__body {
   justify-content: center;
@@ -247,13 +247,10 @@ export function ensureNodeStyles(doc: Document): void {
   background: var(--md-node-surface, var(--md-surface));
 }
 .markdy-node[data-focal="1"] {
-  background:
-    linear-gradient(180deg,
-      color-mix(in srgb, var(--md-accent) 12%, var(--md-node-surface-raised, var(--md-surface-raised, #ffffff))),
-      color-mix(in srgb, var(--md-accent) 6%, var(--md-node-surface, var(--md-surface, #ffffff))));
   box-shadow:
-    0 2px 8px color-mix(in srgb, var(--md-accent) 20%, transparent),
-    inset 0 0 0 1.5px color-mix(in srgb, var(--md-accent) 60%, transparent);
+    0 2px 10px -2px var(--md-shadow, rgba(2, 6, 23, 0.18)),
+    inset 0 0 0 1.5px var(--md-accent),
+    0 0 0 1px color-mix(in srgb, var(--md-accent) 25%, transparent);
 }
 .markdy-scene-root[data-markdy-theme="nebula"] .markdy-node {
   border: 1px solid color-mix(in srgb, var(--md-role-color, var(--md-accent)) 34%, transparent);
@@ -264,7 +261,7 @@ export function ensureNodeStyles(doc: Document): void {
 .markdy-scene-root[data-markdy-theme="nebula"] .markdy-node[data-focal="1"] {
   box-shadow:
     0 0 34px -8px color-mix(in srgb, var(--md-accent) 78%, transparent),
-    inset 0 0 0 1px var(--md-accent);
+    inset 0 0 0 1.5px var(--md-accent);
 }
 .markdy-scene-root[data-flat="1"] .markdy-node {
   box-shadow: inset 0 0 0 1px var(--md-hairline, color-mix(in srgb, var(--md-border) 50%, transparent));
@@ -273,11 +270,7 @@ export function ensureNodeStyles(doc: Document): void {
   box-shadow: inset 0 0 0 1px var(--md-hairline, color-mix(in srgb, var(--md-border) 50%, transparent));
 }
 .markdy-scene-root[data-flat="1"] .markdy-node[data-focal="1"] {
-  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--md-accent) 60%, transparent);
-  background:
-    linear-gradient(180deg,
-      color-mix(in srgb, var(--md-accent) 10%, var(--md-node-surface-raised, var(--md-surface-raised, #ffffff))),
-      color-mix(in srgb, var(--md-accent) 5%, var(--md-node-surface, var(--md-surface, #ffffff))));
+  box-shadow: inset 0 0 0 1.5px var(--md-accent);
 }
 .markdy-node[data-kind="external"] {
   border: 1.2px dashed color-mix(in srgb, var(--md-ink, var(--md-text)) 30%, transparent);
