@@ -171,7 +171,7 @@ The dedicated playground mirrors this workflow: choose a shipped `.markdy` scene
 
 Explore the [Live Examples Gallery](https://markdy.com/examples/) to see all 17 diagram topologies in action:
 
-| Architecture (Cache-Aside Pattern) | Concurrency Decision Flowchart |
+| Architecture (Cache-Aside Pattern) | Concurrency Strategy Flowchart |
 |---|---|
 | [![Architecture](docs/images/scene-url-shortener.webp)](https://markdy.com/playground/) | [![Flowchart](docs/images/scene-concurrency-decision-flowchart.webp)](https://markdy.com/playground/) |
 | **Consistent Hash Ring Tree** | **OAuth 2.0 PKCE Auth Sequence** |
@@ -188,6 +188,8 @@ Explore the [Live Examples Gallery](https://markdy.com/examples/) to see all 17 
 | [![Constellation](docs/images/scene-nebula-constellation.webp)](https://markdy.com/playground/) | [![Quadrant](docs/images/scene-strategic-quadrant.webp)](https://markdy.com/playground/) |
 | **Cloud Observability Pyramid** | **Storage Benchmark Radar** |
 | [![Pyramid](docs/images/scene-platform-pyramid.webp)](https://markdy.com/playground/) | [![Radar](docs/images/scene-database-radar.webp)](https://markdy.com/playground/) |
+| **ACID vs BASE Consistency Venn** | **AI Agent Prompting & Workflow** |
+| [![Venn](docs/images/scene-product-market-fit-venn.webp)](https://markdy.com/playground/) | [![AI Agent Workflow](docs/images/markdy-ai-agent-workflow.webp)](https://markdy.com/agent/) |
 
 To preview a full scene result locally, run:
 

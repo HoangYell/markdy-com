@@ -50,6 +50,8 @@ Explore the full interactive archive at **[markdy.com/examples](https://markdy.c
 | [![Constellation](../docs/images/scene-nebula-constellation.webp)](https://markdy.com/playground/) | [![Quadrant](../docs/images/scene-strategic-quadrant.webp)](https://markdy.com/playground/) |
 | **Cloud Observability Pyramid** | **Storage Benchmark Radar** |
 | [![Pyramid](../docs/images/scene-platform-pyramid.webp)](https://markdy.com/playground/) | [![Radar](../docs/images/scene-database-radar.webp)](https://markdy.com/playground/) |
+| **ACID vs BASE Consistency Venn** | **AI Agent Prompting & Workflow** |
+| [![Venn](../docs/images/scene-product-market-fit-venn.webp)](https://markdy.com/playground/) | [![AI Agent Workflow](../docs/images/markdy-ai-agent-workflow.webp)](https://markdy.com/agent/) |
 
 Compat-gate fixtures (baseline snapshot corpus) live alongside their snapshots in `packages/compat/fixtures/` and are covered by `pnpm run gate`.
 
