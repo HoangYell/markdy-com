@@ -455,4 +455,55 @@ describe("diagram render plan", () => {
     // 3 milestone circle pips
     expect(layer.querySelectorAll("circle")).toHaveLength(3);
   });
+
+  it("snaps edge route endpoints to diamond node boundary", () => {
+    const scene = document.createElement("div");
+    const svg = ensureEdgeLayer(scene);
+    const fromNode = {
+      id: "Workload",
+      kind: "decision",
+      role: "flow",
+      label: "Workload Type",
+      x: 485,
+      y: 100,
+      width: 180,
+      height: 76,
+      opacity: 1,
+      shape: "diamond" as const,
+    };
+    const toNode = {
+      id: "IOBound",
+      kind: "condition",
+      role: "flow",
+      label: "I/O-Bound",
+      x: 240,
+      y: 260,
+      width: 180,
+      height: 76,
+      opacity: 1,
+      shape: "diamond" as const,
+    };
+    const runtime = createEdgeRuntime(
+      svg,
+      fromNode,
+      toNode,
+      "request",
+      "test",
+      THEMES.editorial,
+      "test-scene",
+      [],
+      [],
+      { width: 1150, height: 650 },
+      0,
+    );
+    expect(runtime.points.length).toBeGreaterThanOrEqual(2);
+    const p0 = runtime.points[0];
+    const cx = fromNode.x + fromNode.width / 2;
+    const cy = fromNode.y + fromNode.height / 2;
+    const hw = fromNode.width / 2;
+    const hh = fromNode.height / 2;
+    // p0 should satisfy the diamond boundary equation |x-cx|/hw + |y-cy|/hh ≈ 1
+    const diamondEq = Math.abs(p0.x - cx) / hw + Math.abs(p0.y - cy) / hh;
+    expect(Math.abs(diamondEq - 1)).toBeLessThan(0.05);
+  });
 });

@@ -5,6 +5,12 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.23] — 2026-08-23
+
+### Fixed
+- **Polygon-Aware Diamond Rendering & Vertex Artifact Elimination (`@markdy/renderer-dom`)** — Explicitly cleared rectangular `border` and `box-shadow` styles across all diamond node states (`[data-focal]`, `[data-focused]`, `[data-glow]`, and theme overrides). Replaced rectangular inset border clipping artifacts at the diamond's four apex vertices with clean `filter: drop-shadow(...)` outlines and glows that follow the diagonal polygon boundary contour.
+- **Shape-Aware Edge Endpoint Port Snapping (`@markdy/renderer-dom`)** — Added geometric boundary port snapping for non-rectangular node shapes (`diamond`, `circle`, `pill`). Edge paths and arrows now seamlessly connect directly to the exact visible perimeter of diamond diagonals, circular radii, and pill caps with zero gaps or overshoots.
+
 ## [1.0.22] — 2026-08-23
 
 ### Fixed
