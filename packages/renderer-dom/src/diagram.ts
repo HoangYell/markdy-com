@@ -5,14 +5,17 @@ import {
   compressMarkdyToUrlHash,
   parseAndCompile,
   resolvePlayer,
+  resolveTheme,
   type BeatRange,
   type Diagnostic,
   type PlayerProgress,
+  type ThemeTokens,
 } from "@markdy/core";
 import {
   buildCueAnimations,
   buildStructuralEdgeAnimations,
   createEdgeSceneId,
+  updateEdgeLayerTheme,
   type EdgeRuntimeMap,
 } from "./edges.js";
 import { mountAnnotations } from "./annotations.js";
@@ -20,8 +23,8 @@ import { mountConstellationLayer } from "./constellation.js";
 import { mountRadarLayer } from "./radar.js";
 import { mountTimelineLayer } from "./timeline.js";
 import { mountGroupBoundaries } from "./groups.js";
-import { createNodeEl, createTitleEl, ensureNodeStyles } from "./nodes.js";
-import { mountSequenceLayer } from "./sequence.js";
+import { applyDeclaredNodeStyle, createNodeEl, createTitleEl, ensureNodeStyles } from "./nodes.js";
+import { mountSequenceLayer, updateSequenceLayerTheme } from "./sequence.js";
 import { mountTreeBuses } from "./tree.js";
 import { applyThemeToScene, applyThemeVariables, ensureSceneStyles } from "./theme.js";
 
@@ -84,6 +87,7 @@ export interface Diagram {
   seekToBeat(name: string): void;
   nextBeat(): void;
   prevBeat(): void;
+  setTheme(theme: string | ThemeTokens): void;
   destroy(): void;
 }
 
@@ -249,7 +253,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   function updateProgressBar(pct: number): void {
     if (!progressEl) return;
     if (progressMode === "bar") {
-      progressEl.style.background = customColor ?? "#2563eb";
+      progressEl.style.background = customColor ?? plan.theme.accent ?? "#2563eb";
       progressEl.style.transformOrigin = "left center";
       progressEl.style.transform = `scaleX(${pct})`;
       return;
@@ -265,7 +269,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     progressEl.style.webkitMask = progressEl.style.mask;
     progressEl.style.maskComposite = "exclude";
     (progressEl.style as unknown as Record<string, string>).webkitMaskComposite = "xor";
-    progressEl.style.padding = "2px";
+    progressEl.style.padding = "1px";
   }
 
   let footer: HTMLDivElement | null = null;
@@ -283,6 +287,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       width: "100%",
       boxSizing: "border-box",
       padding: "4px 6px 0",
+      background: "transparent",
     });
     if (container.parentNode) container.parentNode.insertBefore(footer, container.nextSibling);
     else container.appendChild(footer);
@@ -803,6 +808,104 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       }
       diagram.seek(target);
     },
+    setTheme(theme: string | ThemeTokens) {
+      const newTheme = typeof theme === "string" ? resolveTheme(theme) : theme;
+      plan.theme = newTheme;
+
+      // 1. Scene background & variables
+      applyThemeToScene(scene, newTheme);
+
+      // 2. Footer variables
+      if (footer) {
+        applyThemeVariables(footer, newTheme);
+      }
+
+      // 3. Nodes
+      for (const node of plan.nodes) {
+        const el = nodeEls.get(node.id);
+        if (el) {
+          if (newTheme.flatCards) {
+            el.style.setProperty("--md-shadow", "transparent");
+          } else {
+            el.style.removeProperty("--md-shadow");
+          }
+          if (newTheme.accentTint) {
+            el.style.setProperty("--md-accent-tint", newTheme.accentTint);
+          } else {
+            el.style.removeProperty("--md-accent-tint");
+          }
+          const roleColor = newTheme.roles[node.role] ?? newTheme.accent;
+          el.style.setProperty("--md-role-color", roleColor);
+          applyDeclaredNodeStyle(el, node.style);
+        }
+      }
+
+      // 4. Edges & Defs
+      const structuralSvg = structuralEdgeHost.querySelector<SVGSVGElement>("svg[data-markdy-edge-layer='1']");
+      if (structuralSvg) {
+        updateEdgeLayerTheme(structuralSvg, edgeRuntimes, newTheme, edgeSceneId);
+      }
+      const cameraSvg = cameraLayer.querySelector<SVGSVGElement>("svg[data-markdy-edge-layer='1']");
+      if (cameraSvg) {
+        updateEdgeLayerTheme(cameraSvg, edgeRuntimes, newTheme, edgeSceneId);
+      }
+
+      // 5. Tree buses
+      if (plan.treeBuses && plan.treeBuses.length > 0) {
+        treeLayer.replaceChildren();
+        mountTreeBuses(treeLayer, plan.treeBuses, newTheme);
+      }
+
+      // 6. Constellation / Radar / Timeline
+      if (plan.diagramType === "constellation" || plan.diagramType === "radar" || plan.diagramType === "timeline") {
+        constellationLayer.replaceChildren();
+        if (plan.diagramType === "constellation") {
+          mountConstellationLayer(
+            constellationLayer,
+            plan.nodes,
+            newTheme,
+            { width: plan.meta.width, height: plan.meta.height },
+          );
+        } else if (plan.diagramType === "radar") {
+          mountRadarLayer(
+            constellationLayer,
+            plan.nodes,
+            newTheme,
+            { width: plan.meta.width, height: plan.meta.height },
+          );
+        } else if (plan.diagramType === "timeline") {
+          mountTimelineLayer(
+            constellationLayer,
+            plan.nodes,
+            newTheme,
+            { width: plan.meta.width, height: plan.meta.height },
+          );
+        }
+      }
+
+      // 6.5. Sequence layer
+      if (plan.diagramType === "sequence") {
+        updateSequenceLayerTheme(sequenceLayer, newTheme);
+      }
+
+      // 7. Group boundaries
+      if (plan.groupBoundaries && plan.groupBoundaries.length > 0) {
+        groupLayer.replaceChildren();
+        mountGroupBoundaries(groupLayer, plan.groupBoundaries, newTheme);
+      }
+
+      // 8. Annotations
+      if (plan.annotations && plan.annotations.length > 0) {
+        annotationLayer.replaceChildren();
+        mountAnnotations(annotationLayer, plan.annotations, plan.nodes, newTheme, {
+          width: plan.meta.width,
+          height: plan.meta.height,
+        });
+      }
+
+      // 9. Progress bar
+      if (totalDurationMs > 0) updateProgressBar(sceneMs / totalDurationMs);
+    },
     destroy() {
       diagram.pause();
       if (keyboardShortcuts && typeof window !== "undefined") {
@@ -983,6 +1086,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       const targetThemes = isDark ? lightThemes : darkThemes;
       const nextTheme = targetThemes[Math.floor(Math.random() * targetThemes.length)];
       flashControlLabel(button, nextTheme);
+      diagram.setTheme(nextTheme);
       container.dispatchEvent(
         new CustomEvent("markdy-theme-switch", {
           bubbles: true,

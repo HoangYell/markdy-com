@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.20] — 2026-08-23
+
+### Changed
+- **Transparent Footer (`@markdy/renderer-dom`)** — Removed background, borders, and backdrop filters from `.markdy-footer` and `--md-footer-bg`/`--md-footer-border`, seamlessly integrating control toolbars on any container background.
+- **Hairline Boundary Progress Bar (`@markdy/renderer-dom`)** — Reduced scene-boundary progress bar padding to 1px for a sleek, ultra-crisp hairline indicator with dynamic theme accent fallback in bar mode.
+
+### Fixed
+- **Dynamic Theme Switching & Player Theme Toggle (`@markdy/renderer-dom`, `@markdy/core`)** — Fixed player Theme button to dynamically switch themes live across scene backgrounds, node cards, edge paths/dots/defs markers, sequence diagrams, constellation, radar, timeline, group boundaries, annotations, and tree buses via `Diagram.setTheme`. Enabled `theme` control default when `controls: true` is configured.
+
 ## [1.0.19] — 2026-08-20
 
 ### Changed

@@ -36,16 +36,16 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "compute",
     },
     {
-      "icon": "queue",
-      "id": "EventQueue",
-      "kind": "queue",
-      "role": "messaging",
-    },
-    {
       "icon": "database",
       "id": "RecordsDb",
       "kind": "database",
       "role": "data",
+    },
+    {
+      "icon": "queue",
+      "id": "EventQueue",
+      "kind": "queue",
+      "role": "messaging",
     },
   ],
   "examples/03-beats-and-groups.markdy": [
@@ -68,15 +68,15 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "compute",
     },
     {
-      "icon": "database",
-      "id": "OrdersDb",
-      "kind": "database",
-      "role": "data",
-    },
-    {
       "icon": "cache",
       "id": "Redis",
       "kind": "cache",
+      "role": "data",
+    },
+    {
+      "icon": "database",
+      "id": "OrdersDb",
+      "kind": "database",
       "role": "data",
     },
   ],
@@ -153,13 +153,13 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
   "examples/06-architecture-governance.markdy": [
     {
       "icon": "browser",
-      "id": "MobileApp",
+      "id": "WebApp",
       "kind": "browser",
       "role": "client",
     },
     {
       "icon": "browser",
-      "id": "WebApp",
+      "id": "MobileApp",
       "kind": "browser",
       "role": "client",
     },
@@ -436,16 +436,16 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
   ],
   "examples/13-secure-paved-road.markdy": [
     {
-      "icon": "cloud",
-      "id": "PublicInternet",
-      "kind": "cloud",
-      "role": "network",
-    },
-    {
       "icon": "browser",
       "id": "UntrustedClient",
       "kind": "browser",
       "role": "client",
+    },
+    {
+      "icon": "cloud",
+      "id": "PublicInternet",
+      "kind": "cloud",
+      "role": "network",
     },
     {
       "icon": "gateway",
@@ -1137,13 +1137,13 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
   "examples/showcase/fintech-governance-engine.markdy": [
     {
       "icon": "browser",
-      "id": "MobileTrader",
+      "id": "WebTerminal",
       "kind": "browser",
       "role": "client",
     },
     {
       "icon": "browser",
-      "id": "WebTerminal",
+      "id": "MobileTrader",
       "kind": "browser",
       "role": "client",
     },
@@ -1228,16 +1228,16 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "platform",
     },
     {
-      "icon": "storage",
-      "id": "PersistentVolume",
-      "kind": "volume",
-      "role": "data",
-    },
-    {
       "icon": "key",
       "id": "Secret",
       "kind": "secret",
       "role": "security",
+    },
+    {
+      "icon": "storage",
+      "id": "PersistentVolume",
+      "kind": "volume",
+      "role": "data",
     },
     {
       "icon": "code",
@@ -1264,6 +1264,12 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "compute",
     },
     {
+      "icon": "scheduler",
+      "id": "Scheduler",
+      "kind": "scheduler",
+      "role": "compute",
+    },
+    {
       "icon": "server",
       "id": "ControllerManager",
       "kind": "controller",
@@ -1274,12 +1280,6 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "id": "etcd",
       "kind": "database",
       "role": "data",
-    },
-    {
-      "icon": "scheduler",
-      "id": "Scheduler",
-      "kind": "scheduler",
-      "role": "compute",
     },
     {
       "icon": "pod",
@@ -1588,16 +1588,16 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
   ],
   "examples/showcase/secure-paved-road-enforcement.markdy": [
     {
-      "icon": "cloud",
-      "id": "PublicInternet",
-      "kind": "cloud",
-      "role": "network",
-    },
-    {
       "icon": "browser",
       "id": "UntrustedClient",
       "kind": "browser",
       "role": "client",
+    },
+    {
+      "icon": "cloud",
+      "id": "PublicInternet",
+      "kind": "cloud",
+      "role": "network",
     },
     {
       "icon": "gateway",
@@ -1696,16 +1696,16 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
   ],
   "examples/showcase/technical-diagram-vocabulary.markdy": [
     {
-      "icon": "lock",
-      "id": "Auth",
-      "kind": "auth",
-      "role": "security",
-    },
-    {
       "icon": "user",
       "id": "Browser",
       "kind": "client",
       "role": "client",
+    },
+    {
+      "icon": "lock",
+      "id": "Auth",
+      "kind": "auth",
+      "role": "security",
     },
     {
       "icon": "delivery",
@@ -1765,13 +1765,13 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
     },
     {
       "icon": "terminal",
-      "id": "AuditLog",
+      "id": "StorageEngine",
       "kind": "terminal",
       "role": "flow",
     },
     {
       "icon": "terminal",
-      "id": "StorageEngine",
+      "id": "AuditLog",
       "kind": "terminal",
       "role": "flow",
     },
@@ -1859,13 +1859,13 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
     },
     {
       "icon": "server",
-      "id": "RedirectService",
+      "id": "UrlShortener",
       "kind": "service",
       "role": "compute",
     },
     {
       "icon": "server",
-      "id": "UrlShortener",
+      "id": "RedirectService",
       "kind": "service",
       "role": "compute",
     },
@@ -1932,16 +1932,16 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "compute",
     },
     {
-      "icon": "cdn",
-      "id": "CdnEdge",
-      "kind": "cdn",
-      "role": "network",
-    },
-    {
       "icon": "database",
       "id": "MetadataDb",
       "kind": "database",
       "role": "data",
+    },
+    {
+      "icon": "cdn",
+      "id": "CdnEdge",
+      "kind": "cdn",
+      "role": "network",
     },
   ],
 }

@@ -420,14 +420,126 @@ export function routeOrthogonal(
 
   const dx = targetCenter.x - sourceCenter.x;
   const dy = targetCenter.y - sourceCenter.y;
+  const isDominantVertical = Math.abs(dy) >= Math.abs(dx);
 
   const stubLen = 18;
   const allObstacles = obstacles;
-
   const candidates: Point[][] = [];
 
-  // 1. FORWARD LR FLOW (Target is to the right of source, dx >= 30)
-  if (dx >= 30) {
+  // 1. VERTICAL FLOW CANDIDATES
+  if (dy >= 20) {
+    // 1A. Downward flow (Target is below source)
+    let sX = sourceCenter.x;
+    let tX = targetCenter.x;
+    if (dx > 16) {
+      sX = clamp(sourceCenter.x + (lane > 0 ? Math.abs(laneShift) : 6), sourceRect.x1 + 14, sourceRect.x2 - 14);
+      tX = clamp(targetCenter.x - (lane > 0 ? Math.abs(laneShift) : 6), targetRect.x1 + 14, targetRect.x2 - 14);
+    } else if (dx < -16) {
+      sX = clamp(sourceCenter.x - (lane > 0 ? Math.abs(laneShift) : 6), sourceRect.x1 + 14, sourceRect.x2 - 14);
+      tX = clamp(targetCenter.x + (lane > 0 ? Math.abs(laneShift) : 6), targetRect.x1 + 14, targetRect.x2 - 14);
+    } else {
+      sX = clamp(sourceCenter.x + laneShift, sourceRect.x1 + 14, sourceRect.x2 - 14);
+      tX = clamp(targetCenter.x + laneShift, targetRect.x1 + 14, targetRect.x2 - 14);
+    }
+    const sPort: Point = { x: sX, y: sourceRect.y2 };
+    const tPort: Point = { x: tX, y: targetRect.y1 };
+
+    if (Math.abs(sX - tX) < 1) {
+      candidates.push([sPort, tPort]);
+    } else {
+      const midY = round1((sPort.y + tPort.y) / 2 + laneShift);
+      candidates.push([
+        sPort,
+        { x: sPort.x, y: midY },
+        { x: tPort.x, y: midY },
+        tPort,
+      ]);
+    }
+
+    // Left/Right corridor bypass around intermediary nodes
+    let minObstacleX = Math.min(sourceRect.x1, targetRect.x1);
+    let maxObstacleX = Math.max(sourceRect.x2, targetRect.x2);
+    for (const o of allObstacles) {
+      if (o.y2 > sourceRect.y2 && o.y1 < targetRect.y1) {
+        minObstacleX = Math.min(minObstacleX, o.x1);
+        maxObstacleX = Math.max(maxObstacleX, o.x2);
+      }
+    }
+    const bypassXLeft = Math.max(16, minObstacleX - 24 - Math.abs(laneShift));
+    const bypassXRight = Math.min(bounds.width - 16, maxObstacleX + 24 + Math.abs(laneShift));
+    candidates.push([
+      sPort,
+      { x: sPort.x, y: sPort.y + 12 },
+      { x: bypassXLeft, y: sPort.y + 12 },
+      { x: bypassXLeft, y: tPort.y - 12 },
+      { x: tPort.x, y: tPort.y - 12 },
+      tPort,
+    ]);
+    candidates.push([
+      sPort,
+      { x: sPort.x, y: sPort.y + 12 },
+      { x: bypassXRight, y: sPort.y + 12 },
+      { x: bypassXRight, y: tPort.y - 12 },
+      { x: tPort.x, y: tPort.y - 12 },
+      tPort,
+    ]);
+  } else if (dy <= -20) {
+    // 1B. Upward flow (Target is above source - return/loopback in vertical flow)
+    let sX = sourceCenter.x;
+    let tX = targetCenter.x;
+    if (dx > 16) {
+      sX = clamp(sourceCenter.x + (lane > 0 ? Math.abs(laneShift) : 6), sourceRect.x1 + 14, sourceRect.x2 - 14);
+      tX = clamp(targetCenter.x - (lane > 0 ? Math.abs(laneShift) : 6), targetRect.x1 + 14, targetRect.x2 - 14);
+    } else if (dx < -16) {
+      sX = clamp(sourceCenter.x - (lane > 0 ? Math.abs(laneShift) : 6), sourceRect.x1 + 14, sourceRect.x2 - 14);
+      tX = clamp(targetCenter.x + (lane > 0 ? Math.abs(laneShift) : 6), targetRect.x1 + 14, targetRect.x2 - 14);
+    } else {
+      sX = clamp(sourceCenter.x + laneShift, sourceRect.x1 + 14, sourceRect.x2 - 14);
+      tX = clamp(targetCenter.x + laneShift, targetRect.x1 + 14, targetRect.x2 - 14);
+    }
+    const sPort: Point = { x: sX, y: sourceRect.y1 };
+    const tPort: Point = { x: tX, y: targetRect.y2 };
+
+    if (Math.abs(sX - tX) < 1) {
+      candidates.push([sPort, tPort]);
+    } else {
+      const midY = round1((sPort.y + tPort.y) / 2 + laneShift);
+      candidates.push([
+        sPort,
+        { x: sPort.x, y: midY },
+        { x: tPort.x, y: midY },
+        tPort,
+      ]);
+    }
+
+    let minObstacleX = Math.min(sourceRect.x1, targetRect.x1);
+    let maxObstacleX = Math.max(sourceRect.x2, targetRect.x2);
+    for (const o of allObstacles) {
+      if (o.y1 < sourceRect.y2 && o.y2 > targetRect.y1) {
+        minObstacleX = Math.min(minObstacleX, o.x1);
+        maxObstacleX = Math.max(maxObstacleX, o.x2);
+      }
+    }
+    const bypassXLeft = Math.max(16, minObstacleX - 28 - Math.abs(laneShift));
+    const bypassXRight = Math.min(bounds.width - 16, maxObstacleX + 28 + Math.abs(laneShift));
+
+    candidates.push([
+      { x: sourceRect.x1, y: sourceCenter.y },
+      { x: bypassXLeft, y: sourceCenter.y },
+      { x: bypassXLeft, y: targetCenter.y },
+      { x: targetRect.x1, y: targetCenter.y },
+    ]);
+    candidates.push([
+      { x: sourceRect.x2, y: sourceCenter.y },
+      { x: bypassXRight, y: sourceCenter.y },
+      { x: bypassXRight, y: targetCenter.y },
+      { x: targetRect.x2, y: targetCenter.y },
+    ]);
+  }
+
+  // 2. HORIZONTAL FLOW CANDIDATES
+  if (dx >= 20) {
+    // 2A. Forward LR flow (Target is to the right of source)
     let sY = sourceCenter.y;
     let tY = targetCenter.y;
 
@@ -443,22 +555,19 @@ export function routeOrthogonal(
     const sPort: Point = { x: sourceRect.x2, y: sY };
     const tPort: Point = { x: targetRect.x1, y: tY };
 
-    // 1A. Direct straight shot if heights align
     if (Math.abs(sY - tY) < 1) {
       candidates.push([sPort, tPort]);
+    } else {
+      const rawMidX = (sPort.x + tPort.x) / 2 + laneShift;
+      const midX = round1(clamp(rawMidX, sourceRect.x2 + 8, targetRect.x1 - 8));
+      candidates.push([
+        sPort,
+        { x: midX, y: sY },
+        { x: midX, y: tY },
+        tPort,
+      ]);
     }
 
-    // 1B. 2-elbow Z-shape through inter-column corridor
-    const rawMidX = (sPort.x + tPort.x) / 2 + laneShift;
-    const midX = round1(clamp(rawMidX, sourceRect.x2 + 8, targetRect.x1 - 8));
-    candidates.push([
-      sPort,
-      { x: midX, y: sY },
-      { x: midX, y: tY },
-      tPort,
-    ]);
-
-    // 1C. Top bypass corridor around intermediary nodes
     let minObstacleY = Math.min(sourceRect.y1, targetRect.y1);
     for (const o of allObstacles) {
       if (o.x2 > sourceRect.x2 && o.x1 < targetRect.x1) {
@@ -472,13 +581,11 @@ export function routeOrthogonal(
       { x: targetCenter.x, y: bypassYTop },
       { x: targetCenter.x, y: targetRect.y1 },
     ]);
-  }
-  // 2. BACKWARD RETURN / DETOUR FLOW (Target is to the left of source, dx < -30)
-  else if (dx < -30) {
+  } else if (dx <= -20) {
+    // 2B. Backward / detour flow (Target is to the left of source)
     const sX = clamp(sourceCenter.x + (lane > 0 ? (lane % 2 === 1 ? 8 : -8) : 0), sourceRect.x1 + 16, sourceRect.x2 - 16);
     const tX = clamp(targetCenter.x + (lane > 0 ? (lane % 2 === 1 ? 8 : -8) : 0), targetRect.x1 + 16, targetRect.x2 - 16);
 
-    // 2A. TOP BYPASS LOOP (Exit top face of source, traverse top highway, enter top face of target)
     let minObstacleY = Math.min(sourceRect.y1, targetRect.y1);
     for (const o of allObstacles) {
       if (o.x2 > targetRect.x1 && o.x1 < sourceRect.x2) {
@@ -486,7 +593,6 @@ export function routeOrthogonal(
       }
     }
     const highwayYTop = Math.max(16, minObstacleY - 28 - Math.abs(laneShift));
-
     candidates.push([
       { x: sX, y: sourceRect.y1 },
       { x: sX, y: highwayYTop },
@@ -494,7 +600,6 @@ export function routeOrthogonal(
       { x: tX, y: targetRect.y1 },
     ]);
 
-    // 2B. BOTTOM BYPASS LOOP (Exit bottom face of source, traverse bottom highway, enter bottom face of target)
     let maxObstacleY = Math.max(sourceRect.y2, targetRect.y2);
     for (const o of allObstacles) {
       if (o.x2 > targetRect.x1 && o.x1 < sourceRect.x2) {
@@ -502,7 +607,6 @@ export function routeOrthogonal(
       }
     }
     const highwayYBottom = Math.min(bounds.height - 16, maxObstacleY + 28 + Math.abs(laneShift));
-
     candidates.push([
       { x: sX, y: sourceRect.y2 },
       { x: sX, y: highwayYBottom },
@@ -510,7 +614,6 @@ export function routeOrthogonal(
       { x: tX, y: targetRect.y2 },
     ]);
 
-    // 2C. Direct left-face to right-face corridor if unobstructed
     let sY = sourceCenter.y;
     let tY = targetCenter.y;
     if (Math.abs(dy) > 16) {
@@ -528,29 +631,8 @@ export function routeOrthogonal(
       tPortR,
     ]);
   }
-  // 3. VERTICAL / ADJACENT FLOW (|dx| < 30)
-  else {
-    const sX = clamp(sourceCenter.x + laneShift, sourceRect.x1 + 16, sourceRect.x2 - 16);
-    const tX = clamp(targetCenter.x + laneShift, targetRect.x1 + 16, targetRect.x2 - 16);
-    const sourceDown = dy >= 0;
 
-    const sPort: Point = { x: sX, y: sourceDown ? sourceRect.y2 : sourceRect.y1 };
-    const tPort: Point = { x: tX, y: sourceDown ? targetRect.y1 : targetRect.y2 };
-
-    if (Math.abs(sX - tX) < 1) {
-      candidates.push([sPort, tPort]);
-    } else {
-      const midY = round1((sPort.y + tPort.y) / 2 + laneShift);
-      candidates.push([
-        sPort,
-        { x: sPort.x, y: midY },
-        { x: tPort.x, y: midY },
-        tPort,
-      ]);
-    }
-  }
-
-  // 4. Obstacle-specific bypasses
+  // 3. Obstacle-specific bypasses
   for (const obstacle of allObstacles) {
     const bypassYTop = Math.max(16, obstacle.y1 - 18 - Math.abs(laneShift));
     const bypassYBottom = Math.min(bounds.height - 16, obstacle.y2 + 18 + Math.abs(laneShift));
@@ -576,6 +658,14 @@ export function routeOrthogonal(
     ]);
   }
 
+  // Fallback candidate if none generated
+  if (candidates.length === 0) {
+    candidates.push([
+      { x: sourceCenter.x, y: sourceCenter.y },
+      { x: targetCenter.x, y: targetCenter.y },
+    ]);
+  }
+
   // Score candidate paths and pick the cleanest route
   let best = candidates[0];
   let bestScore = Number.POSITIVE_INFINITY;
@@ -586,8 +676,34 @@ export function routeOrthogonal(
     const bends = routeBends(cleaned);
     const length = routeLength(cleaned);
 
-    // Prefer 0 obstacle hits, minimal bends, shortest Manhattan length
-    const score = hits * 1000000 + bends * 500 + length;
+    let portPenalty = 0;
+    const startP = cleaned[0];
+    const endP = cleaned[cleaned.length - 1];
+
+    if (isDominantVertical) {
+      if (dy >= 20) {
+        // Downward vertical: prefer exiting bottom and entering top
+        if (Math.abs(startP.y - sourceRect.y1) < 1) portPenalty += 25000;
+        if (Math.abs(endP.y - targetRect.y2) < 1) portPenalty += 25000;
+      } else if (dy <= -20) {
+        // Upward vertical: prefer exiting top and entering bottom
+        if (Math.abs(startP.y - sourceRect.y2) < 1) portPenalty += 25000;
+        if (Math.abs(endP.y - targetRect.y1) < 1) portPenalty += 25000;
+      }
+    } else {
+      if (dx >= 20) {
+        // Forward horizontal: prefer exiting right and entering left
+        if (Math.abs(startP.x - sourceRect.x1) < 1) portPenalty += 25000;
+        if (Math.abs(endP.x - targetRect.x2) < 1) portPenalty += 25000;
+      } else if (dx <= -20) {
+        // Backward horizontal: prefer exiting left and entering right
+        if (Math.abs(startP.x - sourceRect.x2) < 1) portPenalty += 25000;
+        if (Math.abs(endP.x - targetRect.x1) < 1) portPenalty += 25000;
+      }
+    }
+
+    // Prefer 0 obstacle hits, natural port orientation, minimal bends, shortest Manhattan length
+    const score = hits * 1000000 + portPenalty + bends * 500 + length;
     if (score < bestScore) {
       bestScore = score;
       best = cleaned;

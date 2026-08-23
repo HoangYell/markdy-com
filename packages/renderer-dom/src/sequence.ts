@@ -213,3 +213,54 @@ export function mountSequenceLayer(
   for (const animation of animations) animation.pause();
   return animations;
 }
+
+export function updateSequenceLayerTheme(layer: HTMLElement, theme: ThemeTokens): void {
+  const svg = layer.querySelector("svg");
+  if (!svg) return;
+
+  const defs = svg.querySelector("defs");
+  if (defs) {
+    Array.from(defs.querySelectorAll("marker")).forEach((marker) => {
+      const id = marker.getAttribute("id") || "";
+      const path = marker.querySelector("path");
+      if (path) {
+        if (id.includes("response")) {
+          path.setAttribute("stroke", theme.edges.response);
+        } else if (id.includes("event")) {
+          path.setAttribute("fill", theme.edges.event);
+        } else {
+          path.setAttribute("fill", theme.edges.request);
+        }
+      }
+    });
+  }
+
+  Array.from(svg.querySelectorAll(".markdy-sequence-lifeline")).forEach((line) => {
+    line.setAttribute("stroke", theme.hairline ?? theme.border);
+  });
+
+  Array.from(svg.querySelectorAll(".markdy-sequence-activation")).forEach((bar) => {
+    bar.setAttribute("fill", theme.accent);
+    (bar as HTMLElement).style.filter = `drop-shadow(0 0 6px ${theme.accent}66)`;
+  });
+
+  Array.from(svg.querySelectorAll(".markdy-sequence-message")).forEach((group) => {
+    const line = group.querySelector("line");
+    if (line) {
+      const markerEnd = line.getAttribute("marker-end") || "";
+      if (markerEnd.includes("response")) line.setAttribute("stroke", theme.edges.response);
+      else if (markerEnd.includes("event")) line.setAttribute("stroke", theme.edges.event);
+      else line.setAttribute("stroke", theme.edges.request);
+    }
+    const plate = group.querySelector("rect");
+    if (plate) {
+      plate.setAttribute("fill", theme.labelPlate ?? theme.surface);
+      plate.setAttribute("stroke", theme.hairline ?? `color-mix(in srgb, ${theme.border} 70%, transparent)`);
+    }
+    const text = group.querySelector("text");
+    if (text) {
+      text.setAttribute("fill", theme.text);
+      if (theme.fonts?.mono) text.setAttribute("font-family", theme.fonts.mono);
+    }
+  });
+}
