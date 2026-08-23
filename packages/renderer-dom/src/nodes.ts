@@ -148,14 +148,42 @@ export function ensureNodeStyles(doc: Document): void {
   opacity: 1;
   transform: translateY(0);
 }
+.markdy-node[data-shape="diamond"],
+.markdy-node[data-shape="diamond"][data-visible="1"],
+.markdy-node[data-shape="diamond"][data-focal="1"],
+.markdy-node[data-shape="diamond"][data-focused="1"],
+.markdy-node[data-shape="diamond"][data-glow="1"],
+.markdy-scene-root .markdy-node[data-shape="diamond"],
+.markdy-scene-root .markdy-node[data-shape="diamond"][data-visible="1"],
+.markdy-scene-root .markdy-node[data-shape="diamond"][data-focal="1"],
+.markdy-scene-root .markdy-node[data-shape="diamond"][data-focused="1"],
+.markdy-scene-root .markdy-node[data-shape="diamond"][data-glow="1"],
+.markdy-scene-root[data-flat="1"] .markdy-node[data-shape="diamond"],
+.markdy-scene-root[data-flat="1"] .markdy-node[data-shape="diamond"][data-visible="1"],
+.markdy-scene-root[data-flat="1"] .markdy-node[data-shape="diamond"][data-focal="1"],
+.markdy-scene-root[data-markdy-theme="terminal"] .markdy-node[data-shape="diamond"],
+.markdy-scene-root[data-markdy-theme="terminal"] .markdy-node[data-shape="diamond"][data-focal="1"],
+.markdy-scene-root[data-markdy-theme="sketchy"] .markdy-node[data-shape="diamond"],
+.markdy-scene-root[data-markdy-theme="sketchy"] .markdy-node[data-shape="diamond"][data-focal="1"],
+.markdy-scene-root[data-markdy-theme="nebula"] .markdy-node[data-shape="diamond"],
+.markdy-scene-root[data-markdy-theme="nebula"] .markdy-node[data-shape="diamond"][data-focal="1"] {
+  border: none;
+  box-shadow: none;
+}
 .markdy-node[data-shape="diamond"] {
-  border-radius: 4px;
+  border-radius: 0;
   transform: rotate(0deg);
   clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
   filter: drop-shadow(0 0 1px var(--md-hairline, rgba(15, 23, 42, 0.2))) drop-shadow(0 4px 12px var(--md-shadow, rgba(2, 6, 23, 0.15)));
 }
 .markdy-node[data-shape="diamond"][data-focal="1"] {
   filter: drop-shadow(0 0 1.5px var(--md-accent)) drop-shadow(0 4px 14px var(--md-shadow, rgba(2, 6, 23, 0.15)));
+}
+.markdy-node[data-shape="diamond"][data-focused="1"] {
+  filter: drop-shadow(0 0 2px var(--md-accent)) drop-shadow(0 0 14px color-mix(in srgb, var(--md-accent) 60%, transparent));
+}
+.markdy-node[data-shape="diamond"][data-glow="1"] {
+  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--md-glow-color, var(--md-accent)) 70%, transparent)) drop-shadow(0 0 24px color-mix(in srgb, var(--md-glow-color, var(--md-accent)) 55%, transparent));
 }
 .markdy-node[data-shape="diamond"] .markdy-node__body {
   justify-content: center;

@@ -49,6 +49,74 @@ function circleBoundaryRoute(from: PositionedNode, to: PositionedNode): Point[] 
   ]);
 }
 
+function snapPortToNodeShape(node: PositionedNode, port: Point, neighbor: Point, isSource: boolean): Point {
+  if (!node.shape || node.shape === "card" || node.shape === "rounded" || node.shape === "terminal" || node.shape === "container") {
+    return port;
+  }
+  const cx = node.x + node.width / 2;
+  const cy = node.y + node.height / 2;
+  const hw = node.width / 2;
+  const hh = node.height / 2;
+
+  if (node.shape === "diamond") {
+    const isVert = Math.abs(port.x - neighbor.x) < 0.01;
+    const isHoriz = Math.abs(port.y - neighbor.y) < 0.01;
+    if (isVert) {
+      const goingDown = isSource ? neighbor.y > port.y : port.y > neighbor.y;
+      const boundaryY = goingDown
+        ? cy + hh * (1 - Math.min(1, Math.abs(port.x - cx) / hw))
+        : cy - hh * (1 - Math.min(1, Math.abs(port.x - cx) / hw));
+      return { x: port.x, y: Math.round(boundaryY * 10) / 10 };
+    }
+    if (isHoriz) {
+      const goingRight = isSource ? neighbor.x > port.x : port.x > neighbor.x;
+      const boundaryX = goingRight
+        ? cx + hw * (1 - Math.min(1, Math.abs(port.y - cy) / hh))
+        : cx - hw * (1 - Math.min(1, Math.abs(port.y - cy) / hh));
+      return { x: Math.round(boundaryX * 10) / 10, y: port.y };
+    }
+  }
+
+  if (node.shape === "circle") {
+    const r = Math.min(node.width, node.height) / 2;
+    const isVert = Math.abs(port.x - neighbor.x) < 0.01;
+    const isHoriz = Math.abs(port.y - neighbor.y) < 0.01;
+    if (isVert) {
+      const goingDown = isSource ? neighbor.y > port.y : port.y > neighbor.y;
+      return { x: cx, y: goingDown ? cy + r : cy - r };
+    }
+    if (isHoriz) {
+      const goingRight = isSource ? neighbor.x > port.x : port.x > neighbor.x;
+      return { x: goingRight ? cx + r : cx - r, y: cy };
+    }
+  }
+
+  if (node.shape === "pill") {
+    const r = node.height / 2;
+    const isVert = Math.abs(port.x - neighbor.x) < 0.01;
+    const isHoriz = Math.abs(port.y - neighbor.y) < 0.01;
+    if (isHoriz) {
+      const goingRight = isSource ? neighbor.x > port.x : port.x > neighbor.x;
+      return { x: goingRight ? node.x + node.width : node.x, y: cy };
+    }
+    if (isVert) {
+      const goingDown = isSource ? neighbor.y > port.y : port.y > neighbor.y;
+      const clampedX = Math.max(node.x + r, Math.min(node.x + node.width - r, port.x));
+      return { x: clampedX, y: goingDown ? node.y + node.height : node.y };
+    }
+  }
+
+  return port;
+}
+
+function snapRouteEndpointsToShapes(points: Point[], from: PositionedNode, to: PositionedNode): Point[] {
+  if (points.length < 2) return points;
+  const out = [...points];
+  out[0] = snapPortToNodeShape(from, out[0], out[1], true);
+  out[out.length - 1] = snapPortToNodeShape(to, out[out.length - 1], out[out.length - 2], false);
+  return dedupePoints(out);
+}
+
 function routeEdgePoints(
   from: PositionedNode,
   to: PositionedNode,
@@ -57,7 +125,8 @@ function routeEdgePoints(
   lane: number,
 ): Point[] {
   if (from.shape === "circle" && to.shape === "circle") return circleBoundaryRoute(from, to);
-  return routeOrthogonal(boxRect(from), boxRect(to), routeObstacles, bounds, lane);
+  const raw = routeOrthogonal(boxRect(from), boxRect(to), routeObstacles, bounds, lane);
+  return snapRouteEndpointsToShapes(raw, from, to);
 }
 
 export function ensureEdgeLayer(scene: HTMLElement): SVGSVGElement {
