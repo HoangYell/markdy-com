@@ -1,0 +1,43 @@
+# oauth-pkce-sequence.markdy
+# OAuth 2.0 PKCE & OIDC Authentication Sequence
+
+scene "OAuth 2.0 PKCE Handshake Sequence" theme=editorial type=sequence width=1280 height=760
+layout LR
+
+participant BrowserApp "Single Page App (Browser)"
+participant AuthServer "Authorization Server (OIDC)"
+participant TokenEndpoint "Token Endpoint (/oauth/token)"
+participant ResourceApi "Protected Microservice API"
+
+beat auth_request "1. PKCE Authorization Code Request":
+  show $nodes stagger=40ms
+  BrowserApp -> AuthServer "GET /authorize (code_challenge = SHA256(verifier))"
+  AuthServer -> BrowserApp "302 Redirect with auth_code (valid 60s)"
+
+beat token_exchange "2. Code Exchange for Cryptographic JWT":
+  BrowserApp -> TokenEndpoint "POST /oauth/token (code + code_verifier)"
+  TokenEndpoint -> TokenEndpoint "verify SHA256(code_verifier) == challenge"
+  TokenEndpoint -> BrowserApp "200 OK (access_token + refresh_token)"
+  glow TokenEndpoint color=#047857
+
+beat authorized_request "3. Authenticated Bearer Token Resource Access":
+  BrowserApp -> ResourceApi "GET /api/v1/orders (Authorization: Bearer <jwt>)"
+  ResourceApi -> ResourceApi "validate RS256 signature & claims"
+  ResourceApi -> BrowserApp "200 OK (Protected JSON Payload)"
+  glow ResourceApi color=#22c55e
+
+player:
+  playback:
+    loop true
+  controls:
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress boundary
+    color "#047857"

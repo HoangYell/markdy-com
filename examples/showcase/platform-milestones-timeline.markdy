@@ -1,17 +1,22 @@
-# 15-project-timeline.markdy
-# Demonstrates Horizontal Timeline Diagram for Release History & Milestones.
+# platform-milestones-timeline.markdy
+# Database Write-Ahead Log (WAL) & CDC Event Replication Timeline
 
-scene theme=editorial type=timeline width=1200 height=600
+scene "Database Write-Ahead Log (WAL) & Event Lifecycle" theme=editorial type=timeline width=1280 height=760
 
-service AlphaRelease "v0.1 Alpha Launch"
-service BetaRelease "v0.5 Public Beta" focal=true
-service GARelease "v1.0 General Availability"
-service EnterpriseTier "v2.0 Enterprise Tier"
-service GlobalExpansion "v3.0 Multi-Region"
+event T0_Write "T0: Client Ingress"
+event T1_WAL "T1: WAL fsync (Disk)" focal=true
+event T2_MemTable "T2: MemTable Insert"
+event T3_SSTable "T3: SSTable Flush"
+event T4_Compaction "T4: LSM Compaction"
+event T5_CDC "T5: Kafka CDC Event"
 
-beat timeline_reveal "Platform Evolution":
-  show $nodes stagger=60ms
-  glow BetaRelease "First paying customers"
+beat lifecycle "1. LSM Storage Engine Event Progression":
+  show $nodes stagger=50ms
+  T0_Write -> T1_WAL "fsync" -> T2_MemTable "insert" -> T3_SSTable "flush" -> T4_Compaction "merge" -> T5_CDC "stream"
+  glow T1_WAL color=#047857
+
+beat durability_focus "2. Strict Durability Guarantee":
+  glow T1_WAL color=#22c55e & glow T5_CDC color=#38bdf8
 
 player:
   playback:
@@ -27,4 +32,4 @@ player:
   chrome:
     badge true
     progress boundary
-    color "#3b82f6"
+    color "#047857"

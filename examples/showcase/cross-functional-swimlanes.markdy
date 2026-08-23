@@ -1,11 +1,11 @@
 # cross-functional-swimlanes.markdy
-# Demonstrates Cross-Functional Responsibility Swimlanes (Client -> Edge -> Domain -> Persistence).
+# Saga Distributed Transaction Order Fulfillment Swimlanes
 
-scene theme=paper type=swimlane width=1300 height=850
+scene "Saga Distributed Transaction Swimlanes" theme=paper type=swimlane width=1300 height=850
 
 group client_lane "Client Tier": WebApp MobileApp
 group edge_lane "Edge & Security Tier": CloudflareWAF KongGateway
-group domain_lane "Domain Microservices Tier": OrderService PaymentService InventoryService
+group domain_lane "Domain Microservices Tier": OrderSaga PaymentSvc InventorySvc
 group data_lane "Persistence Tier": OrdersDB PaymentVault RedisCluster
 
 browser WebApp "Next.js Web Client"
@@ -14,9 +14,9 @@ browser MobileApp "React Native App"
 gateway CloudflareWAF "Cloudflare Edge WAF"
 gateway KongGateway "Kong API Gateway"
 
-service OrderService "Order Orchestrator"
-service PaymentService "Payment Gateway Client"
-service InventoryService "Inventory Allocator"
+service OrderSaga "Order Saga Orchestrator" focal=true
+service PaymentSvc "Payment Gateway Client"
+service InventorySvc "Inventory Allocator"
 
 database OrdersDB "Aurora PostgreSQL"
 database PaymentVault "Encrypted Vault DB"
@@ -24,20 +24,21 @@ cache RedisCluster "Distributed Session Cache"
 
 beat ingress_flow "1. Client Ingress across Lanes":
   show client_lane edge_lane stagger=30ms
-  WebApp -> CloudflareWAF "POST /checkout" -> KongGateway "mTLS"
-  MobileApp -> CloudflareWAF "POST /checkout" -> KongGateway "mTLS"
+  WebApp -> CloudflareWAF "POST /checkout"
+  CloudflareWAF -> KongGateway "mTLS"
 
-beat domain_dispatch "2. Cross-Lane Domain Processing":
+beat saga_dispatch "2. Cross-Lane Domain Processing & Saga Orchestration":
   show domain_lane stagger=30ms
-  KongGateway -> OrderService "route order payload"
-  OrderService -> PaymentService "authorize credit charge"
-  OrderService -> InventoryService "reserve item stock"
+  KongGateway -> OrderSaga "route order"
+  OrderSaga -> PaymentSvc
+  PaymentSvc -> InventorySvc
 
-beat persistence_commit "3. Persistence & State Commit":
+beat persistence_commit "3. Persistence & Transactional Commit":
   show data_lane stagger=30ms
-  OrderService -> OrdersDB "commit order record"
-  PaymentService -> PaymentVault "store masked token"
-  InventoryService -> RedisCluster "decrement real-time inventory"
+  OrderSaga -> OrdersDB "commit order"
+  PaymentSvc -> PaymentVault "store token"
+  InventorySvc -> RedisCluster "decrement stock"
+  glow OrdersDB color=#22c55e & glow PaymentVault color=#38bdf8
 
 player:
   playback:
@@ -53,4 +54,4 @@ player:
   chrome:
     badge true
     progress boundary
-    color "#3b82f6"
+    color "#047857"

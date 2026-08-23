@@ -1,22 +1,21 @@
 # database-radar-benchmark.markdy
-# Demonstrates 5-Axis Multi-Dimensional System Benchmark Radar Topology.
+# Distributed Database Multi-Axis Engine Benchmark
 
-scene theme=paper type=radar width=1100 height=900
+scene "Distributed Database Multi-Axis Engine Benchmark" theme=paper type=radar width=1280 height=760
 
-metric Latency "Read/Write Latency"
-metric Scalability "Horizontal Scalability" focal=true
-metric ACID "Strong ACID Consistency"
-metric OperationalSimplicity "Operational Simplicity"
-metric GlobalReplication "Multi-Region Replication"
+stat Latency "Sub-10ms Global Latency"
+stat Consistency "Strict Serializability" focal=true
+stat Throughput "Million+ QPS Throughput"
+stat PartitionTolerance "Partition Tolerance"
+stat AutoSharding "Elastic Auto-Sharding"
+stat SchemaEvolution "Online Schema Evolution"
 
-beat benchmark_reveal "1. Evaluation Axes":
+beat reveal "1. Multi-Axis Benchmark Evaluation":
   show $nodes stagger=50ms
-  glow Scalability "Max Priority Criterion"
+  glow Consistency color=#047857
 
-beat capability_mesh "2. Architecture Trade-Offs":
-  Latency -> Scalability "p99 < 5ms"
-  Scalability -> GlobalReplication "active-active multi-region"
-  GlobalReplication -> ACID "Raft consensus quorum"
+beat comparison_pulse "2. Distributed SQL Engine Superiority":
+  glow Consistency color=#22c55e & glow PartitionTolerance color=#38bdf8 & glow AutoSharding color=#047857
 
 player:
   playback:
@@ -32,4 +31,4 @@ player:
   chrome:
     badge true
     progress boundary
-    color "#3b82f6"
+    color "#047857"

@@ -1,0 +1,63 @@
+# concurrency-decision-flowchart.markdy
+# Decision Flowchart for High-Concurrency Backend Architecture
+
+scene "Python Concurrency Decision Flowchart" theme=editorial type=flowchart width=1300 height=760
+layout LR
+
+start Start "Workload Ingress"
+decision Nature "Workload Type?" focal=true
+condition IOBound "I/O-Bound (Network/DB)"
+decision Scale "Concurrency Scale?"
+service AsyncioEngine "Asyncio / uvloop (Event Loop)"
+service ThreadPoolEngine "ThreadPool (Blocking I/O)"
+
+condition CPUBound "CPU-Bound (Compute/ML)"
+service MultiProcEngine "ProcessPool (Multi-Core)"
+end Result "Optimal Architecture"
+
+edge e1: Start -> Nature
+edge e2: Nature -> IOBound "I/O wait"
+edge e3: IOBound -> Scale
+edge e4: Scale -> AsyncioEngine "High Concurrency"
+edge e5: Scale -> ThreadPoolEngine "Low Concurrency"
+edge e6: Nature -> CPUBound "Heavy Compute"
+edge e7: CPUBound -> MultiProcEngine
+edge e8: AsyncioEngine -> Result
+edge e9: ThreadPoolEngine -> Result
+edge e10: MultiProcEngine -> Result
+
+beat reveal "1. Workload Profiling Entrance":
+  show $nodes stagger=30ms
+
+beat io_flow "2. I/O-Bound High Concurrency Path":
+  Start -> Nature
+  Nature -> IOBound
+  IOBound -> Scale
+  Scale -> AsyncioEngine
+  AsyncioEngine -> Result
+  glow AsyncioEngine color=#047857
+
+beat cpu_flow "3. CPU-Bound Multi-Core Path":
+  Nature -> CPUBound
+  CPUBound -> MultiProcEngine
+  MultiProcEngine -> Result
+  glow MultiProcEngine color=#2563eb
+
+beat finish "4. Concurrency Architecture Selected":
+  glow Result color=#047857
+
+player:
+  playback:
+    loop true
+  controls:
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress boundary
+    color "#047857"

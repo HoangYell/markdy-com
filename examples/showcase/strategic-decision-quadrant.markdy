@@ -1,20 +1,28 @@
 # strategic-decision-quadrant.markdy
-# Demonstrates 2x2 Strategic Decision Matrix (Impact vs Effort / Scenario Matrix).
+# CAP Theorem & Distributed Data Store 2x2 Strategic Quadrant
 
-scene theme=editorial type=quadrant width=1200 height=800
+scene "CAP Theorem Distributed Storage 2x2 Matrix" theme=editorial type=quadrant width=1280 height=760
 
-service RealTimeEngine "Real-Time Streaming" quadrant=Q1 focal=true
-service GraphCatalog "Graph Data Catalog" quadrant=Q2
-service MonolithAuth "Legacy Session Store" quadrant=Q3
-service AutoPruneCron "Nightly Pruning Cron" quadrant=Q4
+database Spanner "Google Cloud Spanner (CP / Strict)" quadrant=Q1 focal=true
+database Cockroach "CockroachDB (CP / Raft SQL)" quadrant=Q1
 
-beat matrix_revelation "1. Quadrant Positioning":
-  show $nodes stagger=60ms
-  glow RealTimeEngine "High Impact / Low Effort (Do First)"
+database Cassandra "Apache Cassandra (AP / Tunable)" quadrant=Q2
+database DynamoDB "AWS DynamoDB (AP / High-Write)" quadrant=Q2
 
-beat transition_path "2. Strategic Migration Path":
-  MonolithAuth -> GraphCatalog "refactor to catalog"
-  GraphCatalog -> RealTimeEngine "promote to stream core"
+database SQLite "Embedded SQLite (CA / Single-Node)" quadrant=Q3
+database Postgres "PostgreSQL (CA / ACID)" quadrant=Q3
+
+database RedisCluster "Redis Sentinel (HA In-Memory)" quadrant=Q4
+
+beat reveal "1. CAP Theorem Architectural Classification":
+  show $nodes stagger=40ms
+  glow Spanner color=#047857
+
+beat cp_focus "2. Strict Consistency & Partition Tolerance (CP)":
+  glow Spanner color=#22c55e & glow Cockroach color=#22c55e
+
+beat ap_focus "3. High Availability & Eventual Consistency (AP)":
+  glow Cassandra color=#38bdf8 & glow DynamoDB color=#38bdf8
 
 player:
   playback:
@@ -30,4 +38,4 @@ player:
   chrome:
     badge true
     progress boundary
-    color "#3b82f6"
+    color "#047857"

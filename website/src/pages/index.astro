@@ -81,10 +81,11 @@ const PILLARS = [
 ];
 
 const SIGNATURE_PRESETS = [
-  { name: "⚡ Cache-Aside (Redis)", index: 0 },
-  { name: "📬 Kafka Stream & Fan-Out", index: 1 },
-  { name: "☸️ Kubernetes Ingress Cluster", index: 4 },
-  { name: "🔐 OAuth2 JWT Handshake", index: 3 },
+  { name: "⚡ Cache-Aside (Architecture)", index: 0 },
+  { name: "🔀 Concurrency (Flowchart)", index: 1 },
+  { name: "🌲 Hash Ring (Tree)", index: 2 },
+  { name: "🔐 OAuth PKCE (Sequence)", index: 3 },
+  { name: "🛡️ 2PC Consensus (State)", index: 4 },
 ];
 
 const AI_TOOLS = [
@@ -99,35 +100,35 @@ const AI_TOOLS = [
 const AI_PROMPT_PRESETS = [
   {
     id: "url-shortener",
-    name: "🔗 URL Shortener Architecture",
+    name: "🔗 URL Shortener (Cache-Aside)",
     exampleIndex: 0,
     target: "Design a URL Shortener architecture",
     prompt: `Follow https://markdy.com/AGENT.md and generate one complete MarkdyScript scene:
 "Design a URL Shortener architecture: a user creates a short link via API Gateway and URL Shortener service, writes to PostgreSQL and warms Redis cache. Then a visitor opens the short link and gets redirected 301 from cache or DB fallback. Use beats for each step and highlight the cache hit path."`,
   },
   {
-    id: "twitter-timeline",
-    name: "📬 Kafka Stream & Fan-Out",
+    id: "concurrency-decision",
+    name: "🔀 Concurrency Decision Tree",
     exampleIndex: 1,
-    target: "Twitter Timeline Fan-Out Service",
+    target: "Python Concurrency Decision Flowchart",
     prompt: `Follow https://markdy.com/AGENT.md and generate one complete MarkdyScript scene:
-"Design a real-time event streaming and timeline fan-out service: User posts a tweet, Ingress forwards to TweetService, event publishes to Kafka queue, TimelineWorker consumes and fans out to Redis timelines of active followers."`,
+"Design a Python Concurrency Decision Tree with type=flowchart: decision node Workload Type branching into I/O-Bound vs CPU-Bound conditions, routing to Asyncio / FastAPI vs Multiprocessing worker pools with glowing finish beats."`,
   },
   {
-    id: "k8s-cluster",
-    name: "☸️ Kubernetes Ingress Cluster",
-    exampleIndex: 4,
-    target: "Kubernetes Cluster Ingress & Pods",
+    id: "consistent-hash",
+    name: "🌲 Consistent Hash Virtual Nodes",
+    exampleIndex: 2,
+    target: "Consistent Hashing Virtual Node Tree",
     prompt: `Follow https://markdy.com/AGENT.md and generate one complete MarkdyScript scene:
-"Design a Kubernetes Cluster Architecture: Internet traffic arrives at IngressController, routes to order-service Pods in the cluster group, connects to PostgreSQL database, with a finish glow beat on the cluster."`,
+"Design a Consistent Hash Virtual Node hierarchy with type=tree: Cluster Master coordinator branching into partition tiers [0-55], [56-AA], [AB-FF] and virtual node primary/replica database nodes."`,
   },
   {
     id: "oauth-flow",
-    name: "🔐 OAuth2 JWT Handshake",
+    name: "🔐 OAuth2 PKCE Handshake",
     exampleIndex: 3,
-    target: "OAuth2 / OIDC Login Handshake",
+    target: "OAuth2 PKCE & OIDC Login Sequence",
     prompt: `Follow https://markdy.com/AGENT.md and generate one complete MarkdyScript scene:
-"Design an OAuth2 / OIDC login flow: User clicks login on Browser, redirects to AuthServer, exchanges authorization code for JWT token, and passes Bearer token to Backend API."`,
+"Design an OAuth2 PKCE handshake sequence with type=sequence: Client SPA requests authorization code with SHA256 challenge, exchanges code and verifier with Token Endpoint, and accesses protected Resource API."`,
   },
 ];
 
@@ -354,6 +355,7 @@ const homepageStructuredData = [
       </a>
 
       <div class="nav-links">
+        <a href="/examples/">Gallery</a>
         <a href="#prompt-tutorial">AI Prompt</a>
         <a href="#layouts">Layouts &amp; Themes</a>
         <a href="#ingestion">Ingestion</a>
@@ -382,6 +384,7 @@ const homepageStructuredData = [
     <!-- Mobile Drawer Menu -->
     <div id="mobile-nav-drawer" class="mobile-nav-drawer" hidden>
       <div class="mobile-drawer-inner">
+        <a href="/examples/" class="mobile-nav-link mobile-nav-highlight">🎨 Examples Gallery (30+)</a>
         <a href="#prompt-tutorial" class="mobile-nav-link">🤖 AI Prompt Tutorial</a>
         <a href="#layouts" class="mobile-nav-link">🎨 17 Layouts &amp; Themes</a>
         <a href="#ingestion" class="mobile-nav-link">🔄 Universal Ingestion</a>
@@ -389,7 +392,7 @@ const homepageStructuredData = [
         <a href="#ai-gen" class="mobile-nav-link">🤖 AI Coding &amp; MCP</a>
         <a href="/docs/" class="mobile-nav-link">📖 Documentation</a>
         <a href="/blog/" class="mobile-nav-link">✍️ Articles &amp; Guides</a>
-        <a href="/playground/" class="mobile-nav-link mobile-nav-highlight">⚡ Open Interactive Studio</a>
+        <a href="/playground/" class="mobile-nav-link">⚡ Open Interactive Studio</a>
         <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="mobile-nav-link">🐙 GitHub Repository ↗</a>
       </div>
     </div>
@@ -578,10 +581,15 @@ const homepageStructuredData = [
           <div class="studio-select-wrap">
             <select id="example-select" class="studio-select" aria-label="Load Architecture Example">
               {EXAMPLES.map((ex, i) => (
-                <option value={i}>{ex.title} ({ex.pattern ?? ex.category})</option>
+                <option value={i}>[{ex.sceneType.toUpperCase()}] {ex.title}</option>
               ))}
             </select>
           </div>
+        </div>
+        <div class="studio-right-actions">
+          <a href="/examples/" class="studio-gallery-link" title="Explore all 30+ Architecture Examples">
+            <span>All Examples (30+) ↗</span>
+          </a>
         </div>
       </div>
 
@@ -1981,12 +1989,6 @@ markdy check-all ./docs/diagrams</code></pre>
     }
   }
 
-  .preset-chip:hover {
-    color: var(--text-primary);
-    border-color: var(--border-hover);
-    background: var(--bg-tertiary);
-  }
-
   .preset-chip.active {
     background: var(--accent-light);
     color: var(--accent);
@@ -2561,6 +2563,32 @@ markdy check-all ./docs/diagrams</code></pre>
     outline: none;
     border-color: var(--accent);
     box-shadow: 0 0 0 2px var(--accent-light);
+  }
+
+  .studio-right-actions {
+    display: flex;
+    align-items: center;
+  }
+
+  .studio-gallery-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.76rem;
+    font-family: "JetBrains Mono", monospace;
+    font-weight: 600;
+    color: var(--accent);
+    text-decoration: none;
+    padding: 0.28rem 0.65rem;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 20%, transparent);
+    transition: all 0.15s ease;
+  }
+
+  .studio-gallery-link:hover {
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    border-color: var(--accent);
   }
 
   .studio-split-body {

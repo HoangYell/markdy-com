@@ -1,21 +1,20 @@
 # enterprise-value-pyramid.markdy
-# Demonstrates Hierarchical Value Pyramid & Stacked Abstraction Tiers.
+# Full-Stack Observability & Telemetry Hierarchy Pyramid
 
-scene theme=editorial type=pyramid width=1200 height=800
+scene "Full-Stack Observability & Telemetry Pyramid" theme=editorial type=pyramid width=1280 height=760
 
-service UserValue "Developer Velocity & Business Value" tier=0 focal=true
-service InternalDevPortal "Internal Developer Portal (Backstage)" tier=1
-service OrchestrationMesh "K8s Operator & Service Mesh" tier=2
-service CloudFoundation "Multi-Cloud Infrastructure & VPC" tier=3
+stat AIInsights "Layer 4: AI Root Cause Analysis & Automated Remediation" focal=true
+stat Traces "Layer 3: Distributed Tracing & APM (OpenTelemetry / Jaeger)"
+stat Metrics "Layer 2: Aggregated Time-Series Metrics (Prometheus / Grafana)"
+stat StructuredLogs "Layer 1: High-Volume Structured Logs (Elasticsearch / ClickHouse)"
 
-beat value_pyramid_revelation "1. Value Hierarchy":
-  show $nodes stagger=40ms
-  glow UserValue "Apex: Max Impact"
+beat pyramid_reveal "1. Telemetry Hierarchy Stratification":
+  show $nodes stagger=60ms
+  glow AIInsights color=#047857
 
-beat dependency_chain "2. Upward Capability Flow":
-  CloudFoundation -> OrchestrationMesh "automated terraform provisioning"
-  OrchestrationMesh -> InternalDevPortal "declarative Golden Paths"
-  InternalDevPortal -> UserValue "10x faster service deployments"
+beat signal_correlation "2. Multi-Signal Incident Correlation":
+  StructuredLogs -> Metrics "aggregate" -> Traces "contextualize" -> AIInsights "diagnose"
+  glow AIInsights color=#22c55e
 
 player:
   playback:
@@ -31,4 +30,4 @@ player:
   chrome:
     badge true
     progress boundary
-    color "#3b82f6"
+    color "#047857"
