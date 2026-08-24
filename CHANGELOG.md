@@ -5,7 +5,7 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.0.26] — 2026-08-24
+## [1.0.27] — 2026-08-24
 
 ### Added
 - **GitHub Packages npm Registry Distribution (`HoangYell/markdy-com/packages`)** — Configured dual-registry distribution for all 8 `@markdy/*` packages across both npmjs.com and GitHub Packages (`npm.pkg.github.com`). Added comprehensive authentication and installation documentation in `docs/GITHUB_PACKAGES.md`.

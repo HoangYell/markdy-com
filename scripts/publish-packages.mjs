@@ -1,8 +1,9 @@
 #!/usr/bin/env node
-import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { readdir, readFile, writeFile, unlink } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = resolve(__filename, '..');
@@ -22,6 +23,7 @@ async function isVersionPublished(name, version, registry) {
     const result = spawnSync('npm', ['view', `${name}@${version}`, 'version', `--registry=${registry}`], {
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
+      env: process.env,
     });
     return result.status === 0 && result.stdout.trim() === version;
   } catch {
@@ -31,7 +33,7 @@ async function isVersionPublished(name, version, registry) {
 
 async function main() {
   console.log(`\n🚀 Markdy Package Publisher`);
-  console.log(`📦 Registry: ${targetRegistry}`);
+  console.log(`📦 Target Registry: ${targetRegistry}`);
   if (targetScope) {
     console.log(`🏷️  Target Scope: @${targetScope}`);
   }
@@ -45,6 +47,7 @@ async function main() {
   for (const dir of packageDirs) {
     const pkgPath = join(PACKAGES_DIR, dir);
     const pkgJsonPath = join(pkgPath, 'package.json');
+    const localNpmrcPath = join(pkgPath, '.npmrc');
 
     let originalContent;
     let pkgJson;
@@ -68,13 +71,37 @@ async function main() {
       publishName = `@${targetScope}/${pkgSubName}`;
     }
 
+    const scope = publishName.startsWith('@') ? publishName.split('/')[0].slice(1) : null;
+
     console.log(`\n👉 Checking ${publishName}@${version}...`);
 
+    let localNpmrcCreated = false;
+
     try {
-      if (publishName !== pkgJson.name) {
-        pkgJson.name = publishName;
-        await writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 2) + '\n', 'utf8');
+      // Modify package.json temporarily if needed
+      pkgJson.name = publishName;
+      pkgJson.publishConfig = {
+        access: 'public',
+        registry: targetRegistry,
+      };
+      await writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 2) + '\n', 'utf8');
+
+      // Create an ephemeral .npmrc in the package directory to strictly enforce registry & auth
+      const token = process.env.NODE_AUTH_TOKEN || '';
+      const npmrcLines = [
+        `registry=${targetRegistry}`,
+        `@markdy:registry=${targetRegistry}`,
+        `@hoangyell:registry=${targetRegistry}`,
+      ];
+      if (scope) {
+        npmrcLines.push(`@${scope}:registry=${targetRegistry}`);
       }
+      if (token) {
+        npmrcLines.push(`//npm.pkg.github.com/:_authToken=${token}`);
+        npmrcLines.push(`//registry.npmjs.org/:_authToken=${token}`);
+      }
+      await writeFile(localNpmrcPath, npmrcLines.join('\n') + '\n', 'utf8');
+      localNpmrcCreated = true;
 
       const alreadyPublished = await isVersionPublished(publishName, version, targetRegistry);
       if (alreadyPublished) {
@@ -83,7 +110,16 @@ async function main() {
         continue;
       }
 
-      const publishCmd = ['publish', '--no-git-checks', '--access', 'public', `--registry=${targetRegistry}`];
+      const publishCmd = [
+        'publish',
+        '--no-git-checks',
+        '--access',
+        'public',
+        `--registry=${targetRegistry}`,
+      ];
+      if (scope) {
+        publishCmd.push(`--@${scope}:registry=${targetRegistry}`);
+      }
       if (isDryRun) {
         publishCmd.push('--dry-run');
       }
@@ -107,8 +143,13 @@ async function main() {
         results.push({ name: publishName, version, status: isDryRun ? 'simulated' : 'published' });
       }
     } finally {
-      if (publishName !== pkgJson.name || originalContent) {
+      // Restore package.json
+      if (originalContent) {
         await writeFile(pkgJsonPath, originalContent, 'utf8');
+      }
+      // Clean up ephemeral .npmrc
+      if (localNpmrcCreated && fs.existsSync(localNpmrcPath)) {
+        await unlink(localNpmrcPath);
       }
     }
   }
