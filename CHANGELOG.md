@@ -5,6 +5,21 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.28] — 2026-08-24
+
+### Added
+- **Full Model Context Protocol (MCP) Capabilities (`@markdy/mcp-server`)** — Upgraded the official MCP server to support all 3 core protocol primitives:
+  - **5 Tools**: `validate_markdy_code` (syntax & Well-Architected governance validation with AI repair prompts), `transpile_to_markdy` (Mermaid, Docker Compose, Kubernetes, Terraform, Draw.io transpilation), `explain_architecture` (AST decomposition & role analysis), `generate_markdy_prompt` (tailored system prompt generation), and `get_architecture_catalog` (runnable golden template catalog retrieval).
+  - **3 Resources**: `markdy://spec/agent-reference` (canonical specification bundle), `markdy://templates/catalog` (JSON templates catalog), and `markdy://governance/rules` (Well-Architected rule presets).
+  - **3 Prompts**: `create_architecture_diagram` (multi-step design workflow), `audit_architecture` (governance audit workflow), and `transpile_architecture` (migration workflow).
+- **Standalone MCP Self-Contained Bundling** — Configured `noExternal: ["@markdy/core", "@markdy/compat"]` in `tsup.config.ts`, bundling workspace dependencies directly into `dist/index.js` for standalone execution via `npx -y @markdy/mcp-server` across Claude Desktop, Cursor, Google Antigravity, Windsurf, and Zed.
+- **Canonical AI Agent Specification & Anti-Hallucination Overhaul (`docs/AGENT.md`)** — Restructured into a strict top-to-bottom DAG format with formal TypeScript IDL schema anchors, closed-world vocabulary tables (no open-ended lists), self-contained parameter specifications, and paired contrastive anti-pattern examples (e.g. cycle-prevention with `<-`).
+
+### Changed
+- **Synchronized Prompt Mirrors (`scripts/regenerate-all.ts`)** — Refactored `SYSTEM_PROMPT` to incorporate the 4-step structural blueprint and closed node categories, synchronizing `prompts/system-prompt.md`, `prompts/system-prompt.json`, and website public mirrors.
+- **MCP Documentation & Client Integration Guides (`packages/mcp-server/README.md`)** — Added complete parameter tables, JSON-RPC payloads, and copy-paste configuration snippets for Claude Desktop, Cursor, Google Antigravity, Windsurf, and Zed.
+- **Syntax Reference Polish (`docs/SYNTAX.md`)** — Updated node kind categorizations and clarified return-flow cycle safety for layout engines.
+
 ## [1.0.27] — 2026-08-24
 
 ### Added
