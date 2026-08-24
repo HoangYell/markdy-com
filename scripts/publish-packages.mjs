@@ -117,9 +117,6 @@ async function main() {
         'public',
         `--registry=${targetRegistry}`,
       ];
-      if (scope) {
-        publishCmd.push(`--@${scope}:registry=${targetRegistry}`);
-      }
       if (isDryRun) {
         publishCmd.push('--dry-run');
       }
