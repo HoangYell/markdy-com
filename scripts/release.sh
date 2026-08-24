@@ -85,10 +85,10 @@ pnpm run regen
 
 create_changelog_stub_if_missing
 
-echo "✅ Running validation (build/lint/test)"
+echo "✅ Running full validation (build/lint/ci suite)"
 pnpm run build
 pnpm run lint
-pnpm run test
+pnpm run ci
 
 echo "📝 Committing release metadata"
 if [ -n "$(git status --porcelain)" ]; then
