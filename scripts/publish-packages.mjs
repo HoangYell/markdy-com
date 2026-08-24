@@ -31,6 +31,21 @@ async function isVersionPublished(name, version, registry) {
   }
 }
 
+function rewriteDependencies(deps, targetScope, version) {
+  if (!deps || typeof deps !== 'object') return deps;
+  const rewritten = {};
+  for (const [key, val] of Object.entries(deps)) {
+    if (key.startsWith('@markdy/')) {
+      const subName = key.replace('@markdy/', '');
+      const newKey = `@${targetScope}/${subName}`;
+      rewritten[newKey] = val.startsWith('workspace:') ? `^${version}` : val;
+    } else {
+      rewritten[key] = val;
+    }
+  }
+  return rewritten;
+}
+
 async function main() {
   console.log(`\n🚀 Markdy Package Publisher`);
   console.log(`📦 Target Registry: ${targetRegistry}`);
@@ -80,16 +95,21 @@ async function main() {
     try {
       // Modify package.json temporarily if needed
       pkgJson.name = publishName;
+      if (targetScope) {
+        if (pkgJson.dependencies) pkgJson.dependencies = rewriteDependencies(pkgJson.dependencies, targetScope, version);
+        if (pkgJson.peerDependencies) pkgJson.peerDependencies = rewriteDependencies(pkgJson.peerDependencies, targetScope, version);
+        if (pkgJson.optionalDependencies) pkgJson.optionalDependencies = rewriteDependencies(pkgJson.optionalDependencies, targetScope, version);
+      }
       pkgJson.publishConfig = {
         access: 'public',
         registry: targetRegistry,
       };
       await writeFile(pkgJsonPath, JSON.stringify(pkgJson, null, 2) + '\n', 'utf8');
 
-      // Create an ephemeral .npmrc in the package directory to strictly enforce registry & auth
+      // Create an ephemeral .npmrc in the package directory
       const token = process.env.NODE_AUTH_TOKEN || '';
       const npmrcLines = [
-        `registry=${targetRegistry}`,
+        `registry=https://registry.npmjs.org/`,
         `@markdy:registry=${targetRegistry}`,
         `@hoangyell:registry=${targetRegistry}`,
       ];
@@ -115,7 +135,6 @@ async function main() {
         '--no-git-checks',
         '--access',
         'public',
-        `--registry=${targetRegistry}`,
       ];
       if (isDryRun) {
         publishCmd.push('--dry-run');

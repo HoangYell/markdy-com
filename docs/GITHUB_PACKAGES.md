@@ -8,16 +8,18 @@ This guide explains how to configure authentication and install `@markdy/*` pack
 
 ## Published Packages
 
-| Package | GitHub Packages URL | npmjs URL |
+Packages are distributed under `@markdy/*` on npmjs.com and mirrored under `@hoangyell/*` on GitHub Packages (`npm.pkg.github.com`):
+
+| Package | GitHub Packages (`@hoangyell/*`) | npmjs (`@markdy/*`) |
 |---|---|---|
-| [`@markdy/core`](file:///Users/yell/Projects/markdy-com/packages/core) | [github.com/HoangYell/markdy-com/packages](https://github.com/HoangYell/markdy-com/packages) | [npmjs.com/package/@markdy/core](https://www.npmjs.com/package/@markdy/core) |
-| [`@markdy/renderer-dom`](file:///Users/yell/Projects/markdy-com/packages/renderer-dom) | [github.com/HoangYell/markdy-com/packages](https://github.com/HoangYell/markdy-com/packages) | [npmjs.com/package/@markdy/renderer-dom](https://www.npmjs.com/package/@markdy/renderer-dom) |
-| [`@markdy/cli`](file:///Users/yell/Projects/markdy-com/packages/cli) | [github.com/HoangYell/markdy-com/packages](https://github.com/HoangYell/markdy-com/packages) | [npmjs.com/package/@markdy/cli](https://www.npmjs.com/package/@markdy/cli) |
-| [`@markdy/astro`](file:///Users/yell/Projects/markdy-com/packages/astro) | [github.com/HoangYell/markdy-com/packages](https://github.com/HoangYell/markdy-com/packages) | [npmjs.com/package/@markdy/astro](https://www.npmjs.com/package/@markdy/astro) |
-| [`@markdy/stdlib-systems`](file:///Users/yell/Projects/markdy-com/packages/stdlib-systems) | [github.com/HoangYell/markdy-com/packages](https://github.com/HoangYell/markdy-com/packages) | [npmjs.com/package/@markdy/stdlib-systems](https://www.npmjs.com/package/@markdy/stdlib-systems) |
-| [`@markdy/language-server`](file:///Users/yell/Projects/markdy-com/packages/markdy-language-server) | [github.com/HoangYell/markdy-com/packages](https://github.com/HoangYell/markdy-com/packages) | [npmjs.com/package/@markdy/language-server](https://www.npmjs.com/package/@markdy/language-server) |
-| [`@markdy/mcp-server`](file:///Users/yell/Projects/markdy-com/packages/mcp-server) | [github.com/HoangYell/markdy-com/packages](https://github.com/HoangYell/markdy-com/packages) | [npmjs.com/package/@markdy/mcp-server](https://www.npmjs.com/package/@markdy/mcp-server) |
-| [`@markdy/mdx`](file:///Users/yell/Projects/markdy-com/packages/mdx) | [github.com/HoangYell/markdy-com/packages](https://github.com/HoangYell/markdy-com/packages) | [npmjs.com/package/@markdy/mdx](https://www.npmjs.com/package/@markdy/mdx) |
+| Core Engine | [`@hoangyell/core`](https://github.com/HoangYell/markdy-com/pkgs/npm/core) | [`@markdy/core`](https://www.npmjs.com/package/@markdy/core) |
+| DOM Renderer | [`@hoangyell/renderer-dom`](https://github.com/HoangYell/markdy-com/pkgs/npm/renderer-dom) | [`@markdy/renderer-dom`](https://www.npmjs.com/package/@markdy/renderer-dom) |
+| CLI Tool | [`@hoangyell/cli`](https://github.com/HoangYell/markdy-com/pkgs/npm/cli) | [`@markdy/cli`](https://www.npmjs.com/package/@markdy/cli) |
+| Astro Integration | [`@hoangyell/astro`](https://github.com/HoangYell/markdy-com/pkgs/npm/astro) | [`@markdy/astro`](https://www.npmjs.com/package/@markdy/astro) |
+| Standard Library | [`@hoangyell/stdlib-systems`](https://github.com/HoangYell/markdy-com/pkgs/npm/stdlib-systems) | [`@markdy/stdlib-systems`](https://www.npmjs.com/package/@markdy/stdlib-systems) |
+| Language Server | [`@hoangyell/language-server`](https://github.com/HoangYell/markdy-com/pkgs/npm/language-server) | [`@markdy/language-server`](https://www.npmjs.com/package/@markdy/language-server) |
+| MCP Server | [`@hoangyell/mcp-server`](https://github.com/HoangYell/markdy-com/pkgs/npm/mcp-server) | [`@markdy/mcp-server`](https://www.npmjs.com/package/@markdy/mcp-server) |
+| MDX Component | [`@hoangyell/mdx`](https://github.com/HoangYell/markdy-com/pkgs/npm/mdx) | [`@markdy/mdx`](https://www.npmjs.com/package/@markdy/mdx) |
 
 ---
 
