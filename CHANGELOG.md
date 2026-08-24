@@ -5,6 +5,13 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.29] — 2026-08-24
+
+### Fixed
+- **CI/CD Matrix Multi-Node Resilience (`.github/workflows/ci.yml`)** — Introduced isolated `build:packages` pipeline in root `package.json`, preventing Astro 5 Node 20 engine incompatibilities during matrix testing across Node 20 & 22 while preserving full website build verification on Node 22.
+- **Release Workflow Auth Streamlining (`.github/workflows/release.yml`)** — Removed redundant manual `~/.npmrc` token step, fully leveraging `scripts/publish-packages.mjs` for isolated, ephemeral per-package registry credential injection.
+- **Repository Hygiene & Branch Pruning** — Closed 11 stale Dependabot PRs and pruned dangling remote branches.
+
 ## [1.0.28] — 2026-08-24
 
 ### Added
