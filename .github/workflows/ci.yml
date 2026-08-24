@@ -32,7 +32,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build packages
-        run: pnpm run build
+        run: pnpm run build:packages
 
       - name: Type-check workspace
         run: pnpm run typecheck
@@ -63,7 +63,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build packages
-        run: pnpm run build
+        run: pnpm run build:packages
 
       - name: Run unit & feature tests
         run: pnpm -r run test
@@ -92,7 +92,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build packages
-        run: pnpm run build
+        run: pnpm run build:packages
 
       - name: Run Chrome DevTools headless layout & animation tests
         run: pnpm run test:devtools
@@ -126,7 +126,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build packages
-        run: pnpm run build
+        run: pnpm run build:packages
 
       - name: Build Astro website
-        run: pnpm --filter @markdy/website run build
+        run: pnpm run build:website
