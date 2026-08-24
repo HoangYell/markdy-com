@@ -2,9 +2,9 @@
 
 > ### DOCUMENTATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.25
+> - **Current Version**: v1.0.26
 > - **Specification Version**: 1.0.x
-> - **Last Updated**: 2026-08-23
+> - **Last Updated**: 2026-08-24
 > - **Documentation Hub**: <https://markdy.com/docs/>
 > - **Quickstart Command**: `npm install -g @markdy/cli`
 

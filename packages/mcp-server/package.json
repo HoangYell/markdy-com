@@ -1,6 +1,6 @@
 {
   "name": "@markdy/mcp-server",
-  "version": "1.0.25",
+  "version": "1.0.26",
   "description": "Model Context Protocol server for Markdy diagram validation, transpilation, and generation.",
   "license": "MIT",
   "type": "module",
@@ -14,10 +14,33 @@
     "README.md",
     "LICENSE"
   ],
+  "keywords": [
+    "markdy",
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "diagram-native",
+    "diagram-as-code",
+    "architecture-diagram"
+  ],
+  "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
+  "homepage": "https://markdy.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HoangYell/markdy-com.git",
+    "directory": "packages/mcp-server"
+  },
+  "bugs": {
+    "url": "https://github.com/HoangYell/markdy-com/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@markdy/compat": "workspace:*",

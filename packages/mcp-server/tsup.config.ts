@@ -6,6 +6,7 @@ export default defineConfig({
   dts: true,
   clean: true,
   target: "es2022",
+  noExternal: ["@markdy/core", "@markdy/compat"],
   banner: {
     js: "#!/usr/bin/env node",
   },

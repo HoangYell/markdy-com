@@ -2,26 +2,27 @@
 
 > ### CURRENT AUTHORITATIVE SPECIFICATION
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.25
+> - **Current Version**: v1.0.26
 > - **Specification Version**: 1.0.x
-> - **Time Updated**: 2026-08-23T13:13:56.214Z
-> - **Last Updated**: 2026-08-23
+> - **Time Updated**: 2026-08-24T13:20:07.813Z
+> - **Last Updated**: 2026-08-24
 > - **Canonical URL**: <https://markdy.com/AGENT.md>
 > - **Human-Readable Mirror**: <https://markdy.com/agent/>
 > - **LLM Index**: <https://markdy.com/llms.txt>
 > - **Full LLM Context**: <https://markdy.com/llms-full.txt>
 >
 > **CRITICAL INSTRUCTIONS FOR AI AGENTS & LLMs:**
-> 1. **Disregard Legacy Memory**: This document is the single source of truth for MarkdyScript syntax. Do not invent tags, properties, or directives not documented here.
+> 1. **Single Source of Truth**: This document is the canonical specification for MarkdyScript syntax. Do not invent tags, properties, or directives not documented here.
 > 2. **Produce Self-Contained Output**: Always output a complete, valid `.markdy` code block starting with `scene` that can be rendered directly by `@markdy/renderer-dom` or pasted into the Studio.
 > 3. **Follow the 4-Step Mental Model**: 1) Directives & Scene Config → 2) Node Declarations → 3) Groups (Optional) → 4) Animated Storyboard Beats.
 > 4. **No Cyclical Ranking**: Use `->` for forward calls and `<-` for responses/returns. Using `->` for return values creates layout cycles that collapse node positions.
+> 5. **Define Before Use**: Declare all nodes and groups at the top level before referencing them inside `beat` blocks.
 
 ---
 
 ## ⚡ The 4-Step Markdy Mental Model
 
-Every Markdy diagram follows a clean, predictable 4-part structure:
+Every Markdy diagram is structured in 4 linear, non-circular parts:
 
 ```markdy
 # ─────────────────────────────────────────────────────────────────────────────
@@ -69,47 +70,99 @@ beat payment "Asynchronous Payment Processing":
 
 ---
 
-## 📐 Grammar & Directive Reference
+## 📐 Formal Grammar & AST Schema
 
-### 1. Scene Directives (`scene`)
+For AI agents generating MarkdyScript, the language syntax adheres to this TypeScript IDL:
 
-The `scene` declaration sets canvas dimensions, theme, and runtime behavior:
+```typescript
+// Formal MarkdyScript Abstract Syntax IDL
+type LayoutDirection = "LR" | "RL" | "TB" | "BT";
+
+type ThemeName =
+  | "paper"       // Clean light documentation canvas (Default)
+  | "editorial"   // Flat editorial paper with serif titles and ink roles
+  | "midnight"    // Deep navy dark canvas
+  | "blueprint"   // Technical cyan engineering CAD canvas
+  | "graphite"    // Restrained dark minimal canvas
+  | "nebula"      // Deep-space cyberpunk canvas with orbit halos
+  | "sketchy"     // Hand-drawn whiteboard theme with organic strokes
+  | "terminal";   // Dark CLI/TUI canvas with neon green monospace styling
+
+type DiagramType =
+  | "architecture" | "flowchart" | "tree" | "state" | "sequence"
+  | "constellation" | "loop" | "flywheel" | "medallion" | "quadrant"
+  | "swimlane" | "pyramid" | "radar" | "timeline" | "gantt"
+  | "venn" | "layers" | "nested";
+
+type EdgeKind =
+  | "->"   // Forward Request / Invocation (Determines layout rank)
+  | "<-"   // Return / Response (Excluded from layout rank to prevent cycles)
+  | "~>"   // Asynchronous Event / Pub-Sub
+  | "--";  // Structural / Dependency link
+
+interface SceneDeclaration {
+  title?: string;
+  theme?: ThemeName;        // Default: "paper"
+  layout?: LayoutDirection; // Default: "LR"
+  type?: DiagramType;       // Default: "architecture"
+  width?: number;           // Default: Auto-calculated by content engine
+  height?: number;          // Default: Auto-calculated by content engine
+}
+
+interface NodeDeclaration {
+  kind: string;             // Semantic kind (e.g., service, database, queue)
+  id: string;               // Alphanumeric identifier (no spaces)
+  label?: string;           // Optional display label enclosed in double quotes
+}
+
+interface GroupDeclaration {
+  id: string;               // Alphanumeric identifier
+  label?: string;           // Optional human label enclosed in double quotes
+  members: string[];        // Array of declared node IDs separated by spaces
+}
+
+interface StoryboardBeat {
+  name: string;             // Beat identifier
+  label?: string;           // Optional caption rendered during beat execution
+  cues: VisualCue[];        // Indented list of flow actions and camera cues
+}
+```
+
+---
+
+## 📖 Detailed Syntax Specifications
+
+### 1. Scene Directives (`scene` and `layout`)
+
+The `scene` declaration sets the canvas environment, visual theme, and diagram mode:
 
 ```markdy
 scene theme=paper width=1280 height=720 type=architecture
 layout LR
 ```
 
-| Directive | Default | Allowed Values / Purpose |
-|---|---|---|
-| `theme` | `paper` | `paper` (clean light), `editorial` (warm doc light), `midnight` (deep navy dark), `blueprint` (cyan engineering), `graphite` (charcoal dark), `nebula` (cyberpunk purple), `sketchy` (editorial hand-drawn), `terminal` (CLI retro green) |
-| `layout` | `LR` | Auto-layout direction: `LR` (left-to-right), `TB` (top-to-bottom), `RL` (right-to-left), `BT` (bottom-to-top) |
-| `width` | `Auto` | Canvas width in pixels (optional; dynamically computed from topology and ranks when omitted) |
-| `height` | `Auto` | Canvas height in pixels (optional; dynamically computed from topology and flow density when omitted) |
-| `type` | `architecture` | Diagram composition mode: `architecture`, `flowchart`, `sequence`, `tree`, `state`, `constellation`, `loop`, `medallion`, `quadrant`, `swimlane`, `pyramid`, `radar`, `timeline`, `gantt`, `venn`, `layers` |
-| `controls` | `false` | When `true`, mounts playback transport controls and reset buttons |
-| `interactive` | `false` | When `true`, enables wheel zoom and pan gestures |
-| `autoplay` | `true` | When `true`, starts playback automatically on load |
-| `loop` | `true` | When `true`, restarts animation smoothly after completion |
+#### Directive Parameter Table
 
-#### 📏 Content-Adaptive Canvas Sizing & Overrides
-Markdy features a built-in **content-adaptive sizing engine** that automatically analyzes diagram topology, rank depth, lifeline counts, and tree spans:
-- **Small diagrams** (1–3 nodes) automatically receive compact, tight framing ($1024 \times 576$) with zero excess void space.
-- **Dense architectures** (6+ ranks or vertical stacks) automatically expand ($1600+ \text{px}$) to provide ample breathing room for orthogonal arrows.
-- **Vertical flows (`TB`)** automatically adapt to portrait/card ratios ($960 \times 784$) without lateral blank margins.
-- **Sequence diagrams** dynamically scale vertical height based on flow message count ($F \times 76\text{px}$).
+| Directive | Type | Presence | Allowed Values | Default | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `theme` | `enum` | Optional | `paper`, `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `sketchy`, `terminal` | `paper` | Canvas color palette and font typography. |
+| `layout` | `enum` | Optional | `LR`, `TB`, `RL`, `BT` | `LR` | Auto-layout graph flow direction: `LR` (left-to-right), `TB` (top-to-bottom), `RL` (right-to-left), `BT` (bottom-to-top). |
+| `type` | `enum` | Optional | `architecture`, `flowchart`, `tree`, `state`, `sequence`, `timeline`, `gantt`, `venn`, `layers`, `nested`, `radar`, `medallion`, `flywheel`, `loop`, `quadrant`, `swimlane`, `pyramid`, `constellation` | `architecture` | Diagram composition layout engine. |
+| `width` | `number` | Optional | Positive integer in pixels (e.g. `1280`, `1440`, `1600`) | *Auto* | Canvas width. Omit to enable content-adaptive automatic sizing. |
+| `height` | `number` | Optional | Positive integer in pixels (e.g. `720`, `760`, `900`) | *Auto* | Canvas height. Omit to enable content-adaptive automatic sizing. |
 
-> [!TIP]
-> You rarely need to specify `width` and `height` manually. If you wish to pin exact dimensions for a specific embed or slide presentation, you can explicitly override them:
-> ```text
-> scene "Pinned Slide Frame" width=1600 height=900 theme=midnight
-> ```
+#### Content-Adaptive Canvas Sizing
+Markdy includes a content-adaptive sizing engine that calculates optimal bounds automatically:
+- **Small architectures** (1–3 nodes): Rendered in compact framing ($1024 \times 576$) with zero excess void space.
+- **Medium architectures** (4–8 nodes): Framed at $1280 \times 720$ or $1440 \times 760$.
+- **Dense architectures** (9+ nodes or 5+ ranks): Automatically expand to $1600 \times 900+$ to prevent edge crowding.
+- **Sequence diagrams**: Automatically scale vertical height based on total message count ($F \times 76\text{px}$).
 
 ---
 
-### 2. Node Declarations
+### 2. Semantic Node Declarations
 
-Declare nodes at the top level before referencing them in beats:
+Declare nodes at the top level before beats. The syntax is:
 
 ```text
 <kind> <Id> ["Optional Display Label"]
@@ -117,38 +170,44 @@ Declare nodes at the top level before referencing them in beats:
 
 ```markdy
 service ApiService "Order API"
-database PostgresDB "Main Store"
-queue EventBus "Kafka Events"
+database PostgresDB "Main Database"
+queue EventBus "Kafka Cluster"
 ```
 
-- `<kind>`: Semantic role (determines SVG icon glyph, color tone, and border styling).
-- `<Id>`: Unique alphanumeric identifier (used in flows, groups, and cues).
-- `"Optional Display Label"`: Human-readable string rendered inside the node card.
+- `<kind>`: Semantic role (determines the SVG icon, card accent color, and border styling).
+- `<Id>`: Unique single-token alphanumeric identifier (e.g., `OrderService`, `MainDB`).
+- `"Optional Display Label"`: Human-readable string enclosed in double quotes.
 
-#### Semantic Node Kinds Table
+#### Closed Semantic Node Kinds Reference Table
 
-| Category | Node Kinds | Primary Role |
-|---|---|---|
-| **Client / User** | `client`, `user`, `browser`, `mobile`, `desktop`, `frontend`, `app` | Traffic origin, end users, client applications |
-| **Compute / API** | `service`, `api`, `microservice`, `backend`, `worker`, `job`, `lambda`, `cron` | Business logic, application servers, background jobs |
-| **Data / Storage** | `database`, `db`, `cache`, `warehouse`, `lake`, `bucket`, `storage`, `search` | Persistence engines, Redis/Memcached, object storage |
-| **Messaging** | `queue`, `topic`, `stream`, `event`, `bus`, `broker`, `kafka`, `pubsub` | Asynchronous message brokers, event streaming |
-| **Networking** | `gateway`, `api_gateway`, `load_balancer`, `cloud`, `vpc`, `cdn`, `dns`, `firewall` | Entry points, ingress, edge distribution, security perimeter |
-| **Platform / K8s** | `cluster`, `pod`, `container`, `ingress`, `sidecar`, `registry`, `volume` | Kubernetes workloads, container orchestration |
-| **Security / Auth** | `auth`, `vault`, `secret`, `key`, `identity`, `policy` | Identity providers, token validation, secrets management |
-| **AI / Machine Learning** | `service LLM`, `database VectorDB`, `service Embedder`, `agent Agent` | AI models, embedding services, vector indexes |
-| **Flowchart / State** | `start`, `end`, `state`, `decision`, `condition`, `step` | Workflow states, decision gateways, pipeline stages |
+| Category | Allowed Kinds | Role & Purpose |
+| :--- | :--- | :--- |
+| **Compute & API** | `service`, `api`, `microservice`, `backend`, `server`, `worker`, `job`, `scheduler`, `cron`, `batch`, `function`, `lambda`, `edge`, `controller`, `handler`, `repository`, `runtime`, `process` | Application servers, microservices, serverless functions, background workers |
+| **Client & UI** | `client`, `user`, `browser`, `web`, `mobile`, `desktop`, `frontend`, `app`, `page`, `view`, `component`, `store` | End users, web browsers, mobile clients, frontend applications |
+| **Data & Storage** | `database`, `db`, `sql`, `nosql`, `table`, `index`, `warehouse`, `lake`, `object_store`, `storage`, `bucket`, `blob`, `volume`, `disk`, `search`, `cache` | Relational/NoSQL databases, caches, data lakes, object storage |
+| **Messaging & Events** | `queue`, `topic`, `stream`, `event`, `event_bus`, `bus`, `broker`, `pubsub`, `kafka`, `producer`, `consumer`, `dead_letter`, `dlq`, `webhook` | Message queues, event brokers, pub/sub channels |
+| **Network & Ingress** | `cloud`, `region`, `vpc`, `subnet`, `network`, `internet`, `dns`, `cdn`, `proxy`, `gateway`, `api_gateway`, `load_balancer`, `reverse_proxy`, `router`, `switch`, `nat`, `firewall`, `waf`, `vpn`, `bastion` | Load balancers, API gateways, CDN edges, network boundaries |
+| **Platform & Workloads** | `container`, `cluster`, `pod`, `node`, `deployment`, `replicaset`, `statefulset`, `daemonset`, `namespace`, `ingress`, `service_mesh`, `sidecar`, `image`, `registry`, `docker`, `compose`, `helm`, `chart`, `configmap`, `pvc` | Kubernetes workloads, container pods, registries |
+| **Security & Auth** | `auth`, `identity`, `oauth`, `oidc`, `jwt`, `session`, `policy`, `role`, `permission`, `vault`, `secret`, `key`, `certificate`, `security` | Identity providers, token validators, secret vaults |
+| **CI/CD & Delivery** | `repo`, `branch`, `commit`, `pipeline`, `workflow`, `runner`, `build`, `test`, `artifact`, `deploy`, `release`, `environment`, `preview` | Git repositories, build pipelines, deployment runners |
+| **Observability** | `monitor`, `metrics`, `logs`, `trace`, `alert`, `dashboard`, `probe`, `slo`, `stat`, `metric` | Telemetry collectors, metric dashboards, log sinks |
+| **Flowchart & State** | `start`, `end`, `state`, `decision`, `condition`, `step`, `loop`, `sequence`, `participant`, `lane` | Workflow nodes, decision diamonds, state markers |
+| **Distributed Systems** | `replica`, `shard`, `leader`, `follower`, `quorum`, `consensus`, `lock` | Distributed consensus nodes, raft leaders, database shards |
 
 ---
 
 ### 3. Structural Grouping (`group`)
 
-Group nodes into visual boundary containers:
+Groups cluster nodes into visual container boundaries:
+
+```text
+group <GroupId> "<Optional Label>": <NodeId1> <NodeId2> ...
+```
 
 ```markdy
 database Database
 cache Cache
-group storageTier "Storage & Caching Tier": Database Cache
+group storageTier "Storage Tier": Database Cache
 
 beat focusStorage "Inspect Data Tier":
   frame storageTier zoom=1.2
@@ -159,14 +218,14 @@ beat focusStorage "Inspect Data Tier":
 
 ### 4. Flow Operators & Cycle-Safe Routing
 
-Connect nodes using semantic directed edges. Chain multiple steps on one line:
+Flow operators connect nodes to illustrate network calls, messages, and relationships. Multiple hops can be chained on a single line.
 
-| Operator | Semantic Meaning | Visual Rendering | Layout Engine Impact |
-|---|---|---|---|
-| `->` | **Forward Request / Call** | Solid line with arrow | **Determines forward rank order** |
-| `<-` | **Response / Return Value** | Dashed line back to caller | **Excluded from ranking (prevents layout cycles!)** |
-| `~>` | **Async Event / Pub-Sub** | Dotted line with arrow | Forward event propagation |
-| `--` | **Structural Link** | Thin solid neutral line | Non-directed dependency |
+| Operator | Semantic Action | Line Style | Layout Engine Impact |
+| :--- | :--- | :--- | :--- |
+| `->` | **Forward Request / Call** | Solid line with arrowhead | **Determines forward rank order.** |
+| `<-` | **Response / Return Value** | Dashed line back to source | **Excluded from ranking (prevents layout cycles).** |
+| `~>` | **Async Event / Pub-Sub** | Dotted line with arrowhead | Forward event propagation. |
+| `--` | **Structural Dependency** | Thin solid line | Non-directional relationship. |
 
 ```markdy
 browser Client
@@ -175,47 +234,93 @@ service AuthService
 service OrderService
 queue Kafka
 
-beat auth "Authentication Flow":
-  # Request and immediate response chain:
-  Client -> Gateway "POST /login" -> AuthService "verify_credentials"
-  Gateway <- AuthService "JWT Token"
-  Client <- Gateway "200 OK (Set-Cookie)"
+beat checkoutFlow "Order Submission":
+  # Request and immediate response:
+  Client -> Gateway "POST /orders" -> OrderService "create_order"
+  Gateway <- OrderService "201 Created"
+  Client <- Gateway "201 Created"
 
-  # Async event emission:
-  OrderService ~> Kafka "order.placed"
+  # Asynchronous event emission:
+  OrderService ~> Kafka "order.created"
 ```
 
 > [!IMPORTANT]
-> **Never use `->` for return responses.**
-> If `A -> B` exists, writing `B -> A "response"` creates a circular rank dependency that causes nodes `A` and `B` to overlap. Always write `A <- B "response"`.
+> **Cycle Prevention Rule:**
+> Never use `->` to represent a response from a downstream service back to an upstream caller.
+> - ❌ `OrderService -> Client "200 OK"` (creates a circular ranking dependency that collapses the diagram).
+> - ✅ `Client <- OrderService "200 OK"` (safely routes the return edge without altering node ranks).
 
 ---
 
 ### 5. Storyboard Beats & Visual Cues
 
-Beats organize diagram motion into sequential steps. Each beat runs sequentially and can display a descriptive caption:
+Beats organize animation into distinct sequential steps. Each beat consists of a header followed by indented cues.
 
-```markdy
-beat name "Optional Caption Displayed to User":
-  # Cues executed in sequence
+```text
+beat <BeatId> ["Optional User-Facing Caption"]:
+  <Cue 1>
+  <Cue 2>
 ```
 
-#### Complete Cue Catalog
+#### Complete Visual Cue Catalog
 
-| Cue | Syntax | Description |
-|---|---|---|
-| `show` | `show $nodes [stagger=50ms]` | Reveals nodes/edges. `$nodes` reveals all nodes; `$edges` reveals static edges. |
-| `hide` | `hide NodeId [dur=300ms]` | Fades out a node, group, or edge. |
-| `frame` | `frame NodeA NodeB [zoom=1.15]` | Smoothly moves and zooms the scene camera to focus on specific nodes/groups. `frame $nodes` resets camera to the whole diagram. |
-| `glow` | `glow NodeId [color=#10b981]` | Emphasizes a node with an energetic pulsing glow ring. |
-| `focus` | `focus NodeId [zoom=1.1]` | Briefly scales up a node to draw user attention. |
-| `&` | `CueA & CueB` | Parallel runner — executes two or more cues simultaneously. |
+| Cue | Syntax | Parameters | Purpose |
+| :--- | :--- | :--- | :--- |
+| `show` | `show <Targets> [stagger=<ms>] [dur=<ms>]` | `stagger`: Delay between targets (e.g. `50ms`)<br/>`dur`: Transition duration (e.g. `400ms`) | Reveals nodes or edges smoothly. |
+| `hide` | `hide <Targets> [dur=<ms>]` | `dur`: Fade duration (e.g. `300ms`) | Fades out specific nodes or edges. |
+| `frame` | `frame <Targets> [zoom=<num>] [dur=<ms>]` | `zoom`: Scale multiplier (e.g. `1.15`)<br/>`dur`: Camera pan duration (e.g. `600ms`) | Moves and scales the scene camera to focus on nodes or groups. `frame $nodes` resets view. |
+| `glow` | `glow <Targets> [color=<hex>] [strength=<num>]` | `color`: Hex color code (e.g. `#10b981`)<br/>`strength`: Glow intensity (e.g. `1.5`) | Highlights nodes with an energetic pulsing glow ring. |
+| `focus` | `focus <Targets> [zoom=<num>] [dur=<ms>]` | `zoom`: Scale factor (e.g. `1.1`) | Temporarily pulse-scales a node to draw visual attention. |
+| `&` | `<CueA> & <CueB>` | None | Parallel cue operator — runs two cues simultaneously. |
+
+#### Special Target Selectors
+
+| Target Selector | Meaning |
+| :--- | :--- |
+| `$nodes` | Targets all declared nodes across the entire scene (e.g. `show $nodes stagger=40ms`). |
+| `$edges` | Targets all static and persistent structural edges. |
+| `<GroupId>` | Targets all nodes inside a named group boundary. |
+| `<NodeId>` | Targets a single specific node. |
+
+---
+
+### 6. Editorial Annotations (`annotation`)
+
+Declare callout notes anchored to specific nodes:
+
+```text
+annotation "<Text>" target=<NodeId> position=<Position> intent=<Intent>
+```
+
+```markdy
+service ApiService "Order API"
+annotation "Hot path: sub-10ms SLA" target=ApiService position=top-right intent=accent
+```
+
+| Parameter | Presence | Allowed Values | Default |
+| :--- | :--- | :--- | :--- |
+| `target` | **Required** | Any declared `<NodeId>` | *None* |
+| `position` | Optional | `top`, `top-right`, `right`, `bottom-right`, `bottom`, `bottom-left`, `left`, `top-left` | `top-right` |
+| `intent` | Optional | `neutral` (standard ink), `accent` (highlight color), `muted` (subtle grey) | `neutral` |
+
+---
+
+## 🚫 Contrastive Anti-Patterns & Hallucination Fixes
+
+| ❌ Invalid / Hallucinated Pattern | ✅ Correct MarkdyScript Syntax | Why / Explanation |
+| :--- | :--- | :--- |
+| **Return edge with `->`**<br>`A -> B "call"`<br>`B -> A "200 OK"` | `A -> B "call"`<br>`A <- B "200 OK"` | `B -> A` introduces a circular rank dependency in the layout solver, causing nodes `A` and `B` to overlap. `<-` indicates return flow without altering layout rank. |
+| **Flows outside `beat` blocks**<br>`service A`<br>`service B`<br>`A -> B "data"` | `service A`<br>`service B`<br>`beat flow:`<br>`  A -> B "data"` | Flow actions are animated storyboard events and must live inside a named `beat:` block. |
+| **Hallucinated cue names**<br>`pulse NodeA`<br>`camera zoom=1.5`<br>`say "Connecting..."` | `focus NodeA`<br>`frame NodeA zoom=1.5`<br>`beat step "Connecting...":` | Markdy only supports: `show`, `hide`, `frame`, `glow`, `focus`, and `&`. Beat labels provide narrative captions. |
+| **Unquoted multi-word labels**<br>`service API API Gateway Service` | `service API "API Gateway Service"` | Node display labels with spaces must be wrapped in double quotes `"..."`. |
+| **Spaced node identifiers**<br>`service Order Service "API"` | `service OrderService "API"` | Node identifiers (`<Id>`) must be single alphanumeric tokens without spaces. |
+| **Flat unindented beat blocks**<br>`beat main:`<br>`show $nodes`<br>`A -> B` | `beat main:`<br>`  show $nodes`<br>`  A -> B` | Cues inside a `beat` block must be indented with 2 spaces. |
 
 ---
 
 ## 🏛️ 8 Golden Architecture Templates for AI Agents
 
-When asked to generate architecture diagrams, pick and adapt one of these battle-tested patterns:
+When generating architectures, use these verified templates:
 
 ### 1. Cloud Microservices & Database Tier
 
@@ -487,19 +592,7 @@ beat failure "Fallback Reject Path":
 
 ---
 
-## 🚫 Common LLM Anti-Patterns & How to Fix Them
-
-| ❌ Common AI Mistake | ✅ Correct Implementation |
-|---|---|
-| **Cycles from using `->` for returns**<br>`A -> B "call"`<br>`B -> A "response"` | **Use `<-` for responses**<br>`A -> B "call"`<br>`A <- B "response"` *(leaves node ranking clean)* |
-| **Flows placed outside `beat` blocks**<br>`service A`<br>`A -> B "data"` | **Place flows inside named `beat` blocks**<br>`beat process:`<br>`  A -> B "data"` |
-| **Hallucinating non-existent cues**<br>`pulse NodeA`<br>`camera zoom=2`<br>`say "Hello"` | **Use standard Markdy cues**<br>`focus NodeA`<br>`frame NodeA zoom=1.2`<br>*(Beat labels act as captions)* |
-| **Unquoted multi-word node labels**<br>`service API API Gateway Server` | **Wrap multi-word strings in double quotes**<br>`service API "API Gateway Server"` |
-| **Undersized canvas for dense architectures**<br>15 nodes on `width=1280 height=720` | **Apply canvas sizing rule**<br>`scene width=1600 height=860` |
-
----
-
-## 🛠️ Programmatic Tooling & Integration
+## 🛠️ Programmatic Tooling & MCP Integration
 
 ### Model Context Protocol (MCP) Server
 
@@ -519,6 +612,7 @@ Connect AI coding agents (Claude Desktop, Cursor, Antigravity, Windsurf) directl
 - `validate_markdy_code`: Validates syntax and tests Well-Architected governance rules (layer boundaries, cycle detection, gateway checks).
 - `transpile_to_markdy`: Converts Mermaid, Docker Compose, Kubernetes manifests, and Terraform state into animated MarkdyScript.
 - `explain_architecture`: Generates structured topology summaries, role breakdowns, and governance health metrics.
+- `generate_markdy_prompt`: Generates optimized, hallucination-resistant prompts tailored for LLM code generation.
 
 ### Vanilla TypeScript / JavaScript Integration
 

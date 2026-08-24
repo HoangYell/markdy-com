@@ -4,7 +4,10 @@ import {
   handleTranspileToMarkdy,
   handleExplainArchitecture,
   handleGenerateMarkdyPrompt,
+  handleGetArchitectureCatalog,
+  handleReadResource,
 } from "../src/tools.js";
+import { createMarkdyMcpServer, MCP_SERVER_VERSION } from "../src/index.js";
 
 describe("@markdy/mcp-server: MCP Tool Handlers", () => {
   it("validates valid Markdy code and reports stats", () => {
@@ -63,8 +66,37 @@ describe("@markdy/mcp-server: MCP Tool Handlers", () => {
 
   it("generates structured LLM guidance prompts", () => {
     const result = handleGenerateMarkdyPrompt("A distributed payment processing system");
-    expect(result.content[0].text).toContain("MarkdyScript 0.8+ syntax");
+    expect(result.content[0].text).toContain("MarkdyScript syntax");
     expect(result.content[0].text).toContain("https://markdy.com/AGENT.md");
     expect(result.content[0].text).toContain("payment processing");
+  });
+
+  it("returns curated architecture templates from catalog", () => {
+    const all = handleGetArchitectureCatalog();
+    expect(all.content[0].text).toContain("Markdy Architecture Templates Catalog");
+    expect(all.content[0].text).toContain("microservices-db");
+    expect(all.content[0].text).toContain("ai-rag-pipeline");
+
+    const filtered = handleGetArchitectureCatalog("AI");
+    expect(filtered.content[0].text).toContain("ai-rag-pipeline");
+  });
+
+  it("handles reading MCP resources", () => {
+    const spec = handleReadResource("markdy://spec/agent-reference");
+    expect(spec.contents[0].text).toContain("https://markdy.com/AGENT.md");
+
+    const templates = handleReadResource("markdy://templates/catalog");
+    expect(templates.contents[0].mimeType).toBe("application/json");
+
+    const rules = handleReadResource("markdy://governance/rules");
+    expect(rules.contents[0].mimeType).toBe("application/json");
+
+    expect(() => handleReadResource("markdy://invalid/uri")).toThrow("Resource not found");
+  });
+
+  it("creates an MCP server with tools, resources, and prompts", () => {
+    const server = createMarkdyMcpServer();
+    expect(server).toBeDefined();
+    expect(MCP_SERVER_VERSION).toBe("1.0.25");
   });
 });

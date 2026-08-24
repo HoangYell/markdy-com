@@ -7,15 +7,17 @@ on:
       - "v*"
 
 permissions:
-  contents: write   # needed to create GitHub Releases
+  contents: write   # Create GitHub Releases & push tags
+  packages: write   # Publish to GitHub Packages (npm.pkg.github.com)
+  id-token: write   # npm provenance support
 
 jobs:
   release:
-    name: Publish to npm & Create GitHub Release
+    name: Publish to npm & GitHub Packages & Create Release
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # full history needed for release notes
 
@@ -30,62 +32,31 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages (core + renderer + cli + astro + stdlib-systems + lsp + mcp + mdx)
-        run: pnpm --filter @markdy/core --filter @markdy/renderer-dom --filter @markdy/cli --filter @markdy/astro --filter @markdy/stdlib-systems --filter @markdy/language-server --filter @markdy/mcp-server --filter @markdy/mdx run build
+      - name: Build all packages
+        run: pnpm run build
 
-      - name: Run tests
-        run: pnpm --filter @markdy/core run test
+      - name: Run test suite & compatibility gates
+        run: |
+          pnpm -r run test
+          pnpm run gate
+          pnpm run verify:examples
 
-      - name: Publish @markdy/core → npmjs.com
-        working-directory: packages/core
-        run: pnpm publish --no-git-checks --access public
+      - name: Publish packages → npmjs.com
+        run: node scripts/publish-packages.mjs --registry=https://registry.npmjs.org
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish @markdy/renderer-dom → npmjs.com
-        working-directory: packages/renderer-dom
-        run: pnpm publish --no-git-checks --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Configure GitHub Packages Authentication
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" >> ~/.npmrc
 
-      - name: Publish @markdy/cli → npmjs.com
-        working-directory: packages/cli
-        run: pnpm publish --no-git-checks --access public
+      - name: Publish packages → GitHub Packages (npm.pkg.github.com)
+        run: node scripts/publish-packages.mjs --registry=https://npm.pkg.github.com
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @markdy/astro → npmjs.com
-        working-directory: packages/astro
-        run: pnpm publish --no-git-checks --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @markdy/stdlib-systems → npmjs.com
-        working-directory: packages/stdlib-systems
-        run: pnpm publish --no-git-checks --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @markdy/language-server → npmjs.com
-        working-directory: packages/markdy-language-server
-        run: pnpm publish --no-git-checks --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @markdy/mcp-server → npmjs.com
-        working-directory: packages/mcp-server
-        run: pnpm publish --no-git-checks --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @markdy/mdx → npmjs.com
-        working-directory: packages/mdx
-        run: pnpm publish --no-git-checks --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
           make_latest: true
@@ -94,23 +65,24 @@ jobs:
 
             **Open-source text-to-motion animation DSL engine.**
 
-            ### Packages
+            ### 📦 Published Packages
 
-            | Package | Install |
-            |---|---|
-            | [`@markdy/core`](https://www.npmjs.com/package/@markdy/core) | `pnpm add @markdy/core` |
-            | [`@markdy/renderer-dom`](https://www.npmjs.com/package/@markdy/renderer-dom) | `pnpm add @markdy/renderer-dom` |
-            | [`@markdy/cli`](https://www.npmjs.com/package/@markdy/cli) | `pnpm add -D @markdy/cli` |
-            | [`@markdy/astro`](https://www.npmjs.com/package/@markdy/astro) | `pnpm add @markdy/astro` |
-            | [`@markdy/stdlib-systems`](https://www.npmjs.com/package/@markdy/stdlib-systems) | `pnpm add @markdy/stdlib-systems` |
-            | [`@markdy/language-server`](https://www.npmjs.com/package/@markdy/language-server) | `pnpm add -D @markdy/language-server` |
-            | [`@markdy/mcp-server`](https://www.npmjs.com/package/@markdy/mcp-server) | `pnpm add -D @markdy/mcp-server` |
-            | [`@markdy/mdx`](https://www.npmjs.com/package/@markdy/mdx) | `pnpm add @markdy/mdx` |
+            | Package | npmjs.com | GitHub Packages |
+            |---|---|---|
+            | [`@markdy/core`](https://www.npmjs.com/package/@markdy/core) | `pnpm add @markdy/core` | [GitHub Packages](https://github.com/HoangYell/markdy-com/packages) |
+            | [`@markdy/renderer-dom`](https://www.npmjs.com/package/@markdy/renderer-dom) | `pnpm add @markdy/renderer-dom` | [GitHub Packages](https://github.com/HoangYell/markdy-com/packages) |
+            | [`@markdy/cli`](https://www.npmjs.com/package/@markdy/cli) | `pnpm add -D @markdy/cli` | [GitHub Packages](https://github.com/HoangYell/markdy-com/packages) |
+            | [`@markdy/astro`](https://www.npmjs.com/package/@markdy/astro) | `pnpm add @markdy/astro` | [GitHub Packages](https://github.com/HoangYell/markdy-com/packages) |
+            | [`@markdy/stdlib-systems`](https://www.npmjs.com/package/@markdy/stdlib-systems) | `pnpm add @markdy/stdlib-systems` | [GitHub Packages](https://github.com/HoangYell/markdy-com/packages) |
+            | [`@markdy/language-server`](https://www.npmjs.com/package/@markdy/language-server) | `pnpm add -D @markdy/language-server` | [GitHub Packages](https://github.com/HoangYell/markdy-com/packages) |
+            | [`@markdy/mcp-server`](https://www.npmjs.com/package/@markdy/mcp-server) | `pnpm add -D @markdy/mcp-server` | [GitHub Packages](https://github.com/HoangYell/markdy-com/packages) |
+            | [`@markdy/mdx`](https://www.npmjs.com/package/@markdy/mdx) | `pnpm add @markdy/mdx` | [GitHub Packages](https://github.com/HoangYell/markdy-com/packages) |
 
-            ### Quick Start
+            ### 🚀 Quick Start
             ```sh
             pnpm add @markdy/core @markdy/renderer-dom
             ```
 
-            ### Interactive Playground
-            👉 **[markdy.com](https://markdy.com)**
+            ### 📖 Documentation & Guides
+            - [Working with GitHub Packages](https://github.com/HoangYell/markdy-com/blob/main/docs/GITHUB_PACKAGES.md)
+            - 👉 **[markdy.com](https://markdy.com)**

@@ -2,13 +2,13 @@
 
 > ### SPECIFICATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.25
+> - **Current Version**: v1.0.26
 > - **Specification Version**: 1.0.x
-> - **Last Updated**: 2026-08-23
+> - **Last Updated**: 2026-08-24
 > - **Documentation Hub**: <https://markdy.com/docs/>
 > - **AI Agent Guide**: <https://markdy.com/AGENT.md>
 
-## MarkdyScript 0.8 — Diagram-Native Grammar
+## MarkdyScript — Diagram-Native Grammar
 
 MarkdyScript is diagram-native. Declare semantic nodes, groups, beats, flow operators, and cues — the engine handles layout, routing, timing, and rendering.
 
@@ -84,7 +84,7 @@ service API "API Gateway"
 database UrlDB "URL Store"
 ```
 
-Supported node kinds include: service, api, microservice, backend, server, worker, job, scheduler, cron, batch, function, lambda, and more.
+Supported semantic node kinds are categorized by system role: compute (`service`, `api`, `worker`, `lambda`), client (`browser`, `user`, `mobile`), storage (`database`, `db`, `cache`, `bucket`), messaging (`queue`, `topic`, `kafka`), network (`gateway`, `cdn`, `cloud`), platform (`container`, `cluster`, `pod`), security (`auth`, `vault`), delivery (`pipeline`, `repo`), observability (`monitor`, `metrics`), flowchart (`start`, `end`, `decision`), and distributed (`replica`, `shard`, `leader`). See [AGENT.md](AGENT.md) for the full exhaustive reference.
 
 ### Groups
 
@@ -110,10 +110,10 @@ Canonical beat and pattern blocks end with `:` and use indentation. The parser a
 When a host strips indentation (common with MDX/JSX template literals), the parser recovers colon bodies by reading until the next top-level statement. Prefer keeping real indentation or loading MarkdyScript from a raw `.markdy` file when you control the embed path; use brace blocks only when a host cannot preserve indentation.
 
 Flow operators:
-- `->` — request
-- `<-` — response
-- `~>` — event
-- `--` — dependency
+- `->` — Forward request/call (determines forward layout rank)
+- `<-` — Response/return value (excluded from ranking to prevent cycles)
+- `~>` — Asynchronous event or pub-sub message
+- `--` — Structural/dependency link
 
 ### Patterns
 

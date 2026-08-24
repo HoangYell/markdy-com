@@ -1,4 +1,5 @@
 import puppeteer from 'puppeteer-core';
+import * as chromeLauncher from 'chrome-launcher';
 import { createServer } from 'node:http';
 import { readFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
@@ -9,13 +10,39 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const rootDir = resolve(__dirname, '..');
 
-const CHROME_PATH = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-const ARTIFACTS_DIR = '/Users/yell/.gemini/antigravity/brain/6dbcb632-8cb5-4ea5-828a-2fb9e8b3224d';
+function resolveChromePath() {
+  if (process.env.CHROME_PATH && fs.existsSync(process.env.CHROME_PATH)) {
+    return process.env.CHROME_PATH;
+  }
+  try {
+    const installations = chromeLauncher.Launcher.getInstallations();
+    if (installations && installations.length > 0) {
+      return installations[0];
+    }
+  } catch {
+    // continue to fallback list
+  }
+  const defaultPaths = [
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    '/Applications/Chromium.app/Contents/MacOS/Chromium',
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+    '/usr/bin/chromium',
+    '/usr/bin/chromium-browser',
+  ];
+  for (const p of defaultPaths) {
+    if (fs.existsSync(p)) return p;
+  }
+  throw new Error('Chrome executable could not be found. Please set CHROME_PATH environment variable.');
+}
+
+const CHROME_PATH = resolveChromePath();
+const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR || resolve(rootDir, 'tmp/devtools-artifacts');
 fs.mkdirSync(ARTIFACTS_DIR, { recursive: true });
 
 const CORE_DIST = resolve(rootDir, 'packages/core/dist');
 const RENDERER_DIST = resolve(rootDir, 'packages/renderer-dom/dist');
-const PORT = 4399;
+const PORT = Number(process.env.PORT) || 4399;
 
 const testCases = [
   {
@@ -107,6 +134,7 @@ const htmlContent = `
 <html>
 <head>
   <meta charset="utf-8">
+  <link rel="icon" href="data:,">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -140,13 +168,13 @@ const htmlContent = `
     {
       "imports": {
         "@markdy/core": "/core/index.js",
-        "./chunk-VIZHA7GI.js": "/renderer/chunk-VIZHA7GI.js"
+        "@markdy/renderer-dom": "/renderer/index.js"
       }
     }
   </script>
   <script type="module">
     import { parseAndCompile } from '@markdy/core';
-    import { createDiagram } from '/renderer/index.js';
+    import { createDiagram } from '@markdy/renderer-dom';
 
     window.renderMarkdyDiagram = (containerId, code) => {
       const el = document.getElementById(containerId);
@@ -176,6 +204,10 @@ async function runBrowserTests() {
   const server = createServer(async (req, res) => {
     try {
       const cleanUrl = req.url.split('?')[0];
+      if (cleanUrl === '/favicon.ico') {
+        res.writeHead(204);
+        return res.end();
+      }
       if (cleanUrl === '/' || cleanUrl === '/index.html') {
         res.writeHead(200, { 'Content-Type': 'text/html' });
         res.end(htmlContent);

@@ -5,10 +5,23 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.26] — 2026-08-24
+
+### Added
+- **GitHub Packages npm Registry Distribution (`HoangYell/markdy-com/packages`)** — Configured dual-registry distribution for all 8 `@markdy/*` packages across both npmjs.com and GitHub Packages (`npm.pkg.github.com`). Added comprehensive authentication and installation documentation in `docs/GITHUB_PACKAGES.md`.
+- **Idempotent Publishing Engine (`scripts/publish-packages.mjs`)** — Introduced an automated, registry-agnostic publishing tool with pre-publish version checking, dry-run simulation, private package isolation, and dynamic scope management.
+- **Automated Headless Chrome DevTools E2E Suite (`scripts/chrome-devtools-adaptive-test.mjs`)** — Integrated automated headless browser verification using `chrome-launcher` for cross-platform Chrome binary discovery on macOS, Linux, and Windows, validating responsive dimensions, node placement, and Web Animations API timeline execution.
+- **Package Manifest & License Completeness** — Distributed MIT licenses across `@markdy/cli`, `@markdy/mcp-server`, and `@markdy/compat`, and completed repository directory linkages for seamless GitHub Packages discovery.
+- **Expanded MCP Server Capabilities (`@markdy/mcp-server`)** — Added curated architecture template catalogs, rule presets, and MCP resources (`markdy://spec/agent-reference`, `markdy://templates/catalog`, `markdy://governance/rules`).
+
+### Changed
+- **CI/CD Quality & Testing Overhaul (`.github/workflows/ci.yml`)** — Restructured CI into 4 parallelized jobs (`quality`, `test` matrix across Node 20 & 22, `devtools-e2e` with screenshot artifact uploading, and `website` build) with PR concurrency cancellation.
+- **Release Automation (`.github/workflows/release.yml`)** — Automated end-to-end publishing to both npmjs.org and GitHub Packages with granular permissions (`contents: write`, `packages: write`, `id-token: write`).
+
 ## [1.0.25] — 2026-08-23
 
 ### Changed
-- TODO: summarize release changes.
+- **Package Metadata Synchronization & Build Polish** — Synchronized repository references, dependency alignments, and automated prompt generators across the workspace.
 
 ## [1.0.24] — 2026-08-23
 

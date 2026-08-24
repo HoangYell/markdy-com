@@ -6,20 +6,48 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
 jobs:
-  build-and-test:
-    name: Build & Test
+  quality:
+    name: Code Quality & Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type-check workspace
+        run: pnpm run typecheck
+
+      - name: Lint workspace
+        run: pnpm run lint
+
+  test:
+    name: Test & Compatibility Gate (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
         node-version: [20, 22]
 
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
 
@@ -31,11 +59,71 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages (core + renderer + astro)
-        run: pnpm --filter @markdy/core --filter @markdy/renderer-dom --filter @markdy/astro run build
+      - name: Build packages
+        run: pnpm run build
 
-      - name: Run tests
-        run: pnpm --filter @markdy/core run test
+      - name: Run unit & feature tests
+        run: pnpm -r run test
 
-      - name: Type-check packages
-        run: pnpm --filter @markdy/core --filter @markdy/renderer-dom typecheck
+      - name: Run compatibility gate
+        run: pnpm run gate
+
+      - name: Verify documentation and examples
+        run: pnpm run verify:examples
+
+  devtools-e2e:
+    name: Chrome DevTools E2E & Visual Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm run build
+
+      - name: Run Chrome DevTools headless layout & animation tests
+        run: pnpm run test:devtools
+        env:
+          ARTIFACTS_DIR: ${{ github.workspace }}/tmp/devtools-artifacts
+
+      - name: Upload Chrome DevTools artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-devtools-screenshots
+          path: tmp/devtools-artifacts/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  website:
+    name: Website Build Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build packages
+        run: pnpm run build
+
+      - name: Build Astro website
+        run: pnpm --filter @markdy/website run build

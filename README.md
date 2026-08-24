@@ -93,6 +93,8 @@ beat main "Trace the request":
 | [`@markdy/mdx`](packages/mdx) | MDX remark plugin + lazy React diagram component | ~4 KB |
 | [`@markdy/stdlib-systems`](packages/stdlib-systems) | Architecture nodes, visual primitives, and request/response/emit flows for animated diagrams | <1 KB |
 
+> 📦 **Registries**: All packages are published to both [npmjs.com](https://www.npmjs.com) and [GitHub Packages](https://github.com/HoangYell/markdy-com/packages). See the [GitHub Packages Guide](docs/GITHUB_PACKAGES.md) for npm/pnpm authentication and configuration.
+
 ---
 
 ## Search intent: when to use Markdy
