@@ -28,6 +28,6 @@
     "@markdy/core": "workspace:*",
     "@markdy/renderer-dom": "workspace:*",
     "@markdy/stdlib-systems": "workspace:*",
-    "astro": "^7.1.1"
+    "astro": "^7.2.4"
   }
 }
