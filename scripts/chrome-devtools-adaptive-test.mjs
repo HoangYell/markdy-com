@@ -248,7 +248,16 @@ async function runBrowserTests() {
   const browser = await puppeteer.launch({
     executablePath: CHROME_PATH,
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-gpu'],
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-gpu',
+      '--disable-dev-shm-usage',
+      '--no-zygote',
+      '--disable-software-rasterizer',
+      '--headless=new',
+    ],
+    timeout: 60000,
     defaultViewport: { width: 1400, height: 900, deviceScaleFactor: 2 },
   });
 
