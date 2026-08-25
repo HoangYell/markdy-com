@@ -72,19 +72,29 @@ Static diagrams don't tell the full story of complex distributed systems. **Mark
 scene "Cache-Aside Architecture" theme=paper
 layout LR
 
-browser Client
-service ApiGateway
-cache Redis
-database Postgres
+browser Client "Web Client"
+gateway Gateway "API Gateway"
+service Shortener "URL Service"
+cache Redis "Redis Cluster"
+database Postgres "PostgreSQL 16"
 
-beat main "Query with cache-aside fallback":
+group app "Application Tier": Gateway Shortener
+group data "Persistence Tier": Redis Postgres
+
+beat hit "1. Sub-2ms Cache Hit Path":
   show $nodes stagger=60ms
-  frame Client ApiGateway zoom=1.1
-  Client -> ApiGateway "GET /items"
-  ApiGateway -> Redis "check key"
-  Redis ~> ApiGateway "cache miss"
-  ApiGateway -> Postgres "SELECT query" -> Redis "warm cache"
-  Client <- ApiGateway "200 OK"
+  frame Client Gateway Shortener Redis zoom=1.1
+  Client -> Gateway "GET /x9" -> Shortener "resolve"
+  Shortener -> Redis "GET slug:x9"
+  Shortener <- Redis "200 Target URL"
+  Client <- Gateway "301 Redirect"
+
+beat miss "2. Cache Miss Fallback & Async Warm":
+  frame Shortener Redis Postgres zoom=1.15
+  Shortener -> Postgres "SELECT destination WHERE slug = 'x9'"
+  Shortener <- Postgres "Row Found"
+  Shortener ~> Redis "SETEX slug:url (Warm Cache)"
+  glow Postgres color=#38bdf8 & glow Redis color=#22c55e
 ```
 
 ### 2. Run or Render via CLI
