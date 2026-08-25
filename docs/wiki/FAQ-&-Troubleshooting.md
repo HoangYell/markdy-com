@@ -21,7 +21,7 @@ npx @markdy/cli render system.markdy --out system.html
   ---
   import { Markdy } from "@markdy/astro";
   ---
-  <Markdy code={markdyScript} width={800} height={400} theme="paper" autoplay />
+  <Markdy code={markdyScript} width={800} height={400} autoplay client:visible />
   ```
 - **React / MDX**: Use `@markdy/mdx` plugin to render fenced ````markdy ```` blocks with automatic viewport hydration.
 

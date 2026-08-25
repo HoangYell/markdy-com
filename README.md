@@ -114,7 +114,7 @@ npx @markdy/cli render system.markdy --out scene.html
 import { Markdy } from "@markdy/astro";
 ---
 
-<Markdy code={code} width={1000} height={500} theme="paper" autoplay />
+<Markdy code={code} width={1000} height={500} autoplay client:visible />
 ```
 
 ---
