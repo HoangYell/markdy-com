@@ -28,7 +28,7 @@ Every Markdy diagram is structured in 4 linear, non-circular parts:
 # ─────────────────────────────────────────────────────────────────────────────
 # 1. Scene Directives & Configuration
 # ─────────────────────────────────────────────────────────────────────────────
-scene theme=paper width=1280 height=720
+scene "E-Commerce Checkout Architecture" theme=paper width=1280 height=720
 layout LR
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -325,7 +325,7 @@ When generating architectures, use these verified templates:
 ### 1. Cloud Microservices & Database Tier
 
 ```markdy
-scene theme=paper width=1440 height=760
+scene "Cloud Microservices & Database Tier" theme=paper width=1440 height=760
 layout LR
 
 browser WebApp "Web Application"
@@ -363,7 +363,7 @@ beat checkout "Process Order":
 ### 2. AI Agent & RAG (Retrieval-Augmented Generation) Pipeline
 
 ```markdy
-scene theme=editorial width=1440 height=760
+scene "AI Agent & RAG Retrieval Pipeline" theme=editorial width=1440 height=760
 layout LR
 
 user User "Engineer"
@@ -400,7 +400,7 @@ beat generate "Synthesis & Tool Execution":
 ### 3. Event-Driven Architecture & Kafka Fan-Out
 
 ```markdy
-scene theme=midnight width=1440 height=760
+scene "Event-Driven Architecture & Kafka Fan-Out" theme=midnight width=1440 height=760
 layout LR
 
 service IngestionAPI "Ingestion API"
@@ -434,7 +434,7 @@ beat fanout "Parallel Fan-out Processing":
 ### 4. Kubernetes Cluster & Cloud Ingress
 
 ```markdy
-scene theme=blueprint width=1440 height=800
+scene "Production Kubernetes Ingress & Storage Architecture" theme=blueprint width=1440 height=800
 layout LR
 
 cloud CDN "Cloudflare CDN"
@@ -465,7 +465,7 @@ beat routing "Ingress Traffic Routing":
 ### 5. CI/CD GitOps Delivery Pipeline
 
 ```markdy
-scene theme=graphite width=1440 height=720
+scene "CI/CD GitOps Delivery Pipeline" theme=graphite width=1440 height=720
 layout LR
 
 user Dev "Developer"
@@ -499,7 +499,7 @@ beat deploy "GitOps Sync & Deployment":
 ### 6. OAuth2 / OIDC Authentication Flow
 
 ```markdy
-scene theme=paper width=1440 height=720
+scene "OAuth2 / OIDC Authentication Flow" theme=paper width=1440 height=720
 layout LR
 
 browser User "End User Browser"
@@ -531,7 +531,7 @@ beat exchange "Token Exchange & API Access":
 ### 7. Resilient Multi-Region High Availability & Cache-Aside
 
 ```markdy
-scene theme=midnight width=1440 height=760
+scene "Multi-Region High Availability & Cache-Aside Architecture" theme=midnight width=1440 height=760
 layout LR
 
 gateway GeoDNS "Global Route53 / Anycast"
@@ -565,7 +565,7 @@ beat replication "Global Storage Replication":
 ### 8. Decision Tree / Flowchart Workflow
 
 ```markdy
-scene theme=sketchy width=1280 height=720 type=flowchart
+scene "CI/CD Pull Request Quality Gates" theme=sketchy width=1280 height=720 type=flowchart
 layout TB
 
 start PR "New Pull Request"

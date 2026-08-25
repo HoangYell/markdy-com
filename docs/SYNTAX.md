@@ -15,15 +15,25 @@ MarkdyScript is diagram-native. Declare semantic nodes, groups, beats, flow oper
 ### Scene & Directives
 
 ```markdy
-scene theme=paper
+scene "Cache-Aside Architecture" theme=paper width=960 height=520
 layout LR
 
-browser Client
-service API
+browser Client "Web Browser"
+gateway Gateway "API Gateway"
+service OrderService "Order Service"
+cache Redis "Redis Cluster"
+database Postgres "PostgreSQL Primary"
 
-beat request:
-  show $nodes
-  Client -> API "GET /orders"
+beat request "Query with cache-aside fallback":
+  show $nodes stagger=60ms
+  frame Client Gateway zoom=1.1 dur=500ms
+  Client -> Gateway "GET /orders" -> OrderService "route request"
+  OrderService -> Redis "GET order:101"
+  OrderService <- Redis "404 Cache Miss"
+  OrderService -> Postgres "SELECT * FROM orders WHERE id=101"
+  OrderService ~> Redis "SETEX order:101 3600 (warm cache)"
+  Client <- Gateway "200 OK (JSON)"
+  glow Postgres color=#38bdf8 & glow Redis color=#22c55e
 
 player:
   playback:
