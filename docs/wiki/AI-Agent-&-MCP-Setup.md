@@ -4,6 +4,10 @@ Configure Claude Desktop, Cursor Composer, Antigravity, and AI agents to generat
 
 ---
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/docs/images/markdy-ai-agent-workflow.webp" alt="AI Agent Workflow" width="100%" />
+</p>
+
 ## ⚡ Quick MCP Setup
 
 Add `@markdy/mcp-server` to your MCP configuration file:

@@ -4,6 +4,10 @@ How to transition from static Mermaid.js diagrams to interactive, animated Markd
 
 ---
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/docs/images/markdy-vs-mermaid-comparison.webp" alt="Mermaid vs Markdy Comparison" width="100%" />
+</p>
+
 ## ⚡ 1-Command Automatic Transpilation
 
 You can automatically transpile existing Mermaid `.mmd` files into MarkdyScript using the CLI or MCP server:

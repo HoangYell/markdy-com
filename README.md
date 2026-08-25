@@ -124,7 +124,7 @@ import { Markdy } from "@markdy/astro";
 Markdy supports 17 domain-specific layout topologies and 8 publication themes:
 
 <p align="center">
-  <img src="website/public/images/markdy-themes-showcase.webp" alt="Markdy Layouts and Themes" width="100%" />
+  <img src="docs/images/markdy-themes-showcase.webp" alt="Markdy Layouts and Themes" width="100%" />
 </p>
 
 | Category | Layout Engines | Ideal Use Cases |
