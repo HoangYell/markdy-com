@@ -1,18 +1,20 @@
-scene theme=editorial type=sequence width=1280 height=720
+scene "Editorial Authentication Sequence Flow" theme=editorial type=sequence width=1280 height=720
 layout LR
 
-participant Browser
-participant API
-participant Auth
-database SessionDB
+participant Browser "Web Browser"
+participant API "API Gateway"
+participant Auth "Auth Service"
+database SessionDB "Session Store"
 
-beat auth "Authenticate user":
+beat auth "1. Authenticate User & Issue Token":
   show $nodes stagger=40ms
+  frame Browser API Auth zoom=1.1 dur=500ms
   Browser -> API "POST /login"
-  API -> Auth "verify credentials"
-  Auth -> SessionDB "create session"
-  API <- Auth "token"
-  Browser <- API "200 OK"
+  API -> Auth "verify user credentials"
+  Auth -> SessionDB "create signed session"
+  API <- Auth "return access JWT"
+  Browser <- API "200 OK (Set-Cookie)"
+  glow Auth color=#c45d3e & glow SessionDB color=#10b981
 
 player:
   playback:

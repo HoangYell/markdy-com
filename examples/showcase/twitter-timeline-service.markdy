@@ -1,43 +1,47 @@
-scene theme=paper width=1280 height=760
+scene "Distributed Timeline & Fanout Architecture" theme=paper width=1280 height=760
 layout LR
 
-user Author
-user Reader
-gateway ApiGateway
-service TweetService
-queue TweetQueue
-worker FanoutWorkers
-service TimelineService
-cache RedisTimelineCache
-database TimelineDb
-service NotificationService
+user Author "Tweet Author"
+user Reader "Timeline Reader"
+gateway ApiGateway "Envoy API Gateway"
+service TweetService "Tweet Ingestion Service"
+queue TweetQueue "Kafka Ingestion Stream"
+worker FanoutWorkers "Fan-Out Compute Fleet"
+service TimelineService "Timeline Aggregator"
+cache RedisTimelineCache "Redis Timeline Cache"
+database TimelineDb "CockroachDB Store"
+service NotificationService "Push Notifications"
 
-group write: Author ApiGateway TweetService TweetQueue FanoutWorkers
-group read: Reader ApiGateway TimelineService RedisTimelineCache TimelineDb
-group realtime: FanoutWorkers NotificationService
+group write "Write & Ingestion Path": Author ApiGateway TweetService TweetQueue FanoutWorkers
+group read "Read & Delivery Path": Reader ApiGateway TimelineService RedisTimelineCache TimelineDb
+group realtime "Realtime Notification Tier": FanoutWorkers NotificationService
 
-beat layout:
+beat layout "1. Initialize Multi-Tier Timeline Architecture":
   show write stagger=45ms & show read stagger=45ms & show realtime stagger=45ms
 
-beat post:
-  Author -> ApiGateway "POST tweet"
+beat post "2. Ingest Tweet & Enqueue Fan-Out Job":
+  frame write zoom=1.12 dur=500ms
+  Author -> ApiGateway "POST /tweet"
   ApiGateway -> TweetService "validate + store"
-  TweetService ~> TweetQueue "publish tweet"
-  TweetQueue ~> FanoutWorkers "fan-out job"
+  TweetService ~> TweetQueue "publish tweet.created"
+  TweetQueue ~> FanoutWorkers "dispatch fan-out job"
 
-beat fanout:
-  FanoutWorkers ~> RedisTimelineCache "home timelines" & FanoutWorkers ~> TimelineDb "persist entries"
-  FanoutWorkers ~> NotificationService "mentions"
+beat fanout "3. Asynchronous Fan-Out & Mention Push":
+  frame realtime RedisTimelineCache TimelineDb zoom=1.15 dur=500ms
+  FanoutWorkers ~> RedisTimelineCache "push home timelines" & FanoutWorkers ~> TimelineDb "persist user tweets"
+  FanoutWorkers ~> NotificationService "push user mentions"
   glow FanoutWorkers color=#a78bfa
 
-beat read:
-  Reader -> ApiGateway "GET timeline"
+beat read "4. Sub-5ms Read Path & Cache Miss Hydration":
+  frame read zoom=1.12 dur=500ms
+  Reader -> ApiGateway "GET /timeline"
   ApiGateway -> TimelineService "hydrate feed"
-  TimelineService -> RedisTimelineCache "read hot"
-  TimelineService -> TimelineDb "page miss"
-  Reader <- TimelineService "ranked feed"
+  TimelineService -> RedisTimelineCache "read hot cache"
+  TimelineService -> TimelineDb "page miss fallback"
+  Reader <- TimelineService "ranked timeline feed"
 
-beat finish:
+beat finish "5. Multi-AZ Resilient Data Tier":
+  frame $nodes dur=600ms
   glow RedisTimelineCache color=#22c55e & glow TimelineDb color=#38bdf8
 
 player:

@@ -1,23 +1,30 @@
 # showcase/terminal-cli-architecture.markdy
 # Demonstrates Terminal Theme (CLI/TUI aesthetics, dark paper, monospace typography, neon accents).
 
-scene theme=terminal type=architecture width=1200 height=700
+scene "Low-Latency Kernel Daemon & TUI Pipeline" theme=terminal type=architecture width=1200 height=700
+layout LR
 
-terminal EdgeGateway "gateway.internal" focal=true
-terminal AuthProxy "auth-proxy:8080"
-terminal CoreDaemon "systemd:core-service"
-terminal StorageEngine "nvme-pool:storage"
+terminal EdgeGateway "gateway.internal:443" focal=true
+terminal AuthProxy "auth-proxy:8080 (mTLS)"
+terminal CoreDaemon "systemd:core-service.service"
+terminal StorageEngine "nvme-pool:raw-storage"
 terminal AuditLog "/var/log/audit.log"
 
-beat init_services "Spawn Daemons":
-  show $nodes stagger=50ms
-  glow EdgeGateway "Ingress listener bound on :443"
+group ingress "Ingress & Proxy Mesh": EdgeGateway AuthProxy
+group system "Kernel & Storage Engine": CoreDaemon StorageEngine AuditLog
 
-beat dispatch_traffic "RPC Pipeline":
-  EdgeGateway -> AuthProxy "verify mTLS"
-  AuthProxy -> CoreDaemon "ipc:dispatch"
-  CoreDaemon -> StorageEngine "fsync block"
-  CoreDaemon -> AuditLog "append record"
+beat init_services "1. Spawn System Daemons":
+  show $nodes stagger=50ms
+  frame EdgeGateway AuthProxy zoom=1.12 dur=500ms
+  glow EdgeGateway color=#38bdf8
+
+beat dispatch_traffic "2. Low-Latency IPC & Disk Fsync":
+  frame system zoom=1.12 dur=500ms
+  EdgeGateway -> AuthProxy "verify client mTLS"
+  AuthProxy -> CoreDaemon "unix_socket:dispatch"
+  CoreDaemon -> StorageEngine "io_uring fsync block"
+  CoreDaemon -> AuditLog "append secure audit"
+  glow StorageEngine color=#22c55e & glow AuditLog color=#a78bfa
 
 player:
   playback:

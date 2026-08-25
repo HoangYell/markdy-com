@@ -1,39 +1,44 @@
-scene theme=paper width=1600 height=740
+scene "Continuous Integration & Automated Canary Delivery" theme=paper width=1600 height=740
 layout LR
 
-user Developer
-repo CodeRepo "Code Repo"
-pipeline Pipeline "CI Pipeline"
-worker Builder "Build & Test"
-registry Registry "Artifact Registry"
-deploy Deployer "Deploy Runner"
-environment Production "Production"
-monitor Monitor "Release Monitor"
+user Developer "Software Engineer"
+repo CodeRepo "GitHub / GitLab Monorepo"
+pipeline Pipeline "GitHub Actions Runner"
+worker Builder "Docker & Vitest Matrix"
+registry Registry "OCI Artifact Registry (GHCR)"
+deploy Deployer "ArgoCD GitOps Operator"
+environment Production "Production EKS Cluster"
+monitor Monitor "Datadog / Prometheus APM"
 
-group source: Developer CodeRepo
-group ci: Pipeline Builder
-group delivery: Registry Deployer
-group ops: Production Monitor
+group source "Source & Version Control": Developer CodeRepo
+group ci "Continuous Integration & Testing": Pipeline Builder
+group delivery "Artifact & GitOps Deployment": Registry Deployer
+group ops "Production Observability": Production Monitor
 
-beat layout:
+beat layout "1. Initialize CI/CD Delivery Pipeline":
   show source stagger=45ms & show ci stagger=45ms & show delivery stagger=45ms & show ops stagger=45ms
 
-beat commit:
-  Developer -> CodeRepo "git push"
-  CodeRepo ~> Pipeline "trigger"
+beat commit "2. Git Push & Webhook Trigger":
+  frame source Pipeline zoom=1.12 dur=500ms
+  Developer -> CodeRepo "git push origin main"
+  CodeRepo ~> Pipeline "webhook push.event"
 
-beat integrate:
-  Pipeline -> Builder "compile and test"
-  Builder -> Registry "publish artifact"
+beat integrate "3. Parallel Test Matrix & Container Build":
+  frame ci Registry zoom=1.15 dur=500ms
+  Pipeline -> Builder "run lint, vitest & typecheck"
+  Builder -> Registry "docker build & push sha-digest"
+  glow Registry color=#10b981
 
-beat release:
-  Registry -> Deployer "pull image"
-  Deployer -> Production "canary rollout"
-  Deployer -- Production "promotion gate"
+beat release "4. GitOps Synchronization & Canary Rollout":
+  frame delivery Production zoom=1.12 dur=500ms
+  Registry -> Deployer "pull immutable digest"
+  Deployer -> Production "canary rollout (10% traffic)"
+  Deployer -- Production "automated health verification"
 
-beat observe:
-  Production ~> Monitor "emit metrics"
-  Monitor <- Production "health ok"
+beat observe "5. Production Telemetry & Full Promotion":
+  frame Production Monitor zoom=1.15 dur=500ms
+  Production ~> Monitor "emit latency & error rate metrics"
+  Monitor <- Production "health checks passing (p99 < 15ms)"
   focus Production
   glow Production color=#22c55e & glow Monitor color=#0284c7
 

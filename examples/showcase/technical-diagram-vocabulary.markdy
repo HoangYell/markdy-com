@@ -1,28 +1,30 @@
-scene theme=paper width=1200 height=720
+scene "Technical Architecture Node Vocabulary" theme=paper width=1200 height=720
 layout LR
 
-client Browser
-service API
-database DB
-queue Queue
-cache Redis
-auth Auth
-pipeline Pipeline
-monitor Monitor
+client Browser "Web Browser"
+service API "API Gateway"
+database DB "PostgreSQL 16"
+queue Queue "Kafka Stream"
+cache Redis "Redis Cache"
+auth Auth "OIDC Auth Engine"
+pipeline Pipeline "CI/CD Pipeline"
+monitor Monitor "Telemetry Monitor"
 
-group app: Browser API Auth
-group data: DB Redis Queue
-group ops: Pipeline Monitor
+group app "Application & Auth": Browser API Auth
+group data "Data & Messaging": DB Redis Queue
+group ops "DevOps & Telemetry": Pipeline Monitor
 
-beat layout:
+beat layout "1. Initialize Architecture Vocabulary":
   show app stagger=40ms & show data stagger=40ms & show ops stagger=40ms
 
-beat sample:
-  Browser -> API "request"
-  API -> DB "persist"
-  API ~> Queue "enqueue" & API -> Redis "cache"
-  Auth <- API "token"
-  Pipeline -- Monitor "metrics"
+beat sample "2. Multi-Protocol Edge Orchestration":
+  frame app data zoom=1.1 dur=500ms
+  Browser -> API "GET /data"
+  API -> DB "ACID persist"
+  API ~> Queue "publish event" & API -> Redis "cache hot data"
+  Auth <- API "validate JWT"
+  Pipeline -- Monitor "stream build metrics"
+  glow DB color=#10b981 & glow Queue color=#f59e0b
 
 player:
   playback:

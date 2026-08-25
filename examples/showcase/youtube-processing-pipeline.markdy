@@ -1,42 +1,46 @@
-scene theme=graphite width=1360 height=760
+scene "Video Ingestion & Transcoding Pipeline" theme=graphite width=1360 height=760
 layout LR
 
-user Creator
-browser CreatorStudio
-gateway UploadGateway
-service UploadService
-queue TranscodeJobs
-worker Transcoder
-service VideoCatalog
-database MetadataDb
-bucket ObjectStorage
-cdn CdnEdge
+user Creator "Video Creator"
+browser CreatorStudio "Creator Studio Web"
+gateway UploadGateway "TUS Resumable Gateway"
+service UploadService "Video Ingest Service"
+queue TranscodeJobs "Kafka Transcode Queue"
+worker Transcoder "FFmpeg Encoding Fleet"
+service VideoCatalog "Video Metadata API"
+database MetadataDb "CockroachDB Metadata"
+bucket ObjectStorage "S3 / GCS Video Bucket"
+cdn CdnEdge "Cloudflare CDN Edge"
 
-group ingest: Creator CreatorStudio UploadGateway UploadService TranscodeJobs
-group processing: Transcoder ObjectStorage
-group delivery: VideoCatalog MetadataDb CdnEdge
+group ingest "Ingestion & Upload Path": Creator CreatorStudio UploadGateway UploadService TranscodeJobs
+group processing "Distributed Transcoding Fleet": Transcoder ObjectStorage
+group delivery "Global Delivery & Catalog": VideoCatalog MetadataDb CdnEdge
 
-beat layout:
+beat layout "1. Initialize Global Transcoding Pipeline":
   show ingest stagger=40ms & show processing stagger=40ms & show delivery stagger=40ms
 
-beat upload:
-  Creator -> CreatorStudio "upload"
-  CreatorStudio -> UploadGateway "POST /videos"
-  UploadGateway -> UploadService "accept"
-  UploadService -> ObjectStorage "raw"
-  UploadService ~> TranscodeJobs "enqueue"
+beat upload "2. Resumable Upload & Chunk Storage":
+  frame ingest ObjectStorage zoom=1.12 dur=500ms
+  Creator -> CreatorStudio "upload 4K master"
+  CreatorStudio -> UploadGateway "POST /chunk (TUS)"
+  UploadGateway -> UploadService "validate checksum"
+  UploadService -> ObjectStorage "write raw master"
+  UploadService ~> TranscodeJobs "enqueue encoding job"
 
-beat transcode:
-  TranscodeJobs ~> Transcoder "start"
-  Transcoder -> ObjectStorage "read"
-  Transcoder -> ObjectStorage "write"
-  Transcoder -> VideoCatalog "register"
+beat transcode "3. Parallel Transcoding & Multi-Bitrate HLS":
+  frame processing zoom=1.15 dur=500ms
+  TranscodeJobs ~> Transcoder "dispatch 1080p/4K jobs"
+  Transcoder -> ObjectStorage "read raw master"
+  Transcoder -> ObjectStorage "write HLS fragments (.m3u8)"
+  Transcoder -> VideoCatalog "register rendition manifest"
 
-beat publish:
-  VideoCatalog -> MetadataDb "meta"
-  VideoCatalog ~> CdnEdge "warm cache"
+beat publish "4. Catalog Registration & Global CDN Warm":
+  frame delivery zoom=1.12 dur=500ms
+  VideoCatalog -> MetadataDb "commit metadata transaction"
+  VideoCatalog ~> CdnEdge "preload & warm edge cache"
 
-beat finish:
+beat finish "5. High-Throughput Media Delivery Network":
+  frame $nodes dur=600ms
   glow Transcoder color=#38bdf8 & glow CdnEdge color=#22c55e
 
 player:

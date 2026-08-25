@@ -80,17 +80,29 @@ const structuredData = [
     code</a> using the <a href="/blog/browser-native-diagram-animation/">browser-native Web Animations API</a>, so
     the diagram plays in any page without Canvas, GSAP, or a video export.
   </p>
-  <pre><code>scene theme=paper
+  <pre><code>scene "Cache-Aside Architecture" theme=paper
 layout LR
 
-browser Web
-service API
-database DB
+browser Client "Web Client"
+gateway Gateway "API Gateway"
+service Shortener "URL Service"
+cache Redis "Redis Cluster"
+database Postgres "PostgreSQL 16"
 
-beat main:
-  show $nodes stagger=80ms
-  Web -&gt; API "GET /users" -&gt; DB "query"
-  Web &lt;- API "200 OK"</code></pre>
+beat hit "1. Sub-2ms Cache Hit Path":
+  show $nodes stagger=60ms
+  frame Client Gateway Shortener Redis zoom=1.1
+  Client -&gt; Gateway "GET /x9" -&gt; Shortener "resolve"
+  Shortener -&gt; Redis "GET slug:x9"
+  Shortener &lt;- Redis "200 Target URL"
+  Client &lt;- Gateway "301 Redirect"
+
+beat miss "2. Cache Miss Fallback &amp; Async Warm":
+  frame Shortener Redis Postgres zoom=1.15
+  Shortener -&gt; Postgres "SELECT destination WHERE slug = 'x9'"
+  Shortener &lt;- Postgres "Row Found"
+  Shortener ~&gt; Redis "SETEX slug:url (Warm Cache)"
+  glow Postgres color=#38bdf8 &amp; glow Redis color=#22c55e</code></pre>
   <p>
     The same source model supports focused compositions: use <code>type=flowchart</code> for decisions,
     <code>type=tree</code> for hierarchy, <code>type=state</code> for lifecycles, <code>type=sequence</code>

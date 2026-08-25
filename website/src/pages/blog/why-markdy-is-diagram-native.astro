@@ -75,23 +75,31 @@ const structuredData = [
     the engine handles layout, edge routing, and timing. The old imperative, hand-placed syntax is gone; the
     language now speaks in semantic diagram modes rather than pixel coordinates.
   </p>
-  <pre><code>scene theme=editorial type=architecture
+  <pre><code>scene "URL Shortener Service" theme=editorial type=architecture
 layout LR
 
-browser Web
-service API "Gateway"
-cache Redis
-database DB "PostgreSQL"
+browser Client "Web Client"
+gateway Gateway "API Gateway"
+service Shortener "Shortener Service"
+cache Redis "Redis Cluster"
+database Postgres "PostgreSQL 16"
 
-beat create:
-  show $nodes stagger=80ms
-  Web -&gt; API "POST /shorten" -&gt; DB "store slug"
-  API -&gt; Redis "warm cache"
+group app "Application Tier": Gateway Shortener
+group data "Persistence Tier": Redis Postgres
 
-beat visit:
-  Web -&gt; API "GET /a7Xk9" -&gt; Redis "GET slug"
-  focus Redis zoom=1.15
-  Redis -&gt; Web "302 redirect"</code></pre>
+beat create "1. Shorten URL &amp; Warm Cache":
+  show $nodes stagger=60ms
+  Client -&gt; Gateway "POST /shorten" -&gt; Shortener "hash"
+  Shortener -&gt; Postgres "INSERT slug" &amp; Shortener ~&gt; Redis "warm cache"
+  Client &lt;- Gateway "201 Created"
+
+beat visit "2. Sub-5ms Read Path &amp; 301 Redirect":
+  frame Client Gateway Shortener Redis zoom=1.1
+  Client -&gt; Gateway "GET /a7Xk9" -&gt; Shortener "lookup"
+  Shortener -&gt; Redis "GET slug"
+  Shortener &lt;- Redis "found URL"
+  Client &lt;- Gateway "301 Redirect"
+  glow Redis color=#22c55e</code></pre>
   <p align="center">
     <img src="/images/scene-url-shortener.webp" alt="Diagram-Native URL Shortener Architecture" width="1600" height="900" loading="lazy" decoding="async" style="width:100%; height:auto; border-radius:12px; margin: 16px 0;" />
   </p>

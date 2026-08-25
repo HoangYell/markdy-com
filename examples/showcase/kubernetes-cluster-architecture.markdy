@@ -1,52 +1,57 @@
-scene theme=blueprint width=1320 height=780
+scene "Production Kubernetes Control Plane & Workloads" theme=blueprint width=1320 height=780
 layout LR
 
-user Operator
-cli kubectl
-api ApiServer
-scheduler Scheduler
-controller ControllerManager
-database etcd
-load_balancer LoadBalancer
-ingress IngressGateway
-service ClusterService
-pod AppApiPod
-pod WorkerJobPod
-configmap Config
-secret Secret
-volume PersistentVolume
+user Operator "DevOps Engineer"
+cli kubectl "kubectl CLI"
+api ApiServer "kube-apiserver"
+scheduler Scheduler "kube-scheduler"
+controller ControllerManager "kube-controller-mgr"
+database etcd "etcd v3 Consensus"
+load_balancer LoadBalancer "Cloud NLB Ingress"
+ingress IngressGateway "Traefik Ingress Router"
+service ClusterService "ClusterIP Service"
+pod AppApiPod "app-api-pod-v2"
+pod WorkerJobPod "worker-batch-job"
+configmap Config "ConfigMap (Env)"
+secret Secret "Vault Secret (mTLS)"
+volume PersistentVolume "CSI PersistentVolume"
 
-group control_plane: Operator kubectl ApiServer Scheduler ControllerManager etcd
-group entry_lane: LoadBalancer IngressGateway ClusterService
-group workloads: AppApiPod WorkerJobPod
-group runtime_config: Config Secret PersistentVolume
+group control_plane "Kubernetes Control Plane": Operator kubectl ApiServer Scheduler ControllerManager etcd
+group entry_lane "External Traffic Ingress": LoadBalancer IngressGateway ClusterService
+group workloads "Application Pods & Workloads": AppApiPod WorkerJobPod
+group runtime_config "Storage & Runtime Config": Config Secret PersistentVolume
 
-beat layout:
+beat layout "1. Initialize Cluster Topology":
   show control_plane stagger=45ms & show entry_lane stagger=45ms & show workloads stagger=45ms & show runtime_config stagger=45ms
 
-beat control:
-  Operator -> kubectl "kubectl apply"
-  kubectl -> ApiServer "submit manifest"
-  ApiServer -> etcd "persist state"
-  ApiServer ~> Scheduler "pending pod"
-  ApiServer ~> ControllerManager "reconcile"
+beat control "2. Declarative Manifest Apply & State Commit":
+  frame control_plane zoom=1.12 dur=500ms
+  Operator -> kubectl "kubectl apply -f manifest.yaml"
+  kubectl -> ApiServer "submit Pod spec"
+  ApiServer -> etcd "commit state transaction"
+  ApiServer ~> Scheduler "notify Pending pods"
+  ApiServer ~> ControllerManager "trigger reconciliation loop"
 
-beat scheduling:
-  Scheduler ~> AppApiPod "schedule pod"
-  ControllerManager ~> WorkerJobPod "scale workers"
+beat scheduling "3. Pod Scheduling & Workload Scaling":
+  frame workloads Scheduler ControllerManager zoom=1.12 dur=500ms
+  Scheduler ~> AppApiPod "bind node & schedule pod"
+  ControllerManager ~> WorkerJobPod "scale replica set workers"
 
-beat config:
-  Config ~> AppApiPod "inject env"
-  Secret ~> WorkerJobPod "mount secret"
-  PersistentVolume ~> WorkerJobPod "storage"
+beat config "4. Inject ConfigMaps, Secrets & Storage":
+  frame runtime_config workloads zoom=1.1 dur=500ms
+  Config ~> AppApiPod "inject application env"
+  Secret ~> WorkerJobPod "mount mTLS certificates"
+  PersistentVolume ~> WorkerJobPod "attach CSI volume"
 
-beat traffic:
-  LoadBalancer -> IngressGateway "external traffic"
-  IngressGateway -> ClusterService "route to service"
-  ClusterService -> AppApiPod "cluster IP"
-  AppApiPod ~> WorkerJobPod "dispatch background job"
+beat traffic "5. Ingress Routing & Inter-Pod Processing":
+  frame entry_lane workloads zoom=1.12 dur=500ms
+  LoadBalancer -> IngressGateway "TLS 443 incoming traffic"
+  IngressGateway -> ClusterService "route path /api"
+  ClusterService -> AppApiPod "round-robin ClusterIP"
+  AppApiPod ~> WorkerJobPod "dispatch asynchronous background job"
 
-beat finish:
+beat finish "6. Resilient Kubernetes Cluster Active":
+  frame $nodes dur=600ms
   glow ApiServer color=#38bdf8 & glow AppApiPod color=#22c55e
 
 player:

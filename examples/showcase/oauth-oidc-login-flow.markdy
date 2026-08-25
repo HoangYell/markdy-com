@@ -1,43 +1,48 @@
-scene theme=paper width=1280 height=760
+scene "OAuth 2.0 & OIDC Authorization Code Flow" theme=paper width=1280 height=760
 layout LR
 
-user User
-browser UserAgent
-client WebApp
-gateway ApiGateway
-service AuthService
-service IdentityProvider
-database SessionStore
-cache TokenCache
+user User "End User"
+browser UserAgent "Browser / Mobile App"
+client WebApp "Next.js OAuth Client"
+gateway ApiGateway "BFF API Gateway"
+service AuthService "Auth & Token Service"
+service IdentityProvider "OIDC Identity Provider (Okta/Auth0)"
+database SessionStore "Redis Session Store"
+cache TokenCache "JWT Public Key Cache"
 
-group trust: AuthService IdentityProvider SessionStore TokenCache
-group client_side: User UserAgent WebApp ApiGateway
+group client_side "Client & Browser Perimeter": User UserAgent WebApp ApiGateway
+group trust "Zero-Trust Identity Tier": AuthService IdentityProvider SessionStore TokenCache
 
-beat layout:
+beat layout "1. Initialize Identity & OAuth Topology":
   show client_side stagger=45ms & show trust stagger=45ms
 
-beat login:
+beat login "2. Initiate Auth Request & OIDC Consent":
+  frame client_side IdentityProvider zoom=1.12 dur=500ms
   User -> UserAgent "click sign in"
-  UserAgent -> WebApp "start login"
-  WebApp -> ApiGateway "GET /auth/login"
-  ApiGateway -> AuthService "create state"
-  AuthService -> IdentityProvider "authorize redirect"
-  UserAgent <- IdentityProvider "login + consent"
+  UserAgent -> WebApp "start authorization flow"
+  WebApp -> ApiGateway "GET /auth/login (PKCE)"
+  ApiGateway -> AuthService "generate state & code_challenge"
+  AuthService -> IdentityProvider "302 redirect /authorize"
+  UserAgent <- IdentityProvider "render login & consent prompt"
 
-beat callback:
-  UserAgent -> ApiGateway "GET /callback"
-  ApiGateway -> AuthService "exchange code"
-  AuthService -> IdentityProvider "token request"
-  IdentityProvider <- AuthService "id_token + access_token"
-  AuthService -> SessionStore "store session" & AuthService ~> TokenCache "cache tokens"
+beat callback "3. Auth Code Exchange & Token Grant":
+  frame trust zoom=1.15 dur=500ms
+  UserAgent -> ApiGateway "GET /auth/callback?code=AUTH_CODE"
+  ApiGateway -> AuthService "exchange code + code_verifier"
+  AuthService -> IdentityProvider "POST /oauth/token (mTLS)"
+  IdentityProvider <- AuthService "signed id_token + access_token"
+  AuthService -> SessionStore "store encrypted session" & AuthService ~> TokenCache "cache JWKS keys"
+  glow SessionStore color=#10b981
 
-beat session:
-  WebApp <- AuthService "session cookie"
-  WebApp -> ApiGateway "GET /me"
-  ApiGateway -> AuthService "validate session"
-  AuthService <- WebApp "profile"
+beat session "4. Establish Session Cookie & Fetch Profile":
+  frame client_side AuthService zoom=1.12 dur=500ms
+  WebApp <- AuthService "set-cookie: __Host-session (HttpOnly)"
+  WebApp -> ApiGateway "GET /api/v1/me"
+  ApiGateway -> AuthService "verify session & claims"
+  AuthService <- WebApp "return user profile JSON"
 
-beat finish:
+beat finish "5. Secure Zero-Trust Authenticated Session":
+  frame $nodes dur=600ms
   glow trust color=#fb7185 & focus AuthService
 
 player:

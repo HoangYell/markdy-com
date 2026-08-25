@@ -1,21 +1,23 @@
-scene theme=editorial type=state width=1100 height=720
+scene "Order Fulfillment State Machine" theme=editorial type=state width=1100 height=720
 layout LR
 
-state Pending "Pending"
-state Paid "Paid"
-state Shipped "Shipped"
-state Closed "Closed"
+state Pending "1. Pending Payment"
+state Paid "2. Payment Settled"
+state Shipped "3. Carrier Shipped"
+state Closed "4. Order Completed"
 
 edge flow1: Pending -> Paid
 edge flow2: Paid -> Shipped
 edge flow3: Shipped -> Closed
 edge loop: Pending -> Pending
 
-beat lifecycle "State transitions":
+beat lifecycle "Order Lifecycle Transitions":
   show $nodes stagger=50ms
+  frame Pending Paid zoom=1.1 dur=500ms
   Pending -> Paid "payment captured"
-  Paid -> Shipped "carrier pickup"
-  Shipped -> Closed "delivered"
+  Paid -> Shipped "carrier pickup & tracking"
+  Shipped -> Closed "customer delivery confirmed"
+  glow Closed color=#10b981 strength=1.5
 
 player:
   playback:

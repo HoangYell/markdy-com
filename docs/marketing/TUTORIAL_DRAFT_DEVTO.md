@@ -33,16 +33,21 @@ It allows you to define architecture scenes, nodes, groups, beats, and routed fl
 
 Instead of hooking into component lifecycles, I just declare my nodes and how they connect:
 
-```text
-scene theme=paper
+```markdy
+scene "Cache-Aside Architecture" theme=paper
 layout LR
 
-browser Web
-service API
+browser Client "Web Client"
+gateway Gateway "API Gateway"
+service Shortener "URL Service"
+cache Redis "Redis Cluster"
 
-beat main:
-  show $nodes stagger=80ms
-  Web -> API "GET /users"
+beat hit:
+  show $nodes stagger=60ms
+  Client -> Gateway "GET /x9" -> Shortener "resolve"
+  Shortener -> Redis "GET slug:x9"
+  Shortener <- Redis "200 Target URL"
+  Client <- Gateway "301 Redirect"
 ```
 
 The coolest part is that layout and edge routing are automatic — you never place a node or draw a line by hand.
@@ -63,12 +68,20 @@ Now, inside my `.mdx` or `.astro` files, I just drop in the `<Markdy>` component
 import { Markdy } from "@markdy/astro";
 
 const code = `
-scene theme=paper
-browser Web
-service API
-beat main:
-  show $nodes
-  Web -> API "GET /users"
+scene "Cache-Aside Architecture" theme=paper width=800 height=400
+layout LR
+
+browser Client "Web Client"
+gateway Gateway "API Gateway"
+service Shortener "URL Service"
+cache Redis "Redis Cluster"
+
+beat hit:
+  show $nodes stagger=60ms
+  Client -> Gateway "GET /x9" -> Shortener "resolve"
+  Shortener -> Redis "GET slug:x9"
+  Shortener <- Redis "200 Target URL"
+  Client <- Gateway "301 Redirect"
 `;
 ---
 

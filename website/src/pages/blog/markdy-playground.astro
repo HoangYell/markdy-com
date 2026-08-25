@@ -97,24 +97,30 @@ const structuredData = [
     Paste this into the <a href="/playground/">playground</a>. It demonstrates nodes, a group, a labeled beat,
     a camera <code>frame</code>, request/response flow, and a compact viewer contract.
   </p>
-  <pre><code>scene theme=paper
+  <pre><code>scene "Order Processing System" theme=paper
 layout LR
 
-browser Client
-service API
-database OrdersDb
+browser Client "Web Client"
+gateway Gateway "API Gateway"
+service OrderService "Order Service"
+database Postgres "PostgreSQL 16"
+queue Kafka "Kafka Event Bus"
 
-group backend: API OrdersDb
+group app "Application Tier": Gateway OrderService
+group data "Persistence Tier": Postgres Kafka
 
-beat reveal "Reveal the system":
+beat reveal "1. Reveal System Topology":
   show $nodes stagger=60ms
 
-beat request "Trace the request":
-  frame backend zoom=1.18 dur=600ms
-  Client -&gt; API "POST /orders" -&gt; OrdersDb "persist"
-  Client &lt;- API "201 Created"
+beat checkout "2. Process Checkout &amp; Stream Event":
+  frame app data zoom=1.12 dur=600ms
+  Client -&gt; Gateway "POST /checkout" -&gt; OrderService "process"
+  OrderService -&gt; Postgres "INSERT order"
+  OrderService ~&gt; Kafka "order.created"
+  Client &lt;- Gateway "201 Created"
+  glow Postgres color=#38bdf8 &amp; glow Kafka color=#f59e0b
 
-beat reset "Return to overview":
+beat reset "3. Return to Overview":
   frame $nodes dur=600ms
 
 player:

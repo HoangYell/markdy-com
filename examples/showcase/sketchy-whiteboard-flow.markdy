@@ -1,23 +1,27 @@
 # showcase/sketchy-whiteboard-flow.markdy
 # Demonstrates Sketchy Editorial Theme (hand-drawn displacement filter, offset drop shadow, organic borders).
 
-scene theme=sketchy type=flowchart width=1100 height=650
+scene "Product Discovery & Whiteboard Validation Loop" theme=sketchy type=flowchart width=1100 height=650
+layout LR
 
-service UserInterview "User Research"
-service ProblemDef "Define Core Pain" focal=true
-service Prototype "Rapid Prototype"
-service Validation "Customer Testing"
-service Decision "Ship or Pivot?"
+service UserInterview "1. User Research Interviews"
+service ProblemDef "2. Core Problem Definition" focal=true
+service Prototype "3. Interactive Figma Prototype"
+service Validation "4. Customer Usability Testing"
+service Decision "5. Ship or Pivot Decision"
 
-beat discovery_flow "Research Phases":
+beat discovery_flow "1. Initialize Discovery Phases":
   show $nodes stagger=60ms
-  glow ProblemDef "Highest leverage bottleneck"
+  frame ProblemDef zoom=1.15 dur=500ms
+  glow ProblemDef color=#eab308
 
-beat validation_loop "Feedback Cycle":
-  UserInterview -> ProblemDef "synthesize notes"
-  ProblemDef -> Prototype "build wireframe"
-  Prototype -> Validation "observe user tests"
-  Validation -> Decision "qualitative signal"
+beat validation_loop "2. Feedback & Iteration Cycle":
+  frame UserInterview ProblemDef Prototype Validation Decision zoom=1.08 dur=500ms
+  UserInterview -> ProblemDef "synthesize user insights"
+  ProblemDef -> Prototype "build rapid prototype"
+  Prototype -> Validation "conduct moderated test sessions"
+  Validation -> Decision "evaluate product-market signal"
+  glow Decision color=#10b981 strength=1.3
 
 player:
   playback:

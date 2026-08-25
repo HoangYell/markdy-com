@@ -1,22 +1,23 @@
-scene theme=editorial type=tree width=1280 height=720
+scene "Organizational Leadership & Hierarchy Tree" theme=editorial type=tree width=1280 height=720
 layout TB
 
-service CEO "Chief Executive"
-service Eng "Engineering"
-service Sales "Sales"
-service Backend "Backend"
-service Frontend "Frontend"
+service CEO "Chief Executive Officer"
+service Eng "Engineering Leadership"
+service Sales "Global Sales Division"
+service Backend "Backend Platform Fleet"
+service Frontend "Frontend Experience Fleet"
 
 edge e1: CEO -> Eng
 edge e2: CEO -> Sales
 edge e3: Eng -> Backend
 edge e4: Eng -> Frontend
 
-group company: CEO Eng Sales Backend Frontend
+group company "Executive Org Tree": CEO Eng Sales Backend Frontend
 
-beat reveal:
+beat reveal "1. Reveal Organizational Hierarchy":
   show $nodes stagger=45ms
   frame company zoom=1.05 dur=600ms
+  glow CEO color=#c45d3e & glow Eng color=#10b981
 
 player:
   playback:

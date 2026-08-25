@@ -1,19 +1,21 @@
-scene theme=editorial type=flowchart width=960 height=720
+scene "Editorial Checkout Decision Flowchart" theme=editorial type=flowchart width=960 height=720
 layout TB
 annotation "Decision gate" target=Valid position=top-left
 
-start Start "Begin checkout"
-decision Valid "Cart valid?"
-service Process "Process payment"
-end End "Complete"
+start Start "Begin Checkout"
+decision Valid "Cart Valid?"
+service Process "Process Payment"
+end End "Order Complete"
 
 edge path: Start -> Valid -> Process -> End
 
-beat main "Walk the flow":
+beat main "Walk the Decision Flow":
   show $nodes stagger=60ms
-  Start -> Valid "scan cart"
-  Valid -> Process "charge card"
-  Process -> End "send receipt"
+  frame Start Valid zoom=1.1 dur=500ms
+  Start -> Valid "scan cart items"
+  Valid -> Process "charge payment method"
+  Process -> End "generate receipt"
+  glow Process color=#10b981 & glow End color=#38bdf8
 
 player:
   playback:

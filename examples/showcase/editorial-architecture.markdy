@@ -1,31 +1,31 @@
-scene theme=editorial type=architecture width=1280 height=760
+scene "Editorial Edge-to-Core Architecture" theme=editorial type=architecture width=1280 height=760
 layout LR
 annotation "Public edge" target=Gateway position=top-right
 
-browser WebClient
+browser WebClient "Reader Web Client"
 gateway Gateway "API Gateway"
-service API
-database PrimaryDB
-cache Redis
+service API "Content Core Service"
+database PrimaryDB "Primary PostgreSQL"
+cache Redis "Redis Edge Cache"
 
-group edge: WebClient Gateway
-group core: API PrimaryDB Redis
+group edge "Public Edge Perimeter": WebClient Gateway
+group core "Core Backend Services": API PrimaryDB Redis
 
 edge backbone: WebClient -> Gateway -> API
 edge data_read: API -> PrimaryDB
 edge data_cache: API ~> Redis
 
-beat reveal "Reveal tiers":
+beat reveal "1. Reveal System Tiers":
   show edge stagger=50ms & show core stagger=50ms
 
-beat request "Handle API call":
+beat request "2. Query Content & Read Primary":
   frame core zoom=1.12 dur=500ms
-  WebClient -> Gateway "GET /v1/items"
-  Gateway -> API "route"
-  API -> PrimaryDB "read rows"
-  API ~> Redis "cache hit"
+  WebClient -> Gateway "GET /v1/articles"
+  Gateway -> API "dispatch query"
+  API -> PrimaryDB "read document rows"
+  API ~> Redis "cache warm miss"
 
-beat finish "Edge stays thin":
+beat finish "3. Edge Ingress Inspection":
   frame edge zoom=1.15 dur=500ms
   glow Gateway color=#c45d3e strength=1.2
 

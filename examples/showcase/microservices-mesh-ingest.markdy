@@ -1,36 +1,41 @@
-scene theme=paper
+scene "Service Mesh & Async Event Ingestion" theme=paper width=1320 height=760
 layout LR
 
-group ingress_mesh "Ingress Controller": IngressController EnvoyProxy
-group business_services "Service Mesh": CatalogAPI InventoryWorker NotificationSvc
-group datastores "Managed Backends": DocumentDB SQSQueue
+group ingress_mesh "Ingress Controller & Sidecar": IngressController EnvoyProxy
+group business_services "Service Mesh Core": CatalogAPI InventoryWorker NotificationSvc
+group datastores "Managed Backends Tier": DocumentDB SQSQueue
 
 browser WebClient "Storefront React App"
-gateway IngressController "Nginx Ingress"
-gateway EnvoyProxy "Envoy Sidecar"
+gateway IngressController "Nginx Ingress Controller"
+gateway EnvoyProxy "Envoy Service Mesh Sidecar"
 
 service CatalogAPI "Catalog Service :8080"
-worker InventoryWorker "Inventory Worker"
-service NotificationSvc "Notification Svc"
+worker InventoryWorker "Inventory Sync Worker"
+service NotificationSvc "Notification Gateway"
 
-database DocumentDB "MongoDB Cluster"
-queue SQSQueue "AWS SQS Queue"
+database DocumentDB "MongoDB Atlas Cluster"
+queue SQSQueue "AWS SQS FIFO Queue"
 
-beat ingress_beat "1. Ingress Routing":
+beat ingress_beat "1. Ingress Routing & Sidecar mTLS":
   show ingress_mesh business_services stagger=30ms
-  WebClient -> IngressController "GET /catalog" -> EnvoyProxy "mTLS mesh"
-  EnvoyProxy -> CatalogAPI "forward"
+  frame ingress_mesh business_services zoom=1.1 dur=500ms
+  WebClient -> IngressController "GET /catalog" -> EnvoyProxy "mTLS mesh route"
+  EnvoyProxy -> CatalogAPI "forward payload"
 
 beat query_beat "2. Database Read & Event Dispatch":
   show datastores stagger=30ms
+  frame CatalogAPI DocumentDB SQSQueue zoom=1.12 dur=500ms
   CatalogAPI -> DocumentDB "find({ active: true })"
-  CatalogAPI <- DocumentDB "products list"
-  CatalogAPI ~> SQSQueue "ProductViewed"
+  CatalogAPI <- DocumentDB "products cursor"
+  CatalogAPI ~> SQSQueue "emit ProductViewed"
+  glow DocumentDB color=#10b981
 
-beat async_beat "3. Async Worker Consumption":
-  SQSQueue ~> NotificationSvc "poll messages"
-  NotificationSvc -> InventoryWorker "sync status"
-  WebClient <- IngressController "200 OK (Products)"
+beat async_beat "3. Async Worker Consumption & Client Return":
+  frame business_services datastores zoom=1.1 dur=500ms
+  SQSQueue ~> NotificationSvc "poll SQS batch"
+  NotificationSvc -> InventoryWorker "sync inventory status"
+  WebClient <- IngressController "200 OK (Product Catalog)"
+  glow SQSQueue color=#f59e0b & glow CatalogAPI color=#38bdf8
 
 player:
   playback:
