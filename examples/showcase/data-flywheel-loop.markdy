@@ -18,11 +18,12 @@ edge e5: QuorumReadRepair -> NodeMutation
 
 beat compounding_loop "1. Continuous Anti-Entropy Convergence Cycle":
   show $nodes stagger=50ms
-  NodeMutation -> GossipBroadcast -> VectorClockCompare -> MerkleTreeSync -> QuorumReadRepair -> NodeMutation
+  frame ConvergenceCore NodeMutation GossipBroadcast VectorClockCompare MerkleTreeSync QuorumReadRepair zoom=1.05 dur=500ms
+  NodeMutation -> GossipBroadcast "UDP gossip packet" -> VectorClockCompare "detect causality" -> MerkleTreeSync "range mismatch" -> QuorumReadRepair "backfill stale node" -> NodeMutation "converge state"
   glow ConvergenceCore color=#047857
 
 beat convergence_pulse "2. Global Cluster Consistency Achieved":
-  glow QuorumReadRepair color=#22c55e & glow ConvergenceCore color=#047857
+  glow QuorumReadRepair color=#22c55e & glow ConvergenceCore color=#047857 strength=1.5
 
 player:
   playback:

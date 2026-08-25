@@ -10,19 +10,23 @@ security EnclaveCore "Layer 4: Hardware Enclave (HSM Vault & Master Keys)" focal
 
 beat edge_perimeter "1. Global Edge Perimeter Filtering":
   show PublicEdge
+  frame PublicEdge zoom=1.05 dur=500ms
   glow PublicEdge color=#047857
 
 beat dmz_ingress "2. DMZ Ingress & Token Verification":
   show DMZIngress
+  frame DMZIngress zoom=1.08 dur=500ms
   glow DMZIngress color=#38bdf8
 
 beat private_mesh "3. Zero-Trust Private Service Mesh":
   show PrivateMesh
+  frame PrivateMesh zoom=1.12 dur=500ms
   glow PrivateMesh color=#a855f7
 
 beat core_vault "4. Hardware Security Module Key Protection":
   show EnclaveCore
-  glow EnclaveCore color=#22c55e
+  frame EnclaveCore zoom=1.18 dur=500ms
+  glow EnclaveCore color=#22c55e strength=1.5
 
 player:
   playback:

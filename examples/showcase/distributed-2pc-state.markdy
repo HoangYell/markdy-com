@@ -20,15 +20,17 @@ edge flow6: Committed -> Finalized "Finalize"
 
 beat lifecycle "1. Two-Phase Commit Consensus State Machine":
   show $nodes stagger=45ms
-  Init -> Preparing
-  Preparing -> Prepared
-  Prepared -> Committed
-  Committed -> Finalized
+  frame Init Preparing Prepared Committed Finalized zoom=1.08 dur=500ms
+  Init -> Preparing "coordinator issues PREPARE"
+  Preparing -> Prepared "all resource managers vote YES"
+  Prepared -> Committed "coordinator issues GLOBAL COMMIT"
+  Committed -> Finalized "commit ACK received & WAL cleaned"
   glow Committed color=#22c55e & glow Finalized color=#047857
 
 beat abort_case "2. Distributed Rollback Edge Case":
-  Preparing -> Aborted
-  Aborted -> Init
+  frame Preparing Aborted Init zoom=1.12 dur=500ms
+  Preparing -> Aborted "single node timeout or vote NO"
+  Aborted -> Init "coordinator issues GLOBAL ABORT & rollback"
   glow Aborted color=#ef4444
 
 player:

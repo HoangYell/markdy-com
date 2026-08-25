@@ -28,23 +28,28 @@ edge e10: MultiProcEngine -> Result
 
 beat reveal "1. Workload Profiling Entrance":
   show $nodes stagger=30ms
+  frame Start Nature zoom=1.12 dur=500ms
+  glow Nature color=#eab308
 
 beat io_flow "2. I/O-Bound High Concurrency Path":
-  Start -> Nature
-  Nature -> IOBound
-  IOBound -> Scale
-  Scale -> AsyncioEngine
-  AsyncioEngine -> Result
-  glow AsyncioEngine color=#047857
+  frame Nature IOBound Scale AsyncioEngine Result zoom=1.08 dur=500ms
+  Start -> Nature "inspect workload characteristics"
+  Nature -> IOBound "detect network/database I/O"
+  IOBound -> Scale "evaluate concurrency (> 10k connections)"
+  Scale -> AsyncioEngine "select non-blocking uvloop"
+  AsyncioEngine -> Result "deliver sub-millisecond p99"
+  glow AsyncioEngine color=#047857 & glow Result color=#047857
 
 beat cpu_flow "3. CPU-Bound Multi-Core Path":
-  Nature -> CPUBound
-  CPUBound -> MultiProcEngine
-  MultiProcEngine -> Result
+  frame Nature CPUBound MultiProcEngine Result zoom=1.1 dur=500ms
+  Nature -> CPUBound "detect heavy matrix compute/ML"
+  CPUBound -> MultiProcEngine "spawn multiprocessing pool"
+  MultiProcEngine -> Result "saturate all physical cores"
   glow MultiProcEngine color=#2563eb
 
 beat finish "4. Concurrency Architecture Selected":
-  glow Result color=#047857
+  frame $nodes dur=600ms
+  glow Result color=#047857 strength=1.4
 
 player:
   playback:

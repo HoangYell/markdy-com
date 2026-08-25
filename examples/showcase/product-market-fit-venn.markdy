@@ -9,10 +9,12 @@ service DistributedSQL "Distributed Consensus (Spanner/CockroachDB)" focal=true
 
 beat reveal "1. Storage Model Set Overlaps":
   show $nodes stagger=60ms
+  frame ACID BASE DistributedSQL zoom=1.05 dur=500ms
   glow DistributedSQL color=#047857
 
 beat intersection_highlight "2. Modern Distributed SQL Convergence":
-  glow ACID color=#22c55e & glow BASE color=#38bdf8 & glow DistributedSQL color=#047857
+  frame DistributedSQL zoom=1.15 dur=500ms
+  glow ACID color=#22c55e & glow BASE color=#38bdf8 & glow DistributedSQL color=#047857 strength=1.4
 
 player:
   playback:

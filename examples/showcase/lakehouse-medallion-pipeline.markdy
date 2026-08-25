@@ -28,13 +28,14 @@ beat reveal "1. Multi-Tier Medallion Data Topology":
   glow SilverCleanse color=#047857
 
 beat stream_pipeline "2. Real-Time Streaming Ingestion & Validation":
-  BronzeRaw -> BronzeDelta
-  BronzeDelta -> SilverCleanse
-  SilverCleanse -> SilverEnrich
-  SilverEnrich -> GoldAggregates
-  SilverEnrich -> GoldFeatureStore
-  GoldAggregates -> BIDashboards
-  GoldFeatureStore -> MLServing
+  frame BronzeRaw SilverCleanse GoldAggregates BIDashboards MLServing zoom=1.06 dur=500ms
+  BronzeRaw -> BronzeDelta "append raw parquet partition"
+  BronzeDelta -> SilverCleanse "dbt streaming schema enforcement"
+  SilverCleanse -> SilverEnrich "de-duplicate & join dimensions"
+  SilverEnrich -> GoldAggregates "materialize hourly rollups"
+  SilverEnrich -> GoldFeatureStore "backfill real-time online store"
+  GoldAggregates -> BIDashboards "refresh executive dashboards"
+  GoldFeatureStore -> MLServing "serve sub-10ms feature vectors"
   glow GoldAggregates color=#22c55e & glow GoldFeatureStore color=#38bdf8
 
 player:

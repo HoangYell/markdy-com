@@ -16,13 +16,16 @@ database RedisCluster "Redis Sentinel (HA In-Memory)" quadrant=Q4
 
 beat reveal "1. CAP Theorem Architectural Classification":
   show $nodes stagger=40ms
+  frame Spanner Cockroach Cassandra DynamoDB SQLite Postgres RedisCluster zoom=1.05 dur=500ms
   glow Spanner color=#047857
 
 beat cp_focus "2. Strict Consistency & Partition Tolerance (CP)":
+  frame Spanner Cockroach zoom=1.15 dur=500ms
   glow Spanner color=#22c55e & glow Cockroach color=#22c55e
 
 beat ap_focus "3. High Availability & Eventual Consistency (AP)":
-  glow Cassandra color=#38bdf8 & glow DynamoDB color=#38bdf8
+  frame Cassandra DynamoDB zoom=1.15 dur=500ms
+  glow Cassandra color=#38bdf8 & glow DynamoDB color=#38bdf8 strength=1.4
 
 player:
   playback:

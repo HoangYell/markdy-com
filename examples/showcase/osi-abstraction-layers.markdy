@@ -13,20 +13,22 @@ service PhysicalLayer "Layer 1: Physical Layer (Fiber Optic, Radio Signal)"
 
 beat stack_reveal "1. Complete OSI Networking Protocol Stack":
   show $nodes stagger=50ms
+  frame TransportLayer zoom=1.1 dur=500ms
   glow TransportLayer color=#047857
 
 beat encapsulation "2. Outgoing Packet Encapsulation (Top-Down)":
-  AppLayer -> PresLayer
-  PresLayer -> SessLayer "JSON Stream"
-  SessLayer -> TransportLayer "TCP Segments"
-  TransportLayer -> NetworkLayer "IP Packets"
-  NetworkLayer -> DataLinkLayer "Ethernet Frames"
-  DataLinkLayer -> PhysicalLayer "Bitstream"
+  frame AppLayer PresLayer SessLayer TransportLayer NetworkLayer DataLinkLayer PhysicalLayer zoom=1.05 dur=500ms
+  AppLayer -> PresLayer "serialize HTTP/3 payload"
+  PresLayer -> SessLayer "compress & encrypt TLS stream"
+  SessLayer -> TransportLayer "split into TCP segments (SYN/ACK)"
+  TransportLayer -> NetworkLayer "encapsulate IPv6 packets"
+  NetworkLayer -> DataLinkLayer "frame Ethernet MAC payload"
+  DataLinkLayer -> PhysicalLayer "modulate optical bitstream"
   glow PhysicalLayer color=#22c55e
 
 beat decapsulation "3. Ingress Packet Decapsulation & CRC Validation":
-  PhysicalLayer -> DataLinkLayer -> NetworkLayer -> TransportLayer -> SessLayer -> PresLayer -> AppLayer
-  glow AppLayer color=#047857
+  PhysicalLayer -> DataLinkLayer "receive raw bits" -> NetworkLayer "strip MAC header" -> TransportLayer "verify TCP checksum" -> SessLayer "reassemble stream" -> PresLayer "decompress payload" -> AppLayer "deliver to user process"
+  glow AppLayer color=#047857 strength=1.4
 
 player:
   playback:

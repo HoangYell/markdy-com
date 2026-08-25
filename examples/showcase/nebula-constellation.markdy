@@ -18,15 +18,17 @@ edge e5: RaftLeader -> Candidate
 
 beat cluster_reveal "1. Raft Consensus Constellation Discovery":
   show $nodes stagger=40ms
+  frame RaftLeader Follower1 Follower2 Follower3 Follower4 zoom=1.06 dur=500ms
   glow RaftLeader color=#38bdf8
 
 beat heartbeat_sync "2. Heartbeat Ping & AppendEntries Log Replication":
+  frame RaftLeader Follower1 Follower2 Follower3 Follower4 zoom=1.08 dur=500ms
   RaftLeader -> Follower1 "Heartbeat (CommitIdx: 1042)" & RaftLeader -> Follower2 "Heartbeat (CommitIdx: 1042)" & RaftLeader -> Follower3 "Heartbeat (CommitIdx: 1042)" & RaftLeader -> Follower4 "Heartbeat (CommitIdx: 1042)"
   glow Follower1 color=#22c55e & glow Follower2 color=#22c55e & glow Follower3 color=#22c55e & glow Follower4 color=#22c55e
 
 beat quorum_ack "3. Majority Quorum ACK (3 of 5 Nodes)":
-  Follower1 -> RaftLeader "ACK" & Follower2 -> RaftLeader "ACK" & Follower3 -> RaftLeader "ACK"
-  glow RaftLeader color=#22c55e
+  Follower1 -> RaftLeader "ACK AppendEntries" & Follower2 -> RaftLeader "ACK AppendEntries" & Follower3 -> RaftLeader "ACK AppendEntries"
+  glow RaftLeader color=#22c55e strength=1.4
 
 player:
   playback:

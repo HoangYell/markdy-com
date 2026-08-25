@@ -11,20 +11,23 @@ participant ResourceApi "Protected Microservice API"
 
 beat auth_request "1. PKCE Authorization Code Request":
   show $nodes stagger=40ms
+  frame BrowserApp AuthServer zoom=1.1 dur=500ms
   BrowserApp -> AuthServer "GET /authorize (code_challenge = SHA256(verifier))"
-  AuthServer -> BrowserApp "302 Redirect with auth_code (valid 60s)"
+  BrowserApp <- AuthServer "302 Redirect with auth_code (valid 60s)"
 
 beat token_exchange "2. Code Exchange for Cryptographic JWT":
+  frame BrowserApp TokenEndpoint zoom=1.12 dur=500ms
   BrowserApp -> TokenEndpoint "POST /oauth/token (code + code_verifier)"
   TokenEndpoint -> TokenEndpoint "verify SHA256(code_verifier) == challenge"
-  TokenEndpoint -> BrowserApp "200 OK (access_token + refresh_token)"
+  BrowserApp <- TokenEndpoint "200 OK (access_token + refresh_token)"
   glow TokenEndpoint color=#047857
 
 beat authorized_request "3. Authenticated Bearer Token Resource Access":
+  frame BrowserApp ResourceApi zoom=1.12 dur=500ms
   BrowserApp -> ResourceApi "GET /api/v1/orders (Authorization: Bearer <jwt>)"
   ResourceApi -> ResourceApi "validate RS256 signature & claims"
-  ResourceApi -> BrowserApp "200 OK (Protected JSON Payload)"
-  glow ResourceApi color=#22c55e
+  BrowserApp <- ResourceApi "200 OK (Protected JSON Payload)"
+  glow ResourceApi color=#22c55e strength=1.4
 
 player:
   playback:
