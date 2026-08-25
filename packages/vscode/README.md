@@ -37,30 +37,27 @@
 ### Example MarkdyScript
 
 ```markdy
-scene title="Modern Cloud Architecture"
-  theme "night"
-  direction LR
+scene "Modern Cloud Architecture" theme=midnight
+layout LR
 
-  user client
-  gateway api_gateway
-  service auth_service
-  database main_db
-  queue task_queue
+browser Client "Global Client"
+gateway ApiGateway "Kong Edge"
+service AuthService "Auth Service"
+database MainDB "PostgreSQL 16"
+queue TaskQueue "Kafka Stream"
 
-  client -> api_gateway "HTTPS request"
-  api_gateway -> auth_service "validate JWT"
-  api_gateway -> main_db "read/write"
-  api_gateway ~> task_queue "dispatch async job"
+beat auth "User Authentication":
+  show $nodes stagger=60ms
+  frame Client ApiGateway AuthService zoom=1.12
+  Client -> ApiGateway "POST /login" -> AuthService "validate JWT"
+  AuthService -> MainDB "SELECT credentials"
+  AuthService <- MainDB "user record"
+  Client <- ApiGateway "200 OK (JWT Token)"
 
-beat "User Authentication":
-  show client, api_gateway
-  glow api_gateway
-  client -> api_gateway "POST /login"
-
-beat "Database Query":
-  show auth_service, main_db
-  api_gateway -> auth_service
-  auth_service -> main_db
+beat async_dispatch "Async Background Job":
+  frame ApiGateway TaskQueue zoom=1.15
+  ApiGateway ~> TaskQueue "dispatch async task"
+  glow TaskQueue color=#38bdf8
 ```
 
 ---
@@ -82,7 +79,7 @@ beat "Database Query":
 - `markdy.preview.autoplay`: Automatically play diagram animations when preview opens (default: `true`).
 - `markdy.preview.loop`: Loop diagram animations continuously (default: `true`).
 - `markdy.preview.progressBar`: Show interactive playback progress bar and scrubber (default: `true`).
-- `markdy.preview.theme`: Theme override for preview panel (`auto`, `night`, `light`, `cyber`, `slate`, `tokyo`, `nord`, `monokai`).
+- `markdy.preview.theme`: Theme override for preview panel (`paper`, `editorial`, `midnight`, `blueprint`, `terminal`, `graphite`, `nebula`, `sketchy`).
 
 ---
 

@@ -21,17 +21,24 @@ Hi HN! I got tired of writing 80-line GSAP timelines for simple animated diagram
 So I built Markdy: a diagram-native DSL where you declare semantic nodes, connect them with flow operators, and sequence reveals in beats, then render it using the browser-native Web Animations API.
 
 ```
-scene theme=paper
+scene "Cache-Aside Architecture" theme=paper
 layout LR
 
-client Client
-service API
-gateway Edge "Edge"
+browser Client "Global Visitor"
+gateway ApiGateway "Kong Edge"
+service Shortener "URL Service"
+cache Redis "Hot Cache"
+database Postgres "PostgreSQL 16"
 
-beat main:
-  show $nodes stagger=80ms
-  Client -> API "call" -> Edge "route"
-  Client <- API "response"
+beat main "Lookup or warm cache":
+  show $nodes stagger=60ms
+  frame Client ApiGateway Shortener zoom=1.12
+  Client -> ApiGateway "GET /a7" -> Shortener "resolve"
+  Shortener -> Redis "GET slug:a7"
+  Redis ~> Shortener "cache miss"
+  Shortener -> Postgres "SELECT destination"
+  Postgres -> Redis "warm cache" & glow Redis
+  Client <- ApiGateway "301 Redirect"
 ```
 
 **Interesting technical decisions:**

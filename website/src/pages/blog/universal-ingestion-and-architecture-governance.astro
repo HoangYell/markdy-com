@@ -51,6 +51,12 @@ const structuredData = [
     port allocations, and sequential traffic flow beats.
   </p>
 
+  <img
+    src="/images/markdy-universal-ingestion.webp"
+    alt="Universal Ingestion Transpilers for Mermaid, Draw.io, Docker Compose, Kubernetes, and Terraform"
+    class="w-full rounded-2xl border border-white/10 shadow-2xl my-8"
+  />
+
   <pre><code># Ingest Mermaid flowchart or sequence diagram
 markdy import ./architecture.mmd --out ./scenes/arch.markdy
 
@@ -78,6 +84,12 @@ markdy import ./terraform.tfstate --out ./scenes/cloud.markdy</code></pre>
     <li><strong>Gateway Requirement:</strong> Mandates API gateway declaration for distributed systems with 3 or more microservices.</li>
   </ul>
 
+  <img
+    src="/images/markdy-governance-audit.webp"
+    alt="Architecture Governance Linter and Automated GitHub Actions PR Review"
+    class="w-full rounded-2xl border border-white/10 shadow-2xl my-8"
+  />
+
   <pre><code># Run governance checks in your GitHub Actions CI/CD pipeline
 markdy lint ./scenes/ --arch-rules --strict</code></pre>
 
@@ -96,6 +108,12 @@ markdy diff ./scenes/v1.markdy ./scenes/v2.markdy --evolution</code></pre>
     Through <code>@markdy/mcp-server</code>, AI assistants in <strong>Claude Desktop</strong>, <strong>Cursor</strong>, and <strong>Antigravity</strong> can
     inspect, validate, transpile, and self-heal MarkdyScript diagrams natively through standardized MCP tools.
   </p>
+
+  <img
+    src="/images/markdy-ai-agent-workflow.webp"
+    alt="Markdy AI Agent Prompting and Model Context Protocol MCP Hub"
+    class="w-full rounded-2xl border border-white/10 shadow-2xl my-8"
+  />
 
   <pre><code>// claude_desktop_config.json
 &#123;

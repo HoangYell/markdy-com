@@ -59,6 +59,12 @@ const structuredData = [
     <li><strong>No runtime to hallucinate.</strong> There's no imperative API surface to invent — just declarative diagram statements.</li>
   </ul>
 
+  <img
+    src="/images/markdy-ai-agent-workflow.webp"
+    alt="AI Agent Prompting & Official MCP Server Workflow"
+    class="w-full rounded-2xl border border-white/10 shadow-2xl my-8"
+  />
+
   <h2>How to prompt for a Markdy diagram</h2>
   <p>
     Point the model at the canonical <a href="/AGENT.md">Markdy agent guide</a>
@@ -76,7 +82,7 @@ layout LR
 
 browser Browser
 gateway Gateway "API Gateway"
-service Shortener "URL Shortener"
+service Shortener "URL Service"
 cache Redis "Hot URL Cache"
 database UrlDB "URL Store"
 
@@ -89,6 +95,13 @@ beat create:
 
 beat finish:
   glow storage color=#22c55e</code></pre>
+
+  <img
+    src="/images/scene-url-shortener.webp"
+    alt="AI-Generated URL Shortener Architecture Scene"
+    class="w-full rounded-2xl border border-white/10 shadow-2xl my-8"
+  />
+
   <p>
     Paste it straight into the <a href="/playground/">playground</a> to verify it. If it doesn't parse, hand the
     line-numbered error back to the model and ask it to fix that line — the loop is fast and reliable.
