@@ -226,7 +226,9 @@ const ghostViewPlugin = ViewPlugin.fromClass(
     debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
     constructor(view: EditorView) {
-      this.computeGhost(view);
+      this.debounceTimer = setTimeout(() => {
+        this.computeGhost(view);
+      }, 150);
     }
 
     update(update: ViewUpdate) {
@@ -251,15 +253,19 @@ const ghostViewPlugin = ViewPlugin.fromClass(
     }
 
     computeGhost(view: EditorView) {
+      if (!view || !view.dom || !view.dom.parentElement) return;
       const state = view.state;
       const head = state.selection.main.head;
       const line = state.doc.lineAt(head);
       const lineNo = line.number - 1;
       const lineText = line.text;
+      const currentSuggestion = state.field(ghostSuggestionField);
 
       // Only show ghost text if at the end of current line or on empty line
       if (head < line.to && lineText.trim().length > 0) {
-        view.dispatch({ effects: setGhostSuggestionEffect.of(null) });
+        if (currentSuggestion !== null) {
+          view.dispatch({ effects: setGhostSuggestionEffect.of(null) });
+        }
         return;
       }
 
@@ -267,19 +273,26 @@ const ghostViewPlugin = ViewPlugin.fromClass(
       const suggestion = predictNextLineSuggestion(docText, lineNo);
 
       if (suggestion && suggestion.text.trim().length > 0) {
-        // Strip leading newline or match current line intent
         let displayGhost = suggestion.text;
         if (lineText.length > 0 && !displayGhost.startsWith("\n") && !displayGhost.startsWith(" ")) {
           displayGhost = " " + displayGhost;
         }
-        view.dispatch({
-          effects: setGhostSuggestionEffect.of({
-            ...suggestion,
-            text: displayGhost,
-          }),
-        });
+        if (
+          !currentSuggestion ||
+          currentSuggestion.text !== displayGhost ||
+          currentSuggestion.type !== suggestion.type
+        ) {
+          view.dispatch({
+            effects: setGhostSuggestionEffect.of({
+              ...suggestion,
+              text: displayGhost,
+            }),
+          });
+        }
       } else {
-        view.dispatch({ effects: setGhostSuggestionEffect.of(null) });
+        if (currentSuggestion !== null) {
+          view.dispatch({ effects: setGhostSuggestionEffect.of(null) });
+        }
       }
     }
 
