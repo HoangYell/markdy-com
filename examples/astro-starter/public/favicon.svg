@@ -1,0 +1,65 @@
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="24 24 464 464"
+  width="512"
+  height="512"
+  fill="none"
+>
+  <title>Markdy Logo</title>
+  <desc>Flat green hexagonal Markdy icon with a white rounded M and dot.</desc>
+
+  <!-- Main rounded hexagonal badge -->
+  <path
+    d="
+      M 256 24
+      C 247 24 238 27 230 32
+      L 62 128
+      C 39 141 24 165 24 192
+      V 320
+      C 24 347 39 371 62 384
+      L 230 480
+      C 246 489 266 489 282 480
+      L 450 384
+      C 473 371 488 347 488 320
+      V 192
+      C 488 165 473 141 450 128
+      L 282 32
+      C 274 27 265 24 256 24
+      Z
+    "
+    fill="#18B887"
+  />
+
+  <!-- White rounded M -->
+  <path
+    d="
+      M 137 181
+      C 137 164 151 150 168 150
+      C 177 150 185 153 192 160
+      L 256 224
+      L 320 160
+      C 327 153 335 150 344 150
+      C 361 150 375 164 375 181
+      V 335
+      C 375 352 361 366 344 366
+      C 327 366 313 352 313 335
+      V 255
+      L 278 290
+      C 266 302 246 302 234 290
+      L 199 255
+      V 335
+      C 199 352 185 366 168 366
+      C 151 366 137 352 137 335
+      Z
+    "
+    fill="#FFFFFF"
+  />
+
+  <!-- Center dot -->
+  <circle
+    cx="256"
+    cy="357"
+    r="25"
+    fill="#FFFFFF"
+  />
+</svg>

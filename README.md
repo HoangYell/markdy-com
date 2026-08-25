@@ -21,7 +21,7 @@
   <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/npm/v/@markdy/core?color=blue&label=%40markdy%2Fcore" alt="npm version" /></a>
   <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/badge/core_size-~14_kB-brightgreen" alt="Bundle Size" /></a>
   <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/badge/runtime_deps-0-success" alt="Zero Dependencies" /></a>
-  <a href="https://stackblitz.com/github/HoangYell/markdy-com/tree/main/examples/astro-starter"><img src="https://developer.stackblitz.com/img/open_in_stackblitz.svg" alt="Open in StackBlitz" /></a>
+  <a href="https://stackblitz.com/github/HoangYell/markdy-com/tree/main/examples/astro-starter?file=src%2Fpages%2Findex.astro"><img src="https://developer.stackblitz.com/img/open_in_stackblitz.svg" alt="Open in StackBlitz" /></a>
   <a href="https://github.com/HoangYell/markdy-com/blob/main/LICENSE"><img src="https://img.shields.io/github/license/HoangYell/markdy-com" alt="MIT License" /></a>
 </p>
 

@@ -52,6 +52,6 @@ It's integrated into my Astro blog as a `<Markdy>` island that hydrates on scrol
 
 Playground: https://markdy.com  
 GitHub: https://github.com/HoangYell/markdy-com  
-StackBlitz starter: https://stackblitz.com/github/HoangYell/markdy-com/tree/main/examples/astro-starter
+StackBlitz starter: https://stackblitz.com/github/HoangYell/markdy-com/tree/main/examples/astro-starter?file=src%2Fpages%2Findex.astro
 
 Happy to answer questions about the DSL design, the WAAPI scheduler, governance linting, or the LLM/MCP integration approach.

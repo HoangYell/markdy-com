@@ -71,11 +71,12 @@ fi
 
 echo "📦 Bumping versions to $VERSION"
 pnpm version "$VERSION" --allow-same-version --no-git-tag-version
-for pkg in packages/*; do
+for pkg in packages/* examples/astro-starter; do
   if [ -f "$pkg/package.json" ]; then
     (cd "$pkg" && pnpm version "$VERSION" --allow-same-version --no-git-tag-version)
   fi
 done
+
 
 echo "🔗 Refreshing lockfile"
 pnpm install --no-frozen-lockfile >/dev/null

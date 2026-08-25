@@ -2,11 +2,7 @@
 import { Markdy } from "@markdy/astro";
 
 const code = `
-controls true
-interactive true
-progressColor "#3b82f6"
-
-scene theme=paper width=800 height=400
+scene "API Request Lifecycle" theme=paper width=800 height=400
 layout LR
 
 browser Browser
@@ -20,24 +16,50 @@ beat request:
 beat response:
   DB -> API "rows" & glow API color=#38bdf8
   Browser <- API "200 OK"
+
+player:
+  playback:
+    loop true
+  controls:
+    theme true
+  interaction:
+    zoom true
+    pan true
 `;
 ---
 
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width" />
-    <title>Markdy + Astro</title>
+    <title>Markdy + Astro Sandbox</title>
     <style>
-      body { margin: 0; padding: 2rem; background: #0f0f13; color: white; font-family: system-ui; display: flex; flex-direction: column; align-items: center; }
-      .container { border-radius: 12px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.4); margin-top: 2rem; }
+      body {
+        margin: 0;
+        padding: 2rem;
+        background: #0f0f13;
+        color: white;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      .container {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        margin-top: 2rem;
+        max-width: 800px;
+        width: 100%;
+      }
     </style>
   </head>
   <body>
     <h1>Markdy + Astro Sandbox</h1>
     <p>Wait for the component to hydrate and see the animated diagram run!</p>
     <div class="container">
-      <Markdy code={code} width={800} height={400} bg="#07111f" />
+      <Markdy code={code} width={800} height={400} bg="#fafafa" autoplay loop />
     </div>
   </body>
 </html>
