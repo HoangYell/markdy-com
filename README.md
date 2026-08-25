@@ -1,10 +1,8 @@
 <p align="center">
   <a href="https://markdy.com">
-    <img src="docs/images/mascot/3d-icon.webp" width="76" height="76" alt="Markdy" />
+    <img src="docs/images/mascot/markdy-com.webp" width="340" alt="Markdy" />
   </a>
 </p>
-
-<h1 align="center">Markdy</h1>
 
 <p align="center">
   <strong>Diagram-as-code DSL for animated architecture &amp; system design explainers.</strong><br>
