@@ -97,15 +97,17 @@ beat finish:
   <h2>Works with the tools you already use</h2>
   <p>
     MarkdyScript is plain text, so it works with any assistant that accepts URL context — Claude, ChatGPT, Gemini,
-    GitHub Copilot, Cursor, Windsurf, and coding agents that read <a href="/llms.txt">llms.txt</a>. Keep the diagram in
-    your repo and the same agent can update it whenever the system changes, exactly like
-    <a href="/blog/animated-diagrams-as-code/">diagrams as code</a>.
+    GitHub Copilot, Cursor, Windsurf, Google Antigravity, and coding agents that read <a href="/llms.txt">llms.txt</a>.
+    You can also plug in the official <strong>Model Context Protocol (MCP) server</strong> (<code>@markdy/mcp-server</code>)
+    for instant syntax diagnostics, fuzzy typo healing (<code>diagnose_markdy_syntax</code> / <code>fix_markdy_code</code>),
+    and proactive IntelliCode completions (<code>get_intellicode_completions</code>).
   </p>
 
   <h2>Validate what the AI produced</h2>
   <p>
-    Trust, but verify. Run <code>markdy lint scene.markdy</code> in CI, or render the scene in
-    <a href="/blog/animated-diagrams-astro-mdx/">Astro or MDX</a> docs so a broken diagram fails your build instead of
+    Trust, but verify. Run <code>markdy lint scene.markdy</code> in CI, auto-heal drafts with <code>markdy fmt --fix</code>,
+    or explore predictive suggestions via <code>markdy suggest</code>. Rendering scenes in
+    <a href="/blog/animated-diagrams-astro-mdx/">Astro or MDX</a> docs ensures broken diagrams fail your build instead of
     shipping. Deterministic output means AI-generated diagrams stay reviewable — not magic you can't audit.
   </p>
 </ArticleLayout>

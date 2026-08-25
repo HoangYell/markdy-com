@@ -4,6 +4,11 @@ import {
   resolveArchitectureConfig,
   diffDiagramASTs,
   compressMarkdyToUrlHash,
+  diagnoseMarkdyCode,
+  repairMarkdyCode,
+  getIntelliCodeCompletions,
+  predictNextLineSuggestion,
+  getArchitectureSuggestions,
   type DiagramAST,
   type Diagnostic,
   type ArchitectureRule,
@@ -96,6 +101,8 @@ export async function runCli(
       return docsCommand(parsed, io, runtime);
     case "ai":
       return aiCommand(parsed, io, runtime);
+    case "suggest":
+      return suggestCommand(parsed, io);
     case "check-all":
       return checkAllCommand(parsed, io);
     default:
@@ -163,7 +170,22 @@ async function lintCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
     } catch (error) {
       errorCount++;
       io.stderr(`FAIL ${file}`);
-      io.stderr(`     ${describeError(error)}`);
+      try {
+        const raw = await readFile(file, "utf-8");
+        const diag = diagnoseMarkdyCode(raw, { checkArchitecture: true });
+        if (diag.issues.length > 0) {
+          for (const iss of diag.issues) {
+            io.stderr(`     Line ${iss.line}: [${iss.code}] ${iss.message}`);
+            if (iss.suggestion) {
+              io.stderr(`       💡 Recommendation: ${iss.suggestion}`);
+            }
+          }
+        } else {
+          io.stderr(`     ${describeError(error)}`);
+        }
+      } catch {
+        io.stderr(`     ${describeError(error)}`);
+      }
     }
   }
 
@@ -189,15 +211,40 @@ async function fmtCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
 
   const write = hasFlag(parsed, "write");
   const check = hasFlag(parsed, "check");
+  const fix = hasFlag(parsed, "fix") || hasFlag(parsed, "repair");
   const cache = new Map<string, LoadedScene>();
   let changed = 0;
 
-  if (!write && !check && files.length > 1) {
-    io.stderr("markdy fmt: pass exactly one file when printing to stdout, or use --write / --check");
+  if (!write && !check && !fix && files.length > 1) {
+    io.stderr("markdy fmt: pass exactly one file when printing to stdout, or use --write / --check / --fix");
     return { exitCode: 1 };
   }
 
   for (const file of files) {
+    let raw = "";
+    try {
+      raw = await readFile(file, "utf-8");
+    } catch {
+      // ignore
+    }
+
+    if (fix) {
+      const repaired = repairMarkdyCode(raw);
+      if (repaired.isFixed || repaired.changes.length > 0) {
+        let finalOutput = repaired.repairedCode;
+        try {
+          const ast = parse(repaired.repairedCode);
+          finalOutput = formatScene(ast);
+        } catch {
+          // keep repaired string
+        }
+        await writeFile(file, finalOutput, "utf8");
+        changed++;
+        io.stdout(`REPAIRED ${file} (${repaired.changes.length} fixes applied)`);
+        continue;
+      }
+    }
+
     const scene = await loadSceneFromFile(file, cache);
     const formatted = formatScene(scene.ast);
     const isChanged = normalizeNewlines(scene.source) !== normalizeNewlines(formatted);
@@ -457,6 +504,76 @@ async function checkAllCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult
     io.stdout(`markdy check-all: PASS — scanned ${files.length} file(s).`);
   }
   return result;
+}
+
+async function suggestCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
+  const file = parsed.positionals[0];
+  if (!file) {
+    io.stderr("markdy suggest: expected a .markdy input file");
+    return { exitCode: 1 };
+  }
+
+  const scene = await loadSceneFromFile(file).catch((err) => {
+    io.stderr(`markdy suggest: ${describeError(err)}`);
+    return null;
+  });
+  if (!scene) return { exitCode: 1 };
+
+  const lineFlag = getStringFlag(parsed, "line");
+  const colFlag = getStringFlag(parsed, "col");
+  const lines = scene.source.split(/\r?\n/);
+  const targetLine = lineFlag ? Number(lineFlag) - 1 : Math.max(0, lines.length - 1);
+  const targetCol = colFlag ? Number(colFlag) : (lines[targetLine]?.length ?? 0);
+
+  const completions = getIntelliCodeCompletions(scene.source, targetLine, targetCol);
+  const nextLinePrediction = predictNextLineSuggestion(scene.source, targetLine);
+  const archRecommendations = getArchitectureSuggestions(scene.source);
+
+  if (hasFlag(parsed, "json")) {
+    io.stdout(
+      JSON.stringify(
+        {
+          file,
+          cursor: { line: targetLine + 1, column: targetCol },
+          topCompletions: completions.slice(0, 10),
+          nextLinePrediction,
+          architectureRecommendations: archRecommendations,
+        },
+        null,
+        2
+      )
+    );
+    return { exitCode: 0 };
+  }
+
+  const out: string[] = [];
+  out.push(`💡 Markdy IntelliCode Analysis: ${file}`);
+  out.push(`- Cursor Line: ${targetLine + 1}, Column: ${targetCol}`);
+
+  if (nextLinePrediction) {
+    out.push(`\n🔮 Predictive Next-Line Suggestion:`);
+    out.push(`  → ${nextLinePrediction.text.trim()} (${nextLinePrediction.description})`);
+  }
+
+  if (archRecommendations.length > 0) {
+    out.push(`\n🛡️ Proactive Architectural Suggestions (${archRecommendations.length}):`);
+    for (const rec of archRecommendations) {
+      out.push(`  - [${rec.title}] ${rec.desc}`);
+      out.push(`    Action: ${rec.actionLabel}`);
+    }
+  } else {
+    out.push(`\n✓ Architecture topology is well-structured with clear layer boundaries.`);
+  }
+
+  if (completions.length > 0) {
+    out.push(`\n✨ Top Autocompletions at Cursor:`);
+    for (const item of completions.slice(0, 8)) {
+      out.push(`  - ${item.label.padEnd(20)} [${item.kind}] ${item.detail || ""}`);
+    }
+  }
+
+  io.stdout(out.join("\n"));
+  return { exitCode: 0 };
 }
 
 async function launchPlayground(
@@ -882,6 +999,7 @@ function helpText(): string {
     "  markdy import <file> [--from compose|k8s|terraform|mermaid] [--out scene.markdy]",
     "  markdy diff <before.markdy> <after.markdy> [--evolution]",
     "  markdy share <file.markdy>",
+    "  markdy suggest <file.markdy> [--line <n>] [--col <n>] [--json]",
     "  markdy new [target.markdy] [--force]",
     "  markdy docs [--open]",
     "  markdy ai [--open]",

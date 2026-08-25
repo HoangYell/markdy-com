@@ -109,19 +109,30 @@ Validates MarkdyScript syntax and verifies Well-Architected governance rules (la
 | `code` | `string` | **Required** | *None* | The complete MarkdyScript diagram code starting with `scene`. |
 | `checkArchitecture` | `boolean` | Optional | `true` | When `true`, runs Well-Architected governance lint rules. |
 
-#### Example Request
-```json
-{
-  "name": "validate_markdy_code",
-  "arguments": {
-    "code": "scene theme=paper layout=LR\nservice API\ndatabase DB\nbeat main:\n  API -> DB \"query\"\n  API <- DB \"200 OK\""
-  }
-}
-```
+---
+
+### 2. `diagnose_markdy_syntax`
+Deep diagnostic tool that analyzes MarkdyScript syntax, performs fuzzy typo matching for keywords/node kinds/operators/nodes, identifies unquoted multi-word strings, detects flow cycle overlaps, and returns line-by-line snippets, "Did you mean?" suggestions, and proposed auto-repaired code.
+
+#### Parameters
+| Parameter | Type | Presence | Default | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `code` | `string` | **Required** | *None* | The MarkdyScript diagram code to inspect. |
+| `checkArchitecture` | `boolean` | Optional | `true` | When `true`, includes governance rules in the report. |
 
 ---
 
-### 2. `transpile_to_markdy`
+### 3. `fix_markdy_code`
+Automatically repairs common MarkdyScript syntax errors, typos, missing colons, invalid flow operators, unquoted multi-word strings, cycle return edges, and wraps top-level bare cues into a valid scene.
+
+#### Parameters
+| Parameter | Type | Presence | Description |
+| :--- | :--- | :--- | :--- |
+| `code` | `string` | **Required** | The broken or draft MarkdyScript diagram code to automatically repair. |
+
+---
+
+### 4. `transpile_to_markdy`
 Converts existing infrastructure definitions or diagrams into animated MarkdyScript scenes.
 
 #### Parameters
@@ -131,21 +142,9 @@ Converts existing infrastructure definitions or diagrams into animated MarkdyScr
 | `format` | `string` | **Required** | `mermaid`, `docker-compose`, `k8s`, `terraform`, `drawio` | Format of the input source. |
 | `title` | `string` | Optional | `"Imported Scene"` | Scene title rendered in the output diagram header. |
 
-#### Example Request
-```json
-{
-  "name": "transpile_to_markdy",
-  "arguments": {
-    "format": "docker-compose",
-    "source": "version: '3'\nservices:\n  web:\n    image: nginx\n  api:\n    image: node-app",
-    "title": "Container Stack"
-  }
-}
-```
-
 ---
 
-### 3. `explain_architecture`
+### 5. `explain_architecture`
 Parses a MarkdyScript AST to output structural topology summaries, component role counts, and governance health metrics.
 
 #### Parameters
@@ -155,7 +154,7 @@ Parses a MarkdyScript AST to output structural topology summaries, component rol
 
 ---
 
-### 4. `generate_markdy_prompt`
+### 6. `generate_markdy_prompt`
 Generates optimal, hallucination-resistant LLM system prompts and grammar constraints tailored to a specific user goal.
 
 #### Parameters
@@ -165,13 +164,25 @@ Generates optimal, hallucination-resistant LLM system prompts and grammar constr
 
 ---
 
-### 5. `get_architecture_catalog`
+### 7. `get_architecture_catalog`
 Returns production-grade golden architecture templates (Microservices, RAG, Kafka Event-Driven, K8s Ingress, GitOps CI/CD, OAuth2, HA Multi-Region, Flowcharts) with full runnable MarkdyScript source code.
 
 #### Parameters
 | Parameter | Type | Presence | Description |
 | :--- | :--- | :--- | :--- |
 | `filterCategory` | `string` | Optional | Filter string by category name (e.g. `'AI'`, `'Cloud'`, `'Security'`). |
+
+---
+
+### 8. `get_intellicode_completions`
+Provides context-aware autocompletions, technology presets, next-line flow predictions, and proactive architectural recommendations based on current diagram context.
+
+#### Parameters
+| Parameter | Type | Presence | Default | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| `code` | `string` | **Required** | *None* | The MarkdyScript diagram code. |
+| `line` | `number` | Optional | End of doc | 0-indexed cursor line. |
+| `column` | `number` | Optional | End of line | 0-indexed cursor column. |
 
 ---
 
@@ -182,6 +193,7 @@ AI agents can directly read these canonical context URIs via MCP:
 | URI | MIME Type | Description |
 | :--- | :--- | :--- |
 | `markdy://spec/agent-reference` | `text/markdown` | Canonical MarkdyScript specification, node kinds, and cycle-prevention rules. |
+| `markdy://spec/grammar-rules` | `text/markdown` | Comprehensive grammar rules, typo resolution guide, and cycle-safe routing. |
 | `markdy://templates/catalog` | `application/json` | Curated JSON catalog of all 8 golden architecture templates. |
 | `markdy://governance/rules` | `application/json` | Well-Architected governance rules and lint presets. |
 
@@ -192,6 +204,7 @@ AI agents can directly read these canonical context URIs via MCP:
 | Prompt | Arguments | Purpose |
 | :--- | :--- | :--- |
 | `create_architecture_diagram` | `userGoal` (req), `theme` (opt), `layout` (opt) | Guided workflow to design an animated Markdy architecture diagram from scratch. |
+| `debug_markdy_syntax` | `code` (req) | Diagnoses and heals broken MarkdyScript syntax errors, typos, and cycle overlaps. |
 | `audit_architecture` | `code` (req) | Audits a MarkdyScript diagram against Well-Architected governance and cycle-safety rules. |
 | `transpile_architecture` | `source` (req), `format` (req) | Guides migration of legacy diagrams or infra into animated MarkdyScript. |
 

@@ -80,7 +80,25 @@ const baseTheme = EditorView.baseTheme({
     padding: "6px 10px",
     fontSize: "0.75rem",
     fontFamily: '"SF Mono", "Fira Code", monospace',
-    maxWidth: "320px",
+    maxWidth: "340px",
+  },
+  ".cm-ghost-text": {
+    color: "#64748b !important",
+    opacity: "0.6",
+    fontStyle: "italic",
+    pointerEvents: "none",
+    userSelect: "none",
+  },
+  ".cm-ghost-text-hint": {
+    display: "inline-block",
+    marginLeft: "8px",
+    padding: "1px 5px",
+    fontSize: "0.68rem",
+    borderRadius: "4px",
+    backgroundColor: "rgba(148, 163, 184, 0.18)",
+    color: "#94a3b8",
+    fontStyle: "normal",
+    fontWeight: "500",
   },
 });
 

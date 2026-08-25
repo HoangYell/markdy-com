@@ -64,6 +64,10 @@ function createText(
   return label;
 }
 
+function resolveLifelineStroke(theme: ThemeTokens): string {
+  return theme.edges?.dependency ?? theme.rule ?? theme.border ?? "#64748b";
+}
+
 export function mountSequenceLayer(
   layer: HTMLElement,
   nodes: PositionedNode[],
@@ -106,19 +110,29 @@ export function mountSequenceLayer(
     return node ? node.x + node.width / 2 : 0;
   };
 
+  const lifelineStroke = resolveLifelineStroke(theme);
   for (const node of nodes) {
     const x = centerX(node.id);
     const lifeline = doc.createElementNS("http://www.w3.org/2000/svg", "line");
     lifeline.classList.add("markdy-sequence-lifeline");
     lifeline.setAttribute("x1", String(x));
     lifeline.setAttribute("x2", String(x));
-    lifeline.setAttribute("y1", String(node.y + node.height + 8));
-    lifeline.setAttribute("y2", String(bounds.height - 32));
-    lifeline.setAttribute("stroke", theme.hairline ?? theme.border);
-    lifeline.setAttribute("stroke-width", "1.2");
-    lifeline.setAttribute("stroke-dasharray", "4 6");
+    lifeline.setAttribute("y1", String(node.y + node.height));
+    lifeline.setAttribute("y2", String(bounds.height - 36));
+    lifeline.setAttribute("stroke", lifelineStroke);
+    lifeline.setAttribute("stroke-width", "1.5");
+    lifeline.setAttribute("stroke-dasharray", "5 5");
     lifeline.setAttribute("opacity", "0.85");
     svg.appendChild(lifeline);
+
+    const cap = doc.createElementNS("http://www.w3.org/2000/svg", "circle");
+    cap.classList.add("markdy-sequence-lifeline-cap");
+    cap.setAttribute("cx", String(x));
+    cap.setAttribute("cy", String(bounds.height - 36));
+    cap.setAttribute("r", "2.5");
+    cap.setAttribute("fill", lifelineStroke);
+    cap.setAttribute("opacity", "0.85");
+    svg.appendChild(cap);
   }
 
   for (const activation of activations) {
@@ -235,8 +249,12 @@ export function updateSequenceLayerTheme(layer: HTMLElement, theme: ThemeTokens)
     });
   }
 
+  const lifelineStroke = resolveLifelineStroke(theme);
   Array.from(svg.querySelectorAll(".markdy-sequence-lifeline")).forEach((line) => {
-    line.setAttribute("stroke", theme.hairline ?? theme.border);
+    line.setAttribute("stroke", lifelineStroke);
+  });
+  Array.from(svg.querySelectorAll(".markdy-sequence-lifeline-cap")).forEach((cap) => {
+    cap.setAttribute("fill", lifelineStroke);
   });
 
   Array.from(svg.querySelectorAll(".markdy-sequence-activation")).forEach((bar) => {

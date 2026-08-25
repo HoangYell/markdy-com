@@ -55,7 +55,7 @@ export function createGroupBoundaryEl(
   el.style.top = `${boundary.y}px`;
   el.style.width = `${boundary.width}px`;
   el.style.height = `${boundary.height}px`;
-  el.style.setProperty("--md-group-border", theme.hairline ?? theme.border);
+  el.style.setProperty("--md-group-border", theme.border ?? theme.rule ?? "#cbd5e1");
 
   const displayLabel = boundary.label || boundary.id;
   if (displayLabel) {

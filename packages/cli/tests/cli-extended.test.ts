@@ -121,4 +121,33 @@ describe("@markdy/cli: Extended CLI Commands", () => {
 
     await rm(testDir, { recursive: true, force: true });
   });
+
+  it("provides code suggestions and architectural recommendations via markdy suggest", async () => {
+    await mkdir(testDir, { recursive: true });
+    const file = join(testDir, "suggest-test.markdy");
+    await writeFile(
+      file,
+      'scene theme=paper\nlayout LR\nbrowser WebApp\nservice ApiGateway\ndatabase MainDB\n',
+      "utf8"
+    );
+
+    const { stdoutBuf, io } = createMockIo();
+    const result = await runCli(["suggest", file], io);
+
+    expect(result.exitCode).toBe(0);
+    const output = stdoutBuf.join("\n");
+    expect(output).toContain("Markdy IntelliCode Analysis");
+    expect(output).toContain("Predictive Next-Line Suggestion");
+    expect(output).toContain("Top Autocompletions at Cursor");
+
+    // Test JSON format flag
+    const jsonMock = createMockIo();
+    const jsonResult = await runCli(["suggest", file, "--json"], jsonMock.io);
+    expect(jsonResult.exitCode).toBe(0);
+    const parsed = JSON.parse(jsonMock.stdoutBuf.join("\n"));
+    expect(parsed.file).toBe(file);
+    expect(Array.isArray(parsed.topCompletions)).toBe(true);
+
+    await rm(testDir, { recursive: true, force: true });
+  });
 });

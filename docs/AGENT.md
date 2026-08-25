@@ -4,8 +4,8 @@
 > - **Status**: Active & Canonical
 > - **Current Version**: v1.0.29
 > - **Specification Version**: 1.0.x
-> - **Time Updated**: 2026-08-24T14:01:41.883Z
-> - **Last Updated**: 2026-08-24
+> - **Time Updated**: 2026-08-25T12:27:06.873Z
+> - **Last Updated**: 2026-08-25
 > - **Canonical URL**: <https://markdy.com/AGENT.md>
 > - **Human-Readable Mirror**: <https://markdy.com/agent/>
 > - **LLM Index**: <https://markdy.com/llms.txt>
@@ -610,9 +610,13 @@ Connect AI coding agents (Claude Desktop, Cursor, Antigravity, Windsurf) directl
 ```
 
 - `validate_markdy_code`: Validates syntax and tests Well-Architected governance rules (layer boundaries, cycle detection, gateway checks).
-- `transpile_to_markdy`: Converts Mermaid, Docker Compose, Kubernetes manifests, and Terraform state into animated MarkdyScript.
+- `diagnose_markdy_syntax`: Performs deep syntax diagnostics, fuzzy typo matching for keywords/node kinds/operators/nodes, unquoted string detection, cycle checks, and returns line-by-line snippets, "Did you mean?" suggestions, and proposed auto-repair.
+- `fix_markdy_code`: Deterministic automatic repair of keyword typos, node kind typos, missing colons, invalid flow operators, and unquoted strings.
+- `get_intellicode_completions`: Context-aware completions, next-line flow predictions, and proactive architecture recommendations.
+- `transpile_to_markdy`: Converts Mermaid, Docker Compose, Kubernetes manifests, Terraform state, and Draw.io into animated MarkdyScript.
 - `explain_architecture`: Generates structured topology summaries, role breakdowns, and governance health metrics.
 - `generate_markdy_prompt`: Generates optimized, hallucination-resistant prompts tailored for LLM code generation.
+- `get_architecture_catalog`: Retrieves runnable golden template source code for production architecture patterns.
 
 ### Vanilla TypeScript / JavaScript Integration
 

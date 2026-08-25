@@ -21,19 +21,25 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 import {
   handleValidateMarkdy,
+  handleDiagnoseMarkdy,
+  handleFixMarkdy,
   handleTranspileToMarkdy,
   handleExplainArchitecture,
   handleGenerateMarkdyPrompt,
   handleGetArchitectureCatalog,
+  handleIntelliCode,
   handleReadResource,
 } from "./tools.js";
 
 export {
   handleValidateMarkdy,
+  handleDiagnoseMarkdy,
+  handleFixMarkdy,
   handleTranspileToMarkdy,
   handleExplainArchitecture,
   handleGenerateMarkdyPrompt,
   handleGetArchitectureCatalog,
+  handleIntelliCode,
   handleReadResource,
 } from "./tools.js";
 
@@ -74,6 +80,38 @@ export function createMarkdyMcpServer(): Server {
               checkArchitecture: {
                 type: "boolean",
                 description: "Whether to run Well-Architected governance rule checks (e.g. layer boundaries, cycle detection, gateway checks). Default: true.",
+              },
+            },
+            required: ["code"],
+          },
+        },
+        {
+          name: "diagnose_markdy_syntax",
+          description: "Deep diagnostic tool that analyzes MarkdyScript diagram syntax, detects typos in keywords/node kinds/operators/nodes, identifies flow cycle overlaps, unquoted strings, and provides 'Did you mean?' suggestions with auto-repaired code.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              code: {
+                type: "string",
+                description: "The MarkdyScript (.markdy) diagram code to inspect.",
+              },
+              checkArchitecture: {
+                type: "boolean",
+                description: "Whether to include Well-Architected governance rules in the report. Default: true.",
+              },
+            },
+            required: ["code"],
+          },
+        },
+        {
+          name: "fix_markdy_code",
+          description: "Automatically repairs common MarkdyScript syntax errors, typos, missing colons, invalid flow operators, unquoted strings, cycle return edges, and wraps top-level bare cues into a valid scene.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              code: {
+                type: "string",
+                description: "The broken or draft MarkdyScript diagram code to automatically repair.",
               },
             },
             required: ["code"],
@@ -143,6 +181,28 @@ export function createMarkdyMcpServer(): Server {
             },
           },
         },
+        {
+          name: "get_markdy_intellicode",
+          description: "Provides zero-dependency intelligent code completion, predictive ghost-text next-line suggestions, and Well-Architected proactive recommendations for MarkdyScript diagrams.",
+          inputSchema: {
+            type: "object",
+            properties: {
+              code: {
+                type: "string",
+                description: "The MarkdyScript diagram code.",
+              },
+              line: {
+                type: "number",
+                description: "Optional 0-indexed line number where the cursor is positioned.",
+              },
+              column: {
+                type: "number",
+                description: "Optional 0-indexed column character where the cursor is positioned.",
+              },
+            },
+            required: ["code"],
+          },
+        },
       ],
     };
   });
@@ -157,6 +217,15 @@ export function createMarkdyMcpServer(): Server {
           String(safeArgs.code ?? ""),
           safeArgs.checkArchitecture !== false
         );
+
+      case "diagnose_markdy_syntax":
+        return handleDiagnoseMarkdy(
+          String(safeArgs.code ?? ""),
+          safeArgs.checkArchitecture !== false
+        );
+
+      case "fix_markdy_code":
+        return handleFixMarkdy(String(safeArgs.code ?? ""));
 
       case "transpile_to_markdy":
         return await handleTranspileToMarkdy(
@@ -174,6 +243,13 @@ export function createMarkdyMcpServer(): Server {
       case "get_architecture_catalog":
         return handleGetArchitectureCatalog(safeArgs.filterCategory ? String(safeArgs.filterCategory) : undefined);
 
+      case "get_markdy_intellicode":
+        return handleIntelliCode(
+          String(safeArgs.code ?? ""),
+          typeof safeArgs.line === "number" ? safeArgs.line : undefined,
+          typeof safeArgs.column === "number" ? safeArgs.column : undefined
+        );
+
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
@@ -190,6 +266,12 @@ export function createMarkdyMcpServer(): Server {
           uri: "markdy://spec/agent-reference",
           name: "MarkdyScript AI Agent Specification",
           description: "Canonical reference for MarkdyScript syntax, closed node vocabularies, and cycle-safety rules.",
+          mimeType: "text/markdown",
+        },
+        {
+          uri: "markdy://spec/grammar-rules",
+          name: "MarkdyScript Grammar & Diagnostic Rules",
+          description: "Grammar conventions, typo resolution guides, and cycle-safe routing rules.",
           mimeType: "text/markdown",
         },
         {
@@ -242,6 +324,17 @@ export function createMarkdyMcpServer(): Server {
           ],
         },
         {
+          name: "debug_markdy_syntax",
+          description: "Diagnose, troubleshoot, and heal broken MarkdyScript syntax, typos, undefined node references, or flow cycles.",
+          arguments: [
+            {
+              name: "code",
+              description: "The broken or erroneous MarkdyScript code to diagnose and repair.",
+              required: true,
+            },
+          ],
+        },
+        {
           name: "audit_architecture",
           description: "Review a MarkdyScript diagram for Well-Architected governance, cycle overlap, and layer violations.",
           arguments: [
@@ -288,6 +381,21 @@ export function createMarkdyMcpServer(): Server {
               content: {
                 type: "text",
                 text: `Design an animated Markdy architecture diagram for: ${safeArgs.userGoal}\n\nConfiguration:\n- Theme: ${theme}\n- Layout: ${layout}\n\nFollow the canonical 4-step Markdy mental model:\n1. Directives (scene theme=${theme} layout=${layout})\n2. Node declarations (<kind> <Id> ["Human Label"])\n3. Groups (group <id> "<Label>": ...)\n4. Animated Storyboard beats with cycle-safe routing (use '<-' for return calls).`,
+              },
+            },
+          ],
+        };
+      }
+
+      case "debug_markdy_syntax": {
+        return {
+          description: "Diagnose and heal MarkdyScript syntax errors and typos",
+          messages: [
+            {
+              role: "user",
+              content: {
+                type: "text",
+                text: `Please diagnose and repair the following MarkdyScript code. Check for keyword typos, invalid node kinds, unquoted strings, missing colons, undefined node references, and flow cycles:\n\n\`\`\`markdy\n${safeArgs.code}\n\`\`\``,
               },
             },
           ],
