@@ -17,17 +17,20 @@ Use this guide when you want to answer: "How do I turn semantic nodes, groups, b
 Create `architecture.markdy`:
 
 ```markdy
-scene theme=paper
+scene "Cache-Aside Architecture" theme=paper
 layout LR
 
-browser WebApp
-service ApiServer
-database Postgres
+browser Client "Web Client"
+gateway Gateway "API Gateway"
+service Shortener "URL Service"
+cache Redis "Redis Cluster"
 
-beat main:
-  show $nodes stagger=80ms
-  WebApp -> ApiServer "GET /users" -> Postgres "query"
-  WebApp <- ApiServer "200 OK"
+beat hit:
+  show $nodes stagger=60ms
+  Client -> Gateway "GET /x9" -> Shortener "resolve"
+  Shortener -> Redis "GET slug:x9"
+  Shortener <- Redis "200 Target URL"
+  Client <- Gateway "301 Redirect"
 ```
 
 <p align="center">

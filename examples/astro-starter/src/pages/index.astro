@@ -2,20 +2,32 @@
 import { Markdy } from "@markdy/astro";
 
 const code = `
-scene "API Request Lifecycle" theme=paper width=800 height=400
+scene "Distributed Cache-Aside Architecture" theme=paper width=960 height=520
 layout LR
 
-browser Browser
-service API "API Server"
-database DB "Postgres"
+browser Client "Web Client"
+gateway Gateway "API Gateway"
+service Shortener "URL Service"
+cache Redis "Redis Cluster"
+database Postgres "PostgreSQL 16"
 
-beat request:
-  show $nodes stagger=80ms
-  Browser -> API "GET /data" -> DB "query"
+group app "Application Tier": Gateway Shortener
+group data "Persistence Tier": Redis Postgres
 
-beat response:
-  DB -> API "rows" & glow API color=#38bdf8
-  Browser <- API "200 OK"
+beat hit "1. Sub-2ms Cache Hit Path":
+  show $nodes stagger=60ms
+  frame Client Gateway Shortener Redis zoom=1.1
+  Client -> Gateway "GET /x9" -> Shortener "resolve"
+  Shortener -> Redis "GET slug:x9"
+  Shortener <- Redis "200 Target URL"
+  Client <- Gateway "301 Redirect"
+
+beat miss "2. Cache Miss Fallback & Async Warm":
+  frame Shortener Redis Postgres zoom=1.15
+  Shortener -> Postgres "SELECT destination WHERE slug = 'x9'"
+  Shortener <- Postgres "Row Found"
+  Shortener ~> Redis "SETEX slug:url (Warm Cache)"
+  glow Postgres color=#38bdf8 & glow Redis color=#22c55e
 
 player:
   playback:
@@ -50,16 +62,16 @@ player:
         overflow: hidden;
         box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         margin-top: 2rem;
-        max-width: 800px;
+        max-width: 960px;
         width: 100%;
       }
     </style>
   </head>
   <body>
     <h1>Markdy + Astro Sandbox</h1>
-    <p>Wait for the component to hydrate and see the animated diagram run!</p>
+    <p>Live interactive architecture diagram compiled to 60fps Web Animations</p>
     <div class="container">
-      <Markdy code={code} width={800} height={400} bg="#fafafa" autoplay loop />
+      <Markdy code={code} width={960} height={520} bg="#fafafa" autoplay loop />
     </div>
   </body>
 </html>

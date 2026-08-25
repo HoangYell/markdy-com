@@ -56,13 +56,21 @@ export const mdxComponents = {
 Then write Markdown:
 
 ````md
-```markdy width=800 height=400 bg="#07111f" autoplay=false loop=false playback_rate=0.5 scene_boundary_progress=false
-scene theme=paper width=800 height=400
-browser Web
-service API
-beat main:
-  show $nodes
-  Web -> API "GET /users"
+```markdy width=800 height=400 autoplay=true loop=true
+scene "Cache-Aside Architecture" theme=paper width=800 height=400
+layout LR
+
+browser Client "Web Client"
+gateway Gateway "API Gateway"
+service Shortener "URL Service"
+cache Redis "Redis Cluster"
+
+beat hit:
+  show $nodes stagger=60ms
+  Client -> Gateway "GET /x9" -> Shortener "resolve"
+  Shortener -> Redis "GET slug:x9"
+  Shortener <- Redis "200 Target URL"
+  Client <- Gateway "301 Redirect"
 ```
 ````
 

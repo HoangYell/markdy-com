@@ -35,16 +35,23 @@ const astroExample = `---
 import { Markdy } from "@markdy/astro";
 
 const code = \`
-  scene theme=paper width=800 height=400
-  browser Web
-  service API
-  beat main:
-    show $nodes
-    Web -> API "GET /users"
+  scene "Cache-Aside Architecture" theme=paper width=800 height=400
+  layout LR
+  browser Client "Web Client"
+  gateway Gateway "API Gateway"
+  service Shortener "URL Service"
+  cache Redis "Redis Cluster"
+
+  beat hit:
+    show $nodes stagger=60ms
+    Client -> Gateway "GET /x9" -> Shortener "resolve"
+    Shortener -> Redis "GET slug:x9"
+    Shortener <- Redis "200 Target URL"
+    Client <- Gateway "301 Redirect"
 \`;
 ---
 
-<Markdy code={code} width={800} height={400} bg="#07111f" autoplay />`;
+<Markdy code={code} width={800} height={400} bg="#fafafa" autoplay />`;
 ---
 
 <ArticleLayout
@@ -76,12 +83,19 @@ const code = \`
     component imports:
   </p>
   <pre data-lang="text"><code>```markdy
-scene theme=paper
-browser Web
-service API
-beat main:
-  show $nodes
-  Web -&gt; API "GET /users"
+scene "Cache-Aside Architecture" theme=paper
+layout LR
+browser Client "Web Client"
+gateway Gateway "API Gateway"
+service Shortener "URL Service"
+cache Redis "Redis Cluster"
+
+beat hit:
+  show $nodes stagger=60ms
+  Client -&gt; Gateway "GET /x9" -&gt; Shortener "resolve"
+  Shortener -&gt; Redis "GET slug:x9"
+  Shortener &lt;- Redis "200 Target URL"
+  Client &lt;- Gateway "301 Redirect"
 ```</code></pre>
   <p>
     The remark plugin turns that block into a lazy-loaded diagram component. Your authors keep writing Markdown; the diagrams

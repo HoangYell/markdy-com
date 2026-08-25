@@ -50,12 +50,20 @@ import { createDiagram } from "@markdy/renderer-dom";
 const diagram = createDiagram({
   container: document.getElementById("scene")!,
   code: `
-    scene theme=paper
-    browser Web
-    service API
-    beat main:
-      show $nodes
-      Web -> API "GET /users"
+    scene "Cache-Aside Architecture" theme=paper
+    layout LR
+
+    browser Client "Web Client"
+    gateway Gateway "API Gateway"
+    service Shortener "URL Service"
+    cache Redis "Redis Cluster"
+
+    beat hit:
+      show $nodes stagger=60ms
+      Client -> Gateway "GET /x9" -> Shortener "resolve"
+      Shortener -> Redis "GET slug:x9"
+      Shortener <- Redis "200 Target URL"
+      Client <- Gateway "301 Redirect"
   `,
   autoplay: true,
 });

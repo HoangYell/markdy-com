@@ -83,7 +83,7 @@ Connect nodes with the four flow operators. Chain hops on one line and add a `"l
 
 ```markdy
 beat requests:
-  Client -> API "GET /users" -> DB "query"
+  Client -> API "GET /items" -> DB "SELECT query"
   Client <- API "200 OK"
 ```
 

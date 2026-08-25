@@ -46,20 +46,28 @@ import { parse, ParseError } from "@markdy/core";
 import type { DiagramAST } from "@markdy/core";
 
 const source = `
-  scene theme=paper
-  browser Web
-  service API
-  beat main:
-    show $nodes
-    Web -> API "GET /users"
+scene "Cache-Aside Architecture" theme=paper
+layout LR
+
+browser Client "Web Client"
+gateway Gateway "API Gateway"
+service Shortener "URL Service"
+cache Redis "Redis Cluster"
+
+beat hit:
+  show $nodes stagger=60ms
+  Client -> Gateway "GET /x9" -> Shortener "resolve"
+  Shortener -> Redis "GET slug:x9"
+  Shortener <- Redis "200 Target URL"
+  Client <- Gateway "301 Redirect"
 `;
 
 try {
   const ast: DiagramAST = parse(source);
 
-  console.log(ast.meta);   // { width: 1280, height: 720, fps: 60, theme: "paper", direction: "LR", title: "Request" }
-  console.log(ast.nodes);  // { Web: { kind: "browser", ... }, API: { kind: "service", ... } }
-  console.log(ast.beats);  // [{ name: "main", cues: [...] }]
+  console.log(ast.meta);   // { width: 1280, height: 720, fps: 60, theme: "paper", direction: "LR", title: "Cache-Aside Architecture" }
+  console.log(ast.nodes);  // { Client: { kind: "browser", ... }, Gateway: { ... } }
+  console.log(ast.beats);  // [{ name: "hit", cues: [...] }]
 } catch (e) {
   if (e instanceof ParseError) {
     console.error(`Line ${e.line}: ${e.message}`);

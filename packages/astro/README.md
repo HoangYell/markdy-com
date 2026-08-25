@@ -45,16 +45,24 @@ Astro integration provides an island wrapper for lazy client-side hydration.
 import { Markdy } from "@markdy/astro";
 
 const code = `
-  scene theme=paper width=800 height=400
-  browser Web
-  service API
-  beat main:
-    show $nodes
-    Web -> API "GET /users"
+scene "Cache-Aside Architecture" theme=paper width=800 height=400
+layout LR
+
+browser Client "Web Client"
+gateway Gateway "API Gateway"
+service Shortener "URL Service"
+cache Redis "Redis Cluster"
+
+beat hit:
+  show $nodes stagger=60ms
+  Client -> Gateway "GET /x9" -> Shortener "resolve"
+  Shortener -> Redis "GET slug:x9"
+  Shortener <- Redis "200 Target URL"
+  Client <- Gateway "301 Redirect"
 `;
 ---
 
-<Markdy code={code} width={800} height={400} bg="#07111f" autoplay controls />
+<Markdy code={code} width={800} height={400} bg="#fafafa" autoplay controls />
 ```
 
 ### In MDX
@@ -63,15 +71,23 @@ const code = `
 import { Markdy } from "@markdy/astro";
 
 export const code = `
-  scene theme=paper width=600 height=300
-  browser Web
-  service API
-  beat main:
-    show $nodes
-    Web -> API "GET /users"
+scene "Cache-Aside Architecture" theme=paper width=800 height=400
+layout LR
+
+browser Client "Web Client"
+gateway Gateway "API Gateway"
+service Shortener "URL Service"
+cache Redis "Redis Cluster"
+
+beat hit:
+  show $nodes stagger=60ms
+  Client -> Gateway "GET /x9" -> Shortener "resolve"
+  Shortener -> Redis "GET slug:x9"
+  Shortener <- Redis "200 Target URL"
+  Client <- Gateway "301 Redirect"
 `;
 
-<Markdy code={code} width={600} height={300} bg="#07111f" autoplay controls />
+<Markdy code={code} width={800} height={400} bg="#fafafa" autoplay controls />
 ```
 
 ## Props
