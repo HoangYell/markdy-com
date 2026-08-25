@@ -156,6 +156,6 @@ describe("@markdy/mcp-server: MCP Tool Handlers", () => {
   it("creates an MCP server with tools, resources, and prompts", () => {
     const server = createMarkdyMcpServer();
     expect(server).toBeDefined();
-    expect(MCP_SERVER_VERSION).toBe("1.0.25");
+    expect(MCP_SERVER_VERSION).toBe("1.0.30");
   });
 });
