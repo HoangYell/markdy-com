@@ -1,0 +1,228 @@
+{
+  "name": "markdy-vscode",
+  "displayName": "Markdy: Animated Architecture Diagrams",
+  "description": "Open-source diagram-as-code editor tooling for animated architecture and system diagrams.",
+  "version": "1.0.29",
+  "private": true,
+  "publisher": "hoangyell",
+  "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
+  "license": "MIT",
+  "homepage": "https://markdy.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HoangYell/markdy-com.git",
+    "directory": "packages/vscode"
+  },
+  "bugs": {
+    "url": "https://github.com/HoangYell/markdy-com/issues"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Visualization",
+    "Formatters",
+    "Other"
+  ],
+  "keywords": [
+    "markdy",
+    "markdyscript",
+    "diagram",
+    "architecture-diagram",
+    "system-design",
+    "mermaid",
+    "flowchart",
+    "waapi",
+    "animated-diagram"
+  ],
+  "icon": "assets/icon.png",
+  "main": "./dist/extension.js",
+  "browser": "./dist/extension.js",
+  "activationEvents": [
+    "onLanguage:markdy",
+    "onCommand:markdy.showPreview",
+    "onCommand:markdy.showPreviewToSide",
+    "onCommand:markdy.exportSvg",
+    "onCommand:markdy.exportPng",
+    "onCommand:markdy.restartServer"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "markdy",
+        "aliases": [
+          "Markdy",
+          "markdy",
+          "markdyscript",
+          "MarkdyScript"
+        ],
+        "extensions": [
+          ".markdy",
+          ".mdy"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./assets/icon.png",
+          "dark": "./assets/icon.png"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "markdy",
+        "scopeName": "source.markdy",
+        "path": "./syntaxes/markdy.tmLanguage.json"
+      },
+      {
+        "injectTo": [
+          "text.html.markdown",
+          "text.html.mdx"
+        ],
+        "scopeName": "markdown.markdy.codeblock",
+        "path": "./syntaxes/markdy-markdown.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "markdy.showPreviewToSide",
+        "title": "Markdy: Open Live Preview to the Side",
+        "icon": "$(play)",
+        "category": "Markdy"
+      },
+      {
+        "command": "markdy.showPreview",
+        "title": "Markdy: Open Live Preview",
+        "icon": "$(eye)",
+        "category": "Markdy"
+      },
+      {
+        "command": "markdy.exportSvg",
+        "title": "Markdy: Export Current Diagram to SVG",
+        "icon": "$(file-code)",
+        "category": "Markdy"
+      },
+      {
+        "command": "markdy.exportPng",
+        "title": "Markdy: Export Current Diagram to PNG",
+        "icon": "$(file-media)",
+        "category": "Markdy"
+      },
+      {
+        "command": "markdy.restartServer",
+        "title": "Markdy: Restart Language Server",
+        "icon": "$(refresh)",
+        "category": "Markdy"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "markdy.showPreviewToSide",
+        "key": "ctrl+k v",
+        "mac": "cmd+k v",
+        "when": "editorLangId == markdy"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "when": "resourceLangId == markdy",
+          "command": "markdy.showPreviewToSide",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "markdy.showPreviewToSide",
+          "when": "editorLangId == markdy"
+        },
+        {
+          "command": "markdy.showPreview",
+          "when": "editorLangId == markdy"
+        },
+        {
+          "command": "markdy.exportSvg",
+          "when": "editorLangId == markdy"
+        },
+        {
+          "command": "markdy.exportPng",
+          "when": "editorLangId == markdy"
+        },
+        {
+          "command": "markdy.restartServer",
+          "when": "editorLangId == markdy"
+        }
+      ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "Markdy",
+      "properties": {
+        "markdy.preview.autoplay": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically play diagram animations when the preview panel opens."
+        },
+        "markdy.preview.loop": {
+          "type": "boolean",
+          "default": true,
+          "description": "Loop diagram animations continuously."
+        },
+        "markdy.preview.progressBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show interactive playback progress bar and scrubber in the preview panel."
+        },
+        "markdy.preview.theme": {
+          "type": "string",
+          "default": "auto",
+          "enum": [
+            "auto",
+            "night",
+            "light",
+            "cyber",
+            "slate",
+            "tokyo",
+            "nord",
+            "monokai"
+          ],
+          "description": "Theme override for preview panel (auto matches editor theme)."
+        },
+        "markdy.trace.server": {
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Traces the communication between VS Code and the Markdy language server."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "pnpm run build",
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "test": "echo \"VS Code extension test suite ready\"",
+    "package": "vsce package --no-dependencies"
+  },
+  "dependencies": {
+    "@markdy/core": "workspace:*",
+    "@markdy/language-server": "workspace:*",
+    "@markdy/renderer-dom": "workspace:*",
+    "vscode-languageclient": "^9.0.1",
+    "vscode-languageserver": "^9.0.1",
+    "vscode-languageserver-textdocument": "^1.0.12"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.7",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.2.1",
+    "ovsx": "^0.9.3",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}

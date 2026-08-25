@@ -1,0 +1,80 @@
+name: Publish VS Code Extension
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (package only, do not publish to marketplace)"
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: Package & Publish VS Code Extension
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install Dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build All Monorepo Packages
+        run: pnpm run build
+
+      - name: Build VS Code Extension
+        run: |
+          cd packages/vscode
+          pnpm run build
+
+      - name: Package VSIX
+        run: |
+          cd packages/vscode
+          npx @vscode/vsce package --no-dependencies --out markdy-vscode.vsix
+
+      - name: Upload VSIX Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: markdy-vscode-vsix
+          path: packages/vscode/markdy-vscode.vsix
+
+      - name: Publish to VS Code Marketplace
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run) }}
+        run: |
+          cd packages/vscode
+          if [ -n "${{ secrets.VSCE_PAT }}" ]; then
+            npx @vscode/vsce publish --no-dependencies --packagePath markdy-vscode.vsix -p ${{ secrets.VSCE_PAT }}
+            echo "Successfully published to Visual Studio Code Marketplace."
+          else
+            echo "::warning ::VSCE_PAT secret not configured. Skipping VS Code Marketplace publishing."
+          fi
+
+      - name: Publish to Open VSX Registry
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run) }}
+        run: |
+          cd packages/vscode
+          if [ -n "${{ secrets.OVSX_PAT }}" ]; then
+            npx ovsx publish markdy-vscode.vsix -p ${{ secrets.OVSX_PAT }}
+            echo "Successfully published to Open VSX Registry."
+          else
+            echo "::warning ::OVSX_PAT secret not configured. Skipping Open VSX publishing."
+          fi

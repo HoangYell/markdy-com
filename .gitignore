@@ -5,6 +5,8 @@ node_modules/
 # Build outputs
 dist/
 .astro/
+*.vsix
+packages/vscode/dist/
 
 # Temporary / generated files
 .npmrc-temp

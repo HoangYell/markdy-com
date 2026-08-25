@@ -17,18 +17,9 @@ const icon3dBase64 = `data:image/png;base64,${fs.readFileSync(ICON_3D_PATH).toSt
 const OUTPUT_DOCS_DIR = path.join(rootDir, 'docs/images');
 const OUTPUT_PUBLIC_DIR = path.join(rootDir, 'website/public/images');
 
-// Backup raw captures directory so we can read from raw captures
+// Raw captures directory
 const RAW_DIR = path.join(rootDir, 'tmp/raw-captures');
 fs.mkdirSync(RAW_DIR, { recursive: true });
-
-// Copy current webp files to RAW_DIR if not already backed up
-const files = fs.readdirSync(OUTPUT_PUBLIC_DIR).filter(f => f.endsWith('.webp') && !f.startsWith('test-'));
-for (const file of files) {
-  const dest = path.join(RAW_DIR, file);
-  if (!fs.existsSync(dest)) {
-    fs.copyFileSync(path.join(OUTPUT_PUBLIC_DIR, file), dest);
-  }
-}
 
 const scenesMetadata = [
   {
@@ -328,6 +319,7 @@ function generateHTML(meta) {
     return '';
   }
   const diagramBase64 = `data:image/webp;base64,${fs.readFileSync(rawFilePath).toString('base64')}`;
+  const isDarkTheme = meta.sceneTag.includes('midnight') || meta.sceneTag.includes('terminal') || meta.sceneTag.includes('blueprint') || meta.sceneTag.includes('graphite') || meta.sceneTag.includes('nebula');
 
   return `
 <!DOCTYPE html>
@@ -521,12 +513,12 @@ function generateHTML(meta) {
     .diagram-viewport {
       flex: 1;
       position: relative;
-      background: #ffffff;
+      background: ${isDarkTheme ? '#0b1120' : '#ffffff'};
       overflow: hidden;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 14px 16px 16px 16px;
+      padding: 10px 14px 14px 14px;
     }
 
     .diagram-img {
@@ -536,35 +528,35 @@ function generateHTML(meta) {
       object-position: center;
     }
 
-    /* Larger Sticky Note at Bottom-Left Pinned by 3D Icon */
+    /* Pinned Sticky Note at Bottom-Left */
     .sticky-note-container {
       position: absolute;
-      bottom: 20px;
-      left: 20px;
+      bottom: 16px;
+      left: 16px;
       z-index: 25;
       transform: rotate(-1.5deg);
     }
 
     .sticky-pin-icon {
       position: absolute;
-      top: -16px;
-      left: 16px;
-      width: 38px;
-      height: 38px;
+      top: -14px;
+      left: 14px;
+      width: 34px;
+      height: 34px;
       z-index: 30;
-      filter: drop-shadow(0 6px 10px rgba(0,0,0,0.25));
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
       transform: rotate(-8deg);
     }
 
     .sticky-note-card {
       background: #fef08a;
       color: #713f12;
-      padding: 16px 20px 16px 22px;
-      border-radius: 14px;
-      box-shadow: 0 12px 28px rgba(0,0,0,0.13), 0 2px 6px rgba(0,0,0,0.06);
-      font-size: 14px;
-      line-height: 1.5;
-      max-width: 440px;
+      padding: 14px 18px 14px 20px;
+      border-radius: 12px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12), 0 2px 5px rgba(0,0,0,0.05);
+      font-size: 13px;
+      line-height: 1.45;
+      max-width: 380px;
       border: 1px solid rgba(234,179,8,0.3);
       position: relative;
     }
@@ -576,8 +568,8 @@ function generateHTML(meta) {
     /* Mascot Overlapping Bottom-Right Corner Naturally */
     .mascot-wrapper {
       position: absolute;
-      right: -10px;
-      bottom: -15px;
+      right: 0px;
+      bottom: -10px;
       z-index: 30;
       display: flex;
       flex-direction: column;
@@ -588,15 +580,15 @@ function generateHTML(meta) {
     /* Speech bubble positioned neatly above mascot */
     .mascot-bubble {
       background: #ffffff;
-      border-radius: 16px;
-      padding: 12px 16px;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.13), 0 0 0 1px rgba(0,0,0,0.06);
-      font-size: 13px;
-      line-height: 1.45;
+      border-radius: 14px;
+      padding: 10px 14px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+      font-size: 12.5px;
+      line-height: 1.4;
       color: #1e293b;
-      max-width: 340px;
-      margin-bottom: -15px;
-      margin-right: 30px;
+      max-width: 310px;
+      margin-bottom: -10px;
+      margin-right: 24px;
       position: relative;
       z-index: 35;
       transform: rotate(1deg);
@@ -604,25 +596,25 @@ function generateHTML(meta) {
     .mascot-bubble::after {
       content: '';
       position: absolute;
-      bottom: -10px;
-      right: 60px;
+      bottom: -9px;
+      right: 50px;
       width: 0;
       height: 0;
-      border-left: 10px solid transparent;
-      border-right: 10px solid transparent;
-      border-top: 10px solid #ffffff;
+      border-left: 9px solid transparent;
+      border-right: 9px solid transparent;
+      border-top: 9px solid #ffffff;
     }
     .bubble-badge {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 800;
       color: #047857;
       background: #d1fae5;
       padding: 1px 6px;
       border-radius: 999px;
-      margin-bottom: 4px;
+      margin-bottom: 3px;
       text-transform: uppercase;
       letter-spacing: 0.04em;
     }
@@ -631,22 +623,27 @@ function generateHTML(meta) {
     }
     .bubble-content code {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 11.5px;
+      font-size: 11px;
       background: #f1f5f9;
       padding: 1px 4px;
       border-radius: 3px;
     }
 
     .mascot-img {
-      width: 290px;
+      width: 230px;
       height: auto;
-      filter: drop-shadow(0 15px 25px rgba(0,0,0,0.18));
+      filter: drop-shadow(0 12px 22px rgba(0,0,0,0.18));
       z-index: 32;
     }
 
     /* Small cute sparkles near mascot wand */
     .wand-sparkles {
       position: absolute;
+      right: 180px;
+      bottom: 165px;
+      pointer-events: none;
+      z-index: 34;
+    }
       right: 230px;
       bottom: 210px;
       pointer-events: none;

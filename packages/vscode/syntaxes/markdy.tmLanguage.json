@@ -1,0 +1,130 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Markdy",
+  "scopeName": "source.markdy",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#selectors" },
+    { "include": "#edgeOperators" },
+    { "include": "#keywords" },
+    { "include": "#cues" },
+    { "include": "#nodeKinds" },
+    { "include": "#diagramTypes" },
+    { "include": "#directions" },
+    { "include": "#attributes" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.markdy",
+          "match": "//.*$"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.markdy",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.markdy",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.markdy",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.markdy",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.markdy",
+          "match": "\\b\\d+(\\.\\d+)?(ms|s|px|%|fps)?\\b"
+        }
+      ]
+    },
+    "selectors": {
+      "patterns": [
+        {
+          "name": "variable.language.markdy",
+          "match": "\\$(title|nodes|edges)\\b"
+        },
+        {
+          "name": "variable.other.markdy",
+          "match": "\\$[a-zA-Z_][a-zA-Z0-9_]*"
+        }
+      ]
+    },
+    "edgeOperators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.edge.markdy",
+          "match": "(->|<-|~>|--)"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.markdy",
+          "match": "\\b(scene|layout|player|var|group|beat|style|pattern|use|theme|edge)\\b"
+        }
+      ]
+    },
+    "cues": {
+      "patterns": [
+        {
+          "name": "keyword.other.cue.markdy",
+          "match": "\\b(show|hide|glow|focus|frame|pulse|highlight|emphasize)\\b"
+        }
+      ]
+    },
+    "diagramTypes": {
+      "patterns": [
+        {
+          "name": "support.type.diagram.markdy",
+          "match": "\\b(architecture|flowchart|tree|state|sequence|constellation|loop|flywheel|medallion|quadrant|swimlane|pyramid|radar|timeline|gantt|venn|layers|nested)\\b"
+        }
+      ]
+    },
+    "directions": {
+      "patterns": [
+        {
+          "name": "constant.language.direction.markdy",
+          "match": "\\b(LR|RL|TB|BT)\\b"
+        }
+      ]
+    },
+    "nodeKinds": {
+      "patterns": [
+        {
+          "name": "entity.name.type.node.markdy",
+          "match": "\\b(service|database|queue|api_gateway|cache|cluster|storage|bucket|user|actor|client|browser|mobile|worker|event_bus|topic|function|lambda|ingress|egress|dns|cdn|firewall|auth|server|container|pod|table|model|analytics|metrics|logs|alert|pipeline|sensor|device|ledger|vault|identity|policy|secret|webhook|ai_agent|llm|vector_index|embedding|rag_pipeline|tool|prompt|crawler|guardrail|evaluator|memory|retriever|router|dataset|transformer|fine_tuner|box|cylinder|pill|diamond|hexagon|cloud|card|step|badge|surface|stat|matrix|track|dot|token_strip|glyph_card|db|api|gateway|mq|k8s|lb|panel|metric|grid|lane|marker|chips|glyph)\\b"
+        }
+      ]
+    },
+    "attributes": {
+      "patterns": [
+        {
+          "name": "entity.other.attribute-name.markdy",
+          "match": "\\b(width|height|fps|duration|direction|layout|theme|type|color|bg|fill|stroke|accent|text|label|border|glow|radius|icon|image|logo|title|fit|aspectRatio|padding|speed|playbackRate|interactive|interactiveViewport|autoplay|loop|copyright|progressBar|progressColor|controls|stagger|camera|zoom|pan|delay|at)(?=\\s*=)"
+        }
+      ]
+    }
+  }
+}
