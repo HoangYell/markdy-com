@@ -1,0 +1,36 @@
+name: "🤖 MCP Server & AI Agent Integration"
+description: "Report an issue, improvement, or prompt template for Claude, Cursor, Antigravity, or MCP tools"
+labels: ["ai-agent", "mcp-server", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping optimize Markdy for AI assistants and autonomous coding agents!
+  - type: dropdown
+    id: ai_environment
+    attributes:
+      label: "AI Environment / Tool"
+      options:
+        - "Cursor (Composer / Agent)"
+        - "Claude Desktop (MCP)"
+        - "Antigravity (Autonomous Agent)"
+        - "GitHub Copilot (VS Code / CLI)"
+        - "ChatGPT / OpenAI Canvas"
+        - "Other MCP Client"
+    validations:
+      required: true
+  - type: textarea
+    id: issue_description
+    attributes:
+      label: "Description of the Issue / Request"
+      description: "What happened when the AI agent interacted with Markdy, or what MCP tool capability should be added?"
+    validations:
+      required: true
+  - type: textarea
+    id: prompt_context
+    attributes:
+      label: "Prompt and Generated Output (if applicable)"
+      description: "Provide the prompt used and the resulting generated MarkdyScript or error message."
+      render: markdyscript
+    validations:
+      required: false

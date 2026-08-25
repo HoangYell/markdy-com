@@ -1,0 +1,41 @@
+name: "🎨 Theme or Layout Engine Request"
+description: "Suggest a new diagram layout topology (e.g. Sankey, Matrix) or visual aesthetic theme"
+labels: ["enhancement", "layouts", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing ideas to expand Markdy's visual vocabulary and layout engines!
+  - type: dropdown
+    id: request_type
+    attributes:
+      label: "Request Type"
+      options:
+        - "New Layout Engine (e.g. type=sankey, type=treemap)"
+        - "New Aesthetic Theme (e.g. theme=cyberpunk, theme=tokyo-night)"
+        - "New Semantic Node Kind / Icon (e.g. ai-model, ledger, broker)"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: "Visual Concept & Architecture Domain"
+      description: "Describe what visual domain this layout or theme serves (e.g., Financial transactions, ML training pipelines, Event streams)."
+    validations:
+      required: true
+  - type: textarea
+    id: proposed_syntax
+    attributes:
+      label: "Proposed MarkdyScript Example"
+      description: "How would this scene look in MarkdyScript?"
+      render: markdyscript
+      placeholder: |
+        scene "My Domain" theme=editorial type=architecture
+        layout LR
+        service NodeA
+        service NodeB
+        beat main:
+          show $nodes
+          NodeA -> NodeB "flow"
+    validations:
+      required: true

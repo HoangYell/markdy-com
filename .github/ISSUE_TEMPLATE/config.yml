@@ -1,8 +1,12 @@
 blank_issues_enabled: false
 contact_links:
-  - name: 💬 Ask a question
-    url: https://github.com/HoangYell/markdy-com/issues/new/choose
-    about: Need help writing Markdy animations? Open a question issue.
-  - name: 🐞 Markdy Playground
-    url: https://markdy.com
-    about: Test out animations visually before reporting syntax vs engine errors
+  - name: 💬 Ask a question / Community Q&A
+    url: https://github.com/HoangYell/markdy-com/discussions/categories/q-a
+    about: Need help writing Markdy animations? Ask the community in GitHub Discussions!
+  - name: 🎨 Share your diagrams (Show and Tell)
+    url: https://github.com/HoangYell/markdy-com/discussions/categories/show-and-tell
+    about: Show off your animated Markdy architecture diagrams and themes!
+  - name: ⚡ Markdy Live Studio Playground
+    url: https://markdy.com/playground/
+    about: Test out animations live before reporting syntax vs engine bugs
+
