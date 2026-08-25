@@ -45,9 +45,9 @@ For a quick visual pass, open the dedicated playground at <https://markdy.com/pl
 </p>
 
 ```sh
-npm i -D @markdy/cli
-npx markdy lint architecture.markdy
-npx markdy render architecture.markdy --out architecture.html
+pnpm add -D @markdy/cli
+pnpm markdy lint architecture.markdy
+pnpm markdy render architecture.markdy --out architecture.html
 ```
 
 The full architecture node vocabulary ships inside Markdy, so no registration step is needed. `@markdy/stdlib-systems` is an optional re-export/manifest of that vocabulary for tooling.

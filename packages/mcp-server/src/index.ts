@@ -43,7 +43,7 @@ export {
   handleReadResource,
 } from "./tools.js";
 
-export const MCP_SERVER_VERSION = "1.0.25";
+export const MCP_SERVER_VERSION = "1.0.30";
 
 export function createMarkdyMcpServer(): Server {
   const server = new Server(
