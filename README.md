@@ -1,9 +1,14 @@
 <p align="center">
   <a href="https://markdy.com">
-    <img src="docs/images/mascot/markdy-com.webp" width="380" alt="markdy.com" />
-  </a><br>
-  <strong>Open-source DSL for animated architecture &amp; system diagrams.</strong><br>
-  Write diagram-native MarkdyScript → get browser-native motion graphics that stay version-controlled, PR-friendly, and AI-native.
+    <img src="docs/images/mascot/3d-icon.webp" width="72" height="72" alt="Markdy" />
+  </a>
+</p>
+
+<h1 align="center">Markdy</h1>
+
+<p align="center">
+  <strong>Open-source diagram-as-code DSL for animated architecture &amp; system design explainers.</strong><br>
+  Write declarative MarkdyScript → render 60fps browser-native animated diagrams powered by the Web Animations API.
 </p>
 
 <p align="center">
@@ -23,8 +28,10 @@
 
 <p align="center">
   <a href="https://markdy.com/playground/">
-    <img src="docs/images/mascot/og-markdy.webp" width="100%" alt="Markdy — Animated Architecture Diagrams as Code" />
+    <img src="docs/images/markdy-split-editor.webp" width="100%" alt="Markdy Interactive Studio — Code on the Left, Live Animated Diagram on the Right" />
   </a>
+  <br>
+  <sub>⚡ <b><a href="https://markdy.com/playground/">Try the Interactive Studio &amp; Live Playground on markdy.com ↗</a></b></sub>
 </p>
 
 ---
@@ -158,17 +165,36 @@ npm i -g @markdy/cli
   -> optional node vocabulary manifest for architecture and technical diagrams
 ```
 
-## Output preview
+## Mermaid vs Markdy: Beyond Static Diagrams
 
 <p align="center">
-  <img src="docs/images/markdy-studio-hero.webp" alt="Markdy Interactive Studio Preview" width="1100" />
+  <img src="docs/images/markdy-vs-mermaid-comparison.webp" alt="Mermaid vs Markdy Comparison" width="100%" />
 </p>
 
-The dedicated playground mirrors this workflow: choose a shipped `.markdy` scene, edit syntax-highlighted MarkdyScript, resize the editor/preview split, and watch the embedded architecture preview update in the browser.
+| Capability | Mermaid.js / PlantUML | Markdy |
+|---|---|---|
+| **Animation & Time** | ❌ Static SVG/PNG | ✅ Browser-native 60fps WAAPI motion & seekable beats |
+| **Return Flows & Arcs** | ⚠️ Creates ranking cycles & layout distortion | ✅ Cycle-safe response flows (`<-`) and event arcs (`~>`) |
+| **Architectural Governance** | ❌ No validation rules | ✅ Built-in Well-Architected linter & CI deadlock checks |
+| **AI Agent Support** | ⚠️ Basic text generation | ✅ Official Model Context Protocol (MCP) server & AST self-healing |
+| **Universal Ingestion** | ❌ Manual rewrite | ✅ 1-click import from Mermaid, Draw.io, K8s, Docker Compose, Terraform |
+
+---
+
+## Universal Ingestion & 1-Command Migration
 
 <p align="center">
-  <img src="docs/images/markdy-vs-mermaid-comparison.webp" alt="Mermaid vs Markdy Comparison" width="950" />
+  <img src="docs/images/markdy-universal-ingestion.webp" alt="Markdy Universal Ingestion" width="100%" />
 </p>
+
+Convert existing static architecture definitions into animated MarkdyScript scenes in one command:
+
+```sh
+markdy import flow.mmd --out flow.markdy
+markdy import docker-compose.yml --out architecture.markdy
+markdy import k8s-manifests/ --out cluster.markdy
+markdy import terraform.tfstate --out infra.markdy
+```
 
 ---
 
@@ -562,6 +588,12 @@ The project is deployed via Cloudflare Pages (Workers Assets).
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup and guidelines.
 
 ---
+
+<p align="center">
+  <img src="docs/images/mascot/male-markdy.webp" width="72" height="72" alt="Markdy Mascot" /><br>
+  <strong>Loving Markdy? Star the repository on GitHub! ⭐</strong><br>
+  <sub>Built with ❤️ by <a href="https://hoangyell.com">Hoang Yell</a> &amp; the open-source community.</sub>
+</p>
 
 ## License
 
