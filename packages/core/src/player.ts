@@ -5,6 +5,7 @@
  */
 import type {
   PlayerConfig,
+  PlayerControlsConfig,
   PlayerProgress,
   ResolvedPlayer,
 } from "./ast.js";
@@ -297,7 +298,7 @@ export type PlayerOverrides = {
   loop?: boolean;
   playbackRate?: number;
   copyright?: boolean;
-  controls?: boolean;
+  controls?: boolean | (PlayerControlsConfig & { playback?: boolean });
   interactiveViewport?: boolean;
   progress?: PlayerProgress;
   progressColor?: string;
@@ -305,7 +306,22 @@ export type PlayerOverrides = {
 
 export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverrides = {}): ResolvedPlayer {
   const playback = config.playback ?? {};
-  const configuredControls = config.controls ?? {};
+  const overrideControls = typeof overrides.controls === "object" && overrides.controls !== null ? overrides.controls : undefined;
+  const configuredControls: PlayerControlsConfig = {
+    ...(config.controls ?? {}),
+    ...(overrideControls
+      ? {
+          ...overrideControls,
+          ...(overrideControls.playback === true
+            ? {
+                play: overrideControls.play ?? true,
+                restart: overrideControls.restart ?? true,
+                seek: overrideControls.seek ?? true,
+              }
+            : {}),
+        }
+      : {}),
+  };
   const interaction = config.interaction ?? {};
   const chrome = config.chrome ?? {};
 
@@ -341,7 +357,7 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
   const interactionEnabled = gestures.zoom || gestures.pan || gestures.doubleClickToReset;
   const configuredSpeeds = configuredControls.speeds?.length ? configuredControls.speeds : [0.25, 1];
   const speeds = configuredSpeeds.filter(
-    (rate, index) => Number.isFinite(rate) && rate > 0 && configuredSpeeds.indexOf(rate) === index,
+    (rate: number, index: number) => Number.isFinite(rate) && rate > 0 && configuredSpeeds.indexOf(rate) === index,
   );
 
   const controls = {

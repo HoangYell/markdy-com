@@ -8,6 +8,7 @@ import {
   resolveTheme,
   type BeatRange,
   type Diagnostic,
+  type PlayerControlsConfig,
   type PlayerProgress,
   type ThemeTokens,
 } from "@markdy/core";
@@ -20,6 +21,9 @@ import {
 } from "./edges.js";
 import { mountAnnotations } from "./annotations.js";
 import { mountConstellationLayer } from "./constellation.js";
+import { mountQuadrantLayer } from "./quadrant.js";
+import { mountSwimlaneLayer } from "./swimlane.js";
+import { mountGanttLayer } from "./gantt.js";
 import { mountRadarLayer } from "./radar.js";
 import { mountTimelineLayer } from "./timeline.js";
 import { mountGroupBoundaries } from "./groups.js";
@@ -27,6 +31,7 @@ import { applyDeclaredNodeStyle, createNodeEl, createTitleEl, ensureNodeStyles }
 import { mountSequenceLayer, updateSequenceLayerTheme } from "./sequence.js";
 import { mountTreeBuses } from "./tree.js";
 import { applyThemeToScene, applyThemeVariables, ensureSceneStyles } from "./theme.js";
+import { exportDiagramAsVectorSvg } from "./export/svg-exporter.js";
 
 const NORMAL_PLAYBACK_RATE = 4 / 5;
 const MIN_VIEWPORT_ZOOM = 0.5;
@@ -66,8 +71,8 @@ export interface DiagramOptions {
   interactiveViewport?: boolean;
   /** Base URL for the Share control. Defaults to the Markdy playground. */
   shareUrl?: string;
-  /** Host controls override. `true` enables the legacy default set; `false` suppresses script controls. */
-  controls?: boolean;
+  /** Host controls override. `true` enables the legacy default set; `false` suppresses script controls; or pass a granular controls configuration object. */
+  controls?: boolean | (PlayerControlsConfig & { playback?: boolean });
   onWarning?: (warning: Diagnostic) => void;
   onTimeUpdate?: (seconds: number, durationSeconds: number) => void;
   onPlayStateChange?: (playing: boolean) => void;
@@ -221,6 +226,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   const durationSeconds = plan.duration;
 
   container.classList.add("markdy-diagram-root");
+  applyThemeVariables(container, plan.theme);
   Object.assign(container.style, {
     position: "relative",
     display: "flex",
@@ -236,12 +242,13 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   Object.assign(viewport.style, {
     position: "relative",
     width: "100%",
-    height: "100%",
     maxWidth: "100%",
     maxHeight: "100%",
     aspectRatio: `${plan.meta.width} / ${plan.meta.height}`,
     overflow: "hidden",
     boxSizing: "border-box",
+    flex: "1 1 auto",
+    minHeight: "0",
   });
   container.appendChild(viewport);
 
@@ -300,9 +307,26 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       gap: "6px",
       width: "100%",
       boxSizing: "border-box",
-      padding: "6px 8px 2px",
+      padding: "6px 8px 4px",
       background: "transparent",
+      pointerEvents: "auto",
+      flexShrink: "0",
     });
+    for (const eventName of [
+      "click",
+      "dblclick",
+      "pointerdown",
+      "pointermove",
+      "pointerup",
+      "pointercancel",
+      "wheel",
+      "mousedown",
+      "mouseup",
+      "touchstart",
+      "touchend",
+    ]) {
+      footer.addEventListener(eventName, (event) => event.stopPropagation());
+    }
     container.appendChild(footer);
     return footer;
   }
@@ -399,6 +423,27 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     );
   } else if (plan.diagramType === "timeline") {
     mountTimelineLayer(
+      constellationLayer,
+      plan.nodes,
+      plan.theme,
+      { width: plan.meta.width, height: plan.meta.height },
+    );
+  } else if (plan.diagramType === "quadrant") {
+    mountQuadrantLayer(
+      constellationLayer,
+      plan.nodes,
+      plan.theme,
+      { width: plan.meta.width, height: plan.meta.height },
+    );
+  } else if (plan.diagramType === "swimlane") {
+    mountSwimlaneLayer(
+      constellationLayer,
+      plan.nodes,
+      plan.theme,
+      { width: plan.meta.width, height: plan.meta.height },
+    );
+  } else if (plan.diagramType === "gantt") {
+    mountGanttLayer(
       constellationLayer,
       plan.nodes,
       plan.theme,
@@ -784,6 +829,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       sceneMs = totalDurationMs > 0 ? Math.min(Math.max(seconds * 1000, 0), totalDurationMs) : Math.max(seconds * 1000, 0);
       applyCurrentTime();
       if (totalDurationMs > 0) updateProgressBar(sceneMs / totalDurationMs);
+      syncControls();
     },
     setPlaybackRate(rate: number) {
       if (!Number.isFinite(rate) || rate <= 0) return;
@@ -824,6 +870,9 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     setTheme(theme: string | ThemeTokens) {
       const newTheme = typeof theme === "string" ? resolveTheme(theme) : theme;
       plan.theme = newTheme;
+
+      // 0. Container variables
+      applyThemeVariables(container, newTheme);
 
       // 1. Scene background & variables
       applyThemeToScene(scene, newTheme);
@@ -869,8 +918,15 @@ export function createDiagram(opts: DiagramOptions): Diagram {
         mountTreeBuses(treeLayer, plan.treeBuses, newTheme);
       }
 
-      // 6. Constellation / Radar / Timeline
-      if (plan.diagramType === "constellation" || plan.diagramType === "radar" || plan.diagramType === "timeline") {
+      // 6. Structural background layers (Constellation / Radar / Timeline / Quadrant / Swimlane / Gantt)
+      if (
+        plan.diagramType === "constellation" ||
+        plan.diagramType === "radar" ||
+        plan.diagramType === "timeline" ||
+        plan.diagramType === "quadrant" ||
+        plan.diagramType === "swimlane" ||
+        plan.diagramType === "gantt"
+      ) {
         constellationLayer.replaceChildren();
         if (plan.diagramType === "constellation") {
           mountConstellationLayer(
@@ -888,6 +944,27 @@ export function createDiagram(opts: DiagramOptions): Diagram {
           );
         } else if (plan.diagramType === "timeline") {
           mountTimelineLayer(
+            constellationLayer,
+            plan.nodes,
+            newTheme,
+            { width: plan.meta.width, height: plan.meta.height },
+          );
+        } else if (plan.diagramType === "quadrant") {
+          mountQuadrantLayer(
+            constellationLayer,
+            plan.nodes,
+            newTheme,
+            { width: plan.meta.width, height: plan.meta.height },
+          );
+        } else if (plan.diagramType === "swimlane") {
+          mountSwimlaneLayer(
+            constellationLayer,
+            plan.nodes,
+            newTheme,
+            { width: plan.meta.width, height: plan.meta.height },
+          );
+        } else if (plan.diagramType === "gantt") {
+          mountGanttLayer(
             constellationLayer,
             plan.nodes,
             newTheme,
@@ -1022,12 +1099,14 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   }
 
   function flashControlLabel(button: HTMLButtonElement, message: string): void {
-    const originalHtml = button.innerHTML;
+    const originalHtml = button.dataset.originalHtml ?? button.innerHTML;
+    button.dataset.originalHtml = originalHtml;
     const isSuccess = !message.toLowerCase().includes("fail");
     button.innerHTML = isSuccess ? `${ICONS.check}${message}` : message;
     button.classList.add("markdy-btn-flashed");
     setTimeout(() => {
-      button.innerHTML = originalHtml;
+      button.innerHTML = button.dataset.originalHtml ?? originalHtml;
+      delete button.dataset.originalHtml;
       button.classList.remove("markdy-btn-flashed");
     }, 1500);
   }
@@ -1049,14 +1128,13 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     if (!svgButton) return;
     const button = makeControlButton("SVG", "Export diagram as SVG", ICONS.svg);
     button.className = "markdy-control-svg";
-    button.addEventListener("click", async () => {
+    button.addEventListener("click", () => {
       const resumeAt = sceneMs;
       const wasPlaying = isPlaying;
       try {
         // Export the settled frame so every revealed node is present.
         diagram.pause();
         diagram.seek(durationSeconds);
-        const { exportDiagramAsVectorSvg } = await import("./export/svg-exporter.js");
         const svg = exportDiagramAsVectorSvg(container);
         const name = (plan.title || "markdy-diagram").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
         downloadFile(`${name || "markdy-diagram"}.svg`, svg, "image/svg+xml");
@@ -1162,9 +1240,13 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     const button = makeControlButton("Code", "View MarkdyScript source");
     button.className = "markdy-control-code";
     button.setAttribute("aria-haspopup", "dialog");
+    button.setAttribute("aria-expanded", "false");
 
     button.addEventListener("click", () => {
       closeCodePanel?.();
+
+      const previousActiveElement = document.activeElement as HTMLElement | null;
+      button.setAttribute("aria-expanded", "true");
 
       const overlay = document.createElement("div");
       overlay.className = "markdy-code-panel-overlay";
@@ -1233,22 +1315,40 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       const mountHost = document.fullscreenElement ?? document.body;
       mountHost.appendChild(overlay);
 
+      const prevOverflow = typeof document !== "undefined" ? document.body.style.overflow : "";
+      if (typeof document !== "undefined" && !document.fullscreenElement) {
+        document.body.style.overflow = "hidden";
+      }
+
       // Focus the close button for keyboard accessibility.
       closeBtn.focus();
 
       let closing = false;
       function removePanel(): void {
         document.removeEventListener("keydown", handleEscape);
+        if (typeof document !== "undefined" && !document.fullscreenElement) {
+          document.body.style.overflow = prevOverflow;
+        }
+        button.setAttribute("aria-expanded", "false");
         overlay.remove();
+        previousActiveElement?.focus?.();
         if (closeCodePanel === removePanel) closeCodePanel = null;
       }
 
       function closePanel(): void {
         if (closing) return;
         closing = true;
+        button.setAttribute("aria-expanded", "false");
         overlay.dataset.closing = "1";
         document.removeEventListener("keydown", handleEscape);
-        overlay.addEventListener("animationend", removePanel, { once: true });
+        let cleaned = false;
+        const doClean = () => {
+          if (cleaned) return;
+          cleaned = true;
+          removePanel();
+        };
+        overlay.addEventListener("animationend", doClean, { once: true });
+        setTimeout(doClean, 200);
       }
 
       closeBtn.addEventListener("click", closePanel);
@@ -1461,12 +1561,11 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     toolbar.setAttribute("role", "toolbar");
     toolbar.setAttribute("aria-label", "Diagram controls");
     Object.assign(toolbar.style, {
-      position: "static",
+      position: "relative",
       display: "flex",
       alignItems: "center",
       justifyContent: "flex-start",
       maxWidth: "100%",
-      padding: "0",
       border: "0",
       borderRadius: "0",
       background: "transparent",
@@ -1474,8 +1573,21 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       backdropFilter: "none",
       transform: "none",
       pointerEvents: "auto",
+      zIndex: "10",
     });
-    for (const eventName of ["click", "dblclick", "pointerdown", "pointermove", "pointerup", "wheel"]) {
+    for (const eventName of [
+      "click",
+      "dblclick",
+      "pointerdown",
+      "pointermove",
+      "pointerup",
+      "pointercancel",
+      "wheel",
+      "mousedown",
+      "mouseup",
+      "touchstart",
+      "touchend",
+    ]) {
       toolbar.addEventListener(eventName, (event) => event.stopPropagation());
     }
 

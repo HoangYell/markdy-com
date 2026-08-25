@@ -4,68 +4,49 @@
  * Zero external dependencies.
  */
 
-import { parse } from "./parser.js";
-import { validateArchitecture, type ArchitectureViolation } from "./arch-lint.js";
+import {
+  diagnoseMarkdyCode,
+  type SyntaxDiagnosticReport,
+  type DiagnosticIssue,
+} from "./syntax-diagnostics.js";
+import type { ArchitectureViolation } from "./arch-lint.js";
 
 export interface RepairPromptBundle {
   isValid: boolean;
   repairPrompt?: string;
   syntaxErrors: string[];
   archViolations: ArchitectureViolation[];
+  issues?: DiagnosticIssue[];
+  repairedCode?: string;
+  report?: SyntaxDiagnosticReport;
 }
 
 export function analyzeAndBuildRepairPrompt(sourceCode: string): RepairPromptBundle {
-  const syntaxErrors: string[] = [];
-  let ast = null;
+  const report = diagnoseMarkdyCode(sourceCode, { checkArchitecture: true });
 
-  try {
-    ast = parse(sourceCode);
-  } catch (err) {
-    syntaxErrors.push(err instanceof Error ? err.message : String(err));
-  }
+  const syntaxErrors = report.issues
+    .filter((i) => i.severity === "error")
+    .map((i) => (i.line ? `Line ${i.line}: ${i.message}` : i.message));
 
-  if (!ast) {
-    return {
-      isValid: false,
-      syntaxErrors,
-      archViolations: [],
-      repairPrompt: [
-        "The following MarkdyScript failed to parse with syntax errors:",
-        ...syntaxErrors.map((e) => `  - ${e}`),
-        "",
-        "Please fix the code below to follow valid MarkdyScript syntax:",
-        "```markdy",
-        sourceCode,
-        "```",
-      ].join("\n"),
-    };
-  }
-
-  const archViolations = validateArchitecture(ast);
-
-  if (ast.diagnostics.length === 0 && archViolations.length === 0) {
-    return { isValid: true, syntaxErrors: [], archViolations: [] };
-  }
-
-  const promptSections = [
-    "The MarkdyScript diagram has the following compiler diagnostics and architectural rule violations:",
-    "",
-    "### Diagnostics:",
-    ...ast.diagnostics.map((d) => `  - Line ${d.line}: ${d.message}`),
-    "",
-    "### Architectural Violations:",
-    ...archViolations.map((v) => `  - [${v.severity.toUpperCase()}] ${v.ruleName}: ${v.message}`),
-    "",
-    "Please revise the diagram code to resolve all issues while preserving semantic nodes and beats:",
-    "```markdy",
-    sourceCode,
-    "```",
-  ];
+  const archViolations: ArchitectureViolation[] = report.issues
+    .filter((i) => i.code === "ARCH_RULE_VIOLATION")
+    .map((i) => ({
+      ruleId: i.code ?? "ARCH_RULE_VIOLATION",
+      ruleName: i.ruleExplanation?.replace("Architecture Rule Preset: ", "") ?? "ArchitectureGovernance",
+      severity: i.severity === "error" ? "error" : "warning",
+      message: i.message,
+      nodeIds: [],
+      edgeKeys: [],
+      line: i.line,
+    }));
 
   return {
-    isValid: false,
-    syntaxErrors: [],
+    isValid: report.isValid && report.warningCount === 0,
+    repairPrompt: report.repairPrompt,
+    syntaxErrors,
     archViolations,
-    repairPrompt: promptSections.join("\n"),
+    issues: report.issues,
+    repairedCode: report.repairedCode,
+    report,
   };
 }

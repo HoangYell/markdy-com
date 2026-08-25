@@ -16,6 +16,9 @@ import { mountConstellationLayer } from "../src/constellation";
 import { mountRadarLayer } from "../src/radar";
 import { mountTimelineLayer } from "../src/timeline";
 import { mountSequenceLayer } from "../src/sequence";
+import { mountQuadrantLayer } from "../src/quadrant";
+import { mountSwimlaneLayer } from "../src/swimlane";
+import { mountGanttLayer } from "../src/gantt";
 
 const SAMPLE = `
 scene theme=midnight
@@ -392,7 +395,13 @@ describe("diagram render plan", () => {
         delete (SVGElement.prototype as unknown as { animate?: unknown }).animate;
       }
     }
-    expect(layer.querySelectorAll(".markdy-sequence-lifeline")).toHaveLength(2);
+    const lifelines = layer.querySelectorAll<SVGLineElement>(".markdy-sequence-lifeline");
+    expect(lifelines).toHaveLength(2);
+    expect(lifelines[0].getAttribute("x1")).toBe("184");
+    expect(lifelines[0].getAttribute("y1")).toBe("196");
+    expect(lifelines[0].getAttribute("y2")).toBe("684");
+    expect(lifelines[0].getAttribute("stroke")).toBe(THEMES.editorial.edges.dependency);
+    expect(layer.querySelectorAll(".markdy-sequence-lifeline-cap")).toHaveLength(2);
     expect(layer.querySelectorAll(".markdy-sequence-message")).toHaveLength(1);
     expect(layer.querySelectorAll(".markdy-sequence-activation")).toHaveLength(1);
     expect(animations.length).toBe(2);
@@ -505,5 +514,42 @@ describe("diagram render plan", () => {
     // p0 should satisfy the diamond boundary equation |x-cx|/hw + |y-cy|/hh ≈ 1
     const diamondEq = Math.abs(p0.x - cx) / hw + Math.abs(p0.y - cy) / hh;
     expect(Math.abs(diamondEq - 1)).toBeLessThan(0.05);
+  });
+
+  it("renders quadrant crosshair axes and center hub", () => {
+    const layer = document.createElement("div");
+    const nodes = [
+      { id: "Q1Node", kind: "service", role: "compute", label: "Strategic", x: 700, y: 150, width: 160, height: 60, opacity: 1 },
+      { id: "Q2Node", kind: "service", role: "compute", label: "Tactical", x: 200, y: 150, width: 160, height: 60, opacity: 1 },
+      { id: "Q3Node", kind: "service", role: "compute", label: "Low-Priority", x: 200, y: 450, width: 160, height: 60, opacity: 1 },
+      { id: "Q4Node", kind: "service", role: "compute", label: "Quick-Win", x: 700, y: 450, width: 160, height: 60, opacity: 1 },
+    ];
+    mountQuadrantLayer(layer, nodes, THEMES.editorial, { width: 1280, height: 720 });
+    expect(layer.querySelectorAll(".markdy-quadrant-vaxis")).toHaveLength(1);
+    expect(layer.querySelectorAll(".markdy-quadrant-haxis")).toHaveLength(1);
+    expect(layer.querySelectorAll(".markdy-quadrant-hub")).toHaveLength(1);
+  });
+
+  it("renders swimlane track horizontal dividing lines", () => {
+    const layer = document.createElement("div");
+    const nodes = [
+      { id: "Frontend", kind: "client", role: "client", label: "Browser", x: 100, y: 150, width: 160, height: 60, opacity: 1 },
+      { id: "Backend", kind: "service", role: "compute", label: "API Gateway", x: 400, y: 350, width: 160, height: 60, opacity: 1 },
+      { id: "Database", kind: "database", role: "data", label: "Postgres", x: 700, y: 550, width: 160, height: 60, opacity: 1 },
+    ];
+    mountSwimlaneLayer(layer, nodes, THEMES.midnight, { width: 1280, height: 720 });
+    const dividers = layer.querySelectorAll(".markdy-swimlane-divider");
+    expect(dividers.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("renders gantt phase column milestone grid lines", () => {
+    const layer = document.createElement("div");
+    const nodes = [
+      { id: "Phase1", kind: "step", role: "flow", label: "Discovery", x: 100, y: 150, width: 200, height: 40, opacity: 1, props: { phase: 0, span: 2 } },
+      { id: "Phase2", kind: "step", role: "flow", label: "Build", x: 350, y: 250, width: 300, height: 40, opacity: 1, props: { phase: 2, span: 3 } },
+    ];
+    mountGanttLayer(layer, nodes, THEMES.paper, { width: 1280, height: 720 });
+    const columns = layer.querySelectorAll(".markdy-gantt-column");
+    expect(columns.length).toBeGreaterThanOrEqual(4);
   });
 });

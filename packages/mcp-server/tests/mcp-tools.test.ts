@@ -1,10 +1,13 @@
 import { describe, it, expect } from "vitest";
 import {
   handleValidateMarkdy,
+  handleDiagnoseMarkdy,
+  handleFixMarkdy,
   handleTranspileToMarkdy,
   handleExplainArchitecture,
   handleGenerateMarkdyPrompt,
   handleGetArchitectureCatalog,
+  handleIntelliCode,
   handleReadResource,
 } from "../src/tools.js";
 import { createMarkdyMcpServer, MCP_SERVER_VERSION } from "../src/index.js";
@@ -29,6 +32,42 @@ describe("@markdy/mcp-server: MCP Tool Handlers", () => {
     const result = handleValidateMarkdy(broken);
     expect(result.isError).toBe(true);
     expect(result.content[0].text).toContain("Suggested AI Healing Prompt");
+  });
+
+  it("diagnoses broken Markdy code with precise typo and grammar suggestions", () => {
+    const broken = `
+      scen theme=papr
+      layput LR
+      servce Orders
+      databse DB
+      beat main
+        Orders -> DB "query"
+    `;
+    const result = handleDiagnoseMarkdy(broken);
+    expect(result.isError).toBe(true);
+    expect(result.content[0].text).toContain("Syntax Errors & Typos");
+    expect(result.content[0].text).toContain("TYPO_KEYWORD");
+    expect(result.content[0].text).toContain("TYPO_NODE_KIND");
+    expect(result.content[0].text).toContain("MISSING_COLON");
+    expect(result.content[0].text).toContain("Proposed Auto-Repaired Code");
+  });
+
+  it("fixes broken Markdy code automatically", () => {
+    const broken = `
+      scen theme=paper
+      layput LR
+      servce Orders "Order Svc"
+      databse DB "Postgres"
+      beat main
+        Orders --> DB "query"
+    `;
+    const result = handleFixMarkdy(broken);
+    expect(result.isError).toBeFalsy();
+    expect(result.content[0].text).toContain("Markdy Code Repaired Successfully");
+    expect(result.content[0].text).toContain("scene theme=paper");
+    expect(result.content[0].text).toContain("service Orders");
+    expect(result.content[0].text).toContain("database DB");
+    expect(result.content[0].text).toContain("Orders -> DB");
   });
 
   it("transpiles external sources to valid Markdy code across all formats", async () => {
@@ -81,9 +120,12 @@ describe("@markdy/mcp-server: MCP Tool Handlers", () => {
     expect(filtered.content[0].text).toContain("ai-rag-pipeline");
   });
 
-  it("handles reading MCP resources", () => {
+  it("handles reading MCP resources including grammar rules", () => {
     const spec = handleReadResource("markdy://spec/agent-reference");
     expect(spec.contents[0].text).toContain("https://markdy.com/AGENT.md");
+
+    const grammar = handleReadResource("markdy://spec/grammar-rules");
+    expect(grammar.contents[0].text).toContain("MarkdyScript Grammar & Diagnostic Rules");
 
     const templates = handleReadResource("markdy://templates/catalog");
     expect(templates.contents[0].mimeType).toBe("application/json");
@@ -92,6 +134,23 @@ describe("@markdy/mcp-server: MCP Tool Handlers", () => {
     expect(rules.contents[0].mimeType).toBe("application/json");
 
     expect(() => handleReadResource("markdy://invalid/uri")).toThrow("Resource not found");
+  });
+
+  it("returns IntelliCode completions, predictive suggestions, and architectural recommendations", () => {
+    const code = `
+      scene theme=paper
+      layout LR
+      browser Client "Web App"
+      service API "API Gateway"
+      database DB "PostgreSQL"
+    `;
+    const result = handleIntelliCode(code, 4, 10);
+    expect(result.isError).toBeFalsy();
+    const data = JSON.parse(result.content[0].text);
+    expect(data.cursor.line).toBe(4);
+    expect(data.completionsCount).toBeGreaterThan(0);
+    expect(Array.isArray(data.topCompletions)).toBe(true);
+    expect(Array.isArray(data.architectureRecommendations)).toBe(true);
   });
 
   it("creates an MCP server with tools, resources, and prompts", () => {

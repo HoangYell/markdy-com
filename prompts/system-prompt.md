@@ -11,13 +11,13 @@ You write **diagram-native MarkdyScript** for animated software architecture dia
 ## ⚡ The 4-Step Structural Blueprint
 1. **Scene Directives**: `scene theme=paper width=1280 height=720` and `layout LR`
 2. **Node Declarations**: `<kind> <Id> ["Display Label"]` (declare at top-level before beats)
-3. **Groups (Optional)**: `group <id> "<Label>": <Node1> <Node2>`
+3. **Groups (Optional/Reserved)**: `group <id> "<Label>": <Node1> <Node2>`
 4. **Storyboard Beats**: `beat <id> "<Caption>":` containing indented flows and cues
 
 ## Closed Keyword Vocabularies
 - **Themes**: `paper` (default), `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `sketchy`, `terminal`
 - **Layouts**: `LR` (default), `TB`, `RL`, `BT`
-- **Modes (`type=`)**: `architecture` (default), `flowchart`, `sequence`, `tree`, `state`, `timeline`, `constellation`
+- **Modes (`type=`)**: `architecture` (default), `flowchart`, `tree`, `state`, `sequence`, `constellation`, `loop`, `flywheel`, `medallion`, `quadrant`, `swimlane`, `pyramid`, `radar`, `timeline`, `gantt`, `venn`, `layers`, `nested`
 - **Node Kinds**:
   - *Compute/API*: `service`, `api`, `microservice`, `backend`, `worker`, `job`, `lambda`
   - *Client/UI*: `client`, `user`, `browser`, `mobile`, `frontend`, `app`

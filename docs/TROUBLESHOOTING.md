@@ -2,9 +2,9 @@
 
 > ### DOCUMENTATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.0.29
+> - **Current Version**: v1.0.30
 > - **Specification Version**: 1.0.x
-> - **Last Updated**: 2026-08-24
+> - **Last Updated**: 2026-08-25
 > - **Documentation Hub**: <https://markdy.com/docs/>
 > - **AI Reference**: <https://markdy.com/AGENT.md>
 
@@ -49,15 +49,11 @@ Non-fatal issues (like an unknown `scene` property) are reported as warnings in 
 
 Check that package versions are aligned, assets are reachable, the container exists before `createDiagram`, and SSR code does not access `document` before hydration.
 
-## AI-generated MarkdyScript fails
+## Automated Diagnostics & Self-Healing Tools
 
-Give the model <https://markdy.com/AGENT.md> and ask it to fix the exact line number, keep all nodes declared before flows, use only documented cues and flow operators, and shorten labels.
+Markdy provides built-in fuzzy diagnostics and automatic repair across CLI and MCP:
 
-If the model generates manual drawing, timestamp timeline, or imperative camera commands, ask it to translate the idea into Markdy 0.8:
-
-- one `scene` line
-- architecture nodes such as `browser`, `gateway`, `service`, `cache`, and `database`
-- multiple `beat name "Caption":` blocks
-- `frame` for camera-like attention
-- `glow` / `focus` for emphasis
-- flow lines with `->`, `<-`, `~>`
+- **CLI Auto-Repair**: Run `markdy fmt --fix <file.markdy>` to automatically repair keyword typos, node kind typos, missing colons, and unquoted strings.
+- **CLI Suggestions**: Run `markdy suggest <file.markdy>` to get predictive next-line completions and proactive architecture suggestions.
+- **MCP Server Tools**: Call `diagnose_markdy_syntax` for line-by-line "Did you mean?" suggestions, or `fix_markdy_code` to apply automatic fixes.
+- **LSP QuickFix**: In VS Code or your IDE, trigger Code Actions (QuickFix) on any reported warning to apply single-click repairs.

@@ -111,5 +111,37 @@ export type {
 export { analyzeAndBuildRepairPrompt } from "./ai-healing.js";
 export type { RepairPromptBundle } from "./ai-healing.js";
 
+export {
+  diagnoseMarkdyCode,
+  repairMarkdyCode,
+  damerauLevenshteinDistance,
+  findClosestMatch,
+} from "./syntax-diagnostics.js";
+export type {
+  DiagnosticIssue,
+  SyntaxDiagnosticReport,
+  AutoRepairResult,
+} from "./syntax-diagnostics.js";
+
 export { resolveOutputPreset, listOutputPresets, OUTPUT_PRESETS } from "./output-presets.js";
 export type { OutputPreset } from "./output-presets.js";
+
+export {
+  getIntelliCodeCompletions,
+  predictNextLineSuggestion,
+  getArchitectureSuggestions,
+  extractDiagramContext,
+  POPULAR_TECHS,
+} from "./intellicode.js";
+export type {
+  IntelliCodeItem,
+  IntelliCodeItemKind,
+  ExtractedNode,
+  ExtractedGroup,
+  ExtractedBeat,
+  DiagramContext,
+  GhostTextSuggestion,
+  ArchitectureRecommendation,
+  TechPreset,
+} from "./intellicode.js";
+

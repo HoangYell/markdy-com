@@ -5,6 +5,37 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.30] — 2026-08-25
+
+### Added
+- **IntelliCode & Context-Aware Autocompletion Engine (`@markdy/core`, `@markdy/markdy-language-server`, Website Editor)**:
+  - Role-weighted context completions (`getIntelliCodeCompletions`) prioritizing logical connection pairs (Client → Gateway → Service → Database / Cache / Queue → Worker).
+  - Predictive inline ghost-text suggestions (`predictNextLineSuggestion`) in CodeMirror 6 with <kbd>Tab</kbd> acceptance.
+  - Proactive architecture recommendation engine (`getArchitectureSuggestions`) providing 1-click gateway insertion, high-throughput caching layers, group boundary perimeters, and kinetic entrance choreography.
+  - Built-in technology catalog (`POPULAR_TECHS`) with 40+ technology presets (PostgreSQL, Redis, Kafka, Kong, Supabase, Cloudflare, S3, Docker, Kubernetes, etc.).
+- **Deep Syntax Diagnostics & Deterministic Auto-Healing (`@markdy/core`)**:
+  - Damerau-Levenshtein fuzzy matching with contraction expansion (`OrderSvc` → `OrderService`, `ApiGW` → `ApiGateway`) and consonant skeleton matching.
+  - Precise diagnostic issue codes (`TYPO_KEYWORD`, `TYPO_NODE_KIND`, `UNDEFINED_NODE_REFERENCE`, `UNQUOTED_STRING_LABEL`, `MISSING_COLON`, `CUE_OUTSIDE_BEAT`, `INVALID_FLOW_OPERATOR`, `FLOW_CYCLE_RETURN_EDGE`, `FOREIGN_DIAGRAM_SYNTAX`).
+  - Deterministic auto-repair engine (`repairMarkdyCode`) fixing typos, missing colons, invalid flow operators, and unquoted strings while preserving parallel `&` flows.
+  - AI healing prompt generator (`buildAIHealingPrompt`) delivering line-numbered problem snippets, recommendations, and proposed repairs for LLMs.
+- **Model Context Protocol (MCP) Server Upgrades (`@markdy/mcp-server`)**:
+  - Added `diagnose_markdy_syntax`, `fix_markdy_code`, and `get_intellicode_completions` tools.
+  - Added `markdy://spec/grammar-rules` resource containing complete grammar rules, typo resolution guides, and cycle-safety specifications.
+- **New Specialized Layout Visual Layers (`@markdy/renderer-dom`)**:
+  - `quadrant`: Crosshair vertical and horizontal dividing axes with center hub circle.
+  - `swimlane`: Cross-functional horizontal track partition dividing lines.
+  - `gantt`: Phase milestone vertical grid columns.
+- **Accessible Diagram Toolbar & Code Panel Dialog (`@markdy/renderer-dom`)**:
+  - Accessible modal dialog for MarkdyScript source inspection with `aria-expanded`, focus trapping, escape key dismiss, and scroll locking.
+  - Toolbar event isolation preventing unwanted viewport pan/zoom or scene click-to-play triggers.
+  - Enhanced button hover states, z-index hierarchy, and touch optimizations (`@media (hover: none) and (pointer: coarse)`).
+- **CLI Commands & Diagnostics (`@markdy/cli`)**:
+  - `markdy suggest <file> [--line N] [--col N] [--json]` for predictive completions and architectural recommendations.
+  - `markdy check-all [dir]` for scanning whole project directories.
+  - `markdy fmt --fix` / `fmt --repair` for automated self-healing.
+- **Agent Skill Packages (`.agents/skills/`)**:
+  - Added `markdy-mcp-debug` and `markdy-visual-capture` skills for autonomous agents.
+
 ## [1.0.29] — 2026-08-24
 
 ### Fixed

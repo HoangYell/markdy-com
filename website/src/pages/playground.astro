@@ -367,15 +367,6 @@ const playgroundStructuredData = [
             <h2 class="panel-title-text">WAAPI Motion Canvas</h2>
           </div>
 
-          <!-- Canvas View & Zoom Controls -->
-          <div class="canvas-view-controls" role="group" aria-label="Canvas View Controls">
-            <button id="canvas-grid-toggle-btn" class="canvas-tool-btn" type="button" title="Toggle Canvas Background Grid (Dots / Mesh / Plain)">▦ Grid</button>
-            <button id="canvas-zoom-in-btn" class="canvas-tool-btn" type="button" title="Zoom In (+)">+</button>
-            <button id="canvas-zoom-out-btn" class="canvas-tool-btn" type="button" title="Zoom Out (−)">−</button>
-            <button id="canvas-zoom-fit-btn" class="canvas-tool-btn" type="button" title="Fit to View">⊡ Fit</button>
-            <button id="export-png-btn" class="canvas-tool-btn" type="button" title="Export as PNG">PNG</button>
-            <button id="export-gif-btn" class="canvas-tool-btn" type="button" title="Export as GIF">GIF</button>
-          </div>
         </div>
 
         <!-- Canvas Stage with Direct Interaction Overlays -->
@@ -623,14 +614,15 @@ const playgroundStructuredData = [
   import { highlightSelectionMatches, searchKeymap } from "@codemirror/search";
   import { closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
 
-  import { markdyLanguage, markdyAutocomplete, markdyHighlightLight, markdyHighlightDark } from "../editor/markdy-language";
+  import { markdyLanguage, markdyAutocomplete, markdyInlineSuggestion, markdyHighlightLight, markdyHighlightDark } from "../editor/markdy-language";
   import { baseTheme, lightTheme, darkTheme } from "../editor/editor-theme";
-  import { createDiagram, exportDiagramAsPng, exportDiagramAsGif } from "@markdy/renderer-dom";
+  import { createDiagram } from "@markdy/renderer-dom";
   import type { Diagram } from "@markdy/renderer-dom";
   import {
     parse,
     validateArchitecture,
     decompressMarkdyFromUrlHash,
+    getArchitectureSuggestions,
     type Diagnostic,
   } from "@markdy/core";
   import {
@@ -695,8 +687,6 @@ const playgroundStructuredData = [
   const loadSampleBtn = document.getElementById("load-sample-btn") as HTMLButtonElement;
   const pasteImportBtn = document.getElementById("paste-import-btn") as HTMLButtonElement;
   const doImportBtn = document.getElementById("do-import-btn") as HTMLButtonElement;
-  const exportPngBtn = document.getElementById("export-png-btn") as HTMLButtonElement | null;
-  const exportGifBtn = document.getElementById("export-gif-btn") as HTMLButtonElement | null;
   const formatTabs = document.querySelectorAll<HTMLButtonElement>(".format-tab");
 
   const cheatsheetModal = document.getElementById("cheatsheet-modal") as HTMLDialogElement;
@@ -727,12 +717,6 @@ const playgroundStructuredData = [
   const paletteCloseBtn = document.getElementById("palette-close-btn") as HTMLButtonElement | null;
   const paletteTabs = document.querySelectorAll<HTMLButtonElement>(".palette-tab");
   const shelfPanels = document.querySelectorAll<HTMLDivElement>(".shelf-panel");
-
-  // Canvas zoom & view controls
-  const canvasZoomInBtn = document.getElementById("canvas-zoom-in-btn") as HTMLButtonElement;
-  const canvasZoomOutBtn = document.getElementById("canvas-zoom-out-btn") as HTMLButtonElement;
-  const canvasZoomFitBtn = document.getElementById("canvas-zoom-fit-btn") as HTMLButtonElement | null;
-  const canvasGridToggleBtn = document.getElementById("canvas-grid-toggle-btn") as HTMLButtonElement;
 
   // Assistant Drawer
   const assistantDrawer = document.getElementById("assistant-drawer") as HTMLDivElement;
@@ -765,7 +749,6 @@ const playgroundStructuredData = [
   let flowStartY = 0;
   let selectedFlowOp = "->";
   let draggedToken: { kind?: string; template?: string } | null = null;
-  let gridStyleIndex = 0; // 0: dots, 1: mesh, 2: plain
 
   const NODE_ICON_MAP: Record<string, string> = {
     service: "⚙️", client: "💻", browser: "🌐", mobile: "📱",
@@ -1008,10 +991,21 @@ const playgroundStructuredData = [
         }
       }
 
-      // Generate Smart Suggestions
+      // Generate Smart IntelliCode Suggestions
       const suggestions: Array<{ title: string; desc: string; actionLabel?: string; onAction?: () => void }> = [];
 
-      if (beats.length === 0) {
+      // Proactive architectural recommendations from core engine
+      const archRecommendations = getArchitectureSuggestions(code);
+      for (const rec of archRecommendations) {
+        suggestions.push({
+          title: rec.title,
+          desc: rec.desc,
+          actionLabel: `+ ${rec.actionLabel}`,
+          onAction: () => insertCodeAtCursor(`\n${rec.snippet}`),
+        });
+      }
+
+      if (beats.length === 0 && !archRecommendations.some(r => r.id === "add-entrance-beat")) {
         suggestions.push({
           title: "Static Scene",
           desc: "Add a choreographed beat block to animate requests and highlight stages.",
@@ -1091,6 +1085,7 @@ const playgroundStructuredData = [
           highlightSelectionMatches(),
           markdyLanguage,
           markdyAutocomplete,
+          markdyInlineSuggestion,
           isDarkMode() ? markdyHighlightDark : markdyHighlightLight,
           baseTheme,
           isDarkMode() ? darkTheme : lightTheme,
@@ -1124,7 +1119,6 @@ const playgroundStructuredData = [
       diagram = createDiagram({
         container: stageCanvas || stage,
         code,
-        controls: true,
         shareUrl: `${window.location.origin}${window.location.pathname}`,
         onWarning(warning: Diagnostic) {
           warnings.push(`line ${warning.line}: ${warning.message}`);
@@ -1615,50 +1609,6 @@ const playgroundStructuredData = [
     render(newCode);
   }
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // Canvas View & Zoom Controls
-  // ─────────────────────────────────────────────────────────────────────────────
-  canvasZoomInBtn?.addEventListener("click", () => {
-    const viewport = stageCanvas?.querySelector<HTMLElement>(".markdy-viewport");
-    if (!viewport) return;
-    const wheelEvent = new WheelEvent("wheel", {
-      deltaY: -120,
-      clientX: stage.getBoundingClientRect().left + stage.clientWidth / 2,
-      clientY: stage.getBoundingClientRect().top + stage.clientHeight / 2,
-      bubbles: true,
-      cancelable: true,
-    });
-    viewport.dispatchEvent(wheelEvent);
-  });
-
-  canvasZoomOutBtn?.addEventListener("click", () => {
-    const viewport = stageCanvas?.querySelector<HTMLElement>(".markdy-viewport");
-    if (!viewport) return;
-    const wheelEvent = new WheelEvent("wheel", {
-      deltaY: 120,
-      clientX: stage.getBoundingClientRect().left + stage.clientWidth / 2,
-      clientY: stage.getBoundingClientRect().top + stage.clientHeight / 2,
-      bubbles: true,
-      cancelable: true,
-    });
-    viewport.dispatchEvent(wheelEvent);
-  });
-
-  canvasZoomFitBtn?.addEventListener("click", () => {
-    if (diagram) {
-      diagram.resetCamera();
-    }
-  });
-
-  const GRID_CLASSES = ["stage-grid--dots", "stage-grid--mesh", "stage-grid--plain"];
-  const GRID_LABELS = ["▦ Dots", "▦ Mesh", "▦ Plain"];
-
-  canvasGridToggleBtn?.addEventListener("click", () => {
-    stage.classList.remove(GRID_CLASSES[gridStyleIndex]);
-    gridStyleIndex = (gridStyleIndex + 1) % GRID_CLASSES.length;
-    stage.classList.add(GRID_CLASSES[gridStyleIndex]);
-    canvasGridToggleBtn.textContent = GRID_LABELS[gridStyleIndex];
-  });
 
   // ─────────────────────────────────────────────────────────────────────────────
   // Storyboard Beats Ribbon & Dock
@@ -1737,7 +1687,9 @@ const playgroundStructuredData = [
       btn.setAttribute("aria-pressed", active ? "true" : "false");
     });
     if (mode === "canvas" || mode === "split") {
-      diagram?.seek(diagram.currentTime());
+      requestAnimationFrame(() => {
+        diagram?.seek(diagram.currentTime());
+      });
     }
   }
 
@@ -2099,83 +2051,6 @@ Requirements:
     }
   });
 
-  const afterPaint = () => new Promise<void>((resolve) => {
-    let settled = false;
-    const finish = () => {
-      if (settled) return;
-      settled = true;
-      resolve();
-    };
-    const fallback = setTimeout(finish, 80);
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-      clearTimeout(fallback);
-      finish();
-    }));
-  });
-  async function withFinalFrame<T>(action: (scene: HTMLElement) => Promise<T> | T): Promise<T> {
-    if (!diagram) throw new Error("No diagram is available to export");
-    const scene = stage?.querySelector(".markdy-scene-root") as HTMLElement | null;
-    if (!scene) throw new Error("No diagram scene is available to export");
-    const previousTime = diagram.currentTime();
-    const wasPlaying = diagram.isPlaying();
-    diagram.pause();
-    diagram.seek(diagram.duration());
-    await afterPaint();
-    try {
-      return await action(scene);
-    } finally {
-      diagram.seek(previousTime);
-      if (wasPlaying) diagram.play();
-    }
-  }
-
-  function download(blob: Blob, filename: string): void {
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 0);
-  }
-
-  exportPngBtn?.addEventListener("click", async () => {
-    try {
-      const blob = await withFinalFrame((scene) => exportDiagramAsPng(scene, { includeThemeStyles: true, pixelRatio: 2 }));
-      download(blob, "markdy-diagram.png");
-      if (exportPngBtn) showButtonStatus(exportPngBtn, "Saved PNG");
-    } catch (err) {
-      alert("PNG export error: " + (err as Error).message);
-    }
-  });
-
-  exportGifBtn?.addEventListener("click", async () => {
-    let saved = false;
-    try {
-      if (!diagram) throw new Error("No diagram is available to export");
-      const scene = stage?.querySelector(".markdy-scene-root") as HTMLElement | null;
-      if (!scene) throw new Error("No diagram scene is available to export");
-      if (exportGifBtn) {
-        exportGifBtn.disabled = true;
-        exportGifBtn.textContent = "GIF…";
-      }
-      download(await exportDiagramAsGif(scene, diagram, { fps: 6, pixelRatio: 0.3, includeThemeStyles: true }), "markdy-diagram.gif");
-      saved = true;
-    } catch (err) {
-      alert("GIF export error: " + (err as Error).message);
-    } finally {
-      if (exportGifBtn) {
-        exportGifBtn.disabled = false;
-        if (saved) {
-          exportGifBtn.textContent = "Saved GIF";
-          setTimeout(() => { exportGifBtn.textContent = "GIF"; }, 1800);
-        } else {
-          exportGifBtn.textContent = "GIF";
-        }
-      }
-    }
-  });
 
   runBtn?.addEventListener("click", () => render(getCode()));
   resetBtn?.addEventListener("click", () => loadExample(selectedExample >= 0 ? selectedExample : 0));
@@ -2336,6 +2211,12 @@ Requirements:
       deselectCanvas();
       importModal?.close();
       cheatsheetModal?.close();
+      if (stagePane?.classList.contains("director-theatre-active")) {
+        if (document.fullscreenElement) {
+          document.exitFullscreen().catch(() => {});
+        }
+        stagePane.classList.remove("director-theatre-active");
+      }
     }
   });
 </script>
@@ -2600,26 +2481,6 @@ Requirements:
     border-color: var(--accent);
   }
 
-  .export-group {
-    display: inline-flex;
-    align-items: center;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    overflow: hidden;
-  }
-
-  .export-group .export-btn {
-    border: none;
-    border-radius: 0;
-    height: 28px;
-    padding: 0 0.5rem;
-    font-size: 0.72rem;
-    box-shadow: none;
-  }
-
-  .export-group .export-btn:not(:last-child) {
-    border-right: 1px solid var(--border);
-  }
 
   /* ── Workspace Layout ────────────────────────────────────────────────── */
   .workspace {
@@ -3559,35 +3420,7 @@ Requirements:
     pointer-events: auto !important;
   }
 
-  /* ── Canvas Panel & Stage ───────────────────────────────────────────── */
-  .canvas-view-controls {
-    display: flex;
-    align-items: center;
-    gap: 0.2rem;
-    background: var(--bg-tertiary);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 1px;
-  }
 
-  .canvas-tool-btn {
-    border: none;
-    background: transparent;
-    color: var(--text-secondary);
-    font-family: inherit;
-    font-size: 0.72rem;
-    font-weight: 700;
-    padding: 0.2rem 0.45rem;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: all 0.12s ease;
-    line-height: 1.2;
-  }
-
-  .canvas-tool-btn:hover {
-    color: var(--text-primary);
-    background: var(--bg-secondary);
-  }
 
   /* Direct Canvas Stage */
   .stage {
@@ -3625,8 +3458,9 @@ Requirements:
     min-height: 0;
     position: relative;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: space-between;
   }
 
   .stage .markdy-footer {
@@ -3636,6 +3470,8 @@ Requirements:
     border-top: none;
     padding: 0.35rem 0.85rem;
     z-index: 20;
+    position: relative;
+    pointer-events: auto;
   }
 
   /* Stage Drop Target Indicator */

@@ -1,16 +1,31 @@
 /**
- * MarkdyScript 0.8 diagram language support for CodeMirror 6.
+ * MarkdyScript 1.0 diagram language support for CodeMirror 6.
+ * Full IntelliCode, Context-Aware Autocompletion & Inline Ghost-Text Suggestions.
  */
 import {
   BEAT_CUE_KEYWORDS,
   NODE_KINDS,
   TECHNICAL_NODE_TYPES,
   VISUAL_PRIMITIVE_TYPES,
-  classifyTechnology,
+  getIntelliCodeCompletions,
+  predictNextLineSuggestion,
+  type IntelliCodeItem,
+  type GhostTextSuggestion,
 } from "@markdy/core";
 import { StreamLanguage, type StreamParser, HighlightStyle, syntaxHighlighting } from "@codemirror/language";
-import { autocompletion, type CompletionContext, type CompletionResult } from "@codemirror/autocomplete";
+import { autocompletion, snippet, type CompletionContext, type CompletionResult, type Completion } from "@codemirror/autocomplete";
 import { tags, type Tag } from "@lezer/highlight";
+import {
+  EditorView,
+  Decoration,
+  type DecorationSet,
+  ViewPlugin,
+  type ViewUpdate,
+  WidgetType,
+  keymap,
+  type KeyBinding,
+} from "@codemirror/view";
+import { StateField, StateEffect, type Extension, type Transaction } from "@codemirror/state";
 
 const TOKEN_TAG: Record<string, Tag> = {
   keyword: tags.keyword,
@@ -24,7 +39,7 @@ const TOKEN_TAG: Record<string, Tag> = {
 };
 
 const KEYWORDS = new Set([
-  "scene", "layout", "group", "beat", "style", "pattern", "use", "theme", "edge", "annotation",
+  "scene", "layout", "group", "beat", "style", "pattern", "use", "theme", "edge", "annotation", "var",
   "LR", "RL", "TB", "BT",
   "midnight", "paper", "blueprint", "nebula", "editorial", "graphite", "terminal", "sketchy",
   "architecture", "flowchart", "tree", "state", "sequence", "constellation", "loop", "flywheel",
@@ -48,7 +63,7 @@ const markdyParser: StreamParser<null> = {
   token(stream) {
     if (stream.match(/\/\/.*/)) return "comment";
     if (stream.match(/"([^"\\]|\\.)*"/)) return "string";
-    if (stream.match(/(->|<-|~>|--)/)) return "operator";
+    if (stream.match(/(->|<-|~>|<->|\.\.>|--)/)) return "operator";
     if (stream.match(/\$[\w]+/)) return "selector";
     if (stream.eatSpace()) return null;
     if (stream.match(/#[0-9a-fA-F]{3,8}\b/)) return "string";
@@ -77,51 +92,252 @@ const highlight = HighlightStyle.define([
   { tag: tags.special(tags.variableName), color: "#db2777" },
 ]);
 
+function mapKindToCmType(kind: string): string {
+  switch (kind) {
+    case "keyword":
+    case "directive":
+      return "keyword";
+    case "nodeKind":
+      return "class";
+    case "node":
+      return "variable";
+    case "group":
+      return "namespace";
+    case "tech":
+      return "type";
+    case "flowOp":
+      return "operator";
+    case "cue":
+      return "function";
+    case "selector":
+      return "constant";
+    case "theme":
+      return "color";
+    case "layout":
+    case "diagramType":
+      return "enum";
+    case "attribute":
+      return "property";
+    case "snippet":
+      return "text";
+    default:
+      return "text";
+  }
+}
 
-const COMMON_TECHS = [
-  "postgres", "mysql", "mongodb", "redis", "memcached", "kafka", "rabbitmq",
-  "sqs", "nginx", "envoy", "traefik", "kong", "aws", "gcp", "azure", "docker",
-  "k8s", "lambda", "s3", "dynamodb", "graphql", "grpc", "stripe", "auth0",
-  "cloudflare", "elasticsearch", "clickhouse", "snowflake", "neo4j", "vault"
-];
+// ─────────────────────────────────────────────────────────────────────────────
+// CodeMirror 6 Autocompletion Provider
+// ─────────────────────────────────────────────────────────────────────────────
 
 function completions(context: CompletionContext): CompletionResult | null {
-  const word = context.matchBefore(/[\w$.-]*/);
-  if (!word || (word.from === word.to && !context.explicit)) return null;
+  const doc = context.state.doc;
+  const docText = doc.toString();
+  const pos = context.pos;
+  const line = doc.lineAt(pos);
+  const lineNo = line.number - 1;
+  const col = pos - line.from;
 
-  const keywordOptions = Array.from(KEYWORDS).map((label) => ({
-    label,
-    type: "keyword" as const,
-    boost: 2,
-  }));
+  const word = context.matchBefore(/[\w$.-><~]*/);
+  if (!word && !context.explicit) return null;
 
-  const kindOptions = ALL_NODE_KINDS.map((label) => ({
-    label,
-    type: "type" as const,
-    detail: "node kind",
-    boost: 3,
-  }));
+  const rawItems: IntelliCodeItem[] = getIntelliCodeCompletions(docText, lineNo, col);
+  if (rawItems.length === 0) return null;
 
-  const techOptions = COMMON_TECHS.map((tech) => {
-    const profile = classifyTechnology(tech);
-    const capitalized = tech.charAt(0).toUpperCase() + tech.slice(1);
+  const options: Completion[] = rawItems.map((item) => {
+    const cmType = mapKindToCmType(item.kind);
+
+    if (item.isSnippet) {
+      return snippet(item.insertText)({
+        label: item.label,
+        detail: item.detail,
+        info: item.documentation,
+        type: cmType,
+        boost: item.boost ?? 5,
+      });
+    }
+
     return {
-      label: tech,
-      type: "class" as const,
-      detail: `→ ${profile.kind}`,
-      info: `Inserts semantic ${profile.kind} for ${tech}`,
-      apply: `${profile.kind} ${capitalized} "${capitalized}"`,
-      boost: 1,
+      label: item.label,
+      apply: item.insertText,
+      detail: item.detail,
+      info: item.documentation,
+      type: cmType,
+      boost: item.boost ?? 5,
     };
   });
 
-  const options = [...keywordOptions, ...kindOptions, ...techOptions];
-  return { from: word.from, options };
+  return {
+    from: word ? word.from : pos,
+    options,
+    validFor: /^[\w$.-><~]*$/,
+  };
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Inline Ghost-Text Auto-Suggestion (IntelliCode)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class GhostTextWidget extends WidgetType {
+  constructor(public readonly text: string, public readonly hint?: string) {
+    super();
+  }
+
+  toDOM(): HTMLElement {
+    const span = document.createElement("span");
+    span.className = "cm-ghost-text";
+    span.textContent = this.text;
+    span.setAttribute("aria-hidden", "true");
+
+    const badge = document.createElement("span");
+    badge.className = "cm-ghost-text-hint";
+    badge.textContent = "Tab ⇥";
+    span.appendChild(badge);
+
+    return span;
+  }
+
+  override eq(other: GhostTextWidget): boolean {
+    return this.text === other.text;
+  }
+}
+
+export const setGhostSuggestionEffect = StateEffect.define<GhostTextSuggestion | null>();
+
+export const ghostSuggestionField = StateField.define<GhostTextSuggestion | null>({
+  create() {
+    return null;
+  },
+  update(value, tr) {
+    for (const effect of tr.effects) {
+      if (effect.is(setGhostSuggestionEffect)) {
+        return effect.value;
+      }
+    }
+    if (tr.docChanged || tr.selection) {
+      return null; // Cleared upon user edit or cursor move until recomputed
+    }
+    return value;
+  },
+});
+
+const ghostViewPlugin = ViewPlugin.fromClass(
+  class {
+    decorations: DecorationSet = Decoration.none;
+    debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    constructor(view: EditorView) {
+      this.computeGhost(view);
+    }
+
+    update(update: ViewUpdate) {
+      if (update.docChanged || update.selectionSet) {
+        if (this.debounceTimer) clearTimeout(this.debounceTimer);
+        this.debounceTimer = setTimeout(() => {
+          this.computeGhost(update.view);
+        }, 120);
+      }
+
+      const suggestion = update.state.field(ghostSuggestionField);
+      if (!suggestion) {
+        this.decorations = Decoration.none;
+      } else {
+        const head = update.state.selection.main.head;
+        const widget = Decoration.widget({
+          widget: new GhostTextWidget(suggestion.text, suggestion.description),
+          side: 1,
+        });
+        this.decorations = Decoration.set([widget.range(head)]);
+      }
+    }
+
+    computeGhost(view: EditorView) {
+      const state = view.state;
+      const head = state.selection.main.head;
+      const line = state.doc.lineAt(head);
+      const lineNo = line.number - 1;
+      const lineText = line.text;
+
+      // Only show ghost text if at the end of current line or on empty line
+      if (head < line.to && lineText.trim().length > 0) {
+        view.dispatch({ effects: setGhostSuggestionEffect.of(null) });
+        return;
+      }
+
+      const docText = state.doc.toString();
+      const suggestion = predictNextLineSuggestion(docText, lineNo);
+
+      if (suggestion && suggestion.text.trim().length > 0) {
+        // Strip leading newline or match current line intent
+        let displayGhost = suggestion.text;
+        if (lineText.length > 0 && !displayGhost.startsWith("\n") && !displayGhost.startsWith(" ")) {
+          displayGhost = " " + displayGhost;
+        }
+        view.dispatch({
+          effects: setGhostSuggestionEffect.of({
+            ...suggestion,
+            text: displayGhost,
+          }),
+        });
+      } else {
+        view.dispatch({ effects: setGhostSuggestionEffect.of(null) });
+      }
+    }
+
+    destroy() {
+      if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    }
+  },
+  {
+    decorations: (v) => v.decorations,
+  }
+);
+
+export const acceptInlineSuggestion: KeyBinding = {
+  key: "Tab",
+  run(view: EditorView): boolean {
+    const suggestion = view.state.field(ghostSuggestionField);
+    if (!suggestion) return false;
+
+    const head = view.state.selection.main.head;
+    const textToInsert = suggestion.insertText || suggestion.text;
+
+    view.dispatch({
+      changes: { from: head, insert: textToInsert },
+      selection: { anchor: head + textToInsert.length },
+      effects: setGhostSuggestionEffect.of(null),
+    });
+    return true;
+  },
+};
+
+export const dismissInlineSuggestion: KeyBinding = {
+  key: "Escape",
+  run(view: EditorView): boolean {
+    const suggestion = view.state.field(ghostSuggestionField);
+    if (suggestion) {
+      view.dispatch({ effects: setGhostSuggestionEffect.of(null) });
+      return true;
+    }
+    return false;
+  },
+};
+
+export const markdyInlineSuggestionKeymap = keymap.of([
+  acceptInlineSuggestion,
+  { key: "Alt-ArrowRight", run: acceptInlineSuggestion.run },
+  { key: "Mod-ArrowRight", run: acceptInlineSuggestion.run },
+  dismissInlineSuggestion,
+]);
+
+export const markdyInlineSuggestion: Extension = [
+  ghostSuggestionField,
+  ghostViewPlugin,
+  markdyInlineSuggestionKeymap,
+];
 
 export const markdyLanguage = StreamLanguage.define(markdyParser);
 export const markdyHighlight = syntaxHighlighting(highlight);
-export const markdyCompletion = autocompletion({ override: [completions] });
+export const markdyCompletion = autocompletion({ override: [completions], defaultKeymap: true });
 export const markdyAutocomplete = markdyCompletion;
 export const markdyHighlightLight = markdyHighlight;
 export const markdyHighlightDark = markdyHighlight;

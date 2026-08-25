@@ -26,12 +26,15 @@ export function mountTimelineLayer(
   });
   layer.appendChild(svg);
 
-  const baselineY = (bounds.height + 40) / 2;
+  const SAFE = 40;
+  const TITLE_BAND = 64;
+  const contentH = bounds.height - SAFE - TITLE_BAND - SAFE;
+  const baselineY = TITLE_BAND + contentH / 2;
   const minX = Math.min(...nodes.map((n) => n.x)) - 20;
   const maxX = Math.max(...nodes.map((n) => n.x + n.width)) + 20;
 
-  const strokeAxis = theme?.hairline ?? theme?.border ?? "#cbd5e1";
-  const strokeBorder = theme?.border ?? "#cbd5e1";
+  const strokeAxis = theme?.edges?.dependency ?? theme?.rule ?? theme?.border ?? "#64748b";
+  const strokeBorder = theme?.edges?.dependency ?? theme?.border ?? "#64748b";
   const accentColor = theme?.accent ?? "#38bdf8";
   const surfaceFill = theme?.surfaceRaised ?? theme?.surface ?? "#ffffff";
 
@@ -43,7 +46,8 @@ export function mountTimelineLayer(
   axis.setAttribute("y2", String(baselineY));
   axis.setAttribute("stroke", strokeAxis);
   axis.setAttribute("stroke-width", "2");
-  axis.setAttribute("opacity", "0.6");
+  axis.setAttribute("stroke-linecap", "round");
+  axis.setAttribute("opacity", "0.75");
   svg.appendChild(axis);
 
   // 2. Milestone pips and vertical stem lines
@@ -59,19 +63,19 @@ export function mountTimelineLayer(
     stem.setAttribute("x2", String(nodeCenterX));
     stem.setAttribute("y2", String(targetY));
     stem.setAttribute("stroke", node.focal ? accentColor : strokeBorder);
-    stem.setAttribute("stroke-width", node.focal ? "1.5" : "1");
-    stem.setAttribute("stroke-dasharray", node.focal ? "none" : "3 3");
-    stem.setAttribute("opacity", node.focal ? "0.9" : "0.5");
+    stem.setAttribute("stroke-width", node.focal ? "2" : "1.5");
+    stem.setAttribute("stroke-dasharray", node.focal ? "none" : "4 4");
+    stem.setAttribute("opacity", node.focal ? "0.95" : "0.75");
     svg.appendChild(stem);
 
     // Baseline milestone pip
     const pip = doc.createElementNS("http://www.w3.org/2000/svg", "circle");
     pip.setAttribute("cx", String(nodeCenterX));
     pip.setAttribute("cy", String(baselineY));
-    pip.setAttribute("r", node.focal ? "5" : "3.5");
+    pip.setAttribute("r", node.focal ? "5.5" : "4");
     pip.setAttribute("fill", node.focal ? accentColor : surfaceFill);
     pip.setAttribute("stroke", node.focal ? accentColor : strokeBorder);
-    pip.setAttribute("stroke-width", "1.5");
+    pip.setAttribute("stroke-width", "2");
     svg.appendChild(pip);
   }
 }

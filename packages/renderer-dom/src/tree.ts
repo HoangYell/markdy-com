@@ -25,7 +25,7 @@ export function mountTreeBuses(
   });
   layer.appendChild(svg);
 
-  const stroke = theme.rule ?? theme.hairline ?? theme.border;
+  const stroke = theme.edges?.dependency ?? theme.rule ?? theme.border ?? "#64748b";
   for (const bus of buses) {
     const group = doc.createElementNS("http://www.w3.org/2000/svg", "g");
     group.setAttribute("data-tree-bus", bus.id);

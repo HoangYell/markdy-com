@@ -7,6 +7,11 @@ import {
   parse,
   validateArchitecture,
   analyzeAndBuildRepairPrompt,
+  diagnoseMarkdyCode,
+  repairMarkdyCode,
+  getIntelliCodeCompletions,
+  predictNextLineSuggestion,
+  getArchitectureSuggestions,
   ARCH_RULE_PRESETS,
 } from "@markdy/core";
 import {
@@ -336,17 +341,105 @@ export function handleValidateMarkdy(code: string, checkArchitecture = true): To
       content: [{ type: "text", text: lines.join("\n") }],
     };
   } catch (error) {
-    const repairBundle = analyzeAndBuildRepairPrompt(code);
+    const report = diagnoseMarkdyCode(code, {
+      checkArchitecture,
+      transpileMermaid: (src) => transpileMermaidToMarkdy(src, "Imported Scene").code,
+    });
     return {
       isError: true,
       content: [
         {
           type: "text",
-          text: `❌ Parse Error: ${(error as Error).message}\n\nSuggested AI Healing Prompt:\n${repairBundle.repairPrompt}`,
+          text: `❌ Parse Error: ${(error as Error).message}\n\nSuggested AI Healing Prompt:\n${report.repairPrompt}`,
         },
       ],
     };
   }
+}
+
+export function handleDiagnoseMarkdy(code: string, checkArchitecture = true): ToolResult {
+  const report = diagnoseMarkdyCode(code, {
+    checkArchitecture,
+    transpileMermaid: (src) => transpileMermaidToMarkdy(src, "Imported Scene").code,
+  });
+
+  const lines: string[] = [];
+  lines.push(report.summary);
+
+  if (report.issues.length > 0) {
+    const errors = report.issues.filter((i) => i.severity === "error");
+    const warnings = report.issues.filter((i) => i.severity === "warning");
+
+    if (errors.length > 0) {
+      lines.push("\n### ❌ Syntax Errors & Typos:");
+      for (const e of errors) {
+        lines.push(`- **[${e.code}]** Line ${e.line}: ${e.message}`);
+        if (e.snippet) lines.push(`  - *Problem:* \`${e.snippet}\``);
+        if (e.suggestion) lines.push(`  - *Recommendation:* ${e.suggestion}`);
+        if (e.didYouMean) lines.push(`  - *Did you mean:* \`${e.didYouMean}\`?`);
+      }
+    }
+
+    if (warnings.length > 0) {
+      lines.push("\n### ⚠️ Warnings & Governance:");
+      for (const w of warnings) {
+        lines.push(`- **[${w.code}]** Line ${w.line}: ${w.message}`);
+        if (w.suggestion) lines.push(`  - *Recommendation:* ${w.suggestion}`);
+      }
+    }
+  }
+
+  if (report.repairedCode) {
+    lines.push("\n### 🛠️ Proposed Auto-Repaired Code:");
+    lines.push("```markdy");
+    lines.push(report.repairedCode);
+    lines.push("```");
+  }
+
+  lines.push("\n### 💡 AI Self-Healing Prompt for LLMs / Agents:");
+  lines.push(report.repairPrompt);
+
+  return {
+    isError: !report.isValid,
+    content: [{ type: "text", text: lines.join("\n") }],
+  };
+}
+
+export function handleFixMarkdy(code: string): ToolResult {
+  const result = repairMarkdyCode(code, {
+    transpileMermaid: (src) => transpileMermaidToMarkdy(src, "Imported Scene").code,
+  });
+
+  const lines: string[] = [];
+  if (result.isFixed) {
+    lines.push(`✅ Markdy Code Repaired Successfully (${result.changes.length} change(s) applied):\n`);
+    for (const c of result.changes) {
+      lines.push(`- ${c}`);
+    }
+    lines.push("\n```markdy");
+    lines.push(result.repairedCode);
+    lines.push("```");
+  } else {
+    lines.push(`⚠️ Applied ${result.changes.length} automated repair(s), but additional manual corrections may be needed:\n`);
+    for (const c of result.changes) {
+      lines.push(`- ${c}`);
+    }
+    lines.push("\n```markdy");
+    lines.push(result.repairedCode);
+    lines.push("```");
+
+    const diag = diagnoseMarkdyCode(result.repairedCode);
+    if (!diag.isValid) {
+      lines.push("\nRemaining issues to resolve:");
+      for (const iss of diag.issues) {
+        lines.push(`- Line ${iss.line}: ${iss.message}`);
+      }
+    }
+  }
+
+  return {
+    content: [{ type: "text", text: lines.join("\n") }],
+  };
 }
 
 export async function handleTranspileToMarkdy(
@@ -497,6 +590,51 @@ export function handleGetArchitectureCatalog(filterCategory?: string): ToolResul
   };
 }
 
+export function handleIntelliCode(code: string, line?: number, column?: number): ToolResult {
+  const lines = code.split(/\r?\n/);
+  const targetLine = line !== undefined ? line : Math.max(0, lines.length - 1);
+  const targetCol = column !== undefined ? column : (lines[targetLine]?.length ?? 0);
+
+  const completions = getIntelliCodeCompletions(code, targetLine, targetCol);
+  const nextLinePrediction = predictNextLineSuggestion(code, targetLine);
+  const archRecommendations = getArchitectureSuggestions(code);
+
+  const output = {
+    cursor: { line: targetLine, column: targetCol },
+    completionsCount: completions.length,
+    topCompletions: completions.slice(0, 20).map((c) => ({
+      label: c.label,
+      insertText: c.insertText,
+      kind: c.kind,
+      detail: c.detail,
+      documentation: c.documentation,
+    })),
+    nextLinePrediction: nextLinePrediction
+      ? {
+          suggestedText: nextLinePrediction.text,
+          description: nextLinePrediction.description,
+          type: nextLinePrediction.type,
+        }
+      : null,
+    architectureRecommendations: archRecommendations.map((r) => ({
+      id: r.id,
+      title: r.title,
+      description: r.desc,
+      category: r.category,
+      actionSnippet: r.snippet,
+    })),
+  };
+
+  return {
+    content: [
+      {
+        type: "text",
+        text: JSON.stringify(output, null, 2),
+      },
+    ],
+  };
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // MCP Resource Handlers
 // ─────────────────────────────────────────────────────────────────────────────
@@ -532,6 +670,31 @@ export function handleReadResource(uri: string): ResourceResult {
             uri,
             mimeType: "application/json",
             text: JSON.stringify(ARCH_RULE_PRESETS, null, 2),
+          },
+        ],
+      };
+
+    case "markdy://spec/grammar-rules":
+      return {
+        contents: [
+          {
+            uri,
+            mimeType: "text/markdown",
+            text: `# MarkdyScript Grammar & Diagnostic Rules
+
+### 1. The 4-Step Mental Model
+1. **Directives**: \`scene theme=paper width=1280 height=720\` and \`layout LR\` (or TB).
+2. **Nodes**: \`<kind> <Id> ["Human Label"]\` (e.g. \`browser Client "Shopper"\`, \`gateway GW "API Gateway"\`, \`service Orders\`, \`database DB\`).
+3. **Groups**: \`group <id> "<Label>": Node1 Node2\`
+4. **Beats**: \`beat <id> "<Caption>":\` containing indented flow lines and cues.
+
+### 2. Common Syntax Errors & Corrections
+- **Keyword typos**: \`scen\` -> \`scene\`, \`layput\` -> \`layout\`, \`groop\` -> \`group\`, \`bea\` -> \`beat\`.
+- **Node kind typos**: \`servce\` -> \`service\`, \`databse\` -> \`database\`, \`gateawy\` -> \`gateway\`, \`cach\` -> \`cache\`.
+- **Missing colons**: Always terminate \`beat <id> ["Caption"]:\` and \`group <id> ["Label"]:\` with a colon.
+- **Unquoted strings**: Labels containing spaces MUST be wrapped in double quotes (\`"...\`\`).
+- **Cycle safety**: NEVER use \`->\` for response or return paths. Use \`<-\` for return calls to prevent cycle overlap rank collapse.
+- **Cue placement**: Visual cues (\`show $nodes\`, \`glow\`, \`frame\`, \`focus\`) and flows must reside INSIDE an indented beat block.`,
           },
         ],
       };

@@ -917,4 +917,88 @@ service API "<img data-test=unsafe>"
     diagram.destroy();
     container.remove();
   });
+
+  it("ensures markdy-controls-tools buttons have proper stacking context, event isolation, and CSS hover styles", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const diagram = createDiagram({
+      container,
+      code: SCENE,
+      autoplay: false,
+      copyright: false,
+      controls: {
+        playback: true,
+        fit: true,
+        resetView: true,
+        fullscreen: true,
+        theme: true,
+        svg: true,
+        share: true,
+        code: true,
+        speed: [0.5, 1, 2],
+      },
+      interactiveViewport: true,
+      clickToPlay: true,
+    });
+
+    const viewport = container.querySelector<HTMLElement>(".markdy-viewport")!;
+    const footer = container.querySelector<HTMLElement>(".markdy-footer")!;
+    const toolbar = footer.querySelector<HTMLElement>(".markdy-controls")!;
+    const toolsGroup = footer.querySelector<HTMLElement>(".markdy-controls-tools")!;
+
+    expect(viewport).not.toBeNull();
+    expect(viewport.style.flex).toContain("1 1 auto");
+    expect(viewport.style.minHeight).toBe("0px");
+
+    expect(footer).not.toBeNull();
+    expect(footer.style.zIndex).toBe("100");
+    expect(footer.style.pointerEvents).toBe("auto");
+
+    expect(toolsGroup).not.toBeNull();
+    const fitBtn = toolsGroup.querySelector<HTMLButtonElement>(".markdy-control-fit")!;
+    const themeBtn = toolsGroup.querySelector<HTMLButtonElement>(".markdy-control-theme")!;
+    const svgBtn = toolsGroup.querySelector<HTMLButtonElement>(".markdy-control-svg")!;
+    const codeBtn = toolsGroup.querySelector<HTMLButtonElement>(".markdy-control-code")!;
+
+    expect(fitBtn).not.toBeNull();
+    expect(themeBtn).not.toBeNull();
+    expect(svgBtn).not.toBeNull();
+    expect(codeBtn).not.toBeNull();
+
+    // Clicking tools button must not toggle diagram playback or trigger viewport drag
+    expect(diagram.isPlaying()).toBe(false);
+    fitBtn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(diagram.isPlaying()).toBe(false);
+
+    // Verify seek() synchronizes slider and time display while paused
+    diagram.seek(1.5);
+    const timeEl = footer.querySelector<HTMLElement>(".markdy-control-time");
+    const seekInput = footer.querySelector<HTMLInputElement>(".markdy-control-seek");
+    expect(timeEl?.textContent).toContain("1.5s");
+    expect(seekInput?.value).toBe("1.5");
+
+    // Verify Code button accessibility
+    expect(codeBtn.getAttribute("aria-expanded")).toBe("false");
+    codeBtn.click();
+    expect(codeBtn.getAttribute("aria-expanded")).toBe("true");
+    const codeOverlay = document.body.querySelector<HTMLElement>(".markdy-code-panel-overlay");
+    expect(codeOverlay).not.toBeNull();
+    const closeBtn = codeOverlay?.querySelector<HTMLButtonElement>(".markdy-code-panel__close");
+    closeBtn?.click();
+    expect(codeBtn.getAttribute("aria-expanded")).toBe("false");
+
+    // Verify injected style rules
+    const styleEl = document.getElementById("markdy-scene-ambience-styles");
+    expect(styleEl).not.toBeNull();
+    const cssText = styleEl?.textContent ?? "";
+    expect(cssText).toContain(".markdy-viewport");
+    expect(cssText).toContain(".markdy-controls-tools");
+    expect(cssText).toContain(".markdy-controls button:hover:not([aria-pressed=\"true\"])");
+    expect(cssText).toContain(".markdy-controls-tools button:hover:not([aria-pressed=\"true\"])");
+    expect(cssText).toContain("@media (hover: none) and (pointer: coarse)");
+
+    diagram.destroy();
+    container.remove();
+  });
 });

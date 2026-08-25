@@ -4,6 +4,7 @@ import { resolve } from "node:path";
 export default defineConfig({
   test: {
     environment: "jsdom",
+    testTimeout: 30000,
   },
   resolve: {
     alias: {

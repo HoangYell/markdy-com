@@ -148,6 +148,14 @@ export function ensureSceneStyles(doc: Document): void {
   box-sizing: border-box;
   width: 100%;
 }
+.markdy-viewport {
+  position: relative;
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
 .markdy-footer {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   position: relative;
@@ -157,13 +165,15 @@ export function ensureSceneStyles(doc: Document): void {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 8px 12px 4px;
+  padding: 8px 12px 6px;
   color: var(--md-text, #f8fafc);
   background: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
   border-top: none;
   z-index: 100;
+  pointer-events: auto;
+  flex-shrink: 0;
 }
 .markdy-controls {
   display: flex;
@@ -175,9 +185,15 @@ export function ensureSceneStyles(doc: Document): void {
   gap: 8px;
   max-width: 100%;
   overflow-x: auto;
+  overflow-y: visible;
   scrollbar-width: none;
-  padding: 4px 2px;
-  margin: -4px -2px;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 4px 6px;
+  margin: 0;
+  position: relative;
+  z-index: 10;
+  pointer-events: auto;
 }
 .markdy-controls::-webkit-scrollbar {
   display: none;
@@ -187,6 +203,9 @@ export function ensureSceneStyles(doc: Document): void {
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 5;
+  pointer-events: auto;
 }
 .markdy-controls-playback {
   display: inline-flex;
@@ -207,6 +226,9 @@ export function ensureSceneStyles(doc: Document): void {
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
+  position: relative;
+  z-index: 5;
+  pointer-events: auto;
 }
 .markdy-control-divider {
   width: 1px;
@@ -237,19 +259,27 @@ export function ensureSceneStyles(doc: Document): void {
   white-space: nowrap;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
   transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  pointer-events: auto;
+  isolation: isolate;
 }
 .markdy-controls button:hover:not([aria-pressed="true"]) {
   position: relative;
-  z-index: 2;
+  z-index: 20;
   background: var(--md-control-hover-bg, rgba(255, 255, 255, 0.1));
   color: var(--md-control-hover-text, #f8fafc);
   border-color: var(--md-control-hover-border, rgba(148, 163, 184, 0.35));
   transform: translateY(-1px);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.14);
+}
+.markdy-controls-tools button:hover:not([aria-pressed="true"]) {
+  z-index: 25;
+  border-color: var(--md-control-hover-border, rgba(148, 163, 184, 0.45));
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16);
 }
 .markdy-controls button[aria-pressed="true"] {
   position: relative;
-  z-index: 2;
+  z-index: 20;
   background: var(--accent, #10b981) !important;
   color: #ffffff !important;
   border-color: var(--accent, #10b981) !important;
@@ -257,12 +287,12 @@ export function ensureSceneStyles(doc: Document): void {
 }
 .markdy-controls button:focus-visible {
   position: relative;
-  z-index: 3;
+  z-index: 30;
   outline: 2px solid var(--accent, #10b981);
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 .markdy-controls button:active {
-  transform: scale(0.95);
+  transform: translateY(0) scale(0.96);
 }
 .markdy-icon {
   display: inline-block;
@@ -596,6 +626,7 @@ export function ensureSceneStyles(doc: Document): void {
   background: var(--md-control-hover-bg, rgba(51, 65, 85, 0.95));
   color: var(--md-control-hover-text, #f8fafc);
   border-color: var(--md-control-hover-border, #94a3b8);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25);
 }
 [data-markdy-theme="midnight"] .markdy-controls button[aria-pressed="true"],
 [data-markdy-theme="blueprint"] .markdy-controls button[aria-pressed="true"],
@@ -667,6 +698,24 @@ export function ensureSceneStyles(doc: Document): void {
   max-width: 1400px !important;
   margin: 0 auto !important;
   padding: 8px 12px 4px !important;
+}
+@media (hover: none) and (pointer: coarse) {
+  .markdy-controls {
+    gap: 6px;
+    padding: 6px 4px 8px;
+  }
+  .markdy-controls button {
+    height: 32px;
+    min-width: 32px;
+    padding: 0 8px;
+    font-size: 12px;
+  }
+  .markdy-speed-group .markdy-control-rate {
+    height: 26px;
+    min-width: 28px;
+    font-size: 11px;
+    padding: 0 6px;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .markdy-node,
