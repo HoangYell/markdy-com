@@ -214,6 +214,9 @@ importers:
 
   packages/vscode:
     dependencies:
+      '@markdy/compat':
+        specifier: workspace:*
+        version: link:../compat
       '@markdy/core':
         specifier: workspace:*
         version: link:../core

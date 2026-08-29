@@ -5,6 +5,22 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.31] — 2026-08-29
+
+### Added
+- **VS Code Extension Feature Parity & Ingestion Suite (`markdy-vscode`, `@markdy/compat`)**:
+  - **Full Document Formatter**: Integrated `formatScene(ast)` into Language Server for instant `Shift+Alt+F` / format-on-save formatting.
+  - **Architecture Governance Linting**: Real-time diagnostic squiggles for structural anti-patterns, bottleneck queues, and un-gated database connections.
+  - **QuickFix Code Actions & Auto-Repair**: Added Lightbulb menu actions (`💡 Fix`) and one-click auto-repair (`✨ Auto-Repair Entire Diagram`).
+  - **Universal Ingestion Suite**: Transpile Mermaid diagrams, Docker Compose stacks, Kubernetes YAMLs, Terraform state, and Draw.io XML into animated MarkdyScript scenes (`markdy.importArchitecture` and Explorer context menus).
+  - **Animated GIF Export**: Zero-dependency GIF89a recorder & exporter (`markdy.exportGif`) with in-progress rendering indicator.
+  - **Direct-to-Clipboard Exporters**: One-click SVG and PNG clipboard copying (`markdy.copySvg`, `markdy.copyPng`).
+  - **Curated Architecture Templates**: QuickPick palette (`markdy.insertTemplate`, `markdy.newDiagramFromTemplate`) with 6 production-grade architecture models (Kafka Microservices, Kubernetes Cluster, Medallion Lakehouse, OAuth PKCE, Flywheel, Perimeter Isolation).
+  - **AI Architecture Prompt Builder**: Generates context-rich LLM prompt bundles embedding current AST and `AGENT.md` guidelines for Cursor, Claude, Copilot, or ChatGPT (`markdy.generateAiPrompt`).
+  - **Markdown & MDX CodeLens**: Inline `[▶ Open Markdy Preview]` and `[📐 Export SVG]` CodeLens triggers above embedded ````markdy` blocks.
+  - **Web Studio Sharing**: Instant URL compression and browser opener (`markdy.openInWebStudio`, `markdy.copyShareUrl`).
+  - **Official Themes Alignment**: Full parity across all 8 official editorial themes (`midnight`, `paper`, `blueprint`, `nebula`, `editorial`, `graphite`, `terminal`, `sketchy`).
+
 ## [1.0.30] — 2026-08-25
 
 ### Added

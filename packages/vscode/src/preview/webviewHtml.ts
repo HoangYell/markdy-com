@@ -46,7 +46,7 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 16px;
+      padding: 6px 12px;
       background: var(--btn-sec-bg);
       border-bottom: 1px solid var(--border-color);
       gap: 8px;
@@ -58,13 +58,14 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       display: flex;
       align-items: center;
       gap: 6px;
+      flex-wrap: wrap;
     }
 
     button, select {
       background: var(--btn-sec-bg);
       color: var(--btn-sec-fg);
       border: 1px solid var(--border-color);
-      padding: 4px 10px;
+      padding: 4px 8px;
       border-radius: 4px;
       font-size: 12px;
       cursor: pointer;
@@ -78,6 +79,11 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       background: var(--btn-hover);
       color: var(--btn-fg);
       border-color: transparent;
+    }
+
+    .btn-primary {
+      background: var(--btn-bg);
+      color: var(--btn-fg);
     }
 
     .preview-stage {
@@ -116,6 +122,24 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       transition: opacity 0.2s ease;
     }
 
+    .loading-banner {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2563eb;
+      color: #ffffff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .hidden {
       display: none !important;
     }
@@ -124,28 +148,43 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
 <body>
   <div class="toolbar">
     <div class="toolbar-group">
-      <button id="btn-play-pause" title="Play/Pause Animation">⏸ Pause</button>
-      <button id="btn-restart" title="Restart Diagram from Beginning">↺ Restart</button>
-      <select id="theme-select" title="Override Theme">
+      <button id="btn-play-pause" title="Play / Pause Animation">⏸ Pause</button>
+      <button id="btn-restart" title="Restart Diagram">↺ Restart</button>
+      <button id="btn-prev-beat" title="Previous Narrative Beat">⏮</button>
+      <button id="btn-next-beat" title="Next Narrative Beat">⏭</button>
+      <select id="speed-select" title="Playback Speed">
+        <option value="0.5">0.5x</option>
+        <option value="1.0" selected>1.0x</option>
+        <option value="1.5">1.5x</option>
+        <option value="2.0">2.0x</option>
+      </select>
+      <select id="theme-select" title="Official Markdy Theme Override">
         <option value="auto">Theme: Auto</option>
-        <option value="night">Night</option>
-        <option value="light">Light</option>
-        <option value="cyber">Cyber</option>
-        <option value="slate">Slate</option>
-        <option value="tokyo">Tokyo</option>
-        <option value="nord">Nord</option>
-        <option value="monokai">Monokai</option>
+        <option value="midnight">Midnight</option>
+        <option value="paper">Paper</option>
+        <option value="blueprint">Blueprint</option>
+        <option value="nebula">Nebula</option>
+        <option value="editorial">Editorial</option>
+        <option value="graphite">Graphite</option>
+        <option value="terminal">Terminal</option>
+        <option value="sketchy">Sketchy</option>
       </select>
     </div>
     <div class="toolbar-group">
-      <button id="btn-export-svg" title="Export as Vector SVG">Export SVG</button>
-      <button id="btn-export-png" title="Export as High-Res PNG">Export PNG</button>
+      <button id="btn-export-svg" title="Export as Vector SVG">SVG</button>
+      <button id="btn-export-png" title="Export as High-Res PNG">PNG</button>
+      <button id="btn-export-gif" class="btn-primary" title="Export as Animated GIF">GIF</button>
+      <button id="btn-copy-svg" title="Copy SVG to Clipboard">Copy SVG</button>
+      <button id="btn-copy-png" title="Copy PNG to Clipboard">Copy PNG</button>
     </div>
   </div>
 
   <div class="preview-stage">
     <div id="error-overlay" class="error-banner hidden">
       ⚠️ <span id="error-message">Syntax error</span>
+    </div>
+    <div id="loading-overlay" class="loading-banner hidden">
+      ⏳ <span id="loading-message">Rendering animated GIF...</span>
     </div>
     <div id="diagram-mount"></div>
   </div>

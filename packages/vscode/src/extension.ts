@@ -8,6 +8,11 @@ import {
 } from "vscode-languageclient/node";
 import { MarkdyPreviewPanel } from "./preview/previewPanel";
 import { registerExportCommands } from "./commands/exportCommands";
+import { registerImportCommands } from "./commands/importCommands";
+import { registerTemplateCommands } from "./commands/templateCommands";
+import { registerAiCommands } from "./commands/aiCommands";
+import { registerShareCommands } from "./commands/shareCommands";
+import { registerCodeLensProvider } from "./providers/codeLensProvider";
 
 let client: LanguageClient | undefined;
 
@@ -67,8 +72,23 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  // 3. Export Commands
+  // 3. Export Commands (SVG, PNG, GIF, Clipboard)
   registerExportCommands(context);
+
+  // 4. Ingestion / Transpilation Commands (Mermaid, Docker Compose, K8s, Terraform, Draw.io)
+  registerImportCommands(context);
+
+  // 5. Template Commands (Showcase QuickPick & New Diagram)
+  registerTemplateCommands(context);
+
+  // 6. AI Architecture Commands (Prompt Builder & Repair Bundle)
+  registerAiCommands(context);
+
+  // 7. Web Studio Sharing Commands (URL Hash & Browser Opener)
+  registerShareCommands(context);
+
+  // 8. Markdown & MDX CodeLens Provider
+  registerCodeLensProvider(context);
 
   context.subscriptions.push(previewToSideCmd, previewCmd, restartServerCmd);
 }
