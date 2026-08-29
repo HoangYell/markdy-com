@@ -1,6 +1,6 @@
 {
   "name": "@markdy/mcp-server",
-  "version": "1.0.30",
+  "version": "1.0.31",
   "description": "Model Context Protocol server for Markdy diagram validation, transpilation, and generation.",
   "license": "MIT",
   "type": "module",
