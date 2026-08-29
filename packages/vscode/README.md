@@ -1,18 +1,30 @@
-# Markdy for Visual Studio Code
+# Markdy for Visual Studio Code & Cursor
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/docs/images/mascot/3d-icon.png" width="128" alt="Markdy Mascot" />
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/docs/images/mascot/3d-icon.png" width="120" alt="Markdy Mascot" />
 </p>
 
 <p align="center">
   <strong>Open-source diagram-as-code editor tooling for animated architecture and system diagrams.</strong><br>
-  Write diagram-native MarkdyScript, get browser-native motion diagrams with zero external dependencies.
+  Write diagram-native MarkdyScript, get browser-native 60fps kinetic diagrams with zero external dependencies.
 </p>
 
 <p align="center">
-  <a href="https://markdy.com">Website & Playground</a> •
-  <a href="https://github.com/HoangYell/markdy-com">GitHub</a> •
-  <a href="https://markdy.com/docs/syntax">Syntax Guide</a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><img src="https://img.shields.io/visual-studio-marketplace/v/hoangyell.markdy-vscode?color=blue&label=VS%20Code" alt="Visual Studio Marketplace Version" /></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><img src="https://img.shields.io/visual-studio-marketplace/i/hoangyell.markdy-vscode?color=green" alt="Visual Studio Marketplace Installs" /></a>
+  <a href="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml"><img src="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
+  <a href="https://github.com/HoangYell/markdy-com/blob/main/LICENSE"><img src="https://img.shields.io/github/license/HoangYell/markdy-com" alt="MIT License" /></a>
+</p>
+
+<p align="center">
+  <a href="https://markdy.com/playground/"><b>⚡ Launch Live Studio</b></a> &nbsp;•&nbsp;
+  <a href="https://markdy.com/docs/"><b>📖 Documentation</b></a> &nbsp;•&nbsp;
+  <a href="https://markdy.com/examples/"><b>🌟 17+ Architecture Examples</b></a> &nbsp;•&nbsp;
+  <a href="https://github.com/HoangYell/markdy-com"><b>🐙 GitHub Repo</b></a>
+</p>
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/docs/images/markdy-split-editor.webp" width="100%" alt="Markdy Live Animated Preview in VS Code" />
 </p>
 
 ---
@@ -21,7 +33,7 @@
 
 - 🎨 **Full Syntax Highlighting**: Comprehensive TextMate grammar for `.markdy` files and embedded ````markdy` code blocks in Markdown and MDX.
 - ⚡ **Real-Time Diagnostics & Autocompletion**: Backed by `@markdy/language-server` with instant AST validation, error squiggles, symbol navigation, and hover docs.
-- 🎬 **Side-by-Side Live Animated Preview**: Preview your diagram with silky-smooth Web Animations API (WAAPI) motion as you type.
+- 🎬 **Side-by-Side Live Animated Preview**: Preview your diagram with silky-smooth Web Animations API (WAAPI) motion as you type (`Cmd+K V` / `Ctrl+K V`).
 - ⏱️ **Interactive Playback Controls**: Play, pause, restart, step through narrative beats, and switch themes in the live preview toolbar.
 - 📐 **Vector & Raster Exports**: Export diagrams directly to clean, scalable SVG vector graphics or high-resolution PNG images.
 - 🔒 **100% Offline & Private**: Bundled locally with zero telemetry or remote CDN requirements.
@@ -30,9 +42,16 @@
 
 ## 🚀 Quick Start
 
-1. Install the extension from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com) or [Open VSX Registry](https://open-vsx.org).
+1. Install from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode) or via command line:
+   ```bash
+   code --install-extension hoangyell.markdy-vscode
+   ```
 2. Create a new file with the `.markdy` extension (e.g. `architecture.markdy`).
-3. Press `Cmd+K V` (macOS) or `Ctrl+K V` (Windows/Linux) or click the **Preview** icon in the editor title bar to open the live animated diagram preview.
+3. Press **`Cmd+K V`** (macOS) or **`Ctrl+K V`** (Windows/Linux) or click the **Preview** icon in the editor title bar to open the live animated diagram preview!
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/docs/images/scene-ecommerce-swimlanes.webp" width="100%" alt="Multi-Tier Architecture Diagram Example" />
+</p>
 
 ### Example MarkdyScript
 

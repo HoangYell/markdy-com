@@ -37,6 +37,34 @@
     "animated-diagram"
   ],
   "icon": "assets/icon.png",
+  "galleryBanner": {
+    "color": "#0a0e17",
+    "theme": "dark"
+  },
+  "qna": "marketplace",
+  "badges": [
+    {
+      "url": "https://img.shields.io/github/stars/HoangYell/markdy-com?style=social",
+      "href": "https://github.com/HoangYell/markdy-com",
+      "description": "GitHub Stars"
+    },
+    {
+      "url": "https://img.shields.io/npm/v/@markdy/core?color=blue&label=%40markdy%2Fcore",
+      "href": "https://www.npmjs.com/package/@markdy/core",
+      "description": "npm version"
+    },
+    {
+      "url": "https://img.shields.io/badge/license-MIT-blue",
+      "href": "https://github.com/HoangYell/markdy-com/blob/main/LICENSE",
+      "description": "MIT License"
+    }
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": true
+    },
+    "virtualWorkspaces": true
+  },
   "main": "./dist/extension.js",
   "browser": "./dist/extension.js",
   "activationEvents": [
@@ -129,6 +157,30 @@
           "when": "resourceLangId == markdy",
           "command": "markdy.showPreviewToSide",
           "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "when": "resourceLangId == markdy",
+          "command": "markdy.showPreviewToSide",
+          "group": "1_preview@1"
+        },
+        {
+          "when": "resourceLangId == markdy",
+          "command": "markdy.exportSvg",
+          "group": "2_export@1"
+        },
+        {
+          "when": "resourceLangId == markdy",
+          "command": "markdy.exportPng",
+          "group": "2_export@2"
+        }
+      ],
+      "explorer/context": [
+        {
+          "when": "resourceExtname == .markdy || resourceExtname == .mdy",
+          "command": "markdy.showPreviewToSide",
+          "group": "7_preview"
         }
       ],
       "commandPalette": [
