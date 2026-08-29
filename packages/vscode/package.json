@@ -270,7 +270,7 @@
       ],
       "editor/context": [
         {
-          "when": "resourceLangId == markdy",
+          "when": "editorLangId == markdy || resourceLangId == markdy || resourceExtname == .markdy || resourceExtname == .mdy",
           "submenu": "markdy.submenu",
           "group": "1_markdy"
         }
@@ -284,52 +284,42 @@
       ],
       "markdy.submenu": [
         {
-          "when": "resourceLangId == markdy || resourceExtname == .markdy || resourceExtname == .mdy",
           "command": "markdy.showPreviewToSide",
           "group": "1_preview@1"
         },
         {
-          "when": "resourceLangId == markdy",
           "command": "markdy.insertTemplate",
           "group": "1_preview@2"
         },
         {
-          "when": "resourceLangId == markdy",
           "command": "markdy.generateAiPrompt",
           "group": "1_preview@3"
         },
         {
-          "when": "resourceLangId == markdy || resourceExtname == .markdy || resourceExtname == .mdy",
           "command": "markdy.exportSvg",
           "group": "2_export@1"
         },
         {
-          "when": "resourceLangId == markdy || resourceExtname == .markdy || resourceExtname == .mdy",
           "command": "markdy.exportPng",
           "group": "2_export@2"
         },
         {
-          "when": "resourceLangId == markdy || resourceExtname == .markdy || resourceExtname == .mdy",
           "command": "markdy.exportGif",
           "group": "2_export@3"
         },
         {
-          "when": "resourceLangId == markdy || resourceExtname == .markdy || resourceExtname == .mdy",
           "command": "markdy.copySvg",
           "group": "3_clipboard@1"
         },
         {
-          "when": "resourceLangId == markdy || resourceExtname == .markdy || resourceExtname == .mdy",
           "command": "markdy.copyPng",
           "group": "3_clipboard@2"
         },
         {
-          "when": "resourceLangId == markdy || resourceExtname == .markdy || resourceExtname == .mdy",
           "command": "markdy.openInWebStudio",
           "group": "4_share@1"
         },
         {
-          "when": "resourceLangId == markdy || resourceExtname == .markdy || resourceExtname == .mdy",
           "command": "markdy.copyShareUrl",
           "group": "4_share@2"
         },
