@@ -40,47 +40,42 @@ function mapKindToLsp(kind: IntelliCodeItemKind): CompletionItemKind {
     case "keyword":
     case "directive":
       return CompletionItemKind.Keyword;
-    case "node_kind":
+    case "nodeKind":
       return CompletionItemKind.Class;
-    case "node_ref":
+    case "node":
       return CompletionItemKind.Variable;
-    case "flow_op":
+    case "group":
+      return CompletionItemKind.Module;
+    case "tech":
+      return CompletionItemKind.Struct;
+    case "flowOp":
       return CompletionItemKind.Operator;
-    case "beat_cue":
+    case "cue":
       return CompletionItemKind.Function;
+    case "selector":
+      return CompletionItemKind.Value;
     case "theme":
+      return CompletionItemKind.Color;
     case "layout":
-    case "prop_key":
-    case "prop_val":
-    default:
+    case "diagramType":
+      return CompletionItemKind.Enum;
+    case "attribute":
       return CompletionItemKind.Property;
+    case "snippet":
+      return CompletionItemKind.Snippet;
+    case "value":
+    default:
+      return CompletionItemKind.Text;
   }
 }
 
-function parseDiagnostics(code: string): Diagnostic[] {
-  try {
-    parse(code);
-    return [];
-  } catch (err: any) {
-    if (err instanceof ParseError) {
-      return [
-        {
-          line: err.line || 1,
-          column: err.column || 1,
-          message: err.message,
-          severity: "error",
-        },
-      ];
-    }
-    return [
-      {
-        line: 1,
-        column: 1,
-        message: err.message || String(err),
-        severity: "error",
-      },
-    ];
-  }
+function parseDiagnostics(text: string): Diagnostic[] {
+  const report = diagnoseMarkdyCode(text, { checkArchitecture: true });
+  return report.issues.map((i) => ({
+    severity: i.severity === "error" ? "error" : "warning",
+    message: i.suggestion ? `${i.message} (💡 Suggestion: ${i.suggestion})` : i.message,
+    line: i.line,
+  }));
 }
 
 function buildDocumentSymbols(text: string): DocumentSymbol[] {
