@@ -10,19 +10,27 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const VSCODE_DIR = path.join(ROOT, "packages", "vscode");
 
-console.log("📦 Packaging Markdy VS Code extension...");
+const pkgJson = JSON.parse(fs.readFileSync(path.join(VSCODE_DIR, "package.json"), "utf8"));
+const targetVsix = `markdy-vscode-${pkgJson.version}.vsix`;
+
+// Remove old .vsix files
+for (const f of fs.readdirSync(VSCODE_DIR)) {
+  if (f.endsWith(".vsix") && f !== targetVsix) {
+    fs.rmSync(path.join(VSCODE_DIR, f), { force: true });
+  }
+}
+
+console.log(`📦 Packaging Markdy VS Code extension (v${pkgJson.version})...`);
 execSync("pnpm run package", { cwd: VSCODE_DIR, stdio: "inherit" });
 
-// Find the generated .vsix file
-const files = fs.readdirSync(VSCODE_DIR);
-const vsixFile = files.find((f) => f.endsWith(".vsix") && f.startsWith("markdy-vscode-"));
+const vsixFile = targetVsix;
+const vsixPath = path.join(VSCODE_DIR, vsixFile);
 
-if (!vsixFile) {
-  console.error("❌ No .vsix file found in packages/vscode!");
+if (!fs.existsSync(vsixPath)) {
+  console.error(`❌ Expected VSIX not found: ${vsixPath}`);
   process.exit(1);
 }
 
-const vsixPath = path.join(VSCODE_DIR, vsixFile);
 const vsixStats = fs.statSync(vsixPath);
 console.log(`✅ Packaged VSIX: ${vsixFile} (${(vsixStats.size / (1024 * 1024)).toFixed(2)} MB)`);
 
