@@ -51,28 +51,53 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Package VS Code Extension (.vsix)
+        run: |
+          cd packages/vscode
+          pnpm run package
+
+      - name: Publish VS Code Extension → Visual Studio Marketplace
+        if: env.VSCE_PAT != ''
+        run: |
+          cd packages/vscode
+          npx @vscode/vsce publish --no-dependencies -p ${{ secrets.VSCE_PAT }}
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+
+      - name: Publish VS Code Extension → Open VSX Registry
+        if: env.OVSX_PAT != ''
+        continue-on-error: true
+        run: |
+          cd packages/vscode
+          npx ovsx publish markdy-vscode-*.vsix -p ${{ secrets.OVSX_PAT }}
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
           make_latest: true
+          files: |
+            packages/vscode/markdy-vscode-*.vsix
           body: |
             ## 🎬 Markdy ${{ github.ref_name }}
 
             **Open-source text-to-motion animation DSL engine.**
 
-            ### 📦 Published Packages
+            ### 📦 Published Packages & Extensions
 
-            | Package | npmjs.com | GitHub Packages |
+            | Package | Registry / Marketplace | Install Command |
             |---|---|---|
-            | [`@markdy/core`](https://www.npmjs.com/package/@markdy/core) | `pnpm add @markdy/core` | [GitHub Packages](https://github.com/HoangYell/markdy-com/packages) |
-            | [`@markdy/renderer-dom`](https://www.npmjs.com/package/@markdy/renderer-dom) | `pnpm add @markdy/renderer-dom` | [GitHub Packages](https://github.com/HoangYell/markdy-com/packages) |
-            | [`@markdy/cli`](https://www.npmjs.com/package/@markdy/cli) | `pnpm add -D @markdy/cli` | [GitHub Packages](https://github.com/HoangYell/markdy-com/packages) |
-            | [`@markdy/astro`](https://www.npmjs.com/package/@markdy/astro) | `pnpm add @markdy/astro` | [GitHub Packages](https://github.com/HoangYell/markdy-com/packages) |
-            | [`@markdy/stdlib-systems`](https://www.npmjs.com/package/@markdy/stdlib-systems) | `pnpm add @markdy/stdlib-systems` | [GitHub Packages](https://github.com/HoangYell/markdy-com/packages) |
-            | [`@markdy/language-server`](https://www.npmjs.com/package/@markdy/language-server) | `pnpm add -D @markdy/language-server` | [GitHub Packages](https://github.com/HoangYell/markdy-com/packages) |
-            | [`@markdy/mcp-server`](https://www.npmjs.com/package/@markdy/mcp-server) | `pnpm add -D @markdy/mcp-server` | [GitHub Packages](https://github.com/HoangYell/markdy-com/packages) |
-            | [`@markdy/mdx`](https://www.npmjs.com/package/@markdy/mdx) | `pnpm add @markdy/mdx` | [GitHub Packages](https://github.com/HoangYell/markdy-com/packages) |
+            | **VS Code & Cursor Extension** | [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode) | `code --install-extension hoangyell.markdy-vscode` |
+            | [`@markdy/core`](https://www.npmjs.com/package/@markdy/core) | [npmjs.com](https://www.npmjs.com/package/@markdy/core) | `pnpm add @markdy/core` |
+            | [`@markdy/renderer-dom`](https://www.npmjs.com/package/@markdy/renderer-dom) | [npmjs.com](https://www.npmjs.com/package/@markdy/renderer-dom) | `pnpm add @markdy/renderer-dom` |
+            | [`@markdy/cli`](https://www.npmjs.com/package/@markdy/cli) | [npmjs.com](https://www.npmjs.com/package/@markdy/cli) | `pnpm add -D @markdy/cli` |
+            | [`@markdy/astro`](https://www.npmjs.com/package/@markdy/astro) | [npmjs.com](https://www.npmjs.com/package/@markdy/astro) | `pnpm add @markdy/astro` |
+            | [`@markdy/stdlib-systems`](https://www.npmjs.com/package/@markdy/stdlib-systems) | [npmjs.com](https://www.npmjs.com/package/@markdy/stdlib-systems) | `pnpm add @markdy/stdlib-systems` |
+            | [`@markdy/language-server`](https://www.npmjs.com/package/@markdy/language-server) | [npmjs.com](https://www.npmjs.com/package/@markdy/language-server) | `pnpm add -D @markdy/language-server` |
+            | [`@markdy/mcp-server`](https://www.npmjs.com/package/@markdy/mcp-server) | [npmjs.com](https://www.npmjs.com/package/@markdy/mcp-server) | `pnpm add -D @markdy/mcp-server` |
+            | [`@markdy/mdx`](https://www.npmjs.com/package/@markdy/mdx) | [npmjs.com](https://www.npmjs.com/package/@markdy/mdx) | `pnpm add @markdy/mdx` |
 
             ### 🚀 Quick Start
             ```sh
@@ -80,5 +105,7 @@ jobs:
             ```
 
             ### 📖 Documentation & Guides
+            - [VS Code & Cursor Extension Guide](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode)
             - [Working with GitHub Packages](https://github.com/HoangYell/markdy-com/blob/main/docs/GITHUB_PACKAGES.md)
             - 👉 **[markdy.com](https://markdy.com)**
+

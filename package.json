@@ -36,6 +36,8 @@
     "build": "pnpm -r run build",
     "build:packages": "pnpm --filter \"./packages/*\" run build",
     "build:website": "pnpm --filter @markdy/website run build",
+    "build:vscode": "pnpm --filter markdy-vscode run build",
+    "package:vscode": "pnpm --filter markdy-vscode run package",
     "test": "pnpm -r run test",
     "lint": "pnpm -r run lint",
     "typecheck": "pnpm -r run typecheck",
