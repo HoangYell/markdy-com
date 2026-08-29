@@ -22,6 +22,8 @@ import {
   createConnection,
   DiagnosticSeverity,
   type DocumentSymbol,
+  type FoldingRange,
+  FoldingRangeKind,
   ProposedFeatures,
   SymbolKind,
   TextDocumentSyncKind,
@@ -38,61 +40,74 @@ function mapKindToLsp(kind: IntelliCodeItemKind): CompletionItemKind {
     case "keyword":
     case "directive":
       return CompletionItemKind.Keyword;
-    case "nodeKind":
+    case "node_kind":
       return CompletionItemKind.Class;
-    case "node":
+    case "node_ref":
       return CompletionItemKind.Variable;
-    case "group":
-      return CompletionItemKind.Module;
-    case "tech":
-      return CompletionItemKind.Struct;
-    case "flowOp":
+    case "flow_op":
       return CompletionItemKind.Operator;
-    case "cue":
+    case "beat_cue":
       return CompletionItemKind.Function;
-    case "selector":
-      return CompletionItemKind.Value;
     case "theme":
-      return CompletionItemKind.Color;
     case "layout":
-    case "diagramType":
-      return CompletionItemKind.Enum;
-    case "attribute":
-      return CompletionItemKind.Property;
-    case "snippet":
-      return CompletionItemKind.Snippet;
-    case "value":
-      return CompletionItemKind.Value;
+    case "prop_key":
+    case "prop_val":
     default:
-      return CompletionItemKind.Text;
+      return CompletionItemKind.Property;
   }
 }
 
-function parseDiagnostics(text: string): Diagnostic[] {
-  const report = diagnoseMarkdyCode(text, { checkArchitecture: true });
-  return report.issues.map((i) => ({
-    severity: i.severity === "error" ? "error" : "warning",
-    message: i.suggestion ? `${i.message} (💡 Suggestion: ${i.suggestion})` : i.message,
-    line: i.line,
-  }));
+function parseDiagnostics(code: string): Diagnostic[] {
+  try {
+    parse(code);
+    return [];
+  } catch (err: any) {
+    if (err instanceof ParseError) {
+      return [
+        {
+          line: err.line || 1,
+          column: err.column || 1,
+          message: err.message,
+          severity: "error",
+        },
+      ];
+    }
+    return [
+      {
+        line: 1,
+        column: 1,
+        message: err.message || String(err),
+        severity: "error",
+      },
+    ];
+  }
 }
 
 function buildDocumentSymbols(text: string): DocumentSymbol[] {
-  const symbols: DocumentSymbol[] = [];
   const lines = text.split(/\r?\n/);
+  const symbols: DocumentSymbol[] = [];
+
   for (let i = 0; i < lines.length; i++) {
     const raw = lines[i].trim();
-    if (!raw || raw.startsWith("//")) continue;
+    if (!raw || raw.startsWith("#")) continue;
+
+    // Scene symbol
+    const sceneMatch = /^scene(?:\s+"([^"]*)")?/i.exec(raw);
+    if (sceneMatch) {
+      symbols.push({
+        name: `scene: ${sceneMatch[1] || "Untitled Scene"}`,
+        kind: SymbolKind.Package,
+        range: { start: { line: i, character: 0 }, end: { line: i, character: raw.length } },
+        selectionRange: { start: { line: i, character: 0 }, end: { line: i, character: raw.length } },
+      });
+      continue;
+    }
 
     // Node symbol
-    const nodeMatch = /^(\w[\w.-]*)\s+(\w[\w.-]*)(?:\s+"([^"]*)")?/i.exec(raw);
-    if (
-      nodeMatch &&
-      !["scene", "layout", "group", "beat", "style", "pattern", "use", "var", "edge", "theme"].includes(nodeMatch[1].toLowerCase()) &&
-      NODE_KINDS.has(nodeMatch[1].toLowerCase())
-    ) {
+    const nodeMatch = /^(browser|client|mobile|gateway|service|worker|database|cache|queue|topic|storage|bucket|actor|stat|badge|cloud|mesh|external)\s+([\w.-]+)(?:\s+"([^"]*)")?/i.exec(raw);
+    if (nodeMatch) {
       symbols.push({
-        name: `${nodeMatch[2]} (${nodeMatch[1]})`,
+        name: `${nodeMatch[1]}: ${nodeMatch[2]}`,
         detail: nodeMatch[3] || nodeMatch[2],
         kind: SymbolKind.Class,
         range: { start: { line: i, character: 0 }, end: { line: i, character: raw.length } },
@@ -129,6 +144,72 @@ function buildDocumentSymbols(text: string): DocumentSymbol[] {
   return symbols;
 }
 
+function buildFoldingRanges(text: string): FoldingRange[] {
+  const lines = text.split(/\r?\n/);
+  const ranges: FoldingRange[] = [];
+
+  let i = 0;
+  while (i < lines.length) {
+    const raw = lines[i];
+    const trimmed = raw.trim();
+
+    // 1. Comment block folding
+    if (trimmed.startsWith("#")) {
+      const startLine = i;
+      while (i + 1 < lines.length && lines[i + 1].trim().startsWith("#")) {
+        i++;
+      }
+      if (i > startLine) {
+        ranges.push({
+          startLine,
+          endLine: i,
+          kind: FoldingRangeKind.Comment,
+        });
+      }
+      i++;
+      continue;
+    }
+
+    // 2. Block header folding: `beat ...:`, `group ...:`, `player:`
+    const isBlockHeader = /^(beat\s+[\w.-]+|group\s+[\w.-]+|player)\b.*:$/i.test(trimmed);
+    if (isBlockHeader) {
+      const startLine = i;
+      let lastContentLine = i;
+      i++;
+      while (i < lines.length) {
+        const nextRaw = lines[i];
+        const nextTrimmed = nextRaw.trim();
+
+        if (!nextTrimmed) {
+          i++;
+          continue;
+        }
+
+        const isIndented = /^\s+/.test(nextRaw);
+        if (!isIndented) {
+          break;
+        }
+
+        lastContentLine = i;
+        i++;
+      }
+
+      if (lastContentLine > startLine) {
+        ranges.push({
+          startLine,
+          endLine: lastContentLine,
+          kind: FoldingRangeKind.Region,
+        });
+      }
+      continue;
+    }
+
+    i++;
+  }
+
+  return ranges;
+}
+
 connection.onInitialize(() => ({
   capabilities: {
     textDocumentSync: TextDocumentSyncKind.Incremental,
@@ -140,6 +221,7 @@ connection.onInitialize(() => ({
     documentSymbolProvider: true,
     hoverProvider: true,
     documentFormattingProvider: true,
+    foldingRangeProvider: true,
   },
 }));
 
@@ -365,6 +447,12 @@ connection.onHover((params) => {
     };
   }
   return null;
+});
+
+connection.onFoldingRanges((params) => {
+  const doc = documents.get(params.textDocument.uri);
+  if (!doc) return [];
+  return buildFoldingRanges(doc.getText());
 });
 
 documents.listen(connection);
