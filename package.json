@@ -1,6 +1,6 @@
 {
   "name": "markdy",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "description": "Open-source diagram-as-code DSL for animated architecture and system diagrams. Write diagram-native MarkdyScript, get browser-native motion diagrams.",
   "license": "MIT",
