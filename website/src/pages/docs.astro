@@ -235,11 +235,19 @@ const docStructuredData = [
       <!-- ─── 1. Quickstart ────────────────────────────────────────────── -->
       <section id="quickstart" class="doc-section">
         <h2 class="section-heading">60-Second Quickstart</h2>
-        <p>Install the Markdy CLI, create your first <code>.markdy</code> scene, and compile it to an interactive HTML preview:</p>
-
         <div class="doc-code-card">
           <div class="code-header">
-            <span class="code-title">Terminal</span>
+            <span class="code-title">Editor Extension (VS Code / Cursor)</span>
+          </div>
+          <pre><code># Install official Markdy VS Code & Cursor extension
+code --install-extension hoangyell.markdy-vscode
+
+# Open live animated preview: Cmd+K V (macOS) / Ctrl+K V (Windows/Linux)</code></pre>
+        </div>
+
+        <div class="doc-code-card mt-4">
+          <div class="code-header">
+            <span class="code-title">CLI Terminal</span>
           </div>
           <pre><code># 1. Install Markdy CLI globally (or run with npx)
 npm install -g @markdy/cli

@@ -41,7 +41,21 @@ Node labels are optional. IDs like `ApiServer` and `OrdersDb` render as readable
 
 ## 2. Preview and validate it
 
-For a quick visual pass, open the dedicated playground at <https://markdy.com/playground/> and start from one of the shipped architecture examples. It uses the same `.markdy` files from `examples/showcase/`, shows syntax-highlighted MarkdyScript, offers an adjustable editor/preview split, and links back to each source file.
+### In Your Editor (VS Code / Cursor)
+
+Install the official **[Markdy VS Code Extension](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode)**:
+
+```sh
+code --install-extension hoangyell.markdy-vscode
+```
+
+- **Live Animated Preview**: Press `Cmd+K V` (macOS) or `Ctrl+K V` (Windows/Linux) or click the Play icon in the editor title bar.
+- **Language Intelligence**: Real-time syntax diagnostics, error squiggles, symbol navigation, autocompletions, and hover tooltips.
+- **Direct Export**: Export clean vector `.svg` or high-resolution `.png` images directly from the preview toolbar.
+
+### In the Web Playground or Terminal
+
+For a quick visual pass in your browser, open the dedicated playground at <https://markdy.com/playground/>. It uses the same `.markdy` files from `examples/showcase/`, shows syntax-highlighted MarkdyScript, offers an adjustable editor/preview split, and links back to each source file.
 
 <p align="center">
   <img src="images/markdy-split-editor.webp" alt="Markdy Playground Split Editor Preview" width="800" />
