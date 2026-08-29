@@ -5,6 +5,29 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] — 2026-08-29
+
+### Added
+- **Streamlined VS Code Context Menu Architecture**:
+  - Reorganized all right-click actions in both Editor and Explorer into a clean, dedicated nested `Markdy >` submenu.
+  - Removed repetitive prefixes for clean, scannable action titles (`Live Preview`, `Insert Template...`, `Export SVG`, `Export PNG`, `Export Animated GIF`, `Copy SVG`, `Copy PNG`, `Open in Web Studio`, `Copy Web Link`, `Import Diagram...`).
+- **Interactive Click-to-Jump Diagnostic Banners**:
+  - Live Preview error banners now track exact error line numbers.
+  - Clicking any syntax or lint error banner in the Webview immediately navigates the active editor to and highlights the offending code line.
+- **Dynamic Color Theme Synchronization**:
+  - Preview Webview automatically listens to VS Code theme changes (`onDidChangeActiveColorTheme`) when set to `Theme: Auto`, dynamically matching Dark, Light, and High-Contrast editor modes without requiring panel reloads.
+- **Status Bar Quick Preview Access**:
+  - Integrated `$(play) Markdy Preview` status bar action, automatically appearing when `.markdy` or `.mdy` files are active for 1-click preview launching.
+- **Preview Keyboard Navigation & Viewport Controls**:
+  - Added full keyboard navigation inside Webview: `Space`/`K` (Play/Pause), `R` (Restart), `←`/`J` (Prev Beat), `→`/`L` (Next Beat), `F` (Fit View), `S` (Cycle Playback Speed), `T` (Cycle Theme).
+  - Added `⛶ Fit` button in Preview toolbar to instantly reset pan/zoom transforms.
+
+### Fixed
+- **Explorer Context Menu Preview Black Screen**:
+  - Fixed an issue where right-clicking a `.markdy` file in Explorer and selecting preview resulted in an unrendered blank screen due to missing document target tracking.
+- **Theme Override Syntax Parsing Crash**:
+  - Fixed an issue where unquoted scene headers (e.g. `theme=editorial`) caused toolbar theme overrides to inject malformed syntax directives, triggering `Render error: line 1: unexpected statement`. Replaced with robust direct DOM renderer API `currentDiagram.setTheme(...)`.
+
 ## [1.0.31] — 2026-08-29
 
 ### Added

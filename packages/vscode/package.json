@@ -129,118 +129,125 @@
         "path": "./syntaxes/markdy-markdown.tmLanguage.json"
       }
     ],
+    "submenus": [
+      {
+        "id": "markdy.submenu",
+        "label": "Markdy",
+        "icon": "$(play)"
+      }
+    ],
     "commands": [
       {
         "command": "markdy.showPreviewToSide",
-        "title": "Markdy: Open Live Preview to the Side",
+        "title": "Live Preview",
         "icon": "$(play)",
         "category": "Markdy"
       },
       {
         "command": "markdy.showPreview",
-        "title": "Markdy: Open Live Preview",
+        "title": "Open Preview",
         "icon": "$(eye)",
         "category": "Markdy"
       },
       {
         "command": "markdy.exportSvg",
-        "title": "Markdy: Export Current Diagram to SVG",
+        "title": "Export SVG",
         "icon": "$(file-code)",
         "category": "Markdy"
       },
       {
         "command": "markdy.exportPng",
-        "title": "Markdy: Export Current Diagram to PNG",
+        "title": "Export PNG",
         "icon": "$(file-media)",
         "category": "Markdy"
       },
       {
         "command": "markdy.exportGif",
-        "title": "Markdy: Export Current Diagram to Animated GIF",
+        "title": "Export Animated GIF",
         "icon": "$(file-binary)",
         "category": "Markdy"
       },
       {
         "command": "markdy.copySvg",
-        "title": "Markdy: Copy Diagram SVG to Clipboard",
+        "title": "Copy SVG",
         "icon": "$(copy)",
         "category": "Markdy"
       },
       {
         "command": "markdy.copyPng",
-        "title": "Markdy: Copy Diagram PNG to Clipboard",
+        "title": "Copy PNG",
         "icon": "$(copy)",
         "category": "Markdy"
       },
       {
         "command": "markdy.insertTemplate",
-        "title": "Markdy: Insert Architecture Template...",
+        "title": "Insert Template...",
         "icon": "$(layout)",
         "category": "Markdy"
       },
       {
         "command": "markdy.newDiagramFromTemplate",
-        "title": "Markdy: New Diagram from Template...",
+        "title": "New From Template...",
         "icon": "$(file-add)",
         "category": "Markdy"
       },
       {
         "command": "markdy.generateAiPrompt",
-        "title": "Markdy: Generate AI Architecture Prompt",
+        "title": "AI Prompt Helper",
         "icon": "$(sparkle)",
         "category": "Markdy"
       },
       {
         "command": "markdy.openInWebStudio",
-        "title": "Markdy: Open Diagram in Markdy Web Studio",
+        "title": "Open in Web Studio",
         "icon": "$(link-external)",
         "category": "Markdy"
       },
       {
         "command": "markdy.copyShareUrl",
-        "title": "Markdy: Copy Web Studio Share URL",
+        "title": "Copy Web Link",
         "icon": "$(link)",
         "category": "Markdy"
       },
       {
         "command": "markdy.importArchitecture",
-        "title": "Markdy: Import Architecture Diagram...",
+        "title": "Import Diagram...",
         "icon": "$(cloud-download)",
         "category": "Markdy"
       },
       {
         "command": "markdy.importMermaid",
-        "title": "Markdy: Transpile Mermaid Diagram to Markdy",
+        "title": "Import Mermaid",
         "icon": "$(arrow-swap)",
         "category": "Markdy"
       },
       {
         "command": "markdy.importDockerCompose",
-        "title": "Markdy: Transpile Docker Compose to Markdy",
+        "title": "Import Docker Compose",
         "icon": "$(arrow-swap)",
         "category": "Markdy"
       },
       {
         "command": "markdy.importKubernetes",
-        "title": "Markdy: Transpile Kubernetes Manifests to Markdy",
+        "title": "Import Kubernetes",
         "icon": "$(arrow-swap)",
         "category": "Markdy"
       },
       {
         "command": "markdy.importTerraform",
-        "title": "Markdy: Transpile Terraform State to Markdy",
+        "title": "Import Terraform",
         "icon": "$(arrow-swap)",
         "category": "Markdy"
       },
       {
         "command": "markdy.importDrawio",
-        "title": "Markdy: Transpile Draw.io XML to Markdy",
+        "title": "Import Draw.io",
         "icon": "$(arrow-swap)",
         "category": "Markdy"
       },
       {
         "command": "markdy.restartServer",
-        "title": "Markdy: Restart Language Server",
+        "title": "Restart Server",
         "icon": "$(refresh)",
         "category": "Markdy"
       }
@@ -264,6 +271,20 @@
       "editor/context": [
         {
           "when": "resourceLangId == markdy",
+          "submenu": "markdy.submenu",
+          "group": "1_markdy"
+        }
+      ],
+      "explorer/context": [
+        {
+          "when": "resourceExtname == .markdy || resourceExtname == .mdy || resourceExtname == .mermaid || resourceExtname == .mmd || resourceFilename == docker-compose.yml || resourceFilename == compose.yaml || resourceFilename == docker-compose.yaml || resourceExtname == .tfstate || resourceExtname == .drawio || resourceExtname == .drawio.xml",
+          "submenu": "markdy.submenu",
+          "group": "7_markdy"
+        }
+      ],
+      "markdy.submenu": [
+        {
+          "when": "resourceLangId == markdy || resourceExtname == .markdy || resourceExtname == .mdy",
           "command": "markdy.showPreviewToSide",
           "group": "1_preview@1"
         },
@@ -278,66 +299,63 @@
           "group": "1_preview@3"
         },
         {
-          "when": "resourceLangId == markdy",
+          "when": "resourceLangId == markdy || resourceExtname == .markdy || resourceExtname == .mdy",
           "command": "markdy.exportSvg",
           "group": "2_export@1"
         },
         {
-          "when": "resourceLangId == markdy",
+          "when": "resourceLangId == markdy || resourceExtname == .markdy || resourceExtname == .mdy",
           "command": "markdy.exportPng",
           "group": "2_export@2"
         },
         {
-          "when": "resourceLangId == markdy",
+          "when": "resourceLangId == markdy || resourceExtname == .markdy || resourceExtname == .mdy",
           "command": "markdy.exportGif",
           "group": "2_export@3"
         },
         {
-          "when": "resourceLangId == markdy",
+          "when": "resourceLangId == markdy || resourceExtname == .markdy || resourceExtname == .mdy",
           "command": "markdy.copySvg",
           "group": "3_clipboard@1"
         },
         {
-          "when": "resourceLangId == markdy",
+          "when": "resourceLangId == markdy || resourceExtname == .markdy || resourceExtname == .mdy",
           "command": "markdy.copyPng",
           "group": "3_clipboard@2"
         },
         {
-          "when": "resourceLangId == markdy",
+          "when": "resourceLangId == markdy || resourceExtname == .markdy || resourceExtname == .mdy",
           "command": "markdy.openInWebStudio",
           "group": "4_share@1"
         },
         {
-          "when": "resourceLangId == markdy",
+          "when": "resourceLangId == markdy || resourceExtname == .markdy || resourceExtname == .mdy",
           "command": "markdy.copyShareUrl",
           "group": "4_share@2"
-        }
-      ],
-      "explorer/context": [
+        },
         {
-          "when": "resourceExtname == .markdy || resourceExtname == .mdy",
-          "command": "markdy.showPreviewToSide",
-          "group": "7_preview"
+          "command": "markdy.importArchitecture",
+          "group": "5_import@1"
         },
         {
           "when": "resourceExtname == .mermaid || resourceExtname == .mmd",
           "command": "markdy.importMermaid",
-          "group": "7_markdy_import"
+          "group": "5_import@2"
         },
         {
           "when": "resourceFilename == docker-compose.yml || resourceFilename == compose.yaml || resourceFilename == docker-compose.yaml",
           "command": "markdy.importDockerCompose",
-          "group": "7_markdy_import"
+          "group": "5_import@3"
         },
         {
           "when": "resourceExtname == .tfstate",
           "command": "markdy.importTerraform",
-          "group": "7_markdy_import"
+          "group": "5_import@4"
         },
         {
           "when": "resourceExtname == .drawio || resourceExtname == .drawio.xml",
           "command": "markdy.importDrawio",
-          "group": "7_markdy_import"
+          "group": "5_import@5"
         }
       ],
       "commandPalette": [
