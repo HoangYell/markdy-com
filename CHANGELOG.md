@@ -5,6 +5,22 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] — 2026-08-29
+
+### Added
+- **Language Server Code Folding (`foldingRangeProvider`)**:
+  - Integrated smart code folding for `.markdy` and `.mdy` files, allowing seamless collapsing and expanding of `beat ...:`, `group ...:`, `player:`, and multi-line comment blocks.
+- **Hierarchical Outline Symbols**:
+  - Enriched Document Symbol Provider with dedicated symbols for scenes, security perimeter groups, node kinds, and narrative beats.
+- **Enhanced Hover Cards**:
+  - Contextual markdown tooltips detailing node kinds (`browser`, `gateway`, `service`, `database`, `cache`, `queue`, `storage`, `actor`), flow operators (`->`, `<-`, `~>`, `<->`), and kinetic cues (`glow`, `frame`, `show`).
+- **Comprehensive Architecture Article**:
+  - Added publication-ready technical deep dive: `docs/marketing/ARTICLE_ANIMATED_ARCHITECTURE_DIAGRAMS.md`.
+
+### Changed
+- **Streamlined VS Code Extension Performance**:
+  - Removed the resource-heavy GIF export feature to accelerate preview initialization and reduce extension package footprint.
+
 ## [1.1.0] — 2026-08-29
 
 ### Added
