@@ -38,6 +38,7 @@
     "build:website": "pnpm --filter @markdy/website run build",
     "build:vscode": "pnpm --filter markdy-vscode run build",
     "package:vscode": "pnpm --filter markdy-vscode run package",
+    "publish:vscode": "node scripts/publish-vscode-marketplace.mjs",
     "test": "pnpm -r run test",
     "lint": "pnpm -r run lint",
     "typecheck": "pnpm -r run typecheck",
