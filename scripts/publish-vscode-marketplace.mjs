@@ -2,7 +2,6 @@
 
 import { execSync } from "node:child_process";
 import fs from "node:fs";
-import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -10,114 +9,69 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const VSCODE_DIR = path.join(ROOT, "packages", "vscode");
 
-const pkgJson = JSON.parse(fs.readFileSync(path.join(VSCODE_DIR, "package.json"), "utf8"));
-const targetVsix = `markdy-vscode-${pkgJson.version}.vsix`;
+console.log("\n==================================================");
+console.log("🚀  Markdy VS Code Extension Release Assistant");
+console.log("==================================================\n");
 
-// Remove old .vsix files
+// 1. Read metadata
+const pkgJson = JSON.parse(fs.readFileSync(path.join(VSCODE_DIR, "package.json"), "utf8"));
+const version = pkgJson.version;
+const targetVsix = `markdy-vscode-${version}.vsix`;
+const vsixPath = path.join(VSCODE_DIR, targetVsix);
+
+// 2. Clean old .vsix files
 for (const f of fs.readdirSync(VSCODE_DIR)) {
   if (f.endsWith(".vsix") && f !== targetVsix) {
     fs.rmSync(path.join(VSCODE_DIR, f), { force: true });
   }
 }
 
-console.log(`📦 Packaging Markdy VS Code extension (v${pkgJson.version})...`);
+// 3. Package extension
+console.log(`📦 [1/4] Compiling & Packaging Markdy Extension (v${version})...`);
 execSync("pnpm run package", { cwd: VSCODE_DIR, stdio: "inherit" });
 
-const vsixFile = targetVsix;
-const vsixPath = path.join(VSCODE_DIR, vsixFile);
-
 if (!fs.existsSync(vsixPath)) {
-  console.error(`❌ Expected VSIX not found: ${vsixPath}`);
+  console.error(`❌ Packaging failed: ${vsixPath} not found.`);
   process.exit(1);
 }
 
-const vsixStats = fs.statSync(vsixPath);
-console.log(`✅ Packaged VSIX: ${vsixFile} (${(vsixStats.size / (1024 * 1024)).toFixed(2)} MB)`);
+const stats = fs.statSync(vsixPath);
+const sizeMb = (stats.size / (1024 * 1024)).toFixed(2);
+console.log(`\n✅ [2/4] Bundle Ready: ${targetVsix} (${sizeMb} MB)`);
 
-const vscePat = process.env.VSCE_PAT;
+// 4. Copy path to macOS clipboard
+try {
+  execSync(`printf "%s" "${vsixPath}" | pbcopy`);
+  console.log("📋 [3/4] Copied .vsix absolute path to clipboard!");
+} catch (_) {}
 
-if (vscePat) {
-  console.log("🔑 Publishing to VS Code Marketplace via VSCE_PAT...");
-  execSync(`npx @vscode/vsce publish --no-dependencies -p ${vscePat}`, {
-    cwd: VSCODE_DIR,
-    stdio: "inherit",
-  });
-  console.log("🎉 Published successfully to VS Code Marketplace!");
-  process.exit(0);
+// 5. Open Chrome to Marketplace and Reveal File in Finder
+console.log("🌐 [4/4] Opening Marketplace Dashboard & Finder window...");
+
+const dashboardUrl = "https://marketplace.visualstudio.com/manage/publishers/hoangyell";
+
+try {
+  // Open Dashboard in Chrome
+  execSync(`open -a "Google Chrome" "${dashboardUrl}"`);
+} catch (_) {
+  try {
+    execSync(`open "${dashboardUrl}"`);
+  } catch (_) {}
 }
 
-console.log("🌐 Publishing directly via your active Chrome publisher session...");
+try {
+  // Reveal VSIX file in Finder
+  execSync(`open -R "${vsixPath}"`);
+} catch (_) {}
 
-const vsixBuffer = fs.readFileSync(vsixPath);
-const PORT = 45678;
-
-const server = http.createServer((req, res) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Content-Type", "application/octet-stream");
-  res.end(vsixBuffer);
-});
-
-server.listen(PORT, "127.0.0.1", () => {
-  const navOsa = `
-  tell application "Google Chrome"
-      tell front window
-          set URL of active tab to "https://marketplace.visualstudio.com/manage/publishers/hoangyell"
-      end tell
-  end tell
-  `;
-  try {
-    execSync("osascript", { input: navOsa });
-  } catch (err) {
-    console.error("❌ Failed to navigate Chrome:", err.message);
-    server.close();
-    process.exit(1);
-  }
-
-  setTimeout(() => {
-    const jsCode = `
-    (async function() {
-        var newExtBtn = Array.from(document.querySelectorAll("button")).find(b => b.innerText.includes("New extension"));
-        if (newExtBtn) newExtBtn.click();
-
-        await new Promise(r => setTimeout(r, 400));
-        var vsCodeItem = Array.from(document.querySelectorAll("[role=menuitem], button, a")).find(el => el.innerText.includes("Visual Studio Code"));
-        if (vsCodeItem) vsCodeItem.click();
-
-        await new Promise(r => setTimeout(r, 600));
-        var res = await fetch("http://127.0.0.1:${PORT}/extension.vsix");
-        var blob = await res.blob();
-        var file = new File([blob], "${vsixFile}", { type: "application/octet-stream" });
-        var dataTransfer = new DataTransfer();
-        dataTransfer.items.add(file);
-        var input = document.querySelector("input[type=file]");
-        if (input) {
-            input.files = dataTransfer.files;
-            input.dispatchEvent(new Event("change", { bubbles: true }));
-            input.dispatchEvent(new Event("input", { bubbles: true }));
-        }
-
-        await new Promise(r => setTimeout(r, 800));
-        var uploadBtn = Array.from(document.querySelectorAll("button")).find(b => b.innerText.trim() === "Upload");
-        if (uploadBtn) uploadBtn.click();
-
-        return "SUCCESS";
-    })()
-    `;
-
-    const escapedJs = jsCode.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
-    const uploadOsa = `tell application "Google Chrome" to tell active tab of front window to execute javascript "${escapedJs}"`;
-
-    try {
-      execSync("osascript", { input: uploadOsa });
-      console.log("🚀 VSIX upload submitted to Visual Studio Marketplace dashboard!");
-      console.log("✨ Automated verification in progress. Extension will update globally in ~1-2 minutes.");
-    } catch (err) {
-      console.error("❌ Failed to trigger upload:", err.message);
-    } finally {
-      setTimeout(() => {
-        server.close();
-        process.exit(0);
-      }, 2000);
-    }
-  }, 3500);
-});
+console.log("\n" + "=".repeat(50));
+console.log(`🎉 Ready to Ship Markdy v${version}!`);
+console.log("=".repeat(50));
+console.log("\n👉 Smart 2-Click Steps:");
+console.log(`   1. In the open Chrome window (${dashboardUrl}):`);
+console.log("      • Click '...' next to Markdy -> select 'Update'");
+console.log("        (or click 'New extension' -> 'Visual Studio Code')");
+console.log(`   2. Drag '${targetVsix}' from the Finder window into the upload box.`);
+console.log("   3. Click 'Upload' -> Done! 🚀\n");
+console.log(`📁 File Location: ${vsixPath}`);
+console.log("=".repeat(50) + "\n");
