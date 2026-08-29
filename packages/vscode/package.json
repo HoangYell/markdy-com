@@ -2,7 +2,7 @@
   "name": "markdy-vscode",
   "displayName": "Markdy: Animated Architecture Diagrams",
   "description": "Open-source diagram-as-code editor tooling for animated architecture and system diagrams.",
-  "version": "1.0.30",
+  "version": "1.0.31",
   "private": true,
   "publisher": "hoangyell",
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
@@ -69,10 +69,28 @@
   "browser": "./dist/extension.js",
   "activationEvents": [
     "onLanguage:markdy",
+    "onLanguage:markdown",
+    "onLanguage:mdx",
     "onCommand:markdy.showPreview",
     "onCommand:markdy.showPreviewToSide",
     "onCommand:markdy.exportSvg",
     "onCommand:markdy.exportPng",
+    "onCommand:markdy.exportGif",
+    "onCommand:markdy.copySvg",
+    "onCommand:markdy.copyPng",
+    "onCommand:markdy.insertTemplate",
+    "onCommand:markdy.newDiagramFromTemplate",
+    "onCommand:markdy.generateAiPrompt",
+    "onCommand:markdy.openInWebStudio",
+    "onCommand:markdy.copyShareUrl",
+    "onCommand:markdy.importArchitecture",
+    "onCommand:markdy.importMermaid",
+    "onCommand:markdy.importDockerCompose",
+    "onCommand:markdy.importKubernetes",
+    "onCommand:markdy.importTerraform",
+    "onCommand:markdy.importDrawio",
+    "onCommand:markdy.previewSnippet",
+    "onCommand:markdy.exportSnippetSvg",
     "onCommand:markdy.restartServer"
   ],
   "contributes": {
@@ -137,6 +155,90 @@
         "category": "Markdy"
       },
       {
+        "command": "markdy.exportGif",
+        "title": "Markdy: Export Current Diagram to Animated GIF",
+        "icon": "$(file-binary)",
+        "category": "Markdy"
+      },
+      {
+        "command": "markdy.copySvg",
+        "title": "Markdy: Copy Diagram SVG to Clipboard",
+        "icon": "$(copy)",
+        "category": "Markdy"
+      },
+      {
+        "command": "markdy.copyPng",
+        "title": "Markdy: Copy Diagram PNG to Clipboard",
+        "icon": "$(copy)",
+        "category": "Markdy"
+      },
+      {
+        "command": "markdy.insertTemplate",
+        "title": "Markdy: Insert Architecture Template...",
+        "icon": "$(layout)",
+        "category": "Markdy"
+      },
+      {
+        "command": "markdy.newDiagramFromTemplate",
+        "title": "Markdy: New Diagram from Template...",
+        "icon": "$(file-add)",
+        "category": "Markdy"
+      },
+      {
+        "command": "markdy.generateAiPrompt",
+        "title": "Markdy: Generate AI Architecture Prompt",
+        "icon": "$(sparkle)",
+        "category": "Markdy"
+      },
+      {
+        "command": "markdy.openInWebStudio",
+        "title": "Markdy: Open Diagram in Markdy Web Studio",
+        "icon": "$(link-external)",
+        "category": "Markdy"
+      },
+      {
+        "command": "markdy.copyShareUrl",
+        "title": "Markdy: Copy Web Studio Share URL",
+        "icon": "$(link)",
+        "category": "Markdy"
+      },
+      {
+        "command": "markdy.importArchitecture",
+        "title": "Markdy: Import Architecture Diagram...",
+        "icon": "$(cloud-download)",
+        "category": "Markdy"
+      },
+      {
+        "command": "markdy.importMermaid",
+        "title": "Markdy: Transpile Mermaid Diagram to Markdy",
+        "icon": "$(arrow-swap)",
+        "category": "Markdy"
+      },
+      {
+        "command": "markdy.importDockerCompose",
+        "title": "Markdy: Transpile Docker Compose to Markdy",
+        "icon": "$(arrow-swap)",
+        "category": "Markdy"
+      },
+      {
+        "command": "markdy.importKubernetes",
+        "title": "Markdy: Transpile Kubernetes Manifests to Markdy",
+        "icon": "$(arrow-swap)",
+        "category": "Markdy"
+      },
+      {
+        "command": "markdy.importTerraform",
+        "title": "Markdy: Transpile Terraform State to Markdy",
+        "icon": "$(arrow-swap)",
+        "category": "Markdy"
+      },
+      {
+        "command": "markdy.importDrawio",
+        "title": "Markdy: Transpile Draw.io XML to Markdy",
+        "icon": "$(arrow-swap)",
+        "category": "Markdy"
+      },
+      {
         "command": "markdy.restartServer",
         "title": "Markdy: Restart Language Server",
         "icon": "$(refresh)",
@@ -167,6 +269,16 @@
         },
         {
           "when": "resourceLangId == markdy",
+          "command": "markdy.insertTemplate",
+          "group": "1_preview@2"
+        },
+        {
+          "when": "resourceLangId == markdy",
+          "command": "markdy.generateAiPrompt",
+          "group": "1_preview@3"
+        },
+        {
+          "when": "resourceLangId == markdy",
           "command": "markdy.exportSvg",
           "group": "2_export@1"
         },
@@ -174,6 +286,31 @@
           "when": "resourceLangId == markdy",
           "command": "markdy.exportPng",
           "group": "2_export@2"
+        },
+        {
+          "when": "resourceLangId == markdy",
+          "command": "markdy.exportGif",
+          "group": "2_export@3"
+        },
+        {
+          "when": "resourceLangId == markdy",
+          "command": "markdy.copySvg",
+          "group": "3_clipboard@1"
+        },
+        {
+          "when": "resourceLangId == markdy",
+          "command": "markdy.copyPng",
+          "group": "3_clipboard@2"
+        },
+        {
+          "when": "resourceLangId == markdy",
+          "command": "markdy.openInWebStudio",
+          "group": "4_share@1"
+        },
+        {
+          "when": "resourceLangId == markdy",
+          "command": "markdy.copyShareUrl",
+          "group": "4_share@2"
         }
       ],
       "explorer/context": [
@@ -181,6 +318,26 @@
           "when": "resourceExtname == .markdy || resourceExtname == .mdy",
           "command": "markdy.showPreviewToSide",
           "group": "7_preview"
+        },
+        {
+          "when": "resourceExtname == .mermaid || resourceExtname == .mmd",
+          "command": "markdy.importMermaid",
+          "group": "7_markdy_import"
+        },
+        {
+          "when": "resourceFilename == docker-compose.yml || resourceFilename == compose.yaml || resourceFilename == docker-compose.yaml",
+          "command": "markdy.importDockerCompose",
+          "group": "7_markdy_import"
+        },
+        {
+          "when": "resourceExtname == .tfstate",
+          "command": "markdy.importTerraform",
+          "group": "7_markdy_import"
+        },
+        {
+          "when": "resourceExtname == .drawio || resourceExtname == .drawio.xml",
+          "command": "markdy.importDrawio",
+          "group": "7_markdy_import"
         }
       ],
       "commandPalette": [
@@ -199,6 +356,54 @@
         {
           "command": "markdy.exportPng",
           "when": "editorLangId == markdy"
+        },
+        {
+          "command": "markdy.exportGif",
+          "when": "editorLangId == markdy"
+        },
+        {
+          "command": "markdy.copySvg",
+          "when": "editorLangId == markdy"
+        },
+        {
+          "command": "markdy.copyPng",
+          "when": "editorLangId == markdy"
+        },
+        {
+          "command": "markdy.insertTemplate"
+        },
+        {
+          "command": "markdy.newDiagramFromTemplate"
+        },
+        {
+          "command": "markdy.generateAiPrompt",
+          "when": "editorLangId == markdy"
+        },
+        {
+          "command": "markdy.openInWebStudio",
+          "when": "editorLangId == markdy"
+        },
+        {
+          "command": "markdy.copyShareUrl",
+          "when": "editorLangId == markdy"
+        },
+        {
+          "command": "markdy.importArchitecture"
+        },
+        {
+          "command": "markdy.importMermaid"
+        },
+        {
+          "command": "markdy.importDockerCompose"
+        },
+        {
+          "command": "markdy.importKubernetes"
+        },
+        {
+          "command": "markdy.importTerraform"
+        },
+        {
+          "command": "markdy.importDrawio"
         },
         {
           "command": "markdy.restartServer",
@@ -230,13 +435,14 @@
           "default": "auto",
           "enum": [
             "auto",
-            "night",
-            "light",
-            "cyber",
-            "slate",
-            "tokyo",
-            "nord",
-            "monokai"
+            "midnight",
+            "paper",
+            "blueprint",
+            "nebula",
+            "editorial",
+            "graphite",
+            "terminal",
+            "sketchy"
           ],
           "description": "Theme override for preview panel (auto matches editor theme)."
         },
@@ -262,6 +468,7 @@
     "package": "vsce package --no-dependencies"
   },
   "dependencies": {
+    "@markdy/compat": "workspace:*",
     "@markdy/core": "workspace:*",
     "@markdy/language-server": "workspace:*",
     "@markdy/renderer-dom": "workspace:*",

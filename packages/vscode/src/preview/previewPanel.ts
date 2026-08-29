@@ -52,12 +52,38 @@ export class MarkdyPreviewPanel {
             vscode.commands.executeCommand("markdy.exportPng");
             break;
 
+          case "requestExportGif":
+            vscode.commands.executeCommand("markdy.exportGif");
+            break;
+
+          case "requestCopySvg":
+            vscode.commands.executeCommand("markdy.copySvg");
+            break;
+
+          case "requestCopyPng":
+            vscode.commands.executeCommand("markdy.copyPng");
+            break;
+
           case "svgExportReady":
             await this._saveSvgFile(message.data);
             break;
 
           case "pngExportReady":
             await this._savePngFile(message.dataUrl);
+            break;
+
+          case "gifExportReady":
+            await this._saveGifFile(message.dataUrl);
+            break;
+
+          case "svgCopied":
+            await vscode.env.clipboard.writeText(message.data);
+            vscode.window.showInformationMessage("Markdy SVG copied to clipboard!");
+            break;
+
+          case "pngCopied":
+            await vscode.env.clipboard.writeText(message.dataUrl);
+            vscode.window.showInformationMessage("Markdy PNG Data URL copied to clipboard!");
             break;
 
           case "exportError":
@@ -117,6 +143,7 @@ export class MarkdyPreviewPanel {
         autoplay: config.get<boolean>("preview.autoplay", true),
         loop: config.get<boolean>("preview.loop", true),
         progressBar: config.get<boolean>("preview.progressBar", true),
+        theme: config.get<string>("preview.theme", "auto"),
       },
     });
   }
@@ -127,6 +154,18 @@ export class MarkdyPreviewPanel {
 
   public triggerPngExport() {
     this._panel.webview.postMessage({ type: "exportPng" });
+  }
+
+  public triggerGifExport() {
+    this._panel.webview.postMessage({ type: "exportGif" });
+  }
+
+  public triggerCopySvg() {
+    this._panel.webview.postMessage({ type: "copySvg" });
+  }
+
+  public triggerCopyPng() {
+    this._panel.webview.postMessage({ type: "copyPng" });
   }
 
   private async _saveSvgFile(svgContent: string) {
@@ -153,6 +192,20 @@ export class MarkdyPreviewPanel {
       const buffer = Buffer.from(base64Data, "base64");
       await vscode.workspace.fs.writeFile(uri, buffer);
       vscode.window.showInformationMessage(`Exported PNG successfully: ${uri.fsPath}`);
+    }
+  }
+
+  private async _saveGifFile(dataUrl: string) {
+    const uri = await vscode.window.showSaveDialog({
+      filters: { "Animated GIF": ["gif"] },
+      defaultUri: vscode.Uri.file("diagram.gif"),
+    });
+
+    if (uri) {
+      const base64Data = dataUrl.replace(/^data:image\/gif;base64,/, "");
+      const buffer = Buffer.from(base64Data, "base64");
+      await vscode.workspace.fs.writeFile(uri, buffer);
+      vscode.window.showInformationMessage(`Exported Animated GIF successfully: ${uri.fsPath}`);
     }
   }
 

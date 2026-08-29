@@ -3,6 +3,7 @@ import {
   NODE_KINDS,
   ParseError,
   parse,
+  formatScene,
   diagnoseMarkdyCode,
   PLAYER_FLAT_KEYS,
   PLAYER_GROUPS,
@@ -25,6 +26,7 @@ import {
   SymbolKind,
   TextDocumentSyncKind,
   TextDocuments,
+  type TextEdit,
 } from "vscode-languageserver/node.js";
 import { TextDocument } from "vscode-languageserver-textdocument";
 
@@ -137,8 +139,31 @@ connection.onInitialize(() => ({
     codeActionProvider: true,
     documentSymbolProvider: true,
     hoverProvider: true,
+    documentFormattingProvider: true,
   },
 }));
+
+connection.onDocumentFormatting((params): TextEdit[] => {
+  const doc = documents.get(params.textDocument.uri);
+  if (!doc) return [];
+  const text = doc.getText();
+  try {
+    const ast = parse(text);
+    const formatted = formatScene(ast);
+    if (formatted === text) return [];
+    return [
+      {
+        range: {
+          start: { line: 0, character: 0 },
+          end: { line: doc.lineCount, character: 0 },
+        },
+        newText: formatted,
+      },
+    ];
+  } catch {
+    return [];
+  }
+});
 
 connection.onCodeAction((params) => {
   const doc = documents.get(params.textDocument.uri);

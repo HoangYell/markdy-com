@@ -4,239 +4,192 @@
   </a>
 </p>
 
+<h1 align="center">Markdy</h1>
+
 <p align="center">
   <strong>Diagram-as-code DSL for animated architecture &amp; system design explainers.</strong><br>
-  Write declarative MarkdyScript → render 60fps browser-native kinetic diagrams with the Web Animations API.
+  Write declarative MarkdyScript → render 60fps browser-native kinetic diagrams powered by the Web Animations API.
 </p>
 
 <p align="center">
-  <a href="https://markdy.com/playground/"><b>⚡ Launch Live Studio</b></a> &nbsp;•&nbsp;
+  <a href="https://markdy.com/playground/"><b>⚡ Live Studio</b></a> &nbsp;•&nbsp;
   <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><b>🔌 VS Code Extension</b></a> &nbsp;•&nbsp;
   <a href="https://markdy.com/docs/"><b>📖 Documentation</b></a> &nbsp;•&nbsp;
-  <a href="https://markdy.com/examples/"><b>🌟 17+ Layout Examples</b></a> &nbsp;•&nbsp;
+  <a href="https://markdy.com/examples/"><b>🌟 29+ Examples</b></a> &nbsp;•&nbsp;
   <a href="https://markdy.com/agent/"><b>🤖 AI &amp; Agent Guide</b></a>
 </p>
 
 <p align="center">
-  <a href="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml"><img src="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml/badge.svg" alt="CI" /></a>
+  <a href="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml"><img src="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
   <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><img src="https://img.shields.io/visual-studio-marketplace/v/hoangyell.markdy-vscode?color=blue&label=VS%20Code" alt="VS Code Extension" /></a>
   <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/npm/v/@markdy/core?color=blue&label=%40markdy%2Fcore" alt="npm version" /></a>
-  <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/badge/core_size-~14_kB-brightgreen" alt="Bundle Size" /></a>
+  <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/badge/core_size-~14_kB-brightgreen" alt="Core Bundle Size" /></a>
   <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/badge/runtime_deps-0-success" alt="Zero Dependencies" /></a>
-  <a href="https://stackblitz.com/github/HoangYell/markdy-com/tree/main/examples/astro-starter?file=src%2Fpages%2Findex.astro"><img src="https://developer.stackblitz.com/img/open_in_stackblitz.svg" alt="Open in StackBlitz" /></a>
   <a href="https://github.com/HoangYell/markdy-com/blob/main/LICENSE"><img src="https://img.shields.io/github/license/HoangYell/markdy-com" alt="MIT License" /></a>
 </p>
 
 <p align="center">
   <a href="https://markdy.com/playground/">
-    <img src="docs/images/markdy-split-editor.webp" width="100%" alt="Markdy Interactive Studio — Code on the Left, Live Animated Diagram on the Right" />
+    <img src="docs/images/markdy-split-editor.webp" width="100%" alt="Markdy Interactive Studio" />
   </a>
-  <br>
-  <sub>⚡ <b><a href="https://markdy.com/playground/">Try the Interactive Studio &amp; Live Playground on markdy.com ↗</a></b></sub>
 </p>
 
 ---
 
-## Why Markdy?
+## ⚡ Why Markdy?
 
-Static diagrams don't tell the full story of complex distributed systems. **Markdy turns text into choreographed 60fps motion graphics** directly in your browser.
+Static boxes and arrows fail to capture distributed systems in action. **Markdy turns text into choreographed 60fps motion graphics** directly in your browser.
 
-- 🎬 **Kinetic Storytelling**: Choreograph requests (`->`), responses (`<-`), and events (`~>`) across sequential `beat` timelines with camera zooms and glowing cues.
-- 📐 **Zero-Config Routing**: Collision-aware orthogonal Manhattan edge routing and rank-based auto-layout — no manual `(x, y)` pixel coordinates.
-- ⚡ **Zero-Dep & Web-Native**: Powered by pure CSS transforms and the Web Animations API (WAAPI). No Canvas, no heavy GSAP runtime, ~14 kB parser.
-- 🔄 **Universal Ingestion**: Transpile existing Mermaid, Draw.io, Docker Compose, Kubernetes manifests, and Terraform states in 1 command (`markdy import`).
+- 🎬 **Kinetic Storytelling**: Choreograph requests (`->`), responses (`<-`), and events (`~>`) across sequential `beat` timelines with auto-zooms and glow cues.
+- 📐 **Zero-Config Layout**: Collision-aware orthogonal Manhattan edge routing and rank-based auto-layout.
+- ⚡ **Zero-Dep & Web-Native**: Powered by pure CSS/SVG transforms and the Web Animations API (WAAPI) — ~14 kB parser, no Canvas, no GSAP.
+- 🔄 **Universal Ingestion**: 1-click migration from Mermaid, Draw.io, Docker Compose, Kubernetes manifests, and Terraform states.
 - 🤖 **AI-Native & MCP**: Official Model Context Protocol (MCP) server for Claude, Cursor, and Antigravity with self-healing syntax diagnostics.
-- 🛡️ **Architecture Governance**: Built-in CI/CD rules prevent deadlock cycles, cross-layer bypasses, and generate visual AST diffs in pull requests.
+- 🛡️ **Architecture Governance**: Built-in rules prevent deadlock cycles and cross-layer bypasses.
 
 ---
 
-## Mermaid vs Markdy
+## 📊 Feature Comparison
 
-<p align="center">
-  <img src="docs/images/markdy-vs-mermaid-comparison.webp" alt="Mermaid vs Markdy Comparison" width="100%" />
-</p>
-
-| Capability | Mermaid.js / PlantUML | Markdy |
-|---|---|---|
-| **Animation & Timing** | ❌ Static SVG / PNG | ✅ 60fps browser-native WAAPI motion & seekable beats |
-| **Return Flows & Cycles** | ⚠️ Rank distortion & tangled edges | ✅ Cycle-safe return paths (`<-`) & non-disruptive event arcs (`~>`) |
-| **AI Agents & MCP** | ⚠️ Unvalidated text generation | ✅ Official MCP Server (`@markdy/mcp-server`) with self-healing AST |
-| **Architecture Linter** | ❌ None | ✅ Built-in Well-Architected validation (`markdy lint --arch-rules`) |
-| **Migration** | ❌ Manual rewrite | ✅ 1-click import from Mermaid, Draw.io, K8s, Compose, Terraform |
+| Capability | Mermaid / PlantUML | Excalidraw / Draw.io | Markdy |
+|---|---|---|---|
+| **Animation & Timing** | ❌ Static SVG / PNG | ❌ Static canvas | ✅ **60fps WAAPI motion & step-by-step narrative beats** |
+| **Authoring Style** | Text DSL | Manual drag-and-drop | ✅ **Declarative text DSL + Live Editor Preview** |
+| **Return Flows & Cycles** | ⚠️ Rank distortion / tangling | Manual curve placement | ✅ **Cycle-safe returns (`<-`) & async event arcs (`~>`)** |
+| **AI Agent Reliability** | ⚠️ High hallucination | ❌ Coordinate hallucination | ✅ **Strict grammar AST + Self-healing MCP Server** |
+| **Architecture Linter** | ❌ None | ❌ None | ✅ **Built-in rules (e.g. anti-pattern detection)** |
+| **Universal Ingestion** | ❌ Manual rewrite | ❌ Manual export | ✅ **1-Click Transpiler for Mermaid, Compose, K8s, Terraform** |
+| **Core Footprint** | ~2 MB+ runtime | Heavy web app | ✅ **~14 kB core parser, zero dependencies** |
 
 ---
 
-## Quick Start in 60 Seconds
+## 🚀 Quick Start (60 Seconds)
 
 ### 1. Write MarkdyScript (`system.markdy`)
 
 ```markdy
-scene "Cache-Aside Architecture" theme=paper
+scene "Cache-Aside Architecture" theme=midnight
 layout LR
 
 browser Client "Web Client"
 gateway Gateway "API Gateway"
-service Shortener "URL Service"
+service Svc "URL Service"
 cache Redis "Redis Cluster"
 database Postgres "PostgreSQL 16"
 
-group app "Application Tier": Gateway Shortener
-group data "Persistence Tier": Redis Postgres
-
-beat hit "1. Sub-2ms Cache Hit Path":
+beat cache_hit "1. Cache Hit Path":
   show $nodes stagger=60ms
-  frame Client Gateway Shortener Redis zoom=1.1
-  Client -> Gateway "GET /x9" -> Shortener "resolve"
-  Shortener -> Redis "GET slug:x9"
-  Shortener <- Redis "200 Target URL"
+  frame Client Gateway Svc Redis zoom=1.12
+  Client -> Gateway "GET /link" -> Svc "resolve"
+  Svc -> Redis "GET key:link"
+  Svc <- Redis "200 Target URL"
   Client <- Gateway "301 Redirect"
 
-beat miss "2. Cache Miss Fallback & Async Warm":
-  frame Shortener Redis Postgres zoom=1.15
-  Shortener -> Postgres "SELECT destination WHERE slug = 'x9'"
-  Shortener <- Postgres "Row Found"
-  Shortener ~> Redis "SETEX slug:url (Warm Cache)"
+beat cache_miss "2. Cache Miss & Async Warm":
+  frame Svc Redis Postgres zoom=1.15
+  Svc -> Postgres "SELECT destination WHERE key = 'link'"
+  Svc <- Postgres "Row Found"
+  Svc ~> Redis "SETEX key:link (Warm Cache)"
   glow Postgres color=#38bdf8 & glow Redis color=#22c55e
 ```
 
-### 2. Run or Render via CLI
+### 2. Choose Your Workflow
 
-```sh
-# Lint for syntax and architecture cycles
-npx @markdy/cli lint system.markdy
-
-# Render self-contained standalone HTML preview
-npx @markdy/cli render system.markdy --out scene.html
-```
-
-### 3. Embed in Astro / React / MDX
-
-```astro
----
-import { Markdy } from "@markdy/astro";
----
-
-<Markdy code={code} width={1000} height={500} autoplay client:visible />
-```
+- **VS Code / Cursor**: Install [`hoangyell.markdy-vscode`](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode) and press **`Cmd+K V`** (macOS) or **`Ctrl+K V`** (Windows/Linux) for live preview.
+- **Web Studio**: Open [markdy.com/playground](https://markdy.com/playground/) for interactive authoring and shareable links.
+- **Terminal & CI/CD**: Run `npx @markdy/cli render system.markdy --out diagram.html`.
+- **Astro / MDX Docs**: Use `<Markdy code={code} client:visible />` with `@markdy/astro` or `@markdy/mdx`.
 
 ---
 
-## 🏛️ 17 Specialized Layout Engines & 8 Themes
+## 📦 Component Responsibilities & Packages
 
-Markdy supports 17 domain-specific layout topologies and 8 publication themes:
+Markdy is architected as a modular monorepo where each package fulfills a focused responsibility:
 
-<p align="center">
-  <img src="docs/images/markdy-themes-showcase.webp" alt="Markdy Layouts and Themes" width="100%" />
-</p>
-
-| Category | Layout Engines | Ideal Use Cases |
+| Package | Responsibility | Primary Exports |
 |---|---|---|
-| **Systems & Architecture** | `architecture`, `flowchart`, `tree`, `state`, `sequence` | Microservices, API gateways, OAuth PKCE flows, 2PC consensus |
-| **Structure & Security** | `layers`, `nested`, `swimlane`, `quadrant`, `pyramid` | OSI 7-layer stack, Kubernetes enclaves, Saga workflows, CAP matrix |
-| **Pipelines & Analytics** | `medallion`, `timeline`, `gantt`, `flywheel`, `constellation`, `radar`, `venn` | Bronze/Silver/Gold data pipelines, engineering roadmaps, raft quorum |
-
-> 🎨 **Themes**: `paper` (default light), `editorial` (serif publication), `terminal` (dark CLI/TUI), `midnight` (modern dark), `blueprint` (CAD cyan), `sketchy` (hand-drawn), `nebula` (galaxy orbit), and `graphite` (minimalist).
->
-> 🌟 **[Explore all 17+ interactive scenes in the Live Gallery ↗](https://markdy.com/examples/)**
+| **[`@markdy/core`](packages/core)** | **Compiler Core & AST Engine** | `parse()`, `compile()`, `formatScene()`, `diagnoseMarkdyCode()`, `validateArchitecture()`. Zero dependencies (~14 kB). |
+| **[`@markdy/renderer-dom`](packages/renderer-dom)** | **Motion Graphics & Rendering** | `createDiagram()`, `exportDiagramAsVectorSvg()`, `exportDiagramAsPng()`, `exportDiagramAsGif()`. 60fps WAAPI timeline. |
+| **[`markdy-vscode`](packages/vscode)** | **IDE Extension (VS Code & Cursor)** | Side-by-side live animated preview, document formatter (`Shift+Alt+F`), QuickFix lightbulbs (`💡 Fix`), Universal Ingestion, CodeLens. |
+| **[`@markdy/compat`](packages/compat)** | **Universal Ingestion Suite** | Transpilers for Mermaid, Docker Compose, Kubernetes YAMLs, Terraform state, and Draw.io XML. |
+| **[`@markdy/cli`](packages/cli)** | **Terminal Tool & CI/CD** | `markdy lint`, `markdy render`, `markdy format`, `markdy import`, `markdy diff`. |
+| **[`@markdy/mcp-server`](packages/mcp-server)** | **AI Agent Integration (MCP)** | Model Context Protocol server exposing validation, auto-healing, and transpilation tools for Claude, Cursor, Antigravity. |
+| **[`@markdy/astro`](packages/astro)** & **[`@markdy/mdx`](packages/mdx)** | **Docs & Blog Integrations** | Zero-CLS, SSR-placeholder islands with viewport hydration for content sites. |
+| **[`@markdy/language-server`](packages/markdy-language-server)** | **Headless LSP Server** | Diagnostic publishing, hover docs, formatting, and completions for language clients. |
+| **[`@markdy/stdlib-systems`](packages/stdlib-systems)** | **Domain Vocabulary** | Semantic primitives for cloud, infrastructure, and distributed systems. |
 
 ---
 
-## 🔄 Universal Ingestion (1-Command Import)
+## 🔍 Detailed Features & Advanced Usage
 
-<p align="center">
-  <img src="docs/images/markdy-universal-ingestion.webp" alt="Markdy Universal Ingestion" width="100%" />
-</p>
+<details>
+<summary><b>🎨 17 Specialized Layout Engines &amp; 8 Editorial Themes</b></summary>
+<br>
 
-Instantly convert existing static diagrams and infrastructure files into animated MarkdyScript scenes:
+Markdy provides topological layout algorithms tailored to specific system patterns:
 
-```sh
-markdy import flow.mmd           --out flow.markdy        # Mermaid.js Flowcharts & Sequences
+- **Distributed Systems**: `architecture`, `flowchart`, `tree`, `state`, `sequence`
+- **Security & Structure**: `layers`, `nested`, `swimlane`, `quadrant`, `pyramid`
+- **Data & Product Loops**: `medallion`, `timeline`, `gantt`, `flywheel`, `constellation`, `radar`, `venn`
+
+**Themes**: `midnight` (dark modern), `paper` (light technical), `blueprint` (CAD cyan), `editorial` (serif publication), `graphite` (minimal dark), `nebula` (cosmic violet), `terminal` (CLI retro), `sketchy` (hand-drawn).
+
+👉 *[Explore all 17+ interactive scenes in the Live Gallery ↗](https://markdy.com/examples/)*
+</details>
+
+<details>
+<summary><b>🔄 Universal Ingestion (1-Command Migration)</b></summary>
+<br>
+
+Convert existing diagrams and infrastructure configs into animated MarkdyScript scenes:
+
+```bash
+markdy import flow.mmd            --out flow.markdy        # Mermaid.js Flowcharts & Sequences
+markdy import docker-compose.yml  --out compose.markdy     # Docker Compose Services & Networks
+markdy import k8s-manifests/      --out cluster.markdy     # Kubernetes Ingress, Pods & Services
+markdy import terraform.tfstate   --out infra.markdy       # Terraform Provisioned State
 markdy import architecture.drawio --out diagram.markdy     # Draw.io / diagrams.net XML
-markdy import docker-compose.yml --out compose.markdy     # Docker Compose Container Topologies
-markdy import k8s-manifests/     --out cluster.markdy     # Kubernetes Ingress, Pods & Services
-markdy import terraform.tfstate  --out infra.markdy       # Terraform State Resources
 ```
+</details>
 
----
+<details>
+<summary><b>🤖 AI Assistant &amp; Model Context Protocol (MCP) Setup</b></summary>
+<br>
 
-## 🤖 AI Agent & MCP Integration
+Configure the official Markdy MCP Server in Claude Desktop, Cursor, or Antigravity:
 
-Markdy is designed from the ground up for LLMs and autonomous coding agents:
-
-<p align="center">
-  <img src="docs/images/markdy-ai-agent-workflow.webp" alt="AI Agent Workflow" width="100%" />
-</p>
-
-- **Canonical Specification**: Point AI assistants to [**`markdy.com/AGENT.md`**](https://markdy.com/agent/) or [**`markdy.com/llms-full.txt`**](https://markdy.com/llms-full.txt).
-- **Official Model Context Protocol (MCP)**:
-  ```json
-  {
-    "mcpServers": {
-      "markdy": {
-        "command": "npx",
-        "args": ["-y", "@markdy/mcp-server"]
-      }
+```json
+{
+  "mcpServers": {
+    "markdy": {
+      "command": "npx",
+      "args": ["-y", "@markdy/mcp-server"]
     }
   }
-  ```
-  Equips assistants with `validate_markdy`, `heal_markdy`, `transpile_to_markdy`, `render_markdy_svg`, and `explain_architecture`.
+}
+```
 
+Equips AI agents with `validate_markdy_code`, `diagnose_markdy_syntax`, `fix_markdy_code`, `transpile_to_markdy`, and access to `markdy://spec/agent-reference`.
 
----
-
-
-## 📦 Packages & Ecosystem
-
-All packages are published to **[npmjs.com](https://www.npmjs.com/org/markdy)** and **[GitHub Packages](https://github.com/HoangYell/markdy-com/packages)**:
-
-| Package | Description | Size / Type |
-|---|---|---|
-| **[`@markdy/core`](packages/core)** | Pure TypeScript parser, AST diff, compiler, and architecture validator | ~14 kB (minzip) |
-| **[`@markdy/renderer-dom`](packages/renderer-dom)** | 60fps Web Animations API renderer, GIF89a encoder, SVG exporter | ~24 kB (minzip) |
-| **[`@markdy/mcp-server`](packages/mcp-server)** | Official Model Context Protocol (MCP) server for Claude, Cursor, Antigravity | Node CLI |
-| **[`@markdy/cli`](packages/cli)** | Command-line tool for linting, rendering, diffing, and universal importing | Node CLI |
-| **[`@markdy/compat`](packages/compat)** | Universal transpilers for Mermaid, Draw.io, Compose, K8s, Terraform | ~8 kB (minzip) |
-| **[`@markdy/astro`](packages/astro)** | Astro island component with SSR placeholder and viewport hydration | ~2 kB (minzip) |
-| **[`@markdy/mdx`](packages/mdx)** | Remark plugin + lazy React diagram component | ~4 kB (minzip) |
-| **[`@markdy/language-server`](packages/markdy-language-server)** | Language Server Protocol (LSP) for VS Code, Cursor, and IDE extensions | Node LSP |
-| **[`@markdy/stdlib-systems`](packages/stdlib-systems) | System diagram node vocabulary and visual primitive definitions | <1 kB |
+👉 *[Read the Authoritative AI Agent Guide (`AGENT.md`) ↗](https://markdy.com/agent/)*
+</details>
 
 ---
 
-## 📖 Documentation & Guides
+## 📖 Documentation Links
 
 | Guide | Description |
 |---|---|
-| **[Syntax Reference (SYNTAX.md)](docs/SYNTAX.md)** | Complete MarkdyScript DSL grammar, selectors, cues, and player settings |
-| **[Interactive Tutorial (TUTORIAL.md)](docs/TUTORIAL.md)** | Step-by-step human guide from simple flows to complex multi-beat scenes |
-| **[AI Agent Guide (AGENT.md)](docs/AGENT.md)** | LLM system prompts, canvas sizing formulas, and anti-patterns |
-| **[Architecture Internals (ARCHITECTURE.md)](docs/ARCHITECTURE.md)** | Compiler pipeline, WAAPI rAF loop, collision-free routing geometry |
-| **[GitHub Packages Guide (GITHUB_PACKAGES.md)](docs/GITHUB_PACKAGES.md)** | Installing packages from GitHub npm package registry |
-
----
-
-## Development
-
-```sh
-git clone https://github.com/HoangYell/markdy-com.git
-cd markdy-com
-pnpm install
-pnpm build
-pnpm test
-```
-
-## Contributing
-
-Contributions are welcome! Please check out [CONTRIBUTING.md](CONTRIBUTING.md) for local development setup, coding guidelines, and submitting pull requests.
+| **[Syntax Reference (SYNTAX.md)](docs/SYNTAX.md)** | Full DSL grammar, flow operators, selectors, cues, and player settings |
+| **[Step-by-Step Tutorial (TUTORIAL.md)](docs/TUTORIAL.md)** | Step-by-step guide from basic flows to multi-beat kinetic scenes |
+| **[AI Agent Guide (AGENT.md)](docs/AGENT.md)** | LLM system prompts, token rules, and anti-patterns |
+| **[Architecture Internals (ARCHITECTURE.md)](docs/ARCHITECTURE.md)** | Compiler pipelines, WAAPI loop, and orthogonal routing geometry |
+| **[VS Code Extension Guide](packages/vscode/README.md)** | Shortcuts, settings, and IDE features |
 
 ---
 
 <p align="center">
-  <img src="docs/images/mascot/male-markdy.webp" width="72" height="72" alt="Markdy Mascot" /><br>
-  <strong>Loving Markdy? Star the repository on GitHub! ⭐</strong><br>
-  <sub>Built with ❤️ by <a href="https://hoangyell.com">Hoang Yell</a> &amp; the open-source community.</sub>
+  <img src="docs/images/mascot/male-markdy.webp" width="64" height="64" alt="Markdy Mascot" /><br>
+  <strong>Empowering engineers and AI agents to create living architecture diagrams.</strong><br>
+  <sub>Built with ❤️ by <a href="https://hoangyell.com">Hoang Yell</a> &amp; the community. Distributed under the <a href="LICENSE">MIT License</a>.</sub>
 </p>
-
-## License
-
-[MIT](LICENSE) © [Hoang Yell](https://hoangyell.com)

@@ -145,3 +145,5 @@ export type {
   TechPreset,
 } from "./intellicode.js";
 
+export { formatScene } from "./format.js";
+
