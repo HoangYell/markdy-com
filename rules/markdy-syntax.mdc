@@ -1,0 +1,32 @@
+---
+description: Always follow MarkdyScript syntax rules when generating or editing .markdy and .mdy architecture diagrams.
+globs: "**/*.markdy, **/*.mdy, **/diagram*.markdy"
+alwaysApply: false
+---
+
+# MarkdyScript Architecture Syntax Rules
+
+When writing or editing Markdy (`.markdy` or `.mdy`) files:
+
+1. **Strict 4-Section Flow**:
+   - Section 1: `scene` and `layout` directives (`layout LR`, `theme=midnight`).
+   - Section 2: Semantic node declarations (`service OrderSvc "Order Service"`).
+   - Section 3: `group` definitions (`group backend "Backend Tier": ServiceA ServiceB`).
+   - Section 4: `beat` narrative blocks (`beat name "Title":`).
+
+2. **Always Quote Multi-Word Labels**:
+   - Correct: `service api "Payment API Gateway"`
+   - Incorrect: `service api Payment API Gateway`
+
+3. **Always End Beats and Groups with Colons**:
+   - `beat checkout "Step 1":`
+   - `group vpc "Private VPC":`
+
+4. **Never Use Forward `->` for Return Responses**:
+   - Always use `<-` for responses (e.g. `Client <- Gateway "200 OK"`). Using `->` creates graph ranking cycles and breaks the visual DAG layout.
+
+5. **Always Place Animated Flows & Cues Inside Beats**:
+   - Flows (`->`, `<-`, `~>`) and cues (`show`, `glow`, `frame`, `pulse`) must be indented inside a `beat` block.
+
+6. **Self-Healing MCP Tool**:
+   - When generating or fixing diagrams, use `@markdy/mcp-server` tools (`diagnose_markdy_syntax`, `fix_markdy_code`) to verify syntax before presenting.
