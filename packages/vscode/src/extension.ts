@@ -93,7 +93,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  // 3. Export Commands (SVG, PNG, GIF, Clipboard)
+  // 3. Export Commands (SVG, PNG, Clipboard)
   registerExportCommands(context);
 
   // 4. Ingestion / Transpilation Commands (Mermaid, Docker Compose, K8s, Terraform, Draw.io)

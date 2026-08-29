@@ -29,10 +29,6 @@ export function registerExportCommands(context: vscode.ExtensionContext) {
     ensurePreviewAndExecute((panel) => panel.triggerPngExport());
   });
 
-  const exportGifCmd = vscode.commands.registerCommand("markdy.exportGif", () => {
-    ensurePreviewAndExecute((panel) => panel.triggerGifExport());
-  });
-
   const copySvgCmd = vscode.commands.registerCommand("markdy.copySvg", () => {
     ensurePreviewAndExecute((panel) => panel.triggerCopySvg());
   });
@@ -41,5 +37,5 @@ export function registerExportCommands(context: vscode.ExtensionContext) {
     ensurePreviewAndExecute((panel) => panel.triggerCopyPng());
   });
 
-  context.subscriptions.push(exportSvgCmd, exportPngCmd, exportGifCmd, copySvgCmd, copyPngCmd);
+  context.subscriptions.push(exportSvgCmd, exportPngCmd, copySvgCmd, copyPngCmd);
 }

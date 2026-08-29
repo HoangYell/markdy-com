@@ -75,7 +75,6 @@
     "onCommand:markdy.showPreviewToSide",
     "onCommand:markdy.exportSvg",
     "onCommand:markdy.exportPng",
-    "onCommand:markdy.exportGif",
     "onCommand:markdy.copySvg",
     "onCommand:markdy.copyPng",
     "onCommand:markdy.insertTemplate",
@@ -159,12 +158,6 @@
         "command": "markdy.exportPng",
         "title": "Export PNG",
         "icon": "$(file-media)",
-        "category": "Markdy"
-      },
-      {
-        "command": "markdy.exportGif",
-        "title": "Export Animated GIF",
-        "icon": "$(file-binary)",
         "category": "Markdy"
       },
       {
@@ -304,10 +297,6 @@
           "group": "2_export@2"
         },
         {
-          "command": "markdy.exportGif",
-          "group": "2_export@3"
-        },
-        {
           "command": "markdy.copySvg",
           "group": "3_clipboard@1"
         },
@@ -363,10 +352,6 @@
         },
         {
           "command": "markdy.exportPng",
-          "when": "editorLangId == markdy"
-        },
-        {
-          "command": "markdy.exportGif",
           "when": "editorLangId == markdy"
         },
         {

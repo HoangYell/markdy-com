@@ -178,9 +178,8 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       </select>
     </div>
     <div class="toolbar-group">
-      <button id="btn-export-svg" title="Export as Vector SVG">SVG</button>
+      <button id="btn-export-svg" class="btn-primary" title="Export as Vector SVG">SVG</button>
       <button id="btn-export-png" title="Export as High-Res PNG">PNG</button>
-      <button id="btn-export-gif" class="btn-primary" title="Export as Animated GIF">GIF</button>
       <button id="btn-copy-svg" title="Copy SVG to Clipboard">Copy SVG</button>
       <button id="btn-copy-png" title="Copy PNG to Clipboard">Copy PNG</button>
     </div>
@@ -191,7 +190,7 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       ⚠️ <span id="error-message">Syntax error</span>
     </div>
     <div id="loading-overlay" class="loading-banner hidden">
-      ⏳ <span id="loading-message">Rendering animated GIF...</span>
+      ⏳ <span id="loading-message">Loading...</span>
     </div>
     <div id="diagram-mount"></div>
   </div>

@@ -61,10 +61,6 @@ export class MarkdyPreviewPanel {
             vscode.commands.executeCommand("markdy.exportPng");
             break;
 
-          case "requestExportGif":
-            vscode.commands.executeCommand("markdy.exportGif");
-            break;
-
           case "requestCopySvg":
             vscode.commands.executeCommand("markdy.copySvg");
             break;
@@ -79,10 +75,6 @@ export class MarkdyPreviewPanel {
 
           case "pngExportReady":
             await this._savePngFile(message.dataUrl);
-            break;
-
-          case "gifExportReady":
-            await this._saveGifFile(message.dataUrl);
             break;
 
           case "svgCopied":
@@ -207,10 +199,6 @@ export class MarkdyPreviewPanel {
     this._panel.webview.postMessage({ type: "exportPng" });
   }
 
-  public triggerGifExport() {
-    this._panel.webview.postMessage({ type: "exportGif" });
-  }
-
   public triggerCopySvg() {
     this._panel.webview.postMessage({ type: "copySvg" });
   }
@@ -243,20 +231,6 @@ export class MarkdyPreviewPanel {
       const buffer = Buffer.from(base64Data, "base64");
       await vscode.workspace.fs.writeFile(uri, buffer);
       vscode.window.showInformationMessage(`Exported PNG successfully: ${uri.fsPath}`);
-    }
-  }
-
-  private async _saveGifFile(dataUrl: string) {
-    const uri = await vscode.window.showSaveDialog({
-      filters: { "Animated GIF": ["gif"] },
-      defaultUri: vscode.Uri.file("diagram.gif"),
-    });
-
-    if (uri) {
-      const base64Data = dataUrl.replace(/^data:image\/gif;base64,/, "");
-      const buffer = Buffer.from(base64Data, "base64");
-      await vscode.workspace.fs.writeFile(uri, buffer);
-      vscode.window.showInformationMessage(`Exported Animated GIF successfully: ${uri.fsPath}`);
     }
   }
 

@@ -2,7 +2,6 @@ import {
   createDiagram,
   exportDiagramAsVectorSvg,
   exportDiagramAsPng,
-  exportDiagramAsGif,
   type Diagram,
 } from "@markdy/renderer-dom";
 import { parse, ParseError } from "@markdy/core";
@@ -36,7 +35,6 @@ const speedSelect = document.getElementById("speed-select") as HTMLSelectElement
 const themeSelect = document.getElementById("theme-select") as HTMLSelectElement | null;
 const exportSvgBtn = document.getElementById("btn-export-svg");
 const exportPngBtn = document.getElementById("btn-export-png");
-const exportGifBtn = document.getElementById("btn-export-gif");
 const copySvgBtn = document.getElementById("btn-copy-svg");
 const copyPngBtn = document.getElementById("btn-copy-png");
 
@@ -148,27 +146,6 @@ window.addEventListener("message", async (event) => {
         };
         reader.readAsDataURL(pngBlob);
       } catch (err: any) {
-        if (vscode) {
-          vscode.postMessage({ type: "exportError", message: err.message || String(err) });
-        }
-      }
-      break;
-
-    case "exportGif":
-      try {
-        if (!container || !currentDiagram) throw new Error("Diagram not ready for GIF export");
-        showLoading("Recording & encoding animated GIF...");
-        const gifBlob = await exportDiagramAsGif(container, currentDiagram, { fps: 12, pixelRatio: 2 });
-        hideLoading();
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          if (vscode) {
-            vscode.postMessage({ type: "gifExportReady", dataUrl: reader.result });
-          }
-        };
-        reader.readAsDataURL(gifBlob);
-      } catch (err: any) {
-        hideLoading();
         if (vscode) {
           vscode.postMessage({ type: "exportError", message: err.message || String(err) });
         }
@@ -337,14 +314,6 @@ if (exportPngBtn) {
   exportPngBtn.addEventListener("click", () => {
     if (vscode) {
       vscode.postMessage({ type: "requestExportPng" });
-    }
-  });
-}
-
-if (exportGifBtn) {
-  exportGifBtn.addEventListener("click", () => {
-    if (vscode) {
-      vscode.postMessage({ type: "requestExportGif" });
     }
   });
 }

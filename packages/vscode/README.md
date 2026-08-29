@@ -72,7 +72,7 @@ beat async_job "2. Async Background Task":
 - ⚡ **IntelliCode & Linter**: Real-time architecture governance rules, typo QuickFixes (`💡 Fix`), and one-click auto-repair.
 - 📐 **Format on Save (`Shift+Alt+F`)**: AST-aware document formatting.
 - 🔄 **Universal Ingestion**: Right-click `.mermaid`, `docker-compose.yml`, `*.tfstate`, or `*.drawio` to transpile to Markdy.
-- 🖼️ **Multi-Format Exports**: Export to vector **SVG**, high-res **PNG**, or animated **GIF89a**, or copy directly to clipboard.
+- 🖼️ **Multi-Format Exports**: Export to vector **SVG** or high-res **PNG**, or copy directly to clipboard.
 - 🌟 **Curated Templates**: 1-click scaffolding for Microservices, Kafka, Kubernetes, Lakehouses, and OAuth PKCE.
 - 🤖 **AI Prompt Assistant**: Export context-rich LLM prompt bundles ready for Cursor, Claude, Copilot, or ChatGPT.
 - 📄 **Markdown / MDX CodeLens**: Interactive `[▶ Preview]` buttons above ````markdy` blocks in documentation.
@@ -90,7 +90,6 @@ beat async_job "2. Async Background Task":
 | `Format Document` | `Shift+Alt+F` | AST-aware document formatting |
 | `Markdy: Export SVG` | — | Exports vector `.svg` diagram |
 | `Markdy: Export PNG` | — | Exports high-resolution `.png` image |
-| `Markdy: Export Animated GIF` | — | Records and exports animated `.gif` file |
 | `Markdy: Copy SVG` | — | Copies raw vector SVG XML to clipboard |
 | `Markdy: Copy PNG` | — | Copies PNG Data URL to clipboard |
 | `Markdy: Insert Template...` | — | Scaffolds curated architecture models at cursor |
@@ -126,7 +125,7 @@ Right-click ──▶ Markdy ▶ ──┬── Live Preview
                            ├── Insert Template...
                            ├── AI Prompt Helper
                            ├── ───────────────────────
-                           ├── Export SVG / PNG / GIF
+                           ├── Export SVG / PNG
                            ├── Copy SVG / PNG
                            ├── ───────────────────────
                            ├── Open in Web Studio
