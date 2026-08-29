@@ -52,14 +52,35 @@ export function activate(context: vscode.ExtensionContext) {
   // 2. Preview Commands
   const previewToSideCmd = vscode.commands.registerCommand(
     "markdy.showPreviewToSide",
-    () => {
-      MarkdyPreviewPanel.createOrShow(context.extensionUri, vscode.ViewColumn.Beside);
+    async (uri?: vscode.Uri) => {
+      let targetDoc: vscode.TextDocument | undefined;
+      if (uri) {
+        try {
+          targetDoc = await vscode.workspace.openTextDocument(uri);
+          await vscode.window.showTextDocument(targetDoc, vscode.ViewColumn.One, true);
+        } catch (e) {
+          console.error("Failed to open document for preview:", e);
+        }
+      }
+      MarkdyPreviewPanel.createOrShow(context.extensionUri, vscode.ViewColumn.Beside, targetDoc);
     }
   );
 
-  const previewCmd = vscode.commands.registerCommand("markdy.showPreview", () => {
-    MarkdyPreviewPanel.createOrShow(context.extensionUri, vscode.ViewColumn.Active);
-  });
+  const previewCmd = vscode.commands.registerCommand(
+    "markdy.showPreview",
+    async (uri?: vscode.Uri) => {
+      let targetDoc: vscode.TextDocument | undefined;
+      if (uri) {
+        try {
+          targetDoc = await vscode.workspace.openTextDocument(uri);
+          await vscode.window.showTextDocument(targetDoc, vscode.ViewColumn.One, true);
+        } catch (e) {
+          console.error("Failed to open document for preview:", e);
+        }
+      }
+      MarkdyPreviewPanel.createOrShow(context.extensionUri, vscode.ViewColumn.Active, targetDoc);
+    }
+  );
 
   const restartServerCmd = vscode.commands.registerCommand(
     "markdy.restartServer",
@@ -90,7 +111,24 @@ export function activate(context: vscode.ExtensionContext) {
   // 8. Markdown & MDX CodeLens Provider
   registerCodeLensProvider(context);
 
-  context.subscriptions.push(previewToSideCmd, previewCmd, restartServerCmd);
+  // 9. Status Bar Item for Quick Preview Toggle
+  const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
+  statusBarItem.command = "markdy.showPreviewToSide";
+  statusBarItem.text = "$(play) Markdy Preview";
+  statusBarItem.tooltip = "Open Markdy Live Animated Preview (Cmd+K V / Ctrl+K V)";
+
+  const updateStatusBar = (editor: vscode.TextEditor | undefined) => {
+    if (editor && (editor.document.languageId === "markdy" || editor.document.fileName.endsWith(".markdy") || editor.document.fileName.endsWith(".mdy"))) {
+      statusBarItem.show();
+    } else {
+      statusBarItem.hide();
+    }
+  };
+
+  updateStatusBar(vscode.window.activeTextEditor);
+  const changeEditorSub = vscode.window.onDidChangeActiveTextEditor(updateStatusBar);
+
+  context.subscriptions.push(previewToSideCmd, previewCmd, restartServerCmd, statusBarItem, changeEditorSub);
 }
 
 export function deactivate(): Thenable<void> | undefined {

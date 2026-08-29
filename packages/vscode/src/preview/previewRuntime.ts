@@ -20,6 +20,7 @@ let currentCode = "";
 let currentThemeOverride: string | null = null;
 let currentSpeed = 1.0;
 let isPlaying = true;
+let lastErrorLine: number | undefined;
 
 const container = document.getElementById("diagram-mount");
 const errorOverlay = document.getElementById("error-overlay");
@@ -30,6 +31,7 @@ const playPauseBtn = document.getElementById("btn-play-pause");
 const restartBtn = document.getElementById("btn-restart");
 const prevBeatBtn = document.getElementById("btn-prev-beat");
 const nextBeatBtn = document.getElementById("btn-next-beat");
+const fitViewBtn = document.getElementById("btn-fit-view");
 const speedSelect = document.getElementById("speed-select") as HTMLSelectElement | null;
 const themeSelect = document.getElementById("theme-select") as HTMLSelectElement | null;
 const exportSvgBtn = document.getElementById("btn-export-svg");
@@ -40,13 +42,15 @@ const copyPngBtn = document.getElementById("btn-copy-png");
 
 function showError(msg: string, line?: number) {
   if (!errorOverlay || !errorMessage) return;
-  const lineText = line ? ` (Line ${line})` : "";
+  lastErrorLine = line;
+  const lineText = line ? ` (Line ${line} - click to jump)` : "";
   errorMessage.textContent = `${msg}${lineText}`;
   errorOverlay.classList.remove("hidden");
 }
 
 function hideError() {
   if (!errorOverlay) return;
+  lastErrorLine = undefined;
   errorOverlay.classList.add("hidden");
 }
 
@@ -84,21 +88,19 @@ function renderCode(code: string, options: { theme?: string; autoplay?: boolean;
     }
     container.innerHTML = "";
 
-    const selectedTheme = currentThemeOverride || (themeSelect ? themeSelect.value : options.theme);
-
-    let effectiveCode = code;
-    if (selectedTheme && selectedTheme !== "auto" && !/theme\s*=\s*"\w+"/.test(code)) {
-      effectiveCode = `theme "${selectedTheme}"\n` + code;
-    }
-
     currentDiagram = createDiagram({
       container,
-      code: effectiveCode,
+      code,
       autoplay: options.autoplay ?? isPlaying,
       loop: options.loop ?? true,
       progressBar: options.progressBar ?? true,
       copyright: false,
     });
+
+    const selectedTheme = currentThemeOverride || (themeSelect && themeSelect.value !== "auto" ? themeSelect.value : (options.theme && options.theme !== "auto" ? options.theme : null));
+    if (selectedTheme) {
+      currentDiagram.setTheme(selectedTheme);
+    }
 
     if (currentSpeed !== 1.0) {
       currentDiagram.setPlaybackRate(currentSpeed);
@@ -236,7 +238,11 @@ window.addEventListener("message", async (event) => {
       if (themeSelect) {
         themeSelect.value = message.theme;
       }
-      renderCode(currentCode);
+      if (currentDiagram && currentThemeOverride) {
+        currentDiagram.setTheme(currentThemeOverride);
+      } else {
+        renderCode(currentCode);
+      }
       break;
   }
 });
@@ -285,6 +291,20 @@ if (nextBeatBtn) {
   });
 }
 
+if (fitViewBtn) {
+  fitViewBtn.addEventListener("click", () => {
+    renderCode(currentCode);
+  });
+}
+
+if (errorOverlay) {
+  errorOverlay.addEventListener("click", () => {
+    if (lastErrorLine && vscode) {
+      vscode.postMessage({ type: "revealLine", line: lastErrorLine });
+    }
+  });
+}
+
 if (speedSelect) {
   speedSelect.addEventListener("change", () => {
     currentSpeed = parseFloat(speedSelect.value) || 1.0;
@@ -297,7 +317,11 @@ if (speedSelect) {
 if (themeSelect) {
   themeSelect.addEventListener("change", () => {
     currentThemeOverride = themeSelect.value === "auto" ? null : themeSelect.value;
-    renderCode(currentCode);
+    if (currentDiagram && currentThemeOverride) {
+      currentDiagram.setTheme(currentThemeOverride);
+    } else {
+      renderCode(currentCode);
+    }
   });
 }
 
@@ -340,6 +364,91 @@ if (copyPngBtn) {
     }
   });
 }
+
+// Global Keyboard Shortcuts inside Webview
+window.addEventListener("keydown", (e) => {
+  const activeTag = document.activeElement?.tagName.toLowerCase();
+  if (activeTag === "input" || activeTag === "textarea" || activeTag === "select") {
+    return;
+  }
+
+  switch (e.key) {
+    case " ":
+    case "k":
+      e.preventDefault();
+      if (currentDiagram) {
+        if (isPlaying) {
+          currentDiagram.pause();
+          isPlaying = false;
+          if (playPauseBtn) playPauseBtn.textContent = "▶ Play";
+        } else {
+          currentDiagram.play();
+          isPlaying = true;
+          if (playPauseBtn) playPauseBtn.textContent = "⏸ Pause";
+        }
+      }
+      break;
+
+    case "r":
+    case "R":
+      if (currentDiagram) {
+        currentDiagram.seek(0);
+        currentDiagram.play();
+        isPlaying = true;
+        if (playPauseBtn) playPauseBtn.textContent = "⏸ Pause";
+      }
+      break;
+
+    case "ArrowLeft":
+    case "j":
+    case "J":
+      if (currentDiagram) {
+        currentDiagram.prevBeat();
+      }
+      break;
+
+    case "ArrowRight":
+    case "l":
+    case "L":
+      if (currentDiagram) {
+        currentDiagram.nextBeat();
+      }
+      break;
+
+    case "f":
+    case "F":
+      renderCode(currentCode);
+      break;
+
+    case "s":
+    case "S":
+      if (speedSelect) {
+        const speeds = ["0.5", "1.0", "1.5", "2.0"];
+        const nextIdx = (speeds.indexOf(speedSelect.value) + 1) % speeds.length;
+        speedSelect.value = speeds[nextIdx];
+        currentSpeed = parseFloat(speedSelect.value) || 1.0;
+        if (currentDiagram) {
+          currentDiagram.setPlaybackRate(currentSpeed);
+        }
+      }
+      break;
+
+    case "t":
+    case "T":
+      if (themeSelect) {
+        const themes = ["auto", "midnight", "paper", "blueprint", "nebula", "editorial", "graphite", "terminal", "sketchy"];
+        const nextIdx = (themes.indexOf(themeSelect.value) + 1) % themes.length;
+        themeSelect.value = themes[nextIdx];
+        currentThemeOverride = themeSelect.value === "auto" ? null : themeSelect.value;
+        if (currentDiagram && currentThemeOverride) {
+          currentDiagram.setTheme(currentThemeOverride);
+        } else {
+          renderCode(currentCode);
+        }
+      }
+      break;
+  }
+});
 
 // Ready signal
 if (vscode) {

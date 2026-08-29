@@ -5,13 +5,21 @@ export class MarkdyPreviewPanel {
   public static currentPanel: MarkdyPreviewPanel | undefined;
   private readonly _panel: vscode.WebviewPanel;
   private readonly _extensionUri: vscode.Uri;
+  private _currentDocument?: vscode.TextDocument;
   private _disposables: vscode.Disposable[] = [];
   private _updateTimeout: NodeJS.Timeout | undefined;
 
-  public static createOrShow(extensionUri: vscode.Uri, viewColumn: vscode.ViewColumn = vscode.ViewColumn.Beside) {
+  public static createOrShow(
+    extensionUri: vscode.Uri,
+    viewColumn: vscode.ViewColumn = vscode.ViewColumn.Beside,
+    targetDoc?: vscode.TextDocument
+  ) {
     if (MarkdyPreviewPanel.currentPanel) {
       MarkdyPreviewPanel.currentPanel._panel.reveal(viewColumn);
-      MarkdyPreviewPanel.currentPanel.update();
+      if (targetDoc) {
+        MarkdyPreviewPanel.currentPanel._currentDocument = targetDoc;
+      }
+      MarkdyPreviewPanel.currentPanel.update(targetDoc);
       return;
     }
 
@@ -26,12 +34,13 @@ export class MarkdyPreviewPanel {
       }
     );
 
-    MarkdyPreviewPanel.currentPanel = new MarkdyPreviewPanel(panel, extensionUri);
+    MarkdyPreviewPanel.currentPanel = new MarkdyPreviewPanel(panel, extensionUri, targetDoc);
   }
 
-  private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri) {
+  private constructor(panel: vscode.WebviewPanel, extensionUri: vscode.Uri, initialDoc?: vscode.TextDocument) {
     this._panel = panel;
     this._extensionUri = extensionUri;
+    this._currentDocument = initialDoc;
 
     this._panel.webview.html = getWebviewHtml(this._panel.webview, this._extensionUri);
 
@@ -41,7 +50,7 @@ export class MarkdyPreviewPanel {
       async (message) => {
         switch (message.type) {
           case "ready":
-            this.update();
+            this.update(this._currentDocument);
             break;
 
           case "requestExportSvg":
@@ -89,6 +98,22 @@ export class MarkdyPreviewPanel {
           case "exportError":
             vscode.window.showErrorMessage(`Markdy Export Error: ${message.message}`);
             break;
+
+          case "revealLine":
+            if (typeof message.line === "number" && message.line > 0) {
+              const editor = vscode.window.visibleTextEditors.find(
+                (e) => this._currentDocument && e.document.uri.toString() === this._currentDocument.uri.toString()
+              ) || vscode.window.activeTextEditor;
+
+              if (editor) {
+                const targetLine = Math.min(Math.max(0, message.line - 1), editor.document.lineCount - 1);
+                const lineRange = editor.document.lineAt(targetLine).range;
+                editor.selection = new vscode.Selection(lineRange.start, lineRange.end);
+                editor.revealRange(lineRange, vscode.TextEditorRevealType.InCenter);
+                vscode.window.showTextDocument(editor.document, editor.viewColumn, false);
+              }
+            }
+            break;
         }
       },
       null,
@@ -97,9 +122,13 @@ export class MarkdyPreviewPanel {
 
     vscode.workspace.onDidChangeTextDocument(
       (e) => {
-        const activeDoc = vscode.window.activeTextEditor?.document;
-        if (activeDoc && e.document.uri.toString() === activeDoc.uri.toString()) {
-          this.scheduleUpdate();
+        if (this._currentDocument && e.document.uri.toString() === this._currentDocument.uri.toString()) {
+          this.scheduleUpdate(e.document);
+        } else {
+          const activeDoc = vscode.window.activeTextEditor?.document;
+          if (activeDoc && (activeDoc.languageId === "markdy" || activeDoc.fileName.endsWith(".markdy") || activeDoc.fileName.endsWith(".mdy")) && e.document.uri.toString() === activeDoc.uri.toString()) {
+            this.scheduleUpdate(activeDoc);
+          }
         }
       },
       null,
@@ -108,31 +137,53 @@ export class MarkdyPreviewPanel {
 
     vscode.window.onDidChangeActiveTextEditor(
       (editor) => {
-        if (editor && editor.document.languageId === "markdy") {
-          this.update();
+        if (editor && (editor.document.languageId === "markdy" || editor.document.fileName.endsWith(".markdy") || editor.document.fileName.endsWith(".mdy"))) {
+          this.update(editor.document);
         }
+      },
+      null,
+      this._disposables
+    );
+
+    vscode.window.onDidChangeActiveColorTheme(
+      () => {
+        this.update(this._currentDocument);
       },
       null,
       this._disposables
     );
   }
 
-  public scheduleUpdate() {
+  public scheduleUpdate(targetDoc?: vscode.TextDocument) {
     if (this._updateTimeout) {
       clearTimeout(this._updateTimeout);
     }
     this._updateTimeout = setTimeout(() => {
-      this.update();
+      this.update(targetDoc);
     }, 120);
   }
 
-  public update() {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor) return;
+  public update(targetDoc?: vscode.TextDocument) {
+    let doc = targetDoc || this._currentDocument;
+    if (!doc) {
+      const editor = vscode.window.activeTextEditor;
+      if (editor && (editor.document.languageId === "markdy" || editor.document.fileName.endsWith(".markdy") || editor.document.fileName.endsWith(".mdy"))) {
+        doc = editor.document;
+      }
+    }
 
-    const doc = editor.document;
-    if (doc.languageId !== "markdy") return;
+    if (!doc) {
+      const visibleMarkdyEditor = vscode.window.visibleTextEditors.find(
+        (e) => e.document.languageId === "markdy" || e.document.fileName.endsWith(".markdy") || e.document.fileName.endsWith(".mdy")
+      );
+      if (visibleMarkdyEditor) {
+        doc = visibleMarkdyEditor.document;
+      }
+    }
 
+    if (!doc) return;
+
+    this._currentDocument = doc;
     const code = doc.getText();
     const config = vscode.workspace.getConfiguration("markdy");
 

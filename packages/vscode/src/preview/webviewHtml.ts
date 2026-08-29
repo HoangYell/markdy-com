@@ -119,7 +119,13 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
       z-index: 20;
       max-width: 90%;
       text-align: center;
-      transition: opacity 0.2s ease;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .error-banner:hover {
+      background: #ef4444;
+      transform: translateX(-50%) scale(1.02);
     }
 
     .loading-banner {
@@ -148,17 +154,18 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
 <body>
   <div class="toolbar">
     <div class="toolbar-group">
-      <button id="btn-play-pause" title="Play / Pause Animation">⏸ Pause</button>
-      <button id="btn-restart" title="Restart Diagram">↺ Restart</button>
-      <button id="btn-prev-beat" title="Previous Narrative Beat">⏮</button>
-      <button id="btn-next-beat" title="Next Narrative Beat">⏭</button>
-      <select id="speed-select" title="Playback Speed">
+      <button id="btn-play-pause" title="Play / Pause Animation (Space)">⏸ Pause</button>
+      <button id="btn-restart" title="Restart Diagram (R)">↺ Restart</button>
+      <button id="btn-prev-beat" title="Previous Narrative Beat (Left / J)">⏮</button>
+      <button id="btn-next-beat" title="Next Narrative Beat (Right / L)">⏭</button>
+      <button id="btn-fit-view" title="Reset Pan / Zoom to Fit (F)">⛶ Fit</button>
+      <select id="speed-select" title="Playback Speed (S)">
         <option value="0.5">0.5x</option>
         <option value="1.0" selected>1.0x</option>
         <option value="1.5">1.5x</option>
         <option value="2.0">2.0x</option>
       </select>
-      <select id="theme-select" title="Official Markdy Theme Override">
+      <select id="theme-select" title="Official Markdy Theme Override (T)">
         <option value="auto">Theme: Auto</option>
         <option value="midnight">Midnight</option>
         <option value="paper">Paper</option>
@@ -180,7 +187,7 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
   </div>
 
   <div class="preview-stage">
-    <div id="error-overlay" class="error-banner hidden">
+    <div id="error-overlay" class="error-banner hidden" title="Click to reveal this line in editor">
       ⚠️ <span id="error-message">Syntax error</span>
     </div>
     <div id="loading-overlay" class="loading-banner hidden">

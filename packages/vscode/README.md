@@ -80,24 +80,59 @@ beat async_job "2. Async Background Task":
 
 ---
 
-## ⌨️ Command Palette (`Cmd+Shift+P` / `Ctrl+Shift+P`)
+## ⌨️ Command Palette & Shortcuts
 
-| Command Title | Keybinding | Description |
+### Commands (`Cmd+Shift+P` / `Ctrl+Shift+P`)
+
+| Command | Keybinding | Description |
 |---|---|---|
-| `Markdy: Open Live Preview to the Side` | `Cmd+K V` / `Ctrl+K V` | Opens live animated preview panel beside editor |
-| `Format Document` | `Shift+Alt+F` | Formats MarkdyScript syntax and indentation |
-| `Markdy: Export Current Diagram to SVG` | — | Exports current frame to scalable `.svg` |
-| `Markdy: Export Current Diagram to PNG` | — | Exports high-resolution `.png` raster image |
-| `Markdy: Export Current Diagram to Animated GIF` | — | Records and renders animated `.gif` file |
-| `Markdy: Copy Diagram SVG to Clipboard` | — | Copies raw vector SVG XML to clipboard |
-| `Markdy: Copy Diagram PNG to Clipboard` | — | Copies PNG Data URL to clipboard |
-| `Markdy: Import Architecture Diagram...` | — | Transpiles Mermaid, Compose, K8s, Terraform, or Draw.io |
-| `Markdy: Insert Architecture Template...` | — | Inserts curated system design models at cursor |
-| `Markdy: New Diagram from Template...` | — | Creates a new `.markdy` document from template |
-| `Markdy: Generate AI Architecture Prompt` | — | Compiles LLM prompt bundle with AST & rules |
-| `Markdy: Open Diagram in Markdy Web Studio` | — | Opens diagram in browser at markdy.com/playground |
-| `Markdy: Copy Web Studio Share URL` | — | Copies compressed playground link to clipboard |
-| `Markdy: Restart Language Server` | — | Restarts background language server worker |
+| `Markdy: Live Preview` | `Cmd+K V` / `Ctrl+K V` | Opens live animated preview panel beside editor |
+| `Format Document` | `Shift+Alt+F` | AST-aware document formatting |
+| `Markdy: Export SVG` | — | Exports vector `.svg` diagram |
+| `Markdy: Export PNG` | — | Exports high-resolution `.png` image |
+| `Markdy: Export Animated GIF` | — | Records and exports animated `.gif` file |
+| `Markdy: Copy SVG` | — | Copies raw vector SVG XML to clipboard |
+| `Markdy: Copy PNG` | — | Copies PNG Data URL to clipboard |
+| `Markdy: Insert Template...` | — | Scaffolds curated architecture models at cursor |
+| `Markdy: New From Template...` | — | Creates a new `.markdy` document from template |
+| `Markdy: AI Prompt Helper` | — | Compiles LLM prompt bundle with AST & rules |
+| `Markdy: Import Diagram...` | — | Transpiles Mermaid, Compose, K8s, Terraform, or Draw.io |
+| `Markdy: Open in Web Studio` | — | Opens diagram in browser at markdy.com/playground |
+| `Markdy: Copy Web Link` | — | Copies compressed playground link to clipboard |
+| `Markdy: Restart Server` | — | Restarts background language server worker |
+
+### Preview Panel Keyboard Shortcuts
+
+When the Preview panel is focused:
+
+| Key | Action |
+|---|---|
+| `Space` / `K` | Play / Pause animation |
+| `R` | Restart animation from beginning |
+| `←` / `J` | Previous narrative beat |
+| `→` / `L` | Next narrative beat |
+| `F` | Fit view / reset viewport transforms |
+| `S` | Cycle playback speed (`0.5x` → `1.0x` → `1.5x` → `2.0x`) |
+| `T` | Cycle official theme (`midnight`, `paper`, `blueprint`, `nebula`, etc.) |
+
+---
+
+## 🖱️ Right-Click Context Menu
+
+Right-click anywhere in a `.markdy` editor or in the Explorer tree to open the nested **`Markdy >`** submenu:
+
+```text
+Right-click ──▶ Markdy ▶ ──┬── Live Preview
+                           ├── Insert Template...
+                           ├── AI Prompt Helper
+                           ├── ───────────────────────
+                           ├── Export SVG / PNG / GIF
+                           ├── Copy SVG / PNG
+                           ├── ───────────────────────
+                           ├── Open in Web Studio
+                           ├── Copy Web Link
+                           └── Import Diagram...
+```
 
 ---
 
