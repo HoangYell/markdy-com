@@ -2,9 +2,9 @@
 
 > ### DOCUMENTATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.1.1
+> - **Current Version**: v1.1.2
 > - **Specification Version**: 1.1.x
-> - **Last Updated**: 2026-08-29
+> - **Last Updated**: 2026-08-30
 > - **Documentation Hub**: <https://markdy.com/docs/>
 > - **Playground**: <https://markdy.com/playground/>
 >
