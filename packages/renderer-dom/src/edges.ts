@@ -1,5 +1,5 @@
 import type { DiagramType, EdgeKind, PositionedNode, RoutedEdge, ThemeTokens, TimedCue } from "@markdy/core";
-import { placeFlowLabel, polylineLength, routeOrthogonal, selfLoopPath, toPathD } from "./geometry/path.js";
+import { placeFlowLabel, polylineLength, routeOrthogonal, selfLoopPath, toPathD, wrapFlowLabelText } from "./geometry/path.js";
 import { boxRect, inflateRect, type Point, type Rect } from "./geometry/rect.js";
 
 const EDGE_LAYER_ATTR = "data-markdy-edge-layer";
@@ -332,17 +332,29 @@ export function createEdgeRuntime(
   if (label) {
     const isDark = isDarkTheme(theme);
     const labelColor = computeEdgeLabelColor(color, isDark);
-    const textWidth = Math.max(36, label.length * 6.6 + 8);
-    const placement = placeFlowLabel(points, textWidth, labelObstacles, bounds);
+
+    // Calculate available segment width along the route
+    let longestSegLen = 0;
+    for (let i = 0; i < points.length - 1; i++) {
+      longestSegLen = Math.max(longestSegLen, Math.hypot(points[i + 1].x - points[i].x, points[i + 1].y - points[i].y));
+    }
+    const maxAvailW = Math.max(48, longestSegLen - 24);
+    const lines = wrapFlowLabelText(label, maxAvailW);
+    const maxChars = Math.max(...lines.map((l) => l.length));
+    const textWidth = Math.max(36, maxChars * 6.6 + 8);
+    const lineHeight = 13;
+    const boxHeight = lines.length === 1 ? 18 : lines.length * lineHeight + 6;
+
+    const placement = placeFlowLabel(points, textWidth, labelObstacles, bounds, boxHeight);
     labelRect = placement.rect;
     const plate = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     const padX = 6;
     const halfW = textWidth / 2;
     plate.setAttribute("class", "markdy-edge-plate");
     plate.setAttribute("x", String(placement.x - halfW - padX));
-    plate.setAttribute("y", String(placement.y - 9));
+    plate.setAttribute("y", String(placement.y - boxHeight / 2));
     plate.setAttribute("width", String(textWidth + padX * 2));
-    plate.setAttribute("height", "18");
+    plate.setAttribute("height", String(boxHeight));
     plate.setAttribute("rx", "4");
     plate.setAttribute("ry", "4");
     plate.setAttribute("fill", theme.canvas ?? theme.surface ?? "#ffffff");
@@ -356,15 +368,29 @@ export function createEdgeRuntime(
     labelEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
     labelEl.setAttribute("class", "markdy-edge-label");
     labelEl.setAttribute("x", String(placement.x));
-    labelEl.setAttribute("y", String(placement.y + 0.5));
     labelEl.setAttribute("text-anchor", "middle");
-    labelEl.setAttribute("dominant-baseline", "middle");
     labelEl.setAttribute("font-size", "10.5");
     labelEl.setAttribute("font-weight", "500");
     labelEl.setAttribute("letter-spacing", "0.02em");
     labelEl.setAttribute("font-family", "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace");
     labelEl.setAttribute("fill", labelColor);
-    labelEl.textContent = label;
+
+    if (lines.length === 1) {
+      labelEl.setAttribute("y", String(placement.y + 0.5));
+      labelEl.setAttribute("dominant-baseline", "middle");
+      labelEl.textContent = lines[0];
+    } else {
+      const startY = placement.y - ((lines.length - 1) * lineHeight) / 2 + 3.5;
+      lines.forEach((lineText, idx) => {
+        const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
+        tspan.setAttribute("x", String(placement.x));
+        tspan.setAttribute("y", String(startY + idx * lineHeight));
+        tspan.setAttribute("text-anchor", "middle");
+        tspan.textContent = idx < lines.length - 1 ? `${lineText} ` : lineText;
+        labelEl.appendChild(tspan);
+      });
+    }
+
     labelEl.style.opacity = "0";
     group.appendChild(labelEl);
     (labelEl as unknown as { __plate?: SVGRectElement }).__plate = plate;

@@ -284,26 +284,73 @@ function overlapCount(rect: Rect, obstacles: Rect[]): number {
   return hits;
 }
 
+export function wrapFlowLabelText(text: string, maxAvailableWidth: number): string[] {
+  const CHAR_WIDTH = 6.6;
+  const PAD = 8;
+  const singleLineWidth = text.length * CHAR_WIDTH + PAD;
+  if (singleLineWidth <= maxAvailableWidth || text.length <= 18 || !text.includes(" ")) {
+    return [text];
+  }
+
+  const words = text.trim().split(/\s+/);
+  if (words.length <= 1) return [text];
+
+  let bestSplit = 1;
+  let bestBalanceScore = Number.POSITIVE_INFINITY;
+
+  for (let i = 1; i < words.length; i++) {
+    const line1 = words.slice(0, i).join(" ");
+    const line2 = words.slice(i).join(" ");
+    const w1 = line1.length * CHAR_WIDTH + PAD;
+    const w2 = line2.length * CHAR_WIDTH + PAD;
+    const maxW = Math.max(w1, w2);
+    const diff = Math.abs(w1 - w2);
+
+    const penalty = maxW > maxAvailableWidth ? 1000 + (maxW - maxAvailableWidth) * 10 : 0;
+    const score = penalty + diff + maxW * 0.1;
+    if (score < bestBalanceScore) {
+      bestBalanceScore = score;
+      bestSplit = i;
+    }
+  }
+
+  const line1 = words.slice(0, bestSplit).join(" ");
+  const line2 = words.slice(bestSplit).join(" ");
+
+  const w1 = line1.length * CHAR_WIDTH + PAD;
+  const w2 = line2.length * CHAR_WIDTH + PAD;
+  if (Math.max(w1, w2) > maxAvailableWidth && words.length >= 4) {
+    const third = Math.ceil(words.length / 3);
+    const l1 = words.slice(0, third).join(" ");
+    const l2 = words.slice(third, third * 2).join(" ");
+    const l3 = words.slice(third * 2).join(" ");
+    const max3W = Math.max(l1.length, l2.length, l3.length) * CHAR_WIDTH + PAD;
+    if (max3W < Math.max(w1, w2)) {
+      return [l1, l2, l3];
+    }
+  }
+
+  return [line1, line2];
+}
+
 /**
  * Chooses a clean, legible anchor position for an edge label.
- * The label plate is snugly attached directly along the connector line,
- * and candidate offsets resolve collisions with nodes or adjacent labels.
+ * The label plate is centered along the connector line,
+ * with candidate offsets resolving collisions with nodes or adjacent labels.
  */
 export function placeFlowLabel(
   points: Point[],
   textWidth: number,
   obstacles: Rect[],
   bounds: { width: number; height: number },
+  boxHeight = LABEL_BOX_HEIGHT,
 ): LabelPlacement {
   const halfW = textWidth / 2 + 5;
-  const halfH = LABEL_BOX_HEIGHT / 2 + 1;
+  const halfH = boxHeight / 2 + 1;
   const pad = 12;
 
   let bestPlacement: LabelPlacement | null = null;
   let bestScore = Number.POSITIVE_INFINITY;
-
-  const stepX = Math.max(18, halfW + 6);
-  const stepY = Math.max(18, halfH + 6);
 
   // Evaluate candidate placements across all segments of the path
   for (let i = 0; i < points.length - 1; i++) {
@@ -315,19 +362,51 @@ export function placeFlowLabel(
     const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
     const horizontal = Math.abs(a.x - b.x) >= Math.abs(a.y - b.y);
 
-    const offsets: number[] = [0];
-    for (let k = 1; k <= 8; k++) {
-      offsets.push(-k * (horizontal ? stepX : stepY), k * (horizontal ? stepX : stepY));
+    const candidates: { x: number; y: number; penalty: number }[] = [
+      { x: mid.x, y: mid.y, penalty: 0 },
+    ];
+
+    // Longitudinal nudges along segment
+    for (let k = 1; k <= 4; k++) {
+      const stepLong = k * 16;
+      if (horizontal) {
+        candidates.push(
+          { x: mid.x - stepLong, y: mid.y, penalty: k * 4 },
+          { x: mid.x + stepLong, y: mid.y, penalty: k * 4 },
+        );
+      } else {
+        candidates.push(
+          { x: mid.x, y: mid.y - stepLong, penalty: k * 4 },
+          { x: mid.x, y: mid.y + stepLong, penalty: k * 4 },
+        );
+      }
     }
 
-    for (const off of offsets) {
-      const cx = clamp(horizontal ? mid.x + off : mid.x, pad + halfW, bounds.width - pad - halfW);
-      const cy = clamp(horizontal ? mid.y : mid.y + off, pad + halfH, bounds.height - pad - halfH);
+    // Perpendicular offsets above / below / left / right
+    const perpStep = halfH + 8;
+    for (let k = 1; k <= 3; k++) {
+      const stepPerp = k * perpStep;
+      if (horizontal) {
+        candidates.push(
+          { x: mid.x, y: mid.y - stepPerp, penalty: 20 + k * 6 },
+          { x: mid.x, y: mid.y + stepPerp, penalty: 24 + k * 6 },
+        );
+      } else {
+        candidates.push(
+          { x: mid.x - stepPerp, y: mid.y, penalty: 20 + k * 6 },
+          { x: mid.x + stepPerp, y: mid.y, penalty: 24 + k * 6 },
+        );
+      }
+    }
+
+    for (const cand of candidates) {
+      const cx = clamp(cand.x, pad + halfW, bounds.width - pad - halfW);
+      const cy = clamp(cand.y, pad + halfH, bounds.height - pad - halfH);
       const rect: Rect = { x1: cx - halfW, y1: cy - halfH, x2: cx + halfW, y2: cy + halfH };
       const hits = overlapCount(rect, obstacles);
 
-      // Score: 0 hits is mandatory; prefer horizontal segments; prefer snug centered offset; prefer longer segment
-      const score = hits * 100000 + (horizontal ? 0 : 40) + Math.abs(off) * 2 - Math.min(100, segLen) * 0.1;
+      // Score: 0 hits is essential; prefer centered; prefer horizontal segments
+      const score = hits * 100000 + (horizontal ? 0 : 40) + cand.penalty - Math.min(100, segLen) * 0.1;
       if (score < bestScore) {
         bestScore = score;
         bestPlacement = { x: round1(cx), y: round1(cy), rect };
