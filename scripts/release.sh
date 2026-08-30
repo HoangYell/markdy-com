@@ -77,6 +77,16 @@ for pkg in packages/* examples/astro-starter; do
   fi
 done
 
+if [ -f ".cursor-plugin/plugin.json" ]; then
+  node -e '
+    const fs = require("node:fs");
+    const p = ".cursor-plugin/plugin.json";
+    const data = JSON.parse(fs.readFileSync(p, "utf8"));
+    data.version = process.argv[1];
+    fs.writeFileSync(p, JSON.stringify(data, null, 2) + "\n");
+  ' "$VERSION"
+fi
+
 
 echo "🔗 Refreshing lockfile"
 pnpm install --no-frozen-lockfile >/dev/null
