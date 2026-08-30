@@ -468,7 +468,9 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
         <img
           src="/images/markdy-universal-ingestion.webp"
           alt="Universal Ingestion Transpilers"
-          class="w-full rounded-2xl border border-white/10 shadow-2xl my-6"
+          class="doc-section-img"
+          width="1200"
+          height="600"
           loading="lazy"
           decoding="async"
         />
@@ -517,7 +519,9 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
         <img
           src="/images/markdy-ai-agent-workflow.webp"
           alt="AI Coding Agents and Official MCP Server"
-          class="w-full rounded-2xl border border-white/10 shadow-2xl my-6"
+          class="doc-section-img"
+          width="1200"
+          height="600"
           loading="lazy"
           decoding="async"
         />
@@ -549,7 +553,9 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
         <img
           src="/images/markdy-governance-audit.webp"
           alt="Architecture Governance Linter and CI/CD Rule Verification"
-          class="w-full rounded-2xl border border-white/10 shadow-2xl my-6"
+          class="doc-section-img"
+          width="1200"
+          height="600"
           loading="lazy"
           decoding="async"
         />
@@ -583,7 +589,9 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
         <img
           src="/images/markdy-framework-integrations.webp"
           alt="Astro, MDX, and React Framework Integrations"
-          class="w-full rounded-2xl border border-white/10 shadow-2xl my-6"
+          class="doc-section-img"
+          width="1200"
+          height="600"
           loading="lazy"
           decoding="async"
         />
@@ -1456,6 +1464,24 @@ client Browser -> service Api -> database DB
 
   .doc-list strong {
     color: var(--text-primary);
+  }
+
+  .doc-section-img {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    margin: 1.25rem 0 1.75rem;
+    background: var(--bg-tertiary);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .doc-section-img:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
   }
 
   /* ─── Code Cards & Snippets ────────────────────────────────────────── */
