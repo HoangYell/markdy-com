@@ -697,6 +697,10 @@ const playgroundStructuredData = [
               <div class="shortcut-row"><kbd>Space</kbd><span>Play / Pause Animation</span></div>
               <div class="shortcut-row"><kbd>Ctrl + Space</kbd><span>Trigger Autocomplete</span></div>
               <div class="shortcut-row"><kbd>Cmd / Ctrl + S</kbd><span>Format &amp; Tidy MarkdyScript</span></div>
+              <div class="shortcut-row"><kbd>Cmd / Ctrl + K</kbd> / <kbd>?</kbd><span>Open Shortcuts Cheatsheet</span></div>
+              <div class="shortcut-row"><kbd>F</kbd><span>Fit Diagram to Viewport</span></div>
+              <div class="shortcut-row"><kbd>R</kbd><span>Restart Animation from Beat 1</span></div>
+              <div class="shortcut-row"><kbd>T</kbd><span>Cycle Diagram Color Theme</span></div>
               <div class="shortcut-row"><kbd>Esc</kbd><span>Close Modals / Deselect Canvas</span></div>
             </div>
           </div>
@@ -730,44 +734,55 @@ const playgroundStructuredData = [
         <!-- Quick Export Action Cards -->
         <div class="export-grid">
           <!-- 1. SVG -->
-          <button id="export-svg-btn" class="export-card" type="button">
+          <div class="export-card">
             <div class="export-card-icon">🎨</div>
             <div class="export-card-content">
               <strong>Vector SVG</strong>
               <span>Scalable vector graphic with inline styles for high-res embedding</span>
             </div>
-            <span class="export-card-badge">Download .svg ↓</span>
-          </button>
+            <div class="export-card-actions">
+              <button id="export-svg-btn" class="export-card-btn export-card-btn--primary" type="button" title="Download SVG vector file">Download .svg ↓</button>
+              <button id="copy-svg-btn" class="export-card-btn" type="button" title="Copy raw SVG markup to clipboard">Copy SVG 📋</button>
+            </div>
+          </div>
 
           <!-- 2. PNG -->
-          <button id="export-png-btn" class="export-card" type="button">
+          <div class="export-card">
             <div class="export-card-icon">🖼️</div>
             <div class="export-card-content">
               <strong>High-Res PNG</strong>
-              <span>Rendered raster snapshot for slide decks and social posts</span>
+              <span>Rendered raster snapshot for slide decks, Figma, and social posts</span>
             </div>
-            <span class="export-card-badge">Download .png ↓</span>
-          </button>
+            <div class="export-card-actions">
+              <button id="export-png-btn" class="export-card-btn export-card-btn--primary" type="button" title="Download PNG raster image">Download .png ↓</button>
+              <button id="copy-png-btn" class="export-card-btn" type="button" title="Copy PNG image directly to clipboard">Copy PNG 📋</button>
+            </div>
+          </div>
 
           <!-- 3. Source File -->
-          <button id="export-source-btn" class="export-card" type="button">
+          <div class="export-card">
             <div class="export-card-icon">📄</div>
             <div class="export-card-content">
               <strong>MarkdyScript File</strong>
               <span>Save raw text file for local CLI and version control</span>
             </div>
-            <span class="export-card-badge">Download .markdy ↓</span>
-          </button>
+            <div class="export-card-actions">
+              <button id="export-source-btn" class="export-card-btn export-card-btn--primary" type="button" title="Download MarkdyScript file">Download .markdy ↓</button>
+              <button id="copy-source-code-btn" class="export-card-btn" type="button" title="Copy raw MarkdyScript text to clipboard">Copy Text 📋</button>
+            </div>
+          </div>
 
           <!-- 4. Markdown -->
-          <button id="export-markdown-btn" class="export-card" type="button">
+          <div class="export-card">
             <div class="export-card-icon">📑</div>
             <div class="export-card-content">
               <strong>Markdown Embed</strong>
               <span>Copy fenced ```markdy code block for READMEs and docs</span>
             </div>
-            <span class="export-card-badge">Copy Snippet 📋</span>
-          </button>
+            <div class="export-card-actions">
+              <button id="export-markdown-btn" class="export-card-btn export-card-btn--primary" type="button" title="Copy fenced markdown snippet">Copy Snippet 📋</button>
+            </div>
+          </div>
         </div>
 
         <!-- Shareable Link Section -->
@@ -887,8 +902,11 @@ const playgroundStructuredData = [
   const canvasExportBtn = document.getElementById("canvas-export-btn") as HTMLButtonElement | null;
   const closeExportBtn = document.getElementById("close-export-btn") as HTMLButtonElement | null;
   const exportSvgBtn = document.getElementById("export-svg-btn") as HTMLButtonElement | null;
+  const copySvgBtn = document.getElementById("copy-svg-btn") as HTMLButtonElement | null;
   const exportPngBtn = document.getElementById("export-png-btn") as HTMLButtonElement | null;
+  const copyPngBtn = document.getElementById("copy-png-btn") as HTMLButtonElement | null;
   const exportSourceBtn = document.getElementById("export-source-btn") as HTMLButtonElement | null;
+  const copySourceCodeBtn = document.getElementById("copy-source-code-btn") as HTMLButtonElement | null;
   const exportMarkdownBtn = document.getElementById("export-markdown-btn") as HTMLButtonElement | null;
   const shareUrlInput = document.getElementById("share-url-input") as HTMLInputElement | null;
   const copyShareUrlBtn = document.getElementById("copy-share-url-btn") as HTMLButtonElement | null;
@@ -1447,6 +1465,27 @@ const playgroundStructuredData = [
     showToast("✓ Vector SVG exported successfully!");
   }
 
+  async function copySvgToClipboard() {
+    const svgEl = stageCanvas?.querySelector("svg");
+    if (!svgEl) {
+      showToast("⚠️ No diagram available to copy.");
+      return;
+    }
+    try {
+      const clonedSvg = svgEl.cloneNode(true) as SVGSVGElement;
+      clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      const serializer = new XMLSerializer();
+      let source = serializer.serializeToString(clonedSvg);
+      if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
+        source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+      }
+      await navigator.clipboard.writeText(source);
+      showToast("✓ Raw SVG markup copied to clipboard!");
+    } catch (err) {
+      showToast("⚠️ Failed to copy SVG: " + (err as Error).message);
+    }
+  }
+
   function exportPng() {
     const svgEl = stageCanvas?.querySelector("svg");
     if (!svgEl) {
@@ -1497,6 +1536,56 @@ const playgroundStructuredData = [
     }
   }
 
+  async function copyPngToClipboard() {
+    const svgEl = stageCanvas?.querySelector("svg");
+    if (!svgEl) {
+      showToast("⚠️ No diagram available to copy.");
+      return;
+    }
+    try {
+      const clonedSvg = svgEl.cloneNode(true) as SVGSVGElement;
+      clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      const serializer = new XMLSerializer();
+      const svgStr = serializer.serializeToString(clonedSvg);
+      const svgBlob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(svgBlob);
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        const scale = window.devicePixelRatio || 2;
+        const width = Math.max(svgEl.clientWidth || 800, 600);
+        const height = Math.max(svgEl.clientHeight || 500, 400);
+        const canvas = document.createElement("canvas");
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        ctx.scale(scale, scale);
+        ctx.fillStyle = isDarkMode() ? "#0b0f19" : "#ffffff";
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+        URL.revokeObjectURL(url);
+
+        canvas.toBlob(async (pngBlob) => {
+          if (!pngBlob) return;
+          try {
+            await navigator.clipboard.write([
+              new ClipboardItem({ "image/png": pngBlob }),
+            ]);
+            showToast("✓ PNG image copied to clipboard!");
+          } catch {
+            exportPng();
+            showToast("ℹ️ Direct PNG copy not supported by browser; downloaded .png instead!");
+          }
+        }, "image/png");
+      };
+      img.src = url;
+    } catch (err) {
+      showToast("⚠️ Failed to copy PNG: " + (err as Error).message);
+    }
+  }
+
   function downloadMarkdyFile() {
     const code = getCode();
     const blob = new Blob([code], { type: "text/plain;charset=utf-8" });
@@ -1509,6 +1598,16 @@ const playgroundStructuredData = [
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     showToast("✓ scene.markdy downloaded!");
+  }
+
+  async function copySourceCodeToClipboard() {
+    const code = getCode();
+    try {
+      await navigator.clipboard.writeText(code);
+      showToast("✓ MarkdyScript source copied to clipboard!");
+    } catch {
+      showToast("⚠️ Failed to copy MarkdyScript source.");
+    }
   }
 
   async function copyMarkdownBlock() {
@@ -2114,6 +2213,7 @@ const playgroundStructuredData = [
   }
 
   async function decodeShare(value: string): Promise<string | null> {
+    if (!value) return null;
     if (value.startsWith("~m")) {
       try {
         return await decompressMarkdyFromUrlHash(value);
@@ -2121,10 +2221,24 @@ const playgroundStructuredData = [
         return null;
       }
     }
+    // Handle URL-encoded raw MarkdyScript (e.g. ?code=scene%20theme...)
+    try {
+      if (value.includes("scene") || value.includes("%20") || value.includes("\n") || value.includes("->")) {
+        const decoded = decodeURIComponent(value);
+        if (decoded.includes("scene") || decoded.includes("->") || decoded.includes("service") || decoded.includes("beat")) {
+          return decoded;
+        }
+      }
+    } catch {}
+    // Handle base64 / uri-encoded base64
     try {
       return decodeURIComponent(atob(value));
     } catch {
-      return null;
+      try {
+        return atob(value);
+      } catch {
+        return null;
+      }
     }
   }
 
@@ -2523,8 +2637,11 @@ Requirements:
   });
 
   exportSvgBtn?.addEventListener("click", exportSvg);
+  copySvgBtn?.addEventListener("click", copySvgToClipboard);
   exportPngBtn?.addEventListener("click", exportPng);
+  copyPngBtn?.addEventListener("click", copyPngToClipboard);
   exportSourceBtn?.addEventListener("click", downloadMarkdyFile);
+  copySourceCodeBtn?.addEventListener("click", copySourceCodeToClipboard);
   exportMarkdownBtn?.addEventListener("click", copyMarkdownBlock);
 
   copyShareUrlBtn?.addEventListener("click", async () => {
@@ -2711,13 +2828,30 @@ Requirements:
   });
 
   document.addEventListener("keydown", (event) => {
+    const isTyping = document.activeElement === editorHost || (document.activeElement instanceof HTMLInputElement) || (document.activeElement instanceof HTMLTextAreaElement) || !!editor?.hasFocus;
+
     if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
       event.preventDefault();
       render(getCode());
     } else if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "s") {
       event.preventDefault();
       formatCodeBtn?.click();
-    } else if (event.key === " " && document.activeElement !== editorHost && !(document.activeElement instanceof HTMLInputElement) && !(document.activeElement instanceof HTMLTextAreaElement) && !editor?.hasFocus) {
+    } else if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      cheatsheetModal?.showModal();
+    } else if (!isTyping && event.key === "?") {
+      event.preventDefault();
+      cheatsheetModal?.showModal();
+    } else if (!isTyping && event.key.toLowerCase() === "f") {
+      event.preventDefault();
+      canvasFitBtn?.click();
+    } else if (!isTyping && event.key.toLowerCase() === "r") {
+      event.preventDefault();
+      canvasReplayBtn?.click();
+    } else if (!isTyping && event.key.toLowerCase() === "t") {
+      event.preventDefault();
+      switchThemeBtn?.click();
+    } else if (event.key === " " && !isTyping) {
       event.preventDefault();
       if (diagram?.isPlaying()) diagram.pause();
       else diagram?.play();
@@ -5461,12 +5595,12 @@ Requirements:
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.35rem;
+    justify-content: space-between;
+    gap: 0.5rem;
     padding: 0.85rem;
     border-radius: 10px;
     background: var(--bg-tertiary);
     border: 1px solid var(--border);
-    cursor: pointer;
     text-align: left;
     transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   }
@@ -5474,7 +5608,6 @@ Requirements:
   .export-card:hover {
     border-color: var(--accent);
     background: var(--bg-secondary);
-    transform: translateY(-2px);
     box-shadow: var(--shadow-sm);
   }
 
@@ -5497,17 +5630,46 @@ Requirements:
     line-height: 1.35;
   }
 
-  .export-card-badge {
-    margin-top: 0.25rem;
+  .export-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: 100%;
+    margin-top: 0.35rem;
+  }
+
+  .export-card-btn {
+    flex: 1;
     display: inline-flex;
     align-items: center;
-    font-size: 0.68rem;
+    justify-content: center;
+    padding: 0.3rem 0.55rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    font-family: "JetBrains Mono", monospace;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: all 0.14s ease;
+    white-space: nowrap;
+  }
+
+  .export-card-btn--primary {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+  }
+
+  .export-card-btn--primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+  }
+
+  .export-card-btn:not(.export-card-btn--primary):hover {
+    border-color: var(--accent);
     color: var(--accent);
     background: var(--accent-light);
-    padding: 0.15rem 0.45rem;
-    border-radius: 4px;
   }
 
   .export-share-container {
