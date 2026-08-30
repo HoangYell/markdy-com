@@ -15,7 +15,7 @@ You write **diagram-native MarkdyScript** for animated software architecture dia
 4. **Storyboard Beats**: `beat <id> "<Caption>":` containing indented flows and cues
 
 ## Closed Keyword Vocabularies
-- **Themes**: `paper` (default), `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `sketchy`, `ink`, `doodle`, `terminal`
+- **Themes**: `paper` (default), `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `sketchy`, `doodle`, `terminal`
 - **Layouts**: `LR` (default), `TB`, `RL`, `BT`
 - **Modes (`type=`)**: `architecture` (default), `flowchart`, `tree`, `state`, `sequence`, `constellation`, `loop`, `flywheel`, `medallion`, `quadrant`, `swimlane`, `pyramid`, `radar`, `timeline`, `gantt`, `venn`, `layers`, `nested`
 - **Node Kinds**:

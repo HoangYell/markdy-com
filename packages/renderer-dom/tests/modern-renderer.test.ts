@@ -273,7 +273,7 @@ describe("Modern Renderer Architecture Validation", () => {
 
   describe("WCAG AA Contrast & Typography Hierarchy", () => {
     it("maintains high contrast across all theme tokens", () => {
-      const themes = ["midnight", "paper", "blueprint", "graphite", "editorial", "nebula", "terminal", "sketchy", "ink", "doodle"];
+      const themes = ["midnight", "paper", "blueprint", "graphite", "editorial", "nebula", "terminal", "sketchy", "doodle"];
       for (const name of themes) {
         const theme = resolveTheme(name);
         expect(theme.text).toBeDefined();

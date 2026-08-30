@@ -456,7 +456,6 @@
             "graphite",
             "terminal",
             "sketchy",
-            "ink",
             "doodle"
           ],
           "description": "Theme override for preview panel (auto matches editor theme)."

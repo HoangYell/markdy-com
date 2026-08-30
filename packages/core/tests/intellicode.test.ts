@@ -74,7 +74,6 @@ beat main "System Flow":
     expect(themeNames).toContain("graphite");
     expect(themeNames).toContain("terminal");
     expect(themeNames).toContain("sketchy");
-    expect(themeNames).toContain("ink");
     expect(themeNames).toContain("doodle");
   });
 
