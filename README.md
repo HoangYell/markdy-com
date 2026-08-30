@@ -137,7 +137,7 @@ Static boxes and arrows fail to capture distributed systems in action. **Markdy 
 
 Extend Markdy across your favorite AI agents, editors, frameworks, and deployment workflows:
 
-<details open>
+<details>
 <summary><b>🤖 AI Coding Agents &amp; MCP Server (Recommended)</b></summary>
 <br>
 
@@ -154,7 +154,7 @@ agy mcp add markdy -- npx -y @markdy/mcp-server
 👉 **[1-Click Install for Cursor ↗](https://markdy.com/mcp/cursor)** &nbsp;•&nbsp; **[1-Click Install for VS Code ↗](https://markdy.com/mcp/vscode)** &nbsp;•&nbsp; **[Detailed AI Setup Guide (`AGENT.md`) ↗](docs/AGENT.md)**
 </details>
 
-<details open>
+<details>
 <summary><b>🔌 IDE Extensions (VS Code, Cursor, Windsurf, VSCodium)</b></summary>
 <br>
 
@@ -172,7 +172,7 @@ cursor --install-extension hoangyell.markdy-vscode
 </details>
 
 <a id="astro-integration"></a>
-<details open id="astro-integration">
+<details id="astro-integration">
 <summary><b>🚀 Astro Integration (`@markdy/astro`)</b></summary>
 <br>
 
@@ -195,7 +195,7 @@ import code from "./diagram.markdy?raw";
 </details>
 
 <a id="mdx-integration"></a>
-<details open id="mdx-integration">
+<details id="mdx-integration">
 <summary><b>📝 MDX / React / Next.js Integration (`@markdy/mdx`)</b></summary>
 <br>
 
@@ -312,7 +312,7 @@ markdy import architecture.drawio --out diagram.markdy     # Draw.io / diagrams.
 </details>
 
 <a id="mcp-setup"></a>
-<details open id="mcp-setup">
+<details id="mcp-setup">
 <summary><b>🤖 AI Coding Agents &amp; Model Context Protocol (MCP) Setup (Cursor, VS Code, Claude, Antigravity)</b></summary>
 <br>
 
