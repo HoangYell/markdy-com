@@ -40,7 +40,11 @@
 > **Describe your system flow in plain English → your AI Agent generates the Markdy animation.**
 
 <p align="center">
-  <img src="docs/images/ai-paradigm-flow.svg" width="100%" alt="How to Use Markdy with AI Agents" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/ai-paradigm-flow.svg">
+    <source media="(prefers-color-scheme: light)" srcset="docs/images/ai-paradigm-flow.svg">
+    <img src="docs/images/ai-paradigm-flow.svg" width="100%" alt="How to Use Markdy with AI Agents" />
+  </picture>
 </p>
 
 ---

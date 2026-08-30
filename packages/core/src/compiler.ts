@@ -1516,7 +1516,15 @@ export function computeAdaptiveDimensions(
       if (maxInRank === 1 && !hasTitle) {
         // Horizontal single-row chain without title: snug ribbon height
         autoW = Math.max(1024, Math.min(2560, requiredW));
-        autoH = Math.max(hasBeatCaptions ? 240 : 208, Math.min(360, requiredH + 32));
+        autoH = Math.max(hasBeatCaptions ? 240 : 208, Math.min(360, requiredH + 24));
+      } else if (maxInRank === 2 && !hasTitle) {
+        // 2-row horizontal layout: compact dual-tier height
+        autoW = Math.max(1024, Math.min(2560, requiredW));
+        autoH = Math.max(hasBeatCaptions ? 368 : 336, Math.min(480, requiredH + 24));
+      } else if (maxInRank === 3 && !hasTitle) {
+        // 3-row horizontal layout: compact tri-tier height
+        autoW = Math.max(1152, Math.min(2560, requiredW));
+        autoH = Math.max(hasBeatCaptions ? 480 : 448, Math.min(640, requiredH + 24));
       } else if (nodeCount <= 2 && rankCount <= 2) {
         autoW = 1024;
         autoH = hasTitle ? 576 : 384;
