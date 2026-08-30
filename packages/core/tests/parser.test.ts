@@ -746,6 +746,193 @@ beat main:
     ]);
   });
 
+  it("parses MDX-collapsed player blocks where groups start at column 0", () => {
+    const ast = parse(`
+scene "MDX Test" theme=paper
+layout LR
+browser Client
+service API
+
+beat main:
+  show $nodes
+  Client -> API "GET /"
+
+player:
+playback:
+  loop true
+  rate 1.25
+controls:
+  theme true
+  fullscreen true
+interaction:
+  zoom false
+chrome:
+  badge false
+  progress boundary
+  color "#3b82f6"
+`);
+
+    expect(ast.meta.player).toEqual({
+      playback: { loop: true, rate: 1.25 },
+      controls: { theme: true, fullscreen: true },
+      interaction: { zoom: false },
+      chrome: { badge: false, progress: "boundary", progressColor: "#3b82f6" },
+    });
+    expect(ast.diagnostics).toEqual([]);
+  });
+
+  it("parses completely unindented player groups and settings at column 0", () => {
+    const ast = parse(`
+scene "Flat MDX"
+service API
+beat main:
+  show API
+
+player:
+playback:
+loop true
+controls:
+play true
+`);
+
+    expect(ast.meta.player).toEqual({
+      playback: { loop: true },
+      controls: { play: true },
+    });
+    expect(ast.diagnostics).toEqual([]);
+  });
+
+  it("parses unindented flat player settings under player:", () => {
+    const ast = parse(`
+scene "Flat settings"
+service API
+beat main:
+  show API
+
+player:
+loop true
+autoplay false
+`);
+
+    expect(ast.meta.player).toEqual({
+      playback: { loop: true, autoplay: false },
+    });
+    expect(ast.diagnostics).toEqual([]);
+  });
+
+  it("throws descriptive error when player block is empty", () => {
+    expect(() =>
+      parse(`
+scene "Empty Player"
+service API
+player:
+beat main:
+  show API
+`)
+    ).toThrow(/player block requires at least one setting/);
+  });
+
+  it("throws descriptive error when player group is empty", () => {
+    expect(() =>
+      parse(`
+scene "Empty Playback"
+service API
+player:
+  playback:
+  controls:
+    play true
+`)
+    ).toThrow(/player playback block requires at least one setting/);
+  });
+
+  it("parses standard 2-space, 4-space, and tab-indented player blocks identically", () => {
+    const twoSpace = parse(`
+scene "2-space"
+player:
+  playback:
+    loop true
+    rate 1.25
+  controls:
+    theme true
+`);
+
+    const fourSpace = parse(`
+scene "4-space"
+player:
+    playback:
+        loop true
+        rate 1.25
+    controls:
+        theme true
+`);
+
+    const eightSpace = parse(`
+scene "8-space"
+player:
+        playback:
+                loop true
+                rate 1.25
+        controls:
+                theme true
+`);
+
+    const tabIndented = parse(`
+scene "tab-indented"
+player:
+\tplayback:
+\t\tloop true
+\t\trate 1.25
+\tcontrols:
+\t\ttheme true
+`);
+
+    const expectedPlayer = {
+      playback: { loop: true, rate: 1.25 },
+      controls: { theme: true },
+    };
+
+    expect(twoSpace.meta.player).toEqual(expectedPlayer);
+    expect(fourSpace.meta.player).toEqual(expectedPlayer);
+    expect(eightSpace.meta.player).toEqual(expectedPlayer);
+    expect(tabIndented.meta.player).toEqual(expectedPlayer);
+  });
+
+  it("safely terminates player block when followed by scene, nodes, groups, and beats", () => {
+    const code = `
+player:
+    playback:
+        loop true
+        rate 1.5
+    controls:
+        theme true
+
+scene "Complete Flow" theme=paper
+layout LR
+
+browser Client "Shopper"
+service Gateway "API Gateway"
+database DB "Postgres"
+
+group backend "Core": Gateway DB
+
+beat main "Flow":
+  show $nodes
+  Client -> Gateway "POST /order"
+  Gateway -> DB "INSERT"
+  Client <- Gateway "200 OK"
+`;
+
+    const ast = parse(code);
+    expect(ast.meta.player?.playback?.loop).toBe(true);
+    expect(ast.meta.player?.playback?.rate).toBe(1.5);
+    expect(ast.meta.player?.controls?.theme).toBe(true);
+    expect(Object.keys(ast.nodes)).toEqual(["Client", "Gateway", "DB"]);
+    expect(ast.groups.backend).toBeDefined();
+    expect(ast.groups.backend.members).toEqual(["Gateway", "DB"]);
+    expect(ast.beats).toHaveLength(1);
+    expect(ast.beats[0].name).toBe("main");
+  });
+
   it("parses style declarations and custom style references on nodes", () => {
     const code = `
 style Highlight = fill="#0f172a" stroke="#38bdf8" text="#ffffff" accent="#f59e0b"

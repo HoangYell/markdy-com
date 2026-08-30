@@ -2,10 +2,10 @@
 
 > ### CURRENT AUTHORITATIVE SPECIFICATION
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.1.1
+> - **Current Version**: v1.1.2
 > - **Specification Version**: 1.1.x
-> - **Time Updated**: 2026-08-29T07:15:23.620Z
-> - **Last Updated**: 2026-08-29
+> - **Time Updated**: 2026-08-30T03:07:46.501Z
+> - **Last Updated**: 2026-08-30
 > - **Canonical URL**: <https://markdy.com/AGENT.md>
 > - **Human-Readable Mirror**: <https://markdy.com/agent/>
 > - **LLM Index**: <https://markdy.com/llms.txt>
@@ -305,16 +305,72 @@ annotation "Hot path: sub-10ms SLA" target=ApiService position=top-right intent=
 
 ---
 
-## 🚫 Contrastive Anti-Patterns & Hallucination Fixes
+## 🚫 Strict Anti-Patterns & Common AI Hallucinations
 
 | ❌ Invalid / Hallucinated Pattern | ✅ Correct MarkdyScript Syntax | Why / Explanation |
 | :--- | :--- | :--- |
-| **Return edge with `->`**<br>`A -> B "call"`<br>`B -> A "200 OK"` | `A -> B "call"`<br>`A <- B "200 OK"` | `B -> A` introduces a circular rank dependency in the layout solver, causing nodes `A` and `B` to overlap. `<-` indicates return flow without altering layout rank. |
-| **Flows outside `beat` blocks**<br>`service A`<br>`service B`<br>`A -> B "data"` | `service A`<br>`service B`<br>`beat flow:`<br>`  A -> B "data"` | Flow actions are animated storyboard events and must live inside a named `beat:` block. |
-| **Hallucinated cue names**<br>`pulse NodeA`<br>`camera zoom=1.5`<br>`say "Connecting..."` | `focus NodeA`<br>`frame NodeA zoom=1.5`<br>`beat step "Connecting...":` | Markdy only supports: `show`, `hide`, `frame`, `glow`, `focus`, and `&`. Beat labels provide narrative captions. |
-| **Unquoted multi-word labels**<br>`service API API Gateway Service` | `service API "API Gateway Service"` | Node display labels with spaces must be wrapped in double quotes `"..."`. |
-| **Spaced node identifiers**<br>`service Order Service "API"` | `service OrderService "API"` | Node identifiers (`<Id>`) must be single alphanumeric tokens without spaces. |
-| **Flat unindented beat blocks**<br>`beat main:`<br>`show $nodes`<br>`A -> B` | `beat main:`<br>`  show $nodes`<br>`  A -> B` | Cues inside a `beat` block must be indented with 2 spaces. |
+| **No Return Edge with `->`**<br>`A -> B "call"`<br>`B -> A "200 OK"` | `A -> B "call"`<br>`A <- B "200 OK"` | `B -> A` introduces a circular rank dependency in the layout solver, causing nodes `A` and `B` to overlap. `<-` indicates return flow without altering layout rank. |
+| **No Curly Braces for Beats**<br>`beat main "Title" {`<br>`  show $nodes`<br>`}` | `beat main "Title":`<br>`  show $nodes` | MarkdyScript is indentation-native. Beat blocks require a trailing colon `:` and 2-space indented cues. Do not use curly braces `{ ... }`. |
+| **No Named Edge Directives**<br>`edge e1: A -- B`<br>`edge e2: Client -> API` | `A -- B`<br>`beat main:`<br>`  Client -> API "call"` | Static dependency links use `A -- B` at the top level. Dynamic kinetic animations use `Client -> API "label"` inside `beat:` blocks. Never declare named `edge id:` statements. |
+| **No Multiline Group Bodies**<br>`group backend:`<br>`  NodeA`<br>`  NodeB` | `group backend "Backend": NodeA NodeB` | Always declare group members inline on a single line following the colon: `group <id> ["Label"]: <Member1> <Member2> ...`. |
+| **No Flows Outside `beat` Blocks**<br>`service A`<br>`service B`<br>`A -> B "data"` | `service A`<br>`service B`<br>`beat flow:`<br>`  A -> B "data"` | Flow actions are animated storyboard events and must live inside a named `beat:` block. |
+| **No Hallucinated Cue Names**<br>`pulse NodeA`<br>`camera zoom=1.5`<br>`say "Connecting..."` | `focus NodeA`<br>`frame NodeA zoom=1.5`<br>`beat step "Connecting...":` | Markdy only supports: `show`, `hide`, `frame`, `glow`, `focus`, `use`, and `&`. Beat labels provide narrative captions. |
+| **No Unquoted Multi-Word Labels**<br>`service API API Gateway Service` | `service API "API Gateway Service"` | Node display labels with spaces must be wrapped in double quotes `"..."`. |
+| **No Spaced Node Identifiers**<br>`service Order Service "API"` | `service OrderService "API"` | Node identifiers (`<Id>`) must be single alphanumeric tokens without spaces. |
+| **No Flat Unindented Beat Blocks**<br>`beat main:`<br>`show $nodes`<br>`A -> B` | `beat main:`<br>`  show $nodes`<br>`  A -> B` | Cues inside a `beat` block must be indented with 2 spaces. |
+
+---
+
+### ⚠️ MDX & JSX Embedding Guidelines
+
+When embedding Markdy diagrams into MDX (Astro MDX, Next.js MDX, Docusaurus):
+
+```mdx
+import { Markdy } from "@markdy/astro"; // or MarkdyDiagram from "@markdy/mdx"
+
+<Markdy
+  code={`
+scene "Payment Gateway" theme=paper width=1280 height=720
+layout LR
+
+browser Client "Shopper"
+gateway Gateway "API Gateway"
+service PaymentService "Payment Service"
+database DB "Transactions DB"
+
+group backend "Core Infrastructure": PaymentService DB
+
+beat reveal "System Overview":
+  show $nodes stagger=40ms
+
+beat checkout "Process Payment":
+  frame Client Gateway PaymentService zoom=1.15
+  Client -> Gateway "POST /charge" -> PaymentService "authorize"
+  PaymentService -> DB "INSERT record"
+  Client <- Gateway "200 OK"
+
+player:
+  playback:
+    autoplay true
+    loop true
+    rate 1.25
+  controls:
+    theme true
+    fullscreen true
+  interaction:
+    zoom true
+    pan true
+  chrome:
+    badge true
+    progress boundary
+`}
+/>
+```
+
+> [!TIP]
+> **MDX Template Literal Indentation Resiliency**:
+> MDX transformers sometimes strip leading indentation from JSX template strings. `@markdy/core` automatically normalizes and infers the `player:` block structure (`playback:`, `controls:`, `interaction:`, `chrome:`). However, keeping standard 2-space/4-space indentation ensures maximum readability across IDEs.
+
 
 ---
 

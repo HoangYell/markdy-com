@@ -30,6 +30,7 @@ import {
 } from "./registry.js";
 import {
   applyPlayerSetting,
+  isKnownPlayerSetting,
   parseBooleanToken,
   PLAYER_FLAT_KEYS,
   type PlayerScope,
@@ -523,6 +524,25 @@ function mirrorLegacySceneMeta(meta: SceneMeta): SceneMeta {
   return meta;
 }
 
+const NON_PLAYER_TOP_LEVEL_RE = /^(scene|player|layout|pattern|group|annotation|edge|beat|var|style)\b/;
+
+function isPlayerBlockLine(line: string): boolean {
+  if (PLAYER_GROUP_RE.test(line)) return true;
+  const match = line.match(PLAYER_SETTING_RE);
+  if (!match) return false;
+  return isKnownPlayerSetting(match[1]);
+}
+
+function isNonPlayerTopLevelStatement(line: string): boolean {
+  if (line === "}") return true;
+  if (NON_PLAYER_TOP_LEVEL_RE.test(line)) return true;
+  if (isPlayerBlockLine(line)) return false;
+  const nodeMatch = line.match(/^(\w[\w.-]*)\s+(\w[\w.-]*)/);
+  if (!nodeMatch) return false;
+  const kind = canonicalNodeKind(nodeMatch[1].toLowerCase());
+  return NODE_KINDS.has(kind);
+}
+
 /**
  * True for statements that open a new top-level construct. Used to recover
  * colon bodies when a host (MDX/JSX template literals, HTML attribute
@@ -844,8 +864,35 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
     if (unsupportedMessage) throw new ParseError(unsupportedMessage, lineNo);
 
     if (/^player\s*:\s*$/.test(line)) {
-      const { body, nextIdx } = readIndentedBody(blocks, i + 1, block.indent);
-      if (body.length === 0) throw new ParseError("player block requires at least one setting", lineNo);
+      let { body, nextIdx } = readIndentedBody(blocks, i + 1, block.indent);
+      if (body.length === 0 && i + 1 < blocks.length) {
+        // Indentation was stripped by MDX or host: recover same-indent lines
+        const unindented: Block[] = [];
+        let j = i + 1;
+        while (j < blocks.length) {
+          const nextBlock = blocks[j];
+          if (nextBlock.indent < block.indent) break;
+          if (nextBlock.indent === block.indent && isNonPlayerTopLevelStatement(nextBlock.text)) break;
+          if (isNonPlayerTopLevelStatement(nextBlock.text)) break;
+          unindented.push(nextBlock);
+          j++;
+        }
+        if (unindented.length > 0) {
+          body = unindented;
+          nextIdx = j;
+        }
+      }
+
+      if (body.length === 0) {
+        if (i + 1 < blocks.length && isNonPlayerTopLevelStatement(blocks[i + 1].text)) {
+          throw new ParseError(
+            `player block requires at least one setting (found '${blocks[i + 1].text}' immediately following 'player:')`,
+            lineNo,
+          );
+        }
+        throw new ParseError("player block requires at least one setting", lineNo);
+      }
+
       const player = (meta.player ??= {});
 
       const applySetting = (scope: PlayerScope, setting: Block): void => {
@@ -860,7 +907,25 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
         const groupMatch = setting.text.match(PLAYER_GROUP_RE);
         if (groupMatch) {
           const scope = groupMatch[1] as PlayerScope;
-          const { body: childBody, nextIdx: childNextIdx } = readIndentedBody(body, settingIdx + 1, setting.indent);
+          let childBody: Block[] = [];
+          let childNextIdx = settingIdx + 1;
+
+          // 1. Try reading indented children
+          const indented = readIndentedBody(body, settingIdx + 1, setting.indent);
+          if (indented.body.length > 0) {
+            childBody = indented.body;
+            childNextIdx = indented.nextIdx;
+          } else {
+            // 2. If children share the same indentation level (or MDX stripped indentation):
+            let k = settingIdx + 1;
+            while (k < body.length) {
+              if (PLAYER_GROUP_RE.test(body[k].text)) break;
+              childBody.push(body[k]);
+              k++;
+            }
+            childNextIdx = k;
+          }
+
           if (childBody.length === 0) {
             throw new ParseError(`player ${scope} block requires at least one setting`, setting.line);
           }
