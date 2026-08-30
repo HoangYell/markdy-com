@@ -269,7 +269,7 @@ export interface EdgeRuntime {
 export type EdgeRuntimeMap = Map<string, EdgeRuntime>;
 
 function isDarkTheme(theme: ThemeTokens): boolean {
-  if (theme.name === "paper" || theme.name === "editorial" || theme.name === "sketchy" || theme.name === "doodle") {
+  if (theme.name === "paper" || theme.name === "editorial" || theme.name === "sketchy" || theme.name === "ink" || theme.name === "doodle") {
     return false;
   }
   const canvas = (theme.canvas || theme.surface || "").trim();
@@ -387,6 +387,15 @@ export function createEdgeRuntime(
       plate.setAttribute("stroke-width", "1.5");
       plate.style.opacity = "0";
       plate.style.filter = "drop-shadow(2px 2px 0 #18181b)";
+    } else if (theme.name === "ink") {
+      plate.setAttribute("rx", "4");
+      plate.setAttribute("ry", "4");
+      plate.setAttribute("fill", "#ffffff");
+      plate.setAttribute("fill-opacity", "0.98");
+      plate.setAttribute("stroke", "#1d4ed8");
+      plate.setAttribute("stroke-width", "1");
+      plate.style.opacity = "0";
+      plate.style.filter = "drop-shadow(1.5px 1.5px 0 rgba(29, 78, 216, 0.14))";
     } else {
       plate.setAttribute("rx", "5");
       plate.setAttribute("ry", "5");

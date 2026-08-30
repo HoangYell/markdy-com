@@ -41,7 +41,7 @@ const TOKEN_TAG: Record<string, Tag> = {
 const KEYWORDS = new Set([
   "scene", "layout", "group", "beat", "style", "pattern", "use", "theme", "edge", "annotation", "var",
   "LR", "RL", "TB", "BT",
-  "midnight", "paper", "blueprint", "nebula", "editorial", "graphite", "terminal", "sketchy", "doodle",
+  "midnight", "paper", "blueprint", "nebula", "editorial", "graphite", "terminal", "sketchy", "ink", "doodle",
   "architecture", "flowchart", "tree", "state", "sequence", "constellation", "loop", "flywheel",
   "medallion", "quadrant", "swimlane", "pyramid", "radar", "timeline", "gantt", "venn", "layers", "nested",
   ...BEAT_CUE_KEYWORDS,

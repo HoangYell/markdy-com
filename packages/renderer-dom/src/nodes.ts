@@ -188,6 +188,8 @@ export function ensureNodeStyles(doc: Document): void {
 .markdy-scene-root[data-markdy-theme="terminal"] .markdy-node[data-shape="diamond"][data-focal="1"],
 .markdy-scene-root[data-markdy-theme="sketchy"] .markdy-node[data-shape="diamond"],
 .markdy-scene-root[data-markdy-theme="sketchy"] .markdy-node[data-shape="diamond"][data-focal="1"],
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node[data-shape="diamond"],
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node[data-shape="diamond"][data-focal="1"],
 .markdy-scene-root[data-markdy-theme="doodle"] .markdy-node[data-shape="diamond"],
 .markdy-scene-root[data-markdy-theme="doodle"] .markdy-node[data-shape="diamond"][data-focal="1"],
 .markdy-scene-root[data-markdy-theme="nebula"] .markdy-node[data-shape="diamond"],
@@ -365,6 +367,54 @@ export function ensureNodeStyles(doc: Document): void {
   border-color: #eb6c36;
   background: rgba(235, 108, 54, 0.06);
   box-shadow: 3px 3px 0 rgba(235, 108, 54, 0.12);
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node {
+  background: #ffffff;
+  border: 1.5px solid #1d4ed8;
+  box-shadow:
+    3px 3px 0 rgba(29, 78, 216, 0.12),
+    0 4px 16px -2px rgba(29, 78, 216, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-radius: var(--md-radius-md, 6px);
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node[data-visible="1"]:hover {
+  transform: translate(-1px, -1px);
+  box-shadow:
+    4px 4px 0 rgba(29, 78, 216, 0.18),
+    0 8px 24px -4px rgba(29, 78, 216, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node__icon {
+  background: color-mix(in srgb, var(--md-role-color, var(--md-accent)) 10%, #ffffff);
+  border: 1px solid color-mix(in srgb, var(--md-role-color, var(--md-accent)) 30%, transparent);
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node__tech {
+  background: #eff6ff;
+  color: #1e3a8a;
+  border: 1px solid #bfdbfe;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node[data-shape="diamond"] {
+  filter: drop-shadow(0 0 1px #1d4ed8) drop-shadow(3px 3px 0 rgba(29, 78, 216, 0.12));
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node[data-focal="1"] {
+  border-color: #1d4ed8;
+  background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%);
+  box-shadow:
+    3px 3px 0 rgba(29, 78, 216, 0.25),
+    0 8px 24px -4px rgba(29, 78, 216, 0.18),
+    inset 0 1px 0 #ffffff;
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node[data-focal="1"] .markdy-node__icon {
+  background: rgba(29, 78, 216, 0.12);
+  border-color: rgba(29, 78, 216, 0.40);
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node[data-shape="diamond"][data-focal="1"] {
+  filter: drop-shadow(0 0 1.5px #1d4ed8) drop-shadow(3px 3px 0 rgba(29, 78, 216, 0.25)) drop-shadow(0 6px 20px rgba(29, 78, 216, 0.16));
 }
 .markdy-scene-root[data-markdy-theme="doodle"] .markdy-node {
   background: #ffffff;

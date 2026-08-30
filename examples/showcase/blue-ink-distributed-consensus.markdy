@@ -1,0 +1,59 @@
+scene "Distributed Consensus & Raft Replication" theme=ink type=architecture width=1280 height=760
+layout LR
+annotation "Raft Quorum (2/3)" target=Leader position=top-right
+
+browser Client "Client Application"
+gateway Proxy "Consensus Proxy"
+service Leader "Raft Leader Node"
+service FollowerA "Follower Replica A"
+service FollowerB "Follower Replica B"
+database StateMachine "State Machine Ledger"
+storage WAL "Write-Ahead Log"
+
+group ingress "Ingress Tier": Client Proxy
+group raft "Consensus Quorum": Leader FollowerA FollowerB
+group storage "Persistent Storage": StateMachine WAL
+
+edge ingress_flow: Client -> Proxy -> Leader
+edge quorum_a: Leader -> FollowerA
+edge quorum_b: Leader -> FollowerB
+edge persist_wal: Leader -> WAL
+edge apply_sm: Leader -> StateMachine
+
+beat reveal "1. Cluster Initialization & Quorum Discovery":
+  show ingress stagger=40ms & show raft stagger=40ms & show storage stagger=40ms
+  frame raft zoom=1.12 dur=450ms
+  glow Leader color=#1d4ed8 strength=1.3
+
+beat propose "2. Transaction Proposal & Log Append":
+  frame ingress zoom=1.1 dur=400ms
+  Client -> Proxy "POST /tx/commit" -> Leader "propose_entry"
+  Leader -> WAL "append_entry(idx=402)"
+  frame raft zoom=1.15 dur=450ms
+  Leader -> FollowerA "AppendEntries RPC"
+  Leader -> FollowerB "AppendEntries RPC"
+
+beat commit "3. Quorum Acknowledgment & State Machine Apply":
+  frame raft zoom=1.12 dur=400ms
+  FollowerA <- Leader "ack_ok"
+  FollowerB <- Leader "ack_ok"
+  frame storage zoom=1.15 dur=450ms
+  Leader -> StateMachine "apply_committed_tx"
+  Client <- Proxy "200 Committed (tx=402)"
+  glow StateMachine color=#0284c7 strength=1.2
+
+player:
+  playback:
+    loop true
+  controls:
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress boundary
+    color "#1d4ed8"

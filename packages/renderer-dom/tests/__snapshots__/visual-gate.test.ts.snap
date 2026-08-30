@@ -696,6 +696,50 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "data",
     },
   ],
+  "examples/showcase/blue-ink-distributed-consensus.markdy": [
+    {
+      "icon": "browser",
+      "id": "Client",
+      "kind": "browser",
+      "role": "client",
+    },
+    {
+      "icon": "gateway",
+      "id": "Proxy",
+      "kind": "api_gateway",
+      "role": "network",
+    },
+    {
+      "icon": "server",
+      "id": "Leader",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
+      "icon": "server",
+      "id": "FollowerA",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
+      "icon": "server",
+      "id": "FollowerB",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
+      "icon": "database",
+      "id": "StateMachine",
+      "kind": "database",
+      "role": "data",
+    },
+    {
+      "icon": "storage",
+      "id": "WAL",
+      "kind": "storage",
+      "role": "data",
+    },
+  ],
   "examples/showcase/cicd-delivery-pipeline.markdy": [
     {
       "icon": "user",

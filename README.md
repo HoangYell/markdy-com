@@ -282,7 +282,7 @@ Markdy is architected as a modular monorepo where each package fulfills a focuse
 ## 🔍 Detailed Features & Advanced Usage
 
 <details>
-<summary><b>🎨 17 Specialized Layout Engines &amp; 9 Editorial Themes</b></summary>
+<summary><b>🎨 17 Specialized Layout Engines &amp; 10 Editorial Themes</b></summary>
 <br>
 
 Markdy provides topological layout algorithms tailored to specific system patterns:
@@ -291,7 +291,7 @@ Markdy provides topological layout algorithms tailored to specific system patter
 - **Security & Structure**: `layers`, `nested`, `swimlane`, `quadrant`, `pyramid`
 - **Data & Product Loops**: `medallion`, `timeline`, `gantt`, `flywheel`, `constellation`, `radar`, `venn`
 
-**Themes**: `midnight` (dark modern), `paper` (light technical), `blueprint` (CAD cyan), `editorial` (serif publication), `graphite` (minimal dark), `nebula` (cosmic violet), `terminal` (CLI retro), `sketchy` (hand-drawn), `doodle` (playful doodle).
+**Themes**: `midnight` (dark modern), `paper` (light technical), `blueprint` (CAD cyan), `editorial` (serif publication), `graphite` (minimal dark), `nebula` (cosmic violet), `terminal` (CLI retro), `sketchy` (hand-drawn), `ink` (blue ballpoint & fountain pen ink), `doodle` (playful doodle).
 
 👉 *[Explore all 17+ interactive scenes in the Live Gallery ↗](https://markdy.com/examples/)*
 </details>

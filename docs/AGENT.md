@@ -83,6 +83,7 @@ type ThemeName =
   | "paper"       // Clean light documentation canvas (Default Light)
   | "nebula"      // Deep-space cyberpunk canvas with glowing orbit halos (Default Dark)
   | "sketchy"     // Hand-drawn whiteboard theme with organic strokes
+  | "ink"         // Monochromatic blue ink style inspired by ballpoint pens, fountain pens, cyanotypes & porcelain
   | "doodle"      // Playful hand-drawn doodle sketchbook with felt-tip marker pens and comic block shadows
   | "editorial"   // Flat editorial paper with serif titles and ink roles
   | "midnight"    // Deep navy dark canvas
@@ -147,7 +148,7 @@ layout LR
 
 | Directive | Type | Presence | Allowed Values | Default | Description |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `theme` | `enum` | Optional | `auto`, `paper`, `nebula`, `editorial`, `midnight`, `blueprint`, `graphite`, `sketchy`, `doodle`, `terminal` | `auto` | Visual theme. **Recommended: `auto` (or omit `theme`)** so the diagram automatically adapts to the host site's Light (`paper`) and Dark (`nebula`) modes. Specifying a custom fixed theme (like `theme=terminal` or `theme=blueprint`) is also fully supported. |
+| `theme` | `enum` | Optional | `auto`, `paper`, `nebula`, `editorial`, `midnight`, `blueprint`, `graphite`, `sketchy`, `ink`, `doodle`, `terminal` | `auto` | Visual theme. **Recommended: `auto` (or omit `theme`)** so the diagram automatically adapts to the host site's Light (`paper`) and Dark (`nebula`) modes. Specifying a custom fixed theme (like `theme=terminal` or `theme=blueprint`) is also fully supported. |
 | `layout` | `enum` | Optional | `LR`, `TB`, `RL`, `BT` | `LR` | Auto-layout graph flow direction: `LR` (left-to-right), `TB` (top-to-bottom), `RL` (right-to-left), `BT` (bottom-to-top). |
 | `type` | `enum` | Optional | `architecture`, `flowchart`, `tree`, `state`, `sequence`, `timeline`, `gantt`, `venn`, `layers`, `nested`, `radar`, `medallion`, `flywheel`, `loop`, `quadrant`, `swimlane`, `pyramid`, `constellation` | `architecture` | Diagram composition layout engine. |
 | `width` | `number` | Optional | Positive integer in pixels (e.g. `1280`, `1440`, `1600`) | *Auto* | Canvas width. Omit to enable content-adaptive automatic sizing. |

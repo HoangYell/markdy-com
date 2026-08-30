@@ -99,7 +99,7 @@ If the input is foreign diagram syntax (Mermaid, Docker Compose, Kubernetes mani
   scene theme=paper
   layout LR
   ```
-  *(Supported themes: `paper`, `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `sketchy`, `doodle`, `terminal`)*
+  *(Supported themes: `paper`, `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `sketchy`, `ink`, `doodle`, `terminal`)*
 
 ---
 

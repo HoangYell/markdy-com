@@ -46,7 +46,7 @@ export interface ExampleMeta {
   /** Short description for gallery cards and SEO. */
   description?: string;
   /** Semantic theme used by the scene. */
-  theme?: "midnight" | "paper" | "blueprint" | "graphite" | "editorial" | "nebula" | "terminal" | "sketchy" | "doodle";
+  theme?: "midnight" | "paper" | "blueprint" | "graphite" | "editorial" | "nebula" | "terminal" | "sketchy" | "ink" | "doodle";
   /** Path relative to the repo's `examples/` directory. */
   file: string;
   playback?: {
@@ -393,6 +393,16 @@ export const FULL_GALLERY_REGISTRY: ExampleMeta[] = [
     description: "Informal whiteboard architecture flow rendered with organic sketchy hand-drawn style.",
     theme: "sketchy",
     file: "showcase/sketchy-whiteboard-flow.markdy",
+  },
+  {
+    id: "blue-ink-distributed-consensus",
+    title: "Distributed Raft Consensus in Blue Ink",
+    category: "distributed-systems",
+    sceneType: "architecture",
+    pattern: "raft-consensus",
+    description: "Quorum replication, write-ahead logging, and state machine commits rendered in classic blue ink style.",
+    theme: "ink",
+    file: "showcase/blue-ink-distributed-consensus.markdy",
   },
 ];
 

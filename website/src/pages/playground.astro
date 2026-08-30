@@ -46,6 +46,7 @@ const TOKEN_LIBRARIES = {
     { name: "editorial", label: "theme=editorial", template: "theme=editorial\n" },
     { name: "terminal", label: "theme=terminal", template: "theme=terminal\n" },
     { name: "sketchy", label: "theme=sketchy", template: "theme=sketchy\n" },
+    { name: "ink", label: "theme=ink", template: "theme=ink\n" },
     { name: "doodle", label: "theme=doodle", template: "theme=doodle\n" },
     { name: "blueprint", label: "theme=blueprint", template: "theme=blueprint\n" },
     { name: "midnight", label: "theme=midnight", template: "theme=midnight\n" },
@@ -444,6 +445,7 @@ const playgroundStructuredData = [
                   <option value="paper">theme=paper</option>
                   <option value="editorial">theme=editorial</option>
                   <option value="sketchy">theme=sketchy</option>
+                  <option value="ink">theme=ink</option>
                   <option value="doodle">theme=doodle</option>
                 </optgroup>
                 <optgroup label="Dark Themes">
@@ -1793,7 +1795,7 @@ const playgroundStructuredData = [
 
   // ─── Theme Switcher (Random Dark / Random Light Toggle) ───────────
   const DARK_THEMES = ["midnight", "blueprint", "graphite", "nebula", "terminal"];
-  const LIGHT_THEMES = ["paper", "editorial", "sketchy", "doodle"];
+  const LIGHT_THEMES = ["paper", "editorial", "sketchy", "ink", "doodle"];
 
   function toggleRandomThemeInPlayground(): void {
     const current = getCode();

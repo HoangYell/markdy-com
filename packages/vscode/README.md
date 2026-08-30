@@ -169,7 +169,7 @@ Right-click ──▶ Markdy ▶ ──┬── Live Preview
 
 | Setting | Default | Options / Description |
 |---|---|---|
-| `markdy.preview.theme` | `"auto"` | `"auto"`, `"midnight"`, `"paper"`, `"blueprint"`, `"nebula"`, `"editorial"`, `"graphite"`, `"terminal"`, `"sketchy"`, `"doodle"` |
+| `markdy.preview.theme` | `"auto"` | `"auto"`, `"midnight"`, `"paper"`, `"blueprint"`, `"nebula"`, `"editorial"`, `"graphite"`, `"terminal"`, `"sketchy"`, `"ink"`, `"doodle"` |
 | `markdy.preview.autoplay` | `true` | Automatically play diagram animations when preview opens |
 | `markdy.preview.loop` | `true` | Continuously loop diagram animations |
 | `markdy.preview.progressBar` | `true` | Show interactive timeline scrubber and progress bar |

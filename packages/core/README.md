@@ -7,7 +7,7 @@ The parser and AST types for [MarkdyScript](../../docs/SYNTAX.md) — a diagram-
 - **Zero runtime dependencies** — pure TypeScript, no DOM or platform APIs (~14 KB minzipped)
 - **Single-pass parser** — line-by-line state machine with strict `ParseError` line-number diagnostics
 - **17 Specialized Layout Engines** — `architecture`, `flowchart`, `tree`, `sequence`, `state`, `layers`, `nested`, `swimlane`, `timeline`, `gantt`, `medallion`, `flywheel`, `constellation`, `quadrant`, `pyramid`, `radar`, `venn`
-- **9 Semantic Themes** — `paper`, `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `terminal`, `sketchy`, `doodle`
+- **10 Semantic Themes** — `paper`, `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `terminal`, `sketchy`, `ink`, `doodle`
 - **Content-Adaptive Canvas Sizing** — automatically calculates optimal aspect ratio and bounds based on diagram items and topology
 - **Well-Architected Governance & AST Diffing** — layer boundaries, deadlock cycle detection, gateway isolation, and semantic AST evolution
 - **Isomorphic** — runs in Node.js, Deno, Bun, edge runtimes, and the browser
@@ -93,7 +93,7 @@ try {
 | `validateArchitectureRules` | `(ast) => Diagnostic[]` | Run Well-Architected rules: cycle detection, layer boundaries, and gateway checks |
 | `diffAST` | `(astA, astB) => ASTDiffResult` | Compare architecture versions, calculate diff metrics, and generate migration scenes |
 | `compressUrlState` / `decompressUrlState` | `(code, opts?) => string` | Zero-dependency URL hash state encoder for shareable playground links |
-| `THEMES` / `resolveTheme` | tokens / function | 9 Semantic theme palettes (`paper`, `editorial`, `nebula`, `midnight`, `blueprint`, `graphite`, `terminal`, `sketchy`, `doodle`) |
+| `THEMES` / `resolveTheme` | tokens / function | 10 Semantic theme palettes (`paper`, `editorial`, `nebula`, `midnight`, `blueprint`, `graphite`, `terminal`, `sketchy`, `ink`, `doodle`) |
 
 ## Documentation
 

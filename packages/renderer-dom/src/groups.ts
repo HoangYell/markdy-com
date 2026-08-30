@@ -57,6 +57,20 @@ export function ensureGroupStyles(doc: Document): void {
   font-weight: 800;
   transform: rotate(-0.8deg);
 }
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-group-boundary {
+  border: 1.5px dashed #1d4ed8;
+  border-radius: 8px;
+  background: rgba(239, 246, 255, 0.45);
+  box-shadow: 2px 2px 0 rgba(29, 78, 216, 0.08);
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-group-boundary__label {
+  border: 1.25px solid #1d4ed8;
+  border-radius: 4px;
+  box-shadow: 1.5px 1.5px 0 rgba(29, 78, 216, 0.12);
+  background: #ffffff;
+  color: #1e3a8a;
+  font-weight: 600;
+}
 `;
   doc.head.appendChild(style);
 }
