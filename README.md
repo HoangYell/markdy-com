@@ -41,12 +41,9 @@
 > Humans shouldn't spend hours hand-drawing static boxes, connecting arrows, or wrestling with complex diagram tools.  
 > **You describe your system flow in plain English → your AI Agent understands Markdy → generating a live animated diagram.**
 
-```mermaid
-flowchart LR
-    A["🧑‍💻 Developer Prompt<br/><i>'Follow https://markdy.com/AGENT.md and<br/>generate a cache-aside flow with Redis & Postgres'</i>"] --> B["🤖 AI Coding Agent<br/><i>Cursor · Claude · Copilot · Antigravity</i>"]
-    B -->|"Outputs"| C["📄 MarkdyScript<br/><i>scene 'Cache-Aside' ...</i>"]
-    C -->|"Plays live"| D["🎬 Animated Diagram<br/><i>In IDE (Cmd+K V) or Web Studio</i>"]
-```
+<p align="center">
+  <img src="docs/images/ai-paradigm-flow.svg" width="100%" alt="Markdy AI-First Paradigm Workflow" />
+</p>
 
 ---
 

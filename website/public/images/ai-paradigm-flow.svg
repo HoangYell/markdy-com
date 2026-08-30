@@ -1,0 +1,176 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 240" width="100%" height="100%" fill="none">
+  <defs>
+    <!-- Background Gradients -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a0e1a"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+
+    <!-- Card Gradients -->
+    <linearGradient id="cardGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="cardGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="cardGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="cardGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e3a8a" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#0f172a" stop-opacity="0.9"/>
+    </linearGradient>
+
+    <!-- Border Gradients -->
+    <linearGradient id="borderGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+    <linearGradient id="borderGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+    <linearGradient id="borderGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+    <linearGradient id="borderGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#3b82f6"/>
+    </linearGradient>
+
+    <!-- Arrow Head Markers -->
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#38bdf8"/>
+    </marker>
+
+    <!-- Drop Shadows -->
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.5"/>
+    </filter>
+    <filter id="glowCyan" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <style>
+    .title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 700; fill: #ffffff; }
+    .subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 11.5px; fill: #94a3b8; line-height: 1.4; }
+    .code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace; font-size: 11px; fill: #38bdf8; }
+    .pill-label { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 10.5px; font-weight: 600; fill: #cbd5e1; letter-spacing: 0.5px; text-transform: uppercase; }
+  </style>
+
+  <!-- Container Box -->
+  <rect x="8" y="8" width="1184" height="224" rx="16" fill="url(#bgGrad)" stroke="#1e293b" stroke-width="1.5" filter="url(#shadow)"/>
+
+  <!-- ==================== CARD 1: Developer Prompt ==================== -->
+  <g transform="translate(28, 28)">
+    <rect x="0" y="0" width="250" height="184" rx="12" fill="url(#cardGrad1)" stroke="url(#borderGrad1)" stroke-width="1.5"/>
+    <circle cx="28" cy="30" r="16" fill="#312e81"/>
+    <text x="28" y="36" font-size="18" text-anchor="middle">🧑‍💻</text>
+    <text x="54" y="35" class="title">Developer Prompt</text>
+    
+    <rect x="12" y="60" width="226" height="110" rx="8" fill="#090d16" stroke="#1e293b" stroke-width="1"/>
+    <text x="22" y="82" class="code">"Follow</text>
+    <text x="22" y="98" class="code" fill="#a855f7">https://markdy.com/AGENT.md</text>
+    <text x="22" y="118" class="code">and generate an animated</text>
+    <text x="22" y="134" class="code">cache-aside flow with</text>
+    <text x="22" y="150" class="code">Redis &amp; Postgres"</text>
+  </g>
+
+  <!-- ==================== CONNECTOR 1 -> 2 ==================== -->
+  <g transform="translate(278, 120)">
+    <path d="M 6 0 L 36 0" stroke="#38bdf8" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+  </g>
+
+  <!-- ==================== CARD 2: AI Coding Agent ==================== -->
+  <g transform="translate(322, 28)">
+    <rect x="0" y="0" width="245" height="184" rx="12" fill="url(#cardGrad2)" stroke="url(#borderGrad2)" stroke-width="1.5"/>
+    <circle cx="28" cy="30" r="16" fill="#4c1d95"/>
+    <text x="28" y="36" font-size="18" text-anchor="middle">🤖</text>
+    <text x="54" y="35" class="title">AI Coding Agent</text>
+    
+    <rect x="12" y="60" width="221" height="110" rx="8" fill="#090d16" stroke="#1e293b" stroke-width="1"/>
+    <text x="22" y="84" class="subtitle" font-weight="600" fill="#e2e8f0">Understands Markdy Spec:</text>
+    
+    <g transform="translate(22, 98)">
+      <rect x="0" y="0" width="84" height="22" rx="4" fill="#1e1b4b" stroke="#4338ca" stroke-width="1"/>
+      <text x="42" y="15" class="pill-label" text-anchor="middle" fill="#c7d2fe">⚡ Cursor</text>
+    </g>
+    <g transform="translate(112, 98)">
+      <rect x="0" y="0" width="84" height="22" rx="4" fill="#1e1b4b" stroke="#4338ca" stroke-width="1"/>
+      <text x="42" y="15" class="pill-label" text-anchor="middle" fill="#c7d2fe">🧠 Claude</text>
+    </g>
+    <g transform="translate(22, 128)">
+      <rect x="0" y="0" width="84" height="22" rx="4" fill="#1e1b4b" stroke="#4338ca" stroke-width="1"/>
+      <text x="42" y="15" class="pill-label" text-anchor="middle" fill="#c7d2fe">🌐 Copilot</text>
+    </g>
+    <g transform="translate(112, 128)">
+      <rect x="0" y="0" width="84" height="22" rx="4" fill="#1e1b4b" stroke="#4338ca" stroke-width="1"/>
+      <text x="42" y="15" class="pill-label" text-anchor="middle" fill="#c7d2fe">🚀 Antigravity</text>
+    </g>
+  </g>
+
+  <!-- ==================== CONNECTOR 2 -> 3 ==================== -->
+  <g transform="translate(567, 120)">
+    <path d="M 6 0 L 36 0" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="21" y="-8" class="pill-label" text-anchor="middle" font-size="9" fill="#38bdf8">Outputs</text>
+  </g>
+
+  <!-- ==================== CARD 3: MarkdyScript Scene ==================== -->
+  <g transform="translate(611, 28)">
+    <rect x="0" y="0" width="250" height="184" rx="12" fill="url(#cardGrad3)" stroke="url(#borderGrad3)" stroke-width="1.5"/>
+    <circle cx="28" cy="30" r="16" fill="#064e3b"/>
+    <text x="28" y="36" font-size="18" text-anchor="middle">📄</text>
+    <text x="54" y="35" class="title">MarkdyScript</text>
+    
+    <rect x="12" y="60" width="226" height="110" rx="8" fill="#090d16" stroke="#1e293b" stroke-width="1"/>
+    <text x="22" y="80" class="code" fill="#f43f5e">scene <tspan fill="#e2e8f0">"Cache-Aside"</tspan></text>
+    <text x="22" y="96" class="code" fill="#38bdf8">browser <tspan fill="#e2e8f0">Client</tspan> · cache <tspan fill="#e2e8f0">Redis</tspan></text>
+    <text x="22" y="112" class="code" fill="#a855f7">beat <tspan fill="#e2e8f0">hit</tspan>:</text>
+    <text x="32" y="128" class="code" fill="#38bdf8">Client -&gt; Svc -&gt; Redis</text>
+    <text x="32" y="144" class="code" fill="#10b981">Client &lt;- Svc "200 OK"</text>
+    <text x="22" y="160" class="subtitle" font-size="9.5" fill="#64748b">Strict, cycle-safe DSL AST</text>
+  </g>
+
+  <!-- ==================== CONNECTOR 3 -> 4 ==================== -->
+  <g transform="translate(861, 120)">
+    <path d="M 6 0 L 36 0" stroke="#10b981" stroke-width="2" marker-end="url(#arrow)"/>
+    <text x="21" y="-8" class="pill-label" text-anchor="middle" font-size="9" fill="#10b981">Renders</text>
+  </g>
+
+  <!-- ==================== CARD 4: Animated Motion Diagram ==================== -->
+  <g transform="translate(905, 28)">
+    <rect x="0" y="0" width="265" height="184" rx="12" fill="url(#cardGrad4)" stroke="url(#borderGrad4)" stroke-width="1.5"/>
+    <circle cx="28" cy="30" r="16" fill="#1e3a8a"/>
+    <text x="28" y="36" font-size="18" text-anchor="middle">🎬</text>
+    <text x="54" y="35" class="title">Live Animated Diagram</text>
+    
+    <rect x="12" y="60" width="241" height="110" rx="8" fill="#090d16" stroke="#1e293b" stroke-width="1"/>
+    
+    <!-- Mini diagram motion preview mockup -->
+    <g transform="translate(22, 72)">
+      <rect x="0" y="0" width="56" height="26" rx="4" fill="#1e293b" stroke="#38bdf8" stroke-width="1"/>
+      <text x="28" y="17" class="pill-label" font-size="9" text-anchor="middle" fill="#38bdf8">Client</text>
+      
+      <path d="M 58 13 L 88 13" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <circle cx="73" cy="13" r="3" fill="#38bdf8" filter="url(#glowCyan)"/>
+      
+      <rect x="90" y="0" width="56" height="26" rx="4" fill="#1e293b" stroke="#10b981" stroke-width="1"/>
+      <text x="118" y="17" class="pill-label" font-size="9" text-anchor="middle" fill="#10b981">Redis</text>
+      
+      <path d="M 148 13 L 178 13" stroke="#a855f7" stroke-width="1.5" stroke-dasharray="3,2"/>
+      
+      <rect x="180" y="0" width="36" height="26" rx="4" fill="#1e293b" stroke="#a855f7" stroke-width="1"/>
+      <text x="198" y="17" class="pill-label" font-size="9" text-anchor="middle" fill="#a855f7">DB</text>
+    </g>
+
+    <text x="22" y="128" class="subtitle" font-weight="600" fill="#38bdf8">⚡ 60fps WAAPI Engine</text>
+    <text x="22" y="146" class="subtitle" font-size="10.5" fill="#94a3b8">Side-by-side in IDE (<tspan fill="#f1f5f9" font-weight="600">Cmd+K V</tspan>)</text>
+    <text x="22" y="162" class="subtitle" font-size="10.5" fill="#94a3b8">or interactive Web Studio</text>
+  </g>
+</svg>
