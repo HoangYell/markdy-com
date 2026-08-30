@@ -21,7 +21,7 @@
 <p align="center">
   <a href="https://markdy.com/playground/"><b>⚡ Web Studio</b></a> &nbsp;•&nbsp;
   <a href="https://markdy.com/docs/"><b>📖 Full Docs</b></a> &nbsp;•&nbsp;
-  <a href="https://markdy.com/examples/"><b>🌟 29+ Examples</b></a> &nbsp;•&nbsp;
+  <a href="https://markdy.com/examples/"><b>🌟 29 Blueprints</b></a> &nbsp;•&nbsp;
   <a href="https://github.com/HoangYell/markdy-com"><b>🐙 GitHub Repo</b></a>
 </p>
 

@@ -22,7 +22,7 @@
 
 ## 🚀 Interactive Links
 
-- ⚡ **[Live Studio Playground](https://markdy.com/playground/)** — Experiment with 30+ interactive scenes in your browser.
+- ⚡ **[Live Studio Playground](https://markdy.com/playground/)** — Experiment with 29 interactive architecture blueprints in your browser.
 - 📖 **[Official Documentation](https://markdy.com/docs/)** — Full grammar specification, AST schema, and API guides.
 - 🌟 **[17+ Layout Examples Gallery](https://markdy.com/examples/)** — Live gallery of systems, roadmaps, and security perimeters.
 - 🤖 **[AI LLMs Context (llms-full.txt)](https://markdy.com/llms-full.txt)** — Canonical context file for AI assistants.

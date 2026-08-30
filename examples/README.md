@@ -26,7 +26,7 @@ Examples lead with scene content and keep optional `player:` configuration at th
   - [`18-layer-stack.markdy`](18-layer-stack.markdy) — OSI & abstraction layer stacked horizontal bands.
   - [`19-nested-containment.markdy`](19-nested-containment.markdy) — concentric defense-in-depth security perimeters.
   - [`20-player-configuration.markdy`](20-player-configuration.markdy) — script-owned playback, focused controls, interaction, and footer chrome.
-- `showcase/` — 17 premier 1-per-scene-type showcase diagrams featured on the homepage, plus 30+ full archive scenes in the gallery.
+- `showcase/` — 17 premier 1-per-scene-type showcase diagrams featured on the homepage, plus 29 full archive blueprints in the gallery.
 - `astro-starter/` — a minimal Astro project embedding the `<Markdy />` component.
 
 ## 🏛️ Visual Showcase Gallery (17 Diagram Engines)

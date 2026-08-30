@@ -149,6 +149,7 @@ const jsonLd = {
     </noscript>
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <slot name="head" />
 
     <!-- Prevent FOUC: set theme before render -->
     <script is:inline>
