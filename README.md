@@ -43,21 +43,10 @@
 
 ```mermaid
 flowchart LR
-    A["🧑‍💻 Developer Prompt<br/><i>'Design a cache-aside flow with Redis & Postgres'</i>"] --> B["🤖 AI Coding Agent<br/><i>Cursor · Claude · Copilot · Antigravity</i>"]
-    B -->|"Generates"| C["📄 MarkdyScript<br/><i>Clean, structured code</i>"]
-    C -->|"Renders"| D["🎬 Animated Diagram<br/><i>Smooth motion playback</i>"]
+    A["🧑‍💻 Developer Prompt<br/><i>'Follow https://markdy.com/AGENT.md and<br/>generate a cache-aside flow with Redis & Postgres'</i>"] --> B["🤖 AI Coding Agent<br/><i>Cursor · Claude · Copilot · Antigravity</i>"]
+    B -->|"Outputs"| C["📄 MarkdyScript<br/><i>scene 'Cache-Aside' ...</i>"]
+    C -->|"Plays live"| D["🎬 Animated Diagram<br/><i>In IDE (Cmd+K V) or Web Studio</i>"]
 ```
-
-### The 3-Step AI Workflow:
-
-1. **Equip Your AI Agent with Markdy Context:**
-   - **Via MCP Server:** Install `@markdy/mcp-server` into Cursor, VS Code, Claude, Antigravity, or Cline ([1-Click Install ↗](https://markdy.com/mcp/cursor)).
-   - **Via Workspace Rules / Context:** Include [`AGENT.md`](docs/AGENT.md) in your workspace rules (`.cursorrules`, `CLAUDE.md`, `.agent/rules.md`), or reference [`https://markdy.com/llms-full.txt`](https://markdy.com/llms-full.txt).
-2. **Describe Your System Architecture in Plain English:**
-   > *"Generate an animated Markdy diagram for our distributed payment processor: Client sends request to API Gateway, Gateway dispatches to Payment Service, Payment Service writes to Postgres, syncs with Redis cache, and emits an async event to Kafka."*
-3. **Instant Animated Diagram:**
-   - The AI Agent generates complete, valid MarkdyScript with semantic nodes, directional flows (`->`, `<-`, `~>`), and animated `beat` timelines.
-   - Preview immediately side-by-side in VS Code / Cursor with **`Cmd+K V`** or paste into the **[Markdy Web Studio](https://markdy.com/playground/)**.
 
 ---
 
