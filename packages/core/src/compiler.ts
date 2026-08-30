@@ -208,9 +208,11 @@ function layoutRanked(
   }
 
   const isVertical = direction === "TB" || direction === "BT";
-  const titleBand = effectiveTitleBand(ast);
+  const hasTitle = Boolean(ast.meta.title && ast.meta.title.trim().length > 0);
+  const hasBeatCaptions = ast.beats.some((b) => b.label && b.label.trim().length > 0);
+  const titleBand = hasTitle ? TITLE_BAND : 0;
+  const bottomBand = hasBeatCaptions ? 44 : 0;
   const contentW = ast.meta.width - SAFE * 2;
-  const contentH = ast.meta.height - SAFE - titleBand - SAFE;
   const maxRank = Math.max(...byRank.keys(), 0);
   const rankCount = maxRank + 1;
   const maxInRank = Math.max(...[...byRank.values()].map((v) => v.length), 1);
@@ -227,7 +229,7 @@ function layoutRanked(
       const decl = ast.nodes[id];
       const role = nodeRole(decl.kind);
       const x = startX + idx * colSpacing;
-      const y = titleBand + 32;
+      const y = (hasTitle ? titleBand : 20) + 32;
       nodes.push({
         id,
         kind: decl.kind,
@@ -250,9 +252,10 @@ function layoutRanked(
 
   if (isVertical) {
     // Vertical top-to-bottom flowchart/rank
+    const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
     const rowGap = Math.max(NODE_H + 40, Math.min(180, contentH / Math.max(rankCount, 1)));
     const totalH = (rankCount - 1) * rowGap + NODE_H;
-    const startY = titleBand + Math.max(0, (contentH - totalH) / 2);
+    const startY = TITLE_BAND + Math.max(0, (contentH - totalH) / 2);
 
     for (const [rank, ids] of [...byRank.entries()].sort((a, b) => a[0] - b[0])) {
       const rowCount = ids.length;
@@ -292,12 +295,14 @@ function layoutRanked(
   const totalW = (rankCount - 1) * colGap + NODE_W;
   const startX = SAFE + Math.max(0, (contentW - totalW) / 2);
 
+  const availableH = Math.max(NODE_H, ast.meta.height - titleBand - bottomBand);
+
   for (const [rank, ids] of [...byRank.entries()].sort((a, b) => a[0] - b[0])) {
     const rowCount = ids.length;
-    const maxPossibleRowStep = rowCount > 1 ? (contentH - NODE_H) / (rowCount - 1) : 0;
+    const maxPossibleRowStep = rowCount > 1 ? (availableH - NODE_H) / (rowCount - 1) : 0;
     const rowSpacing = rowCount > 1 ? Math.min(150, Math.max(36, maxPossibleRowStep)) : 0;
     const colH = (rowCount - 1) * rowSpacing + NODE_H;
-    const colStartY = titleBand + Math.max(0, (contentH - colH) / 2);
+    const colStartY = titleBand + Math.max(0, (availableH - colH) / 2);
     const x = startX + rank * colGap;
 
     ids.forEach((id, idx) => {
@@ -1486,39 +1491,33 @@ export function computeAdaptiveDimensions(
     const maxInRank = Math.max(...[...byRank.values()].map((v) => v.length), 1);
     const groupPaddingBonus = groupCount > 0 ? GROUP_PAD * 2 : 0;
 
-    const titleBand = effectiveTitleBand(ast);
-
     if (forceVertical) {
       const requiredW = SAFE * 2 + maxInRank * NODE_W + (maxInRank - 1) * 44 + groupPaddingBonus;
-      const requiredH = SAFE * 2 + titleBand + rankCount * NODE_H + (rankCount - 1) * 56 + groupPaddingBonus;
+      const requiredH = SAFE * 2 + TITLE_BAND + rankCount * NODE_H + (rankCount - 1) * 56 + groupPaddingBonus;
 
       if (nodeCount <= 2) {
         autoW = 960;
-        autoH = Math.max(380, Math.min(640, requiredH + 24));
+        autoH = 640;
       } else if (nodeCount <= 4 && rankCount <= 3) {
         autoW = 1024;
-        autoH = Math.max(460, Math.min(720, requiredH + 32));
+        autoH = 720;
       } else {
         autoW = Math.max(960, Math.min(2400, requiredW));
-        autoH = Math.max(540, Math.min(2000, requiredH + 32));
+        autoH = Math.max(720, Math.min(2000, requiredH));
       }
     } else {
-      const requiredW = SAFE * 2 + rankCount * NODE_W + (rankCount - 1) * 56 + groupPaddingBonus;
-      const requiredH = SAFE * 2 + titleBand + maxInRank * NODE_H + (maxInRank - 1) * 36 + groupPaddingBonus;
+      const requiredW = SAFE * 2 + rankCount * NODE_W + (rankCount - 1) * 44 + groupPaddingBonus;
+      const requiredH = SAFE * 2 + TITLE_BAND + maxInRank * NODE_H + (maxInRank - 1) * 36 + groupPaddingBonus;
 
-      if (maxInRank === 1) {
-        // Single horizontal chain: ultra sleek, compact height
-        autoW = Math.max(960, Math.min(2560, requiredW));
-        autoH = Math.max(224, Math.min(420, requiredH + 20));
-      } else if (nodeCount <= 2 && rankCount <= 2) {
+      if (nodeCount <= 2 && rankCount <= 2) {
         autoW = 1024;
-        autoH = Math.max(340, Math.min(576, requiredH + 24));
+        autoH = 576;
       } else if (nodeCount <= 4 && rankCount <= 3 && maxInRank <= 2) {
         autoW = 1152;
-        autoH = Math.max(400, Math.min(648, requiredH + 24));
+        autoH = 648;
       } else {
         autoW = Math.max(1152, Math.min(2560, requiredW));
-        autoH = Math.max(480, Math.min(1600, requiredH + 32));
+        autoH = Math.max(648, Math.min(1600, requiredH));
       }
     }
   }

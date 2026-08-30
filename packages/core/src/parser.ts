@@ -949,6 +949,7 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
       const str = parseStringToken(rest);
       if (str) {
         title = str.value;
+        meta.title = title;
         remainder = str.rest;
       }
       const inlineLayout = remainder.match(/\blayout\s+(LR|RL|TB|BT)\b/i);
