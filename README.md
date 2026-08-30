@@ -52,7 +52,7 @@
 You don't need to write MarkdyScript manually. Ask **Cursor**, **Claude Code**, **Google Antigravity**, **ChatGPT**, or any coding agent:
 
 <details>
-<summary><b>💬 Example Prompt</b></summary>
+<summary><b>💬 Example Prompt (Copy &amp; Paste to your Agent)</b></summary>
 <br>
 
 > "Follow the canonical Markdy specification (https://markdy.com/AGENT.md) and generate a `.markdy` scene:  
@@ -96,33 +96,50 @@ beat cache_miss "2. Cache Miss & Async Warm":
 
 ### 2. Preview & Explore
 
-- **VS Code / Cursor**: Press **`Cmd+K V`** (macOS) or **`Ctrl+K V`** (Windows/Linux) using the [`hoangyell.markdy-vscode`](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode) extension for live side-by-side animated preview.
-- **Web Studio**: Paste into [markdy.com/playground](https://markdy.com/playground/) for interactive timeline scrubbing and shareable links.
-- **Terminal & CI/CD**: Run `npx @markdy/cli render system.markdy --out diagram.html`.
+Choose your preferred preview environment:
+
+- **VS Code / Cursor Extension** — [`hoangyell.markdy-vscode`](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode):  
+  Press **`Cmd+K V`** *(macOS)* or **`Ctrl+K V`** *(Windows/Linux)* for live side-by-side animated preview.
+
+- **Interactive Web Studio** — **[markdy.com/playground ↗](https://markdy.com/playground/)**:  
+  Instant browser playground with timeline scrubbing, GIF/SVG export, and shareable links.
+
+- **Terminal CLI** — [`@markdy/cli`](packages/cli/README.md):
+  ```bash
+  npx @markdy/cli render system.markdy --out diagram.html
+  ```
 
 ### 3. Embed in Web Apps & Docs
 
-Render 60fps interactive diagrams directly in your web applications, documentation, or blog:
+Choose the package that fits your stack:
 
-```bash
-npm install @markdy/renderer-dom
-# or
-pnpm add @markdy/renderer-dom
-```
+- **Web Apps (Vanilla JS, React, Vue, Svelte)** — [`@markdy/renderer-dom`](packages/renderer-dom/README.md):
+  ```bash
+  npm install @markdy/renderer-dom
+  ```
+  ```ts
+  import { createDiagram } from "@markdy/renderer-dom";
 
-```ts
-import { createDiagram } from "@markdy/renderer-dom";
+  // Mount and render interactive 60fps WAAPI diagram directly from code
+  const diagram = createDiagram({
+    container: document.getElementById("diagram-container")!,
+    code: markdyScriptCode,
+  });
+  ```
 
-// Mount and render interactive 60fps WAAPI diagram directly from code
-const diagram = createDiagram({
-  container: document.getElementById("diagram-container")!,
-  code: markdyScriptCode,
-});
-```
+- **Astro Sites & Blogs** — [`@markdy/astro`](packages/astro/README.md):
+  ```bash
+  npm install @markdy/astro
+  ```
+  *(Zero-CLS SSR island: `<Markdy code={code} client:visible />` — see [Astro Guide ↓](#astro-integration))*
 
-> 💡 **Using Astro or Next.js/MDX?** See the **[@markdy/astro Guide ↗](packages/astro/README.md)** and **[@markdy/mdx Guide ↗](packages/mdx/README.md)** (or jump to [Astro `<Markdy />`](#astro-integration) and [MDX / React](#mdx-integration) below) for 1-line zero-JS declarative components.
+- **Next.js / MDX Docs** — [`@markdy/mdx`](packages/mdx/README.md):
+  ```bash
+  npm install @markdy/mdx
+  ```
+  *(Auto-renders fenced ```` ```markdy ```` blocks — see [MDX Guide ↓](#mdx-integration))*
 
-👉 **[@markdy/renderer-dom Guide ↗](packages/renderer-dom/README.md)** &nbsp;•&nbsp; **[@markdy/core Guide ↗](packages/core/README.md)**
+👉 **[DOM Renderer Guide ↗](packages/renderer-dom/README.md)** &nbsp;•&nbsp; **[Astro Guide ↗](packages/astro/README.md)** &nbsp;•&nbsp; **[MDX Guide ↗](packages/mdx/README.md)** &nbsp;•&nbsp; **[Core Compiler ↗](packages/core/README.md)**
 
 ---
 
