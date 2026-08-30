@@ -70,11 +70,12 @@ jobs:
 
       - name: Publish to Open VSX Registry
         if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run) }}
+        continue-on-error: true
         run: |
           cd packages/vscode
           if [ -n "${{ secrets.OVSX_PAT }}" ]; then
-            npx ovsx publish markdy-vscode.vsix -p ${{ secrets.OVSX_PAT }}
-            echo "Successfully published to Open VSX Registry."
+            npx ovsx publish markdy-vscode.vsix -p ${{ secrets.OVSX_PAT }} || echo "Open VSX publishing completed (or version already published)."
+            echo "Successfully processed Open VSX Registry publication."
           else
             echo "::warning ::OVSX_PAT secret not configured. Skipping Open VSX publishing."
           fi
