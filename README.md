@@ -35,14 +35,12 @@
 
 ---
 
-## 🤖 The AI-First Paradigm: You Don't Write Code, AI Agents Do
+## 💡 How to Use
 
-> **Markdy is built for the AI Agent era.**  
-> Humans shouldn't spend hours hand-drawing static boxes, connecting arrows, or wrestling with complex diagram tools.  
-> **You describe your system flow in plain English → your AI Agent understands Markdy → generating a live animated diagram.**
+> **Describe your system flow in plain English → your AI Agent generates the Markdy animation.**
 
 <p align="center">
-  <img src="docs/images/ai-paradigm-flow.svg" width="100%" alt="Markdy AI-First Paradigm Workflow" />
+  <img src="docs/images/ai-paradigm-flow.svg" width="100%" alt="How to Use Markdy with AI Agents" />
 </p>
 
 ---
