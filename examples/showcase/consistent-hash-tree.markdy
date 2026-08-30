@@ -1,7 +1,7 @@
 # consistent-hash-tree.markdy
 # Distributed Consistent Hashing & Virtual Node Partition Tree
 
-scene "Consistent Hashing Virtual Node Tree" theme=editorial type=tree width=1480 height=780
+scene "Consistent Hashing Virtual Node Tree" theme=auto type=tree width=1480 height=780
 layout TB
 
 service RingCoordinator "Consistent Hash Ring Coordinator" focal=true

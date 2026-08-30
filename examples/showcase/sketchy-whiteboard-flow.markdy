@@ -1,7 +1,7 @@
 # showcase/sketchy-whiteboard-flow.markdy
 # Demonstrates Sketchy Editorial Theme (hand-drawn displacement filter, offset drop shadow, organic borders).
 
-scene "Product Discovery & Whiteboard Validation Loop" theme=sketchy type=flowchart width=1100 height=650
+scene "Product Discovery & Whiteboard Validation Loop" theme=auto type=flowchart width=1100 height=650
 layout LR
 
 service UserInterview "1. User Research Interviews"

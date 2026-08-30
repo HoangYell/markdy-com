@@ -46,6 +46,8 @@ const TOKEN_LIBRARIES = {
     { name: "editorial", label: "theme=editorial", template: "theme=editorial\n" },
     { name: "terminal", label: "theme=terminal", template: "theme=terminal\n" },
     { name: "sketchy", label: "theme=sketchy", template: "theme=sketchy\n" },
+    { name: "ink", label: "theme=ink", template: "theme=ink\n" },
+    { name: "doodle", label: "theme=doodle", template: "theme=doodle\n" },
     { name: "blueprint", label: "theme=blueprint", template: "theme=blueprint\n" },
     { name: "midnight", label: "theme=midnight", template: "theme=midnight\n" },
     { name: "graphite", label: "theme=graphite", template: "theme=graphite\n" },
@@ -241,7 +243,7 @@ const playgroundStructuredData = [
           </div>
 
           <div class="editor-head-actions" aria-label="Editor actions">
-            <button id="paste-code-btn" class="tool-btn tool-btn-sm tool-btn-paste" type="button" title="Paste MarkdyScript from clipboard and render immediately" aria-label="Paste MarkdyScript">📋 Paste</button>
+            <button id="roll-scene-btn" class="tool-btn tool-btn-sm" type="button" title="Roll next architecture scene blueprint" aria-label="Roll next scene">🎲 Roll</button>
             <button id="palette-toggle-btn" class="tool-btn tool-btn-sm" type="button" title="Toggle Components & Token Palette" aria-label="Toggle token and component palette">
               <span>＋ Insert</span>
             </button>
@@ -438,10 +440,13 @@ const playgroundStructuredData = [
             <!-- Live Theme Selector Dropdown -->
             <div class="canvas-select-wrapper canvas-select-wrapper--theme" title="Diagram aesthetic theme">
               <select id="canvas-theme-select" class="canvas-select canvas-select--theme" aria-label="Select diagram theme">
+                <option value="auto">theme=auto</option>
                 <optgroup label="Light Themes">
                   <option value="paper">theme=paper</option>
                   <option value="editorial">theme=editorial</option>
                   <option value="sketchy">theme=sketchy</option>
+                  <option value="ink">theme=ink</option>
+                  <option value="doodle">theme=doodle</option>
                 </optgroup>
                 <optgroup label="Dark Themes">
                   <option value="midnight">theme=midnight</option>
@@ -713,73 +718,104 @@ const playgroundStructuredData = [
           </div>
           <button id="close-export-btn" class="modal-close" type="button" aria-label="Close modal">✕</button>
         </div>
-        <p class="modal-desc">Export scalable vector diagrams, crisp raster PNG snapshots, embed snippets, or generate an instant permanent URL link.</p>
-
-        <!-- Quick Export Action Cards -->
-        <div class="export-grid">
-          <!-- 1. SVG -->
-          <div class="export-card">
-            <div class="export-card-icon">🎨</div>
-            <div class="export-card-content">
-              <strong>Vector SVG</strong>
-              <span>Scalable vector graphic with inline styles for high-res embedding</span>
-            </div>
-            <div class="export-card-actions">
-              <button id="export-svg-btn" class="export-card-btn export-card-btn--primary" type="button" title="Download SVG vector file">Download .svg ↓</button>
-              <button id="copy-svg-btn" class="export-card-btn" type="button" title="Copy raw SVG markup to clipboard">Copy SVG 📋</button>
-            </div>
-          </div>
-
-          <!-- 2. PNG -->
-          <div class="export-card">
-            <div class="export-card-icon">🖼️</div>
-            <div class="export-card-content">
-              <strong>High-Res PNG</strong>
-              <span>Rendered raster snapshot for slide decks, Figma, and social posts</span>
-            </div>
-            <div class="export-card-actions">
-              <button id="export-png-btn" class="export-card-btn export-card-btn--primary" type="button" title="Download PNG raster image">Download .png ↓</button>
-              <button id="copy-png-btn" class="export-card-btn" type="button" title="Copy PNG image directly to clipboard">Copy PNG 📋</button>
-            </div>
-          </div>
-
-          <!-- 3. Source File -->
-          <div class="export-card">
-            <div class="export-card-icon">📄</div>
-            <div class="export-card-content">
-              <strong>MarkdyScript File</strong>
-              <span>Save raw text file for local CLI and version control</span>
-            </div>
-            <div class="export-card-actions">
-              <button id="export-source-btn" class="export-card-btn export-card-btn--primary" type="button" title="Download MarkdyScript file">Download .markdy ↓</button>
-              <button id="copy-source-code-btn" class="export-card-btn" type="button" title="Copy raw MarkdyScript text to clipboard">Copy Text 📋</button>
-            </div>
-          </div>
-
-          <!-- 4. Markdown -->
-          <div class="export-card">
-            <div class="export-card-icon">📑</div>
-            <div class="export-card-content">
-              <strong>Markdown Embed</strong>
-              <span>Copy fenced ```markdy code block for READMEs and docs</span>
-            </div>
-            <div class="export-card-actions">
-              <button id="export-markdown-btn" class="export-card-btn export-card-btn--primary" type="button" title="Copy fenced markdown snippet">Copy Snippet 📋</button>
-            </div>
-          </div>
-        </div>
+        <p class="modal-desc">Export scalable vector diagrams, crisp raster PNG snapshots, animated GIFs, embed snippets, or generate an instant permanent URL link.</p>
 
         <!-- Shareable Link Section -->
         <div class="export-share-container">
           <div class="export-share-header">
-            <label for="share-url-input"><strong>Permanent Shareable URL:</strong></label>
+            <div class="export-share-label">
+              <span class="export-share-icon">🔗</span>
+              <label for="share-url-input"><strong>Permanent Share Link:</strong></label>
+            </div>
             <span class="export-share-meta">Includes compressed scene state</span>
           </div>
           <div class="export-share-input-wrap">
             <input id="share-url-input" class="export-share-input" type="text" readonly aria-label="Share URL" />
-            <button id="copy-share-url-btn" class="tool-btn tool-btn-primary" type="button">
+            <button id="copy-share-url-btn" class="tool-btn tool-btn-primary export-copy-url-btn" type="button">
               <span>Copy Link</span>
             </button>
+          </div>
+        </div>
+
+        <!-- Quick Export Action Rows -->
+        <div class="export-list">
+          <!-- 1. SVG -->
+          <div class="export-card export-card--inline">
+            <div class="export-card-left">
+              <div class="export-card-icon">🎨</div>
+              <div class="export-card-content">
+                <strong>Vector SVG <span class="export-card-badge">.svg</span></strong>
+                <span>Scalable vector graphic with embedded inline styles</span>
+              </div>
+            </div>
+            <div class="export-card-actions">
+              <button id="copy-svg-btn" class="export-card-btn" type="button" title="Copy raw SVG markup to clipboard">Copy SVG 📋</button>
+              <button id="export-svg-btn" class="export-card-btn export-card-btn--primary" type="button" title="Download SVG vector file">Download .svg ↓</button>
+            </div>
+          </div>
+
+          <!-- 2. PNG -->
+          <div class="export-card export-card--inline">
+            <div class="export-card-left">
+              <div class="export-card-icon">🖼️</div>
+              <div class="export-card-content">
+                <strong>High-Res PNG <span class="export-card-badge">.png</span></strong>
+                <span>Rendered 2x raster snapshot for slides, Figma &amp; social</span>
+              </div>
+            </div>
+            <div class="export-card-actions">
+              <button id="copy-png-btn" class="export-card-btn" type="button" title="Copy PNG image directly to clipboard">Copy PNG 📋</button>
+              <button id="export-png-btn" class="export-card-btn export-card-btn--primary" type="button" title="Download PNG raster image">Download .png ↓</button>
+            </div>
+          </div>
+
+          <!-- 3. Animated GIF -->
+          <div class="export-card export-card--inline">
+            <div class="export-card-left">
+              <div class="export-card-icon">🎬</div>
+              <div class="export-card-content">
+                <strong>Animated GIF <span class="export-card-badge">.gif</span></strong>
+                <span>Smooth motion capture with Smart Inter-frame Diffing</span>
+              </div>
+            </div>
+            <div class="export-card-actions" style="display: flex; align-items: center; gap: 8px;">
+              <select id="gif-quality-select" style="font-size: 11px; padding: 5px 8px; border-radius: 6px; background: rgba(255, 255, 255, 0.06); color: inherit; border: 1px solid rgba(255, 255, 255, 0.15); cursor: pointer; outline: none;" title="Select GIF Export Quality">
+                <option value="hd" selected style="background: #1e293b; color: #fff;">🌟 HD 2x (20fps)</option>
+                <option value="standard" style="background: #1e293b; color: #fff;">⚡ Standard 1.25x (14fps)</option>
+                <option value="compact" style="background: #1e293b; color: #fff;">🚀 Compact 1.0x (10fps)</option>
+              </select>
+              <button id="copy-gif-btn" class="export-card-btn" type="button" title="Copy GIF Data URL or save locally">Copy GIF 📋</button>
+              <button id="export-gif-btn" class="export-card-btn export-card-btn--primary" type="button" title="Download animated GIF sequence">Download .gif ↓</button>
+            </div>
+          </div>
+
+          <!-- 4. Source File -->
+          <div class="export-card export-card--inline">
+            <div class="export-card-left">
+              <div class="export-card-icon">📄</div>
+              <div class="export-card-content">
+                <strong>MarkdyScript Source <span class="export-card-badge">.markdy</span></strong>
+                <span>Plaintext DSL file for CLI pipelines &amp; version control</span>
+              </div>
+            </div>
+            <div class="export-card-actions">
+              <button id="copy-source-code-btn" class="export-card-btn" type="button" title="Copy raw MarkdyScript text to clipboard">Copy Text 📋</button>
+              <button id="export-source-btn" class="export-card-btn export-card-btn--primary" type="button" title="Download MarkdyScript file">Download .markdy ↓</button>
+            </div>
+          </div>
+
+          <!-- 5. Markdown -->
+          <div class="export-card export-card--inline">
+            <div class="export-card-left">
+              <div class="export-card-icon">📑</div>
+              <div class="export-card-content">
+                <strong>Markdown Embed <span class="export-card-badge">```markdy</span></strong>
+                <span>Fenced code block snippet ready to paste into READMEs</span>
+              </div>
+            </div>
+            <div class="export-card-actions">
+              <button id="export-markdown-btn" class="export-card-btn export-card-btn--primary" type="button" title="Copy fenced markdown snippet">Copy Snippet 📋</button>
+            </div>
           </div>
         </div>
       </div>
@@ -801,7 +837,7 @@ const playgroundStructuredData = [
 
   import { markdyLanguage, markdyAutocomplete, markdyInlineSuggestion, markdyHighlightLight, markdyHighlightDark } from "../editor/markdy-language";
   import { baseTheme, lightTheme, darkTheme } from "../editor/editor-theme";
-  import { createDiagram, exportDiagramAsVectorSvg, exportDiagramAsPng } from "@markdy/renderer-dom";
+  import { createDiagram, exportDiagramAsVectorSvg, exportDiagramAsPng, exportDiagramAsGif } from "@markdy/renderer-dom";
   import type { Diagram } from "@markdy/renderer-dom";
   import {
     parse,
@@ -889,6 +925,8 @@ const playgroundStructuredData = [
   const copySvgBtn = document.getElementById("copy-svg-btn") as HTMLButtonElement | null;
   const exportPngBtn = document.getElementById("export-png-btn") as HTMLButtonElement | null;
   const copyPngBtn = document.getElementById("copy-png-btn") as HTMLButtonElement | null;
+  const exportGifBtn = document.getElementById("export-gif-btn") as HTMLButtonElement | null;
+  const copyGifBtn = document.getElementById("copy-gif-btn") as HTMLButtonElement | null;
   const exportSourceBtn = document.getElementById("export-source-btn") as HTMLButtonElement | null;
   const copySourceCodeBtn = document.getElementById("copy-source-code-btn") as HTMLButtonElement | null;
   const exportMarkdownBtn = document.getElementById("export-markdown-btn") as HTMLButtonElement | null;
@@ -902,7 +940,7 @@ const playgroundStructuredData = [
 
   const runBtn = document.getElementById("run-btn") as HTMLButtonElement;
   const resetBtn = document.getElementById("reset-btn") as HTMLButtonElement;
-  const pasteCodeBtn = document.getElementById("paste-code-btn") as HTMLButtonElement;
+  const rollSceneBtn = document.getElementById("roll-scene-btn") as HTMLButtonElement | null;
   const topbarPasteBtn = document.getElementById("topbar-paste-btn") as HTMLButtonElement | null;
   const copyCodeBtn = document.getElementById("copy-code-btn") as HTMLButtonElement;
   const formatCodeBtn = document.getElementById("format-code-btn") as HTMLButtonElement;
@@ -1341,8 +1379,8 @@ const playgroundStructuredData = [
 
       // Sync Theme dropdown
       const themeMatch = code.match(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/);
-      if (themeMatch && canvasThemeSelect) {
-        canvasThemeSelect.value = themeMatch[1].toLowerCase();
+      if (canvasThemeSelect) {
+        canvasThemeSelect.value = themeMatch ? themeMatch[1].toLowerCase() : "auto";
       }
       // Apply active playback rate
       if (canvasSpeedSelect && diagram) {
@@ -1359,6 +1397,9 @@ const playgroundStructuredData = [
   }
 
   // ─── Studio Toast Notification Helper ──────────────────────────────
+  let activeToast: HTMLElement | null = null;
+  let activeToastTimer: any = null;
+
   function showToast(message: string, duration = 2800): void {
     let container = document.querySelector(".markdy-toast-container");
     if (!container) {
@@ -1366,28 +1407,43 @@ const playgroundStructuredData = [
       container.className = "markdy-toast-container";
       document.body.appendChild(container);
     }
-    const toast = document.createElement("div");
-    toast.className = "markdy-toast";
-    toast.textContent = message;
-    container.appendChild(toast);
-    requestAnimationFrame(() => toast.classList.add("toast-show"));
-    setTimeout(() => {
-      toast.classList.remove("toast-show");
-      setTimeout(() => toast.remove(), 250);
-    }, duration);
+    if (!activeToast || !activeToast.isConnected) {
+      activeToast = document.createElement("div");
+      activeToast.className = "markdy-toast";
+      container.appendChild(activeToast);
+      requestAnimationFrame(() => activeToast?.classList.add("toast-show"));
+    }
+    activeToast.textContent = message;
+    if (activeToastTimer) clearTimeout(activeToastTimer);
+    if (duration > 0) {
+      activeToastTimer = setTimeout(() => {
+        if (activeToast) {
+          activeToast.classList.remove("toast-show");
+          const t = activeToast;
+          setTimeout(() => t.remove(), 250);
+          activeToast = null;
+        }
+      }, duration);
+    }
   }
 
   // ─── Theme Setter Helper ───────────────────────────────────────────
   function setDiagramTheme(themeName: string) {
     const current = getCode();
-    const match = current.match(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/);
     let newCode: string;
-    if (match) {
-      newCode = current.replace(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/, `theme=${themeName}`);
-    } else if (/^scene\b/m.test(current)) {
-      newCode = current.replace(/^scene\b(.*)$/m, `scene theme=${themeName}$1`);
+    if (themeName === "auto") {
+      newCode = current
+        .replace(/\btheme\s*[:=]?\s*[a-zA-Z0-9_-]+\s*/g, "")
+        .replace(/^scene\s+$/m, "scene");
     } else {
-      newCode = `theme=${themeName}\n\n` + current;
+      const match = current.match(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/);
+      if (match) {
+        newCode = current.replace(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/, `theme=${themeName}`);
+      } else if (/^scene\b/m.test(current)) {
+        newCode = current.replace(/^scene\b(.*)$/m, `scene theme=${themeName}$1`);
+      } else {
+        newCode = `theme=${themeName}\n\n` + current;
+      }
     }
     if (playgroundThemeLabel) playgroundThemeLabel.textContent = themeName;
     if (editor) {
@@ -1396,7 +1452,7 @@ const playgroundStructuredData = [
       });
     }
     render(newCode);
-    showToast(`🎨 Theme switched to: ${themeName}`);
+    showToast(themeName === "auto" ? "🎨 Theme: auto" : `🎨 Theme: ${themeName}`);
   }
 
   // ─── Export & Share Helpers ────────────────────────────────────────
@@ -1409,7 +1465,8 @@ const playgroundStructuredData = [
   }
 
   async function exportSvg() {
-    const target = stageCanvas || stage;
+    const code = getCode();
+    const target = code || stageCanvas || stage;
     if (!target) {
       showToast("⚠️ No diagram available to export.");
       return;
@@ -1431,7 +1488,7 @@ const playgroundStructuredData = [
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast("✓ Vector SVG exported successfully!");
+      showToast("✓ Standalone Vector SVG exported successfully!");
     } catch (err) {
       showToast("⚠️ SVG export failed: " + (err as Error).message);
     } finally {
@@ -1443,7 +1500,8 @@ const playgroundStructuredData = [
   }
 
   async function copySvgToClipboard() {
-    const target = stageCanvas || stage;
+    const code = getCode();
+    const target = code || stageCanvas || stage;
     if (!target) {
       showToast("⚠️ No diagram available to copy.");
       return;
@@ -1560,6 +1618,114 @@ const playgroundStructuredData = [
     }
   }
 
+  async function exportGif() {
+    const target = stageCanvas || stage;
+    if (!target || !diagram) {
+      showToast("⚠️ No active diagram available to export.");
+      return;
+    }
+    const wasPlaying = diagram?.isPlaying?.();
+    const resumeAt = diagram?.currentTime?.() ?? 0;
+    const qualitySelect = document.getElementById("gif-quality-select") as HTMLSelectElement | null;
+    const quality = qualitySelect?.value || "hd";
+    const exportConfig = quality === "compact"
+      ? { fps: 10, pixelRatio: 1.0, diff: true }
+      : quality === "standard"
+      ? { fps: 14, pixelRatio: 1.25, diff: true }
+      : { fps: 20, pixelRatio: 2.0, diff: true };
+
+    try {
+      showToast("🎬 Recording animated GIF frames (0%)...");
+      if (exportGifBtn) exportGifBtn.disabled = true;
+      const gifBlob = await exportDiagramAsGif(target, diagram, {
+        ...exportConfig,
+        dither: false,
+        onProgress: (progress, frame, total) => {
+          const pct = Math.round(progress * 100);
+          showToast(`🎬 Recording GIF frame ${frame}/${total} (${pct}%)...`, 0);
+        },
+      });
+      const gifUrl = URL.createObjectURL(gifBlob);
+      const a = document.createElement("a");
+      a.href = gifUrl;
+      a.download = getDiagramExportFilename("gif");
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(gifUrl);
+      showToast("✓ Animated GIF89a exported successfully!");
+    } catch (err) {
+      showToast("⚠️ GIF export failed: " + (err as Error).message);
+    } finally {
+      if (exportGifBtn) exportGifBtn.disabled = false;
+      if (diagram) {
+        diagram.seek(resumeAt);
+        if (wasPlaying) diagram.play();
+      }
+    }
+  }
+
+  async function copyGifDataUrl() {
+    const target = stageCanvas || stage;
+    if (!target || !diagram) {
+      showToast("⚠️ No active diagram available to copy.");
+      return;
+    }
+    const wasPlaying = diagram?.isPlaying?.();
+    const resumeAt = diagram?.currentTime?.() ?? 0;
+    const qualitySelect = document.getElementById("gif-quality-select") as HTMLSelectElement | null;
+    const quality = qualitySelect?.value || "hd";
+    const exportConfig = quality === "compact"
+      ? { fps: 10, pixelRatio: 1.0, diff: true }
+      : quality === "standard"
+      ? { fps: 14, pixelRatio: 1.25, diff: true }
+      : { fps: 20, pixelRatio: 2.0, diff: true };
+
+    try {
+      showToast("🎬 Recording animated GIF frames (0%)...");
+      if (copyGifBtn) copyGifBtn.disabled = true;
+      const gifBlob = await exportDiagramAsGif(target, diagram, {
+        ...exportConfig,
+        dither: false,
+        onProgress: (progress, frame, total) => {
+          const pct = Math.round(progress * 100);
+          showToast(`🎬 Recording GIF frame ${frame}/${total} (${pct}%)...`, 0);
+        },
+      });
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        try {
+          const dataUrl = reader.result as string;
+          if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(dataUrl);
+            showToast("✓ GIF Base64 Data URL copied to clipboard!");
+          } else {
+            throw new Error("Clipboard unavailable");
+          }
+        } catch {
+          const gifUrl = URL.createObjectURL(gifBlob);
+          const a = document.createElement("a");
+          a.href = gifUrl;
+          a.download = getDiagramExportFilename("gif");
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(gifUrl);
+          showToast("ℹ️ Clipboard unavailable; downloaded .gif instead!");
+        }
+      };
+      reader.readAsDataURL(gifBlob);
+    } catch (err) {
+      showToast("⚠️ Failed to copy GIF: " + (err as Error).message);
+    } finally {
+      if (copyGifBtn) copyGifBtn.disabled = false;
+      if (diagram) {
+        diagram.seek(resumeAt);
+        if (wasPlaying) diagram.play();
+      }
+    }
+  }
+
   function downloadMarkdyFile() {
     const code = getCode();
     const blob = new Blob([code], { type: "text/plain;charset=utf-8" });
@@ -1629,7 +1795,7 @@ const playgroundStructuredData = [
 
   // ─── Theme Switcher (Random Dark / Random Light Toggle) ───────────
   const DARK_THEMES = ["midnight", "blueprint", "graphite", "nebula", "terminal"];
-  const LIGHT_THEMES = ["paper", "editorial", "sketchy"];
+  const LIGHT_THEMES = ["paper", "editorial", "sketchy", "ink", "doodle"];
 
   function toggleRandomThemeInPlayground(): void {
     const current = getCode();
@@ -2615,11 +2781,25 @@ Requirements:
     if (e.target === exportModal) exportModal.close();
   });
 
-  exportSvgBtn?.addEventListener("click", exportSvg);
+  exportSvgBtn?.addEventListener("click", () => {
+    exportModal?.close();
+    exportSvg();
+  });
   copySvgBtn?.addEventListener("click", copySvgToClipboard);
-  exportPngBtn?.addEventListener("click", exportPng);
+  exportPngBtn?.addEventListener("click", () => {
+    exportModal?.close();
+    exportPng();
+  });
   copyPngBtn?.addEventListener("click", copyPngToClipboard);
-  exportSourceBtn?.addEventListener("click", downloadMarkdyFile);
+  exportGifBtn?.addEventListener("click", () => {
+    exportModal?.close();
+    exportGif();
+  });
+  copyGifBtn?.addEventListener("click", copyGifDataUrl);
+  exportSourceBtn?.addEventListener("click", () => {
+    exportModal?.close();
+    downloadMarkdyFile();
+  });
   copySourceCodeBtn?.addEventListener("click", copySourceCodeToClipboard);
   exportMarkdownBtn?.addEventListener("click", copyMarkdownBlock);
 
@@ -2633,9 +2813,23 @@ Requirements:
     }
   });
 
+  function rollNextScene() {
+    if (!examples || examples.length === 0) return;
+    if (examples.length === 1) {
+      loadExample(0);
+      return;
+    }
+    let nextIdx: number;
+    do {
+      nextIdx = Math.floor(Math.random() * examples.length);
+    } while (nextIdx === selectedExample && examples.length > 1);
+    loadExample(nextIdx);
+    showToast(`🎲 Rolled: ${examples[nextIdx]?.title || "Scene"}`);
+  }
+
   runBtn?.addEventListener("click", () => render(getCode()));
   resetBtn?.addEventListener("click", () => loadExample(selectedExample >= 0 ? selectedExample : 0));
-  pasteCodeBtn?.addEventListener("click", () => pasteCodeToEditor(pasteCodeBtn));
+  rollSceneBtn?.addEventListener("click", rollNextScene);
   topbarPasteBtn?.addEventListener("click", () => pasteCodeToEditor(topbarPasteBtn));
   copyCodeBtn?.addEventListener("click", () => {
     if (copyCodeBtn) writeClipboard(getCode(), copyCodeBtn, "Copied");
@@ -5567,102 +5761,16 @@ Requirements:
 
   /* ── Export & Share Modal ────────────────────────────────────────────── */
   .export-modal-box {
-    max-width: 620px;
+    max-width: 640px;
     width: 92vw;
   }
 
-  .export-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.65rem;
-    margin: 1rem 0;
-  }
-
-  .export-card {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 0.5rem;
-    padding: 0.85rem;
-    border-radius: 10px;
+  .export-share-container {
+    margin: 0.75rem 0 0.85rem 0;
+    padding: 0.75rem 0.85rem;
     background: var(--bg-tertiary);
     border: 1px solid var(--border);
-    text-align: left;
-    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .export-card:hover {
-    border-color: var(--accent);
-    background: var(--bg-secondary);
-    box-shadow: var(--shadow-sm);
-  }
-
-  .export-card-icon {
-    font-size: 1.3rem;
-  }
-
-  .export-card-content strong {
-    display: block;
-    font-size: 0.82rem;
-    font-weight: 800;
-    color: var(--text-primary);
-    margin-bottom: 0.15rem;
-  }
-
-  .export-card-content span {
-    display: block;
-    font-size: 0.72rem;
-    color: var(--text-secondary);
-    line-height: 1.35;
-  }
-
-  .export-card-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
-    width: 100%;
-    margin-top: 0.35rem;
-  }
-
-  .export-card-btn {
-    flex: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.3rem 0.55rem;
-    font-size: 0.7rem;
-    font-weight: 700;
-    border-radius: 6px;
-    cursor: pointer;
-    border: 1px solid var(--border);
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    transition: all 0.14s ease;
-    white-space: nowrap;
-  }
-
-  .export-card-btn--primary {
-    background: var(--accent);
-    color: #ffffff;
-    border-color: var(--accent);
-  }
-
-  .export-card-btn--primary:hover {
-    background: var(--accent-hover);
-    border-color: var(--accent-hover);
-  }
-
-  .export-card-btn:not(.export-card-btn--primary):hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: var(--accent-light);
-  }
-
-  .export-share-container {
-    margin-top: 0.85rem;
-    padding-top: 0.85rem;
-    border-top: 1px solid var(--border);
+    border-radius: 9px;
     display: flex;
     flex-direction: column;
     gap: 0.45rem;
@@ -5673,6 +5781,17 @@ Requirements:
     align-items: center;
     justify-content: space-between;
     font-size: 0.76rem;
+  }
+
+  .export-share-label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-primary);
+  }
+
+  .export-share-icon {
+    font-size: 0.95rem;
   }
 
   .export-share-meta {
@@ -5690,18 +5809,170 @@ Requirements:
     flex: 1;
     height: 32px;
     padding: 0 0.65rem;
-    border-radius: 7px;
-    background: var(--bg-tertiary);
+    border-radius: 6px;
+    background: var(--bg-secondary);
     border: 1px solid var(--border);
     color: var(--text-primary);
     font-family: "JetBrains Mono", monospace;
-    font-size: 0.75rem;
+    font-size: 0.73rem;
     outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
   }
 
   .export-share-input:focus {
     border-color: var(--accent);
     box-shadow: 0 0 0 2px var(--accent-light);
+  }
+
+  .export-copy-url-btn {
+    height: 32px;
+    padding: 0 0.85rem;
+    font-size: 0.73rem;
+    font-weight: 700;
+    white-space: nowrap;
+    border-radius: 6px;
+  }
+
+  .export-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    margin: 0.4rem 0 0.2rem 0;
+  }
+
+  .export-card--inline {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    text-align: left;
+    transition: all 0.16s ease;
+  }
+
+  .export-card--inline:hover {
+    border-color: var(--accent);
+    background: var(--bg-secondary);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .export-card-left {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .export-card-icon {
+    font-size: 1.15rem;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  .export-card-content {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.08rem;
+  }
+
+  .export-card-content strong {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .export-card-badge {
+    display: inline-block;
+    padding: 0.08rem 0.35rem;
+    font-size: 0.63rem;
+    font-weight: 600;
+    font-family: "JetBrains Mono", monospace;
+    color: var(--accent);
+    background: var(--accent-light);
+    border-radius: 4px;
+    line-height: 1.2;
+  }
+
+  .export-card-content span:not(.export-card-badge) {
+    display: block;
+    font-size: 0.69rem;
+    color: var(--text-secondary);
+    line-height: 1.25;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .export-card-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+  }
+
+  .export-card-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    padding: 0 0.55rem;
+    font-size: 0.69rem;
+    font-weight: 600;
+    border-radius: 5px;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: all 0.14s ease;
+    white-space: nowrap;
+  }
+
+  .export-card-btn--primary {
+    background: var(--accent);
+    color: #ffffff;
+    border-color: var(--accent);
+    font-weight: 700;
+  }
+
+  .export-card-btn--primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+  }
+
+  .export-card-btn:not(.export-card-btn--primary):hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  @media (max-width: 540px) {
+    .export-card--inline {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+    }
+    .export-card-actions {
+      width: 100%;
+    }
+    .export-card-btn {
+      flex: 1;
+    }
   }
 
   .topbar-export-btn {

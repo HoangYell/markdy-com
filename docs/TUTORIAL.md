@@ -2,8 +2,8 @@
 
 > ### DOCUMENTATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.1.7
-> - **Specification Version**: 1.1.x
+> - **Current Version**: v1.2.0
+> - **Specification Version**: 1.2.x
 > - **Last Updated**: 2026-08-30
 > - **Documentation Hub**: <https://markdy.com/docs/>
 > - **Playground**: <https://markdy.com/playground/>
@@ -172,7 +172,7 @@ database Primary "Primary DB" style=hot
 database Replica "Read Replica"
 ```
 
-- Themes: `paper` (clean light, default), `editorial` (flat editorial paper with serif headings), `terminal` (CLI/TUI dark mode), `sketchy` (hand-drawn whiteboard), `nebula` (radial/surreal), `midnight` (dark developer), `blueprint` (CAD cyan-grid), and `graphite` (dark minimal).
+- Themes: `paper` (clean light, default), `editorial` (flat editorial paper with serif headings), `terminal` (CLI/TUI dark mode), `sketchy` (hand-drawn whiteboard), `ink` (monochrome blue ink & porcelain), `doodle` (playful doodle sketchbook), `nebula` (radial/surreal), `midnight` (dark developer), `blueprint` (CAD cyan-grid), and `graphite` (dark minimal).
 - Directions: `LR` (default), `RL`, `TB`, `BT`.
 - Focused layout modes: `architecture` (default), `flowchart`, `tree`, `state`, `sequence`, `timeline`, `gantt`, `venn`, `layers`, `nested`, `radar`, `medallion`, `flywheel`/`loop`, `quadrant`, `swimlane`, `pyramid`, and `constellation`.
 - Named styles currently support visual props such as `fill`, `stroke`, `text`, and `accent`.

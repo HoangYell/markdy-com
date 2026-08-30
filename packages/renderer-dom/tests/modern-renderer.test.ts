@@ -218,7 +218,7 @@ describe("Modern Renderer Architecture Validation", () => {
         expect(Number(plate.getAttribute("fill-opacity"))).toBeGreaterThanOrEqual(0.8);
         expect(Number(plate.getAttribute("fill-opacity"))).toBeLessThanOrEqual(0.95);
         expect(Number(plate.getAttribute("height"))).toBeLessThanOrEqual(18);
-        expect(Number(plate.getAttribute("rx"))).toBeLessThanOrEqual(4);
+        expect(Number(plate.getAttribute("rx"))).toBeLessThanOrEqual(6);
       }
 
       // Verify label typography is lightweight and not heavy/bold
@@ -238,8 +238,8 @@ describe("Modern Renderer Architecture Validation", () => {
 
       expect(styleContent).toContain("min-width: 140px;");
       expect(styleContent).toContain("min-height: 64px;");
-      expect(styleContent).toContain("width: 34px;");
-      expect(styleContent).toContain("height: 34px;");
+      expect(styleContent).toContain("width: 28px;");
+      expect(styleContent).toContain("height: 28px;");
       expect(styleContent).toContain("gap: 12px;");
       expect(styleContent).toContain("font-weight: 600;");
       expect(styleContent).toContain("font-variant-numeric: tabular-nums;");
@@ -252,9 +252,9 @@ describe("Modern Renderer Architecture Validation", () => {
       const styleContent = document.getElementById("markdy-group-boundary-styles")?.textContent || "";
 
       expect(styleContent).toContain("border-radius: 16px;");
-      expect(styleContent).toContain("backdrop-filter: blur(8px);");
+      expect(styleContent).toContain("backdrop-filter: blur(10px);");
       expect(styleContent).toContain("text-transform: uppercase;");
-      expect(styleContent).toContain("letter-spacing: 0.08em;");
+      expect(styleContent).toContain("letter-spacing: 0.1em;");
     });
   });
 
@@ -264,7 +264,7 @@ describe("Modern Renderer Architecture Validation", () => {
       const styleContent = document.getElementById("markdy-scene-ambience-styles")?.textContent || "";
 
       expect(styleContent).toContain("@keyframes markdy-flow-dash");
-      expect(styleContent).toContain("stroke-dashoffset: -24");
+      expect(styleContent).toContain("stroke-dashoffset: -32");
       expect(styleContent).toContain(".markdy-edge-path--flowing");
       expect(styleContent).toContain("@media (prefers-reduced-motion: reduce)");
       expect(styleContent).toContain("animation: none !important;");
@@ -273,7 +273,7 @@ describe("Modern Renderer Architecture Validation", () => {
 
   describe("WCAG AA Contrast & Typography Hierarchy", () => {
     it("maintains high contrast across all theme tokens", () => {
-      const themes = ["midnight", "paper", "blueprint", "graphite", "editorial", "nebula", "terminal"];
+      const themes = ["midnight", "paper", "blueprint", "graphite", "editorial", "nebula", "terminal", "sketchy", "ink", "doodle"];
       for (const name of themes) {
         const theme = resolveTheme(name);
         expect(theme.text).toBeDefined();

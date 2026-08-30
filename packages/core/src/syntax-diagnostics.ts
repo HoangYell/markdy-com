@@ -404,7 +404,7 @@ export function diagnoseMarkdyCode(
             snippet: trimmed,
             suggestion: closeTheme ? `Use theme '${closeTheme.match}'.` : `Choose from: ${THEME_NAMES.join(", ")}.`,
             didYouMean: closeTheme?.match,
-            ruleExplanation: "Supported themes: paper, editorial, midnight, blueprint, graphite, nebula, sketchy, terminal.",
+            ruleExplanation: "Supported themes: paper, editorial, midnight, blueprint, graphite, nebula, sketchy, terminal, ink, doodle.",
             fix: closeTheme ? { original: themeMatch[0], replacement: `theme=${closeTheme.match}` } : undefined,
           });
         }

@@ -135,10 +135,11 @@ export function mountSequenceLayer(
     svg.appendChild(cap);
   }
 
-  for (const activation of activations) {
+  activations.forEach((activation, index) => {
     const x = centerX(activation.participant);
     const bar = doc.createElementNS("http://www.w3.org/2000/svg", "rect");
     bar.classList.add("markdy-sequence-activation");
+    bar.setAttribute("data-activation-index", String(index));
     bar.setAttribute("x", String(x - 6));
     bar.setAttribute("y", String(activation.y));
     bar.setAttribute("width", "12");
@@ -148,7 +149,7 @@ export function mountSequenceLayer(
     bar.setAttribute("opacity", "0");
     bar.style.filter = `drop-shadow(0 0 6px ${theme.accent}66)`;
     svg.appendChild(bar);
-  }
+  });
 
   const animations: Animation[] = [];
   for (const message of messages) {
@@ -157,6 +158,7 @@ export function mountSequenceLayer(
     const group = doc.createElementNS("http://www.w3.org/2000/svg", "g");
     group.classList.add("markdy-sequence-message");
     group.setAttribute("data-message", message.id);
+    group.setAttribute("data-message-id", message.id);
     group.style.opacity = "0";
 
     const line = doc.createElementNS("http://www.w3.org/2000/svg", "line");
@@ -193,15 +195,39 @@ export function mountSequenceLayer(
       group.appendChild(createText(doc, midX, message.y - 14.5, message.label, theme));
     }
 
+    const pulse = doc.createElementNS("http://www.w3.org/2000/svg", "circle");
+    pulse.setAttribute("r", "4");
+    pulse.setAttribute("fill", theme.edges[message.kind] || theme.accent);
+    pulse.classList.add("markdy-sequence-pulse");
+    pulse.style.opacity = "0";
+    pulse.style.filter = `drop-shadow(0 0 6px ${theme.edges[message.kind] || theme.accent})`;
+    group.appendChild(pulse);
+
     svg.appendChild(group);
+    const durMs = Math.max(160, message.duration * 1000);
+    const startMs = message.start * 1000;
     animations.push(
       group.animate(
         [{ opacity: 0 }, { opacity: 1 }],
         {
-          duration: Math.max(160, message.duration * 1000),
-          delay: message.start * 1000,
+          duration: 120,
+          delay: startMs,
           fill: "forwards",
           easing: "ease-out",
+        },
+      ),
+      pulse.animate(
+        [
+          { transform: `translate(${fromX}px, ${message.y}px)`, opacity: 0 },
+          { transform: `translate(${fromX}px, ${message.y}px)`, opacity: 1, offset: 0.1 },
+          { transform: `translate(${toX}px, ${message.y}px)`, opacity: 1, offset: 0.9 },
+          { transform: `translate(${toX}px, ${message.y}px)`, opacity: 0 },
+        ],
+        {
+          duration: durMs,
+          delay: startMs,
+          fill: "forwards",
+          easing: "cubic-bezier(0.2, 0.85, 0.4, 1)",
         },
       ),
     );

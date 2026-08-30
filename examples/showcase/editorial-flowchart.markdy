@@ -1,4 +1,4 @@
-scene "Editorial Checkout Decision Flowchart" theme=editorial type=flowchart width=960 height=720
+scene "Editorial Checkout Decision Flowchart" theme=auto type=flowchart width=960 height=720
 layout TB
 annotation "Decision gate" target=Valid position=top-left
 

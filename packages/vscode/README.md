@@ -67,7 +67,7 @@ Markdy is officially published on both the **VS Code Marketplace** and the **Ope
 ## ⚡ Quick Start (60 Seconds)
 
 1. **Install**: Follow the [Installation instructions](#-installation) above for your editor.
-2. **Create Diagram**: Create a file named `system.markdy` (or run `Markdy: Insert Template...` from the Command Palette).
+2. **Prompt AI or Create Diagram**: Ask your AI Agent (Cursor / Claude / Antigravity / Copilot) using https://markdy.com/AGENT.md or run `Markdy: Insert Template...` from the Command Palette.
 3. **Open Live Preview**: Press **`Cmd+K V`** (macOS) or **`Ctrl+K V`** (Windows/Linux) to open the side-by-side animated live preview.
 
 ```markdy
@@ -169,7 +169,7 @@ Right-click ──▶ Markdy ▶ ──┬── Live Preview
 
 | Setting | Default | Options / Description |
 |---|---|---|
-| `markdy.preview.theme` | `"auto"` | `"auto"`, `"midnight"`, `"paper"`, `"blueprint"`, `"nebula"`, `"editorial"`, `"graphite"`, `"terminal"`, `"sketchy"` |
+| `markdy.preview.theme` | `"auto"` | `"auto"`, `"midnight"`, `"paper"`, `"blueprint"`, `"nebula"`, `"editorial"`, `"graphite"`, `"terminal"`, `"sketchy"`, `"ink"`, `"doodle"` |
 | `markdy.preview.autoplay` | `true` | Automatically play diagram animations when preview opens |
 | `markdy.preview.loop` | `true` | Continuously loop diagram animations |
 | `markdy.preview.progressBar` | `true` | Show interactive timeline scrubber and progress bar |

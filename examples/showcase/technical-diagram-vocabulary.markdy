@@ -1,4 +1,4 @@
-scene "Technical Architecture Node Vocabulary" theme=paper width=1200 height=720
+scene "Technical Architecture Node Vocabulary" theme=auto width=1200 height=720
 layout LR
 
 client Browser "Web Browser"

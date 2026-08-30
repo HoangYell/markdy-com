@@ -4,6 +4,7 @@ import type {
   FlowSegment,
   GroupBoundary,
   PositionedNode,
+  NodeDecl,
   RenderPlan,
   RoutedEdge,
   SequenceActivation,
@@ -21,6 +22,54 @@ const NODE_W = 180;
 const NODE_H = 76;
 const VENN_NODE_SIZE = 220;
 const GROUP_PAD = 28;
+
+export function computeNodeDimensions(
+  decl: NodeDecl,
+  baseW = 180,
+  baseH = 76,
+): { width: number; height: number } {
+  if (typeof decl.props?.width === "number") {
+    return {
+      width: decl.props.width,
+      height: typeof decl.props.height === "number" ? decl.props.height : baseH,
+    };
+  }
+
+  const labelLen = (decl.label || "").length;
+  const tech = decl.props?.tech ?? decl.props?.sub;
+  const techLen = tech ? String(tech).length : 0;
+  const val = decl.props?.value ?? decl.props?.metric;
+  const valLen = val ? String(val).length : 0;
+
+  if (decl.kind === "dot") return { width: 64, height: 64 };
+  if (decl.kind === "matrix") return { width: 220, height: 96 };
+
+  // Left space: icon (28px) + left padding (16px) + gap (12px) = 56px
+  // Right value: metric length * 9.5 + right padding (16px)
+  const valueW = valLen > 0 ? Math.max(50, valLen * 9.5 + 16) : 0;
+
+  // Content width needed for label & tech badge
+  const neededLabelChars = labelLen > 18 ? Math.ceil(labelLen / 2) : labelLen;
+  const maxChars = Math.max(neededLabelChars, techLen);
+  const neededTextW = Math.max(88, maxChars * 7.8);
+
+  const calculatedW = 56 + neededTextW + (valueW > 0 ? valueW + 14 : 0) + 16;
+  const minW = Math.max(baseW, Math.min(360, calculatedW));
+
+  let width = Math.ceil(minW / 8) * 8;
+  let height = baseH;
+  if (labelLen > 24 && techLen > 0) {
+    height = Math.max(height, 84);
+  }
+
+  return { width, height };
+}
+
+function resolveNodeStyle(decl: NodeDecl, ast: DiagramAST): Record<string, unknown> | undefined {
+  if (!decl.style) return undefined;
+  if (typeof decl.style === "string") return ast.styles[decl.style]?.props;
+  return decl.style;
+}
 
 const DEFAULTS = {
   show: 0.35,
@@ -42,7 +91,13 @@ function effectiveTitleBand(ast: DiagramAST): number {
   return ast.meta.title && ast.meta.title.trim().length > 0 ? TITLE_BAND : 16;
 }
 
-function nodeShape(kind: string, dtype: DiagramType): PositionedNode["shape"] {
+function nodeShape(kind: string, dtype: DiagramType, props?: Record<string, unknown>): PositionedNode["shape"] {
+  if (typeof props?.shape === "string") {
+    const s = props.shape.toLowerCase();
+    if (s === "diamond" || s === "circle" || s === "pill" || s === "terminal" || s === "rounded" || s === "card" || s === "container") {
+      return s as PositionedNode["shape"];
+    }
+  }
   if (kind === "terminal") return "terminal";
   if (kind === "dot" || kind === "marker") return "circle";
   if (kind === "token_strip" || kind === "chips") return "pill";
@@ -218,17 +273,23 @@ function layoutRanked(
   const maxInRank = Math.max(...[...byRank.values()].map((v) => v.length), 1);
 
   const nodes: PositionedNode[] = [];
+  const nodeDims = new Map<string, { width: number; height: number }>();
+  for (const id of nodeIds) {
+    nodeDims.set(id, computeNodeDimensions(ast.nodes[id]));
+  }
 
   if (opts.columnLayout) {
     // Sequence participant column layout
     const count = nodeIds.length;
-    const colSpacing = Math.max(NODE_W + 32, contentW / Math.max(count, 1));
-    const totalW = (count - 1) * colSpacing + NODE_W;
+    const maxNodeW = Math.max(...nodeIds.map((id) => nodeDims.get(id)?.width ?? NODE_W));
+    const colSpacing = Math.max(maxNodeW + 32, contentW / Math.max(count, 1));
+    const totalW = (count - 1) * colSpacing + maxNodeW;
     const startX = SAFE + Math.max(0, (contentW - totalW) / 2);
     nodeIds.forEach((id, idx) => {
       const decl = ast.nodes[id];
       const role = nodeRole(decl.kind);
-      const x = startX + idx * colSpacing;
+      const dims = nodeDims.get(id) ?? { width: NODE_W, height: NODE_H };
+      const x = startX + idx * colSpacing + (maxNodeW - dims.width) / 2;
       const y = (hasTitle ? titleBand : 20) + 32;
       nodes.push({
         id,
@@ -237,12 +298,12 @@ function layoutRanked(
         label: decl.label,
         x: snapGrid(x),
         y: snapGrid(y),
-        width: NODE_W,
-        height: NODE_H,
-        style: decl.style ? ast.styles[decl.style]?.props : undefined,
+        width: dims.width,
+        height: dims.height,
+        style: resolveNodeStyle(decl, ast),
         props: decl.props,
         opacity: 0,
-        shape: nodeShape(decl.kind, dtype),
+        shape: nodeShape(decl.kind, dtype, decl.props),
         focal: decl.props.focal === true || decl.props.accent === true,
         column: idx,
       });
@@ -253,20 +314,23 @@ function layoutRanked(
   if (isVertical) {
     // Vertical top-to-bottom flowchart/rank
     const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
-    const rowGap = Math.max(NODE_H + 40, Math.min(180, contentH / Math.max(rankCount, 1)));
-    const totalH = (rankCount - 1) * rowGap + NODE_H;
+    const maxNodeH = Math.max(...nodeIds.map((id) => nodeDims.get(id)?.height ?? NODE_H));
+    const rowGap = Math.max(maxNodeH + 40, Math.min(200, contentH / Math.max(rankCount, 1)));
+    const totalH = (rankCount - 1) * rowGap + maxNodeH;
     const startY = TITLE_BAND + Math.max(0, (contentH - totalH) / 2);
 
     for (const [rank, ids] of [...byRank.entries()].sort((a, b) => a[0] - b[0])) {
       const rowCount = ids.length;
-      const colSpacing = Math.max(NODE_W + 36, Math.min(260, contentW / Math.max(rowCount, 1)));
-      const rankW = (rowCount - 1) * colSpacing + NODE_W;
+      const maxRowW = Math.max(...ids.map((id) => nodeDims.get(id)?.width ?? NODE_W));
+      const colSpacing = Math.max(maxRowW + 36, Math.min(320, contentW / Math.max(rowCount, 1)));
+      const rankW = (rowCount - 1) * colSpacing + maxRowW;
       const rankStartX = SAFE + Math.max(0, (contentW - rankW) / 2);
       const y = startY + rank * rowGap;
 
       ids.forEach((id, idx) => {
         const decl = ast.nodes[id];
         const role = nodeRole(decl.kind);
+        const dims = nodeDims.get(id) ?? { width: NODE_W, height: NODE_H };
         const x = rankStartX + idx * colSpacing;
         const focal = decl.props.focal === true || decl.props.accent === true;
         nodes.push({
@@ -276,12 +340,12 @@ function layoutRanked(
           label: decl.label,
           x: snapGrid(x),
           y: snapGrid(y),
-          width: NODE_W,
-          height: NODE_H,
-          style: decl.style ? ast.styles[decl.style]?.props : undefined,
+          width: dims.width,
+          height: dims.height,
+          style: resolveNodeStyle(decl, ast),
           props: decl.props,
           opacity: 0,
-          shape: nodeShape(decl.kind, dtype),
+          shape: nodeShape(decl.kind, dtype, decl.props),
           focal,
         });
       });
@@ -290,24 +354,36 @@ function layoutRanked(
   }
 
   // Horizontal left-to-right architecture layout
-  const maxPossibleStep = rankCount > 1 ? (contentW - NODE_W) / (rankCount - 1) : 0;
-  const colGap = rankCount > 1 ? Math.min(300, Math.max(50, maxPossibleStep)) : 0;
-  const totalW = (rankCount - 1) * colGap + NODE_W;
+  const rankWidths = new Map<number, number>();
+  for (const [rank, ids] of byRank.entries()) {
+    const maxW = Math.max(...ids.map((id) => nodeDims.get(id)?.width ?? NODE_W));
+    rankWidths.set(rank, maxW);
+  }
+
+  const totalRankWidths = [...rankWidths.values()].reduce((a, b) => a + b, 0);
+  const minColGap = 56;
+  const availableGapW = Math.max(0, contentW - totalRankWidths);
+  const colGap = rankCount > 1 ? Math.max(minColGap, Math.min(160, availableGapW / (rankCount - 1))) : 0;
+  const totalW = totalRankWidths + (rankCount - 1) * colGap;
   const startX = SAFE + Math.max(0, (contentW - totalW) / 2);
 
   const availableH = Math.max(NODE_H, ast.meta.height - titleBand - bottomBand);
 
-  for (const [rank, ids] of [...byRank.entries()].sort((a, b) => a[0] - b[0])) {
+  let currentRankX = startX;
+  for (let rank = 0; rank < rankCount; rank++) {
+    const ids = byRank.get(rank) ?? [];
+    const rankW = rankWidths.get(rank) ?? NODE_W;
     const rowCount = ids.length;
-    const maxPossibleRowStep = rowCount > 1 ? (availableH - NODE_H) / (rowCount - 1) : 0;
-    const rowSpacing = rowCount > 1 ? Math.min(150, Math.max(36, maxPossibleRowStep)) : 0;
-    const colH = (rowCount - 1) * rowSpacing + NODE_H;
+    const maxH = Math.max(...ids.map((id) => nodeDims.get(id)?.height ?? NODE_H), NODE_H);
+    const maxPossibleRowStep = rowCount > 1 ? (availableH - maxH) / (rowCount - 1) : 0;
+    const rowSpacing = rowCount > 1 ? Math.min(180, Math.max(maxH + 28, maxPossibleRowStep)) : 0;
+    const colH = (rowCount - 1) * rowSpacing + maxH;
     const colStartY = titleBand + Math.max(0, (availableH - colH) / 2);
-    const x = startX + rank * colGap;
 
     ids.forEach((id, idx) => {
       const decl = ast.nodes[id];
       const role = nodeRole(decl.kind);
+      const dims = nodeDims.get(id) ?? { width: NODE_W, height: NODE_H };
       const y = colStartY + idx * rowSpacing;
       const focal = decl.props.focal === true || decl.props.accent === true;
       nodes.push({
@@ -315,17 +391,19 @@ function layoutRanked(
         kind: decl.kind,
         role,
         label: decl.label,
-        x: snapGrid(x),
+        x: snapGrid(currentRankX),
         y: snapGrid(y),
-        width: NODE_W,
-        height: NODE_H,
-        style: decl.style ? ast.styles[decl.style]?.props : undefined,
+        width: dims.width,
+        height: dims.height,
+        style: resolveNodeStyle(decl, ast),
         props: decl.props,
         opacity: 0,
-        shape: nodeShape(decl.kind, dtype),
+        shape: nodeShape(decl.kind, dtype, decl.props),
         focal,
       });
     });
+
+    currentRankX += rankW + colGap;
   }
   return nodes;
 }
@@ -445,7 +523,7 @@ function layoutTree(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
       y: snapGrid(pos.y),
       width: NODE_W,
       height: NODE_H,
-      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      style: resolveNodeStyle(decl, ast),
       props: decl.props,
       opacity: 0,
       shape: "card",
@@ -522,10 +600,10 @@ function layoutConstellation(ast: DiagramAST): PositionedNode[] {
       y: snapGrid(y),
       width: NODE_W,
       height: NODE_H,
-      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      style: resolveNodeStyle(decl, ast),
       props: decl.props,
       opacity: 0,
-      shape: nodeShape(decl.kind, "constellation"),
+      shape: nodeShape(decl.kind, "constellation", decl.props),
       focal: isFocal || decl.props.focal === true || decl.props.accent === true,
     });
   }
@@ -582,7 +660,7 @@ function layoutLoop(ast: DiagramAST): PositionedNode[] {
       y: snapGrid(y),
       width: isHub ? snapGrid(NODE_W * 1.25) : NODE_W,
       height: isHub ? snapGrid(NODE_H * 1.15) : NODE_H,
-      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      style: resolveNodeStyle(decl, ast),
       props: decl.props,
       opacity: 0,
       shape: isHub ? "pill" : "card",
@@ -645,7 +723,7 @@ function layoutMedallion(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[]
         y: snapGrid(rowY),
         width: NODE_W,
         height: NODE_H,
-        style: decl.style ? ast.styles[decl.style]?.props : undefined,
+        style: resolveNodeStyle(decl, ast),
         props: decl.props,
         opacity: 0,
         shape: "card",
@@ -714,7 +792,7 @@ function layoutQuadrant(ast: DiagramAST): PositionedNode[] {
         y: snapGrid(y),
         width: NODE_W,
         height: NODE_H,
-        style: decl.style ? ast.styles[decl.style]?.props : undefined,
+        style: resolveNodeStyle(decl, ast),
         props: decl.props,
         opacity: 0,
         shape: "card",
@@ -775,7 +853,7 @@ function layoutSwimlane(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] 
         y: snapGrid(laneY),
         width: NODE_W,
         height: NODE_H,
-        style: decl.style ? ast.styles[decl.style]?.props : undefined,
+        style: resolveNodeStyle(decl, ast),
         props: decl.props,
         opacity: 0,
         shape: "card",
@@ -831,7 +909,7 @@ function layoutPyramid(ast: DiagramAST): PositionedNode[] {
         y: snapGrid(tierY),
         width: snapGrid(nodeW),
         height: NODE_H,
-        style: decl.style ? ast.styles[decl.style]?.props : undefined,
+        style: resolveNodeStyle(decl, ast),
         props: decl.props,
         opacity: 0,
         shape: "card",
@@ -862,7 +940,7 @@ function layoutTimeline(ast: DiagramAST): PositionedNode[] {
     nodes.push({
       id, kind: decl.kind, role: nodeRole(decl.kind), label: decl.label,
       x: snapGrid(x), y: snapGrid(y), width: NODE_W, height: NODE_H,
-      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      style: resolveNodeStyle(decl, ast),
       props: decl.props, opacity: 0, shape: "pill", focal,
     });
   });
@@ -899,7 +977,7 @@ function layoutGantt(ast: DiagramAST): PositionedNode[] {
     nodes.push({
       id, kind: decl.kind, role: nodeRole(decl.kind), label: decl.label,
       x: snapGrid(x), y: snapGrid(y), width: snapGrid(w), height: barH,
-      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      style: resolveNodeStyle(decl, ast),
       props: decl.props, opacity: 0, shape: "pill", focal,
     });
   });
@@ -933,7 +1011,7 @@ function layoutVenn(ast: DiagramAST): PositionedNode[] {
     nodes.push({
       id, kind: decl.kind, role: nodeRole(decl.kind), label: decl.label,
       x: snapGrid(x), y: snapGrid(y), width: VENN_NODE_SIZE, height: VENN_NODE_SIZE,
-      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      style: resolveNodeStyle(decl, ast),
       props: decl.props, opacity: 0, shape: "circle", focal,
     });
   });
@@ -967,7 +1045,7 @@ function layoutLayers(ast: DiagramAST): PositionedNode[] {
       y: snapGrid(y),
       width: snapGrid(layerW),
       height: snapGrid(layerH),
-      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      style: resolveNodeStyle(decl, ast),
       props: decl.props,
       opacity: 0,
       shape: "rounded",
@@ -1017,7 +1095,7 @@ function layoutNested(ast: DiagramAST): PositionedNode[] {
       y: snapGrid(y),
       width: snapGrid(w),
       height: snapGrid(h),
-      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      style: resolveNodeStyle(decl, ast),
       props: decl.props,
       opacity: 0,
       shape: isCore ? "card" : "container",
@@ -1056,7 +1134,7 @@ function layoutRadar(ast: DiagramAST): PositionedNode[] {
       y: snapGrid(y),
       width: NODE_W,
       height: NODE_H,
-      style: decl.style ? ast.styles[decl.style]?.props : undefined,
+      style: resolveNodeStyle(decl, ast),
       props: decl.props,
       opacity: 0,
       shape: "rounded",
@@ -1510,8 +1588,10 @@ export function computeAdaptiveDimensions(
       const hasBeatCaptions = ast.beats.some((b) => b.label && b.label.trim().length > 0);
       const titleBand = hasTitle ? TITLE_BAND : 0;
       const bottomBand = hasBeatCaptions ? 44 : 0;
-      const requiredW = SAFE * 2 + rankCount * NODE_W + (rankCount - 1) * 44 + groupPaddingBonus;
-      const requiredH = SAFE * 2 + titleBand + bottomBand + maxInRank * NODE_H + (maxInRank - 1) * 36 + groupPaddingBonus;
+      const maxRankW = Math.max(...nodeIds.map((id) => computeNodeDimensions(ast.nodes[id]).width));
+      const maxRankH = Math.max(...nodeIds.map((id) => computeNodeDimensions(ast.nodes[id]).height));
+      const requiredW = SAFE * 2 + rankCount * maxRankW + (rankCount - 1) * 56 + groupPaddingBonus;
+      const requiredH = SAFE * 2 + titleBand + bottomBand + maxInRank * maxRankH + (maxInRank - 1) * 44 + groupPaddingBonus;
 
       if (maxInRank === 1 && !hasTitle) {
         // Horizontal single-row chain without title: snug ribbon height

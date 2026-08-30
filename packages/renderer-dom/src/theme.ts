@@ -20,47 +20,45 @@ export function ensureSceneStyles(doc: Document): void {
 .markdy-scene-root::before {
   z-index: 0;
   background:
-    linear-gradient(var(--md-grid-minor) 1px, transparent 1px) 0 0 / 32px 32px,
-    linear-gradient(90deg, var(--md-grid-minor) 1px, transparent 1px) 0 0 / 32px 32px,
-    linear-gradient(var(--md-grid-major) 1px, transparent 1px) 0 0 / 160px 160px,
-    linear-gradient(90deg, var(--md-grid-major) 1px, transparent 1px) 0 0 / 160px 160px;
-  mask-image: radial-gradient(ellipse at 50% 42%, #000 55%, transparent 100%);
-  opacity: 0.5;
+    radial-gradient(circle at 50% 50%, var(--md-grid-minor) 1.2px, transparent 1.2px) 0 0 / 24px 24px,
+    linear-gradient(var(--md-grid-major) 1px, transparent 1px) 0 0 / 120px 120px,
+    linear-gradient(90deg, var(--md-grid-major) 1px, transparent 1px) 0 0 / 120px 120px;
+  mask-image: radial-gradient(ellipse at 50% 48%, #000 65%, transparent 100%);
+  opacity: 0.55;
 }
 .markdy-scene-root::after {
   z-index: 1;
   background:
-    radial-gradient(ellipse at 50% -8%, color-mix(in srgb, var(--md-accent) 10%, transparent), transparent 46%),
-    linear-gradient(180deg, transparent 0%, rgba(2, 6, 23, 0.05) 62%, var(--md-vignette) 100%);
-  opacity: 0.62;
+    radial-gradient(ellipse at 50% -12%, color-mix(in srgb, var(--md-accent) 14%, transparent), transparent 50%),
+    linear-gradient(180deg, transparent 0%, rgba(2, 6, 23, 0.04) 55%, var(--md-vignette) 100%);
+  opacity: 0.68;
 }
 .markdy-scene-content { z-index: 2; }
 .markdy-scene-root[data-markdy-theme="nebula"]::before {
   background:
-    radial-gradient(circle at 18% 18%, color-mix(in srgb, var(--md-soft) 16%, transparent), transparent 32%),
-    radial-gradient(circle at 84% 72%, color-mix(in srgb, var(--md-accent) 18%, transparent), transparent 36%),
-    linear-gradient(var(--md-grid-minor) 1px, transparent 1px) 0 0 / 32px 32px,
-    linear-gradient(90deg, var(--md-grid-minor) 1px, transparent 1px) 0 0 / 32px 32px;
-  mask-image: none;
-  opacity: 0.9;
+    radial-gradient(circle at 18% 18%, color-mix(in srgb, var(--md-soft) 20%, transparent), transparent 36%),
+    radial-gradient(circle at 84% 72%, color-mix(in srgb, var(--md-accent) 22%, transparent), transparent 40%),
+    radial-gradient(circle at 50% 50%, var(--md-grid-minor) 1.5px, transparent 1.5px) 0 0 / 28px 28px;
+  mask-image: radial-gradient(ellipse at 50% 50%, #000 70%, transparent 100%);
+  opacity: 0.95;
 }
 .markdy-scene-root[data-markdy-theme="nebula"]::after {
   background:
-    radial-gradient(ellipse at 50% 42%, color-mix(in srgb, var(--md-accent) 12%, transparent), transparent 56%),
+    radial-gradient(ellipse at 50% 42%, color-mix(in srgb, var(--md-accent) 16%, transparent), transparent 56%),
     linear-gradient(180deg, transparent 0%, var(--md-vignette) 100%);
-  opacity: 0.8;
+  opacity: 0.85;
 }
 .markdy-scene-root[data-markdy-theme="terminal"]::before {
   background:
-    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.06) 1px, transparent 1px) 0 0 / 22px 22px;
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08) 1px, transparent 1px) 0 0 / 20px 20px;
   mask-image: none;
-  opacity: 0.4;
+  opacity: 0.45;
 }
 .markdy-scene-root[data-markdy-theme="terminal"]::after {
   background:
-    radial-gradient(ellipse at 50% 0%, rgba(255, 90, 54, 0.08), transparent 50%),
-    linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.5) 100%);
-  opacity: 0.7;
+    radial-gradient(ellipse at 50% 0%, rgba(255, 90, 54, 0.1), transparent 52%),
+    linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.55) 100%);
+  opacity: 0.75;
 }
 .markdy-scene-root[data-markdy-theme="sketchy"]::before {
   background: none;
@@ -70,18 +68,45 @@ export function ensureSceneStyles(doc: Document): void {
   background: none;
   opacity: 0;
 }
+.markdy-scene-root[data-markdy-theme="ink"]::before {
+  background:
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--md-accent) 9%, transparent) 1px, transparent 1px) 0 0 / 20px 20px,
+    linear-gradient(color-mix(in srgb, var(--md-accent) 6%, transparent) 1px, transparent 1px) 0 0 / 20px 20px,
+    linear-gradient(90deg, color-mix(in srgb, var(--md-accent) 6%, transparent) 1px, transparent 1px) 0 0 / 20px 20px;
+  mask-image: radial-gradient(ellipse at 50% 50%, #000 75%, transparent 100%);
+  opacity: 0.75;
+}
+.markdy-scene-root[data-markdy-theme="ink"]::after {
+  background:
+    radial-gradient(ellipse at 50% -10%, color-mix(in srgb, var(--md-accent) 12%, transparent), transparent 50%),
+    radial-gradient(ellipse at 100% 100%, rgba(30, 58, 138, 0.05), transparent 40%),
+    linear-gradient(180deg, transparent 0%, rgba(219, 234, 254, 0.25) 80%, var(--md-vignette) 100%);
+  opacity: 0.85;
+}
+.markdy-scene-root[data-markdy-theme="doodle"]::before {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(24, 24, 27, 0.06) 1.5px, transparent 1.5px) 0 0 / 20px 20px;
+  mask-image: none;
+  opacity: 0.7;
+}
+.markdy-scene-root[data-markdy-theme="doodle"]::after {
+  background:
+    radial-gradient(ellipse at 85% 15%, rgba(244, 63, 94, 0.05), transparent 45%),
+    radial-gradient(ellipse at 15% 85%, rgba(37, 99, 235, 0.05), transparent 45%);
+  opacity: 0.6;
+}
 @keyframes markdy-star-twinkle {
   from { opacity: 0.24; transform: scale(0.85); }
   to { opacity: 0.9; transform: scale(1.15); }
 }
 @keyframes markdy-flow-dash {
-  to { stroke-dashoffset: -24; }
+  to { stroke-dashoffset: -32; }
 }
 .markdy-edge {
   transition: opacity 0.2s ease;
 }
 .markdy-edge-path--flowing {
-  animation: markdy-flow-dash 1.2s linear infinite;
+  animation: markdy-flow-dash 1.1s linear infinite;
 }
 .markdy-edge-path {
   transition: stroke 0.2s ease, stroke-width 0.2s ease, filter 0.2s ease;
@@ -140,6 +165,24 @@ export function ensureSceneStyles(doc: Document): void {
   opacity: 0;
   transform: translateY(8px);
   will-change: opacity, transform;
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-beat-caption {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1.5px solid #1d4ed8;
+  color: #1e3a8a;
+  box-shadow:
+    2.5px 2.5px 0 rgba(29, 78, 216, 0.16),
+    0 10px 24px -6px rgba(29, 78, 216, 0.12);
+  font-weight: 600;
+}
+.markdy-scene-root[data-markdy-theme="doodle"] .markdy-beat-caption {
+  background: #ffffff;
+  border: 2px solid #18181b;
+  color: #18181b;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  box-shadow: 4px 4px 0 #18181b, 0 8px 20px -4px rgba(24, 24, 27, 0.12);
+  font-weight: 800;
+  padding: 10px 20px;
 }
 .markdy-diagram-root {
   position: relative;

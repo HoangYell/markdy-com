@@ -46,7 +46,7 @@ export interface ExampleMeta {
   /** Short description for gallery cards and SEO. */
   description?: string;
   /** Semantic theme used by the scene. */
-  theme?: "midnight" | "paper" | "blueprint" | "graphite" | "editorial" | "nebula" | "terminal" | "sketchy";
+  theme?: "midnight" | "paper" | "blueprint" | "graphite" | "editorial" | "nebula" | "terminal" | "sketchy" | "ink" | "doodle";
   /** Path relative to the repo's `examples/` directory. */
   file: string;
   playback?: {
@@ -73,7 +73,7 @@ export const HOMEPAGE_SHOWCASE_REGISTRY: ExampleMeta[] = [
     sceneType: "architecture",
     pattern: "cache-aside",
     description: "High-throughput URL shortener with edge CDN, Redis cache warming, and PostgreSQL sharding.",
-    theme: "paper",
+    theme: "auto",
     file: "showcase/url-shortener-architecture.markdy",
     playback: { previewStart: 0 },
   },
@@ -84,7 +84,7 @@ export const HOMEPAGE_SHOWCASE_REGISTRY: ExampleMeta[] = [
     sceneType: "flowchart",
     pattern: "decision-tree",
     description: "Decision matrix for selecting Asyncio event loops vs Multiprocessing worker pools.",
-    theme: "editorial",
+    theme: "auto",
     file: "showcase/concurrency-decision-flowchart.markdy",
   },
   {
@@ -94,7 +94,7 @@ export const HOMEPAGE_SHOWCASE_REGISTRY: ExampleMeta[] = [
     sceneType: "tree",
     pattern: "consistent-hashing",
     description: "Hierarchical partition sharding and virtual node replica routing across a distributed cluster.",
-    theme: "editorial",
+    theme: "auto",
     file: "showcase/consistent-hash-tree.markdy",
   },
   {
@@ -104,7 +104,7 @@ export const HOMEPAGE_SHOWCASE_REGISTRY: ExampleMeta[] = [
     sceneType: "sequence",
     pattern: "auth-handshake",
     description: "Secure authorization code grant with SHA-256 code challenge, token exchange, and JWT access.",
-    theme: "editorial",
+    theme: "auto",
     file: "showcase/oauth-pkce-sequence.markdy",
   },
   {
@@ -114,7 +114,7 @@ export const HOMEPAGE_SHOWCASE_REGISTRY: ExampleMeta[] = [
     sceneType: "state",
     pattern: "consensus-2pc",
     description: "Coordinator-participant voting state machine: Init -> Preparing -> Prepared / Aborted -> Commit.",
-    theme: "editorial",
+    theme: "auto",
     file: "showcase/distributed-2pc-state.markdy",
   },
   {
@@ -124,7 +124,7 @@ export const HOMEPAGE_SHOWCASE_REGISTRY: ExampleMeta[] = [
     sceneType: "layers",
     pattern: "network-layers",
     description: "Layered network protocol stack from Layer 7 Application down to Layer 1 Physical fiber.",
-    theme: "editorial",
+    theme: "auto",
     file: "showcase/osi-abstraction-layers.markdy",
   },
   {
@@ -134,7 +134,7 @@ export const HOMEPAGE_SHOWCASE_REGISTRY: ExampleMeta[] = [
     sceneType: "nested",
     pattern: "defense-in-depth",
     description: "Concentric security boundaries: External DMZ -> VPC Network -> Private K8s -> HSM Enclave.",
-    theme: "paper",
+    theme: "auto",
     file: "showcase/nested-security-perimeter.markdy",
   },
   {
@@ -144,7 +144,7 @@ export const HOMEPAGE_SHOWCASE_REGISTRY: ExampleMeta[] = [
     sceneType: "swimlane",
     pattern: "saga-orchestration",
     description: "Multi-tier cross-functional checkout: Client -> Edge WAF -> Domain Services -> Persistence Vault.",
-    theme: "paper",
+    theme: "auto",
     file: "showcase/cross-functional-swimlanes.markdy",
   },
   {
@@ -154,7 +154,7 @@ export const HOMEPAGE_SHOWCASE_REGISTRY: ExampleMeta[] = [
     sceneType: "timeline",
     pattern: "event-timeline",
     description: "Chronological event lifecycle from write-ahead log append to SSTable compaction and CDC stream.",
-    theme: "editorial",
+    theme: "auto",
     file: "showcase/platform-milestones-timeline.markdy",
   },
   {
@@ -164,7 +164,7 @@ export const HOMEPAGE_SHOWCASE_REGISTRY: ExampleMeta[] = [
     sceneType: "gantt",
     pattern: "migration-roadmap",
     description: "Phased blue/green database migration: Dual-write -> Historical backfill -> Cutover.",
-    theme: "paper",
+    theme: "auto",
     file: "showcase/engineering-gantt-roadmap.markdy",
   },
   {
@@ -174,7 +174,7 @@ export const HOMEPAGE_SHOWCASE_REGISTRY: ExampleMeta[] = [
     sceneType: "medallion",
     pattern: "medallion",
     description: "Multi-stage stream processing: Bronze raw ingestion -> Silver validation -> Gold feature store.",
-    theme: "editorial",
+    theme: "auto",
     file: "showcase/lakehouse-medallion-pipeline.markdy",
   },
   {
@@ -184,7 +184,7 @@ export const HOMEPAGE_SHOWCASE_REGISTRY: ExampleMeta[] = [
     sceneType: "flywheel",
     pattern: "flywheel-loop",
     description: "Compounding distributed consensus engine with vector clock synchronization and anti-entropy push.",
-    theme: "paper",
+    theme: "auto",
     file: "showcase/data-flywheel-loop.markdy",
   },
   {
@@ -194,7 +194,7 @@ export const HOMEPAGE_SHOWCASE_REGISTRY: ExampleMeta[] = [
     sceneType: "constellation",
     pattern: "raft-consensus",
     description: "Radial Raft leader election with deterministic follower heartbeat synchronizations.",
-    theme: "nebula",
+    theme: "auto",
     file: "showcase/nebula-constellation.markdy",
   },
   {
@@ -204,7 +204,7 @@ export const HOMEPAGE_SHOWCASE_REGISTRY: ExampleMeta[] = [
     sceneType: "quadrant",
     pattern: "cap-theorem",
     description: "Consistency vs Availability architectural trade-offs across CP, AP, and CA systems.",
-    theme: "editorial",
+    theme: "auto",
     file: "showcase/strategic-decision-quadrant.markdy",
   },
   {
@@ -214,7 +214,7 @@ export const HOMEPAGE_SHOWCASE_REGISTRY: ExampleMeta[] = [
     sceneType: "pyramid",
     pattern: "observability-pyramid",
     description: "Layered telemetry hierarchy: High-volume logs -> Metrics -> Traces -> Continuous profiling.",
-    theme: "editorial",
+    theme: "auto",
     file: "showcase/enterprise-value-pyramid.markdy",
   },
   {
@@ -224,7 +224,7 @@ export const HOMEPAGE_SHOWCASE_REGISTRY: ExampleMeta[] = [
     sceneType: "radar",
     pattern: "database-benchmark",
     description: "Multi-axis comparison of Spanner vs CockroachDB across latency, throughput, scale, and consistency.",
-    theme: "paper",
+    theme: "auto",
     file: "showcase/database-radar-benchmark.markdy",
   },
   {
@@ -234,7 +234,7 @@ export const HOMEPAGE_SHOWCASE_REGISTRY: ExampleMeta[] = [
     sceneType: "venn",
     pattern: "acid-vs-base",
     description: "Strict transactional atomicity vs eventual consistency and soft-state storage guarantees.",
-    theme: "editorial",
+    theme: "auto",
     file: "showcase/product-market-fit-venn.markdy",
   },
 ];
@@ -393,6 +393,16 @@ export const FULL_GALLERY_REGISTRY: ExampleMeta[] = [
     description: "Informal whiteboard architecture flow rendered with organic sketchy hand-drawn style.",
     theme: "sketchy",
     file: "showcase/sketchy-whiteboard-flow.markdy",
+  },
+  {
+    id: "blue-ink-distributed-consensus",
+    title: "Distributed Raft Consensus in Blue Ink",
+    category: "distributed-systems",
+    sceneType: "architecture",
+    pattern: "raft-consensus",
+    description: "Quorum replication, write-ahead logging, and state machine commits rendered in classic blue ink style.",
+    theme: "ink",
+    file: "showcase/blue-ink-distributed-consensus.markdy",
   },
 ];
 

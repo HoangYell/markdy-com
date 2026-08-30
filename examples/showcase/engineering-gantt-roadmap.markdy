@@ -1,7 +1,7 @@
 # engineering-gantt-roadmap.markdy
 # Zero-Downtime Blue/Green Database Migration Gantt Roadmap
 
-scene "Zero-Downtime Database Migration Phased Rollout" theme=editorial type=gantt width=1280 height=760
+scene "Zero-Downtime Database Migration Phased Rollout" theme=auto type=gantt width=1280 height=760
 
 step Phase1_DualWrite "Phase 1: Dual-Write Enablement (App Layer)"
 step Phase2_Backfill "Phase 2: Historical CDC Data Backfill (Offline)"

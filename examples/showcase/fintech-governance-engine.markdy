@@ -1,4 +1,4 @@
-scene "Zero-Trust FinTech Core Banking & Ledger Engine" theme=blueprint width=1760 height=900
+scene "Zero-Trust FinTech Core Banking & Ledger Engine" theme=auto width=1760 height=900
 layout LR
 
 group edge_perimeter "Edge Security Zone": WAF CloudflareEdge

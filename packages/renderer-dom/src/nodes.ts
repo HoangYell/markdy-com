@@ -53,7 +53,7 @@ export function ensureNodeStyles(doc: Document): void {
 .markdy-node__type { display: none; }
 .markdy-node__body {
   height: 100%;
-  padding: 0 14px;
+  padding: 0 16px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -62,36 +62,30 @@ export function ensureNodeStyles(doc: Document): void {
 }
 .markdy-node__icon {
   flex: 0 0 auto;
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--md-role-color, var(--md-accent));
-  background:
-    linear-gradient(180deg,
-      color-mix(in srgb, var(--md-role-color, var(--md-accent)) 24%, transparent),
-      color-mix(in srgb, var(--md-role-color, var(--md-accent)) 10%, transparent));
-  box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--md-role-color, var(--md-accent)) 38%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  background: transparent;
+  box-shadow: none;
 }
 .markdy-node__icon svg {
-  width: 18px;
-  height: 18px;
+  width: 26px;
+  height: 26px;
   display: block;
   stroke: currentColor;
 }
 .markdy-node__icon[data-media="image"] {
-  background: color-mix(in srgb, var(--md-surface-raised) 68%, #ffffff 32%);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--md-border) 60%, transparent);
-  padding: 3px;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
   overflow: hidden;
 }
 .markdy-node__icon img {
-  width: 100%;
-  height: 100%;
+  width: 26px;
+  height: 26px;
   object-fit: contain;
   border-radius: 6px;
   display: block;
@@ -99,12 +93,16 @@ export function ensureNodeStyles(doc: Document): void {
 .markdy-node__icon[data-fit="cover"] img {
   object-fit: cover;
 }
-.markdy-node[data-icon="decision"] .markdy-node__icon,
-.markdy-node[data-icon="flow"] .markdy-node__icon {
-  border-radius: 999px;
+.markdy-node__content {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
 }
 .markdy-node__label {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-width: 0;
   padding: 0;
   font-size: 13.5px;
@@ -114,12 +112,29 @@ export function ensureNodeStyles(doc: Document): void {
   color: var(--md-text);
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
   overflow-wrap: anywhere;
   word-break: break-word;
   text-wrap: pretty;
+}
+.markdy-node__tech {
+  align-self: flex-start;
+  font-family: var(--md-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--md-text-muted, #94a3b8);
+  background: color-mix(in srgb, var(--md-text, #ffffff) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--md-border, #475569) 55%, transparent);
+  padding: 1.5px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 .markdy-node__value {
   flex: 0 0 auto;
@@ -127,6 +142,14 @@ export function ensureNodeStyles(doc: Document): void {
   font-weight: 700;
   color: var(--md-ink, var(--md-text));
   font-variant-numeric: tabular-nums;
+}
+.markdy-node[data-visible="1"]:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 3px 8px color-mix(in srgb, var(--md-shadow, rgba(2, 6, 23, 0.35)) 45%, transparent),
+    0 16px 32px -8px var(--md-shadow, rgba(2, 6, 23, 0.5)),
+    inset 0 0 0 1px var(--md-hairline, color-mix(in srgb, var(--md-border) 60%, transparent)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .markdy-node[data-role="client"] { border-radius: 14px 14px 10px 10px; }
 .markdy-node[data-role="data"] { border-radius: 12px 12px 16px 16px; }
@@ -165,6 +188,10 @@ export function ensureNodeStyles(doc: Document): void {
 .markdy-scene-root[data-markdy-theme="terminal"] .markdy-node[data-shape="diamond"][data-focal="1"],
 .markdy-scene-root[data-markdy-theme="sketchy"] .markdy-node[data-shape="diamond"],
 .markdy-scene-root[data-markdy-theme="sketchy"] .markdy-node[data-shape="diamond"][data-focal="1"],
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node[data-shape="diamond"],
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node[data-shape="diamond"][data-focal="1"],
+.markdy-scene-root[data-markdy-theme="doodle"] .markdy-node[data-shape="diamond"],
+.markdy-scene-root[data-markdy-theme="doodle"] .markdy-node[data-shape="diamond"][data-focal="1"],
 .markdy-scene-root[data-markdy-theme="nebula"] .markdy-node[data-shape="diamond"],
 .markdy-scene-root[data-markdy-theme="nebula"] .markdy-node[data-shape="diamond"][data-focal="1"] {
   border: none;
@@ -340,6 +367,97 @@ export function ensureNodeStyles(doc: Document): void {
   border-color: #eb6c36;
   background: rgba(235, 108, 54, 0.06);
   box-shadow: 3px 3px 0 rgba(235, 108, 54, 0.12);
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node {
+  background: #ffffff;
+  border: 1.5px solid #1d4ed8;
+  box-shadow:
+    3px 3px 0 rgba(29, 78, 216, 0.12),
+    0 4px 16px -2px rgba(29, 78, 216, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  border-radius: var(--md-radius-md, 6px);
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node[data-visible="1"]:hover {
+  transform: translate(-1px, -1px);
+  box-shadow:
+    4px 4px 0 rgba(29, 78, 216, 0.18),
+    0 8px 24px -4px rgba(29, 78, 216, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node__icon {
+  background: color-mix(in srgb, var(--md-role-color, var(--md-accent)) 10%, #ffffff);
+  border: 1px solid color-mix(in srgb, var(--md-role-color, var(--md-accent)) 30%, transparent);
+  border-radius: 6px;
+  width: 30px;
+  height: 30px;
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node__tech {
+  background: #eff6ff;
+  color: #1e3a8a;
+  border: 1px solid #bfdbfe;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node[data-shape="diamond"] {
+  filter: drop-shadow(0 0 1px #1d4ed8) drop-shadow(3px 3px 0 rgba(29, 78, 216, 0.12));
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node[data-focal="1"] {
+  border-color: #1d4ed8;
+  background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%);
+  box-shadow:
+    3px 3px 0 rgba(29, 78, 216, 0.25),
+    0 8px 24px -4px rgba(29, 78, 216, 0.18),
+    inset 0 1px 0 #ffffff;
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node[data-focal="1"] .markdy-node__icon {
+  background: rgba(29, 78, 216, 0.12);
+  border-color: rgba(29, 78, 216, 0.40);
+}
+.markdy-scene-root[data-markdy-theme="ink"] .markdy-node[data-shape="diamond"][data-focal="1"] {
+  filter: drop-shadow(0 0 1.5px #1d4ed8) drop-shadow(3px 3px 0 rgba(29, 78, 216, 0.25)) drop-shadow(0 6px 20px rgba(29, 78, 216, 0.16));
+}
+.markdy-scene-root[data-markdy-theme="doodle"] .markdy-node {
+  background: #ffffff;
+  border: 2px solid #18181b;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  box-shadow: 4px 4px 0 #18181b, 0 8px 16px -4px rgba(24, 24, 27, 0.08);
+}
+.markdy-scene-root[data-markdy-theme="doodle"] .markdy-node[data-visible="1"]:hover {
+  transform: translate(-1.5px, -1.5px) rotate(-0.6deg);
+  box-shadow: 5.5px 5.5px 0 #18181b, 0 10px 20px -4px rgba(24, 24, 27, 0.12);
+}
+.markdy-scene-root[data-markdy-theme="doodle"] .markdy-node__icon {
+  background: color-mix(in srgb, var(--md-role-color, var(--md-accent)) 16%, #ffffff);
+  border: 1.75px solid #18181b;
+  border-radius: 50% 45% 55% 48% / 48% 55% 45% 50%;
+  width: 30px;
+  height: 30px;
+  box-shadow: 1.5px 1.5px 0 #18181b;
+}
+.markdy-scene-root[data-markdy-theme="doodle"] .markdy-node__tech {
+  background: #fef08a;
+  color: #18181b;
+  border: 1.5px solid #18181b;
+  border-radius: 4px 8px 5px 7px;
+  font-weight: 800;
+  box-shadow: 2px 2px 0 #18181b;
+  transform: rotate(-1.2deg);
+}
+.markdy-scene-root[data-markdy-theme="doodle"] .markdy-node[data-shape="diamond"] {
+  filter: drop-shadow(0 0 1px #18181b) drop-shadow(4px 4px 0 #18181b);
+}
+.markdy-scene-root[data-markdy-theme="doodle"] .markdy-node[data-focal="1"] {
+  border: 2.25px solid #18181b;
+  background: linear-gradient(135deg, #ffffff 0%, #fff1f2 100%);
+  box-shadow: 4.5px 4.5px 0 #f43f5e, 0 0 0 2px #18181b;
+}
+.markdy-scene-root[data-markdy-theme="doodle"] .markdy-node[data-focal="1"] .markdy-node__icon {
+  background: #f43f5e;
+  color: #ffffff;
+  border-color: #18181b;
+}
+.markdy-scene-root[data-markdy-theme="doodle"] .markdy-node[data-shape="diamond"][data-focal="1"] {
+  filter: drop-shadow(0 0 1.5px #18181b) drop-shadow(4.5px 4.5px 0 #f43f5e);
 }
 .markdy-scene-root[data-markdy-theme="nebula"] .markdy-node[data-shape="diamond"] {
   filter: drop-shadow(0 0 1px var(--md-hairline)) drop-shadow(0 0 18px -4px color-mix(in srgb, var(--md-role-color, var(--md-accent)) 60%, transparent));
@@ -564,7 +682,7 @@ const ICONS: Record<string, SvgSpec> = {
 /** Read-only monochrome glyph registry; callers can inspect or choose keys without injecting markup. */
 export const ICON_REGISTRY: Readonly<Record<string, IconSpec>> = Object.freeze(ICONS);
 
-function iconKeyForNode(node: PositionedNode): string {
+export function iconKeyForNode(node: PositionedNode): string {
   const override = typeof node.props?.icon === "string" ? node.props.icon.toLowerCase() : undefined;
   if (override && ICONS[override]) return override;
   if (node.kind === "api_gateway" || node.kind === "gateway" || node.kind === "load_balancer" || node.kind === "ingress") return "gateway";
@@ -679,7 +797,10 @@ export function createNodeEl(node: PositionedNode, theme: ThemeTokens, assets?: 
   const el = document.createElement("div");
   el.className = "markdy-node markdy-scene-node";
   el.dataset.node = node.id;
-  el.dataset.role = node.role;
+  el.dataset.nodeId = node.id;
+  el.setAttribute("data-node-id", node.id);
+  el.setAttribute("data-node", node.id);
+  el.id = `node-${node.id}`;
   el.style.left = `${node.x}px`;
   el.style.top = `${node.y}px`;
   el.style.setProperty("--md-node-w", `${node.width}px`);
@@ -702,11 +823,26 @@ export function createNodeEl(node: PositionedNode, theme: ThemeTokens, assets?: 
 
   const body = document.createElement("div");
   body.className = "markdy-node__body";
+  if (node.shape !== "diamond") body.append(createNodeMediaEl(document, node, assets));
+
+  const content = document.createElement("div");
+  content.className = "markdy-node__content";
+
   const label = document.createElement("div");
   label.className = "markdy-node__label";
   label.textContent = node.label;
-  if (node.shape !== "diamond") body.append(createNodeMediaEl(document, node, assets));
-  body.append(label);
+  content.appendChild(label);
+
+  const tech = node.props?.tech ?? node.props?.sub;
+  if (tech !== undefined && tech !== null && String(tech).trim().length > 0) {
+    const techEl = document.createElement("div");
+    techEl.className = "markdy-node__tech";
+    techEl.textContent = String(tech);
+    content.appendChild(techEl);
+  }
+
+  body.append(content);
+
   const value = node.props?.value ?? node.props?.metric;
   if (value !== undefined && value !== null) {
     const valueEl = document.createElement("div");

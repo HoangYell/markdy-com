@@ -304,7 +304,7 @@ describe("createDiagram integration", () => {
 
     themeBtn!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(switchedTheme).toBeTruthy();
-    expect(["paper", "editorial", "sketchy"]).toContain(sceneRoot.dataset.markdyTheme);
+    expect(["paper", "editorial", "sketchy", "ink", "doodle"]).toContain(sceneRoot.dataset.markdyTheme);
 
     diagram.destroy();
     container.remove();
@@ -817,8 +817,8 @@ beat main:
     }
   });
 
-  it("mounts and destroys diagrams across all 8 registered themes cleanly", () => {
-    const themes = ["midnight", "paper", "blueprint", "graphite", "editorial", "nebula", "terminal", "sketchy"];
+  it("mounts and destroys diagrams across all 10 registered themes cleanly", () => {
+    const themes = ["midnight", "paper", "blueprint", "graphite", "editorial", "nebula", "terminal", "sketchy", "ink", "doodle"];
 
     for (const themeName of themes) {
       const container = document.createElement("div");
@@ -997,6 +997,67 @@ service API "<img data-test=unsafe>"
     expect(cssText).toContain(".markdy-controls button:hover:not([aria-pressed=\"true\"])");
     expect(cssText).toContain(".markdy-controls-tools button:hover:not([aria-pressed=\"true\"])");
     expect(cssText).toContain("@media (hover: none) and (pointer: coarse)");
+
+    diagram.destroy();
+    container.remove();
+  });
+
+  it("renders and animates all connection lines properly in doodle theme", async () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const code = `
+scene "How to Use Markdy" theme=doodle
+layout LR
+
+user Dev "Developer"
+service Claude "Claude Code (AI)"
+repo WebApp "Website Project"
+browser Diagram "Interactive Diagram"
+
+beat reveal "Overview":
+  show $nodes stagger=40ms
+
+beat step1 "1. Install Packages":
+  Dev -> WebApp "npm i @markdy/core @markdy/renderer-dom"
+  glow WebApp color=#38bdf8
+
+beat step2 "2. Prompt AI with AGENT.md":
+  Dev -> Claude "Prompt: Follow https://markdy.com/AGENT.md..."
+  glow Claude color=#a855f7
+
+beat step3 "3. Embed Script":
+  Claude -> WebApp "paste .markdy script"
+  glow WebApp color=#f59e0b
+
+beat step4 "4. Render Diagram":
+  WebApp -> Diagram "render interactive SVG"
+  glow Diagram color=#10b981
+`;
+
+    const diagram = createDiagram({
+      container,
+      code,
+      autoplay: false,
+    });
+
+    const svg = container.querySelector<SVGSVGElement>("svg[data-markdy-edge-layer='1']");
+    expect(svg).not.toBeNull();
+
+    const paths = Array.from(svg!.querySelectorAll<SVGPathElement>(".markdy-edge-path"));
+    expect(paths.length).toBe(4);
+
+    for (const path of paths) {
+      expect(path.getAttribute("stroke")).toBeTruthy();
+      expect(path.getAttribute("stroke-width")).toBe("2");
+      expect(path.getAttribute("filter")).toBeNull();
+    }
+
+    // Step to step1 and verify edge group becomes visible
+    diagram.nextBeat(); // reveal
+    diagram.nextBeat(); // step1
+    const edgeGroups = Array.from(svg!.querySelectorAll<SVGGElement>(".markdy-edge"));
+    expect(edgeGroups.length).toBe(4);
 
     diagram.destroy();
     container.remove();

@@ -2,8 +2,8 @@
 
 > ### SPECIFICATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.1.7
-> - **Specification Version**: 1.1.x
+> - **Current Version**: v1.2.0
+> - **Specification Version**: 1.2.x
 > - **Last Updated**: 2026-08-30
 > - **Documentation Hub**: <https://markdy.com/docs/>
 > - **AI Agent Guide**: <https://markdy.com/AGENT.md>
@@ -140,6 +140,8 @@ beat main:
 - `editorial` — flat editorial paper with serif titles and semantic ink/accent roles
 - `terminal` — dark CLI/TUI canvas with monospace font and neon glow accents
 - `sketchy` — organic hand-drawn whiteboard theme with displacement filter
+- `ink` — monochromatic blue ink aesthetic inspired by ballpoint pen sketches, fountain pen writing, cyanotype and porcelain prints
+- `doodle` — playful hand-drawn doodle sketchbook with felt-tip markers and comic block shadows
 - `nebula` — deep-space canvas with orbit rings, signal halos, and constellation decoration
 - `midnight` — dark developer canvas
 - `blueprint` — technical blueprint CAD canvas

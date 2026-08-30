@@ -245,4 +245,18 @@ describe("@markdy/core: Algorithmic Brand Theme Generator", () => {
     expect(editorial.series).toBeDefined();
     expect(editorial.series!.length).toBe(5);
   });
+
+  it("resolves gif control in player configuration and AST options", () => {
+    const code = `
+      scene theme=paper
+      player:
+        controls:
+          gif on
+          svg off
+      browser Client
+    `;
+    const ast = parse(code);
+    expect(ast.meta.player?.controls?.gif).toBe(true);
+    expect(ast.meta.player?.controls?.svg).toBe(false);
+  });
 });

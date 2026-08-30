@@ -219,14 +219,32 @@ export function updateEdgeLayerTheme(
     const color = theme.edges[runtime.kind];
     runtime.color = color;
     runtime.path.setAttribute("stroke", color);
+    runtime.path.removeAttribute("filter");
     if (runtime.kind !== "dependency") {
       runtime.path.style.filter = `drop-shadow(0 0 4px ${translucentColor(color, "44")})`;
+    } else {
+      runtime.path.style.filter = "";
     }
     runtime.dot.setAttribute("fill", color);
     runtime.dot.style.filter = `drop-shadow(0 0 6px ${color}) drop-shadow(0 0 12px ${color}88)`;
     if (runtime.labelPlate) {
-      runtime.labelPlate.setAttribute("fill", theme.canvas ?? theme.surface ?? "#ffffff");
-      runtime.labelPlate.setAttribute("stroke", translucentColor(color, "28"));
+      if (theme.name === "doodle") {
+        runtime.labelPlate.setAttribute("fill", "#ffffff");
+        runtime.labelPlate.setAttribute("stroke", "#18181b");
+        runtime.labelPlate.setAttribute("stroke-width", "1.5");
+        runtime.labelPlate.setAttribute("rx", "7");
+        runtime.labelPlate.setAttribute("ry", "7");
+        runtime.labelPlate.style.filter = "drop-shadow(2px 2px 0 #18181b)";
+      } else {
+        runtime.labelPlate.setAttribute("fill", theme.canvas ?? theme.surface ?? "#ffffff");
+        runtime.labelPlate.setAttribute("stroke", translucentColor(color, "28"));
+        runtime.labelPlate.setAttribute("stroke-width", "1");
+        runtime.labelPlate.setAttribute("rx", "5");
+        runtime.labelPlate.setAttribute("ry", "5");
+        runtime.labelPlate.style.filter = isDark
+          ? `drop-shadow(0 4px 12px ${translucentColor(color, "18")})`
+          : "drop-shadow(0 2px 6px rgba(15, 23, 42, 0.08))";
+      }
     }
     if (runtime.label) {
       runtime.label.setAttribute("fill", computeEdgeLabelColor(color, isDark));
@@ -251,7 +269,7 @@ export interface EdgeRuntime {
 export type EdgeRuntimeMap = Map<string, EdgeRuntime>;
 
 function isDarkTheme(theme: ThemeTokens): boolean {
-  if (theme.name === "paper" || theme.name === "editorial" || theme.name === "sketchy") {
+  if (theme.name === "paper" || theme.name === "editorial" || theme.name === "sketchy" || theme.name === "ink" || theme.name === "doodle") {
     return false;
   }
   const canvas = (theme.canvas || theme.surface || "").trim();
@@ -297,13 +315,18 @@ export function createEdgeRuntime(
   const d = toPathD(points, 14, existingPaths);
   const len = polylineLength(points);
 
+  const edgeId = `${from.id}_${to.id}`;
   const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+  group.setAttribute("data-edge-id", edgeId);
+  group.setAttribute("data-edge", edgeId);
+  group.setAttribute("id", `edge-${edgeId}`);
   group.setAttribute("data-edge-kind", kind);
   group.setAttribute("class", `markdy-edge markdy-edge--${kind}`);
   group.style.opacity = "0";
 
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path.setAttribute("d", d);
+  path.setAttribute("data-edge-path", edgeId);
   path.setAttribute("fill", "none");
   path.setAttribute("stroke", color);
   path.setAttribute("stroke-width", kind === "dependency" ? "1.5" : "2");
@@ -319,11 +342,11 @@ export function createEdgeRuntime(
   }
 
   const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  dot.setAttribute("r", "4");
+  dot.setAttribute("r", "4.5");
   dot.setAttribute("fill", color);
   dot.setAttribute("class", "markdy-edge-dot");
   dot.style.opacity = "0";
-  dot.style.filter = `drop-shadow(0 0 6px ${color}) drop-shadow(0 0 12px ${color}88)`;
+  dot.style.filter = `drop-shadow(0 0 4px ${color}) drop-shadow(0 0 10px ${color}bb) drop-shadow(0 0 18px ${color}66)`;
 
   group.append(path, dot);
 
@@ -355,14 +378,36 @@ export function createEdgeRuntime(
     plate.setAttribute("y", String(placement.y - boxHeight / 2));
     plate.setAttribute("width", String(textWidth + padX * 2));
     plate.setAttribute("height", String(boxHeight));
-    plate.setAttribute("rx", "4");
-    plate.setAttribute("ry", "4");
-    plate.setAttribute("fill", theme.canvas ?? theme.surface ?? "#ffffff");
-    plate.setAttribute("fill-opacity", "0.85");
-    plate.setAttribute("stroke", translucentColor(color, "28"));
-    plate.setAttribute("stroke-width", "0.85");
-    plate.style.opacity = "0";
-    plate.style.filter = "none";
+    if (theme.name === "doodle") {
+      plate.setAttribute("rx", "7");
+      plate.setAttribute("ry", "7");
+      plate.setAttribute("fill", "#ffffff");
+      plate.setAttribute("fill-opacity", "1");
+      plate.setAttribute("stroke", "#18181b");
+      plate.setAttribute("stroke-width", "1.5");
+      plate.style.opacity = "0";
+      plate.style.filter = "drop-shadow(2px 2px 0 #18181b)";
+    } else if (theme.name === "ink") {
+      plate.setAttribute("rx", "4");
+      plate.setAttribute("ry", "4");
+      plate.setAttribute("fill", "#ffffff");
+      plate.setAttribute("fill-opacity", "0.98");
+      plate.setAttribute("stroke", "#1d4ed8");
+      plate.setAttribute("stroke-width", "1");
+      plate.style.opacity = "0";
+      plate.style.filter = "drop-shadow(1.5px 1.5px 0 rgba(29, 78, 216, 0.14))";
+    } else {
+      plate.setAttribute("rx", "5");
+      plate.setAttribute("ry", "5");
+      plate.setAttribute("fill", theme.canvas ?? theme.surface ?? "#ffffff");
+      plate.setAttribute("fill-opacity", isDark ? "0.88" : "0.94");
+      plate.setAttribute("stroke", translucentColor(color, isDark ? "55" : "33"));
+      plate.setAttribute("stroke-width", "1");
+      plate.style.opacity = "0";
+      plate.style.filter = isDark
+        ? "drop-shadow(0 2px 8px rgba(0, 0, 0, 0.45))"
+        : "drop-shadow(0 1px 4px rgba(0, 0, 0, 0.12))";
+    }
     group.appendChild(plate);
 
     const textEl = document.createElementNS("http://www.w3.org/2000/svg", "text");

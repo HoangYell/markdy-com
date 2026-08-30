@@ -634,6 +634,7 @@ beat main:
         resetView: true,
         fullscreen: true,
         svg: true,
+        gif: true,
         share: true,
         code: true,
         theme: true,

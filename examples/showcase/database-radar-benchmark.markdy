@@ -1,7 +1,7 @@
 # database-radar-benchmark.markdy
 # Distributed Database Multi-Axis Engine Benchmark
 
-scene "Distributed Database Multi-Axis Engine Benchmark" theme=paper type=radar width=1280 height=760
+scene "Distributed Database Multi-Axis Engine Benchmark" theme=auto type=radar width=1280 height=760
 
 stat Latency "Sub-10ms Global Latency"
 stat Consistency "Strict Serializability" focal=true

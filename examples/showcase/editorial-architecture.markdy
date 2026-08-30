@@ -1,4 +1,4 @@
-scene "Editorial Edge-to-Core Architecture" theme=editorial type=architecture width=1280 height=760
+scene "Editorial Edge-to-Core Architecture" theme=auto type=architecture width=1280 height=760
 layout LR
 annotation "Public edge" target=Gateway position=top-right
 

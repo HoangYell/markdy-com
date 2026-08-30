@@ -2,9 +2,9 @@
 
 > ### CURRENT AUTHORITATIVE SPECIFICATION
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.1.7
-> - **Specification Version**: 1.1.x
-> - **Time Updated**: 2026-08-30T10:28:02.935Z
+> - **Current Version**: v1.2.0
+> - **Specification Version**: 1.2.x
+> - **Time Updated**: 2026-08-30T14:46:27.349Z
 > - **Last Updated**: 2026-08-30
 > - **Canonical URL**: <https://markdy.com/AGENT.md>
 > - **Human-Readable Mirror**: <https://markdy.com/agent/>
@@ -26,9 +26,9 @@ Every Markdy diagram is structured in 4 linear, non-circular parts:
 
 ```markdy
 # ─────────────────────────────────────────────────────────────────────────────
-# 1. Scene Directives & Configuration
+# 1. Scene Directives & Configuration (theme=auto recommended for dark/light adaptation)
 # ─────────────────────────────────────────────────────────────────────────────
-scene "E-Commerce Checkout Architecture" theme=paper
+scene "E-Commerce Checkout Architecture" theme=auto
 layout LR
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -79,13 +79,16 @@ For AI agents generating MarkdyScript, the language syntax adheres to this TypeS
 type LayoutDirection = "LR" | "RL" | "TB" | "BT";
 
 type ThemeName =
-  | "paper"       // Clean light documentation canvas (Default)
+  | "auto"        // Automatically inherits host site theme: paper in light mode, nebula in dark mode (RECOMMENDED)
+  | "paper"       // Clean light documentation canvas (Default Light)
+  | "nebula"      // Deep-space cyberpunk canvas with glowing orbit halos (Default Dark)
+  | "sketchy"     // Hand-drawn whiteboard theme with organic strokes
+  | "ink"         // Monochromatic blue ink style inspired by ballpoint pens, fountain pens, cyanotypes & porcelain
+  | "doodle"      // Playful hand-drawn doodle sketchbook with felt-tip marker pens and comic block shadows
   | "editorial"   // Flat editorial paper with serif titles and ink roles
   | "midnight"    // Deep navy dark canvas
   | "blueprint"   // Technical cyan engineering CAD canvas
   | "graphite"    // Restrained dark minimal canvas
-  | "nebula"      // Deep-space cyberpunk canvas with orbit halos
-  | "sketchy"     // Hand-drawn whiteboard theme with organic strokes
   | "terminal";   // Dark CLI/TUI canvas with neon green monospace styling
 
 type DiagramType =
@@ -102,7 +105,7 @@ type EdgeKind =
 
 interface SceneDeclaration {
   title?: string;
-  theme?: ThemeName;        // Default: "paper"
+  theme?: ThemeName;        // Default: "auto" (adapts to light/dark mode)
   layout?: LayoutDirection; // Default: "LR"
   type?: DiagramType;       // Default: "architecture"
   width?: number;           // Default: Auto-calculated by content engine
@@ -137,7 +140,7 @@ interface StoryboardBeat {
 The `scene` declaration sets the canvas environment, visual theme, and diagram mode:
 
 ```markdy
-scene theme=paper type=architecture
+scene theme=auto type=architecture
 layout LR
 ```
 
@@ -145,7 +148,7 @@ layout LR
 
 | Directive | Type | Presence | Allowed Values | Default | Description |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| `theme` | `enum` | Optional | `paper`, `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `sketchy`, `terminal` | `paper` | Canvas color palette and font typography. |
+| `theme` | `enum` | Optional | `auto`, `paper`, `nebula`, `editorial`, `midnight`, `blueprint`, `graphite`, `sketchy`, `ink`, `doodle`, `terminal` | `auto` | Visual theme. **Recommended: `auto` (or omit `theme`)** so the diagram automatically adapts to the host site's Light (`paper`) and Dark (`nebula`) modes. Specifying a custom fixed theme (like `theme=terminal` or `theme=blueprint`) is also fully supported. |
 | `layout` | `enum` | Optional | `LR`, `TB`, `RL`, `BT` | `LR` | Auto-layout graph flow direction: `LR` (left-to-right), `TB` (top-to-bottom), `RL` (right-to-left), `BT` (bottom-to-top). |
 | `type` | `enum` | Optional | `architecture`, `flowchart`, `tree`, `state`, `sequence`, `timeline`, `gantt`, `venn`, `layers`, `nested`, `radar`, `medallion`, `flywheel`, `loop`, `quadrant`, `swimlane`, `pyramid`, `constellation` | `architecture` | Diagram composition layout engine. |
 | `width` | `number` | Optional | Positive integer in pixels (e.g. `1280`, `1440`, `1600`) | *Auto* | Canvas width. Omit to enable content-adaptive automatic sizing. |
@@ -344,7 +347,7 @@ import { Markdy } from "@markdy/astro"; // or MarkdyDiagram from "@markdy/mdx"
 
 <Markdy
   code={`
-scene "Payment Gateway" theme=paper
+scene "Payment Gateway" theme=auto
 layout LR
 
 browser Client "Shopper"
@@ -395,7 +398,7 @@ When generating architectures, use these verified templates:
 ### 1. Cloud Microservices & Database Tier
 
 ```markdy
-scene "Cloud Microservices & Database Tier" theme=paper
+scene "Cloud Microservices & Database Tier" theme=auto
 layout LR
 
 browser WebApp "Web Application"
