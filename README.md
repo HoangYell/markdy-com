@@ -6,7 +6,7 @@
 
 <p align="center">
   <strong>Diagram-as-code DSL for animated architecture &amp; system design explainers.</strong><br>
-  Write declarative MarkdyScript → render 60fps browser-native kinetic diagrams powered by the Web Animations API.
+  Prompt your AI agent → generate declarative MarkdyScript → render 60fps kinetic diagrams powered by the Web Animations API.
 </p>
 
 <p align="center">
@@ -35,9 +35,9 @@
 
 ---
 
-## 💡 How to Use
+## 💡 How It Works
 
-> **Describe your system flow in plain English → your AI Agent generates the Markdy animation.**
+> **Describe your system in plain English → your AI agent generates the Markdy script → your browser renders the animated diagram.**
 
 <p align="center">
   <img src="docs/images/ai-paradigm-flow.webp" width="100%" alt="How to Use Markdy with AI Agents" />
@@ -45,46 +45,20 @@
 
 ---
 
-## 📦 Installation
-
-Install Markdy into your web app, blog, or documentation site to render 60fps interactive diagrams:
-
-```bash
-npm install @markdy/renderer-dom
-# or
-pnpm add @markdy/renderer-dom
-```
-
-```ts
-import { createDiagram } from "@markdy/renderer-dom";
-
-// Mount and render interactive 60fps WAAPI diagram directly from code
-const diagram = createDiagram({
-  container: document.getElementById("diagram-container")!,
-  code: markdyScriptCode,
-});
-```
-
-> 💡 **Using Astro or Next.js/MDX?** See the **[@markdy/astro Guide ↗](packages/astro/README.md)** and **[@markdy/mdx Guide ↗](packages/mdx/README.md)** (or jump to [Astro `<Markdy />`](#astro-integration) and [MDX / React](#mdx-integration) below) for 1-line zero-JS declarative components.
-
-👉 **[@markdy/renderer-dom Guide ↗](packages/renderer-dom/README.md)** &nbsp;•&nbsp; **[@markdy/core Guide ↗](packages/core/README.md)**
-
----
-
 ## 🚀 Quick Start (60 Seconds)
 
 ### 1. Prompt Your AI Agent
 
-You don't need to write MarkdyScript manually. Ask **Cursor**, **Claude Code**, **Google Antigravity**, **ChatGPT**, or any coding agent to generate the animated diagram for you:
+You don't need to write MarkdyScript manually. Ask **Cursor**, **Claude Code**, **Google Antigravity**, **ChatGPT**, or any coding agent:
 
 > **Example Prompt:**
 >
 > "Follow the canonical Markdy specification (https://markdy.com/AGENT.md) and generate a `.markdy` scene:  
 > Explain a **Cache-Aside Architecture** with a Web Client, API Gateway, URL Service, Redis Cluster, and PostgreSQL database. Include two animated storyboard beats: **1. Cache Hit Path** and **2. Cache Miss & Async Warm**."
 
-*(Or if you have the official Markdy MCP server installed, simply ask: `"Create an animated Markdy architecture diagram for our cache-aside service."`)*
+*(Tip: If you have the official [Markdy MCP Server](#mcp-setup) installed, just ask: `"Create an animated Markdy architecture diagram for our cache-aside service."`)*
 
-#### 🤖 AI-Generated MarkdyScript Output (`system.markdy`):
+#### 🤖 AI-Generated MarkdyScript (`system.markdy`):
 
 ```markdy
 scene "Cache-Aside Architecture" theme=auto
@@ -112,12 +86,11 @@ beat cache_miss "2. Cache Miss & Async Warm":
   glow Postgres color=#38bdf8 & glow Redis color=#22c55e
 ```
 
-### 2. Preview & Render the Animation
+### 2. Preview & Explore
 
-- **VS Code / Cursor**: Press **`Cmd+K V`** (macOS) or **`Ctrl+K V`** (Windows/Linux) using the [`hoangyell.markdy-vscode`](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode) extension for instant live preview.
-- **Web Studio**: Paste into [markdy.com/playground](https://markdy.com/playground/) for interactive authoring and shareable links.
+- **VS Code / Cursor**: Press **`Cmd+K V`** (macOS) or **`Ctrl+K V`** (Windows/Linux) using the [`hoangyell.markdy-vscode`](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode) extension for live side-by-side animated preview.
+- **Web Studio**: Paste into [markdy.com/playground](https://markdy.com/playground/) for interactive timeline scrubbing and shareable links.
 - **Terminal & CI/CD**: Run `npx @markdy/cli render system.markdy --out diagram.html`.
-- **Astro / MDX Docs**: Render in documentation with `<Markdy code={code} client:visible />` using `@markdy/astro` or `@markdy/mdx`.
 
 ---
 
@@ -131,6 +104,32 @@ Static boxes and arrows fail to capture distributed systems in action. **Markdy 
 - 🔄 **Universal Ingestion**: 1-click migration from Mermaid, Draw.io, Docker Compose, Kubernetes manifests, and Terraform states.
 - 🤖 **AI-Native & MCP**: Official Model Context Protocol (MCP) server for Claude, Cursor, Antigravity, and Cline with self-healing syntax diagnostics.
 - 🛡️ **Architecture Governance**: Built-in rules prevent deadlock cycles and cross-layer bypasses.
+
+---
+
+## 📦 Embedding in Web Apps & Docs
+
+Render 60fps interactive diagrams directly in your web applications, documentation, or blog:
+
+```bash
+npm install @markdy/renderer-dom
+# or
+pnpm add @markdy/renderer-dom
+```
+
+```ts
+import { createDiagram } from "@markdy/renderer-dom";
+
+// Mount and render interactive 60fps WAAPI diagram directly from code
+const diagram = createDiagram({
+  container: document.getElementById("diagram-container")!,
+  code: markdyScriptCode,
+});
+```
+
+> 💡 **Using Astro or Next.js/MDX?** See the **[@markdy/astro Guide ↗](packages/astro/README.md)** and **[@markdy/mdx Guide ↗](packages/mdx/README.md)** (or jump to [Astro `<Markdy />`](#astro-integration) and [MDX / React](#mdx-integration) below) for 1-line zero-JS declarative components.
+
+👉 **[@markdy/renderer-dom Guide ↗](packages/renderer-dom/README.md)** &nbsp;•&nbsp; **[@markdy/core Guide ↗](packages/core/README.md)**
 
 ---
 
