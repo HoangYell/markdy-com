@@ -113,7 +113,7 @@ async function runComprehensiveMcpAudit() {
     }
 
     // Test themes
-    const themes = ["paper", "editorial", "terminal", "sketchy", "draft", "doodle", "blueprint", "midnight", "graphite", "nebula"];
+    const themes = ["paper", "editorial", "terminal", "sketchy", "ink", "doodle", "blueprint", "midnight", "graphite", "nebula"];
     console.log("\n🧪 Testing all 10 Visual Themes...");
     for (const theme of themes) {
       const testRes = await sendRpc("tools/call", {

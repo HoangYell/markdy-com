@@ -91,7 +91,13 @@ function effectiveTitleBand(ast: DiagramAST): number {
   return ast.meta.title && ast.meta.title.trim().length > 0 ? TITLE_BAND : 16;
 }
 
-function nodeShape(kind: string, dtype: DiagramType): PositionedNode["shape"] {
+function nodeShape(kind: string, dtype: DiagramType, props?: Record<string, unknown>): PositionedNode["shape"] {
+  if (typeof props?.shape === "string") {
+    const s = props.shape.toLowerCase();
+    if (s === "diamond" || s === "circle" || s === "pill" || s === "terminal" || s === "rounded" || s === "card" || s === "container") {
+      return s as PositionedNode["shape"];
+    }
+  }
   if (kind === "terminal") return "terminal";
   if (kind === "dot" || kind === "marker") return "circle";
   if (kind === "token_strip" || kind === "chips") return "pill";
@@ -297,7 +303,7 @@ function layoutRanked(
         style: resolveNodeStyle(decl, ast),
         props: decl.props,
         opacity: 0,
-        shape: nodeShape(decl.kind, dtype),
+        shape: nodeShape(decl.kind, dtype, decl.props),
         focal: decl.props.focal === true || decl.props.accent === true,
         column: idx,
       });
@@ -339,7 +345,7 @@ function layoutRanked(
           style: resolveNodeStyle(decl, ast),
           props: decl.props,
           opacity: 0,
-          shape: nodeShape(decl.kind, dtype),
+          shape: nodeShape(decl.kind, dtype, decl.props),
           focal,
         });
       });
@@ -392,7 +398,7 @@ function layoutRanked(
         style: resolveNodeStyle(decl, ast),
         props: decl.props,
         opacity: 0,
-        shape: nodeShape(decl.kind, dtype),
+        shape: nodeShape(decl.kind, dtype, decl.props),
         focal,
       });
     });
@@ -597,7 +603,7 @@ function layoutConstellation(ast: DiagramAST): PositionedNode[] {
       style: resolveNodeStyle(decl, ast),
       props: decl.props,
       opacity: 0,
-      shape: nodeShape(decl.kind, "constellation"),
+      shape: nodeShape(decl.kind, "constellation", decl.props),
       focal: isFocal || decl.props.focal === true || decl.props.accent === true,
     });
   }

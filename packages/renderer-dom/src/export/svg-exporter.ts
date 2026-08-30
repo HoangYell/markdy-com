@@ -241,7 +241,7 @@ function routeEdgePoints(
 }
 
 function isDarkTheme(theme: ThemeTokens): boolean {
-  if (theme.name === "paper" || theme.name === "editorial" || theme.name === "sketchy" || theme.name === "draft" || theme.name === "doodle") {
+  if (theme.name === "paper" || theme.name === "editorial" || theme.name === "sketchy" || theme.name === "ink" || theme.name === "doodle") {
     return false;
   }
   const canvas = (theme.canvas || theme.surface || "").trim();
@@ -321,6 +321,25 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
   let svg = `<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">
   <defs>
+    <!-- Embedded Typography & Anti-Aliasing -->
+    <style>
+      text {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+        text-rendering: geometricPrecision;
+        -webkit-font-smoothing: antialiased;
+      }
+      .markdy-svg-text {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+        text-rendering: geometricPrecision;
+        -webkit-font-smoothing: antialiased;
+      }
+      .markdy-svg-mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        text-rendering: geometricPrecision;
+        -webkit-font-smoothing: antialiased;
+      }
+    </style>
+
     <!-- Drop Shadow Filter -->
     <filter id="markdy-node-shadow" x="-10%" y="-10%" width="130%" height="130%">
       <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#020617" flood-opacity="${isDark ? '0.45' : '0.12'}"/>
@@ -360,7 +379,7 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
     svg += `
   <!-- Diagram Title -->
   <g class="markdy-title-layer">
-    <text x="44" y="44" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif" font-size="20" font-weight="700" fill="${textColor}" letter-spacing="-0.02em">${escapeXml(plan.title)}</text>
+    <text x="48" y="44" class="markdy-svg-text" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, Roboto, sans-serif" font-size="22" font-weight="700" fill="${textColor}" dominant-baseline="central" letter-spacing="-0.02em">${escapeXml(plan.title)}</text>
   </g>
 `;
   }
@@ -382,7 +401,7 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
         const labelText = gb.label.toUpperCase();
         const labelW = Math.max(54, labelText.length * 6.8 + 20);
         svg += `      <rect x="14" y="10" width="${labelW}" height="20" rx="6" fill="${surfaceRaised}" fill-opacity="0.95" stroke="${border}" stroke-width="1"/>
-      <text x="24" y="24" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, monospace" font-size="10" font-weight="700" letter-spacing="0.1em" fill="${textColor}">${escapeXml(labelText)}</text>
+      <text x="${14 + labelW / 2}" y="20" class="markdy-svg-mono" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, monospace" font-size="10" font-weight="700" letter-spacing="0.1em" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(labelText)}</text>
 `;
       }
       svg += `    </g>\n`;
@@ -467,11 +486,11 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
 `;
         if (msg.label) {
           const midX = (fromX + toX) / 2;
-          const width = msg.label.length * 6.8 + 16;
+          const msgPlateW = msg.label.length * 6.8 + 16;
           const plateFill = theme.labelPlate ?? theme.surface ?? (isDark ? "#1e293b" : "#ffffff");
           const plateStroke = theme.hairline ?? theme.border ?? (isDark ? "#334155" : "#cbd5e1");
-          svg += `      <rect x="${midX - width / 2}" y="${msg.y - 25}" width="${width}" height="20" rx="6" fill="${plateFill}" fill-opacity="0.96" stroke="${plateStroke}" stroke-width="1"/>
-      <text x="${midX}" y="${msg.y - 14.5}" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" font-weight="500" fill="${textColor}" text-anchor="middle" dominant-baseline="middle">${escapeXml(msg.label)}</text>\n`;
+          svg += `      <rect x="${midX - msgPlateW / 2}" y="${msg.y - 12}" width="${msgPlateW}" height="24" rx="6" fill="${plateFill}" fill-opacity="0.96" stroke="${plateStroke}" stroke-width="1"/>
+      <text x="${midX}" y="${msg.y}" class="markdy-svg-mono" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" font-weight="500" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(msg.label)}</text>\n`;
         }
         svg += `    </g>\n`;
       }
@@ -545,11 +564,11 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
       <rect x="${labelX}" y="${labelY}" width="${textWidth + padX * 2}" height="${boxHeight}" rx="4" fill="${canvasBg}" stroke="${border}" stroke-width="1"/>
 `;
         if (lines.length === 1) {
-          svg += `      <text x="${placement.x}" y="${placement.y + 0.5}" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="10.5" font-weight="500" fill="${labelColor}" text-anchor="middle" dominant-baseline="middle">${escapeXml(lines[0])}</text>\n`;
+          svg += `      <text x="${placement.x}" y="${placement.y}" class="markdy-svg-mono" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="10.5" font-weight="500" fill="${labelColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(lines[0])}</text>\n`;
         } else {
-          const startY = placement.y - ((lines.length - 1) * lineHeight) / 2 + 3.5;
           lines.forEach((lineText, idx) => {
-            svg += `      <text x="${placement.x}" y="${startY + idx * lineHeight}" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="10.5" font-weight="500" fill="${labelColor}" text-anchor="middle">${escapeXml(lineText)}</text>\n`;
+            const lineY = placement.y - ((lines.length - 1) * lineHeight) / 2 + idx * lineHeight;
+            svg += `      <text x="${placement.x}" y="${lineY}" class="markdy-svg-mono" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="10.5" font-weight="500" fill="${labelColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(lineText)}</text>\n`;
           });
         }
       }
@@ -569,6 +588,9 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
     const roleColor = (theme.roles && theme.roles[node.role]) || accent;
     const iconKey = iconKeyForNode(node);
     const glyphSpec = ICON_REGISTRY[iconKey] || ICON_REGISTRY.service;
+    const isDiamond = node.shape === "diamond";
+    const isCircle = node.shape === "circle";
+    const isPill = node.shape === "pill";
 
     const transformStr = nodeState?.transform && nodeState.transform !== "none"
       ? `translate(${node.x}, ${node.y}) ${nodeState.transform}`
@@ -578,90 +600,167 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
     svg += `    <g id="node-${escapeXml(node.id)}" transform="${escapeXml(transformStr)}" ${opacityAttr}>
 `;
 
-    // Shape rendering
-    if (node.shape === "diamond") {
+    // Shape background rendering
+    if (isDiamond) {
       const hw = node.width / 2;
       const hh = node.height / 2;
       svg += `      <polygon points="${hw},0 ${node.width},${hh} ${hw},${node.height} 0,${hh}" fill="${surface}" stroke="${border}" stroke-width="1" filter="url(#markdy-node-shadow)"/>\n`;
-    } else if (node.shape === "circle") {
+    } else if (isCircle) {
       const r = Math.min(node.width, node.height) / 2;
       svg += `      <circle cx="${node.width / 2}" cy="${node.height / 2}" r="${r}" fill="${surface}" stroke="${border}" stroke-width="1" filter="url(#markdy-node-shadow)"/>\n`;
-    } else if (node.shape === "pill") {
+    } else if (isPill) {
       svg += `      <rect width="${node.width}" height="${node.height}" rx="${node.height / 2}" fill="${surface}" stroke="${border}" stroke-width="1" filter="url(#markdy-node-shadow)"/>\n`;
     } else {
-      // Standard Card
-      svg += `      <rect width="${node.width}" height="${node.height}" rx="12" fill="${surface}" stroke="${border}" stroke-width="1" filter="url(#markdy-node-shadow)"/>
-      <rect x="0.5" y="0.5" width="${node.width - 1}" height="${node.height - 1}" rx="11.5" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
+      // Standard Card / Container / Rounded / Terminal
+      const rx = node.shape === "terminal" ? "8" : node.shape === "rounded" ? "16" : "12";
+      svg += `      <rect width="${node.width}" height="${node.height}" rx="${rx}" fill="${surface}" stroke="${border}" stroke-width="1" filter="url(#markdy-node-shadow)"/>
+      <rect x="0.5" y="0.5" width="${node.width - 1}" height="${node.height - 1}" rx="${parseFloat(rx) - 0.5}" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="1"/>
 `;
     }
 
-    // Frameless Icon Glyph (26px)
-    const iconSize = 26;
-    const iconX = 16;
-    const iconY = (node.height - iconSize) / 2;
-    svg += `      <!-- Frameless Icon Glyph -->
-      <g transform="translate(${iconX}, ${iconY}) scale(${iconSize / 24})" fill="none" stroke="${roleColor}" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">
-`;
-    if (glyphSpec) {
-      for (const [tag, attrs] of glyphSpec) {
-        const attrStr = Object.entries(attrs)
-          .map(([k, v]) => `${k}="${escapeXml(v)}"`)
-          .join(" ");
-        svg += `        <${tag} ${attrStr} />\n`;
-      }
-    }
-    svg += `      </g>\n`;
-
-    // Text Label Wrapping & Alignment
     const hasTech = Boolean(node.props?.tech || node.props?.sub);
+    const techText = String(node.props?.tech || node.props?.sub || "");
     const value = node.props?.value ?? node.props?.metric;
     const valText = value !== undefined && value !== null ? String(value) : "";
     const valWidth = valText ? valText.length * 9.5 + 16 : 0;
-    const textStartX = 54;
-    const availTextWidth = node.width - textStartX - (valWidth > 0 ? valWidth + 14 : 14);
-    const lines = wrapNodeLabel(node.label, availTextWidth, 13.5);
+    const iconSize = 26;
 
-    if (hasTech) {
-      const techText = String(node.props?.tech || node.props?.sub);
-      const labelY = lines.length === 1 ? node.height / 2 - 4 : node.height / 2 - 12;
-      svg += `      <!-- Label -->
-      <text x="${textStartX}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="13" font-weight="600" letter-spacing="-0.01em" fill="${textColor}">
-`;
-      if (lines.length === 1) {
-        svg += `        <tspan x="${textStartX}" y="${labelY}">${escapeXml(lines[0])}</tspan>\n`;
+    // Node contents rendering based on shape
+    if (isDiamond) {
+      // Diamond: No icon (matches DOM), horizontally & vertically centered text
+      const availTextWidth = Math.max(40, node.width * 0.65);
+      const lines = wrapNodeLabel(node.label, availTextWidth, 12.5);
+      const centerX = node.width / 2;
+
+      if (hasTech) {
+        const labelCenterY = node.height / 2 - 8;
+        if (lines.length === 1) {
+          svg += `      <text x="${centerX}" y="${labelCenterY}" class="markdy-svg-text" font-size="12.5" font-weight="600" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(lines[0])}</text>\n`;
+        } else {
+          const startY = labelCenterY - ((lines.length - 1) * 14) / 2;
+          lines.forEach((l, idx) => {
+            svg += `      <text x="${centerX}" y="${startY + idx * 14}" class="markdy-svg-text" font-size="12" font-weight="600" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(l)}</text>\n`;
+          });
+        }
+        const techBadgeW = Math.min(availTextWidth, techText.length * 6.2 + 12);
+        const techBadgeY = node.height / 2 + 5;
+        svg += `      <rect x="${centerX - techBadgeW / 2}" y="${techBadgeY}" width="${techBadgeW}" height="15" rx="4" fill="${textColor}" fill-opacity="${isDark ? '0.08' : '0.05'}" stroke="${border}" stroke-width="0.75"/>
+      <text x="${centerX}" y="${techBadgeY + 7.5}" class="markdy-svg-mono" font-size="9" font-weight="500" fill="${textMuted}" text-anchor="middle" dominant-baseline="central">${escapeXml(techText)}</text>\n`;
       } else {
+        if (lines.length === 1) {
+          svg += `      <text x="${centerX}" y="${node.height / 2}" class="markdy-svg-text" font-size="13" font-weight="600" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(lines[0])}</text>\n`;
+        } else {
+          const startY = node.height / 2 - ((lines.length - 1) * 15) / 2;
+          lines.forEach((l, idx) => {
+            svg += `      <text x="${centerX}" y="${startY + idx * 15}" class="markdy-svg-text" font-size="12.5" font-weight="600" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(l)}</text>\n`;
+          });
+        }
+      }
+    } else if (isCircle) {
+      // Circle: Centered column with icon above label
+      const centerX = node.width / 2;
+      const availTextWidth = Math.max(40, node.width * 0.72);
+      const lines = wrapNodeLabel(node.label, availTextWidth, 11.5);
+      const circleIconSize = 20;
+      const iconX = (node.width - circleIconSize) / 2;
+      const iconY = node.height / 2 - 20;
+
+      const rawImage = node.props?.image ?? node.props?.logo;
+      if (typeof rawImage === "string" && rawImage.length > 0) {
+        svg += `      <!-- Centered Custom Image -->
+      <image href="${escapeXml(rawImage)}" x="${iconX}" y="${iconY}" width="${circleIconSize}" height="${circleIconSize}" preserveAspectRatio="xMidYMid meet"/>\n`;
+      } else {
+        svg += `      <!-- Centered Icon Glyph -->
+      <g transform="translate(${iconX}, ${iconY}) scale(${circleIconSize / 24})" fill="none" stroke="${roleColor}" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">
+`;
+        if (glyphSpec) {
+          for (const [tag, attrs] of glyphSpec) {
+            const attrStr = Object.entries(attrs).map(([k, v]) => `${k}="${escapeXml(v)}"`).join(" ");
+            svg += `        <${tag} ${attrStr} />\n`;
+          }
+        }
+        svg += `      </g>\n`;
+      }
+
+      const textCenterY = node.height / 2 + 10;
+      if (lines.length === 1) {
+        svg += `      <text x="${centerX}" y="${textCenterY}" class="markdy-svg-text" font-size="11.5" font-weight="600" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(lines[0])}</text>\n`;
+      } else {
+        const startY = textCenterY - ((lines.length - 1) * 13) / 2;
         lines.forEach((l, idx) => {
-          svg += `        <tspan x="${textStartX}" y="${labelY + idx * 15}">${escapeXml(l)}</tspan>\n`;
+          svg += `      <text x="${centerX}" y="${startY + idx * 13}" class="markdy-svg-text" font-size="11" font-weight="600" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(l)}</text>\n`;
         });
       }
-      svg += `      </text>\n`;
-      const techBadgeW = Math.min(availTextWidth, techText.length * 6.2 + 12);
-      const techBadgeY = node.height / 2 + 6;
-      svg += `      <!-- Tech Badge -->
-      <rect x="${textStartX}" y="${techBadgeY}" width="${techBadgeW}" height="16" rx="4" fill="${textColor}" fill-opacity="${isDark ? '0.08' : '0.05'}" stroke="${border}" stroke-width="0.75"/>
-      <text x="${textStartX + 6}" y="${techBadgeY + 11.5}" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="9.5" font-weight="500" fill="${textMuted}">${escapeXml(techText)}</text>\n`;
     } else {
-      if (lines.length === 1) {
-        const textY = Math.round(node.height / 2 + 5);
-        svg += `      <!-- Label -->
-      <text x="${textStartX}" y="${textY}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}">${escapeXml(lines[0])}</text>\n`;
-      } else if (lines.length === 2) {
-        const startY = Math.round((node.height - 18) / 2 + 10);
-        svg += `      <!-- Label -->
-      <text x="${textStartX}" y="${startY}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}">${escapeXml(lines[0])}</text>
-      <text x="${textStartX}" y="${startY + 18}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}">${escapeXml(lines[1])}</text>\n`;
+      // Standard Card, Container, Rounded, Terminal, Pill
+      const iconX = 16;
+      const iconY = (node.height - iconSize) / 2;
+
+      const rawImage = node.props?.image ?? node.props?.logo;
+      if (typeof rawImage === "string" && rawImage.length > 0) {
+        svg += `      <!-- Node Custom Image -->
+      <image href="${escapeXml(rawImage)}" x="${iconX}" y="${iconY}" width="${iconSize}" height="${iconSize}" preserveAspectRatio="xMidYMid meet"/>\n`;
       } else {
-        const startY = Math.round((node.height - 34) / 2 + 10);
-        svg += `      <!-- Label -->
-      <text x="${textStartX}" y="${startY}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}">${escapeXml(lines[0])}</text>
-      <text x="${textStartX}" y="${startY + 16}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}">${escapeXml(lines[1])}</text>
-      <text x="${textStartX}" y="${startY + 32}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}">${escapeXml(lines[2])}</text>\n`;
+        // Frameless Icon Glyph
+        svg += `      <!-- Frameless Icon Glyph -->
+      <g transform="translate(${iconX}, ${iconY}) scale(${iconSize / 24})" fill="none" stroke="${roleColor}" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">
+`;
+        if (glyphSpec) {
+          for (const [tag, attrs] of glyphSpec) {
+            const attrStr = Object.entries(attrs).map(([k, v]) => `${k}="${escapeXml(v)}"`).join(" ");
+            svg += `        <${tag} ${attrStr} />\n`;
+          }
+        }
+        svg += `      </g>\n`;
+      }
+
+      const textStartX = 54;
+      const availTextWidth = node.width - textStartX - (valWidth > 0 ? valWidth + 14 : 14);
+      const lines = wrapNodeLabel(node.label, availTextWidth, 13.5);
+
+      if (hasTech) {
+        const labelCenterY = Math.round(node.height / 2 - 8);
+        if (lines.length === 1) {
+          svg += `      <!-- Label -->
+      <text x="${textStartX}" y="${labelCenterY}" class="markdy-svg-text" font-size="13" font-weight="600" letter-spacing="-0.01em" fill="${textColor}" dominant-baseline="central">${escapeXml(lines[0])}</text>\n`;
+        } else {
+          const startY = Math.round(labelCenterY - ((lines.length - 1) * 14) / 2);
+          svg += `      <!-- Label -->
+      <text class="markdy-svg-text" font-size="12.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}">
+`;
+          lines.forEach((l, idx) => {
+            svg += `        <tspan x="${textStartX}" y="${startY + idx * 14}" dominant-baseline="central">${escapeXml(l)}</tspan>\n`;
+          });
+          svg += `      </text>\n`;
+        }
+
+        const techBadgeW = Math.min(availTextWidth, techText.length * 6.2 + 12);
+        const techBadgeY = Math.round(node.height / 2 + 5);
+        svg += `      <!-- Tech Badge -->
+      <rect x="${textStartX}" y="${techBadgeY}" width="${techBadgeW}" height="16" rx="4" fill="${textColor}" fill-opacity="${isDark ? '0.08' : '0.05'}" stroke="${border}" stroke-width="0.75"/>
+      <text x="${textStartX + 6}" y="${techBadgeY + 8}" class="markdy-svg-mono" font-size="9.5" font-weight="500" fill="${textMuted}" dominant-baseline="central">${escapeXml(techText)}</text>\n`;
+      } else {
+        if (lines.length === 1) {
+          svg += `      <!-- Label -->
+      <text x="${textStartX}" y="${Math.round(node.height / 2)}" class="markdy-svg-text" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}" dominant-baseline="central">${escapeXml(lines[0])}</text>\n`;
+        } else if (lines.length === 2) {
+          const startY = Math.round(node.height / 2 - 8);
+          svg += `      <!-- Label -->
+      <text x="${textStartX}" y="${startY}" class="markdy-svg-text" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}" dominant-baseline="central">${escapeXml(lines[0])}</text>
+      <text x="${textStartX}" y="${startY + 16}" class="markdy-svg-text" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}" dominant-baseline="central">${escapeXml(lines[1])}</text>\n`;
+        } else {
+          const startY = Math.round(node.height / 2 - 15);
+          svg += `      <!-- Label -->
+      <text x="${textStartX}" y="${startY}" class="markdy-svg-text" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}" dominant-baseline="central">${escapeXml(lines[0])}</text>
+      <text x="${textStartX}" y="${startY + 15}" class="markdy-svg-text" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}" dominant-baseline="central">${escapeXml(lines[1])}</text>
+      <text x="${textStartX}" y="${startY + 30}" class="markdy-svg-text" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}" dominant-baseline="central">${escapeXml(lines[2])}</text>\n`;
+        }
       }
     }
 
     if (valText) {
       svg += `      <!-- Metric Value -->
-      <text x="${node.width - 16}" y="${node.height / 2 + 5}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="15" font-weight="700" fill="${textColor}" text-anchor="end">${escapeXml(valText)}</text>\n`;
+      <text x="${node.width - 16}" y="${Math.round(node.height / 2)}" class="markdy-svg-text" font-size="15" font-weight="700" fill="${textColor}" text-anchor="end" dominant-baseline="central">${escapeXml(valText)}</text>\n`;
     }
 
     svg += `    </g>\n`;
@@ -688,8 +787,8 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
     const capY = height - 32;
     const capW = options.activeCaption.text.length * 7.5 + 28;
     svg += `  <!-- Live Beat Caption -->\n  <g class="markdy-live-caption" opacity="${options.activeCaption.opacity}">\n`;
-    svg += `    <rect x="${capX - capW / 2}" y="${capY - 14}" width="${capW}" height="26" rx="13" fill="${surfaceRaised}" stroke="${border}" stroke-width="1" filter="url(#markdy-node-shadow)"/>\n`;
-    svg += `    <text x="${capX}" y="${capY + 4}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="12" font-weight="600" fill="${textColor}" text-anchor="middle">${escapeXml(options.activeCaption.text)}</text>\n`;
+    svg += `    <rect x="${capX - capW / 2}" y="${capY - 13}" width="${capW}" height="26" rx="13" fill="${surfaceRaised}" stroke="${border}" stroke-width="1" filter="url(#markdy-node-shadow)"/>\n`;
+    svg += `    <text x="${capX}" y="${capY}" class="markdy-svg-text" font-size="12" font-weight="600" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(options.activeCaption.text)}</text>\n`;
     svg += `  </g>\n`;
   }
 
@@ -697,7 +796,7 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
   svg += `
   <!-- Watermark -->
   <g class="markdy-watermark" transform="translate(${width - 120}, ${height - 18})">
-    <text font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="10" font-weight="500" fill="${textMuted}" opacity="0.7">Powered by Markdy</text>
+    <text class="markdy-svg-text" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="10" font-weight="500" fill="${textMuted}" opacity="0.7" dominant-baseline="central">Powered by Markdy</text>
   </g>
 </svg>`;
 

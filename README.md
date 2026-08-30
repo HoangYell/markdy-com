@@ -40,12 +40,84 @@
 > **Describe your system flow in plain English → your AI Agent generates the Markdy animation.**
 
 <p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/images/ai-paradigm-flow.svg">
-    <source media="(prefers-color-scheme: light)" srcset="docs/images/ai-paradigm-flow.svg">
-    <img src="docs/images/ai-paradigm-flow.svg" width="100%" alt="How to Use Markdy with AI Agents" />
-  </picture>
+  <img src="docs/images/ai-paradigm-flow.webp" width="100%" alt="How to Use Markdy with AI Agents" />
 </p>
+
+---
+
+## 📦 Installation
+
+Install Markdy into your web app, blog, or documentation site to render 60fps interactive diagrams:
+
+```bash
+npm install @markdy/renderer-dom
+# or
+pnpm add @markdy/renderer-dom
+```
+
+```ts
+import { createDiagram } from "@markdy/renderer-dom";
+
+// Mount and render interactive 60fps WAAPI diagram directly from code
+const diagram = createDiagram({
+  container: document.getElementById("diagram-container")!,
+  code: markdyScriptCode,
+});
+```
+
+> 💡 **Using Astro or Next.js/MDX?** See the **[@markdy/astro Guide ↗](packages/astro/README.md)** and **[@markdy/mdx Guide ↗](packages/mdx/README.md)** (or jump to [Astro `<Markdy />`](#astro-integration) and [MDX / React](#mdx-integration) below) for 1-line zero-JS declarative components.
+
+👉 **[@markdy/renderer-dom Guide ↗](packages/renderer-dom/README.md)** &nbsp;•&nbsp; **[@markdy/core Guide ↗](packages/core/README.md)**
+
+---
+
+## 🚀 Quick Start (60 Seconds)
+
+### 1. Prompt Your AI Agent
+
+You don't need to write MarkdyScript manually. Ask **Cursor**, **Claude Code**, **Google Antigravity**, **ChatGPT**, or any coding agent to generate the animated diagram for you:
+
+> **Example Prompt:**
+>
+> "Follow the canonical Markdy specification (https://markdy.com/AGENT.md) and generate a `.markdy` scene:  
+> Explain a **Cache-Aside Architecture** with a Web Client, API Gateway, URL Service, Redis Cluster, and PostgreSQL database. Include two animated storyboard beats: **1. Cache Hit Path** and **2. Cache Miss & Async Warm**."
+
+*(Or if you have the official Markdy MCP server installed, simply ask: `"Create an animated Markdy architecture diagram for our cache-aside service."`)*
+
+#### 🤖 AI-Generated MarkdyScript Output (`system.markdy`):
+
+```markdy
+scene "Cache-Aside Architecture" theme=auto
+layout LR
+
+browser Client "Web Client"
+gateway Gateway "API Gateway"
+service Svc "URL Service"
+cache Redis "Redis Cluster"
+database Postgres "PostgreSQL 16"
+
+beat cache_hit "1. Cache Hit Path":
+  show $nodes stagger=60ms
+  frame Client Gateway Svc Redis zoom=1.12
+  Client -> Gateway "GET /link" -> Svc "resolve"
+  Svc -> Redis "GET key:link"
+  Svc <- Redis "200 Target URL"
+  Client <- Gateway "301 Redirect"
+
+beat cache_miss "2. Cache Miss & Async Warm":
+  frame Svc Redis Postgres zoom=1.15
+  Svc -> Postgres "SELECT destination WHERE key = 'link'"
+  Svc <- Postgres "Row Found"
+  Svc ~> Redis "SETEX key:link (Warm Cache)"
+  glow Postgres color=#38bdf8 & glow Redis color=#22c55e
+```
+
+### 2. Preview & Render the Animation
+
+- **VS Code / Cursor**: Press **`Cmd+K V`** (macOS) or **`Ctrl+K V`** (Windows/Linux) using the [`hoangyell.markdy-vscode`](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode) extension for instant live preview.
+- **Web Studio**: Paste into [markdy.com/playground](https://markdy.com/playground/) for interactive authoring and shareable links.
+- **Terminal & CI/CD**: Run `npx @markdy/cli render system.markdy --out diagram.html`.
+- **Astro / MDX Docs**: Render in documentation with `<Markdy code={code} client:visible />` using `@markdy/astro` or `@markdy/mdx`.
 
 ---
 
@@ -62,9 +134,9 @@ Static boxes and arrows fail to capture distributed systems in action. **Markdy 
 
 ---
 
-## 📦 Installation & Integrations
+## 🔌 Integrations & Ecosystem
 
-Choose your environment to get started with Markdy in seconds:
+Extend Markdy across your favorite AI agents, editors, frameworks, and deployment workflows:
 
 <details open>
 <summary><b>🤖 AI Coding Agents &amp; MCP Server (Recommended)</b></summary>
@@ -100,51 +172,8 @@ cursor --install-extension hoangyell.markdy-vscode
 👉 **[VS Code Marketplace ↗](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode)** &nbsp;•&nbsp; **[Open VSX Registry ↗](https://open-vsx.org/extension/hoangyell/markdy-vscode)** &nbsp;•&nbsp; **[Extension Docs ↗](packages/vscode/README.md)**
 </details>
 
-<details>
-<summary><b>⚡ Terminal CLI &amp; Migration Suite (`@markdy/cli`, `@markdy/compat`)</b></summary>
-<br>
-
-Render standalone HTML diagrams, run linting in CI/CD, or convert legacy Mermaid, Draw.io, Docker Compose, Kubernetes, and Terraform configs:
-
-```bash
-# Global install
-npm install -g @markdy/cli
-
-# Render diagram to animated HTML or SVG
-markdy render system.markdy --out diagram.html
-
-# Transpile Mermaid / Docker Compose / Kubernetes to Markdy
-markdy import flow.mmd --out flow.markdy
-```
-
-👉 **[CLI Package Guide ↗](packages/cli/README.md)** &nbsp;•&nbsp; **[Compat Transpiler Guide ↗](packages/compat/README.md)**
-</details>
-
-<details>
-<summary><b>🌐 JavaScript / TypeScript Runtime (`@markdy/core`, `@markdy/renderer-dom`)</b></summary>
-<br>
-
-Integrate the ~14 kB parser and 60fps WAAPI rendering engine directly into your web applications, dashboards, or custom tooling:
-
-```bash
-pnpm add @markdy/core @markdy/renderer-dom
-# or
-npm install @markdy/core @markdy/renderer-dom
-```
-
-```ts
-import { compile } from '@markdy/core';
-import { createDiagram } from '@markdy/renderer-dom';
-
-const { ast } = compile(markdyScriptCode);
-const diagram = createDiagram(containerElement, ast);
-diagram.play();
-```
-
-👉 **[@markdy/core Docs ↗](packages/core/README.md)** &nbsp;•&nbsp; **[@markdy/renderer-dom Docs ↗](packages/renderer-dom/README.md)**
-</details>
-
-<details>
+<a id="astro-integration"></a>
+<details open id="astro-integration">
 <summary><b>🚀 Astro Integration (`@markdy/astro`)</b></summary>
 <br>
 
@@ -166,7 +195,8 @@ import code from "./diagram.markdy?raw";
 👉 **[@markdy/astro Package Guide ↗](packages/astro/README.md)**
 </details>
 
-<details>
+<a id="mdx-integration"></a>
+<details open id="mdx-integration">
 <summary><b>📝 MDX / React / Next.js Integration (`@markdy/mdx`)</b></summary>
 <br>
 
@@ -186,6 +216,26 @@ export default {
 ```
 
 👉 **[@markdy/mdx Package Guide ↗](packages/mdx/README.md)**
+</details>
+
+<details>
+<summary><b>⚡ Terminal CLI &amp; Migration Suite (`@markdy/cli`, `@markdy/compat`)</b></summary>
+<br>
+
+Render standalone HTML diagrams, run linting in CI/CD, or convert legacy Mermaid, Draw.io, Docker Compose, Kubernetes, and Terraform configs:
+
+```bash
+# Global install
+npm install -g @markdy/cli
+
+# Render diagram to animated HTML or SVG
+markdy render system.markdy --out diagram.html
+
+# Transpile Mermaid / Docker Compose / Kubernetes to Markdy
+markdy import flow.mmd --out flow.markdy
+```
+
+👉 **[CLI Package Guide ↗](packages/cli/README.md)** &nbsp;•&nbsp; **[Compat Transpiler Guide ↗](packages/compat/README.md)**
 </details>
 
 <details>
@@ -212,45 +262,6 @@ export default {
 
 ---
 
-## 🚀 Quick Start (60 Seconds)
-
-### 1. Write MarkdyScript (`system.markdy`)
-
-```markdy
-scene "Cache-Aside Architecture" theme=midnight
-layout LR
-
-browser Client "Web Client"
-gateway Gateway "API Gateway"
-service Svc "URL Service"
-cache Redis "Redis Cluster"
-database Postgres "PostgreSQL 16"
-
-beat cache_hit "1. Cache Hit Path":
-  show $nodes stagger=60ms
-  frame Client Gateway Svc Redis zoom=1.12
-  Client -> Gateway "GET /link" -> Svc "resolve"
-  Svc -> Redis "GET key:link"
-  Svc <- Redis "200 Target URL"
-  Client <- Gateway "301 Redirect"
-
-beat cache_miss "2. Cache Miss & Async Warm":
-  frame Svc Redis Postgres zoom=1.15
-  Svc -> Postgres "SELECT destination WHERE key = 'link'"
-  Svc <- Postgres "Row Found"
-  Svc ~> Redis "SETEX key:link (Warm Cache)"
-  glow Postgres color=#38bdf8 & glow Redis color=#22c55e
-```
-
-### 2. Choose Your Workflow
-
-- **VS Code / Cursor**: Install [`hoangyell.markdy-vscode`](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode) and press **`Cmd+K V`** (macOS) or **`Ctrl+K V`** (Windows/Linux) for live preview.
-- **Web Studio**: Open [markdy.com/playground](https://markdy.com/playground/) for interactive authoring and shareable links.
-- **Terminal & CI/CD**: Run `npx @markdy/cli render system.markdy --out diagram.html`.
-- **Astro / MDX Docs**: Use `<Markdy code={code} client:visible />` with `@markdy/astro` or `@markdy/mdx`.
-
----
-
 ## 📦 Component Responsibilities & Packages
 
 Markdy is architected as a modular monorepo where each package fulfills a focused responsibility:
@@ -272,7 +283,7 @@ Markdy is architected as a modular monorepo where each package fulfills a focuse
 ## 🔍 Detailed Features & Advanced Usage
 
 <details>
-<summary><b>🎨 17 Specialized Layout Engines &amp; 8 Editorial Themes</b></summary>
+<summary><b>🎨 17 Specialized Layout Engines &amp; 10 Editorial Themes</b></summary>
 <br>
 
 Markdy provides topological layout algorithms tailored to specific system patterns:
@@ -281,7 +292,7 @@ Markdy provides topological layout algorithms tailored to specific system patter
 - **Security & Structure**: `layers`, `nested`, `swimlane`, `quadrant`, `pyramid`
 - **Data & Product Loops**: `medallion`, `timeline`, `gantt`, `flywheel`, `constellation`, `radar`, `venn`
 
-**Themes**: `midnight` (dark modern), `paper` (light technical), `blueprint` (CAD cyan), `editorial` (serif publication), `graphite` (minimal dark), `nebula` (cosmic violet), `terminal` (CLI retro), `sketchy` (hand-drawn), `draft` (architectural draft), `doodle` (playful doodle).
+**Themes**: `midnight` (dark modern), `paper` (light technical), `blueprint` (CAD cyan), `editorial` (serif publication), `graphite` (minimal dark), `nebula` (cosmic violet), `terminal` (CLI retro), `sketchy` (hand-drawn), `ink` (monochrome sumi ink), `doodle` (playful doodle).
 
 👉 *[Explore all 17+ interactive scenes in the Live Gallery ↗](https://markdy.com/examples/)*
 </details>
@@ -301,7 +312,8 @@ markdy import architecture.drawio --out diagram.markdy     # Draw.io / diagrams.
 ```
 </details>
 
-<details>
+<a id="mcp-setup"></a>
+<details open id="mcp-setup">
 <summary><b>🤖 AI Coding Agents &amp; Model Context Protocol (MCP) Setup (Cursor, VS Code, Claude, Antigravity)</b></summary>
 <br>
 

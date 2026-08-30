@@ -175,7 +175,7 @@ export function getWebviewHtml(webview: vscode.Webview, extensionUri: vscode.Uri
         <option value="graphite">Graphite</option>
         <option value="terminal">Terminal</option>
         <option value="sketchy">Sketchy</option>
-        <option value="draft">Draft</option>
+        <option value="ink">Ink</option>
         <option value="doodle">Doodle</option>
       </select>
     </div>

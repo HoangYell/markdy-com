@@ -6,7 +6,7 @@ Web Animations API renderer for [MarkdyScript](../../docs/SYNTAX.md) scenes. Tra
 
 - **Browser-native** — Web Animations API + CSS transforms, no Canvas or GSAP (~24 KB minzipped)
 - **17 Diagram Layout Topologies** — `architecture`, `flowchart`, `tree`, `sequence`, `state`, `layers`, `nested`, `swimlane`, `timeline`, `gantt`, `medallion`, `flywheel`, `constellation`, `quadrant`, `pyramid`, `radar`, `venn`
-- **Dynamic Theme Switching** — live runtime switching across 10 semantic themes (`paper`, `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `terminal`, `sketchy`, `draft`, `doodle`)
+- **Dynamic Theme Switching** — live runtime switching across 10 semantic themes (`paper`, `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `terminal`, `sketchy`, `ink`, `doodle`)
 - **Flow edges** — `->` request, `<-` response, `~>` event, `--` dependency, each with its own stroke, plus animated traveling pulse
 - **Beat-driven cues** — `show`, `hide`, `glow`, `focus`, and `frame` camera zooms, sequenced by named beats
 - **Media Exporters** — zero-dep animated GIF89a exporter with LZW compression and Figma-ready vector SVG export

@@ -140,7 +140,7 @@ beat main:
 - `editorial` — flat editorial paper with serif titles and semantic ink/accent roles
 - `terminal` — dark CLI/TUI canvas with monospace font and neon glow accents
 - `sketchy` — organic hand-drawn whiteboard theme with displacement filter
-- `draft` — architectural drafting paper combining technical precision and hand-drawn warmth
+- `ink` — high-contrast monochrome sumi ink on fine paper with vermillion accents
 - `doodle` — playful hand-drawn doodle sketchbook with felt-tip markers and comic block shadows
 - `nebula` — deep-space canvas with orbit rings, signal halos, and constellation decoration
 - `midnight` — dark developer canvas

@@ -313,7 +313,7 @@ export function createMarkdyMcpServer(): Server {
             },
             {
               name: "theme",
-              description: "Preferred visual theme (paper, editorial, midnight, blueprint, graphite, nebula, sketchy, terminal, draft, doodle).",
+              description: "Preferred visual theme (paper, editorial, midnight, blueprint, graphite, nebula, sketchy, terminal, ink, doodle).",
               required: false,
             },
             {

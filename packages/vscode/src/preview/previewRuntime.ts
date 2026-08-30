@@ -444,7 +444,7 @@ window.addEventListener("keydown", (e) => {
     case "t":
     case "T":
       if (themeSelect) {
-        const themes = ["auto", "midnight", "paper", "blueprint", "nebula", "editorial", "graphite", "terminal", "sketchy", "draft", "doodle"];
+        const themes = ["auto", "midnight", "paper", "blueprint", "nebula", "editorial", "graphite", "terminal", "sketchy", "ink", "doodle"];
         const nextIdx = (themes.indexOf(themeSelect.value) + 1) % themes.length;
         themeSelect.value = themes[nextIdx];
         currentThemeOverride = themeSelect.value === "auto" ? null : themeSelect.value;
