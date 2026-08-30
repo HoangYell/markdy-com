@@ -55,7 +55,7 @@ export const ARCHITECTURE_TEMPLATES = [
     title: "Cloud Microservices & Database Tier",
     category: "Cloud / Microservices",
     description: "Multi-tier microservices architecture with API gateway, auth, database, and Redis cache.",
-    code: `scene theme=paper width=1440 height=760
+    code: `scene theme=paper
 layout LR
 
 browser WebApp "Web Application"
@@ -92,7 +92,7 @@ beat checkout "Process Order":
     title: "AI Agent & RAG Pipeline",
     category: "AI / Machine Learning",
     description: "Retrieval-Augmented Generation agent flow with embedding vector search, LLM synthesis, and sandbox tool execution.",
-    code: `scene theme=editorial width=1440 height=760
+    code: `scene theme=editorial
 layout LR
 
 user User "Engineer"
@@ -128,7 +128,7 @@ beat generate "Synthesis & Tool Execution":
     title: "Event-Driven Architecture & Kafka Fan-Out",
     category: "Messaging / Streaming",
     description: "Event ingestion and parallel asynchronous consumer worker fan-out with dead-letter queue.",
-    code: `scene theme=midnight width=1440 height=760
+    code: `scene theme=midnight
 layout LR
 
 service IngestionAPI "Ingestion API"
@@ -161,7 +161,7 @@ beat fanout "Parallel Fan-out Processing":
     title: "Kubernetes Cluster & Cloud Ingress",
     category: "DevOps / Infrastructure",
     description: "Cloudflare edge, Traefik ingress controller, pod deployments, ClusterIP routing, and persistent storage volumes.",
-    code: `scene theme=blueprint width=1440 height=800
+    code: `scene theme=blueprint
 layout LR
 
 cloud CDN "Cloudflare CDN"
@@ -191,7 +191,7 @@ beat routing "Ingress Traffic Routing":
     title: "CI/CD GitOps Delivery Pipeline",
     category: "DevOps / CI-CD",
     description: "GitHub commits, automated GitHub Actions testing, container registry push, and ArgoCD production deployment.",
-    code: `scene theme=graphite width=1440 height=720
+    code: `scene theme=graphite
 layout LR
 
 user Dev "Developer"
@@ -224,7 +224,7 @@ beat deploy "GitOps Sync & Deployment":
     title: "OAuth2 / OIDC Authentication Flow",
     category: "Security / Identity",
     description: "End-to-end authorization code grant flow with IdP redirect, consent, token exchange, and protected API access.",
-    code: `scene theme=paper width=1440 height=720
+    code: `scene theme=paper
 layout LR
 
 browser User "End User Browser"
@@ -255,7 +255,7 @@ beat exchange "Token Exchange & API Access":
     title: "Resilient Multi-Region High Availability & Cache-Aside",
     category: "Distributed Systems",
     description: "GeoDNS global routing, primary/failover regions, Redis master/replica cache-aside pattern, and Aurora global storage replication.",
-    code: `scene theme=midnight width=1440 height=760
+    code: `scene theme=midnight
 layout LR
 
 gateway GeoDNS "Global Route53 / Anycast"
@@ -288,7 +288,7 @@ beat replication "Global Storage Replication":
     title: "Quality Gate Decision Flowchart",
     category: "Workflows / Flowcharts",
     description: "Top-down pull request quality evaluation workflow with branch decision diamonds and fallback rejection states.",
-    code: `scene theme=sketchy width=1280 height=720 type=flowchart
+    code: `scene theme=sketchy type=flowchart
 layout TB
 
 start PR "New Pull Request"

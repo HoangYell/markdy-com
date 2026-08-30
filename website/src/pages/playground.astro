@@ -801,7 +801,7 @@ const playgroundStructuredData = [
 
   import { markdyLanguage, markdyAutocomplete, markdyInlineSuggestion, markdyHighlightLight, markdyHighlightDark } from "../editor/markdy-language";
   import { baseTheme, lightTheme, darkTheme } from "../editor/editor-theme";
-  import { createDiagram } from "@markdy/renderer-dom";
+  import { createDiagram, exportDiagramAsVectorSvg, exportDiagramAsPng } from "@markdy/renderer-dom";
   import type { Diagram } from "@markdy/renderer-dom";
   import {
     parse,
@@ -1400,151 +1400,146 @@ const playgroundStructuredData = [
   }
 
   // ─── Export & Share Helpers ────────────────────────────────────────
-  function exportSvg() {
-    const svgEl = stageCanvas?.querySelector("svg");
-    if (!svgEl) {
-      showToast("⚠️ No SVG diagram available to export.");
-      return;
-    }
-    const clonedSvg = svgEl.cloneNode(true) as SVGSVGElement;
-    clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-    clonedSvg.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
-
-    const serializer = new XMLSerializer();
-    let source = serializer.serializeToString(clonedSvg);
-    if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
-      source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
-    }
-    const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "markdy-architecture.svg";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    showToast("✓ Vector SVG exported successfully!");
+  function getDiagramExportFilename(extension: string): string {
+    const code = getCode();
+    const titleMatch = code.match(/scene\s+(?:title\s*=\s*)?["']([^"']+)["']/i);
+    const rawTitle = titleMatch ? titleMatch[1] : (parsedAst?.title || "markdy-architecture");
+    const slug = rawTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    return `${slug || "markdy-architecture"}.${extension}`;
   }
 
-  async function copySvgToClipboard() {
-    const svgEl = stageCanvas?.querySelector("svg");
-    if (!svgEl) {
-      showToast("⚠️ No diagram available to copy.");
-      return;
-    }
-    try {
-      const clonedSvg = svgEl.cloneNode(true) as SVGSVGElement;
-      clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-      const serializer = new XMLSerializer();
-      let source = serializer.serializeToString(clonedSvg);
-      if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
-        source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
-      }
-      await navigator.clipboard.writeText(source);
-      showToast("✓ Raw SVG markup copied to clipboard!");
-    } catch (err) {
-      showToast("⚠️ Failed to copy SVG: " + (err as Error).message);
-    }
-  }
-
-  function exportPng() {
-    const svgEl = stageCanvas?.querySelector("svg");
-    if (!svgEl) {
+  async function exportSvg() {
+    const target = stageCanvas || stage;
+    if (!target) {
       showToast("⚠️ No diagram available to export.");
       return;
     }
+    const wasPlaying = diagram?.isPlaying?.();
+    const resumeAt = diagram?.currentTime?.() ?? 0;
     try {
-      const clonedSvg = svgEl.cloneNode(true) as SVGSVGElement;
-      clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-      const serializer = new XMLSerializer();
-      const svgStr = serializer.serializeToString(clonedSvg);
-      const svgBlob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
-      const url = URL.createObjectURL(svgBlob);
+      if (diagram) {
+        diagram.pause();
+        diagram.seek(diagram.duration());
+      }
+      const svg = exportDiagramAsVectorSvg(target);
+      const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = getDiagramExportFilename("svg");
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("✓ Vector SVG exported successfully!");
+    } catch (err) {
+      showToast("⚠️ SVG export failed: " + (err as Error).message);
+    } finally {
+      if (diagram) {
+        diagram.seek(resumeAt);
+        if (wasPlaying) diagram.play();
+      }
+    }
+  }
 
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = () => {
-        const scale = window.devicePixelRatio || 2;
-        const width = Math.max(svgEl.clientWidth || 800, 600);
-        const height = Math.max(svgEl.clientHeight || 500, 400);
-        const canvas = document.createElement("canvas");
-        canvas.width = width * scale;
-        canvas.height = height * scale;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
-        ctx.scale(scale, scale);
-        ctx.fillStyle = isDarkMode() ? "#0b0f19" : "#ffffff";
-        ctx.fillRect(0, 0, width, height);
-        ctx.drawImage(img, 0, 0, width, height);
-        URL.revokeObjectURL(url);
+  async function copySvgToClipboard() {
+    const target = stageCanvas || stage;
+    if (!target) {
+      showToast("⚠️ No diagram available to copy.");
+      return;
+    }
+    const wasPlaying = diagram?.isPlaying?.();
+    const resumeAt = diagram?.currentTime?.() ?? 0;
+    try {
+      if (diagram) {
+        diagram.pause();
+        diagram.seek(diagram.duration());
+      }
+      const svg = exportDiagramAsVectorSvg(target);
+      await navigator.clipboard.writeText(svg);
+      showToast("✓ Raw SVG markup copied to clipboard!");
+    } catch (err) {
+      showToast("⚠️ Failed to copy SVG: " + (err as Error).message);
+    } finally {
+      if (diagram) {
+        diagram.seek(resumeAt);
+        if (wasPlaying) diagram.play();
+      }
+    }
+  }
 
-        canvas.toBlob((pngBlob) => {
-          if (!pngBlob) return;
-          const pngUrl = URL.createObjectURL(pngBlob);
-          const a = document.createElement("a");
-          a.href = pngUrl;
-          a.download = "markdy-architecture.png";
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          URL.revokeObjectURL(pngUrl);
-          showToast("✓ High-res PNG image exported!");
-        }, "image/png");
-      };
-      img.src = url;
+  async function exportPng() {
+    const target = stageCanvas || stage;
+    if (!target) {
+      showToast("⚠️ No diagram available to export.");
+      return;
+    }
+    const wasPlaying = diagram?.isPlaying?.();
+    const resumeAt = diagram?.currentTime?.() ?? 0;
+    try {
+      if (diagram) {
+        diagram.pause();
+        diagram.seek(diagram.duration());
+      }
+      showToast("⏳ Rendering high-res PNG snapshot...");
+      const pngBlob = await exportDiagramAsPng(target, { pixelRatio: 2 });
+      const pngUrl = URL.createObjectURL(pngBlob);
+      const a = document.createElement("a");
+      a.href = pngUrl;
+      a.download = getDiagramExportFilename("png");
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(pngUrl);
+      showToast("✓ High-res PNG image exported!");
     } catch (err) {
       showToast("⚠️ PNG export failed: " + (err as Error).message);
+    } finally {
+      if (diagram) {
+        diagram.seek(resumeAt);
+        if (wasPlaying) diagram.play();
+      }
     }
   }
 
   async function copyPngToClipboard() {
-    const svgEl = stageCanvas?.querySelector("svg");
-    if (!svgEl) {
+    const target = stageCanvas || stage;
+    if (!target) {
       showToast("⚠️ No diagram available to copy.");
       return;
     }
+    const wasPlaying = diagram?.isPlaying?.();
+    const resumeAt = diagram?.currentTime?.() ?? 0;
     try {
-      const clonedSvg = svgEl.cloneNode(true) as SVGSVGElement;
-      clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
-      const serializer = new XMLSerializer();
-      const svgStr = serializer.serializeToString(clonedSvg);
-      const svgBlob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
-      const url = URL.createObjectURL(svgBlob);
-
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = () => {
-        const scale = window.devicePixelRatio || 2;
-        const width = Math.max(svgEl.clientWidth || 800, 600);
-        const height = Math.max(svgEl.clientHeight || 500, 400);
-        const canvas = document.createElement("canvas");
-        canvas.width = width * scale;
-        canvas.height = height * scale;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
-        ctx.scale(scale, scale);
-        ctx.fillStyle = isDarkMode() ? "#0b0f19" : "#ffffff";
-        ctx.fillRect(0, 0, width, height);
-        ctx.drawImage(img, 0, 0, width, height);
-        URL.revokeObjectURL(url);
-
-        canvas.toBlob(async (pngBlob) => {
-          if (!pngBlob) return;
-          try {
-            await navigator.clipboard.write([
-              new ClipboardItem({ "image/png": pngBlob }),
-            ]);
-            showToast("✓ PNG image copied to clipboard!");
-          } catch {
-            exportPng();
-            showToast("ℹ️ Direct PNG copy not supported by browser; downloaded .png instead!");
-          }
-        }, "image/png");
-      };
-      img.src = url;
+      if (diagram) {
+        diagram.pause();
+        diagram.seek(diagram.duration());
+      }
+      showToast("⏳ Rendering PNG snapshot...");
+      const pngBlob = await exportDiagramAsPng(target, { pixelRatio: 2 });
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({ "image/png": pngBlob }),
+        ]);
+        showToast("✓ PNG image copied to clipboard!");
+      } catch {
+        const pngUrl = URL.createObjectURL(pngBlob);
+        const a = document.createElement("a");
+        a.href = pngUrl;
+        a.download = getDiagramExportFilename("png");
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(pngUrl);
+        showToast("ℹ️ Direct PNG clipboard copy not supported by browser; downloaded .png instead!");
+      }
     } catch (err) {
       showToast("⚠️ Failed to copy PNG: " + (err as Error).message);
+    } finally {
+      if (diagram) {
+        diagram.seek(resumeAt);
+        if (wasPlaying) diagram.play();
+      }
     }
   }
 
@@ -1554,12 +1549,12 @@ const playgroundStructuredData = [
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "scene.markdy";
+    a.download = getDiagramExportFilename("markdy");
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    showToast("✓ scene.markdy downloaded!");
+    showToast("✓ MarkdyScript file downloaded!");
   }
 
   async function copySourceCodeToClipboard() {
@@ -2199,7 +2194,15 @@ const playgroundStructuredData = [
       try {
         return atob(value);
       } catch {
-        return null;
+        try {
+          return decodeURIComponent(atob(value.replace(/ /g, "+")));
+        } catch {
+          try {
+            return atob(value.replace(/ /g, "+"));
+          } catch {
+            return null;
+          }
+        }
       }
     }
   }

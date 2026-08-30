@@ -15,7 +15,7 @@ MarkdyScript is diagram-native. Declare semantic nodes, groups, beats, flow oper
 ### Scene & Directives
 
 ```markdy
-scene "Cache-Aside Architecture" theme=paper width=960 height=520
+scene "Cache-Aside Architecture" theme=paper
 layout LR
 
 browser Client "Web Browser"

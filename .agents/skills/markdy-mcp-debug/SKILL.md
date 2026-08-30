@@ -15,8 +15,8 @@ This skill equips AI agents and developers to diagnose, debug, and heal MarkdySc
 Every valid MarkdyScript diagram is structured linearly in **4 distinct steps**:
 
 ```markdy
-# Step 1: Directives (Canvas dimensions, theme, and layout orientation)
-scene theme=paper width=1440 height=760
+# Step 1: Directives (Canvas theme and layout orientation)
+scene theme=paper
 layout LR
 
 # Step 2: Semantic Node Declarations (<kind> <Id> ["Human Label"])

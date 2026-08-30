@@ -116,6 +116,8 @@ export async function rasterizeDiagramToCanvas(
         useCORS: true,
         width: scaledWidth,
       });
+    } catch (h2cError) {
+      console.warn("[markdy] html2canvas rasterization failed, falling back to SVG renderer:", h2cError);
     } finally {
       host.remove();
     }
