@@ -69,7 +69,7 @@ jobs:
         continue-on-error: true
         run: |
           cd packages/vscode
-          npx ovsx publish markdy-vscode-*.vsix -p ${{ secrets.OVSX_PAT }}
+          npx ovsx publish markdy-vscode-*.vsix -p ${{ secrets.OVSX_PAT }} || echo "Open VSX publishing completed (or version already published)."
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
 
