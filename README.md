@@ -37,15 +37,15 @@
 
 ## 🤖 The AI-First Paradigm: You Don't Write Code, AI Agents Do
 
-> **Markdy is architected specifically for the AI Agent era.**  
-> Humans shouldn't spend hours hand-drawing static architecture boxes, connecting arrows, or wrestling with complex visual layout tools.  
-> **You describe your system flow in natural language → your AI Coding Agent consumes the Markdy spec → producing 60fps kinetic animations.**
+> **Markdy is built for the AI Agent era.**  
+> Humans shouldn't spend hours hand-drawing static boxes, connecting arrows, or wrestling with complex diagram tools.  
+> **You describe your system flow in plain English → your AI Agent understands Markdy → generating a live animated diagram.**
 
 ```mermaid
 flowchart LR
     A["🧑‍💻 Developer Prompt<br/><i>'Design a cache-aside flow with Redis & Postgres'</i>"] --> B["🤖 AI Coding Agent<br/><i>Cursor · Claude · Copilot · Antigravity</i>"]
-    B -->|"Generates MarkdyScript"| C["📄 Living DSL Scene<br/><i>Strict, cycle-safe grammar</i>"]
-    C -->|"Renders at 60fps"| D["🎬 WAAPI Motion Diagram<br/><i>Browser-native kinetic story</i>"]
+    B -->|"Generates"| C["📄 MarkdyScript<br/><i>Clean, structured code</i>"]
+    C -->|"Renders"| D["🎬 Animated Diagram<br/><i>Smooth motion playback</i>"]
 ```
 
 ### The 3-Step AI Workflow:
@@ -55,7 +55,7 @@ flowchart LR
    - **Via Workspace Rules / Context:** Include [`AGENT.md`](docs/AGENT.md) in your workspace rules (`.cursorrules`, `CLAUDE.md`, `.agent/rules.md`), or reference [`https://markdy.com/llms-full.txt`](https://markdy.com/llms-full.txt).
 2. **Describe Your System Architecture in Plain English:**
    > *"Generate an animated Markdy diagram for our distributed payment processor: Client sends request to API Gateway, Gateway dispatches to Payment Service, Payment Service writes to Postgres, syncs with Redis cache, and emits an async event to Kafka."*
-3. **Instant 60fps Kinetic Choreography:**
+3. **Instant Animated Diagram:**
    - The AI Agent generates complete, valid MarkdyScript with semantic nodes, directional flows (`->`, `<-`, `~>`), and animated `beat` timelines.
    - Preview immediately side-by-side in VS Code / Cursor with **`Cmd+K V`** or paste into the **[Markdy Web Studio](https://markdy.com/playground/)**.
 
