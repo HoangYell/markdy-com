@@ -61,6 +61,7 @@
   "groups": {},
   "meta": {
     "direction": "LR",
+    "explicitTheme": true,
     "fps": 60,
     "height": 720,
     "theme": "midnight",
