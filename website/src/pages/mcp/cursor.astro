@@ -1,0 +1,217 @@
+---
+import Layout from "../../layouts/Layout.astro";
+
+const deepLinkUrl = "cursor://anysphere.cursor-deeplink/mcp/install?name=markdy&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIkBtYXJrZHkvbWNwLXNlcnZlciJdfQ%3D%3D";
+const jsonConfig = `{
+  "mcpServers": {
+    "markdy": {
+      "command": "npx",
+      "args": ["-y", "@markdy/mcp-server"]
+    }
+  }
+}`;
+---
+
+<Layout
+  title="Install Markdy MCP Server in Cursor — Markdy"
+  description="1-Click install Markdy Model Context Protocol (MCP) server in Cursor IDE for instant diagram validation, diagnostics, and transpilation."
+  canonicalURL="https://markdy.com/mcp/cursor"
+>
+  <head slot="head">
+    <meta http-equiv="refresh" content={`0;url=${deepLinkUrl}`} />
+  </head>
+
+  <main class="mcp-redirect-page">
+    <div class="mcp-redirect-card">
+      <div class="icon-wrap">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="animate-spin-slow">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+      </div>
+
+      <h1>Opening Cursor…</h1>
+      <p class="subtitle">
+        Attempting to launch Cursor to install the <strong>Markdy MCP Server</strong> automatically.
+      </p>
+
+      <div class="action-group">
+        <a href={deepLinkUrl} class="primary-btn">
+          ⚡ Open in Cursor Now
+        </a>
+        <a href="/agent/" class="secondary-btn">
+          📖 View AI Agent Guide
+        </a>
+      </div>
+
+      <div class="manual-fallback">
+        <h2>Manual Configuration</h2>
+        <p>If Cursor did not open automatically, add this to your <code>~/.cursor/mcp.json</code> or project <code>.cursor/mcp.json</code>:</p>
+        <div class="code-wrap">
+          <pre><code>{jsonConfig}</code></pre>
+          <button id="copy-btn" class="copy-btn" type="button" aria-label="Copy JSON config">
+            <span>Copy JSON</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script is:inline define:vars={{ deepLinkUrl }}>
+    // Try launching the protocol handler immediately on load
+    try {
+      window.location.href = deepLinkUrl;
+    } catch (_) {}
+
+    document.getElementById('copy-btn')?.addEventListener('click', async () => {
+      const config = document.querySelector('.code-wrap pre code')?.textContent;
+      if (config) {
+        await navigator.clipboard.writeText(config);
+        const btn = document.getElementById('copy-btn');
+        if (btn) {
+          btn.textContent = 'Copied!';
+          setTimeout(() => {
+            btn.textContent = 'Copy JSON';
+          }, 2000);
+        }
+      }
+    });
+  </script>
+</Layout>
+
+<style>
+  .mcp-redirect-page {
+    padding: max(4rem, calc(3rem + var(--sat))) 1rem 5rem;
+    max-width: 680px;
+    margin: 0 auto;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .mcp-redirect-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    width: 100%;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+  }
+  .icon-wrap {
+    display: inline-flex;
+    padding: 1rem;
+    border-radius: 50%;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-subtle);
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+  }
+  h1 {
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+  }
+  .subtitle {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+  .action-group {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+  }
+  .primary-btn {
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+    padding: 0.85rem 1.75rem;
+    border-radius: 9999px;
+    text-decoration: none;
+    transition: opacity 0.2s ease, transform 0.15s ease;
+    box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3);
+  }
+  .primary-btn:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+  }
+  .secondary-btn {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 0.85rem 1.5rem;
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    text-decoration: none;
+    transition: background 0.2s ease;
+  }
+  .secondary-btn:hover {
+    background: var(--bg-hover, var(--bg-secondary));
+  }
+  .manual-fallback {
+    text-align: left;
+    border-top: 1px solid var(--border-subtle);
+    padding-top: 2rem;
+  }
+  .manual-fallback h2 {
+    font-size: 1.15rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+  .manual-fallback p {
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+    line-height: 1.5;
+  }
+  .code-wrap {
+    position: relative;
+    background: var(--code-bg, #0d1117);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  pre {
+    margin: 0;
+    padding: 1rem;
+    overflow-x: auto;
+    font-size: 0.88rem;
+    color: #e6edf3;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .copy-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+  .animate-spin-slow {
+    animation: spin 8s linear infinite;
+  }
+  @media (max-width: 640px) {
+    .mcp-redirect-card {
+      padding: 1.75rem 1.25rem;
+    }
+    .action-group {
+      flex-direction: column;
+    }
+  }
+</style>

@@ -233,9 +233,9 @@ const playgroundStructuredData = [
               <span class="tab-icon">📄</span>
               <span>scene.markdy</span>
             </div>
-            <select id="quick-example-select" class="studio-select" aria-label="Load Showcase Example">
+            <select id="quick-example-select" class="studio-select" aria-label="Load Showcase Architecture Blueprint">
               {EXAMPLES.map((ex, i) => (
-                <option value={i}>{ex.title} ({ex.pattern ?? ex.category})</option>
+                <option value={i}>{i === 0 ? "⭐ Featured: " : ""}{ex.title} ({ex.pattern ?? ex.category})</option>
               ))}
             </select>
           </div>
@@ -572,7 +572,7 @@ const playgroundStructuredData = [
         <div class="card-header">
           <div class="card-header-left">
             <span class="panel-kicker">Curated Architecture Models</span>
-            <h3>Showcase Examples Gallery (29 Systems)</h3>
+            <h3>Showcase Examples Gallery (29 Architecture Blueprints)</h3>
           </div>
           <a id="example-source-link" class="source-link" href={EXAMPLES[0].sourceUrl} target="_blank" rel="noopener noreferrer">View source ↗</a>
         </div>
@@ -580,8 +580,8 @@ const playgroundStructuredData = [
         <!-- Live search and category filters -->
         <div class="gallery-controls">
           <div class="search-input-wrapper">
-            <span class="search-icon">🔍</span>
-            <input id="example-search" class="gallery-search-input" type="text" placeholder="Search architecture models (e.g. k8s, kafka, redis, oauth, medallion, lakehouse)..." />
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input id="example-search" class="gallery-search-input" type="text" placeholder="Search architecture blueprints (e.g. k8s, kafka, redis, oauth, medallion, lakehouse)..." aria-label="Search architecture blueprints" />
           </div>
           <div class="gallery-filter-chips">
             {CATEGORIES.map((cat, i) => (
@@ -5591,6 +5591,15 @@ Requirements:
     }
     .topbar-right {
       flex-wrap: wrap;
+    }
+  }
+
+  @media (max-width: 1200px) {
+    .topbar-nav-links {
+      display: none;
+    }
+    .status-meta {
+      display: none;
     }
   }
 

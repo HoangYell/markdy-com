@@ -13,7 +13,7 @@
   <a href="https://markdy.com/playground/"><b>⚡ Live Studio</b></a> &nbsp;•&nbsp;
   <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><b>🔌 VS Code Extension</b></a> &nbsp;•&nbsp;
   <a href="https://markdy.com/docs/"><b>📖 Documentation</b></a> &nbsp;•&nbsp;
-  <a href="https://markdy.com/examples/"><b>🌟 29+ Examples</b></a> &nbsp;•&nbsp;
+  <a href="https://markdy.com/examples/"><b>🌟 29 Blueprints</b></a> &nbsp;•&nbsp;
   <a href="https://markdy.com/agent/"><b>🤖 AI &amp; Agent Guide</b></a>
 </p>
 
@@ -160,8 +160,8 @@ Equip your favorite AI Coding Agent with native Markdy tools (`validate_markdy_c
 
 | AI Environment | Setup Action | Method |
 |---|---|---|
-| **Cursor** | [![Install in Cursor](https://img.shields.io/badge/⚡_Install_in-Cursor-000000?style=for-the-badge&logo=cursor&logoColor=white)](cursor://anysphere.cursor-deeplink/mcp/install?name=markdy&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIkBtYXJrZHkvbWNwLXNlcnZlciJdfQ%3D%3D) | **1-Click Deep Link Protocol** |
-| **VS Code / Copilot** | [![Install in VS Code](https://img.shields.io/badge/⚡_Install_in-VS_Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white)](vscode:mcp/install?%7B%22name%22%3A%22markdy%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40markdy%2Fmcp-server%22%5D%7D) | **1-Click Deep Link Protocol** |
+| **Cursor** | [![Install in Cursor](https://img.shields.io/badge/⚡_Install_in-Cursor-000000?style=for-the-badge&logo=cursor&logoColor=white)](https://markdy.com/mcp/cursor) | **[1-Click Install ↗](https://markdy.com/mcp/cursor)** or [JSON Config](#2-cursor-cursor_mcpjson-or-cursor_mcpjson) |
+| **VS Code / Copilot** | [![Install in VS Code](https://img.shields.io/badge/⚡_Install_in-VS_Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white)](https://markdy.com/mcp/vscode) | **[1-Click Install ↗](https://markdy.com/mcp/vscode)** or [JSON Config](#2-cursor-cursor_mcpjson-or-cursor_mcpjson) |
 | **Claude Code & Desktop** | [![Setup in Claude](https://img.shields.io/badge/⚡_Setup_in-Claude-D97706?style=for-the-badge&logo=anthropic&logoColor=white)](#1-claude-code--claude-desktop) | **CLI (`claude mcp add`) & JSON** |
 | **Google Antigravity** | [![Setup in Antigravity](https://img.shields.io/badge/⚡_Setup_in-Antigravity-4285F4?style=for-the-badge&logo=google&logoColor=white)](#3-google-antigravity--gemini-cli) | **1-Command CLI (`agy mcp add`)** |
 | **Cline / Roo Code** | [![Config in Cline](https://img.shields.io/badge/Config_in-Cline-6366F1?style=for-the-badge)](#4-cline--roo-code-cline_mcp_settingsjson) | **Config File (`cline_mcp_settings.json`)** |
@@ -269,7 +269,7 @@ agy mcp add markdy -- npx -y @markdy/mcp-server
 - 🔄 `transpile_to_markdy`: Convert Mermaid, Docker Compose, Kubernetes, Terraform, or Draw.io into valid MarkdyScript.
 - 📚 `markdy://spec/agent-reference`: Full AST grammar reference and token catalog.
 - 🏛️ `markdy://governance/rules`: Architecture rules (Well-Architected, cycle bounds, layer separation).
-- 📦 `markdy://templates/catalog`: 29+ production-grade architecture blueprints.
+- 📦 `markdy://templates/catalog`: 29 production-grade architecture blueprints.
 
 👉 *[Read the Full AI Agent Reference Guide (`AGENT.md`) ↗](https://markdy.com/agent/)*
 </details>

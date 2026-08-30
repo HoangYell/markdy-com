@@ -384,7 +384,7 @@ const homepageStructuredData = [
     <!-- Mobile Drawer Menu -->
     <div id="mobile-nav-drawer" class="mobile-nav-drawer" hidden>
       <div class="mobile-drawer-inner">
-        <a href="/examples/" class="mobile-nav-link mobile-nav-highlight">🎨 Examples Gallery (30+)</a>
+        <a href="/examples/" class="mobile-nav-link mobile-nav-highlight">🎨 Architecture Gallery (29 Blueprints)</a>
         <a href="#prompt-tutorial" class="mobile-nav-link">🤖 AI Prompt Tutorial</a>
         <a href="#layouts" class="mobile-nav-link">🎨 17 Layouts &amp; Themes</a>
         <a href="#ingestion" class="mobile-nav-link">🔄 Universal Ingestion</a>
@@ -581,7 +581,7 @@ const homepageStructuredData = [
           <div class="studio-select-wrap">
             <select id="example-select" class="studio-select" aria-label="Load Architecture Example">
               {EXAMPLES.map((ex, i) => (
-                <option value={i}>[{ex.sceneType.toUpperCase()}] {ex.title}</option>
+                <option value={i}>{i === 0 ? "⭐ Featured: " : `[${ex.sceneType.toUpperCase()}] `}{ex.title}</option>
               ))}
             </select>
           </div>
@@ -590,8 +590,8 @@ const homepageStructuredData = [
           <a id="open-full-studio-btn" href="/playground/?example=url-shortener-architecture" class="studio-action-btn studio-action-btn--primary studio-gallery-link" title="Open selected scene in Full Studio">
             <span>Open in Full Studio ⚡</span>
           </a>
-          <a href="/examples/" class="studio-action-btn studio-action-btn--secondary studio-gallery-link" title="Explore all 29+ Architecture Blueprints">
-            <span>Browse 29+ Architectures ↗</span>
+          <a href="/examples/" class="studio-action-btn studio-action-btn--secondary studio-gallery-link" title="Explore all 29 Architecture Blueprints">
+            <span>Browse 29 Blueprints ↗</span>
           </a>
         </div>
       </div>
