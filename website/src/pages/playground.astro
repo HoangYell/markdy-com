@@ -235,7 +235,7 @@ const playgroundStructuredData = [
             </div>
             <select id="quick-example-select" class="studio-select" aria-label="Load Showcase Architecture Blueprint">
               {EXAMPLES.map((ex, i) => (
-                <option value={i}>{ex.title} ({ex.pattern ?? ex.category})</option>
+                <option value={i}>[{ex.sceneType.toUpperCase()}] {ex.title}</option>
               ))}
             </select>
           </div>
