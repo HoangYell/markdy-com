@@ -98,11 +98,11 @@ beat cache_miss "2. Cache Miss & Async Warm":
 
 Choose your preferred preview environment:
 
-- **VS Code / Cursor Extension** — [`hoangyell.markdy-vscode`](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode):  
-  Press **`Cmd+K V`** *(macOS)* or **`Ctrl+K V`** *(Windows/Linux)* for live side-by-side animated preview.
-
 - **Interactive Web Studio** — **[markdy.com/playground ↗](https://markdy.com/playground/)**:  
   Instant browser playground with timeline scrubbing, GIF/SVG export, and shareable links.
+
+- **VS Code / Cursor Extension** — [`hoangyell.markdy-vscode`](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode):  
+  Press **`Cmd+K V`** *(macOS)* or **`Ctrl+K V`** *(Windows/Linux)* for live side-by-side animated preview.
 
 - **Terminal CLI** — [`@markdy/cli`](packages/cli/README.md):
   ```bash
@@ -145,6 +145,10 @@ Choose the package that fits your stack:
 
 ## ⚡ Why Markdy?
 
+<details>
+<summary><b>Kinetic Motion Graphics vs. Static Architecture Diagrams</b></summary>
+<br>
+
 Static boxes and arrows fail to capture distributed systems in action. **Markdy turns text into choreographed 60fps motion graphics** directly in your browser.
 
 - 🎬 **Kinetic Storytelling**: Choreograph requests (`->`), responses (`<-`), and events (`~>`) across sequential `beat` timelines with auto-zooms and glow cues.
@@ -153,6 +157,8 @@ Static boxes and arrows fail to capture distributed systems in action. **Markdy 
 - 🔄 **Universal Ingestion**: 1-click migration from Mermaid, Draw.io, Docker Compose, Kubernetes manifests, and Terraform states.
 - 🤖 **AI-Native & MCP**: Official Model Context Protocol (MCP) server for Claude, Cursor, Antigravity, and Cline with self-healing syntax diagnostics.
 - 🛡️ **Architecture Governance**: Built-in rules prevent deadlock cycles and cross-layer bypasses.
+
+</details>
 
 ---
 
