@@ -238,8 +238,8 @@ describe("Modern Renderer Architecture Validation", () => {
 
       expect(styleContent).toContain("min-width: 140px;");
       expect(styleContent).toContain("min-height: 64px;");
-      expect(styleContent).toContain("width: 34px;");
-      expect(styleContent).toContain("height: 34px;");
+      expect(styleContent).toContain("width: 28px;");
+      expect(styleContent).toContain("height: 28px;");
       expect(styleContent).toContain("gap: 12px;");
       expect(styleContent).toContain("font-weight: 600;");
       expect(styleContent).toContain("font-variant-numeric: tabular-nums;");

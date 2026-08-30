@@ -53,7 +53,7 @@ export function ensureNodeStyles(doc: Document): void {
 .markdy-node__type { display: none; }
 .markdy-node__body {
   height: 100%;
-  padding: 0 14px;
+  padding: 0 16px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -62,46 +62,36 @@ export function ensureNodeStyles(doc: Document): void {
 }
 .markdy-node__icon {
   flex: 0 0 auto;
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--md-role-color, var(--md-accent));
-  background:
-    linear-gradient(180deg,
-      color-mix(in srgb, var(--md-role-color, var(--md-accent)) 24%, transparent),
-      color-mix(in srgb, var(--md-role-color, var(--md-accent)) 10%, transparent));
-  box-shadow:
-    inset 0 0 0 1px color-mix(in srgb, var(--md-role-color, var(--md-accent)) 38%, transparent),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+  background: transparent;
+  box-shadow: none;
 }
 .markdy-node__icon svg {
-  width: 18px;
-  height: 18px;
+  width: 26px;
+  height: 26px;
   display: block;
   stroke: currentColor;
 }
 .markdy-node__icon[data-media="image"] {
-  background: color-mix(in srgb, var(--md-surface-raised) 68%, #ffffff 32%);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--md-border) 60%, transparent);
-  padding: 3px;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
   overflow: hidden;
 }
 .markdy-node__icon img {
-  width: 100%;
-  height: 100%;
+  width: 26px;
+  height: 26px;
   object-fit: contain;
   border-radius: 6px;
   display: block;
 }
 .markdy-node__icon[data-fit="cover"] img {
   object-fit: cover;
-}
-.markdy-node[data-icon="decision"] .markdy-node__icon,
-.markdy-node[data-icon="flow"] .markdy-node__icon {
-  border-radius: 999px;
 }
 .markdy-node__label {
   flex: 1 1 auto;

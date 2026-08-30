@@ -525,11 +525,12 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
 `;
     }
 
-    // Left Icon Box & Glyph
-    const iconBoxY = (node.height - 34) / 2;
-    svg += `      <!-- Icon Box -->
-      <rect x="14" y="${iconBoxY}" width="34" height="34" rx="9" fill="${roleColor}" fill-opacity="${isDark ? '0.22' : '0.12'}" stroke="${roleColor}" stroke-opacity="0.3" stroke-width="1"/>
-      <g transform="translate(${14 + 8}, ${iconBoxY + 8}) scale(0.75)" fill="none" stroke="${roleColor}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    // Frameless Icon Glyph (26px)
+    const iconSize = 26;
+    const iconX = 16;
+    const iconY = (node.height - iconSize) / 2;
+    svg += `      <!-- Frameless Icon Glyph -->
+      <g transform="translate(${iconX}, ${iconY}) scale(${iconSize / 24})" fill="none" stroke="${roleColor}" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">
 `;
     if (glyphSpec) {
       for (const [tag, attrs] of glyphSpec) {
@@ -543,8 +544,8 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
 
     // Text Label Wrapping & Alignment
     const hasTech = Boolean(node.props?.tech || node.props?.sub);
-    const textStartX = 58;
-    const availTextWidth = node.width - textStartX - 12;
+    const textStartX = 54;
+    const availTextWidth = node.width - textStartX - 14;
     const lines = wrapNodeLabel(node.label, availTextWidth, 13.5);
 
     if (hasTech) {
