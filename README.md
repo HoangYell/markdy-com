@@ -157,7 +157,7 @@ claude mcp add markdy -- npx -y @markdy/mcp-server
 agy mcp add markdy -- npx -y @markdy/mcp-server
 ```
 
-👉 **[1-Click Install for Cursor ↗](https://markdy.com/mcp/cursor)** &nbsp;•&nbsp; **[1-Click Install for VS Code ↗](https://markdy.com/mcp/vscode)** &nbsp;•&nbsp; **[Detailed AI Setup Guide (`AGENT.md`) ↗](docs/AGENT.md)**
+👉 **[1-Click Install for Cursor ↗](https://markdy.com/mcp/cursor)** &nbsp;•&nbsp; **[1-Click Install for VS Code ↗](https://markdy.com/mcp/vscode)** &nbsp;•&nbsp; **[Full JSON Configs for 6 IDEs ↓](#mcp-setup)** &nbsp;•&nbsp; **[AI Agent Guide (`AGENT.md`) ↗](docs/AGENT.md)**
 </details>
 
 <details>
@@ -224,10 +224,10 @@ export default {
 </details>
 
 <details>
-<summary><b>⚡ Terminal CLI &amp; Migration Suite (`@markdy/cli`, `@markdy/compat`)</b></summary>
+<summary><b>⚡ Terminal CLI &amp; CI/CD (`@markdy/cli`, `@markdy/compat`)</b></summary>
 <br>
 
-Render standalone HTML diagrams, run linting in CI/CD, or convert legacy Mermaid, Draw.io, Docker Compose, Kubernetes, and Terraform configs:
+Render standalone HTML diagrams or run architecture linting in CI/CD pipelines:
 
 ```bash
 # Global install
@@ -236,11 +236,11 @@ npm install -g @markdy/cli
 # Render diagram to animated HTML or SVG
 markdy render system.markdy --out diagram.html
 
-# Transpile Mermaid / Docker Compose / Kubernetes to Markdy
-markdy import flow.mmd --out flow.markdy
+# Lint Markdy architecture scenes in CI/CD
+markdy lint **/*.markdy
 ```
 
-👉 **[CLI Package Guide ↗](packages/cli/README.md)** &nbsp;•&nbsp; **[Compat Transpiler Guide ↗](packages/compat/README.md)**
+👉 **[CLI Package Guide ↗](packages/cli/README.md)** &nbsp;•&nbsp; **[Universal Ingestion Guide ↗](packages/compat/README.md)**
 </details>
 
 <details>
