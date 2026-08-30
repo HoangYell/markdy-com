@@ -1,7 +1,7 @@
 # lakehouse-medallion-pipeline.markdy
 # Real-Time Streaming Lakehouse Medallion Pipeline
 
-scene "Streaming Lakehouse Medallion Pipeline" theme=editorial type=medallion width=1380 height=760
+scene "Streaming Lakehouse Medallion Pipeline" theme=auto type=medallion width=1380 height=760
 
 bronze BronzeRaw "Bronze: Raw Ingest (Kafka Events)"
 bronze BronzeDelta "Bronze: Delta Lake (Append-Only)"

@@ -135,10 +135,11 @@ export function mountSequenceLayer(
     svg.appendChild(cap);
   }
 
-  for (const activation of activations) {
+  activations.forEach((activation, index) => {
     const x = centerX(activation.participant);
     const bar = doc.createElementNS("http://www.w3.org/2000/svg", "rect");
     bar.classList.add("markdy-sequence-activation");
+    bar.setAttribute("data-activation-index", String(index));
     bar.setAttribute("x", String(x - 6));
     bar.setAttribute("y", String(activation.y));
     bar.setAttribute("width", "12");
@@ -148,7 +149,7 @@ export function mountSequenceLayer(
     bar.setAttribute("opacity", "0");
     bar.style.filter = `drop-shadow(0 0 6px ${theme.accent}66)`;
     svg.appendChild(bar);
-  }
+  });
 
   const animations: Animation[] = [];
   for (const message of messages) {
@@ -157,6 +158,7 @@ export function mountSequenceLayer(
     const group = doc.createElementNS("http://www.w3.org/2000/svg", "g");
     group.classList.add("markdy-sequence-message");
     group.setAttribute("data-message", message.id);
+    group.setAttribute("data-message-id", message.id);
     group.style.opacity = "0";
 
     const line = doc.createElementNS("http://www.w3.org/2000/svg", "line");

@@ -9,6 +9,7 @@
 
 import {
   parseAndCompile,
+  resolveTheme,
   type EdgeKind,
   type GroupBoundary,
   type PositionedNode,
@@ -34,6 +35,13 @@ export interface SvgExportOptions {
   transparentBackground?: boolean;
   scale?: number;
   mode?: "pure" | "foreignObject";
+  nodeStates?: Map<string, { opacity: number; transform?: string }>;
+  edgeStates?: Map<string, { opacity: number; strokeDashoffset?: string }>;
+  sequenceMessageStates?: Map<string, { opacity: number }>;
+  sequenceActivationStates?: Map<number, { opacity: number }>;
+  flowDots?: { x: number; y: number; r: number; fill: string; opacity: number }[];
+  activeCaption?: { text: string; opacity: number };
+  cameraTransform?: string;
 }
 
 export interface PreparedHtmlSceneExport {
@@ -291,7 +299,7 @@ function wrapNodeLabel(label: string, maxWidthPx: number, fontSize = 13.5): stri
 export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions = {}): string {
   const width = plan.meta.width;
   const height = plan.meta.height;
-  const theme = plan.theme;
+  const theme = plan.theme || resolveTheme(plan.meta?.theme || "paper");
   const isDark = isDarkTheme(theme);
 
   const canvasBg = options.transparentBackground ? "none" : (theme.canvas || (isDark ? "#0b0f19" : "#f6f8fc"));
@@ -357,17 +365,24 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
 `;
   }
 
+  const cameraTransformAttr = options.cameraTransform && options.cameraTransform !== "none"
+    ? ` transform="${escapeXml(options.cameraTransform)}"`
+    : "";
+
+  svg += `  <!-- Main Scene Content -->\n  <g class="markdy-camera-layer"${cameraTransformAttr}>\n`;
+
   // Group Boundaries
   if (plan.groupBoundaries && plan.groupBoundaries.length > 0) {
     svg += `  <!-- Group Boundaries -->\n  <g class="markdy-groups-layer">\n`;
     for (const gb of plan.groupBoundaries) {
       svg += `    <g id="group-${escapeXml(gb.id)}" transform="translate(${gb.x}, ${gb.y})">
-      <rect width="${gb.width}" height="${gb.height}" rx="14" fill="${surface}" fill-opacity="${isDark ? '0.2' : '0.4'}" stroke="${border}" stroke-width="1.5" stroke-dasharray="6 6"/>
+      <rect width="${gb.width}" height="${gb.height}" rx="16" fill="${surfaceRaised}" fill-opacity="${isDark ? '0.28' : '0.45'}" stroke="${border}" stroke-width="1.2" stroke-dasharray="5 5"/>
 `;
       if (gb.label) {
-        const labelW = Math.max(48, gb.label.length * 7.5 + 20);
-        svg += `      <rect x="12" y="10" width="${labelW}" height="22" rx="4" fill="${surfaceRaised}" fill-opacity="0.95" stroke="${border}" stroke-width="1"/>
-      <text x="22" y="25" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="11" font-weight="600" fill="${textColor}">${escapeXml(gb.label)}</text>
+        const labelText = gb.label.toUpperCase();
+        const labelW = Math.max(54, labelText.length * 6.8 + 20);
+        svg += `      <rect x="14" y="10" width="${labelW}" height="20" rx="6" fill="${surfaceRaised}" fill-opacity="0.95" stroke="${border}" stroke-width="1"/>
+      <text x="24" y="24" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, monospace" font-size="10" font-weight="700" letter-spacing="0.1em" fill="${textColor}">${escapeXml(labelText)}</text>
 `;
       }
       svg += `    </g>\n`;
@@ -402,32 +417,70 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
   }
 
   // Sequence Layer (if sequence diagram)
-  if (plan.diagramType === "sequence" && plan.sequenceMessages) {
-    svg += `  <!-- Sequence Messages -->\n  <g class="markdy-sequence-layer">\n`;
-    for (const msg of plan.sequenceMessages) {
-      const fromNode = plan.nodes.find((n) => n.id === msg.from);
-      const toNode = plan.nodes.find((n) => n.id === msg.to);
-      if (!fromNode || !toNode) continue;
-      const fromX = fromNode.x + fromNode.width / 2;
-      const toX = toNode.x + toNode.width / 2;
-      const msgColor = theme.edges?.[msg.kind] || accent;
-      const markerAttr = msg.kind === "response" ? 'marker-end="url(#arrow-response)"' : 'marker-end="url(#arrow-request)"';
-      const dashAttr = msg.kind === "response" ? 'stroke-dasharray="6 4"' : "";
+  if (plan.diagramType === "sequence") {
+    svg += `  <!-- Sequence Layer -->\n  <g class="markdy-sequence-layer">\n`;
+    const nodeById = new Map(plan.nodes.map((node) => [node.id, node]));
+    const centerX = (id: string): number => {
+      const node = nodeById.get(id);
+      return node ? node.x + node.width / 2 : 0;
+    };
+    const lifelineStroke = theme.edges?.dependency ?? theme.rule ?? theme.border ?? "#64748b";
 
-      svg += `    <g class="markdy-seq-msg">
-      <line x1="${fromX}" y1="${msg.y}" x2="${toX}" y2="${msg.y}" stroke="${msgColor}" stroke-width="2" ${dashAttr} ${markerAttr}/>
+    // 1. Participant Lifelines
+    for (const node of plan.nodes) {
+      const x = centerX(node.id);
+      const y1 = node.y + node.height;
+      const y2 = Math.max(y1 + 40, height - 36);
+      svg += `    <line class="markdy-sequence-lifeline" x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="${lifelineStroke}" stroke-width="1.5" stroke-dasharray="5 5" opacity="0.85"/>\n`;
+      svg += `    <circle class="markdy-sequence-lifeline-cap" cx="${x}" cy="${y2}" r="2.5" fill="${lifelineStroke}" opacity="0.85"/>\n`;
+    }
+
+    // 2. Activations
+    if (plan.sequenceActivations) {
+      plan.sequenceActivations.forEach((activation, idx) => {
+        const x = centerX(activation.participant);
+        const actState = options.sequenceActivationStates?.get(idx);
+        const actOpacity = actState !== undefined ? actState.opacity : (options.sequenceActivationStates ? 0 : 0.9);
+        if (actOpacity > 0.001) {
+          const opacityAttr = actOpacity < 0.999 ? `opacity="${actOpacity}"` : "";
+          svg += `    <rect class="markdy-sequence-activation" x="${x - 6}" y="${activation.y}" width="12" height="${activation.height}" rx="4" fill="${accent}" ${opacityAttr}/>\n`;
+        }
+      });
+    }
+
+    // 3. Sequence Messages
+    if (plan.sequenceMessages) {
+      for (const msg of plan.sequenceMessages) {
+        const fromX = centerX(msg.from);
+        const toX = centerX(msg.to);
+        const msgColor = theme.edges?.[msg.kind] || accent;
+        const markerAttr = msg.kind === "response" ? 'marker-end="url(#arrow-response)"' : 'marker-end="url(#arrow-request)"';
+        const dashAttr = msg.kind === "response" ? 'stroke-dasharray="6 4"' : msg.kind === "event" ? 'stroke-dasharray="2 6"' : "";
+
+        const msgState = options.sequenceMessageStates?.get(msg.id);
+        const msgOpacity = msgState !== undefined ? msgState.opacity : 1;
+        if (msgOpacity <= 0.001) continue;
+        const opacityAttr = msgOpacity < 0.999 ? `opacity="${msgOpacity}"` : "";
+
+        svg += `    <g class="markdy-sequence-message" data-message="${escapeXml(msg.id)}" ${opacityAttr}>
+      <line x1="${fromX}" y1="${msg.y}" x2="${toX}" y2="${msg.y}" stroke="${msgColor}" stroke-width="2" stroke-linecap="round" ${dashAttr} ${markerAttr}/>
 `;
-      if (msg.label) {
-        const midX = (fromX + toX) / 2;
-        svg += `      <text x="${midX}" y="${msg.y - 8}" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" font-weight="500" fill="${textColor}" text-anchor="middle">${escapeXml(msg.label)}</text>\n`;
+        if (msg.label) {
+          const midX = (fromX + toX) / 2;
+          const width = msg.label.length * 6.8 + 16;
+          const plateFill = theme.labelPlate ?? theme.surface ?? (isDark ? "#1e293b" : "#ffffff");
+          const plateStroke = theme.hairline ?? theme.border ?? (isDark ? "#334155" : "#cbd5e1");
+          svg += `      <rect x="${midX - width / 2}" y="${msg.y - 25}" width="${width}" height="20" rx="6" fill="${plateFill}" fill-opacity="0.96" stroke="${plateStroke}" stroke-width="1"/>
+      <text x="${midX}" y="${msg.y - 14.5}" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="11" font-weight="500" fill="${textColor}" text-anchor="middle" dominant-baseline="middle">${escapeXml(msg.label)}</text>\n`;
+        }
+        svg += `    </g>\n`;
       }
-      svg += `    </g>\n`;
     }
     svg += `  </g>\n`;
   }
 
-  // Edges & Flows
-  if (plan.edges && plan.edges.length > 0) {
+  // Edges & Flows (only for non-sequence diagrams)
+  if (plan.diagramType !== "sequence" && plan.edges && plan.edges.length > 0) {
     svg += `  <!-- Edge Connections -->\n  <g class="markdy-edges-layer">\n`;
     const nodeMap = new Map(plan.nodes.map((n) => [n.id, n]));
 
@@ -435,6 +488,10 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
       const from = nodeMap.get(edge.from);
       const to = nodeMap.get(edge.to);
       if (!from || !to) return;
+
+      const edgeState = edge.id ? options.edgeStates?.get(edge.id) : undefined;
+      const edgeOpacity = edgeState ? edgeState.opacity : 1;
+      if (edgeOpacity <= 0.001) return;
 
       const color = theme.edges?.[edge.kind] || accent;
       const style = EDGE_STYLES[edge.kind] || EDGE_STYLES.request;
@@ -455,9 +512,13 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
           ? 'marker-end="url(#arrow-event)"'
           : "";
       const dashAttr = style.dash ? `stroke-dasharray="${style.dash}"` : "";
+      const dashOffsetAttr = edgeState?.strokeDashoffset && edgeState.strokeDashoffset !== "0px" && edgeState.strokeDashoffset !== "0"
+        ? `stroke-dashoffset="${escapeXml(edgeState.strokeDashoffset)}"`
+        : "";
+      const opacityAttr = edgeOpacity < 0.999 ? `opacity="${edgeOpacity}"` : "";
 
-      svg += `    <g id="edge-${escapeXml(edge.id || `flow_${index}`)}" class="markdy-edge">
-      <path d="${d}" fill="none" stroke="${color}" stroke-width="${edge.kind === 'dependency' ? '1.5' : '2'}" stroke-linecap="round" stroke-linejoin="round" ${dashAttr} ${markerAttr}/>
+      svg += `    <g id="edge-${escapeXml(edge.id || `flow_${index}`)}" class="markdy-edge" ${opacityAttr}>
+      <path d="${d}" fill="none" stroke="${color}" stroke-width="${edge.kind === 'dependency' ? '1.5' : '2'}" stroke-linecap="round" stroke-linejoin="round" ${dashAttr} ${dashOffsetAttr} ${markerAttr}/>
 `;
 
       // Edge Label
@@ -501,11 +562,20 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
   // Nodes Layer
   svg += `  <!-- Node Cards -->\n  <g class="markdy-nodes-layer">\n`;
   for (const node of plan.nodes) {
+    const nodeState = options.nodeStates?.get(node.id);
+    const nodeOpacity = nodeState ? nodeState.opacity : 1;
+    if (nodeOpacity <= 0.001) continue;
+
     const roleColor = (theme.roles && theme.roles[node.role]) || accent;
     const iconKey = iconKeyForNode(node);
     const glyphSpec = ICON_REGISTRY[iconKey] || ICON_REGISTRY.service;
 
-    svg += `    <g id="node-${escapeXml(node.id)}" transform="translate(${node.x}, ${node.y})">
+    const transformStr = nodeState?.transform && nodeState.transform !== "none"
+      ? `translate(${node.x}, ${node.y}) ${nodeState.transform}`
+      : `translate(${node.x}, ${node.y})`;
+    const opacityAttr = nodeOpacity < 0.999 ? `opacity="${nodeOpacity}"` : "";
+
+    svg += `    <g id="node-${escapeXml(node.id)}" transform="${escapeXml(transformStr)}" ${opacityAttr}>
 `;
 
     // Shape rendering
@@ -544,8 +614,11 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
 
     // Text Label Wrapping & Alignment
     const hasTech = Boolean(node.props?.tech || node.props?.sub);
+    const value = node.props?.value ?? node.props?.metric;
+    const valText = value !== undefined && value !== null ? String(value) : "";
+    const valWidth = valText ? valText.length * 9.5 + 16 : 0;
     const textStartX = 54;
-    const availTextWidth = node.width - textStartX - 14;
+    const availTextWidth = node.width - textStartX - (valWidth > 0 ? valWidth + 14 : 14);
     const lines = wrapNodeLabel(node.label, availTextWidth, 13.5);
 
     if (hasTech) {
@@ -568,27 +641,57 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
       <rect x="${textStartX}" y="${techBadgeY}" width="${techBadgeW}" height="16" rx="4" fill="${textColor}" fill-opacity="${isDark ? '0.08' : '0.05'}" stroke="${border}" stroke-width="0.75"/>
       <text x="${textStartX + 6}" y="${techBadgeY + 11.5}" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="9.5" font-weight="500" fill="${textMuted}">${escapeXml(techText)}</text>\n`;
     } else {
-      svg += `      <!-- Label -->
-      <text x="${textStartX}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}">
-`;
       if (lines.length === 1) {
-        svg += `        <tspan x="${textStartX}" y="${node.height / 2 + 4.5}">${escapeXml(lines[0])}</tspan>\n`;
+        const textY = Math.round(node.height / 2 + 5);
+        svg += `      <!-- Label -->
+      <text x="${textStartX}" y="${textY}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}">${escapeXml(lines[0])}</text>\n`;
       } else if (lines.length === 2) {
-        const startY = (node.height - 17) / 2 + 1;
-        svg += `        <tspan x="${textStartX}" y="${startY}">${escapeXml(lines[0])}</tspan>
-        <tspan x="${textStartX}" y="${startY + 17}">${escapeXml(lines[1])}</tspan>\n`;
+        const startY = Math.round((node.height - 18) / 2 + 10);
+        svg += `      <!-- Label -->
+      <text x="${textStartX}" y="${startY}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}">${escapeXml(lines[0])}</text>
+      <text x="${textStartX}" y="${startY + 18}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}">${escapeXml(lines[1])}</text>\n`;
       } else {
-        const startY = (node.height - 32) / 2;
-        svg += `        <tspan x="${textStartX}" y="${startY}">${escapeXml(lines[0])}</tspan>
-        <tspan x="${textStartX}" y="${startY + 16}">${escapeXml(lines[1])}</tspan>
-        <tspan x="${textStartX}" y="${startY + 32}">${escapeXml(lines[2])}</tspan>\n`;
+        const startY = Math.round((node.height - 34) / 2 + 10);
+        svg += `      <!-- Label -->
+      <text x="${textStartX}" y="${startY}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}">${escapeXml(lines[0])}</text>
+      <text x="${textStartX}" y="${startY + 16}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}">${escapeXml(lines[1])}</text>
+      <text x="${textStartX}" y="${startY + 32}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}">${escapeXml(lines[2])}</text>\n`;
       }
-      svg += `      </text>\n`;
+    }
+
+    if (valText) {
+      svg += `      <!-- Metric Value -->
+      <text x="${node.width - 16}" y="${node.height / 2 + 5}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, sans-serif" font-size="15" font-weight="700" fill="${textColor}" text-anchor="end">${escapeXml(valText)}</text>\n`;
     }
 
     svg += `    </g>\n`;
   }
   svg += `  </g>\n`;
+
+  // Flow Particles (moving dots along edges)
+  if (options.flowDots && options.flowDots.length > 0) {
+    svg += `  <!-- Flow Particles -->\n  <g class="markdy-flow-particles">\n`;
+    for (const dot of options.flowDots) {
+      if (dot.opacity > 0.001) {
+        svg += `    <circle cx="${dot.x}" cy="${dot.y}" r="${dot.r}" fill="${dot.fill}" opacity="${dot.opacity}"/>\n`;
+      }
+    }
+    svg += `  </g>\n`;
+  }
+
+  // Close Camera Layer
+  svg += `  </g>\n`;
+
+  // Live Beat Caption (if active during timeline playback)
+  if (options.activeCaption && options.activeCaption.opacity > 0.01 && options.activeCaption.text) {
+    const capX = width / 2;
+    const capY = height - 32;
+    const capW = options.activeCaption.text.length * 7.5 + 28;
+    svg += `  <!-- Live Beat Caption -->\n  <g class="markdy-live-caption" opacity="${options.activeCaption.opacity}">\n`;
+    svg += `    <rect x="${capX - capW / 2}" y="${capY - 14}" width="${capW}" height="26" rx="13" fill="${surfaceRaised}" stroke="${border}" stroke-width="1" filter="url(#markdy-node-shadow)"/>\n`;
+    svg += `    <text x="${capX}" y="${capY + 4}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="12" font-weight="600" fill="${textColor}" text-anchor="middle">${escapeXml(options.activeCaption.text)}</text>\n`;
+    svg += `  </g>\n`;
+  }
 
   // Watermark
   svg += `
@@ -599,6 +702,181 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
 </svg>`;
 
   return svg;
+}
+
+/**
+ * Serialize a live diagram container into Pure Vector SVG without foreignObject,
+ * capturing the active animated states (opacity, transforms, stroke offsets).
+ */
+export function exportLiveSceneAsPureVectorSvg(
+  containerEl: HTMLElement,
+  options: SvgExportOptions = {}
+): string {
+  const sceneEl = (
+    containerEl.classList?.contains("markdy-scene-root")
+      ? containerEl
+      : containerEl.querySelector(".markdy-scene-root") || containerEl
+  ) as HTMLElement;
+
+  const rootEl = (
+    containerEl.classList?.contains("markdy-diagram-root")
+      ? containerEl
+      : containerEl.closest?.(".markdy-diagram-root") || containerEl
+  ) as HTMLElement;
+
+  const storedPlan = (rootEl as any).__markdyPlan || (sceneEl as any).__markdyPlan || (containerEl as any).__markdyPlan;
+  const storedCode = (rootEl as any).__markdyCode || (sceneEl as any).__markdyCode || (containerEl as any).__markdyCode;
+
+  let plan: RenderPlan | null = storedPlan ?? null;
+  if (!plan && storedCode && typeof storedCode === "string") {
+    try {
+      plan = parseAndCompile(storedCode).plan;
+    } catch {
+      plan = null;
+    }
+  }
+
+  if (plan) {
+    const nodeStates = new Map<string, { opacity: number; transform?: string }>();
+    const edgeStates = new Map<string, { opacity: number; strokeDashoffset?: string }>();
+    const sequenceMessageStates = new Map<string, { opacity: number }>();
+    const sequenceActivationStates = new Map<number, { opacity: number }>();
+    const flowDots: { x: number; y: number; r: number; fill: string; opacity: number }[] = [];
+    let activeCaption: { text: string; opacity: number } | undefined;
+    let cameraTransform: string | undefined;
+
+    if (typeof window !== "undefined" && typeof window.getComputedStyle === "function") {
+      const cameraEl = sceneEl.querySelector(".markdy-camera-layer") as HTMLElement | null;
+      if (cameraEl) {
+        const comp = window.getComputedStyle(cameraEl);
+        if (comp.transform && comp.transform !== "none") {
+          cameraTransform = comp.transform;
+        }
+      }
+
+      // 1. Nodes live state
+      for (const node of plan.nodes) {
+        const nodeEl = sceneEl.querySelector(`[data-node="${node.id}"], [data-node-id="${node.id}"], #node-${node.id}`) as HTMLElement | null;
+        if (nodeEl) {
+          const comp = window.getComputedStyle(nodeEl);
+          const opacity = comp.display === "none" || comp.visibility === "hidden" ? 0 : parseFloat(comp.opacity || "1");
+          nodeStates.set(node.id, {
+            opacity: isNaN(opacity) ? 1 : opacity,
+            transform: comp.transform && comp.transform !== "none" ? comp.transform : undefined,
+          });
+        }
+      }
+
+      // 2. Edges live state
+      for (const edge of plan.edges) {
+        const edgeId = edge.id;
+        if (edgeId) {
+          const edgeEl = sceneEl.querySelector(`[data-edge-id="${edgeId}"], [data-edge="${edgeId}"], #edge-${edgeId}`) as SVGElement | null;
+          if (edgeEl) {
+            const comp = window.getComputedStyle(edgeEl);
+            const opacity = comp.display === "none" || comp.visibility === "hidden" ? 0 : parseFloat(comp.opacity || "1");
+            const pathEl = edgeEl.querySelector(".markdy-edge-path") as SVGPathElement | null;
+            const pathComp = pathEl ? window.getComputedStyle(pathEl) : comp;
+            edgeStates.set(edgeId, {
+              opacity: isNaN(opacity) ? 1 : opacity,
+              strokeDashoffset: pathComp.strokeDashoffset && pathComp.strokeDashoffset !== "0px" ? pathComp.strokeDashoffset : undefined,
+            });
+          }
+        }
+      }
+
+      // 3. Sequence Messages live state
+      const seqMsgEls = sceneEl.querySelectorAll<SVGElement>(".markdy-sequence-message, [data-message], [data-message-id]");
+      seqMsgEls.forEach((msgEl) => {
+        const msgId = msgEl.getAttribute("data-message") || msgEl.getAttribute("data-message-id");
+        if (msgId) {
+          const comp = window.getComputedStyle(msgEl);
+          const opacity = comp.display === "none" || comp.visibility === "hidden" ? 0 : parseFloat(comp.opacity || "1");
+          sequenceMessageStates.set(msgId, {
+            opacity: isNaN(opacity) ? 1 : opacity,
+          });
+        }
+      });
+
+      // 4. Sequence Activations live state
+      const seqActEls = sceneEl.querySelectorAll<SVGRectElement>(".markdy-sequence-activation");
+      seqActEls.forEach((actEl, idx) => {
+        const indexAttr = actEl.getAttribute("data-activation-index");
+        const actIndex = indexAttr ? parseInt(indexAttr, 10) : idx;
+        const comp = window.getComputedStyle(actEl);
+        const opacity = comp.display === "none" || comp.visibility === "hidden" ? 0 : parseFloat(comp.opacity || "1");
+        sequenceActivationStates.set(actIndex, {
+          opacity: isNaN(opacity) ? 0 : opacity,
+        });
+      });
+
+      // 5. Flow Dots (particles)
+      const dotEls = sceneEl.querySelectorAll<SVGCircleElement>(".markdy-edge-dot");
+      dotEls.forEach((dotEl) => {
+        const comp = window.getComputedStyle(dotEl);
+        const opacity = comp.display === "none" || comp.visibility === "hidden" ? 0 : parseFloat(comp.opacity || "0");
+        if (opacity > 0.01) {
+          const transform = comp.transform;
+          let tx = 0;
+          let ty = 0;
+          if (transform && transform !== "none") {
+            const matrixMatch = transform.match(/matrix\(([^)]+)\)/);
+            if (matrixMatch) {
+              const parts = matrixMatch[1].split(",").map(Number);
+              tx = parts[4] || 0;
+              ty = parts[5] || 0;
+            } else {
+              const translateMatch = transform.match(/translate\(([^,]+)px,\s*([^)]+)px\)/);
+              if (translateMatch) {
+                tx = parseFloat(translateMatch[1]) || 0;
+                ty = parseFloat(translateMatch[2]) || 0;
+              }
+            }
+          }
+          const cx = parseFloat(dotEl.getAttribute("cx") || "0") + tx;
+          const cy = parseFloat(dotEl.getAttribute("cy") || "0") + ty;
+          const r = parseFloat(dotEl.getAttribute("r") || "4.5");
+          const fill = comp.fill || dotEl.getAttribute("fill") || "#38bdf8";
+          flowDots.push({ x: cx, y: cy, r, fill, opacity });
+        }
+      });
+
+      // 6. Active Beat Caption
+      const capEls = sceneEl.querySelectorAll<HTMLElement>(".markdy-beat-caption");
+      for (const capEl of Array.from(capEls)) {
+        const comp = window.getComputedStyle(capEl);
+        const opacity = comp.display === "none" || comp.visibility === "hidden" ? 0 : parseFloat(comp.opacity || "0");
+        if (opacity > 0.05 && capEl.textContent) {
+          activeCaption = {
+            text: capEl.textContent.trim(),
+            opacity,
+          };
+          break;
+        }
+      }
+
+      return renderPureVectorSvg(plan, {
+        ...options,
+        nodeStates,
+        edgeStates,
+        sequenceMessageStates,
+        sequenceActivationStates,
+        flowDots,
+        activeCaption,
+        cameraTransform,
+      });
+    }
+
+    return renderPureVectorSvg(plan, {
+      ...options,
+      nodeStates,
+      edgeStates,
+      cameraTransform,
+    });
+  }
+
+  // Fallback: If no plan is stored, render static pure vector SVG from target
+  return exportDiagramAsVectorSvg(containerEl, { ...options, mode: "pure" });
 }
 
 /**
@@ -622,13 +900,19 @@ export function exportDiagramAsVectorSvg(
 
   // If an HTMLElement was passed
   if (typeof HTMLElement !== "undefined" && target instanceof HTMLElement) {
-    // Check if the container stored its Markdy code or plan
-    const storedCode = (target as any).__markdyCode;
+    // Check if the container stored its Markdy code or plan (also check parent roots)
+    const rootEl = (
+      target.classList?.contains("markdy-diagram-root")
+        ? target
+        : target.closest?.(".markdy-diagram-root") || target
+    ) as HTMLElement;
+
+    const storedCode = (rootEl as any).__markdyCode || (target as any).__markdyCode;
     if (storedCode && typeof storedCode === "string") {
       const { plan } = parseAndCompile(storedCode);
       return renderPureVectorSvg(plan, options);
     }
-    const storedPlan = (target as any).__markdyPlan;
+    const storedPlan = (rootEl as any).__markdyPlan || (target as any).__markdyPlan;
     if (storedPlan && typeof storedPlan === "object" && "meta" in storedPlan) {
       return renderPureVectorSvg(storedPlan, options);
     }
@@ -644,7 +928,7 @@ export function exportDiagramAsVectorSvg(
     }
   }
 
-  // Fallback if none of the above matched
+  // Fallback if mode is explicitly foreignObject or no plan available
   const sceneEl = (
     typeof HTMLElement !== "undefined" && target instanceof HTMLElement
       ? target.querySelector(".markdy-scene-root") || target

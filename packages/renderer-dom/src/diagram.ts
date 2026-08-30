@@ -31,7 +31,9 @@ import { applyDeclaredNodeStyle, createNodeEl, createTitleEl, ensureNodeStyles }
 import { mountSequenceLayer, updateSequenceLayerTheme } from "./sequence.js";
 import { mountTreeBuses } from "./tree.js";
 import { applyThemeToScene, applyThemeVariables, ensureSceneStyles } from "./theme.js";
-import { exportDiagramAsVectorSvg } from "./export/svg-exporter.js";
+import { exportDiagramAsVectorSvg, type SvgExportOptions } from "./export/svg-exporter.js";
+import { exportDiagramAsPng, type PngExportOptions } from "./export/png-exporter.js";
+import { exportDiagramAsGif, type GifDiagramExportOptions } from "./export/gif-exporter.js";
 
 const NORMAL_PLAYBACK_RATE = 4 / 5;
 const MIN_VIEWPORT_ZOOM = 0.5;
@@ -93,6 +95,9 @@ export interface Diagram {
   nextBeat(): void;
   prevBeat(): void;
   setTheme(theme: string | ThemeTokens): void;
+  exportSvg(options?: SvgExportOptions): string;
+  exportPng(options?: PngExportOptions): Promise<Blob>;
+  exportGif(options?: GifDiagramExportOptions): Promise<Blob>;
   destroy(): void;
 }
 
@@ -134,6 +139,86 @@ function buildBeatCaptionAnimations(beats: BeatRange[], layer: HTMLElement): Ani
   return anims;
 }
 
+function isDarkBgColor(colorStr: string): boolean | null {
+  if (!colorStr || colorStr === "transparent" || colorStr === "rgba(0, 0, 0, 0)") return null;
+  const match = colorStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+  if (!match) return null;
+  const r = parseInt(match[1], 10);
+  const g = parseInt(match[2], 10);
+  const b = parseInt(match[3], 10);
+  const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return luma < 128;
+}
+
+function checkElementTheme(el: HTMLElement): "nebula" | "paper" | null {
+  const themeAttr =
+    el.getAttribute("data-theme") ||
+    el.dataset.theme ||
+    el.getAttribute("data-mode") ||
+    el.getAttribute("data-bs-theme") ||
+    el.getAttribute("data-color-mode") ||
+    el.getAttribute("data-color-scheme");
+
+  if (themeAttr) {
+    const lower = themeAttr.toLowerCase();
+    if (lower.includes("dark")) return "nebula";
+    if (lower.includes("light")) return "paper";
+  }
+
+  const cls = el.className;
+  if (typeof cls === "string" && cls.length > 0) {
+    if (/\b(dark|dark-mode|dark-theme|theme-dark|vscode-dark)\b/i.test(cls)) return "nebula";
+    if (/\b(light|light-mode|light-theme|theme-light|vscode-light)\b/i.test(cls)) return "paper";
+  }
+
+  return null;
+}
+
+/**
+ * Detects the host environment's theme mode (dark vs light).
+ * Universal support for Tailwind, Next.js, Starlight, Docusaurus, Bootstrap 5.3,
+ * GitHub Markdown, VS Code webviews, computed background lightness, and OS color schemes.
+ * Default light mode is "paper", default dark mode is "nebula".
+ */
+export function detectHostTheme(container?: HTMLElement): "nebula" | "paper" {
+  if (typeof document === "undefined") return "nebula";
+
+  let current: HTMLElement | null = container ?? null;
+  while (current) {
+    const check = checkElementTheme(current);
+    if (check) return check;
+    current = current.parentElement;
+  }
+
+  const docRoot = document.documentElement;
+  const rootCheck = checkElementTheme(docRoot);
+  if (rootCheck) return rootCheck;
+
+  if (document.body) {
+    const bodyCheck = checkElementTheme(document.body);
+    if (bodyCheck) return bodyCheck;
+  }
+
+  if (typeof window !== "undefined" && typeof window.getComputedStyle === "function") {
+    let bgEl: HTMLElement | null = container ?? document.body ?? null;
+    while (bgEl) {
+      try {
+        const bg = window.getComputedStyle(bgEl).backgroundColor;
+        const isDark = isDarkBgColor(bg);
+        if (isDark === true) return "nebula";
+        if (isDark === false) return "paper";
+      } catch {}
+      bgEl = bgEl.parentElement;
+    }
+  }
+
+  if (typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
+    return "nebula";
+  }
+
+  return "paper";
+}
+
 export function createDiagram(opts: DiagramOptions): Diagram {
   const {
     container,
@@ -160,6 +245,17 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   for (const w of ast.diagnostics) {
     if (w.severity === "warning") onWarning(w);
   }
+
+  // If the script did NOT explicitly specify a theme (or specified theme=auto), follow host theme!
+  const hasExplicitTheme = Boolean(ast.meta.explicitTheme === true && ast.meta.theme !== "auto");
+  if (!hasExplicitTheme) {
+    const detected = detectHostTheme(container);
+    plan.theme = resolveTheme(detected);
+  }
+
+  let hostThemeObserver: MutationObserver | null = null;
+  let mediaQueryListener: ((e: MediaQueryListEvent) => void) | null = null;
+  let colorSchemeQuery: MediaQueryList | null = null;
 
   const hostProgress: PlayerProgress | undefined =
     sceneBoundaryProgress === false || (sceneBoundaryProgress === undefined && progressBar === false)
@@ -207,6 +303,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     resetView: resetViewButton,
     fullscreen: fullscreenButton,
     svg: svgButton,
+    gif: gifButton,
     share: shareButton,
     code: codeButton,
     theme: themeButton,
@@ -645,6 +742,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     resetView: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>',
     fullscreen: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>',
     svg: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+    gif: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="7" cy="7" r="1.5" fill="currentColor"/><circle cx="17" cy="7" r="1.5" fill="currentColor"/><circle cx="7" cy="17" r="1.5" fill="currentColor"/><circle cx="17" cy="17" r="1.5" fill="currentColor"/><path d="M10 10l5 2-5 2z" fill="currentColor"/></svg>',
     share: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
     code: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
     theme: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>',
@@ -998,8 +1096,42 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       // 9. Progress bar
       if (totalDurationMs > 0) updateProgressBar(sceneMs / totalDurationMs);
     },
+    exportSvg(options?: SvgExportOptions): string {
+      const resumeAt = sceneMs;
+      const wasPlaying = isPlaying;
+      try {
+        diagram.pause();
+        diagram.seek(durationSeconds);
+        return exportDiagramAsVectorSvg(container, options);
+      } finally {
+        diagram.seek(resumeAt / 1000);
+        if (wasPlaying) diagram.play();
+      }
+    },
+    async exportPng(options?: PngExportOptions): Promise<Blob> {
+      const resumeAt = sceneMs;
+      const wasPlaying = isPlaying;
+      try {
+        diagram.pause();
+        diagram.seek(durationSeconds);
+        return await exportDiagramAsPng(container, options);
+      } finally {
+        diagram.seek(resumeAt / 1000);
+        if (wasPlaying) diagram.play();
+      }
+    },
+    async exportGif(options?: GifDiagramExportOptions): Promise<Blob> {
+      return await exportDiagramAsGif(container, diagram, options);
+    },
     destroy() {
       diagram.pause();
+      hostThemeObserver?.disconnect();
+      hostThemeObserver = null;
+      if (colorSchemeQuery && mediaQueryListener) {
+        colorSchemeQuery.removeEventListener?.("change", mediaQueryListener);
+        mediaQueryListener = null;
+        colorSchemeQuery = null;
+      }
       if (keyboardShortcuts && typeof window !== "undefined") {
         window.removeEventListener("keydown", handleKeyDown);
       }
@@ -1016,6 +1148,47 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       if (viewport.parentNode === container) container.removeChild(viewport);
     },
   };
+
+  if (!hasExplicitTheme && typeof document !== "undefined") {
+    const syncWithHost = () => {
+      const nextTheme = detectHostTheme(container);
+      diagram.setTheme(nextTheme);
+    };
+
+    const attributeFilter = [
+      "data-theme",
+      "data-mode",
+      "data-bs-theme",
+      "data-color-mode",
+      "data-color-scheme",
+      "class",
+      "style",
+    ];
+
+    hostThemeObserver = new MutationObserver(syncWithHost);
+    hostThemeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter,
+    });
+    if (document.body) {
+      hostThemeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter,
+      });
+    }
+    if (container && container.parentElement && container !== document.body) {
+      hostThemeObserver.observe(container.parentElement, {
+        attributes: true,
+        attributeFilter,
+      });
+    }
+
+    if (typeof window !== "undefined" && window.matchMedia) {
+      colorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      mediaQueryListener = syncWithHost;
+      colorSchemeQuery.addEventListener?.("change", mediaQueryListener);
+    }
+  }
 
   function togglePlayback(): void {
     if (isPlaying) diagram.pause();
@@ -1147,6 +1320,40 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       } finally {
         diagram.seek(resumeAt / 1000);
         if (wasPlaying) diagram.play();
+      }
+    });
+    toolbar.appendChild(button);
+  }
+
+  function mountGifControl(toolbar: HTMLElement): void {
+    if (!gifButton) return;
+    const button = makeControlButton("GIF", "Export diagram as animated GIF", ICONS.gif);
+    button.className = "markdy-control-gif";
+    let exporting = false;
+    button.addEventListener("click", async () => {
+      if (exporting) return;
+      exporting = true;
+      flashControlLabel(button, "Recording...");
+      button.setAttribute("disabled", "true");
+      try {
+        const blob = await diagram.exportGif();
+        const name = (plan.title || "markdy-diagram").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `${name || "markdy-diagram"}.gif`;
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        flashControlLabel(button, "Saved");
+      } catch (error) {
+        onWarning({ severity: "warning", message: `GIF export failed: ${String(error)}`, line: 0 });
+        flashControlLabel(button, "Failed");
+      } finally {
+        exporting = false;
+        button.removeAttribute("disabled");
       }
     });
     toolbar.appendChild(button);
@@ -1632,7 +1839,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       mountFullscreenControl(toolsGroup);
     }
 
-    if (svgButton || shareButton || codeButton || themeButton) {
+    if (svgButton || gifButton || shareButton || codeButton || themeButton) {
       if (toolsGroup.children.length > 0) {
         const divider = document.createElement("div");
         divider.className = "markdy-control-divider";
@@ -1640,6 +1847,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       }
       mountThemeControl(toolsGroup);
       mountSvgControl(toolsGroup);
+      mountGifControl(toolsGroup);
       mountShareControl(toolsGroup);
       mountCodeControl(toolsGroup);
     }

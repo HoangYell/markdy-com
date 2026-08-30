@@ -1,7 +1,7 @@
 # concurrency-decision-flowchart.markdy
 # Decision Flowchart for High-Concurrency Backend Architecture
 
-scene "Python Concurrency Decision Flowchart" theme=editorial type=flowchart width=1300 height=760
+scene "Python Concurrency Decision Flowchart" theme=auto type=flowchart width=1300 height=760
 layout LR
 
 start Start "Workload Ingress"

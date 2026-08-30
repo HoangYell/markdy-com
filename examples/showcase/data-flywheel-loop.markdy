@@ -1,7 +1,7 @@
 # data-flywheel-loop.markdy
 # Distributed Anti-Entropy Gossip Consensus Convergence Loop
 
-scene "Gossip Protocol Anti-Entropy Convergence Loop" theme=paper type=flywheel width=1280 height=760
+scene "Gossip Protocol Anti-Entropy Convergence Loop" theme=auto type=flywheel width=1280 height=760
 
 hub ConvergenceCore "Gossip Anti-Entropy Core" focal=true
 service NodeMutation "1. Local State Mutation"

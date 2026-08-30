@@ -714,7 +714,7 @@ function validateReferences(ast: DiagramAST): void {
   }
 
   for (const node of Object.values(ast.nodes)) {
-    if (node.style && !ast.styles[node.style]) {
+    if (typeof node.style === "string" && !ast.styles[node.style]) {
       pushWarning(ast.diagnostics, seen, node.line, `node '${node.id}' references unknown style '${node.style}'`);
     }
   }
@@ -837,6 +837,7 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
     height: 720,
     fps: 60,
     theme: "paper",
+    explicitTheme: false,
     direction: "LR",
   };
   const styles: Record<string, StyleDecl> = {};
@@ -972,8 +973,11 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
         } else if (k === "fps") {
           meta.fps = Number(v);
         } else if (k === "duration") meta.duration = Number(v);
-        else if (k === "theme") meta.theme = String(v);
-        else if (k === "direction" || k === "layout") meta.direction = String(v).toUpperCase() as LayoutDirection;
+        else if (k === "theme") {
+          const val = String(v).toLowerCase();
+          meta.theme = val;
+          meta.explicitTheme = val !== "auto";
+        } else if (k === "direction" || k === "layout") meta.direction = String(v).toUpperCase() as LayoutDirection;
         else if (PLAYER_FLAT_KEY_SET.has(k)) {
           const error = applyPlayerSetting((meta.player ??= {}), "player", k, String(v));
           if (error) diagnostics.push({ severity: "warning", message: error, line: lineNo });
@@ -988,6 +992,17 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
             }
           }
         }
+      }
+      i++;
+      continue;
+    }
+
+    if (/^theme\s*[:=]?\s*([a-zA-Z0-9_-]+)/i.test(line)) {
+      const match = line.match(/^theme\s*[:=]?\s*([a-zA-Z0-9_-]+)/i);
+      if (match) {
+        const val = match[1].toLowerCase();
+        meta.theme = val;
+        meta.explicitTheme = val !== "auto";
       }
       i++;
       continue;

@@ -702,7 +702,10 @@ export function createNodeEl(node: PositionedNode, theme: ThemeTokens, assets?: 
   const el = document.createElement("div");
   el.className = "markdy-node markdy-scene-node";
   el.dataset.node = node.id;
-  el.dataset.role = node.role;
+  el.dataset.nodeId = node.id;
+  el.setAttribute("data-node-id", node.id);
+  el.setAttribute("data-node", node.id);
+  el.id = `node-${node.id}`;
   el.style.left = `${node.x}px`;
   el.style.top = `${node.y}px`;
   el.style.setProperty("--md-node-w", `${node.width}px`);

@@ -1,4 +1,4 @@
-scene "Continuous Integration & Automated Canary Delivery" theme=paper width=1600 height=740
+scene "Continuous Integration & Automated Canary Delivery" theme=auto width=1600 height=740
 layout LR
 
 user Developer "Software Engineer"

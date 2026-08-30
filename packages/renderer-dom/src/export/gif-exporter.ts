@@ -24,6 +24,9 @@ export interface GifDiagramExportOptions extends SvgExportOptions {
   fps?: number;
   pixelRatio?: number;
   loop?: boolean;
+  dither?: boolean;
+  holdEndMs?: number;
+  onProgress?: (progress: number, currentFrame: number, totalFrames: number) => void;
 }
 
 const nextFrame = () => new Promise<void>((resolve) => {
@@ -39,7 +42,8 @@ const nextFrame = () => new Promise<void>((resolve) => {
     finish();
   }));
 });
-const DEFAULT_GIF_PIXEL_RATIO = 0.3;
+const DEFAULT_GIF_PIXEL_RATIO = 0.8;
+const DEFAULT_GIF_FPS = 8;
 const MAX_GIF_FRAMES = 24;
 
 /**
@@ -60,40 +64,52 @@ export async function exportDiagramAsGif(
   timeline: TimelineController,
   options: GifDiagramExportOptions = {},
 ): Promise<Blob> {
-  const requestedFps = Math.min(24, Math.max(1, Math.round(options.fps ?? 12)));
-  const duration = timeline.duration();
-  const fps = Math.min(requestedFps, MAX_GIF_FRAMES / Math.max(duration, 0.001));
+  const requestedFps = Math.min(15, Math.max(1, Math.round(options.fps ?? DEFAULT_GIF_FPS)));
+  const rawDuration = timeline.duration();
+  const duration = Math.max(Number.isFinite(rawDuration) ? rawDuration : 1, 0.1);
+  const fps = Math.min(requestedFps, Math.max(2, Math.round(MAX_GIF_FRAMES / duration)));
   const frameCount = Math.max(1, Math.ceil(duration * fps));
-  const delayMs = Math.max(20, Math.round(1000 / fps));
+  const delayMs = Math.max(50, Math.round(1000 / fps));
   const pixelRatio = options.pixelRatio ?? DEFAULT_GIF_PIXEL_RATIO;
+  const holdEndMs = Math.max(delayMs, options.holdEndMs ?? 1000);
   const priorTime = timeline.currentTime();
   const wasPlaying = timeline.isPlaying();
   timeline.pause();
 
   try {
     const frames = [];
-    timeline.seek(duration);
-    await nextFrame();
-    frames.push({ imageData: await rasterizeFrame(container, pixelRatio, options), delayMs: Math.max(delayMs, 800) });
+    const totalFrames = frameCount + 1;
 
     for (let frame = 0; frame < frameCount; frame++) {
       timeline.seek(Math.min(duration, frame / fps));
       await nextFrame();
+      const imageData = await rasterizeFrame(container, pixelRatio, options);
       frames.push({
-        imageData: await rasterizeFrame(container, pixelRatio, options),
+        imageData,
         delayMs,
       });
+      options.onProgress?.(frames.length / totalFrames, frames.length, totalFrames);
     }
-    // Keep the completed scene on screen long enough to read naturally.
+
+    // Keep the completed scene on screen long enough to read naturally before looping.
     timeline.seek(duration);
     await nextFrame();
-    frames.push({ imageData: await rasterizeFrame(container, pixelRatio, options), delayMs: Math.max(delayMs, 800) });
-    const encoded = encodeGifSequence(frames, { dither: true, loop: options.loop ?? true });
+    const finalImageData = await rasterizeFrame(container, pixelRatio, options);
+    frames.push({
+      imageData: finalImageData,
+      delayMs: holdEndMs,
+    });
+    options.onProgress?.(1, totalFrames, totalFrames);
+
+    const encoded = encodeGifSequence(frames, {
+      dither: options.dither ?? false,
+      loop: options.loop ?? true,
+    });
     // Copy into an ArrayBuffer-backed view: TS permits the encoder's generic
     // ArrayBufferLike view to include SharedArrayBuffer, which Blob does not.
     const bytes = new Uint8Array(encoded.byteLength);
     bytes.set(encoded);
-    return new Blob([bytes.buffer], { type: "image/gif" });
+    return new Blob([bytes], { type: "image/gif" });
   } finally {
     timeline.seek(priorTime);
     if (wasPlaying) timeline.play();

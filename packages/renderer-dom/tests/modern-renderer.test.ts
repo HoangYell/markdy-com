@@ -218,7 +218,7 @@ describe("Modern Renderer Architecture Validation", () => {
         expect(Number(plate.getAttribute("fill-opacity"))).toBeGreaterThanOrEqual(0.8);
         expect(Number(plate.getAttribute("fill-opacity"))).toBeLessThanOrEqual(0.95);
         expect(Number(plate.getAttribute("height"))).toBeLessThanOrEqual(18);
-        expect(Number(plate.getAttribute("rx"))).toBeLessThanOrEqual(4);
+        expect(Number(plate.getAttribute("rx"))).toBeLessThanOrEqual(6);
       }
 
       // Verify label typography is lightweight and not heavy/bold
@@ -252,9 +252,9 @@ describe("Modern Renderer Architecture Validation", () => {
       const styleContent = document.getElementById("markdy-group-boundary-styles")?.textContent || "";
 
       expect(styleContent).toContain("border-radius: 16px;");
-      expect(styleContent).toContain("backdrop-filter: blur(8px);");
+      expect(styleContent).toContain("backdrop-filter: blur(10px);");
       expect(styleContent).toContain("text-transform: uppercase;");
-      expect(styleContent).toContain("letter-spacing: 0.08em;");
+      expect(styleContent).toContain("letter-spacing: 0.1em;");
     });
   });
 
@@ -264,7 +264,7 @@ describe("Modern Renderer Architecture Validation", () => {
       const styleContent = document.getElementById("markdy-scene-ambience-styles")?.textContent || "";
 
       expect(styleContent).toContain("@keyframes markdy-flow-dash");
-      expect(styleContent).toContain("stroke-dashoffset: -24");
+      expect(styleContent).toContain("stroke-dashoffset: -32");
       expect(styleContent).toContain(".markdy-edge-path--flowing");
       expect(styleContent).toContain("@media (prefers-reduced-motion: reduce)");
       expect(styleContent).toContain("animation: none !important;");

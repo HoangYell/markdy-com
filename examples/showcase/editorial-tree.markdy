@@ -1,4 +1,4 @@
-scene "Organizational Leadership & Hierarchy Tree" theme=editorial type=tree width=1280 height=720
+scene "Organizational Leadership & Hierarchy Tree" theme=auto type=tree width=1280 height=720
 layout TB
 
 service CEO "Chief Executive Officer"

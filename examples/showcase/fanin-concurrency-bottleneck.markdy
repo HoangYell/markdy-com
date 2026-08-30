@@ -1,7 +1,7 @@
 # fanin-concurrency-bottleneck.markdy
 # Demonstrates Fan-In Concurrency & Constrained Bottleneck Queue Pattern.
 
-scene "High-Throughput Fan-In Queue & Batch Bottleneck" theme=paper width=1200 height=800
+scene "High-Throughput Fan-In Queue & Batch Bottleneck" theme=auto width=1200 height=800
 layout LR
 
 service ProducerA "Payment Ingestion Worker"

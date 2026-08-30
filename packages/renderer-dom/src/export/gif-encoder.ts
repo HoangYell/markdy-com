@@ -95,80 +95,139 @@ function quantizeFrame(imageData: ImageData, dither: boolean): Uint8Array {
   return out;
 }
 
+const BITS = 12;
+const HSIZE = 5003;
+const MASKS = [
+  0x0000, 0x0001, 0x0003, 0x0007, 0x000f, 0x001f, 0x003f, 0x007f,
+  0x00ff, 0x01ff, 0x03ff, 0x07ff, 0x0fff, 0x1fff, 0x3fff, 0x7fff, 0xffff,
+];
+
 function lzwCompress(pixels: Uint8Array, minCodeSize = 8): Uint8Array {
-  const clearCode = 1 << minCodeSize;
-  const endCode = clearCode + 1;
-  let codeSize = minCodeSize + 1;
-  let nextCode = endCode + 1;
-  let dict = new Map<string, number>();
+  const out: number[] = [];
+  const accum = new Uint8Array(256);
+  const htab = new Int32Array(HSIZE);
+  const codetab = new Int32Array(HSIZE);
 
-  for (let i = 0; i < clearCode; i++) {
-    dict.set(String(i), i);
+  htab.fill(-1);
+  codetab.fill(0);
+
+  const init_bits = minCodeSize + 1;
+  const g_init_bits = init_bits;
+
+  let clear_flg = false;
+  let n_bits = g_init_bits;
+  let maxcode = (1 << n_bits) - 1;
+
+  const ClearCode = 1 << minCodeSize;
+  const EOFCode = ClearCode + 1;
+  let free_ent = ClearCode + 2;
+  let a_count = 0;
+
+  let cur_accum = 0;
+  let cur_bits = 0;
+
+  let ent = pixels[0] ?? 0;
+
+  let hshift = 0;
+  for (let fcode = HSIZE; fcode < 65536; fcode *= 2) {
+    ++hshift;
   }
+  hshift = 8 - hshift;
 
-  const codes: number[] = [clearCode];
-  let prefix = String(pixels[0] ?? 0);
+  // LZW Minimum Code Size
+  out.push(minCodeSize);
 
-  for (let i = 1; i < pixels.length; i++) {
-    const suffix = String(pixels[i]);
-    const combo = `${prefix},${suffix}`;
-    if (dict.has(combo)) {
-      prefix = combo;
-      continue;
-    }
+  output(ClearCode);
 
-    codes.push(dict.get(prefix)!);
-    dict.set(combo, nextCode++);
-    prefix = suffix;
+  for (let idx = 1; idx < pixels.length; idx++) {
+    next_block: {
+      const c = pixels[idx];
+      const fcode = (c << BITS) + ent;
+      let i = (c << hshift) ^ ent;
 
-    if (nextCode === 1 << codeSize && codeSize < 12) {
-      codeSize++;
-    }
+      if (htab[i] === fcode) {
+        ent = codetab[i];
+        break next_block;
+      }
 
-    if (nextCode >= 4096) {
-      codes.push(clearCode);
-      dict = new Map();
-      for (let j = 0; j < clearCode; j++) dict.set(String(j), j);
-      codeSize = minCodeSize + 1;
-      nextCode = endCode + 1;
-    }
-  }
+      const disp = i === 0 ? 1 : HSIZE - i;
+      while (htab[i] >= 0) {
+        i -= disp;
+        if (i < 0) i += HSIZE;
+        if (htab[i] === fcode) {
+          ent = codetab[i];
+          break next_block;
+        }
+      }
 
-  codes.push(dict.get(prefix)!);
-  codes.push(endCode);
-
-  const bytes: number[] = [];
-  let bitBuffer = 0;
-  let bitCount = 0;
-  codeSize = minCodeSize + 1;
-  nextCode = endCode + 1;
-
-  for (const code of codes) {
-    bitBuffer |= code << bitCount;
-    bitCount += codeSize;
-
-    while (bitCount >= 8) {
-      bytes.push(bitBuffer & 0xff);
-      bitBuffer >>= 8;
-      bitCount -= 8;
-    }
-
-    if (code === clearCode) {
-      codeSize = minCodeSize + 1;
-      nextCode = endCode + 1;
-    } else if (code !== endCode) {
-      nextCode++;
-      if (nextCode === 1 << codeSize && codeSize < 12) {
-        codeSize++;
+      output(ent);
+      ent = c;
+      if (free_ent < (1 << BITS)) {
+        codetab[i] = free_ent++;
+        htab[i] = fcode;
+      } else {
+        htab.fill(-1);
+        free_ent = ClearCode + 2;
+        clear_flg = true;
+        output(ClearCode);
       }
     }
   }
 
-  if (bitCount > 0) {
-    bytes.push(bitBuffer & 0xff);
-  }
+  output(ent);
+  output(EOFCode);
 
-  return new Uint8Array(bytes);
+  out.push(0); // Sub-block terminator
+  return new Uint8Array(out);
+
+  function output(code: number) {
+    cur_accum &= MASKS[cur_bits];
+
+    if (cur_bits > 0) cur_accum |= code << cur_bits;
+    else cur_accum = code;
+
+    cur_bits += n_bits;
+
+    while (cur_bits >= 8) {
+      accum[a_count++] = cur_accum & 0xff;
+      if (a_count >= 254) {
+        out.push(a_count);
+        for (let j = 0; j < a_count; j++) out.push(accum[j]);
+        a_count = 0;
+      }
+      cur_accum >>= 8;
+      cur_bits -= 8;
+    }
+
+    if (free_ent > maxcode || clear_flg) {
+      if (clear_flg) {
+        n_bits = g_init_bits;
+        maxcode = (1 << n_bits) - 1;
+        clear_flg = false;
+      } else {
+        ++n_bits;
+        maxcode = n_bits === BITS ? (1 << n_bits) : (1 << n_bits) - 1;
+      }
+    }
+
+    if (code === EOFCode) {
+      while (cur_bits > 0) {
+        accum[a_count++] = cur_accum & 0xff;
+        if (a_count >= 254) {
+          out.push(a_count);
+          for (let j = 0; j < a_count; j++) out.push(accum[j]);
+          a_count = 0;
+        }
+        cur_accum >>= 8;
+        cur_bits -= 8;
+      }
+      if (a_count > 0) {
+        out.push(a_count);
+        for (let j = 0; j < a_count; j++) out.push(accum[j]);
+        a_count = 0;
+      }
+    }
+  }
 }
 
 export interface AnimationRecordFrame {
@@ -190,7 +249,7 @@ export function encodeGifSequence(
   }
 
   const { width, height } = frames[0].imageData;
-  const dither = options.dither ?? true;
+  const dither = options.dither ?? false;
   const buffer: number[] = [];
 
   const pushString = (str: string) => {
@@ -222,7 +281,7 @@ export function encodeGifSequence(
 
   for (const frame of frames) {
     const quantized = quantizeFrame(frame.imageData, dither);
-    const compressed = lzwCompress(quantized);
+    const compressedWithHeader = lzwCompress(quantized);
 
     // Graphic Control Extension
     const delayHundredths = Math.max(2, Math.round(frame.delayMs / 10));
@@ -238,13 +297,10 @@ export function encodeGifSequence(
     pushU16(height);
     buffer.push(0x00); // Local color table flag
 
-    // Image Data
-    buffer.push(0x08); // LZW minimum code size
-    for (let offset = 0; offset < compressed.length; offset += 255) {
-      const chunk = compressed.slice(offset, offset + 255);
-      buffer.push(chunk.length, ...chunk);
+    // Image Data (includes minCodeSize, sub-blocks, and 0x00 terminator)
+    for (let i = 0; i < compressedWithHeader.length; i++) {
+      buffer.push(compressedWithHeader[i]);
     }
-    buffer.push(0x00); // Block terminator
   }
 
   // GIF Trailer

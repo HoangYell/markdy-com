@@ -1,7 +1,7 @@
 # oauth-pkce-sequence.markdy
 # OAuth 2.0 PKCE & OIDC Authentication Sequence
 
-scene "OAuth 2.0 PKCE Handshake Sequence" theme=editorial type=sequence width=1280 height=760
+scene "OAuth 2.0 PKCE Handshake Sequence" theme=auto type=sequence width=1280 height=760
 layout LR
 
 participant BrowserApp "Single Page App (Browser)"

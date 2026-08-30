@@ -50,6 +50,7 @@ export type PlayerControlsConfig = {
   resetView?: boolean;
   fullscreen?: boolean;
   svg?: boolean;
+  gif?: boolean;
   share?: boolean;
   /** Show the MarkdyScript source code when clicked. */
   code?: boolean;
@@ -104,6 +105,8 @@ export type SceneMeta = {
   explicitWidth?: boolean;
   /** Whether height was explicitly specified by the author in the script. */
   explicitHeight?: boolean;
+  /** Whether theme was explicitly specified by the author in the script. */
+  explicitTheme?: boolean;
   /** Opt-in diagram mode; defaults to architecture. */
   type?: DiagramType;
   /** Playback, controls, interaction, and chrome behavior. Source of truth. */

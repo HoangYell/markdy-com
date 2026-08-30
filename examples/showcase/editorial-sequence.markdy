@@ -1,4 +1,4 @@
-scene "Editorial Authentication Sequence Flow" theme=editorial type=sequence width=1280 height=720
+scene "Editorial Authentication Sequence Flow" theme=auto type=sequence width=1280 height=720
 layout LR
 
 participant Browser "Web Browser"

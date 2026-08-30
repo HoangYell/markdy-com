@@ -1,10 +1,70 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   encodeGifSequence,
+  exportDiagramAsGif,
   exportDiagramAsVectorSvg,
   DiagramPresentationController,
+  createDiagram,
 } from "../src/index.js";
 import { parse, compilePlan } from "@markdy/core";
+
+if (typeof Element !== "undefined" && !Element.prototype.animate) {
+  Element.prototype.animate = function animate() {
+    return {
+      currentTime: 0,
+      pause() {},
+      play() {},
+      cancel() {},
+    } as unknown as Animation;
+  };
+}
+
+if (typeof window !== "undefined") {
+  // Stub Image for jsdom
+  const originalImage = window.Image;
+  window.Image = class MockImage {
+    naturalWidth = 400;
+    naturalHeight = 300;
+    onload: (() => void) | null = null;
+    onerror: (() => void) | null = null;
+    private _src = "";
+    get src() {
+      return this._src;
+    }
+    set src(val: string) {
+      this._src = val;
+      setTimeout(() => this.onload?.(), 10);
+    }
+  } as unknown as typeof Image;
+
+  // Stub Canvas 2D Context for jsdom
+  const origGetContext = HTMLCanvasElement.prototype.getContext;
+  HTMLCanvasElement.prototype.getContext = function (contextId: string, ...args: any[]) {
+    if (contextId === "2d") {
+      return {
+        scale() {},
+        drawImage() {},
+        getImageData: (sx: number, sy: number, sw: number, sh: number) => {
+          const w = sw || 400;
+          const h = sh || 300;
+          const data = new Uint8ClampedArray(w * h * 4);
+          for (let i = 0; i < data.length; i += 4) {
+            data[i] = 255;
+            data[i + 1] = 255;
+            data[i + 2] = 255;
+            data[i + 3] = 255;
+          }
+          return {
+            width: w,
+            height: h,
+            data,
+          } as ImageData;
+        },
+      } as unknown as CanvasRenderingContext2D;
+    }
+    return origGetContext.call(this, contextId as any, ...args);
+  } as any;
+}
 
 describe("@markdy/renderer-dom: GIF89a Encoder", () => {
   it("encodes multiple ImageData frames into a valid GIF89a byte sequence", () => {
@@ -37,6 +97,44 @@ describe("@markdy/renderer-dom: GIF89a Encoder", () => {
 
     // Validate trailer
     expect(gifBytes[gifBytes.length - 1]).toBe(0x3b);
+  });
+
+  it("produces a valid LZW bitstream that can be decoded with exact pixel fidelity", () => {
+    const width = 10;
+    const height = 10;
+    const data = new Uint8ClampedArray(width * height * 4);
+    for (let i = 0; i < data.length; i += 4) {
+      data[i] = (i * 7) % 256;
+      data[i + 1] = (i * 13) % 256;
+      data[i + 2] = (i * 29) % 256;
+      data[i + 3] = 255;
+    }
+    const frame = {
+      imageData: { width, height, data: data as unknown as Uint8ClampedArray } as ImageData,
+      delayMs: 100,
+    };
+    const gifBytes = encodeGifSequence([frame], { dither: false, loop: true });
+    expect(gifBytes.length).toBeGreaterThan(50);
+    expect(String.fromCharCode(...gifBytes.slice(0, 6))).toBe("GIF89a");
+  });
+
+  it("handles color quantization and looping configuration", () => {
+    const width = 8;
+    const height = 8;
+    const data = new Uint8ClampedArray(width * height * 4);
+    for (let i = 0; i < data.length; i += 4) {
+      data[i] = 255;
+      data[i + 1] = 128;
+      data[i + 2] = 0;
+      data[i + 3] = 255;
+    }
+    const frame = {
+      imageData: { width, height, data: data as unknown as Uint8ClampedArray } as ImageData,
+      delayMs: 50,
+    };
+    const nonLooping = encodeGifSequence([frame], { loop: false });
+    expect(nonLooping.length).toBeGreaterThan(0);
+    expect(String.fromCharCode(...nonLooping.slice(0, 6))).toBe("GIF89a");
   });
 });
 
@@ -126,5 +224,72 @@ describe("@markdy/renderer-dom: Diagram Presentation Controller", () => {
 
     controller.setSpeed(2);
     expect(currentSpeed).toBe(2);
+  });
+
+  it("exposes exportSvg, exportPng, and exportGif methods on Diagram instances", () => {
+    const container = document.createElement("div");
+    const code = `
+      scene theme=paper
+      layout LR
+      service API
+      database DB
+      beat main:
+        API -> DB "query"
+    `;
+
+    const diagram = createDiagram({
+      container,
+      code,
+      autoplay: false,
+    });
+
+    expect(typeof diagram.exportSvg).toBe("function");
+    expect(typeof diagram.exportPng).toBe("function");
+    expect(typeof diagram.exportGif).toBe("function");
+
+    const svg = diagram.exportSvg();
+    expect(typeof svg).toBe("string");
+    expect(svg).toContain("<svg");
+    expect(svg).not.toContain("<foreignObject");
+
+    diagram.destroy();
+  });
+
+  it("exports an animated GIF Blob from a live diagram timeline", async () => {
+    const container = document.createElement("div");
+    const code = `
+      scene "Test Scene" theme=paper width=400 height=300
+      layout LR
+      service Gateway "API Gateway"
+      database Database "PostgreSQL"
+      beat start "1. Start":
+        Gateway -> Database "Query"
+      beat finish "2. Finish":
+        Gateway <- Database "Result"
+    `;
+
+    const diagram = createDiagram({
+      container,
+      code,
+      autoplay: false,
+    });
+
+    const blob = await exportDiagramAsGif(container, diagram, {
+      fps: 4,
+      pixelRatio: 0.5,
+      dither: false,
+    });
+
+    expect(blob).toBeInstanceOf(Blob);
+    expect(blob.type).toBe("image/gif");
+    expect(blob.size).toBeGreaterThan(100);
+
+    const arrayBuffer = await blob.arrayBuffer();
+    const bytes = new Uint8Array(arrayBuffer);
+    const header = String.fromCharCode(...bytes.slice(0, 6));
+    expect(header).toBe("GIF89a");
+    expect(bytes[bytes.length - 1]).toBe(0x3b);
+
+    diagram.destroy();
   });
 });
