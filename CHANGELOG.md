@@ -5,6 +5,37 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] — 2026-08-30
+
+### Added & Enhanced
+- **🎨 Theme Ecosystem Expansion (10 Built-in Themes)**:
+  - Added **`ink`** theme: Classic technical blueprint and deep monochrome ink-wash aesthetic with sharp high-contrast strokes.
+  - Added **`draft`** theme: Architectural drafting aesthetic featuring subtle engineering gridlines, paper textures, and graphite pencil accents.
+  - Added **`doodle`** theme: Organic hand-drawn marker aesthetic with playful curves and relaxed typography.
+  - Theme library now spans 10 cohesive styles: `paper` (default), `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `sketchy`, `terminal`, `ink`, and `doodle`.
+  - Full synchronization across `@markdy/core`, compiler, Intellicode autocomplete, syntax diagnostics, `@markdy/renderer-dom`, SVG exporter, `@markdy/mcp-server`, `markdy-vscode` extension, Web Studio Playground, and documentation.
+- **🎞️ Native Animated GIF Export Engine (`@markdy/renderer-dom`, `@markdy/website`, `markdy-vscode`)**:
+  - Integrated high-performance client-side NeuQuant color quantizer and LZW GIF encoder (`gif-encoder.ts` & `gif-exporter.ts`).
+  - Added **Export to Animated GIF** in Web Studio Playground with configurable framerate, scale, and capture progress tracking.
+  - Added `markdy.exportGif` command and webview bridge in the VS Code / Cursor / Windsurf extension for 1-click GIF recordings.
+- **📐 Standalone Vector SVG Exporter Overhaul (`@markdy/renderer-dom`)**:
+  - Completely overhauled SVG exporter to emit pure, self-contained vector SVGs with embedded CSS styles, fonts, linear gradients, and exact geometry coordinates.
+  - Eliminated `foreignObject` dependencies, ensuring seamless vector rendering in Figma, Google Slides, GitHub READMEs, and headless rasterizers.
+- **🔀 Smart Obstacle Avoidance & Multi-Line Flow Wrapping**:
+  - Added dynamic obstacle avoidance algorithms in `geometry/path.ts` and `edges.ts` to route connector paths smoothly around intervening node cards.
+  - Intelligent multi-line label wrapping on flow connectors to prevent text collisions on dense multi-lane architectures.
+- **🏷️ Rich Node Layouts & Technology Badges**:
+  - Added `tech` metadata badges and improved content layout structuring for node components (`nodes.ts`).
+  - Harmonized icon dimensions, padding, and corner radii across compute, storage, messaging, security, and network node kinds.
+- **📐 Adaptive Multi-Tier Auto-Sizing & Host Theme Detection**:
+  - Auto-scaling bounding box calculator for single-row pipelines and complex multi-rank diagrams, removing the requirement for manual `width` and `height` scene directives.
+  - Symmetrical vertical and horizontal margin balancing for dynamic scenes.
+  - Added host theme detection to mount diagrams in matching light/dark mode environments automatically.
+- **🤖 AI-First Diagram Workflow & Ecosystem Integration**:
+  - Published comprehensive AI workflow architecture guides with vector illustrations (`ai-paradigm-flow.svg`).
+  - Synchronized MCP server tooling, prompt libraries, and AI subagent debug skills.
+  - Replaced legacy marketplace badges with active `vsmarketplacebadges.dev` and Open VSX badges.
+
 ## [1.1.7] — 2026-08-30
 
 ### Updated & Polished
