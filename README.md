@@ -35,6 +35,32 @@
 
 ---
 
+## 🤖 The AI-First Paradigm: You Don't Write Code, AI Agents Do
+
+> **Markdy is architected specifically for the AI Agent era.**  
+> Humans shouldn't spend hours hand-drawing static architecture boxes, connecting arrows, or wrestling with complex visual layout tools.  
+> **You describe your system flow in natural language → your AI Coding Agent consumes the Markdy spec → producing 60fps kinetic animations.**
+
+```mermaid
+flowchart LR
+    A["🧑‍💻 Developer Prompt<br/><i>'Design a cache-aside flow with Redis & Postgres'</i>"] --> B["🤖 AI Coding Agent<br/><i>Cursor · Claude · Copilot · Antigravity</i>"]
+    B -->|"Generates MarkdyScript"| C["📄 Living DSL Scene<br/><i>Strict, cycle-safe grammar</i>"]
+    C -->|"Renders at 60fps"| D["🎬 WAAPI Motion Diagram<br/><i>Browser-native kinetic story</i>"]
+```
+
+### The 3-Step AI Workflow:
+
+1. **Equip Your AI Agent with Markdy Context:**
+   - **Via MCP Server:** Install `@markdy/mcp-server` into Cursor, VS Code, Claude, Antigravity, or Cline ([1-Click Install ↗](https://markdy.com/mcp/cursor)).
+   - **Via Workspace Rules / Context:** Include [`AGENT.md`](docs/AGENT.md) in your workspace rules (`.cursorrules`, `CLAUDE.md`, `.agent/rules.md`), or reference [`https://markdy.com/llms-full.txt`](https://markdy.com/llms-full.txt).
+2. **Describe Your System Architecture in Plain English:**
+   > *"Generate an animated Markdy diagram for our distributed payment processor: Client sends request to API Gateway, Gateway dispatches to Payment Service, Payment Service writes to Postgres, syncs with Redis cache, and emits an async event to Kafka."*
+3. **Instant 60fps Kinetic Choreography:**
+   - The AI Agent generates complete, valid MarkdyScript with semantic nodes, directional flows (`->`, `<-`, `~>`), and animated `beat` timelines.
+   - Preview immediately side-by-side in VS Code / Cursor with **`Cmd+K V`** or paste into the **[Markdy Web Studio](https://markdy.com/playground/)**.
+
+---
+
 ## ⚡ Why Markdy?
 
 Static boxes and arrows fail to capture distributed systems in action. **Markdy turns text into choreographed 60fps motion graphics** directly in your browser.
@@ -45,6 +71,142 @@ Static boxes and arrows fail to capture distributed systems in action. **Markdy 
 - 🔄 **Universal Ingestion**: 1-click migration from Mermaid, Draw.io, Docker Compose, Kubernetes manifests, and Terraform states.
 - 🤖 **AI-Native & MCP**: Official Model Context Protocol (MCP) server for Claude, Cursor, Antigravity, and Cline with self-healing syntax diagnostics.
 - 🛡️ **Architecture Governance**: Built-in rules prevent deadlock cycles and cross-layer bypasses.
+
+---
+
+## 📦 Installation & Integrations
+
+Choose your environment to get started with Markdy in seconds:
+
+<details open>
+<summary><b>🤖 AI Coding Agents &amp; MCP Server (Recommended)</b></summary>
+<br>
+
+Equip Claude, Cursor, Antigravity, VS Code, Cline, Windsurf, or Zed with self-healing syntax diagnostics, auto-repair, and transpilers:
+
+```bash
+# Claude Code / CLI
+claude mcp add markdy -- npx -y @markdy/mcp-server
+
+# Google Antigravity & Gemini CLI
+agy mcp add markdy -- npx -y @markdy/mcp-server
+```
+
+👉 **[1-Click Install for Cursor ↗](https://markdy.com/mcp/cursor)** &nbsp;•&nbsp; **[1-Click Install for VS Code ↗](https://markdy.com/mcp/vscode)** &nbsp;•&nbsp; **[Detailed AI Setup Guide (`AGENT.md`) ↗](docs/AGENT.md)**
+</details>
+
+<details open>
+<summary><b>🔌 IDE Extensions (VS Code, Cursor, Windsurf, VSCodium)</b></summary>
+<br>
+
+Live side-by-side animated preview (`Cmd+K V`), syntax highlighting, auto-completion, error squiggles, and SVG/PNG export:
+
+```bash
+# Visual Studio Code
+code --install-extension hoangyell.markdy-vscode
+
+# Cursor / VSCodium (Open VSX Registry)
+cursor --install-extension hoangyell.markdy-vscode
+```
+
+👉 **[VS Code Marketplace ↗](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode)** &nbsp;•&nbsp; **[Open VSX Registry ↗](https://open-vsx.org/extension/hoangyell/markdy-vscode)** &nbsp;•&nbsp; **[Extension Docs ↗](packages/vscode/README.md)**
+</details>
+
+<details>
+<summary><b>⚡ Terminal CLI &amp; Migration Suite (`@markdy/cli`, `@markdy/compat`)</b></summary>
+<br>
+
+Render standalone HTML diagrams, run linting in CI/CD, or convert legacy Mermaid, Draw.io, Docker Compose, Kubernetes, and Terraform configs:
+
+```bash
+# Global install
+npm install -g @markdy/cli
+
+# Render diagram to animated HTML or SVG
+markdy render system.markdy --out diagram.html
+
+# Transpile Mermaid / Docker Compose / Kubernetes to Markdy
+markdy import flow.mmd --out flow.markdy
+```
+
+👉 **[CLI Package Guide ↗](packages/cli/README.md)** &nbsp;•&nbsp; **[Compat Transpiler Guide ↗](packages/compat/README.md)**
+</details>
+
+<details>
+<summary><b>🌐 JavaScript / TypeScript Runtime (`@markdy/core`, `@markdy/renderer-dom`)</b></summary>
+<br>
+
+Integrate the ~14 kB parser and 60fps WAAPI rendering engine directly into your web applications, dashboards, or custom tooling:
+
+```bash
+pnpm add @markdy/core @markdy/renderer-dom
+# or
+npm install @markdy/core @markdy/renderer-dom
+```
+
+```ts
+import { compile } from '@markdy/core';
+import { createDiagram } from '@markdy/renderer-dom';
+
+const { ast } = compile(markdyScriptCode);
+const diagram = createDiagram(containerElement, ast);
+diagram.play();
+```
+
+👉 **[@markdy/core Docs ↗](packages/core/README.md)** &nbsp;•&nbsp; **[@markdy/renderer-dom Docs ↗](packages/renderer-dom/README.md)**
+</details>
+
+<details>
+<summary><b>🚀 Astro Integration (`@markdy/astro`)</b></summary>
+<br>
+
+Zero-CLS, SSR-placeholder islands with viewport-triggered lazy hydration for Astro documentation sites and blogs:
+
+```bash
+pnpm add @markdy/astro
+```
+
+```astro
+---
+import { Markdy } from "@markdy/astro";
+import code from "./diagram.markdy?raw";
+---
+
+<Markdy code={code} client:visible />
+```
+
+👉 **[@markdy/astro Package Guide ↗](packages/astro/README.md)**
+</details>
+
+<details>
+<summary><b>📝 MDX / React / Next.js Integration (`@markdy/mdx`)</b></summary>
+<br>
+
+Render fenced ```markdy code blocks directly inside `.mdx` files with automatic lazy loading:
+
+```bash
+pnpm add @markdy/mdx react react-dom
+```
+
+```ts
+// mdx.config.js
+import { remarkMarkdy } from "@markdy/mdx";
+
+export default {
+  remarkPlugins: [[remarkMarkdy, { componentName: "MarkdyDiagram" }]],
+};
+```
+
+👉 **[@markdy/mdx Package Guide ↗](packages/mdx/README.md)**
+</details>
+
+<details>
+<summary><b>🏗️ Systems Vocabulary &amp; Language Server (`@markdy/stdlib-systems`, `@markdy/language-server`)</b></summary>
+<br>
+
+- **[`@markdy/stdlib-systems`](packages/stdlib-systems/README.md)**: Standard library of semantic cloud and distributed systems node kinds.
+- **[`@markdy/language-server`](packages/markdy-language-server/README.md)**: Headless LSP for custom editor integrations (Neovim, Helix, Emacs).
+</details>
 
 ---
 
