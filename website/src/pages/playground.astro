@@ -163,31 +163,31 @@ const playgroundStructuredData = [
       </div>
     </nav>
 
+    <p id="studio-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></p>
+
+    <!-- ── Onboarding Quick Start Banner ── -->
+    <div id="studio-onboarding-banner" class="studio-onboarding-banner" role="region" aria-label="Studio Quick Start">
+      <div class="onboarding-steps">
+        <div class="onboarding-step">
+          <span class="step-num">1</span>
+          <span><strong>Choose a system</strong> from the preset dropdown</span>
+        </div>
+        <div class="step-arrow" aria-hidden="true">→</div>
+        <div class="onboarding-step">
+          <span class="step-num">2</span>
+          <span><strong>Edit plain text</strong> or insert tokens</span>
+        </div>
+        <div class="step-arrow" aria-hidden="true">→</div>
+        <div class="onboarding-step">
+          <span class="step-num">3</span>
+          <span><strong>Animate &amp; inspect</strong> motion choreography</span>
+        </div>
+      </div>
+      <button id="close-onboarding-btn" class="onboarding-dismiss-btn" type="button" aria-label="Dismiss quick start guide">✕</button>
+    </div>
+
     <!-- ── Interactive Workspace (Editor + Splitter + Preview Canvas) ── -->
     <section id="workspace" class="workspace" aria-label="MarkdyScript playground workspace">
-      <p id="studio-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></p>
-
-      <!-- ── Onboarding Quick Start Banner ── -->
-      <div id="studio-onboarding-banner" class="studio-onboarding-banner" role="region" aria-label="Studio Quick Start">
-        <div class="onboarding-steps">
-          <div class="onboarding-step">
-            <span class="step-num">1</span>
-            <span><strong>Choose a system</strong> from the preset dropdown</span>
-          </div>
-          <div class="step-arrow" aria-hidden="true">→</div>
-          <div class="onboarding-step">
-            <span class="step-num">2</span>
-            <span><strong>Edit plain text</strong> or insert tokens</span>
-          </div>
-          <div class="step-arrow" aria-hidden="true">→</div>
-          <div class="onboarding-step">
-            <span class="step-num">3</span>
-            <span><strong>Animate &amp; inspect</strong> motion choreography</span>
-          </div>
-        </div>
-        <button id="close-onboarding-btn" class="onboarding-dismiss-btn" type="button" aria-label="Dismiss quick start guide">✕</button>
-      </div>
-
       <!-- ── Left Column: Authoring Code Editor ── -->
       <section class="editor-panel" aria-label="Code editor">
         <!-- Editor Header Bar -->
