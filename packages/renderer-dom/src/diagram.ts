@@ -226,6 +226,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   const durationSeconds = plan.duration;
 
   container.classList.add("markdy-diagram-root");
+  (container as any).__markdyCode = code;
+  (container as any).__markdyPlan = plan;
   applyThemeVariables(container, plan.theme);
   Object.assign(container.style, {
     position: "relative",

@@ -564,7 +564,7 @@ const ICONS: Record<string, SvgSpec> = {
 /** Read-only monochrome glyph registry; callers can inspect or choose keys without injecting markup. */
 export const ICON_REGISTRY: Readonly<Record<string, IconSpec>> = Object.freeze(ICONS);
 
-function iconKeyForNode(node: PositionedNode): string {
+export function iconKeyForNode(node: PositionedNode): string {
   const override = typeof node.props?.icon === "string" ? node.props.icon.toLowerCase() : undefined;
   if (override && ICONS[override]) return override;
   if (node.kind === "api_gateway" || node.kind === "gateway" || node.kind === "load_balancer" || node.kind === "ingress") return "gateway";

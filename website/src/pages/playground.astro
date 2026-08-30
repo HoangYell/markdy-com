@@ -1409,7 +1409,8 @@ const playgroundStructuredData = [
   }
 
   async function exportSvg() {
-    const target = stageCanvas || stage;
+    const code = getCode();
+    const target = code || stageCanvas || stage;
     if (!target) {
       showToast("⚠️ No diagram available to export.");
       return;
@@ -1431,7 +1432,7 @@ const playgroundStructuredData = [
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      showToast("✓ Vector SVG exported successfully!");
+      showToast("✓ Standalone Vector SVG exported successfully!");
     } catch (err) {
       showToast("⚠️ SVG export failed: " + (err as Error).message);
     } finally {
@@ -1443,7 +1444,8 @@ const playgroundStructuredData = [
   }
 
   async function copySvgToClipboard() {
-    const target = stageCanvas || stage;
+    const code = getCode();
+    const target = code || stageCanvas || stage;
     if (!target) {
       showToast("⚠️ No diagram available to copy.");
       return;
