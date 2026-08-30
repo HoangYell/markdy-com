@@ -13,6 +13,7 @@
 
 <p align="center">
   <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><img src="https://img.shields.io/visual-studio-marketplace/v/hoangyell.markdy-vscode?color=blue&label=VS%20Code%20Marketplace" alt="Marketplace Version" /></a>
+  <a href="https://open-vsx.org/extension/hoangyell/markdy-vscode"><img src="https://img.shields.io/open-vsx/v/hoangyell/markdy-vscode?color=purple&label=Open%20VSX" alt="Open VSX Version" /></a>
   <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><img src="https://img.shields.io/visual-studio-marketplace/i/hoangyell.markdy-vscode?color=green" alt="Installs" /></a>
   <a href="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml"><img src="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
   <a href="https://github.com/HoangYell/markdy-com/blob/main/LICENSE"><img src="https://img.shields.io/github/license/HoangYell/markdy-com" alt="MIT License" /></a>
@@ -31,14 +32,42 @@
 
 ---
 
+## 📥 Installation
+
+Markdy is officially published on both the **VS Code Marketplace** and the **Open VSX Registry**, supporting all major VS Code forks out of the box.
+
+| Editor | Marketplace Search | CLI Installation Command |
+|---|---|---|
+| **Visual Studio Code** | Search `Markdy` in Extensions (`Cmd+Shift+X`) | `code --install-extension hoangyell.markdy-vscode` |
+| **Cursor** | Search `Markdy` in Extensions (`Cmd+Shift+X`) | `cursor --install-extension hoangyell.markdy-vscode` |
+| **Windsurf / VSCodium** | Search `Markdy` in Extensions (`Cmd+Shift+X`) | `codium --install-extension hoangyell.markdy-vscode` |
+
+<details>
+<summary><b>📦 Manual / Direct / Offline Installation (.vsix)</b></summary>
+
+- **Instant 1-Line CLI Installer (Direct from Open VSX):**
+  ```bash
+  curl -sL "https://open-vsx.org/api/hoangyell/markdy-vscode/latest/file/hoangyell.markdy-vscode-1.1.6.vsix" -o /tmp/markdy.vsix && cursor --install-extension /tmp/markdy.vsix && rm /tmp/markdy.vsix
+  ```
+
+- **From GitHub Releases:**
+  1. Download the latest `markdy-vscode.vsix` from [GitHub Releases](https://github.com/HoangYell/markdy-com/releases).
+  2. Install via command line:
+     ```bash
+     code --install-extension markdy-vscode.vsix
+     # or for Cursor
+     cursor --install-extension markdy-vscode.vsix
+     ```
+     *(Or in your editor: Press `Cmd+Shift+P` / `Ctrl+Shift+P` → select **Extensions: Install from VSIX...**)*
+</details>
+
+---
+
 ## ⚡ Quick Start (60 Seconds)
 
-1. **Install**: Search for `Markdy` in the Extensions view (`Cmd+Shift+X` / `Ctrl+Shift+X`) or run:
-   ```bash
-   code --install-extension hoangyell.markdy-vscode
-   ```
-2. **Create Diagram**: Create `system.markdy` (or run `Markdy: Insert Architecture Template...`).
-3. **Open Preview**: Press **`Cmd+K V`** (macOS) or **`Ctrl+K V`** (Windows/Linux) to open the side-by-side animated live preview.
+1. **Install**: Follow the [Installation instructions](#-installation) above for your editor.
+2. **Create Diagram**: Create a file named `system.markdy` (or run `Markdy: Insert Template...` from the Command Palette).
+3. **Open Live Preview**: Press **`Cmd+K V`** (macOS) or **`Ctrl+K V`** (Windows/Linux) to open the side-by-side animated live preview.
 
 ```markdy
 scene "Cloud Architecture" theme=midnight

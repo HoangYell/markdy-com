@@ -1,0 +1,172 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Open Source Licenses & Attribution — Markdy"
+  description="Open source licenses, third-party notices, and attribution details for Markdy, MarkdyScript packages, and markdy.com."
+  canonicalURL="https://markdy.com/licenses/"
+  keywords="Markdy open source license, MIT license, third party licenses, open source attribution, Markdy dependencies"
+>
+  <div class="legal-container">
+    <div class="legal-content">
+      <a href="/" class="back-link">← Back to Markdy</a>
+      <h1>Open Source Licenses</h1>
+      <p class="last-updated">Last Updated: August 2026</p>
+
+      <section>
+        <h2>1. Markdy License</h2>
+        <p>Markdy is free, open-source software created by Hoang Yell. All official packages (<code>@markdy/core</code>, <code>@markdy/renderer-dom</code>, <code>@markdy/astro</code>, <code>@markdy/mdx</code>, <code>@markdy/cli</code>, <code>@markdy/mcp-server</code>, and <code>markdy-vscode</code>) are distributed under the terms of the <strong>MIT License</strong>.</p>
+        <div class="license-box">
+          <pre><code>MIT License
+
+Copyright (c) 2026 Hoang Yell (https://hoangyell.com)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</code></pre>
+        </div>
+      </section>
+
+      <section>
+        <h2>2. Icon & Glyph Notices</h2>
+        <p>The Markdy renderer contains an inline, read-only registry of monochrome SVG path data for system diagrams. Selected icon motifs are adapted from the following open-source collections:</p>
+        <ul>
+          <li><strong><a href="https://tabler.io/icons" target="_blank" rel="noopener noreferrer">Tabler Icons</a></strong> — Licensed under the <a href="https://github.com/tabler/tabler-icons/blob/master/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>.</li>
+          <li><strong><a href="https://simpleicons.org/" target="_blank" rel="noopener noreferrer">Simple Icons</a></strong> — Dedicated to the public domain under <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener noreferrer">CC0 1.0 Universal</a>.</li>
+          <li><strong><a href="https://devicon.dev/" target="_blank" rel="noopener noreferrer">Devicon</a></strong> — Licensed under the <a href="https://github.com/devicons/devicon/blob/master/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>3. Typography</h2>
+        <p>The Markdy website and documentation utilize open-source typefaces:</p>
+        <ul>
+          <li><strong><a href="https://rsms.me/inter/" target="_blank" rel="noopener noreferrer">Inter</a></strong> by Rasmus Andersson — Licensed under the <a href="https://scripts.sil.org/OFL" target="_blank" rel="noopener noreferrer">SIL Open Font License 1.1</a>.</li>
+          <li><strong><a href="https://www.jetbrains.com/lp/mono/" target="_blank" rel="noopener noreferrer">JetBrains Mono</a></strong> by JetBrains — Licensed under the <a href="https://scripts.sil.org/OFL" target="_blank" rel="noopener noreferrer">SIL Open Font License 1.1</a>.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>4. Core Libraries & Ecosystem Tools</h2>
+        <p>The Markdy studio playground and developer tooling build upon excellent open-source projects:</p>
+        <ul>
+          <li><strong><a href="https://microsoft.github.io/monaco-editor/" target="_blank" rel="noopener noreferrer">Monaco Editor</a></strong> (Microsoft) — MIT License</li>
+          <li><strong><a href="https://shiki.style/" target="_blank" rel="noopener noreferrer">Shiki</a></strong> — MIT License</li>
+          <li><strong><a href="https://astro.build/" target="_blank" rel="noopener noreferrer">Astro</a></strong> — MIT License</li>
+          <li><strong><a href="https://modelcontextprotocol.io/" target="_blank" rel="noopener noreferrer">Model Context Protocol TypeScript SDK</a></strong> (Anthropic) — MIT License</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>5. Policies & Terms</h2>
+        <p>For additional details regarding usage guidelines and data practices, please refer to:</p>
+        <ul>
+          <li><a href="/terms/">Terms of Use</a></li>
+          <li><a href="/privacy/">Privacy Policy</a></li>
+          <li><a href="https://github.com/HoangYell/markdy-com/blob/main/SECURITY.md" target="_blank" rel="noopener noreferrer">Security Policy</a></li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .legal-container {
+    padding: max(3.5rem, calc(2.5rem + var(--sat))) 1rem 4rem;
+    max-width: 800px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+  .legal-content {
+    background: var(--bg-secondary);
+    padding: 3rem;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+  }
+  .back-link {
+    display: inline-block;
+    margin-bottom: 2rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  h1 {
+    font-size: clamp(1.8rem, 6vw, 2.5rem);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.04em;
+    color: var(--text-primary);
+  }
+  .last-updated {
+    color: var(--text-muted);
+    margin-bottom: 2.5rem;
+    font-size: 0.9rem;
+  }
+  section {
+    margin-bottom: 2rem;
+  }
+  h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 0.5rem;
+  }
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+  ul {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+  }
+  li {
+    margin-bottom: 0.5rem;
+  }
+  a {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+  .license-box {
+    margin-top: 1rem;
+    padding: 1.25rem;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow-x: auto;
+  }
+  .license-box pre {
+    margin: 0;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  @media (max-width: 640px) {
+    .legal-container {
+      padding: max(2.5rem, calc(2rem + var(--sat))) 0.75rem 3rem;
+    }
+    .legal-content {
+      padding: 1.5rem;
+      border-radius: 12px;
+    }
+  }
+</style>

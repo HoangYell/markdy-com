@@ -41,12 +41,16 @@ Node labels are optional. IDs like `ApiServer` and `OrdersDb` render as readable
 
 ## 2. Preview and validate it
 
-### In Your Editor (VS Code / Cursor)
+### In Your Editor (VS Code / Cursor / Windsurf)
 
-Install the official **[Markdy VS Code Extension](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode)**:
+Install the official Markdy extension from the **[VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode)** or **[Open VSX Registry](https://open-vsx.org/extension/hoangyell/markdy-vscode)**:
 
 ```sh
+# For Visual Studio Code
 code --install-extension hoangyell.markdy-vscode
+
+# For Cursor
+cursor --install-extension hoangyell.markdy-vscode
 ```
 
 - **Live Animated Preview**: Press `Cmd+K V` (macOS) or `Ctrl+K V` (Windows/Linux) or click the Play icon in the editor title bar.

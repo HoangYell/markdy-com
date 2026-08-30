@@ -5,6 +5,17 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.6] — 2026-08-30
+
+### Added & Enhanced
+- **Official Open VSX Registry & Multi-Editor Support (`markdy-vscode`)**:
+  - Registered publisher namespace `hoangyell` on Eclipse Open VSX Registry ([`hoangyell.markdy-vscode`](https://open-vsx.org/extension/hoangyell/markdy-vscode)).
+  - First-class support for **Cursor**, **Windsurf**, and **VSCodium** via native Open VSX index and CLI commands (`cursor --install-extension hoangyell.markdy-vscode`).
+  - Added unified multi-IDE installation matrices and direct 1-line CLI installers in `packages/vscode/README.md`, root `README.md`, and `docs/GETTING_STARTED.md`.
+  - Added automated dual-publishing CI/CD in `.github/workflows/publish-vscode.yml` and `.github/workflows/release.yml` for concurrent publishing to VS Code Marketplace and Open VSX Registry.
+  - Added `publish:vsce`, `publish:ovsx`, and `publish:all` npm convenience scripts to `packages/vscode/package.json`.
+  - Upgraded release assistant script (`scripts/publish-vscode-marketplace.mjs`) to automate dual-dashboard management.
+
 ## [1.1.5] — 2026-08-30
 
 ### Fixed & Enhanced

@@ -10,6 +10,8 @@ const routes: Array<{ path: string; changefreq: string; priority: string }> = [
   { path: "llms.txt", changefreq: "daily", priority: "0.8" },
   { path: "llms-full.txt", changefreq: "daily", priority: "0.8" },
   { path: "privacy/", changefreq: "monthly", priority: "0.3" },
+  { path: "terms/", changefreq: "monthly", priority: "0.3" },
+  { path: "licenses/", changefreq: "monthly", priority: "0.3" },
   { path: "blog/", changefreq: "weekly", priority: "0.8" },
   { path: "blog/advanced-diagram-layouts-and-editorial-themes/", changefreq: "monthly", priority: "0.7" },
   { path: "blog/ai-generated-architecture-diagrams/", changefreq: "monthly", priority: "0.7" },

@@ -89,7 +89,8 @@ jobs:
 
             | Package | Registry / Marketplace | Install Command |
             |---|---|---|
-            | **VS Code & Cursor Extension** | [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode) | `code --install-extension hoangyell.markdy-vscode` |
+            | **VS Code Extension** | [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode) | `code --install-extension hoangyell.markdy-vscode` |
+            | **Cursor / VSCodium Extension** | [Open VSX Registry](https://open-vsx.org/extension/hoangyell/markdy-vscode) | `cursor --install-extension hoangyell.markdy-vscode` |
             | [`@markdy/core`](https://www.npmjs.com/package/@markdy/core) | [npmjs.com](https://www.npmjs.com/package/@markdy/core) | `pnpm add @markdy/core` |
             | [`@markdy/renderer-dom`](https://www.npmjs.com/package/@markdy/renderer-dom) | [npmjs.com](https://www.npmjs.com/package/@markdy/renderer-dom) | `pnpm add @markdy/renderer-dom` |
             | [`@markdy/cli`](https://www.npmjs.com/package/@markdy/cli) | [npmjs.com](https://www.npmjs.com/package/@markdy/cli) | `pnpm add -D @markdy/cli` |

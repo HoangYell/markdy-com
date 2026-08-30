@@ -1,0 +1,9 @@
+# Smithery configuration for Markdy MCP Server
+# https://smithery.ai/docs/config#smitheryyaml
+startCommand:
+  type: stdio
+  config:
+    command: npx
+    args:
+      - "-y"
+      - "@markdy/mcp-server"

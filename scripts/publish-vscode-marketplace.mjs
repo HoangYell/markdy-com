@@ -45,19 +45,17 @@ try {
   console.log("📋 [3/4] Copied .vsix absolute path to clipboard!");
 } catch (_) {}
 
-// 5. Open Chrome to Marketplace and Reveal File in Finder
-console.log("🌐 [4/4] Opening Marketplace Dashboard & Finder window...");
+// 5. Open Dashboards and Reveal File in Finder
+console.log("🌐 [4/4] Opening Marketplace Dashboards & Finder window...");
 
-const dashboardUrl = "https://marketplace.visualstudio.com/manage/publishers/hoangyell";
+const vsceDashboardUrl = "https://marketplace.visualstudio.com/manage/publishers/hoangyell";
+const ovsxDashboardUrl = "https://open-vsx.org/user-settings/namespaces";
 
 try {
-  // Open Dashboard in Chrome
-  execSync(`open -a "Google Chrome" "${dashboardUrl}"`);
-} catch (_) {
-  try {
-    execSync(`open "${dashboardUrl}"`);
-  } catch (_) {}
-}
+  // Open Dashboards in browser
+  execSync(`open "${vsceDashboardUrl}"`);
+  execSync(`open "${ovsxDashboardUrl}"`);
+} catch (_) {}
 
 try {
   // Reveal VSIX file in Finder
@@ -67,11 +65,13 @@ try {
 console.log("\n" + "=".repeat(50));
 console.log(`🎉 Ready to Ship Markdy v${version}!`);
 console.log("=".repeat(50));
-console.log("\n👉 Smart 2-Click Steps:");
-console.log(`   1. In the open Chrome window (${dashboardUrl}):`);
-console.log("      • Click '...' next to Markdy -> select 'Update'");
-console.log("        (or click 'New extension' -> 'Visual Studio Code')");
-console.log(`   2. Drag '${targetVsix}' from the Finder window into the upload box.`);
-console.log("   3. Click 'Upload' -> Done! 🚀\n");
-console.log(`📁 File Location: ${vsixPath}`);
+console.log("\n👉 Publishing Options:");
+console.log(`   A. Automatic (CLI):`);
+console.log(`      • VS Code Marketplace: cd packages/vscode && pnpm run publish:vsce -p <VSCE_PAT>`);
+console.log(`      • Open VSX (Cursor):   cd packages/vscode && pnpm run publish:ovsx -p <OVSX_PAT>`);
+console.log(`\n   B. Web Upload (Drag & Drop):`);
+console.log(`      • VS Code Marketplace: ${vsceDashboardUrl}`);
+console.log(`      • Open VSX Dashboard:  ${ovsxDashboardUrl}`);
+console.log(`      • Drag '${targetVsix}' from the open Finder window.`);
+console.log(`\n📁 File Location: ${vsixPath}`);
 console.log("=".repeat(50) + "\n");

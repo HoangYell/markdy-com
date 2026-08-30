@@ -1,0 +1,141 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout
+  title="Terms of Use — Markdy"
+  description="Terms of Use, open-source licensing, acceptable playground usage, and intellectual property terms for Markdy and markdy.com."
+  canonicalURL="https://markdy.com/terms/"
+  keywords="Markdy terms of use, open source terms, Markdy playground terms, MIT license terms, developer diagrams terms"
+>
+  <div class="legal-container">
+    <div class="legal-content">
+      <a href="/" class="back-link">← Back to Markdy</a>
+      <h1>Terms of Use</h1>
+      <p class="last-updated">Last Updated: August 2026</p>
+
+      <section>
+        <h2>1. Acceptance of Terms</h2>
+        <p>By accessing or using the website at <code>markdy.com</code>, our documentation, interactive playground studio, or related digital services, you agree to be bound by these Terms of Use and our <a href="/privacy/">Privacy Policy</a>. If you do not agree to these terms, please do not use this website.</p>
+      </section>
+
+      <section>
+        <h2>2. Open-Source Software & Licensing</h2>
+        <p>The Markdy software packages (including <code>@markdy/core</code>, <code>@markdy/renderer-dom</code>, <code>@markdy/astro</code>, <code>@markdy/mdx</code>, and the VS Code extension) are open-source software licensed under the <a href="https://github.com/HoangYell/markdy-com/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>. For complete third-party library notices and font attributions, see our <a href="/licenses/">Open Source Licenses & Attribution</a> page.</p>
+        <p>You are free to use, modify, bundle, and distribute the open-source libraries in personal, educational, and commercial projects pursuant to the conditions of the MIT License.</p>
+      </section>
+
+      <section>
+        <h2>3. Intellectual Property & Trademarks</h2>
+        <p>While the underlying code is open source, the Markdy brand identity, project name, custom logos, 3D mascot artwork, and original site design are proprietary assets owned by Hoang Yell and the Markdy project maintainers.</p>
+        <p>The MIT License does not grant permission to use Markdy trademarks, logos, or mascots in any way that implies endorsement, sponsorship, or direct affiliation without prior written approval.</p>
+      </section>
+
+      <section>
+        <h2>4. Interactive Studio & User Content</h2>
+        <p>The Markdy interactive playground studio executes MarkdyScript parsing and DOM animation rendering locally within your browser client. We do not store, view, or claim ownership of any diagram scripts, architectures, or text you input into the playground.</p>
+        <p>You retain full ownership and copyright of all diagrams and code you create with Markdy. You are solely responsible for ensuring that your diagrams and code do not infringe third-party copyrights, trademarks, or trade secrets.</p>
+      </section>
+
+      <section>
+        <h2>5. Acceptable Use of Website & Services</h2>
+        <p>When using <code>markdy.com</code> and our hosted documentation, you agree not to:</p>
+        <ul>
+          <li>Interfere with or disrupt the website's infrastructure, servers, or networks (including Denial-of-Service attacks or automated vulnerability exploitation).</li>
+          <li>Perform malicious scraping or excessive requests that intentionally degrade the browsing experience for other community members.</li>
+          <li>Misrepresent yourself as an official representative or core maintainer of Markdy.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>6. Disclaimer of Warranties</h2>
+        <p>The website, documentation, and playground are provided on an <strong>"AS IS"</strong> and <strong>"AS AVAILABLE"</strong> basis, without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, or non-infringement.</p>
+      </section>
+
+      <section>
+        <h2>7. Limitation of Liability</h2>
+        <p>To the maximum extent permitted by law, under no circumstances shall the authors, maintainers, or copyright holders of Markdy be liable for any direct, indirect, incidental, consequential, special, or exemplary damages arising out of the use or inability to use this website, documentation, or open-source packages.</p>
+      </section>
+
+      <section>
+        <h2>8. Changes to These Terms</h2>
+        <p>We may revise these Terms of Use from time to time to reflect updates in our project or legal standards. Changes will take effect immediately upon posting to this page with an updated revision date.</p>
+      </section>
+
+      <section>
+        <h2>9. Contact & Governance</h2>
+        <p>For questions or clarifications regarding these Terms of Use, please open an issue in the <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer">Markdy GitHub repository</a> or contact the maintainer directly at <a href="mailto:hoangyell@gmail.com">hoangyell@gmail.com</a>.</p>
+      </section>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .legal-container {
+    padding: max(3.5rem, calc(2.5rem + var(--sat))) 1rem 4rem;
+    max-width: 800px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+  .legal-content {
+    background: var(--bg-secondary);
+    padding: 3rem;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+  }
+  .back-link {
+    display: inline-block;
+    margin-bottom: 2rem;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  h1 {
+    font-size: clamp(1.8rem, 6vw, 2.5rem);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.04em;
+    color: var(--text-primary);
+  }
+  .last-updated {
+    color: var(--text-muted);
+    margin-bottom: 2.5rem;
+    font-size: 0.9rem;
+  }
+  section {
+    margin-bottom: 2rem;
+  }
+  h2 {
+    font-size: 1.25rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 0.5rem;
+  }
+  p {
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
+  ul {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-secondary);
+  }
+  li {
+    margin-bottom: 0.5rem;
+  }
+  a {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  @media (max-width: 640px) {
+    .legal-container {
+      padding: max(2.5rem, calc(2rem + var(--sat))) 0.75rem 3rem;
+    }
+    .legal-content {
+      padding: 1.5rem;
+      border-radius: 12px;
+    }
+  }
+</style>

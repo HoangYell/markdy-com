@@ -2,7 +2,7 @@
   "name": "markdy-vscode",
   "displayName": "Markdy: Animated Architecture Diagrams",
   "description": "Open-source diagram-as-code editor tooling for animated architecture and system diagrams.",
-  "version": "1.1.5",
+  "version": "1.1.6",
   "private": true,
   "publisher": "hoangyell",
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
@@ -49,9 +49,14 @@
       "description": "GitHub Stars"
     },
     {
-      "url": "https://img.shields.io/npm/v/@markdy/core?color=blue&label=%40markdy%2Fcore",
-      "href": "https://www.npmjs.com/package/@markdy/core",
-      "description": "npm version"
+      "url": "https://img.shields.io/visual-studio-marketplace/v/hoangyell.markdy-vscode?color=blue&label=Marketplace",
+      "href": "https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode",
+      "description": "VS Code Marketplace"
+    },
+    {
+      "url": "https://img.shields.io/open-vsx/v/hoangyell/markdy-vscode?color=purple&label=Open%20VSX",
+      "href": "https://open-vsx.org/extension/hoangyell/markdy-vscode",
+      "description": "Open VSX Version"
     },
     {
       "url": "https://img.shields.io/badge/license-MIT-blue",
@@ -458,7 +463,10 @@
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "test": "echo \"VS Code extension test suite ready\"",
-    "package": "vsce package --no-dependencies"
+    "package": "vsce package --no-dependencies",
+    "publish:vsce": "vsce publish --no-dependencies",
+    "publish:ovsx": "ovsx publish --no-dependencies",
+    "publish:all": "pnpm run publish:vsce && pnpm run publish:ovsx"
   },
   "dependencies": {
     "@markdy/compat": "workspace:*",
