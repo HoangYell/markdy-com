@@ -49,6 +49,11 @@
       "description": "GitHub Stars"
     },
     {
+      "url": "https://vsmarketplacebadges.dev/version-short/hoangyell.markdy-vscode.svg",
+      "href": "https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode",
+      "description": "VS Code Marketplace"
+    },
+    {
       "url": "https://img.shields.io/open-vsx/v/hoangyell/markdy-vscode?color=purple&label=Open%20VSX",
       "href": "https://open-vsx.org/extension/hoangyell/markdy-vscode",
       "description": "Open VSX Version"
