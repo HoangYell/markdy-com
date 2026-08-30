@@ -1506,18 +1506,26 @@ export function computeAdaptiveDimensions(
         autoH = Math.max(720, Math.min(2000, requiredH));
       }
     } else {
+      const hasTitle = Boolean(ast.meta.title && ast.meta.title.trim().length > 0);
+      const hasBeatCaptions = ast.beats.some((b) => b.label && b.label.trim().length > 0);
+      const titleBand = hasTitle ? TITLE_BAND : 0;
+      const bottomBand = hasBeatCaptions ? 44 : 0;
       const requiredW = SAFE * 2 + rankCount * NODE_W + (rankCount - 1) * 44 + groupPaddingBonus;
-      const requiredH = SAFE * 2 + TITLE_BAND + maxInRank * NODE_H + (maxInRank - 1) * 36 + groupPaddingBonus;
+      const requiredH = SAFE * 2 + titleBand + bottomBand + maxInRank * NODE_H + (maxInRank - 1) * 36 + groupPaddingBonus;
 
-      if (nodeCount <= 2 && rankCount <= 2) {
+      if (maxInRank === 1 && !hasTitle) {
+        // Horizontal single-row chain without title: snug ribbon height
+        autoW = Math.max(1024, Math.min(2560, requiredW));
+        autoH = Math.max(hasBeatCaptions ? 240 : 208, Math.min(360, requiredH + 32));
+      } else if (nodeCount <= 2 && rankCount <= 2) {
         autoW = 1024;
-        autoH = 576;
+        autoH = hasTitle ? 576 : 384;
       } else if (nodeCount <= 4 && rankCount <= 3 && maxInRank <= 2) {
         autoW = 1152;
-        autoH = 648;
+        autoH = hasTitle ? 648 : 448;
       } else {
         autoW = Math.max(1152, Math.min(2560, requiredW));
-        autoH = Math.max(648, Math.min(1600, requiredH));
+        autoH = Math.max(hasTitle ? 648 : (maxInRank <= 2 ? 448 : 576), Math.min(1600, requiredH));
       }
     }
   }

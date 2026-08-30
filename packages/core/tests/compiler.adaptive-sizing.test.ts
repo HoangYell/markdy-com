@@ -38,7 +38,7 @@ beat main:
 
     const plan = compile(ast);
     expect(plan.meta.width).toBe(1440);
-    expect(plan.meta.height).toBeGreaterThanOrEqual(576);
+    expect(plan.meta.height).toBeGreaterThanOrEqual(208);
     expect(plan.meta.height % 16).toBe(0);
   });
 
@@ -73,9 +73,9 @@ beat main:
     const ast = parse(script);
     const plan = compile(ast);
 
-    // Compact diagrams should be tight and clean (1024x576)
+    // Compact diagrams should be tight and clean (1024x208 for single-row without title)
     expect(plan.meta.width).toBe(1024);
-    expect(plan.meta.height).toBe(576);
+    expect(plan.meta.height).toBe(208);
     expect(plan.meta.width % 16).toBe(0);
     expect(plan.meta.height % 16).toBe(0);
   });
@@ -250,7 +250,7 @@ beat main:
 `);
     const dims = computeAdaptiveDimensions(ast);
     expect(dims.width).toBeGreaterThanOrEqual(1024);
-    expect(dims.height).toBeGreaterThanOrEqual(576);
+    expect(dims.height).toBeGreaterThanOrEqual(208);
     expect(dims.width % 16).toBe(0);
     expect(dims.height % 16).toBe(0);
   });
