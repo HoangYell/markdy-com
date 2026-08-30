@@ -16,8 +16,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Direct 1-click OS protocol URL scheme installation for **Cursor** (`cursor://anysphere.cursor-deeplink/mcp/install?...`) and **VS Code / GitHub Copilot** (`vscode:mcp/install?...`).
   - Added dedicated standalone installation routes `/mcp/cursor` and `/mcp/vscode` with auto-redirection.
   - 1-command native terminal configuration for **Claude Code** (`claude mcp add markdy -- npx -y @markdy/mcp-server`) and **Google Antigravity** (`agy mcp add markdy -- npx -y @markdy/mcp-server`).
-- **Synchronized Featured Architecture Designation (`@markdy/website`)**:
-  - Unified default scene across Homepage and Studio Playground under `⭐ Featured: Cache-Aside & Sharded Microservices` with explicit labeling in presets and dropdown selectors.
 
 ### Changed & Refined
 - **Streamlined Editor Panel Header (`@markdy/website`)**:

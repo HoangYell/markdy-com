@@ -581,7 +581,7 @@ const homepageStructuredData = [
           <div class="studio-select-wrap">
             <select id="example-select" class="studio-select" aria-label="Load Architecture Example">
               {EXAMPLES.map((ex, i) => (
-                <option value={i}>{i === 0 ? "⭐ Featured: " : `[${ex.sceneType.toUpperCase()}] `}{ex.title}</option>
+                <option value={i}>[{ex.sceneType.toUpperCase()}] {ex.title}</option>
               ))}
             </select>
           </div>
