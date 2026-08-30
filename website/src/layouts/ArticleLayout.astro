@@ -385,30 +385,46 @@ const {
     justify-content: center;
   }
   .art-btn {
-    display: inline-block;
-    padding: 0.7rem 1.3rem;
-    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1.25rem;
+    border-radius: 9px;
     font-weight: 600;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     text-decoration: none;
-    transition: transform 0.15s ease, opacity 0.15s ease;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   }
   .art-btn:hover {
     transform: translateY(-1px);
   }
   .art-btn-primary {
     background: var(--accent);
-    color: #ffffff;
+    color: #ffffff !important;
+    box-shadow: 0 2px 12px var(--accent-glow);
+  }
+  .art-btn-primary:hover {
+    background: var(--accent-hover);
+    box-shadow: 0 4px 18px var(--accent-glow);
   }
   .art-btn-secondary {
-    background: transparent;
+    background: var(--bg-elevated);
     border: 1px solid var(--border);
     color: var(--text-primary);
+  }
+  .art-btn-secondary:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-secondary);
   }
   .art-btn-ghost {
     background: transparent;
     color: var(--text-secondary, #64748b);
-    border: 1px solid transparent;
+    border: 1px solid var(--border);
+  }
+  .art-btn-ghost:hover {
+    color: var(--text-primary);
+    background: var(--bg-elevated);
+    border-color: var(--border-hover);
   }
 
   @media (max-width: 640px) {

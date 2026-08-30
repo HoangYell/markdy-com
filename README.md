@@ -4,8 +4,6 @@
   </a>
 </p>
 
-<h1 align="center">Markdy</h1>
-
 <p align="center">
   <strong>Diagram-as-code DSL for animated architecture &amp; system design explainers.</strong><br>
   Write declarative MarkdyScript → render 60fps browser-native kinetic diagrams powered by the Web Animations API.
@@ -23,8 +21,8 @@
   <a href="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml"><img src="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
   <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><img src="https://img.shields.io/visual-studio-marketplace/v/hoangyell.markdy-vscode?color=blue&label=VS%20Code" alt="VS Code Extension" /></a>
   <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/npm/v/@markdy/core?color=blue&label=%40markdy%2Fcore" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/@markdy/mcp-server"><img src="https://img.shields.io/npm/v/@markdy/mcp-server?color=purple&label=MCP%20Server" alt="MCP Server version" /></a>
   <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/badge/core_size-~14_kB-brightgreen" alt="Core Bundle Size" /></a>
-  <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/badge/runtime_deps-0-success" alt="Zero Dependencies" /></a>
   <a href="https://github.com/HoangYell/markdy-com/blob/main/LICENSE"><img src="https://img.shields.io/github/license/HoangYell/markdy-com" alt="MIT License" /></a>
 </p>
 
@@ -44,7 +42,7 @@ Static boxes and arrows fail to capture distributed systems in action. **Markdy 
 - 📐 **Zero-Config Layout**: Collision-aware orthogonal Manhattan edge routing and rank-based auto-layout.
 - ⚡ **Zero-Dep & Web-Native**: Powered by pure CSS/SVG transforms and the Web Animations API (WAAPI) — ~14 kB parser, no Canvas, no GSAP.
 - 🔄 **Universal Ingestion**: 1-click migration from Mermaid, Draw.io, Docker Compose, Kubernetes manifests, and Terraform states.
-- 🤖 **AI-Native & MCP**: Official Model Context Protocol (MCP) server for Claude, Cursor, and Antigravity with self-healing syntax diagnostics.
+- 🤖 **AI-Native & MCP**: Official Model Context Protocol (MCP) server for Claude, Cursor, Antigravity, and Cline with self-healing syntax diagnostics.
 - 🛡️ **Architecture Governance**: Built-in rules prevent deadlock cycles and cross-layer bypasses.
 
 ---
@@ -113,7 +111,7 @@ Markdy is architected as a modular monorepo where each package fulfills a focuse
 | **[`markdy-vscode`](packages/vscode)** | **IDE Extension (VS Code & Cursor)** | Side-by-side live animated preview, document formatter (`Shift+Alt+F`), QuickFix lightbulbs (`💡 Fix`), Universal Ingestion, CodeLens. |
 | **[`@markdy/compat`](packages/compat)** | **Universal Ingestion Suite** | Transpilers for Mermaid, Docker Compose, Kubernetes YAMLs, Terraform state, and Draw.io XML. |
 | **[`@markdy/cli`](packages/cli)** | **Terminal Tool & CI/CD** | `markdy lint`, `markdy render`, `markdy format`, `markdy import`, `markdy diff`. |
-| **[`@markdy/mcp-server`](packages/mcp-server)** | **AI Agent Integration (MCP)** | Model Context Protocol server exposing validation, auto-healing, and transpilation tools for Claude, Cursor, Antigravity. |
+| **[`@markdy/mcp-server`](packages/mcp-server)** | **AI Agent Integration (MCP)** | Model Context Protocol server exposing validation, auto-healing, and transpilation tools for Claude, Cursor, Antigravity, Cline, Windsurf. |
 | **[`@markdy/astro`](packages/astro)** & **[`@markdy/mdx`](packages/mdx)** | **Docs & Blog Integrations** | Zero-CLS, SSR-placeholder islands with viewport hydration for content sites. |
 | **[`@markdy/language-server`](packages/markdy-language-server)** | **Headless LSP Server** | Diagnostic publishing, hover docs, formatting, and completions for language clients. |
 | **[`@markdy/stdlib-systems`](packages/stdlib-systems)** | **Domain Vocabulary** | Semantic primitives for cloud, infrastructure, and distributed systems. |
@@ -153,11 +151,34 @@ markdy import architecture.drawio --out diagram.markdy     # Draw.io / diagrams.
 </details>
 
 <details>
-<summary><b>🤖 AI Assistant &amp; Model Context Protocol (MCP) Setup</b></summary>
+<summary><b>🤖 AI Coding Agents &amp; Model Context Protocol (MCP) Setup (Cursor, VS Code, Claude, Antigravity)</b></summary>
 <br>
 
-Configure the official Markdy MCP Server in Claude Desktop, Cursor, or Antigravity:
+Equip your favorite AI Coding Agent with native Markdy tools (`validate_markdy_code`, `diagnose_markdy_syntax`, `fix_markdy_code`, `transpile_to_markdy`) and live specification resources (`markdy://spec/agent-reference`).
 
+### ⚡ Quick MCP Server Setup & Installation
+
+| AI Environment | Setup Action | Method |
+|---|---|---|
+| **Cursor** | [![Install in Cursor](https://img.shields.io/badge/⚡_Install_in-Cursor-000000?style=for-the-badge&logo=cursor&logoColor=white)](cursor://anysphere.cursor-deeplink/mcp/install?name=markdy&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIkBtYXJrZHkvbWNwLXNlcnZlciJdfQ%3D%3D) | **1-Click Deep Link Protocol** |
+| **VS Code / Copilot** | [![Install in VS Code](https://img.shields.io/badge/⚡_Install_in-VS_Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white)](vscode:mcp/install?%7B%22name%22%3A%22markdy%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40markdy%2Fmcp-server%22%5D%7D) | **1-Click Deep Link Protocol** |
+| **Claude Code & Desktop** | [![Setup in Claude](https://img.shields.io/badge/⚡_Setup_in-Claude-D97706?style=for-the-badge&logo=anthropic&logoColor=white)](#1-claude-code--claude-desktop) | **CLI (`claude mcp add`) & JSON** |
+| **Google Antigravity** | [![Setup in Antigravity](https://img.shields.io/badge/⚡_Setup_in-Antigravity-4285F4?style=for-the-badge&logo=google&logoColor=white)](#3-google-antigravity--gemini-cli) | **1-Command CLI (`agy mcp add`)** |
+| **Cline / Roo Code** | [![Config in Cline](https://img.shields.io/badge/Config_in-Cline-6366F1?style=for-the-badge)](#4-cline--roo-code-cline_mcp_settingsjson) | **Config File (`cline_mcp_settings.json`)** |
+| **Windsurf / Cascade** | [![Config in Windsurf](https://img.shields.io/badge/Config_in-Windsurf-09B6A2?style=for-the-badge&logo=codeium&logoColor=white)](#5-windsurf--cascade-codeiumwindsurfmcp_configjson) | **Config File (`mcp_config.json`)** |
+
+---
+
+### 🛠️ Client Configuration Snippets
+
+#### 1. Claude Code & Claude Desktop
+
+**Claude Code (Anthropic CLI):**
+```bash
+claude mcp add markdy -- npx -y @markdy/mcp-server
+```
+
+**Claude Desktop GUI (`claude_desktop_config.json`):**
 ```json
 {
   "mcpServers": {
@@ -169,9 +190,88 @@ Configure the official Markdy MCP Server in Claude Desktop, Cursor, or Antigravi
 }
 ```
 
-Equips AI agents with `validate_markdy_code`, `diagnose_markdy_syntax`, `fix_markdy_code`, `transpile_to_markdy`, and access to `markdy://spec/agent-reference`.
+#### 2. Cursor (`~/.cursor/mcp.json` or `.cursor/mcp.json`)
+```json
+{
+  "mcpServers": {
+    "markdy": {
+      "command": "npx",
+      "args": ["-y", "@markdy/mcp-server"]
+    }
+  }
+}
+```
 
-👉 *[Read the Authoritative AI Agent Guide (`AGENT.md`) ↗](https://markdy.com/agent/)*
+#### 3. Google Antigravity & Gemini CLI
+
+**Via 1-Command CLI:**
+```bash
+agy mcp add markdy -- npx -y @markdy/mcp-server
+```
+
+**Or via Config File (`~/.gemini/antigravity/mcp_config.json` or `.agents/mcp_config.json`):**
+```json
+{
+  "mcpServers": {
+    "markdy": {
+      "command": "npx",
+      "args": ["-y", "@markdy/mcp-server"]
+    }
+  }
+}
+```
+
+#### 4. Cline & Roo Code (`cline_mcp_settings.json`)
+```json
+{
+  "mcpServers": {
+    "markdy": {
+      "command": "npx",
+      "args": ["-y", "@markdy/mcp-server"]
+    }
+  }
+}
+```
+
+#### 5. Windsurf / Cascade (`~/.codeium/windsurf/mcp_config.json`)
+```json
+{
+  "mcpServers": {
+    "markdy": {
+      "command": "npx",
+      "args": ["-y", "@markdy/mcp-server"]
+    }
+  }
+}
+```
+
+#### 6. Zed Editor (`settings.json`)
+```json
+{
+  "context_servers": {
+    "markdy": {
+      "command": {
+        "path": "npx",
+        "args": ["-y", "@markdy/mcp-server"]
+      }
+    }
+  }
+}
+```
+
+---
+
+### 🧰 Available Agent Tools & Resources
+
+- 🔍 `validate_markdy_code`: Check syntax, unresolved node references, and cycle rules.
+- 💡 `diagnose_markdy_syntax`: Detailed diagnostics with exact line numbers and remediation steps.
+- 🩹 `fix_markdy_code`: Self-healing code repair that fixes common syntax mistakes and formats AST.
+- 🔄 `transpile_to_markdy`: Convert Mermaid, Docker Compose, Kubernetes, Terraform, or Draw.io into valid MarkdyScript.
+- 📚 `markdy://spec/agent-reference`: Full AST grammar reference and token catalog.
+- 🏛️ `markdy://governance/rules`: Architecture rules (Well-Architected, cycle bounds, layer separation).
+- 📦 `markdy://templates/catalog`: 29+ production-grade architecture blueprints.
+
+👉 *[Read the Full AI Agent Reference Guide (`AGENT.md`) ↗](https://markdy.com/agent/)*
 </details>
 
 ---

@@ -112,10 +112,21 @@ const playgroundStructuredData = [
     <!-- ── Top Navigation Bar ── -->
     <nav class="topbar" aria-label="Playground navigation">
       <div class="topbar-left">
-        <a class="brand" href="/" title="Markdy home">
+        <a class="brand" href="/" title="Markdy Home">
           <img src="/icon.svg" class="brand-logo-svg" alt="Markdy Logo" width="22" height="22" loading="eager" decoding="async" />
-          <strong>markdy studio</strong>
+          <span class="brand-title">markdy</span>
+          <span class="brand-badge-pill">studio</span>
         </a>
+
+        <div class="topbar-divider-v" aria-hidden="true"></div>
+
+        <!-- Global Navigation Links (Docs, Examples, Blog) -->
+        <div class="topbar-nav-links">
+          <a class="topbar-nav-link" href="/docs/" title="Documentation & Guides">Docs</a>
+          <a class="topbar-nav-link" href="/examples/" title="Architecture Examples (29+)">Examples <span class="nav-counter">29</span></a>
+          <a class="topbar-nav-link" href="/blog/" title="Blog & Tutorials">Blog</a>
+        </div>
+
         <div id="studio-status-pill" class="status-pill status-pill--ok" title="Diagram compiler status">
           <span id="status-dot" class="status-dot"></span>
           <span id="status-text">Synced</span>
@@ -126,27 +137,48 @@ const playgroundStructuredData = [
       <div class="topbar-center">
         <!-- View Mode Segmented Switcher -->
         <div class="view-mode-group" role="group" aria-label="Studio layout mode">
-          <button id="view-split-btn" class="view-mode-btn active" type="button" data-mode="split" title="Split Screen (Code + Canvas)" aria-label="Split Screen view mode">⚡ Split</button>
-          <button id="view-canvas-btn" class="view-mode-btn" type="button" data-mode="canvas" title="Canvas Visual Studio" aria-label="Canvas only view mode">🎨 Canvas</button>
-          <button id="view-code-btn" class="view-mode-btn" type="button" data-mode="code" title="Code Editor Only" aria-label="Code editor only view mode">📄 Code</button>
+          <button id="view-split-btn" class="view-mode-btn active" type="button" data-mode="split" title="Split Screen (Code + Canvas)" aria-label="Split Screen view mode">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 3v18"/></svg>
+            <span>Split</span>
+          </button>
+          <button id="view-canvas-btn" class="view-mode-btn" type="button" data-mode="canvas" title="Canvas Visual Studio" aria-label="Canvas only view mode">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+            <span>Canvas</span>
+          </button>
+          <button id="view-code-btn" class="view-mode-btn" type="button" data-mode="code" title="Code Editor Only" aria-label="Code editor only view mode">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            <span>Code</span>
+          </button>
         </div>
       </div>
 
       <div class="topbar-right">
-        <!-- Primary Quick Actions -->
-        <button id="import-btn" class="tool-btn" type="button" title="Import from Mermaid, Docker Compose, Kubernetes, Terraform or Draw.io" aria-label="Import diagram from external formats">
-          <span>⚡ Import</span>
+        <div class="topbar-action-group">
+          <button id="import-btn" class="tool-btn" type="button" title="Import from Mermaid, Docker Compose, Kubernetes, Terraform or Draw.io" aria-label="Import diagram from external formats">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span>Import</span>
+          </button>
+
+          <button id="live-director-btn" class="tool-btn" type="button" title="Open Stage Presentation & Director Mode (Fullscreen Motion Theatre)" aria-label="Open presentation director mode">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>Present</span>
+          </button>
+
+          <button id="open-cheatsheet-btn" class="tool-btn" type="button" title="Keyboard Shortcuts & Syntax Reference" aria-label="Open shortcuts and syntax cheatsheet">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/></svg>
+            <span>Shortcuts</span>
+          </button>
+        </div>
+
+        <!-- Primary Export & Share Action -->
+        <button id="open-export-btn" class="tool-btn tool-btn-primary topbar-export-btn" type="button" title="Export diagram as SVG, PNG, or Share Link" aria-label="Export and Share diagram">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          <span>Export &amp; Share</span>
         </button>
 
-        <button id="live-director-btn" class="tool-btn" type="button" title="Open Stage Presentation & Director Mode (Fullscreen Motion Theatre)" aria-label="Open presentation director mode">
-          <span>🎬 Present</span>
-        </button>
+        <div class="topbar-divider-v" aria-hidden="true"></div>
 
-        <button id="open-cheatsheet-btn" class="tool-btn" type="button" title="Keyboard Shortcuts & Syntax Reference" aria-label="Open shortcuts and syntax cheatsheet">
-          <span>⌨ Shortcuts</span>
-        </button>
-
-        <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="tool-btn tool-btn-icon" aria-label="GitHub Repository" title="GitHub Repository">
+        <a id="topbar-github-link" href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="tool-btn tool-btn-icon" aria-label="GitHub Repository" title="GitHub Repository">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22" />
           </svg>
@@ -208,6 +240,7 @@ const playgroundStructuredData = [
           </div>
 
           <div class="editor-head-actions" aria-label="Editor actions">
+            <button id="paste-code-btn" class="tool-btn tool-btn-sm tool-btn-paste" type="button" title="Paste MarkdyScript from clipboard and render immediately" aria-label="Paste MarkdyScript">📋 Paste</button>
             <button id="format-code-btn" class="tool-btn tool-btn-sm" type="button" title="Clean and format MarkdyScript indentation" aria-label="Format MarkdyScript">✨ Format</button>
             <button id="copy-code-btn" class="tool-btn tool-btn-sm" type="button" title="Copy MarkdyScript code to clipboard" aria-label="Copy MarkdyScript code">📄 Copy</button>
             <button id="reset-btn" class="tool-btn tool-btn-sm" type="button" title="Reset scene to initial template" aria-label="Reset code to initial template">↺ Reset</button>
@@ -216,7 +249,6 @@ const playgroundStructuredData = [
               <span class="btn-icon-run" aria-hidden="true">▶</span>
             </button>
             <!-- Hidden compatibility elements -->
-            <button id="paste-code-btn" type="button" style="display:none;" aria-hidden="true"></button>
             <button id="switch-theme-btn" type="button" style="display:none;" aria-hidden="true"><span id="playground-theme-label">Theme</span></button>
           </div>
         </div>
@@ -381,13 +413,73 @@ const playgroundStructuredData = [
 
       <!-- ── Right Column: Visual Canvas Studio ── -->
       <section id="stage-pane" class="preview-panel" aria-label="Animated visual canvas preview">
-        <!-- Canvas Header Bar -->
+        <!-- Canvas Header Bar with Full Playback & Studio Controls -->
         <div class="panel-head preview-panel-head">
           <div class="canvas-header-left">
-            <span class="preview-live-dot"></span>
+            <span class="preview-live-dot" title="Live rendering active"></span>
             <h2 class="panel-title-text">WAAPI Motion Canvas</h2>
           </div>
 
+          <div class="canvas-header-actions" aria-label="Canvas playback and studio controls">
+            <!-- Play / Pause Button -->
+            <button id="canvas-play-btn" class="canvas-ctrl-btn" type="button" title="Play / Pause Motion (Space)" aria-label="Play or Pause Motion">
+              <span id="canvas-play-icon" class="ctrl-icon">▶</span>
+              <span id="canvas-play-label" class="ctrl-text">Play</span>
+            </button>
+
+            <!-- Replay / Reset Button -->
+            <button id="canvas-replay-btn" class="canvas-ctrl-btn" type="button" title="Restart animation from beat 1" aria-label="Restart Animation">
+              <span class="ctrl-icon">↺</span>
+            </button>
+
+            <!-- Playback Speed -->
+            <div class="canvas-select-wrapper" title="Playback speed multiplier">
+              <select id="canvas-speed-select" class="canvas-select" aria-label="Playback speed">
+                <option value="0.5">0.5×</option>
+                <option value="1" selected>1.0×</option>
+                <option value="1.5">1.5×</option>
+                <option value="2">2.0×</option>
+              </select>
+            </div>
+
+            <div class="canvas-divider" aria-hidden="true"></div>
+
+            <!-- Live Theme Selector Dropdown -->
+            <div class="canvas-select-wrapper canvas-select-wrapper--theme" title="Diagram aesthetic theme">
+              <select id="canvas-theme-select" class="canvas-select canvas-select--theme" aria-label="Select diagram theme">
+                <optgroup label="Light Themes">
+                  <option value="paper">theme=paper</option>
+                  <option value="editorial">theme=editorial</option>
+                  <option value="sketchy">theme=sketchy</option>
+                </optgroup>
+                <optgroup label="Dark Themes">
+                  <option value="midnight">theme=midnight</option>
+                  <option value="terminal">theme=terminal</option>
+                  <option value="blueprint">theme=blueprint</option>
+                  <option value="graphite">theme=graphite</option>
+                  <option value="nebula">theme=nebula</option>
+                </optgroup>
+              </select>
+            </div>
+
+            <div class="canvas-divider" aria-hidden="true"></div>
+
+            <!-- Instant Paste Button (Mobile & Canvas Mode) -->
+            <button id="canvas-paste-btn" class="canvas-ctrl-btn canvas-ctrl-btn--paste" type="button" title="Paste MarkdyScript from clipboard and view diagram immediately" aria-label="Paste MarkdyScript">
+              <span>📋 Paste</span>
+            </button>
+
+            <!-- Fit View Button -->
+            <button id="canvas-fit-btn" class="canvas-ctrl-btn" type="button" title="Reset diagram viewport" aria-label="Reset Zoom and View">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            </button>
+
+            <!-- Canvas Quick Export CTA -->
+            <button id="canvas-export-btn" class="canvas-ctrl-btn canvas-ctrl-btn--accent" type="button" title="Export SVG, PNG, or Share Link" aria-label="Export diagram">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Export</span>
+            </button>
+          </div>
         </div>
 
         <!-- Canvas Stage with Direct Interaction Overlays -->
@@ -620,6 +712,77 @@ const playgroundStructuredData = [
         </div>
       </div>
     </dialog>
+
+    <!-- ── Export & Share Modal ── -->
+    <dialog id="export-modal" class="import-modal export-modal" aria-labelledby="export-modal-title">
+      <div class="modal-box export-modal-box">
+        <div class="modal-header">
+          <div>
+            <span class="panel-kicker">Export &amp; Share Studio</span>
+            <h3 id="export-modal-title">Export Diagram &amp; Share Scene</h3>
+          </div>
+          <button id="close-export-btn" class="modal-close" type="button" aria-label="Close modal">✕</button>
+        </div>
+        <p class="modal-desc">Export scalable vector diagrams, crisp raster PNG snapshots, embed snippets, or generate an instant permanent URL link.</p>
+
+        <!-- Quick Export Action Cards -->
+        <div class="export-grid">
+          <!-- 1. SVG -->
+          <button id="export-svg-btn" class="export-card" type="button">
+            <div class="export-card-icon">🎨</div>
+            <div class="export-card-content">
+              <strong>Vector SVG</strong>
+              <span>Scalable vector graphic with inline styles for high-res embedding</span>
+            </div>
+            <span class="export-card-badge">Download .svg ↓</span>
+          </button>
+
+          <!-- 2. PNG -->
+          <button id="export-png-btn" class="export-card" type="button">
+            <div class="export-card-icon">🖼️</div>
+            <div class="export-card-content">
+              <strong>High-Res PNG</strong>
+              <span>Rendered raster snapshot for slide decks and social posts</span>
+            </div>
+            <span class="export-card-badge">Download .png ↓</span>
+          </button>
+
+          <!-- 3. Source File -->
+          <button id="export-source-btn" class="export-card" type="button">
+            <div class="export-card-icon">📄</div>
+            <div class="export-card-content">
+              <strong>MarkdyScript File</strong>
+              <span>Save raw text file for local CLI and version control</span>
+            </div>
+            <span class="export-card-badge">Download .markdy ↓</span>
+          </button>
+
+          <!-- 4. Markdown -->
+          <button id="export-markdown-btn" class="export-card" type="button">
+            <div class="export-card-icon">📑</div>
+            <div class="export-card-content">
+              <strong>Markdown Embed</strong>
+              <span>Copy fenced ```markdy code block for READMEs and docs</span>
+            </div>
+            <span class="export-card-badge">Copy Snippet 📋</span>
+          </button>
+        </div>
+
+        <!-- Shareable Link Section -->
+        <div class="export-share-container">
+          <div class="export-share-header">
+            <label for="share-url-input"><strong>Permanent Shareable URL:</strong></label>
+            <span class="export-share-meta">Includes compressed scene state</span>
+          </div>
+          <div class="export-share-input-wrap">
+            <input id="share-url-input" class="export-share-input" type="text" readonly aria-label="Share URL" />
+            <button id="copy-share-url-btn" class="tool-btn tool-btn-primary" type="button">
+              <span>Copy Link</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </dialog>
   </main>
 </Layout>
 
@@ -642,6 +805,7 @@ const playgroundStructuredData = [
   import {
     parse,
     validateArchitecture,
+    compressMarkdyToUrlHash,
     decompressMarkdyFromUrlHash,
     getArchitectureSuggestions,
     type Diagnostic,
@@ -714,6 +878,28 @@ const playgroundStructuredData = [
   const openCheatsheetBtn = document.getElementById("open-cheatsheet-btn") as HTMLButtonElement;
   const closeCheatsheetBtn = document.getElementById("close-cheatsheet-btn") as HTMLButtonElement;
   const openGalleryBtn = document.getElementById("open-gallery-btn") as HTMLButtonElement;
+
+  // Export & Share Elements
+  const exportModal = document.getElementById("export-modal") as HTMLDialogElement | null;
+  const openExportBtn = document.getElementById("open-export-btn") as HTMLButtonElement | null;
+  const canvasExportBtn = document.getElementById("canvas-export-btn") as HTMLButtonElement | null;
+  const closeExportBtn = document.getElementById("close-export-btn") as HTMLButtonElement | null;
+  const exportSvgBtn = document.getElementById("export-svg-btn") as HTMLButtonElement | null;
+  const exportPngBtn = document.getElementById("export-png-btn") as HTMLButtonElement | null;
+  const exportSourceBtn = document.getElementById("export-source-btn") as HTMLButtonElement | null;
+  const exportMarkdownBtn = document.getElementById("export-markdown-btn") as HTMLButtonElement | null;
+  const shareUrlInput = document.getElementById("share-url-input") as HTMLInputElement | null;
+  const copyShareUrlBtn = document.getElementById("copy-share-url-btn") as HTMLButtonElement | null;
+
+  // Canvas Playback & Studio Controls
+  const canvasPlayBtn = document.getElementById("canvas-play-btn") as HTMLButtonElement | null;
+  const canvasPlayIcon = document.getElementById("canvas-play-icon") as HTMLSpanElement | null;
+  const canvasPlayLabel = document.getElementById("canvas-play-label") as HTMLSpanElement | null;
+  const canvasReplayBtn = document.getElementById("canvas-replay-btn") as HTMLButtonElement | null;
+  const canvasPasteBtn = document.getElementById("canvas-paste-btn") as HTMLButtonElement | null;
+  const canvasSpeedSelect = document.getElementById("canvas-speed-select") as HTMLSelectElement | null;
+  const canvasThemeSelect = document.getElementById("canvas-theme-select") as HTMLSelectElement | null;
+  const canvasFitBtn = document.getElementById("canvas-fit-btn") as HTMLButtonElement | null;
 
   const runBtn = document.getElementById("run-btn") as HTMLButtonElement;
   const resetBtn = document.getElementById("reset-btn") as HTMLButtonElement;
@@ -816,18 +1002,21 @@ const playgroundStructuredData = [
   function showDiagnostics(items: string[]) {
     diagnostics.innerHTML = "";
     if (items.length === 0) {
-      diagnostics.innerHTML = '<div class="diag-empty">✓ Scene parsed cleanly with 0 syntax errors.</div>';
+      diagnostics.innerHTML = '<div class="diag-empty"><span class="diag-status-icon">✓</span><span>Scene parsed cleanly with 0 syntax errors.</span></div>';
       diagCountBadge.hidden = true;
       return;
     }
     diagCountBadge.hidden = false;
     diagCountBadge.textContent = String(items.length);
-    const title = document.createElement("strong");
-    title.textContent = `Diagnostics (${items.length})`;
+    const title = document.createElement("div");
+    title.className = "diag-title";
+    title.innerHTML = `<span>⚠️</span><strong>Syntax Diagnostics (${items.length})</strong>`;
     diagnostics.appendChild(title);
     const list = document.createElement("ul");
+    list.className = "diag-list";
     for (const item of items) {
       const li = document.createElement("li");
+      li.className = "diag-item";
       li.textContent = item;
       list.appendChild(li);
     }
@@ -964,7 +1153,7 @@ const playgroundStructuredData = [
       nodesInspectorGrid.innerHTML = "";
 
       if (nodes.length === 0) {
-        nodesInspectorGrid.innerHTML = '<div class="inspector-empty">No nodes declared. Click any Node chip in the palette to insert.</div>';
+        nodesInspectorGrid.innerHTML = '<div class="inspector-empty"><span class="inspector-empty-icon">📦</span><span>No nodes declared. Click any Node chip in the palette to insert.</span></div>';
       } else {
         for (const node of nodes) {
           const card = document.createElement("div");
@@ -1062,7 +1251,7 @@ const playgroundStructuredData = [
       suggestionsContainer.innerHTML = "";
 
       if (suggestions.length === 0) {
-        suggestionsContainer.innerHTML = '<div class="sugg-perfect">✓ Architecture looks great! All nodes connected with active beats.</div>';
+        suggestionsContainer.innerHTML = '<div class="sugg-perfect"><span class="sugg-status-icon">✓</span><span>Architecture looks great! All nodes connected with active beats.</span></div>';
       } else {
         for (const sugg of suggestions) {
           const item = document.createElement("div");
@@ -1149,12 +1338,198 @@ const playgroundStructuredData = [
       showDiagnostics(warnings);
       updateEntitiesAndSuggestions(code);
       attachCanvasInteraction();
+
+      // Sync Theme dropdown
+      const themeMatch = code.match(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/);
+      if (themeMatch && canvasThemeSelect) {
+        canvasThemeSelect.value = themeMatch[1].toLowerCase();
+      }
+      // Apply active playback rate
+      if (canvasSpeedSelect && diagram) {
+        const rate = parseFloat(canvasSpeedSelect.value) || 1;
+        diagram.setPlaybackRate(rate);
+      }
+      updatePlaybackUi(true);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       if (stageCanvas) stageCanvas.innerHTML = `<div class="parse-error">⚠️ ${message}</div>`;
       updateStatusIndicator(false, 0, 0, message);
       announce(`Preview could not update. ${message}`);
       showDiagnostics([message]);
+      updatePlaybackUi(false);
+    }
+  }
+
+  // ─── Studio Toast Notification Helper ──────────────────────────────
+  function showToast(message: string, duration = 2800): void {
+    let container = document.querySelector(".markdy-toast-container");
+    if (!container) {
+      container = document.createElement("div");
+      container.className = "markdy-toast-container";
+      document.body.appendChild(container);
+    }
+    const toast = document.createElement("div");
+    toast.className = "markdy-toast";
+    toast.textContent = message;
+    container.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add("toast-show"));
+    setTimeout(() => {
+      toast.classList.remove("toast-show");
+      setTimeout(() => toast.remove(), 250);
+    }, duration);
+  }
+
+  // ─── Playback UI Sync ──────────────────────────────────────────────
+  function updatePlaybackUi(isPlaying: boolean) {
+    if (canvasPlayIcon && canvasPlayLabel) {
+      if (isPlaying) {
+        canvasPlayIcon.textContent = "⏸";
+        canvasPlayLabel.textContent = "Pause";
+        if (canvasPlayBtn) canvasPlayBtn.title = "Pause Motion (Space)";
+      } else {
+        canvasPlayIcon.textContent = "▶";
+        canvasPlayLabel.textContent = "Play";
+        if (canvasPlayBtn) canvasPlayBtn.title = "Play Motion (Space)";
+      }
+    }
+  }
+
+  // ─── Theme Setter Helper ───────────────────────────────────────────
+  function setDiagramTheme(themeName: string) {
+    const current = getCode();
+    const match = current.match(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/);
+    let newCode: string;
+    if (match) {
+      newCode = current.replace(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/, `theme=${themeName}`);
+    } else if (/^scene\b/m.test(current)) {
+      newCode = current.replace(/^scene\b(.*)$/m, `scene theme=${themeName}$1`);
+    } else {
+      newCode = `theme=${themeName}\n\n` + current;
+    }
+    if (playgroundThemeLabel) playgroundThemeLabel.textContent = themeName;
+    if (editor) {
+      editor.dispatch({
+        changes: { from: 0, to: editor.state.doc.length, insert: newCode },
+      });
+    }
+    render(newCode);
+    showToast(`🎨 Theme switched to: ${themeName}`);
+  }
+
+  // ─── Export & Share Helpers ────────────────────────────────────────
+  function exportSvg() {
+    const svgEl = stageCanvas?.querySelector("svg");
+    if (!svgEl) {
+      showToast("⚠️ No SVG diagram available to export.");
+      return;
+    }
+    const clonedSvg = svgEl.cloneNode(true) as SVGSVGElement;
+    clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+    clonedSvg.setAttribute("xmlns:xlink", "http://www.w3.org/1999/xlink");
+
+    const serializer = new XMLSerializer();
+    let source = serializer.serializeToString(clonedSvg);
+    if (!source.match(/^<svg[^>]+xmlns="http:\/\/www\.w3\.org\/2000\/svg"/)) {
+      source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+    }
+    const blob = new Blob([source], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "markdy-architecture.svg";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("✓ Vector SVG exported successfully!");
+  }
+
+  function exportPng() {
+    const svgEl = stageCanvas?.querySelector("svg");
+    if (!svgEl) {
+      showToast("⚠️ No diagram available to export.");
+      return;
+    }
+    try {
+      const clonedSvg = svgEl.cloneNode(true) as SVGSVGElement;
+      clonedSvg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      const serializer = new XMLSerializer();
+      const svgStr = serializer.serializeToString(clonedSvg);
+      const svgBlob = new Blob([svgStr], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(svgBlob);
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        const scale = window.devicePixelRatio || 2;
+        const width = Math.max(svgEl.clientWidth || 800, 600);
+        const height = Math.max(svgEl.clientHeight || 500, 400);
+        const canvas = document.createElement("canvas");
+        canvas.width = width * scale;
+        canvas.height = height * scale;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        ctx.scale(scale, scale);
+        ctx.fillStyle = isDarkMode() ? "#0b0f19" : "#ffffff";
+        ctx.fillRect(0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
+        URL.revokeObjectURL(url);
+
+        canvas.toBlob((pngBlob) => {
+          if (!pngBlob) return;
+          const pngUrl = URL.createObjectURL(pngBlob);
+          const a = document.createElement("a");
+          a.href = pngUrl;
+          a.download = "markdy-architecture.png";
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(pngUrl);
+          showToast("✓ High-res PNG image exported!");
+        }, "image/png");
+      };
+      img.src = url;
+    } catch (err) {
+      showToast("⚠️ PNG export failed: " + (err as Error).message);
+    }
+  }
+
+  function downloadMarkdyFile() {
+    const code = getCode();
+    const blob = new Blob([code], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "scene.markdy";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast("✓ scene.markdy downloaded!");
+  }
+
+  async function copyMarkdownBlock() {
+    const code = getCode();
+    const snippet = "```markdy\n" + code + "\n```";
+    try {
+      await navigator.clipboard.writeText(snippet);
+      showToast("✓ Fenced markdown snippet copied!");
+    } catch {
+      showToast("⚠️ Failed to copy markdown snippet.");
+    }
+  }
+
+  async function updateShareUrl(): Promise<string> {
+    const code = getCode();
+    try {
+      const compressed = await compressMarkdyToUrlHash(code);
+      const shareUrl = `${window.location.origin}${window.location.pathname}#code=${compressed}`;
+      if (shareUrlInput) shareUrlInput.value = shareUrl;
+      return shareUrl;
+    } catch {
+      const fallback = `${window.location.origin}${window.location.pathname}#code=${btoa(encodeURIComponent(code))}`;
+      if (shareUrlInput) shareUrlInput.value = fallback;
+      return fallback;
     }
   }
 
@@ -1779,7 +2154,7 @@ const playgroundStructuredData = [
     setTimeout(() => { button.textContent = old; }, 1800);
   }
 
-  async function pasteCodeToEditor(button: HTMLButtonElement) {
+  async function pasteCodeToEditor(button?: HTMLButtonElement | null) {
     let text = await readClipboard();
     if (text === null) {
       const fallback = prompt("Paste your MarkdyScript code below:");
@@ -1789,9 +2164,12 @@ const playgroundStructuredData = [
 
     const trimmed = text.trim();
     if (!trimmed) {
-      const old = button.textContent;
-      button.textContent = "Empty!";
-      setTimeout(() => { button.textContent = old; }, 1800);
+      showToast("⚠️ Clipboard is empty or contains no text.");
+      if (button) {
+        const old = button.innerHTML;
+        button.innerHTML = "<span>Empty!</span>";
+        setTimeout(() => { button.innerHTML = old; }, 1800);
+      }
       return;
     }
 
@@ -1812,9 +2190,17 @@ const playgroundStructuredData = [
     render(text);
     updateEntitiesAndSuggestions(text);
 
-    const old = button.textContent;
-    button.textContent = "Pasted!";
-    setTimeout(() => { button.textContent = old; }, 1800);
+    // On mobile devices, ensure view is switched to Canvas so users see the rendered result immediately!
+    if (window.innerWidth <= 768) {
+      setViewMode("canvas");
+    }
+
+    showToast("✓ Pasted & rendered MarkdyScript!");
+    if (button) {
+      const old = button.innerHTML;
+      button.innerHTML = "<span>✓ Pasted!</span>";
+      setTimeout(() => { button.innerHTML = old; }, 1800);
+    }
   }
 
   formatCodeBtn?.addEventListener("click", () => {
@@ -2038,7 +2424,7 @@ Requirements:
       `;
 
       if (violations.length === 0) {
-        html += `<p class="audit-clean">✓ Architecture adheres to all cloud well-architected guardrails.</p>`;
+        html += `<p class="audit-clean"><span class="audit-clean-icon">✓</span><span>Architecture adheres to all cloud well-architected guardrails.</span></p>`;
       } else {
         html += `<ul class="audit-issues-list">`;
         for (const issue of violations) {
@@ -2073,9 +2459,83 @@ Requirements:
   });
 
 
+  // ─── Canvas Studio Controls ────────────────────────────────────────
+  canvasPlayBtn?.addEventListener("click", () => {
+    if (!diagram) return;
+    if (diagram.isPlaying()) {
+      diagram.pause();
+      updatePlaybackUi(false);
+      showToast("⏸ Motion paused");
+    } else {
+      diagram.play();
+      updatePlaybackUi(true);
+      showToast("▶ Motion playing");
+    }
+  });
+
+  canvasReplayBtn?.addEventListener("click", () => {
+    if (!diagram) return;
+    diagram.seek(0);
+    diagram.play();
+    updatePlaybackUi(true);
+    showToast("↺ Restarted animation from beat 1");
+  });
+
+  canvasSpeedSelect?.addEventListener("change", () => {
+    if (!diagram || !canvasSpeedSelect) return;
+    const rate = parseFloat(canvasSpeedSelect.value) || 1;
+    diagram.setPlaybackRate(rate);
+    showToast(`⚡ Playback speed: ${rate}×`);
+  });
+
+  canvasThemeSelect?.addEventListener("change", () => {
+    if (!canvasThemeSelect) return;
+    setDiagramTheme(canvasThemeSelect.value);
+  });
+
+  canvasFitBtn?.addEventListener("click", () => {
+    if (stageCanvas) {
+      const svgEl = stageCanvas.querySelector("svg");
+      if (svgEl) {
+        svgEl.style.transform = "none";
+        showToast("⤢ Diagram viewport reset");
+      }
+    }
+  });
+
+  // ─── Export & Share Modal Handlers ──────────────────────────────────
+  const openExportModalHandler = async () => {
+    if (!exportModal) return;
+    exportModal.showModal();
+    await updateShareUrl();
+  };
+
+  openExportBtn?.addEventListener("click", openExportModalHandler);
+  canvasExportBtn?.addEventListener("click", openExportModalHandler);
+  closeExportBtn?.addEventListener("click", () => exportModal?.close());
+  exportModal?.addEventListener("click", (e) => {
+    if (e.target === exportModal) exportModal.close();
+  });
+
+  exportSvgBtn?.addEventListener("click", exportSvg);
+  exportPngBtn?.addEventListener("click", exportPng);
+  exportSourceBtn?.addEventListener("click", downloadMarkdyFile);
+  exportMarkdownBtn?.addEventListener("click", copyMarkdownBlock);
+
+  copyShareUrlBtn?.addEventListener("click", async () => {
+    const url = shareUrlInput?.value || (await updateShareUrl());
+    try {
+      await navigator.clipboard.writeText(url);
+      showToast("✓ Permanent share link copied to clipboard!");
+    } catch {
+      showToast("⚠️ Please copy the share URL manually.");
+    }
+  });
+
   runBtn?.addEventListener("click", () => render(getCode()));
   resetBtn?.addEventListener("click", () => loadExample(selectedExample >= 0 ? selectedExample : 0));
   pasteCodeBtn?.addEventListener("click", () => pasteCodeToEditor(pasteCodeBtn));
+  canvasPasteBtn?.addEventListener("click", () => pasteCodeToEditor(canvasPasteBtn));
   copyCodeBtn?.addEventListener("click", () => {
     if (copyCodeBtn) writeClipboard(getCode(), copyCodeBtn, "Copied");
   });
@@ -2259,6 +2719,7 @@ Requirements:
       deselectCanvas();
       importModal?.close();
       cheatsheetModal?.close();
+      exportModal?.close();
       if (stagePane?.classList.contains("director-theatre-active")) {
         if (document.fullscreenElement) {
           document.exitFullscreen().catch(() => {});
@@ -2364,47 +2825,91 @@ Requirements:
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.85rem;
-    padding: 0.45rem 0.85rem;
-    margin-bottom: 0.75rem;
+    gap: 0.75rem;
+    padding: 0.4rem 0.85rem;
+    margin-bottom: 0.65rem;
     background: var(--bg-secondary);
     border: 1px solid var(--border);
     border-radius: 12px;
     box-shadow: var(--shadow-sm);
   }
 
-  .topbar-left,
-  .topbar-center,
-  .topbar-right {
+  .topbar-left {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.65rem;
+    min-width: 0;
   }
 
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 0.55rem;
+    gap: 0.45rem;
     text-decoration: none;
     color: var(--text-primary);
+    flex-shrink: 0;
   }
 
-  .brand-badge {
+  .brand-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+  }
+
+  .brand-badge-pill {
+    font-size: 0.62rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 0.1rem 0.38rem;
+    border-radius: 4px;
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+    line-height: 1.2;
+  }
+
+  .topbar-divider-v {
+    width: 1px;
+    height: 18px;
+    background: var(--border);
+    flex-shrink: 0;
+    margin: 0 0.15rem;
+  }
+
+  .topbar-nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0.2rem;
+  }
+
+  .topbar-nav-link {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: 8px;
-    background: var(--accent-light);
-    font-size: 0.95rem;
+    gap: 0.3rem;
+    padding: 0.2rem 0.48rem;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.76rem;
+    font-weight: 600;
+    transition: all 0.14s ease;
   }
 
-  .brand strong {
-    font-size: 0.94rem;
-    font-weight: 800;
-    letter-spacing: -0.01em;
+  .topbar-nav-link:hover {
     color: var(--text-primary);
+    background: var(--bg-tertiary);
+  }
+
+  .nav-counter {
+    font-size: 0.62rem;
+    font-weight: 700;
+    padding: 0.05rem 0.3rem;
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    color: var(--accent);
+    border: 1px solid var(--border);
   }
 
   /* Status Pill */
@@ -2412,13 +2917,14 @@ Requirements:
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    padding: 0.2rem 0.55rem;
+    padding: 0.18rem 0.5rem;
     border-radius: 999px;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     font-weight: 600;
     border: 1px solid var(--border);
-    background: var(--bg-tertiary);
+    background: var(--bg-elevated);
     transition: all 0.15s ease;
+    flex-shrink: 0;
   }
 
   .status-pill--ok {
@@ -2449,14 +2955,21 @@ Requirements:
   }
 
   /* View Mode Segmented Control */
+  .topbar-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
   .view-mode-group {
     display: inline-flex;
     align-items: center;
-    background: var(--bg-tertiary);
+    background: var(--bg-elevated);
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 2px;
+    padding: 3px;
     gap: 2px;
+    box-shadow: var(--shadow-xs);
   }
 
   .view-mode-btn {
@@ -2464,13 +2977,20 @@ Requirements:
     background: transparent;
     color: var(--text-secondary);
     font-family: inherit;
-    font-size: 0.75rem;
+    font-size: 0.74rem;
     font-weight: 600;
-    padding: 0.26rem 0.65rem;
+    padding: 0.25rem 0.65rem;
     border-radius: 6px;
     cursor: pointer;
-    transition: all 0.14s ease;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
     white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .view-mode-btn svg {
+    opacity: 0.75;
   }
 
   .view-mode-btn:hover {
@@ -2480,36 +3000,32 @@ Requirements:
   .view-mode-btn.active {
     background: var(--bg-secondary);
     color: var(--accent);
-    box-shadow: var(--shadow-xs);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border);
     font-weight: 700;
   }
 
-  /* Topbar Buttons */
-  .topbar-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    height: 28px;
-    padding: 0 0.65rem;
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    background: var(--bg-secondary);
-    color: var(--text-secondary);
-    font: inherit;
-    font-size: 0.76rem;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    transition: all 0.14s ease;
-    box-shadow: var(--shadow-xs);
-    white-space: nowrap;
+  .view-mode-btn.active svg {
+    opacity: 1;
+    stroke: var(--accent);
   }
 
-  .topbar-btn:hover {
-    border-color: var(--border-hover);
-    color: var(--text-primary);
-    background: var(--bg-tertiary);
-    transform: translateY(-1px);
+  /* Topbar Right Actions */
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .topbar-action-group {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  .topbar-export-btn {
+    box-shadow: 0 1px 6px var(--accent-glow);
+    font-weight: 700;
   }
 
   .topbar-btn-icon {
@@ -3091,7 +3607,12 @@ Requirements:
     display: flex;
     flex-direction: column;
     flex: 0 0 auto;
-    transition: max-height 0.2s ease-out;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.04);
+  }
+
+  .assistant-drawer.expanded {
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
   }
 
   .assistant-drawer:not(.expanded) .assistant-panel {
@@ -3102,117 +3623,278 @@ Requirements:
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.25rem 0.65rem;
-    background: var(--bg-tertiary);
-    border-bottom: 1px solid var(--border-subtle);
+    padding: 0.35rem 0.75rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    gap: 0.75rem;
   }
 
   .drawer-right-controls {
     display: flex;
     align-items: center;
     gap: 0.65rem;
+    flex-shrink: 0;
   }
 
   .drawer-shortcut-hint {
-    font-size: 0.62rem;
+    font-size: 0.64rem;
     color: var(--text-muted);
+    font-family: "JetBrains Mono", monospace;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
   }
 
   .drawer-shortcut-hint kbd {
-    padding: 0.05rem 0.25rem;
+    padding: 0.1rem 0.35rem;
     border: 1px solid var(--border);
     border-radius: 4px;
-    background: var(--bg-secondary);
+    background: var(--bg-elevated);
     color: var(--text-secondary);
     font-family: inherit;
-    font-size: 0.6rem;
+    font-size: 0.62rem;
     font-weight: 700;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
   }
 
   .assistant-tabs {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.35rem;
     overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .assistant-tabs::-webkit-scrollbar {
+    display: none;
   }
 
   .assistant-tab {
-    border: none;
+    border: 1px solid transparent;
     background: transparent;
     color: var(--text-secondary);
-    font-family: inherit;
-    font-size: 0.72rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.73rem;
     font-weight: 600;
-    padding: 0.25rem 0.55rem;
+    padding: 0.3rem 0.65rem;
     border-radius: 6px;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
-    transition: all 0.14s ease;
+    gap: 0.4rem;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
     white-space: nowrap;
+    user-select: none;
   }
 
   .assistant-tab:hover {
     color: var(--text-primary);
-    background: var(--bg-secondary);
+    background: var(--bg-elevated);
+    border-color: var(--border-subtle, var(--border));
   }
 
   .assistant-tab.active {
-    color: var(--accent);
-    background: var(--bg-secondary);
+    color: var(--text-primary);
+    background: var(--bg-elevated);
+    border-color: var(--border);
     box-shadow: var(--shadow-xs);
     font-weight: 700;
   }
 
   .tab-badge {
-    background: var(--accent-light);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
     color: var(--accent);
     font-size: 0.62rem;
+    font-family: "JetBrains Mono", monospace;
     font-weight: 800;
-    padding: 0.05rem 0.35rem;
+    padding: 0.06rem 0.4rem;
     border-radius: 999px;
-    border: 1px solid var(--border);
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+    min-width: 1.2rem;
+    text-align: center;
+    line-height: 1.2;
   }
 
   .tab-badge--diag {
-    background: var(--danger-light);
-    color: var(--danger);
+    background: color-mix(in srgb, var(--danger, #ef4444) 15%, transparent);
+    color: var(--danger, #ef4444);
+    border-color: color-mix(in srgb, var(--danger, #ef4444) 30%, transparent);
   }
 
   .drawer-toggle-btn {
-    border: none;
-    background: transparent;
-    color: var(--text-muted);
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--border);
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
     cursor: pointer;
-    font-size: 0.68rem;
-    padding: 0.2rem 0.4rem;
-    border-radius: 4px;
+    font-size: 0.62rem;
+    border-radius: 5px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.14s ease;
+    box-shadow: var(--shadow-xs);
   }
 
   .drawer-toggle-btn:hover {
     color: var(--text-primary);
+    border-color: var(--accent);
     background: var(--bg-secondary);
+    transform: translateY(-1px);
   }
 
   .assistant-panel {
     display: none;
-    padding: 0.6rem 0.85rem;
-    max-height: 165px;
+    padding: 0.75rem 0.95rem;
+    max-height: 190px;
     overflow-y: auto;
     scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+    background: var(--bg-primary);
   }
 
   .assistant-panel.active {
     display: block;
   }
 
+  /* Diagnostics & Toolbar */
+  .diagnostics-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    margin-bottom: 0.6rem;
+  }
+
+  .diag-title {
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: var(--danger, #ef4444);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 0.45rem;
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  .diag-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .diag-item {
+    background: color-mix(in srgb, var(--danger, #ef4444) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--danger, #ef4444) 22%, transparent);
+    border-left: 3px solid var(--danger, #ef4444);
+    border-radius: 6px;
+    padding: 0.4rem 0.65rem;
+    color: var(--text-primary);
+    font-size: 0.72rem;
+    font-family: "JetBrains Mono", monospace;
+    line-height: 1.4;
+  }
+
+  .diag-empty,
+  .audit-clean {
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+    border-radius: 7px;
+    padding: 0.55rem 0.85rem;
+    color: var(--accent);
+    font-size: 0.74rem;
+    font-weight: 600;
+    font-family: "JetBrains Mono", monospace;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0.2rem 0;
+  }
+
+  .audit-results {
+    margin-top: 0.4rem;
+  }
+
+  .audit-issues-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .audit-issue {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    padding: 0.5rem 0.7rem;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    border-left: 3px solid;
+    background: var(--bg-elevated);
+    box-shadow: var(--shadow-xs);
+    transition: all 0.14s ease;
+  }
+
+  .audit-issue:hover {
+    border-color: var(--border-hover);
+    transform: translateY(-1px);
+  }
+
+  .issue-err {
+    border-left-color: var(--danger, #ef4444);
+  }
+
+  .issue-warn {
+    border-left-color: #d97706;
+  }
+
+  .issue-badge {
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    font-family: "JetBrains Mono", monospace;
+    text-transform: uppercase;
+    line-height: 1.2;
+    background: var(--bg-secondary);
+  }
+
+  .issue-err .issue-badge {
+    background: color-mix(in srgb, var(--danger, #ef4444) 15%, transparent);
+    color: var(--danger, #ef4444);
+  }
+
+  .issue-warn .issue-badge {
+    background: rgba(217, 119, 6, 0.15);
+    color: #d97706;
+  }
+
+  .issue-body strong {
+    font-size: 0.74rem;
+    font-weight: 700;
+    display: block;
+    color: var(--text-primary);
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  .issue-body p {
+    margin: 0.15rem 0 0;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    line-height: 1.35;
+  }
+
+  /* Entities Inspector */
   .entities-head {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 0.45rem;
+    margin-bottom: 0.55rem;
   }
 
   .entities-summary {
@@ -3221,37 +3903,45 @@ Requirements:
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.06em;
+    font-family: "JetBrains Mono", monospace;
   }
 
   .nodes-inspector-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(172px, 1fr));
-    gap: 0.45rem;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.5rem;
   }
 
   :global(.node-item-card) {
     border: 1px solid var(--border);
     border-radius: 8px;
-    padding: 0.45rem;
-    background: var(--bg-tertiary);
-    transition: all 0.14s ease;
+    padding: 0.55rem 0.65rem;
+    background: var(--bg-elevated);
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: var(--shadow-xs);
     cursor: pointer;
   }
 
   :global(.node-item-card:hover) {
     border-color: var(--accent);
+    background: var(--bg-secondary);
     transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
   }
 
   :global(.node-card-top) {
     display: flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.4rem;
+  }
+
+  :global(.node-icon) {
+    font-size: 0.95rem;
+    line-height: 1;
   }
 
   :global(.node-id) {
-    font-size: 0.74rem;
+    font-size: 0.76rem;
     font-weight: 700;
     color: var(--text-primary);
     flex: 1;
@@ -3264,43 +3954,44 @@ Requirements:
   :global(.node-kind-badge) {
     font-size: 0.6rem;
     font-weight: 700;
+    font-family: "JetBrains Mono", monospace;
     padding: 0.08rem 0.35rem;
     border-radius: 4px;
     background: var(--bg-secondary);
-    color: var(--text-primary);
+    color: var(--text-muted);
     border: 1px solid var(--border);
     text-transform: lowercase;
   }
 
   :global(.node-label-text) {
-    font-size: 0.7rem;
+    font-size: 0.71rem;
     color: var(--text-secondary);
-    margin: 0.2rem 0 0.35rem;
+    margin: 0.25rem 0 0.35rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
   :global(.node-flows-stat) {
-    font-size: 0.65rem;
+    font-size: 0.64rem;
     color: var(--text-muted);
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.4rem;
     font-family: "JetBrains Mono", monospace;
   }
 
   :global(.node-actions-row) {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.3rem;
   }
 
   :global(.node-action-btn) {
     flex: 1;
-    font-family: inherit;
-    font-size: 0.64rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.66rem;
     font-weight: 700;
     letter-spacing: 0.01em;
-    padding: 0.22rem 0.45rem;
+    padding: 0.24rem 0.45rem;
     border-radius: 5px;
     border: 1px solid var(--border);
     background: var(--bg-secondary);
@@ -3311,7 +4002,7 @@ Requirements:
     justify-content: center;
     gap: 0.2rem;
     line-height: 1.2;
-    transition: background 0.12s ease, color 0.12s ease, border-color 0.12s ease, transform 0.12s ease;
+    transition: all 0.14s ease;
     box-shadow: var(--shadow-xs);
     white-space: nowrap;
   }
@@ -3321,29 +4012,27 @@ Requirements:
     box-shadow: var(--shadow-sm);
   }
 
-  /* + Flow — accent tinted */
   :global(.node-action-btn.btn-flow) {
     color: var(--accent);
     border-color: color-mix(in srgb, var(--accent) 30%, transparent);
-    background: var(--accent-light);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
   }
 
   :global(.node-action-btn.btn-flow:hover) {
     background: var(--accent);
-    color: #fff;
+    color: #ffffff;
     border-color: var(--accent);
   }
 
-  /* Pulse — sky tinted, still uses a token-friendly approach */
   :global(.node-action-btn.btn-pulse) {
     color: #0ea5e9;
-    border-color: rgba(14, 165, 233, 0.28);
+    border-color: rgba(14, 165, 233, 0.3);
     background: rgba(14, 165, 233, 0.08);
   }
 
   :global(.node-action-btn.btn-pulse:hover) {
     background: #0ea5e9;
-    color: #fff;
+    color: #ffffff;
     border-color: #0ea5e9;
   }
 
@@ -3355,100 +4044,126 @@ Requirements:
 
   :root[data-theme="dark"] :global(.node-action-btn.btn-pulse:hover) {
     background: #0284c7;
-    color: #fff;
+    color: #ffffff;
     border-color: #0284c7;
   }
 
   .inspector-empty,
-  .diag-empty,
   .sugg-perfect {
-    font-size: 0.75rem;
+    font-size: 0.74rem;
     color: var(--text-secondary);
-    padding: 0.4rem 0;
+    padding: 0.55rem 0.85rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-family: "JetBrains Mono", monospace;
   }
 
-  .sugg-perfect,
-  .diag-empty {
+  .sugg-perfect {
+    background: color-mix(in srgb, var(--accent) 8%, transparent);
+    border-color: color-mix(in srgb, var(--accent) 25%, transparent);
     color: var(--accent);
     font-weight: 600;
   }
 
+  /* Suggestions */
   .suggestions-container {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.45rem;
   }
 
   .sugg-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 0.65rem;
-    padding: 0.45rem 0.65rem;
+    gap: 0.75rem;
+    padding: 0.55rem 0.8rem;
     border: 1px solid var(--border);
-    border-radius: 7px;
-    background: var(--bg-tertiary);
-    transition: all 0.14s ease;
+    border-radius: 8px;
+    background: var(--bg-elevated);
+    transition: all 0.15s ease;
+    box-shadow: var(--shadow-xs);
   }
 
   .sugg-item:hover {
     border-color: var(--accent);
+    background: var(--bg-secondary);
+    transform: translateY(-1px);
   }
 
   .sugg-info strong {
     display: block;
-    font-size: 0.75rem;
+    font-size: 0.76rem;
+    font-weight: 700;
     color: var(--text-primary);
+    font-family: "JetBrains Mono", monospace;
   }
 
   .sugg-info p {
-    font-size: 0.7rem;
+    font-size: 0.71rem;
     color: var(--text-secondary);
-    margin: 0.1rem 0 0;
+    margin: 0.15rem 0 0;
+    line-height: 1.35;
   }
 
   .sugg-action-btn {
-    font-family: inherit;
-    font-size: 0.7rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.68rem;
     font-weight: 700;
-    padding: 0.2rem 0.55rem;
+    padding: 0.28rem 0.65rem;
     border: 1px solid var(--accent);
-    border-radius: 5px;
+    border-radius: 6px;
     background: var(--accent);
-    color: #ffffff;
+    color: #ffffff !important;
     cursor: pointer;
     white-space: nowrap;
-    transition: all 0.14s ease;
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px var(--accent-glow);
   }
 
   .sugg-action-btn:hover {
     background: var(--accent-hover);
+    border-color: var(--accent-hover);
     transform: translateY(-1px);
+    box-shadow: 0 2px 6px var(--accent-glow);
   }
 
   /* AI Builder Box */
+  .ai-builder-box {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 0.9rem;
+  }
+
   .ai-builder-box label {
     display: block;
     font-size: 0.72rem;
     font-weight: 700;
     color: var(--text-primary);
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.45rem;
+    font-family: "JetBrains Mono", monospace;
   }
 
   .ai-input-row {
     display: flex;
-    gap: 0.4rem;
+    gap: 0.45rem;
   }
 
   .ai-input-row input {
     flex: 1;
     border: 1px solid var(--border);
     border-radius: 7px;
-    background: var(--bg-tertiary);
+    background: var(--bg-primary);
     color: var(--text-primary);
-    padding: 0.4rem 0.65rem;
+    padding: 0.45rem 0.75rem;
     font-size: 0.78rem;
     font-family: inherit;
+    transition: all 0.15s ease;
   }
 
   .ai-input-row input:focus {
@@ -3460,7 +4175,18 @@ Requirements:
   .ai-builder-hint {
     font-size: 0.68rem;
     color: var(--text-muted);
-    margin: 0.35rem 0 0;
+    margin: 0.45rem 0 0;
+    line-height: 1.4;
+  }
+
+  .ai-builder-hint a {
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .ai-builder-hint a:hover {
+    text-decoration: underline;
   }
 
   /* ── Splitter ──────────────────────────────────────────────────────── */
@@ -4392,7 +5118,10 @@ Requirements:
     background: var(--bg-secondary);
     color: var(--text-primary);
     max-width: 660px;
-    width: 90vw;
+    width: 92vw;
+    max-height: 88vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     box-shadow: var(--shadow-lg);
   }
 
@@ -4447,25 +5176,30 @@ Requirements:
   }
 
   .format-tab {
-    padding: 0.35rem 0.65rem;
+    padding: 0.35rem 0.7rem;
     border: 1px solid var(--border);
     border-radius: 6px;
-    background: var(--bg-tertiary);
+    background: var(--bg-elevated);
     color: var(--text-secondary);
-    font-size: 0.75rem;
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.74rem;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.12s ease;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .format-tab:hover {
     color: var(--text-primary);
+    border-color: var(--border-hover);
+    background: var(--bg-secondary);
+    transform: translateY(-1px);
   }
 
   .format-tab.active {
     background: var(--accent);
-    color: #ffffff;
+    color: #ffffff !important;
     border-color: var(--accent);
+    box-shadow: 0 1px 4px var(--accent-glow);
   }
 
   .import-textarea {
@@ -4572,64 +5306,242 @@ Requirements:
     font-family: "JetBrains Mono", monospace;
   }
 
-  .audit-clean {
-    font-size: 0.75rem;
+  /* ── Canvas Studio Header Toolbar ────────────────────────────────────── */
+  .canvas-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .canvas-header-actions::-webkit-scrollbar {
+    display: none;
+  }
+
+  :global(#stage .markdy-footer) {
+    display: none !important;
+  }
+
+  .canvas-ctrl-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+    height: 27px;
+    padding: 0 0.55rem;
+    border-radius: 6px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 0.72rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    white-space: nowrap;
+    box-shadow: var(--shadow-xs);
+  }
+
+  .canvas-ctrl-btn:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+    background: var(--bg-secondary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .canvas-ctrl-btn--accent {
+    background: var(--accent);
+    color: #ffffff !important;
+    border-color: var(--accent);
+    box-shadow: 0 1px 4px var(--accent-glow);
+  }
+
+  .canvas-ctrl-btn--accent:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    box-shadow: 0 3px 10px var(--accent-glow);
+  }
+
+  .canvas-ctrl-btn--paste,
+  .tool-btn-paste {
+    background: var(--accent-light);
+    color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+    font-weight: 700;
+  }
+
+  .canvas-ctrl-btn--paste:hover,
+  .tool-btn-paste:hover {
+    background: var(--accent);
+    color: #ffffff !important;
+    border-color: var(--accent);
+  }
+
+  .canvas-select-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .canvas-select {
+    height: 27px;
+    padding: 0 0.45rem;
+    border-radius: 6px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    box-shadow: var(--shadow-xs);
+    transition: all 0.14s ease;
+  }
+
+  .canvas-select:hover {
+    border-color: var(--border-hover);
+  }
+
+  .canvas-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-light);
+  }
+
+  .canvas-select--theme {
+    max-width: 140px;
+    font-weight: 700;
     color: var(--accent);
   }
 
-  .audit-issues-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  .canvas-divider {
+    width: 1px;
+    height: 16px;
+    background: var(--border);
+    margin: 0 0.15rem;
+    flex-shrink: 0;
+  }
+
+  /* ── Export & Share Modal ────────────────────────────────────────────── */
+  .export-modal-box {
+    max-width: 620px;
+    width: 92vw;
+  }
+
+  .export-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.65rem;
+    margin: 1rem 0;
+  }
+
+  .export-card {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
-  }
-
-  .audit-issue {
-    display: flex;
     align-items: flex-start;
-    gap: 0.5rem;
-    padding: 0.4rem 0.55rem;
-    border-radius: 6px;
-    border: 1px solid var(--border);
+    gap: 0.35rem;
+    padding: 0.85rem;
+    border-radius: 10px;
     background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .issue-err {
-    border-color: rgba(239, 68, 68, 0.3);
-  }
-
-  .issue-warn {
-    border-color: rgba(217, 119, 6, 0.3);
-  }
-
-  .issue-badge {
-    font-size: 0.6rem;
-    font-weight: 800;
-    padding: 0.1rem 0.35rem;
-    border-radius: 4px;
+  .export-card:hover {
+    border-color: var(--accent);
     background: var(--bg-secondary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
   }
 
-  .issue-err .issue-badge {
-    color: var(--danger);
+  .export-card-icon {
+    font-size: 1.3rem;
   }
 
-  .issue-warn .issue-badge {
-    color: #d97706;
-  }
-
-  .issue-body strong {
-    font-size: 0.73rem;
+  .export-card-content strong {
     display: block;
+    font-size: 0.82rem;
+    font-weight: 800;
     color: var(--text-primary);
+    margin-bottom: 0.15rem;
   }
 
-  .issue-body p {
-    margin: 0.1rem 0 0;
-    font-size: 0.68rem;
+  .export-card-content span {
+    display: block;
+    font-size: 0.72rem;
     color: var(--text-secondary);
+    line-height: 1.35;
+  }
+
+  .export-card-badge {
+    margin-top: 0.25rem;
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.68rem;
+    font-weight: 700;
+    font-family: "JetBrains Mono", monospace;
+    color: var(--accent);
+    background: var(--accent-light);
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+  }
+
+  .export-share-container {
+    margin-top: 0.85rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+  }
+
+  .export-share-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.76rem;
+  }
+
+  .export-share-meta {
+    font-size: 0.68rem;
+    color: var(--text-muted);
+  }
+
+  .export-share-input-wrap {
+    display: flex;
+    gap: 0.45rem;
+    align-items: center;
+  }
+
+  .export-share-input {
+    flex: 1;
+    height: 32px;
+    padding: 0 0.65rem;
+    border-radius: 7px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.75rem;
+    outline: none;
+  }
+
+  .export-share-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-light);
+  }
+
+  .topbar-export-btn {
+    box-shadow: 0 1px 6px var(--accent-glow);
+  }
+
+  .topbar-export-btn:hover {
+    box-shadow: 0 3px 12px var(--accent-glow);
   }
 
   .sr-only {
@@ -4702,18 +5614,69 @@ Requirements:
   }
 
   @media (max-width: 768px) {
-    #view-split-btn {
+    /* Hide non-essential desktop features on mobile */
+    #view-split-btn,
+    #open-cheatsheet-btn,
+    #live-director-btn,
+    #import-btn,
+    #topbar-github-link,
+    #studio-onboarding-banner,
+    #palette-toggle-btn,
+    #palette-shelf,
+    .topbar-nav-links,
+    .topbar-divider-v,
+    .checklist-card,
+    .status-meta,
+    #status-text {
       display: none !important;
     }
+
+    .status-pill {
+      padding: 0.25rem;
+      border-radius: 999px;
+      min-width: unset;
+    }
+
+    .playground-page {
+      padding: 0.4rem 0.4rem 1.25rem;
+    }
+
+    /* Streamlined Topbar */
+    .topbar {
+      padding: 0.35rem 0.55rem;
+      gap: 0.4rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .topbar-center {
+      order: 3;
+      width: 100%;
+      margin-top: 0.15rem;
+    }
+
     .view-mode-group {
       width: 100%;
       display: flex;
     }
+
     .view-mode-btn {
       flex: 1;
       text-align: center;
       justify-content: center;
+      padding: 0.35rem 0.5rem;
+      font-size: 0.78rem;
     }
+
+    .topbar-right {
+      gap: 0.35rem;
+    }
+
+    .topbar-export-btn {
+      padding: 0 0.55rem;
+      font-size: 0.72rem;
+    }
+
+    /* Single pane view on mobile */
     .workspace:not([data-view-mode="code"]) .editor-panel {
       display: none !important;
     }
@@ -4722,51 +5685,132 @@ Requirements:
     }
     .workspace[data-view-mode="code"] .editor-panel {
       display: flex !important;
-      height: clamp(520px, 80vh, 760px);
+      height: clamp(520px, 82vh, 760px);
     }
     .workspace:not([data-view-mode="code"]) .preview-panel {
       display: flex !important;
-      height: clamp(520px, 80vh, 760px);
+      height: clamp(520px, 82vh, 760px);
     }
-    .playground-page {
-      padding: 0.5rem 0.5rem 1.5rem;
-    }
-    .topbar {
-      padding: 0.45rem 0.6rem;
-    }
-    .panel-head:not(.editor-panel-head) {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 0.45rem;
-      min-height: auto;
-    }
-    .panel-head-left,
-    .canvas-header-left {
-      justify-content: space-between;
-      width: 100%;
-    }
-    .editor-head-row--top .tool-select {
-      max-width: 100%;
-    }
-    .editor-head-row--actions {
-      overflow-x: auto;
-      scrollbar-width: none;
-      flex-wrap: nowrap;
-    }
-    .editor-head-row--actions::-webkit-scrollbar {
-      display: none;
-    }
-    .toolbar {
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .toolbar::-webkit-scrollbar {
-      display: none;
-    }
-    .dock-top-row {
+
+    /* Editor Header Bar */
+    .editor-panel-head {
       flex-direction: column;
       align-items: stretch;
       gap: 0.4rem;
+      padding: 0.45rem 0.55rem;
+    }
+
+    .editor-head-left {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .editor-head-actions {
+      width: 100%;
+      justify-content: space-between;
+      overflow-x: auto;
+      scrollbar-width: none;
+      gap: 0.3rem;
+    }
+
+    .editor-head-actions::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tool-btn-sm {
+      padding: 0 0.45rem;
+      font-size: 0.7rem;
+      height: 28px;
+    }
+
+    /* Canvas Header Bar */
+    .preview-panel-head {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: stretch !important;
+      gap: 0.35rem;
+      padding: 0.35rem 0.55rem !important;
+      min-height: auto !important;
+    }
+
+    .canvas-header-left {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .canvas-header-actions {
+      display: flex !important;
+      width: 100%;
+      overflow-x: auto !important;
+      scrollbar-width: none !important;
+      -webkit-overflow-scrolling: touch;
+      flex-wrap: nowrap !important;
+      padding-bottom: 2px;
+      gap: 0.3rem;
+    }
+
+    .canvas-header-actions::-webkit-scrollbar {
+      display: none;
+    }
+
+    .canvas-ctrl-btn {
+      height: 30px;
+      padding: 0 0.55rem;
+      font-size: 0.74rem;
+      flex-shrink: 0;
+    }
+
+    .canvas-select {
+      height: 30px;
+      font-size: 0.74rem;
+    }
+
+    .drawer-shortcut-hint {
+      display: none;
+    }
+
+    .assistant-tabs-bar {
+      padding: 0.3rem 0.4rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .assistant-tab {
+      font-size: 0.7rem;
+      padding: 0.25rem 0.45rem;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .resource-strip {
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .gallery-filter-chips {
+      overflow-x: auto;
+      scrollbar-width: none;
+      flex-wrap: nowrap;
+      padding-bottom: 4px;
+    }
+
+    .gallery-filter-chips::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .brand strong {
+      font-size: 0.85rem;
+    }
+    .status-pill {
+      padding: 0.15rem 0.35rem;
+    }
+    .export-grid {
+      grid-template-columns: 1fr;
     }
   }
 </style>

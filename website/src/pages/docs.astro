@@ -978,12 +978,14 @@ client Browser -> service Api -> database DB
     font-weight: 600;
     padding: 0.35rem 0.75rem;
     border-radius: 6px;
-    transition: transform 0.15s ease, opacity 0.15s ease;
+    box-shadow: 0 1px 4px var(--accent-glow);
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .btn-topbar-studio:hover {
+    background: var(--accent-hover);
     transform: translateY(-1px);
-    opacity: 0.95;
+    box-shadow: 0 3px 10px var(--accent-glow);
   }
 
   .btn-topbar-gh,
@@ -1363,7 +1365,8 @@ client Browser -> service Api -> database DB
 
   .doc-header-ctas {
     display: flex;
-    gap: 0.75rem;
+    gap: 0.65rem;
+    flex-wrap: wrap;
   }
 
   .btn-doc-primary {
@@ -1371,29 +1374,39 @@ client Browser -> service Api -> database DB
     color: #ffffff !important;
     font-weight: 600;
     font-size: 0.85rem;
-    padding: 0.5rem 1.1rem;
+    padding: 0.52rem 1.15rem;
     border-radius: 7px;
-    transition: transform 0.15s ease;
+    box-shadow: 0 1px 6px var(--accent-glow);
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
   }
 
   .btn-doc-primary:hover {
+    background: var(--accent-hover);
     transform: translateY(-1px);
+    box-shadow: 0 4px 14px var(--accent-glow);
   }
 
   .btn-doc-secondary {
-    background: var(--bg-tertiary);
+    background: var(--bg-elevated);
     border: 1px solid var(--border);
     color: var(--text-primary);
     font-weight: 600;
     font-size: 0.85rem;
-    padding: 0.5rem 1.1rem;
+    padding: 0.52rem 1.15rem;
     border-radius: 7px;
-    transition: all 0.15s ease;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
   }
 
   .btn-doc-secondary:hover {
     border-color: var(--border-hover);
     background: var(--bg-secondary);
+    transform: translateY(-1px);
   }
 
   .doc-section {

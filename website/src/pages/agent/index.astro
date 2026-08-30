@@ -112,6 +112,43 @@ const structuredData = [
       </div>
     </section>
 
+    <!-- ── 1-Click MCP Server Installation ── -->
+    <section class="mcp-section" aria-labelledby="mcp-section-title">
+      <div class="mcp-section-header">
+        <span class="kicker">Model Context Protocol</span>
+        <h2 id="mcp-section-title">Official Markdy MCP Server</h2>
+        <p class="mcp-section-desc">Equip AI Coding Agents with instant syntax validation, AST repair, and universal transpilation tools via MCP:</p>
+        <div class="mcp-oneclick-badges">
+          <a class="mcp-badge-btn" href="cursor://anysphere.cursor-deeplink/mcp/install?name=markdy&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIkBtYXJrZHkvbWNwLXNlcnZlciJdfQ%3D%3D" title="1-Click Install in Cursor">
+            <img src="https://img.shields.io/badge/⚡_Install_in-Cursor-000000?style=for-the-badge&logo=cursor&logoColor=white" alt="Install in Cursor" />
+          </a>
+          <a class="mcp-badge-btn" href="vscode:mcp/install?%7B%22name%22%3A%22markdy%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40markdy%2Fmcp-server%22%5D%7D" title="1-Click Install in VS Code">
+            <img src="https://img.shields.io/badge/⚡_Install_in-VS_Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="Install in VS Code" />
+          </a>
+          <a class="mcp-badge-btn" href="#mcp-config-preview-id" title="Setup in Google Antigravity">
+            <img src="https://img.shields.io/badge/⚡_Setup_in-Antigravity-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Setup in Antigravity" />
+          </a>
+        </div>
+      </div>
+      <div id="mcp-config-preview-id" class="mcp-config-preview">
+        <div class="mcp-config-tag">1-Command CLI Quick Install (Claude Code &amp; Antigravity):</div>
+        <pre class="mcp-pre"><code>{`# Claude Code CLI:
+claude mcp add markdy -- npx -y @markdy/mcp-server
+
+# Google Antigravity CLI:
+agy mcp add markdy -- npx -y @markdy/mcp-server`}</code></pre>
+        <div class="mcp-config-tag" style="margin-top: 0.5rem;">JSON Configuration (Claude Desktop, Cursor, Antigravity, Cline, Zed):</div>
+        <pre class="mcp-pre"><code>{`{
+  "mcpServers": {
+    "markdy": {
+      "command": "npx",
+      "args": ["-y", "@markdy/mcp-server"]
+    }
+  }
+}`}</code></pre>
+      </div>
+    </section>
+
     <section class="source-panel" aria-labelledby="source-title">
       <div class="source-heading">
         <div>
@@ -325,11 +362,80 @@ const structuredData = [
 
   .surface-card,
   .prompt-box,
+  .mcp-section,
   .source-panel {
     border: 1px solid var(--border, #e2e8f0);
     border-radius: 24px;
     background: var(--surface, #ffffff);
     box-shadow: 0 20px 60px rgba(15, 23, 42, 0.06);
+  }
+
+  .mcp-section {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 1.5rem;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background:
+      radial-gradient(circle at bottom left, rgba(56, 189, 248, 0.08), transparent 50%),
+      var(--surface, #ffffff);
+  }
+
+  .mcp-section-header h2 {
+    margin-top: 0.35rem;
+    color: var(--text-primary, #0f172a);
+    line-height: 1.15;
+  }
+
+  .mcp-section-desc {
+    margin-top: 0.35rem;
+    font-size: 0.88rem;
+    line-height: 1.4;
+    color: var(--text-secondary, #475569);
+  }
+
+  .mcp-oneclick-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .mcp-badge-btn {
+    display: inline-block;
+    transition: transform 0.18s ease;
+  }
+
+  .mcp-badge-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .mcp-config-preview {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .mcp-config-tag {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-secondary, #64748b);
+  }
+
+  .mcp-pre {
+    padding: 0.85rem 1rem;
+    font-size: 0.78rem;
+  }
+
+  @media (max-width: 860px) {
+    .mcp-section {
+      grid-template-columns: 1fr;
+      gap: 1.25rem;
+    }
   }
 
   .surface-card {
