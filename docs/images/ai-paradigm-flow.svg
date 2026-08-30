@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1340 260" width="100%" height="100%">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1340 180" width="100%" height="100%">
   <defs>
     <!-- Sketchy displacement filter -->
     <filter id="sketchy-filter" x="-10%" y="-10%" width="120%" height="120%">
       <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" result="noise" />
-      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3.5" xChannelSelector="R" yChannelSelector="G" />
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="3" xChannelSelector="R" yChannelSelector="G" />
     </filter>
 
     <filter id="sketchy-line" x="-10%" y="-10%" width="120%" height="120%">
@@ -31,123 +31,121 @@
     .card-script { stroke: #06b6d4; }
     .card-diagram { stroke: #10b981; }
     
-    .node-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14.5px; font-weight: 700; fill: #f8fafc; }
-    .node-subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 11.5px; fill: #94a3b8; }
-    .node-code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 10.5px; fill: #38bdf8; }
-    .edge-label { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 10.5px; font-weight: 600; fill: #e2e8f0; }
+    .node-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 700; fill: #f8fafc; }
+    .node-subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 11px; fill: #94a3b8; }
+    .node-code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 10px; fill: #38bdf8; }
+    .edge-label { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 10px; font-weight: 600; fill: #e2e8f0; }
   </style>
 
-  <!-- Canvas Container (Compact 260px Height) -->
-  <rect x="6" y="6" width="1328" height="248" rx="12" class="bg" stroke="#1e293b" stroke-width="1.5" />
+  <!-- Canvas Container (Tight 180px Height) -->
+  <rect x="4" y="4" width="1332" height="172" rx="10" class="bg" stroke="#1e293b" stroke-width="1.5" />
   
   <!-- Subtle Grid lines -->
-  <g stroke="#1e293b" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.35">
-    <line x1="6" y1="65" x2="1334" y2="65" />
-    <line x1="6" y1="130" x2="1334" y2="130" />
-    <line x1="6" y1="195" x2="1334" y2="195" />
-    <line x1="335" y1="6" x2="335" y2="254" />
-    <line x1="670" y1="6" x2="670" y2="254" />
-    <line x1="1005" y1="6" x2="1005" y2="254" />
+  <g stroke="#1e293b" stroke-width="0.5" stroke-dasharray="3,3" opacity="0.3">
+    <line x1="4" y1="45" x2="1336" y2="45" />
+    <line x1="4" y1="90" x2="1336" y2="90" />
+    <line x1="4" y1="135" x2="1336" y2="135" />
+    <line x1="335" y1="4" x2="335" y2="176" />
+    <line x1="670" y1="4" x2="670" y2="176" />
+    <line x1="1005" y1="4" x2="1005" y2="176" />
   </g>
 
   <!-- ==================== 1. DEVELOPER PROMPT ==================== -->
-  <g transform="translate(24, 24)">
-    <rect x="0" y="0" width="250" height="212" rx="10" class="card-bg card-human" filter="url(#sketchy-filter)" />
-    <circle cx="26" cy="26" r="14" fill="#1e1b4b" />
-    <text x="26" y="31" font-size="16" text-anchor="middle">🧑‍💻</text>
-    <text x="48" y="31" class="node-title">1. Developer Prompt</text>
+  <g transform="translate(18, 14)">
+    <rect x="0" y="0" width="256" height="152" rx="9" class="card-bg card-human" filter="url(#sketchy-filter)" />
+    <circle cx="24" cy="22" r="12" fill="#1e1b4b" />
+    <text x="24" y="26" font-size="14" text-anchor="middle">🧑‍💻</text>
+    <text x="44" y="26" class="node-title">1. Developer Prompt</text>
     
-    <rect x="12" y="52" width="226" height="146" rx="7" fill="#070a12" stroke="#1e293b" stroke-width="1" />
-    <text x="20" y="74" class="node-subtitle" font-weight="600" fill="#cbd5e1">Prompt in Natural Language:</text>
-    <text x="20" y="98" class="node-code" fill="#f43f5e">"Read @AGENT.md</text>
-    <text x="20" y="116" class="node-code" fill="#f43f5e">and generate an animated</text>
-    <text x="20" y="134" class="node-code" fill="#f43f5e">cache-aside architecture flow"</text>
+    <rect x="10" y="42" width="236" height="100" rx="6" fill="#070a12" stroke="#1e293b" stroke-width="1" />
+    <text x="18" y="60" class="node-subtitle" font-weight="600" fill="#cbd5e1">Prompt in Natural Language:</text>
+    <text x="18" y="78" class="node-code" fill="#f43f5e">"Read @AGENT.md</text>
+    <text x="18" y="94" class="node-code" fill="#f43f5e">and generate an animated cache-aside flow"</text>
     
-    <rect x="18" y="152" width="214" height="28" rx="5" fill="#1e1b4b" stroke="#3730a3" stroke-width="1" />
-    <text x="125" y="170" class="node-subtitle" font-size="10.5" fill="#c7d2fe" text-anchor="middle">📖 https://markdy.com/AGENT.md</text>
+    <rect x="16" y="110" width="224" height="22" rx="4" fill="#1e1b4b" stroke="#3730a3" stroke-width="1" />
+    <text x="128" y="125" class="node-subtitle" font-size="10" fill="#c7d2fe" text-anchor="middle">📖 https://markdy.com/AGENT.md</text>
   </g>
 
   <!-- ==================== CONNECTOR 1 -> 2 ==================== -->
-  <g transform="translate(274, 130)">
+  <g transform="translate(274, 90)">
     <path d="M 0 0 L 80 0" stroke="#6366f1" stroke-width="2.5" filter="url(#sketchy-line)" marker-end="url(#arrow-purple)" />
-    <rect x="-24" y="-34" width="128" height="28" rx="5" fill="#070a12" stroke="#3730a3" stroke-width="1" />
-    <text x="40" y="-21" class="edge-label" text-anchor="middle">1. Prompt system</text>
-    <text x="40" y="-9" class="edge-label" text-anchor="middle">architecture</text>
+    <rect x="-24" y="-30" width="128" height="26" rx="5" fill="#070a12" stroke="#3730a3" stroke-width="1" />
+    <text x="40" y="-18" class="edge-label" text-anchor="middle">1. Prompt system</text>
+    <text x="40" y="-7" class="edge-label" text-anchor="middle">architecture</text>
   </g>
 
   <!-- ==================== 2. AI CODING AGENT ==================== -->
-  <g transform="translate(358, 24)">
-    <rect x="0" y="0" width="250" height="212" rx="10" class="card-bg card-agent" filter="url(#sketchy-filter)" />
-    <circle cx="26" cy="26" r="14" fill="#3b0764" />
-    <text x="26" y="31" font-size="16" text-anchor="middle">🤖</text>
-    <text x="48" y="31" class="node-title">2. AI Coding Agent</text>
+  <g transform="translate(354, 14)">
+    <rect x="0" y="0" width="256" height="152" rx="9" class="card-bg card-agent" filter="url(#sketchy-filter)" />
+    <circle cx="24" cy="22" r="12" fill="#3b0764" />
+    <text x="24" y="26" font-size="14" text-anchor="middle">🤖</text>
+    <text x="44" y="26" class="node-title">2. AI Coding Agent</text>
     
-    <rect x="12" y="52" width="226" height="146" rx="7" fill="#070a12" stroke="#1e293b" stroke-width="1" />
-    <text x="20" y="74" class="node-subtitle" font-weight="600" fill="#cbd5e1">Understands Markdy AST:</text>
+    <rect x="10" y="42" width="236" height="100" rx="6" fill="#070a12" stroke="#1e293b" stroke-width="1" />
+    <text x="18" y="60" class="node-subtitle" font-weight="600" fill="#cbd5e1">Understands Markdy AST:</text>
     
-    <g transform="translate(18, 86)">
-      <rect x="0" y="0" width="100" height="24" rx="5" fill="#1e293b" stroke="#334155" stroke-width="1" />
-      <text x="50" y="16" class="node-subtitle" font-size="10.5" font-weight="600" fill="#f8fafc" text-anchor="middle">⚡ Cursor</text>
+    <g transform="translate(16, 70)">
+      <rect x="0" y="0" width="100" height="22" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1" />
+      <text x="50" y="15" class="node-subtitle" font-size="10" font-weight="600" fill="#f8fafc" text-anchor="middle">⚡ Cursor</text>
     </g>
-    <g transform="translate(126, 86)">
-      <rect x="0" y="0" width="100" height="24" rx="5" fill="#1e293b" stroke="#334155" stroke-width="1" />
-      <text x="50" y="16" class="node-subtitle" font-size="10.5" font-weight="600" fill="#f8fafc" text-anchor="middle">🧠 Claude</text>
+    <g transform="translate(120, 70)">
+      <rect x="0" y="0" width="100" height="22" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1" />
+      <text x="50" y="15" class="node-subtitle" font-size="10" font-weight="600" fill="#f8fafc" text-anchor="middle">🧠 Claude</text>
     </g>
 
-    <rect x="18" y="122" width="214" height="42" rx="5" fill="#2e1065" stroke="#581c87" stroke-width="1" />
-    <text x="125" y="139" class="node-subtitle" font-size="10.5" fill="#d8b4fe" text-anchor="middle">MCP: @markdy/mcp-server</text>
-    <text x="125" y="154" class="node-subtitle" font-size="9.5" fill="#a855f7" text-anchor="middle">Self-healing syntax &amp; rules</text>
+    <rect x="16" y="100" width="204" height="32" rx="4" fill="#2e1065" stroke="#581c87" stroke-width="1" />
+    <text x="118" y="114" class="node-subtitle" font-size="10" fill="#d8b4fe" text-anchor="middle">MCP: @markdy/mcp-server</text>
+    <text x="118" y="126" class="node-subtitle" font-size="9" fill="#a855f7" text-anchor="middle">Self-healing syntax &amp; rules</text>
   </g>
 
   <!-- ==================== CONNECTOR 2 -> 3 ==================== -->
-  <g transform="translate(608, 130)">
+  <g transform="translate(610, 90)">
     <path d="M 0 0 L 80 0" stroke="#a855f7" stroke-width="2.5" filter="url(#sketchy-line)" marker-end="url(#arrow-cyan)" />
-    <rect x="-10" y="-34" width="100" height="28" rx="5" fill="#070a12" stroke="#581c87" stroke-width="1" />
-    <text x="40" y="-21" class="edge-label" text-anchor="middle">2. Generate</text>
-    <text x="40" y="-9" class="edge-label" text-anchor="middle">Markdy DSL</text>
+    <rect x="-10" y="-30" width="100" height="26" rx="5" fill="#070a12" stroke="#581c87" stroke-width="1" />
+    <text x="40" y="-18" class="edge-label" text-anchor="middle">2. Generate</text>
+    <text x="40" y="-7" class="edge-label" text-anchor="middle">Markdy DSL</text>
   </g>
 
   <!-- ==================== 3. MARKDYSCRIPT ==================== -->
-  <g transform="translate(692, 24)">
-    <rect x="0" y="0" width="250" height="212" rx="10" class="card-bg card-script" filter="url(#sketchy-filter)" />
-    <circle cx="26" cy="26" r="14" fill="#083344" />
-    <text x="26" y="31" font-size="16" text-anchor="middle">📄</text>
-    <text x="48" y="31" class="node-title">3. MarkdyScript</text>
+  <g transform="translate(690, 14)">
+    <rect x="0" y="0" width="256" height="152" rx="9" class="card-bg card-script" filter="url(#sketchy-filter)" />
+    <circle cx="24" cy="22" r="12" fill="#083344" />
+    <text x="24" y="26" font-size="14" text-anchor="middle">📄</text>
+    <text x="44" y="26" class="node-title">3. MarkdyScript</text>
     
-    <rect x="12" y="52" width="226" height="146" rx="7" fill="#070a12" stroke="#1e293b" stroke-width="1" />
-    <text x="18" y="74" class="node-code" fill="#f43f5e">scene <tspan fill="#e2e8f0">"Cache-Aside"</tspan> <tspan fill="#38bdf8">LR</tspan></text>
-    <text x="18" y="92" class="node-code" fill="#38bdf8">browser <tspan fill="#f1f5f9">Client</tspan> · cache <tspan fill="#f1f5f9">Redis</tspan></text>
-    <text x="18" y="112" class="node-code" fill="#a855f7">beat <tspan fill="#f1f5f9">cache_hit</tspan>:</text>
-    <text x="28" y="130" class="node-code" fill="#38bdf8">Client -&gt; Svc -&gt; Redis</text>
+    <rect x="10" y="42" width="236" height="100" rx="6" fill="#070a12" stroke="#1e293b" stroke-width="1" />
+    <text x="18" y="62" class="node-code" fill="#f43f5e">scene <tspan fill="#e2e8f0">"Cache-Aside"</tspan> <tspan fill="#38bdf8">LR</tspan></text>
+    <text x="18" y="78" class="node-code" fill="#38bdf8">browser <tspan fill="#f1f5f9">Client</tspan> · cache <tspan fill="#f1f5f9">Redis</tspan></text>
+    <text x="18" y="96" class="node-code" fill="#a855f7">beat <tspan fill="#f1f5f9">cache_hit</tspan>:</text>
+    <text x="26" y="112" class="node-code" fill="#38bdf8">Client -&gt; Svc -&gt; Redis</text>
     
-    <rect x="18" y="152" width="214" height="28" rx="5" fill="#083344" stroke="#0e7490" stroke-width="1" />
-    <text x="125" y="170" class="node-subtitle" font-size="10.5" fill="#67e8f9" text-anchor="middle">Strict, cycle-safe grammar AST</text>
+    <text x="128" y="132" class="node-subtitle" font-size="9.5" fill="#67e8f9" text-anchor="middle">Strict, cycle-safe grammar AST</text>
   </g>
 
   <!-- ==================== CONNECTOR 3 -> 4 ==================== -->
-  <g transform="translate(942, 130)">
+  <g transform="translate(946, 90)">
     <path d="M 0 0 L 80 0" stroke="#06b6d4" stroke-width="2.5" filter="url(#sketchy-line)" marker-end="url(#arrow-cyan)" />
-    <rect x="-35" y="-34" width="150" height="28" rx="5" fill="#070a12" stroke="#0e7490" stroke-width="1" />
-    <text x="40" y="-21" class="edge-label" text-anchor="middle">3. 60fps browser-</text>
-    <text x="40" y="-9" class="edge-label" text-anchor="middle">native motion</text>
+    <rect x="-35" y="-30" width="150" height="26" rx="5" fill="#070a12" stroke="#0e7490" stroke-width="1" />
+    <text x="40" y="-18" class="edge-label" text-anchor="middle">3. 60fps browser-</text>
+    <text x="40" y="-7" class="edge-label" text-anchor="middle">native motion</text>
   </g>
 
   <!-- ==================== 4. LIVE ANIMATED DIAGRAM ==================== -->
-  <g transform="translate(1026, 24)">
-    <rect x="0" y="0" width="270" height="212" rx="10" class="card-bg card-diagram" filter="url(#sketchy-filter)" />
-    <circle cx="26" cy="26" r="14" fill="#064e3b" />
-    <text x="26" y="31" font-size="16" text-anchor="middle">🎬</text>
-    <text x="48" y="31" class="node-title">4. Live Diagram</text>
+  <g transform="translate(1026, 14)">
+    <rect x="0" y="0" width="296" height="152" rx="9" class="card-bg card-diagram" filter="url(#sketchy-filter)" />
+    <circle cx="24" cy="22" r="12" fill="#064e3b" />
+    <text x="24" y="26" font-size="14" text-anchor="middle">🎬</text>
+    <text x="44" y="26" class="node-title">4. Live Diagram</text>
     
-    <rect x="12" y="52" width="246" height="146" rx="7" fill="#070a12" stroke="#1e293b" stroke-width="1" />
-    <text x="20" y="74" class="node-subtitle" font-weight="600" fill="#34d399">⚡ 60fps WAAPI Motion Engine</text>
+    <rect x="10" y="42" width="276" height="100" rx="6" fill="#070a12" stroke="#1e293b" stroke-width="1" />
+    <text x="18" y="60" class="node-subtitle" font-weight="600" fill="#34d399">⚡ 60fps WAAPI Motion Engine</text>
     
-    <rect x="18" y="86" width="234" height="28" rx="5" fill="#1e293b" stroke="#334155" stroke-width="1" />
-    <text x="135" y="104" class="node-subtitle" font-weight="600" fill="#f8fafc" text-anchor="middle">IDE Preview (<tspan fill="#38bdf8">Cmd+K V</tspan>)</text>
+    <rect x="16" y="70" width="264" height="24" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1" />
+    <text x="148" y="86" class="node-subtitle" font-size="10.5" font-weight="600" fill="#f8fafc" text-anchor="middle">IDE Preview (<tspan fill="#38bdf8">Cmd+K V</tspan>)</text>
 
-    <rect x="18" y="122" width="234" height="28" rx="5" fill="#1e293b" stroke="#334155" stroke-width="1" />
-    <text x="135" y="140" class="node-subtitle" font-weight="600" fill="#f8fafc" text-anchor="middle">Web Studio &amp; Export</text>
+    <rect x="16" y="100" width="264" height="24" rx="4" fill="#1e293b" stroke="#334155" stroke-width="1" />
+    <text x="148" y="116" class="node-subtitle" font-size="10.5" font-weight="600" fill="#f8fafc" text-anchor="middle">Web Studio &amp; Export</text>
     
-    <text x="135" y="172" class="node-subtitle" font-size="10" fill="#6ee7b7" text-anchor="middle">Browser-native, hardware accelerated</text>
+    <text x="148" y="136" class="node-subtitle" font-size="9" fill="#6ee7b7" text-anchor="middle">Browser-native, hardware accelerated</text>
   </g>
 </svg>
