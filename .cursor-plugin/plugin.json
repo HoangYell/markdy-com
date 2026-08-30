@@ -1,6 +1,6 @@
 {
   "name": "markdy",
-  "version": "1.1.1",
+  "version": "1.1.4",
   "description": "Declarative 60fps kinetic architecture diagrams as code. Design animated cloud, microservices, and system diagrams directly with MarkdyScript and AI agents.",
   "author": {
     "name": "Hoang Yell",
@@ -27,7 +27,10 @@
   "mcpServers": {
     "markdy": {
       "command": "npx",
-      "args": ["-y", "@markdy/mcp-server"]
+      "args": [
+        "-y",
+        "@markdy/mcp-server"
+      ]
     }
   }
 }

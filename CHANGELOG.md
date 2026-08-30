@@ -5,6 +5,34 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.4] — 2026-08-30
+
+### Added
+- **1-Tap Mobile Paste Experience (`@markdy/website`)**:
+  - Integrated instant `[ 📋 Paste ]` action into the mobile Segmented Mode Switcher (`Canvas | Code | Paste`) on phone viewports (`<= 768px`).
+  - Placed `[ 📋 Paste ]` as the **first action** on the Canvas toolbar (`WAAPI Motion Canvas`), ensuring it is always immediately accessible and never scrolled off or obscured on mobile viewports.
+  - Automatically parses, compiles, choreographs 60fps WAAPI motion graphics, and switches to the live visual Canvas in one tap.
+- **1-Click MCP Server Installation & Deep Links (`@markdy/mcp-server`, `@markdy/website`)**:
+  - Direct 1-click OS protocol URL scheme installation for **Cursor** (`cursor://anysphere.cursor-deeplink/mcp/install?...`) and **VS Code / GitHub Copilot** (`vscode:mcp/install?...`).
+  - Added dedicated standalone installation routes `/mcp/cursor` and `/mcp/vscode` with auto-redirection.
+  - 1-command native terminal configuration for **Claude Code** (`claude mcp add markdy -- npx -y @markdy/mcp-server`) and **Google Antigravity** (`agy mcp add markdy -- npx -y @markdy/mcp-server`).
+- **Synchronized Featured Architecture Designation (`@markdy/website`)**:
+  - Unified default scene across Homepage and Studio Playground under `⭐ Featured: Cache-Aside & Sharded Microservices` with explicit labeling in presets and dropdown selectors.
+
+### Changed & Refined
+- **Streamlined Editor Panel Header (`@markdy/website`)**:
+  - Removed redundant `Reset` and `Run` buttons from the authoring toolbar (relying on Markdy's reactive real-time compilation engine).
+  - Relocated `＋ Insert` into the primary right-hand actions group alongside `📋 Paste`, `✨ Format`, and `📄 Copy`, completely eliminating button collision and overlap on narrow screens.
+- **Unified 29 Architecture Blueprints Nomenclature**:
+  - Standardized terminology repo-wide to **`29 Architecture Blueprints`** across all documentation, live galleries, VS Code extension, Wiki, and README files.
+- **High-Resolution Lossless WebP Visual Assets**:
+  - Upgraded split editor interface captures to 1731×909 lossless WebP assets (`docs/images/markdy-split-editor.webp` and `website/public/images/markdy-split-editor.webp`, 220 kB, 95% quality).
+- **Responsive Breakpoint & Topbar Polish (`@markdy/website`)**:
+  - Added `@media (max-width: 1200px)` breakpoint: automatically hides verbose status pill node metrics (`9 nodes · 14 flows` -> `🟢 Synced`) and collapses secondary global links, ensuring 100% clean layouts without wrap glitches on iPad and small laptops.
+- **Complete Accessibility & Markup Audit**:
+  - Verified 100% of interactive `<button>`, `<a>`, and `<input>` elements have descriptive `aria-label`, `title`, or readable text.
+  - Ensured all image assets have descriptive `alt` tags and all decorative SVGs are annotated with `aria-hidden="true"`.
+
 ## [1.1.3] — 2026-08-30
 
 ### Fixed
