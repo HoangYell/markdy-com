@@ -304,7 +304,7 @@ describe("createDiagram integration", () => {
 
     themeBtn!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(switchedTheme).toBeTruthy();
-    expect(["paper", "editorial", "sketchy"]).toContain(sceneRoot.dataset.markdyTheme);
+    expect(["paper", "editorial", "sketchy", "draft", "doodle"]).toContain(sceneRoot.dataset.markdyTheme);
 
     diagram.destroy();
     container.remove();
@@ -817,8 +817,8 @@ beat main:
     }
   });
 
-  it("mounts and destroys diagrams across all 8 registered themes cleanly", () => {
-    const themes = ["midnight", "paper", "blueprint", "graphite", "editorial", "nebula", "terminal", "sketchy"];
+  it("mounts and destroys diagrams across all 10 registered themes cleanly", () => {
+    const themes = ["midnight", "paper", "blueprint", "graphite", "editorial", "nebula", "terminal", "sketchy", "draft", "doodle"];
 
     for (const themeName of themes) {
       const container = document.createElement("div");

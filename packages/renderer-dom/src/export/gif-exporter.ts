@@ -25,6 +25,7 @@ export interface GifDiagramExportOptions extends SvgExportOptions {
   pixelRatio?: number;
   loop?: boolean;
   dither?: boolean;
+  diff?: boolean;
   holdEndMs?: number;
   onProgress?: (progress: number, currentFrame: number, totalFrames: number) => void;
 }
@@ -42,9 +43,9 @@ const nextFrame = () => new Promise<void>((resolve) => {
     finish();
   }));
 });
-const DEFAULT_GIF_PIXEL_RATIO = 0.8;
-const DEFAULT_GIF_FPS = 8;
-const MAX_GIF_FRAMES = 24;
+const DEFAULT_GIF_PIXEL_RATIO = 2.0;
+const DEFAULT_GIF_FPS = 20;
+const MAX_GIF_FRAMES = 96;
 
 /**
  * Rasterize the current state of `container` into ImageData.
@@ -64,14 +65,14 @@ export async function exportDiagramAsGif(
   timeline: TimelineController,
   options: GifDiagramExportOptions = {},
 ): Promise<Blob> {
-  const requestedFps = Math.min(15, Math.max(1, Math.round(options.fps ?? DEFAULT_GIF_FPS)));
+  const requestedFps = Math.min(30, Math.max(1, Math.round(options.fps ?? DEFAULT_GIF_FPS)));
   const rawDuration = timeline.duration();
   const duration = Math.max(Number.isFinite(rawDuration) ? rawDuration : 1, 0.1);
-  const fps = Math.min(requestedFps, Math.max(2, Math.round(MAX_GIF_FRAMES / duration)));
+  const fps = Math.min(requestedFps, Math.max(6, Math.round(MAX_GIF_FRAMES / duration)));
   const frameCount = Math.max(1, Math.ceil(duration * fps));
-  const delayMs = Math.max(50, Math.round(1000 / fps));
+  const delayMs = Math.max(20, Math.round(1000 / fps));
   const pixelRatio = options.pixelRatio ?? DEFAULT_GIF_PIXEL_RATIO;
-  const holdEndMs = Math.max(delayMs, options.holdEndMs ?? 1000);
+  const holdEndMs = Math.max(delayMs, options.holdEndMs ?? 1400);
   const priorTime = timeline.currentTime();
   const wasPlaying = timeline.isPlaying();
   timeline.pause();
@@ -104,6 +105,7 @@ export async function exportDiagramAsGif(
     const encoded = encodeGifSequence(frames, {
       dither: options.dither ?? false,
       loop: options.loop ?? true,
+      diff: options.diff ?? true,
     });
     // Copy into an ArrayBuffer-backed view: TS permits the encoder's generic
     // ArrayBufferLike view to include SharedArrayBuffer, which Blob does not.

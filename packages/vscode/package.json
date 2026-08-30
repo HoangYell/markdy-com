@@ -455,7 +455,9 @@
             "editorial",
             "graphite",
             "terminal",
-            "sketchy"
+            "sketchy",
+            "draft",
+            "doodle"
           ],
           "description": "Theme override for preview panel (auto matches editor theme)."
         },

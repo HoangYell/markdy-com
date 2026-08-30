@@ -160,8 +160,8 @@ window.addEventListener("message", async (event) => {
         if (!currentDiagram) throw new Error("Diagram not initialized");
         showLoading("Recording animated GIF...");
         const gifBlob = await exportDiagramAsGif(container, currentDiagram, {
-          fps: 8,
-          pixelRatio: 0.8,
+          fps: 20,
+          pixelRatio: 2.0,
           dither: false,
           onProgress: (_prog, frame, total) => {
             showLoading(`Recording GIF frame ${frame}/${total}...`);
@@ -444,7 +444,7 @@ window.addEventListener("keydown", (e) => {
     case "t":
     case "T":
       if (themeSelect) {
-        const themes = ["auto", "midnight", "paper", "blueprint", "nebula", "editorial", "graphite", "terminal", "sketchy"];
+        const themes = ["auto", "midnight", "paper", "blueprint", "nebula", "editorial", "graphite", "terminal", "sketchy", "draft", "doodle"];
         const nextIdx = (themes.indexOf(themeSelect.value) + 1) % themes.length;
         themeSelect.value = themes[nextIdx];
         currentThemeOverride = themeSelect.value === "auto" ? null : themeSelect.value;

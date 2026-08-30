@@ -68,6 +68,33 @@ export function ensureSceneStyles(doc: Document): void {
   background: none;
   opacity: 0;
 }
+.markdy-scene-root[data-markdy-theme="draft"]::before {
+  background:
+    radial-gradient(circle at 50% 50%, var(--md-grid-minor) 1.2px, transparent 1.2px) 0 0 / 24px 24px,
+    linear-gradient(var(--md-grid-major) 1px, transparent 1px) 0 0 / 120px 120px,
+    linear-gradient(90deg, var(--md-grid-major) 1px, transparent 1px) 0 0 / 120px 120px;
+  mask-image: radial-gradient(ellipse at 50% 48%, #000 80%, transparent 100%);
+  opacity: 0.85;
+}
+.markdy-scene-root[data-markdy-theme="draft"]::after {
+  background:
+    radial-gradient(ellipse at 50% -8%, color-mix(in srgb, var(--md-accent) 10%, transparent), transparent 52%),
+    radial-gradient(ellipse at 50% 108%, rgba(40, 44, 55, 0.06), transparent 55%),
+    linear-gradient(180deg, transparent 0%, rgba(220, 212, 196, 0.20) 70%, var(--md-vignette) 100%);
+  opacity: 0.7;
+}
+.markdy-scene-root[data-markdy-theme="doodle"]::before {
+  background:
+    radial-gradient(circle at 50% 50%, rgba(24, 24, 27, 0.06) 1.5px, transparent 1.5px) 0 0 / 20px 20px;
+  mask-image: none;
+  opacity: 0.7;
+}
+.markdy-scene-root[data-markdy-theme="doodle"]::after {
+  background:
+    radial-gradient(ellipse at 85% 15%, rgba(244, 63, 94, 0.05), transparent 45%),
+    radial-gradient(ellipse at 15% 85%, rgba(37, 99, 235, 0.05), transparent 45%);
+  opacity: 0.6;
+}
 @keyframes markdy-star-twinkle {
   from { opacity: 0.24; transform: scale(0.85); }
   to { opacity: 0.9; transform: scale(1.15); }
@@ -138,6 +165,22 @@ export function ensureSceneStyles(doc: Document): void {
   opacity: 0;
   transform: translateY(8px);
   will-change: opacity, transform;
+}
+.markdy-scene-root[data-markdy-theme="draft"] .markdy-beat-caption {
+  background: rgba(255, 255, 255, 0.96);
+  border: 1.25px solid #282c37;
+  color: #1a1f2c;
+  box-shadow:
+    2px 2px 0 rgba(40, 44, 55, 0.14),
+    0 10px 24px -6px rgba(40, 44, 55, 0.12);
+}
+.markdy-scene-root[data-markdy-theme="doodle"] .markdy-beat-caption {
+  background: #ffffff;
+  border: 2px solid #18181b;
+  color: #18181b;
+  border-radius: 12px 16px 14px 10px;
+  box-shadow: 3px 3px 0 #18181b;
+  font-weight: 700;
 }
 .markdy-diagram-root {
   position: relative;

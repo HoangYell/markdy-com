@@ -404,7 +404,7 @@ describe("diagram render plan", () => {
     expect(layer.querySelectorAll(".markdy-sequence-lifeline-cap")).toHaveLength(2);
     expect(layer.querySelectorAll(".markdy-sequence-message")).toHaveLength(1);
     expect(layer.querySelectorAll(".markdy-sequence-activation")).toHaveLength(1);
-    expect(animations.length).toBe(2);
+    expect(animations.length).toBe(3);
   });
 
   it("renders deterministic nebula constellation decoration", () => {

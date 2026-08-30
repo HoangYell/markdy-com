@@ -419,6 +419,8 @@ export function getIntelliCodeCompletions(docText: string, cursorLine: number, c
       { name: "graphite", desc: "Sleek slate monochrome engineering aesthetic" },
       { name: "terminal", desc: "Retro phosphor CRT hacker terminal green on black" },
       { name: "sketchy", desc: "Hand-drawn sketchy whiteboard marker design" },
+      { name: "draft", desc: "Refined architectural drafting paper combining technical precision and hand-drawn warmth" },
+      { name: "doodle", desc: "Playful hand-drawn doodle sketchbook with felt-tip marker pens and comic block shadows" },
     ];
     for (const t of themeEntries) {
       items.push({

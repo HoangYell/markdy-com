@@ -251,7 +251,7 @@ export interface EdgeRuntime {
 export type EdgeRuntimeMap = Map<string, EdgeRuntime>;
 
 function isDarkTheme(theme: ThemeTokens): boolean {
-  if (theme.name === "paper" || theme.name === "editorial" || theme.name === "sketchy") {
+  if (theme.name === "paper" || theme.name === "editorial" || theme.name === "sketchy" || theme.name === "draft" || theme.name === "doodle") {
     return false;
   }
   const canvas = (theme.canvas || theme.surface || "").trim();

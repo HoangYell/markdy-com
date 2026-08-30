@@ -5,94 +5,161 @@
  */
 
 const GIF_HEADER = "GIF89a";
+const TRANSPARENT_COLOR_INDEX = 255;
 
-const PALETTE_RGB332: Uint8Array = (() => {
-  const palette = new Uint8Array(256 * 3);
-  for (let i = 0; i < 256; i++) {
-    const r = Math.round((((i >> 5) & 0x07) * 255) / 7);
-    const g = Math.round((((i >> 2) & 0x07) * 255) / 7);
-    const b = Math.round(((i & 0x03) * 255) / 3);
-    palette[i * 3] = r;
-    palette[i * 3 + 1] = g;
-    palette[i * 3 + 2] = b;
-  }
-  return palette;
-})();
-
-function clamp(value: number, min = 0, max = 255): number {
-  return value < min ? min : value > max ? max : value;
+export interface AdaptiveQuantizer {
+  palette: Uint8Array;
+  quantize: (imageData: ImageData) => Uint8Array;
 }
 
-function nearestColorIndex(r: number, g: number, b: number): number {
-  return ((clamp(r) & 0xe0) | ((clamp(g) & 0xe0) >> 3) | ((clamp(b) & 0xc0) >> 6)) & 0xff;
-}
+export function buildAdaptivePalette(
+  frames: AnimationRecordFrame[],
+  maxColors = 254
+): AdaptiveQuantizer {
+  const histogram = new Map<number, number>();
 
-function quantizeFrame(imageData: ImageData, dither: boolean): Uint8Array {
-  const { width, height, data } = imageData;
-  const pixelCount = width * height;
-  const out = new Uint8Array(pixelCount);
-
-  if (!dither) {
-    for (let i = 0; i < pixelCount; i++) {
-      const idx = i * 4;
-      out[i] = ((data[idx] & 0xe0) | ((data[idx + 1] & 0xe0) >> 3) | ((data[idx + 2] & 0xc0) >> 6)) & 0xff;
-    }
-    return out;
-  }
-
-  const errR = new Float32Array(pixelCount);
-  const errG = new Float32Array(pixelCount);
-  const errB = new Float32Array(pixelCount);
-
-  for (let i = 0; i < pixelCount; i++) {
-    const idx = i * 4;
-    errR[i] = data[idx];
-    errG[i] = data[idx + 1];
-    errB[i] = data[idx + 2];
-  }
-
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      const idx = y * width + x;
-      const r = clamp(Math.round(errR[idx]));
-      const g = clamp(Math.round(errG[idx]));
-      const b = clamp(Math.round(errB[idx]));
-
-      const colorIdx = nearestColorIndex(r, g, b);
-      out[idx] = colorIdx;
-
-      const pr = PALETTE_RGB332[colorIdx * 3];
-      const pg = PALETTE_RGB332[colorIdx * 3 + 1];
-      const pb = PALETTE_RGB332[colorIdx * 3 + 2];
-
-      const dr = errR[idx] - pr;
-      const dg = errG[idx] - pg;
-      const db = errB[idx] - pb;
-
-      if (x + 1 < width) {
-        errR[idx + 1] += (dr * 7) / 16;
-        errG[idx + 1] += (dg * 7) / 16;
-        errB[idx + 1] += (db * 7) / 16;
-      }
-      if (y + 1 < height) {
-        if (x > 0) {
-          errR[idx + width - 1] += (dr * 3) / 16;
-          errG[idx + width - 1] += (dg * 3) / 16;
-          errB[idx + width - 1] += (db * 3) / 16;
-        }
-        errR[idx + width] += (dr * 5) / 16;
-        errG[idx + width] += (dg * 5) / 16;
-        errB[idx + width] += (db * 5) / 16;
-        if (x + 1 < width) {
-          errR[idx + width + 1] += (dr * 1) / 16;
-          errG[idx + width + 1] += (dg * 1) / 16;
-          errB[idx + width + 1] += (db * 1) / 16;
-        }
-      }
+  // Sample pixels across frames for comprehensive color coverage
+  const stepFrame = Math.max(1, Math.floor(frames.length / 8));
+  for (let f = 0; f < frames.length; f += stepFrame) {
+    const data = frames[f].imageData.data;
+    const len = data.length;
+    for (let i = 0; i < len; i += 8) {
+      const a = data[i + 3];
+      if (a < 16) continue;
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+      const key = (r << 16) | (g << 8) | b;
+      histogram.set(key, (histogram.get(key) || 0) + 1);
     }
   }
 
-  return out;
+  const entries = Array.from(histogram.entries());
+  let paletteColors: [number, number, number][] = [];
+
+  if (entries.length <= maxColors) {
+    paletteColors = entries.map(([key]) => [
+      (key >> 16) & 0xff,
+      (key >> 8) & 0xff,
+      key & 0xff,
+    ]);
+  } else {
+    // Sort by frequency (most dominant diagram colors first)
+    entries.sort((a, b) => b[1] - a[1]);
+
+    const topCount = Math.min(128, Math.floor(maxColors * 0.6));
+    for (let i = 0; i < topCount; i++) {
+      const key = entries[i][0];
+      paletteColors.push([
+        (key >> 16) & 0xff,
+        (key >> 8) & 0xff,
+        key & 0xff,
+      ]);
+    }
+
+    // Cluster remaining anti-aliased shades into RGB555 buckets
+    const buckets = new Map<number, { rSum: number; gSum: number; bSum: number; count: number }>();
+    for (let i = topCount; i < entries.length; i++) {
+      const [key, count] = entries[i];
+      const r = (key >> 16) & 0xff;
+      const g = (key >> 8) & 0xff;
+      const b = key & 0xff;
+      const bKey = ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3);
+      let buck = buckets.get(bKey);
+      if (!buck) {
+        buck = { rSum: 0, gSum: 0, bSum: 0, count: 0 };
+        buckets.set(bKey, buck);
+      }
+      buck.rSum += r * count;
+      buck.gSum += g * count;
+      buck.bSum += b * count;
+      buck.count += count;
+    }
+
+    const bucketList = Array.from(buckets.values()).sort((a, b) => b.count - a.count);
+    const remainSlots = maxColors - paletteColors.length;
+    for (let i = 0; i < Math.min(remainSlots, bucketList.length); i++) {
+      const b = bucketList[i];
+      paletteColors.push([
+        Math.round(b.rSum / b.count),
+        Math.round(b.gSum / b.count),
+        Math.round(b.bSum / b.count),
+      ]);
+    }
+  }
+
+  if (paletteColors.length === 0) {
+    paletteColors.push([255, 255, 255]);
+  }
+
+  // Build global 256-color table (Slot 255 strictly reserved for transparency)
+  const globalPalette = new Uint8Array(256 * 3);
+  for (let i = 0; i < paletteColors.length; i++) {
+    globalPalette[i * 3] = paletteColors[i][0];
+    globalPalette[i * 3 + 1] = paletteColors[i][1];
+    globalPalette[i * 3 + 2] = paletteColors[i][2];
+  }
+  for (let i = paletteColors.length; i < 255; i++) {
+    globalPalette[i * 3] = 0;
+    globalPalette[i * 3 + 1] = 0;
+    globalPalette[i * 3 + 2] = 0;
+  }
+  globalPalette[255 * 3] = 0;
+  globalPalette[255 * 3 + 1] = 0;
+  globalPalette[255 * 3 + 2] = 0;
+
+  // Build RGB555 lookup cache (32768 entries) for O(1) quantization
+  const lookupCache = new Uint8Array(32768);
+  const colorCount = paletteColors.length;
+
+  for (let r5 = 0; r5 < 32; r5++) {
+    const r = (r5 << 3) | (r5 >> 2);
+    for (let g5 = 0; g5 < 32; g5++) {
+      const g = (g5 << 3) | (g5 >> 2);
+      for (let b5 = 0; b5 < 32; b5++) {
+        const b = (b5 << 3) | (b5 >> 2);
+        let bestIdx = 0;
+        let bestDist = Infinity;
+        for (let i = 0; i < colorCount; i++) {
+          const pr = globalPalette[i * 3];
+          const pg = globalPalette[i * 3 + 1];
+          const pb = globalPalette[i * 3 + 2];
+          // Perceptually weighted Euclidean distance
+          const dist = (r - pr) ** 2 * 2 + (g - pg) ** 2 * 4 + (b - pb) ** 2 * 1;
+          if (dist < bestDist) {
+            bestDist = dist;
+            bestIdx = i;
+            if (dist === 0) break;
+          }
+        }
+        const cacheKey = (r5 << 10) | (g5 << 5) | b5;
+        lookupCache[cacheKey] = bestIdx;
+      }
+    }
+  }
+
+  return {
+    palette: globalPalette,
+    quantize(imageData: ImageData): Uint8Array {
+      const { width, height, data } = imageData;
+      const pixelCount = width * height;
+      const out = new Uint8Array(pixelCount);
+      for (let i = 0; i < pixelCount; i++) {
+        const idx = i * 4;
+        const a = data[idx + 3];
+        if (a < 16) {
+          out[i] = 255;
+          continue;
+        }
+        const r = data[idx];
+        const g = data[idx + 1];
+        const b = data[idx + 2];
+        const cacheKey = ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3);
+        out[i] = lookupCache[cacheKey];
+      }
+      return out;
+    },
+  };
 }
 
 const BITS = 12;
@@ -238,6 +305,7 @@ export interface AnimationRecordFrame {
 export interface GifExportOptions {
   dither?: boolean;
   loop?: boolean;
+  diff?: boolean;
 }
 
 export function encodeGifSequence(
@@ -249,7 +317,8 @@ export function encodeGifSequence(
   }
 
   const { width, height } = frames[0].imageData;
-  const dither = options.dither ?? false;
+  const enableDiff = options.diff !== false;
+  const quantizer = buildAdaptivePalette(frames);
   const buffer: number[] = [];
 
   const pushString = (str: string) => {
@@ -267,9 +336,9 @@ export function encodeGifSequence(
   buffer.push(0x00); // Background color index
   buffer.push(0x00); // Pixel aspect ratio
 
-  // Global Color Table
-  for (let i = 0; i < PALETTE_RGB332.length; i++) {
-    buffer.push(PALETTE_RGB332[i]);
+  // Global Color Table (Adaptive Diagram Colors)
+  for (let i = 0; i < quantizer.palette.length; i++) {
+    buffer.push(quantizer.palette[i]);
   }
 
   // Netscape Application Extension (for looping)
@@ -279,27 +348,95 @@ export function encodeGifSequence(
     buffer.push(0x03, 0x01, 0x00, 0x00, 0x00);
   }
 
-  for (const frame of frames) {
-    const quantized = quantizeFrame(frame.imageData, dither);
-    const compressedWithHeader = lzwCompress(quantized);
+  let prevQuantized: Uint8Array | null = null;
 
-    // Graphic Control Extension
+  for (let frameIdx = 0; frameIdx < frames.length; frameIdx++) {
+    const frame = frames[frameIdx];
+    const currQuantized = quantizer.quantize(frame.imageData);
     const delayHundredths = Math.max(2, Math.round(frame.delayMs / 10));
-    buffer.push(0x21, 0xf9, 0x04, 0x04);
-    pushU16(delayHundredths);
-    buffer.push(0x00, 0x00);
 
-    // Image Descriptor
-    buffer.push(0x2c);
-    pushU16(0); // Left
-    pushU16(0); // Top
-    pushU16(width);
-    pushU16(height);
-    buffer.push(0x00); // Local color table flag
+    if (!enableDiff || prevQuantized === null || frameIdx === 0) {
+      const compressedWithHeader = lzwCompress(currQuantized);
 
-    // Image Data (includes minCodeSize, sub-blocks, and 0x00 terminator)
-    for (let i = 0; i < compressedWithHeader.length; i++) {
-      buffer.push(compressedWithHeader[i]);
+      // Graphic Control Extension (Disposal 1: Leave in place)
+      buffer.push(0x21, 0xf9, 0x04, 0x04);
+      pushU16(delayHundredths);
+      buffer.push(0x00, 0x00);
+
+      // Image Descriptor (Full screen)
+      buffer.push(0x2c);
+      pushU16(0); // Left
+      pushU16(0); // Top
+      pushU16(width);
+      pushU16(height);
+      buffer.push(0x00); // Local color table flag
+
+      // Image Data
+      for (let i = 0; i < compressedWithHeader.length; i++) {
+        buffer.push(compressedWithHeader[i]);
+      }
+      prevQuantized = currQuantized;
+    } else {
+      // Find diff bounding box
+      let minX = width;
+      let minY = height;
+      let maxX = -1;
+      let maxY = -1;
+
+      for (let y = 0; y < height; y++) {
+        const rowOffset = y * width;
+        for (let x = 0; x < width; x++) {
+          if (currQuantized[rowOffset + x] !== prevQuantized[rowOffset + x]) {
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+            if (y < minY) minY = y;
+            if (y > maxY) maxY = y;
+          }
+        }
+      }
+
+      if (maxX < minX || maxY < minY) {
+        // Zero visual change across entire frame: skip encoding duplicate frame
+        continue;
+      }
+
+      const diffW = maxX - minX + 1;
+      const diffH = maxY - minY + 1;
+      const diffData = new Uint8Array(diffW * diffH);
+
+      for (let dy = 0; dy < diffH; dy++) {
+        const gy = minY + dy;
+        const gRowOffset = gy * width;
+        const dRowOffset = dy * diffW;
+        for (let dx = 0; dx < diffW; dx++) {
+          const gx = minX + dx;
+          const currCol = currQuantized[gRowOffset + gx];
+          const prevCol = prevQuantized[gRowOffset + gx];
+          diffData[dRowOffset + dx] = (currCol === prevCol) ? TRANSPARENT_COLOR_INDEX : currCol;
+        }
+      }
+
+      const compressedWithHeader = lzwCompress(diffData);
+
+      // Graphic Control Extension (Disposal 1 + Transparent Flag 1, Index 255)
+      buffer.push(0x21, 0xf9, 0x04, 0x05); // 0x05 = disposal 1 (leave) + transparency enabled
+      pushU16(delayHundredths);
+      buffer.push(TRANSPARENT_COLOR_INDEX, 0x00);
+
+      // Image Descriptor (Cropped bounding box with offset)
+      buffer.push(0x2c);
+      pushU16(minX);
+      pushU16(minY);
+      pushU16(diffW);
+      pushU16(diffH);
+      buffer.push(0x00); // Local color table flag
+
+      // Image Data
+      for (let i = 0; i < compressedWithHeader.length; i++) {
+        buffer.push(compressedWithHeader[i]);
+      }
+
+      prevQuantized = currQuantized;
     }
   }
 

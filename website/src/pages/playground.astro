@@ -46,6 +46,8 @@ const TOKEN_LIBRARIES = {
     { name: "editorial", label: "theme=editorial", template: "theme=editorial\n" },
     { name: "terminal", label: "theme=terminal", template: "theme=terminal\n" },
     { name: "sketchy", label: "theme=sketchy", template: "theme=sketchy\n" },
+    { name: "draft", label: "theme=draft", template: "theme=draft\n" },
+    { name: "doodle", label: "theme=doodle", template: "theme=doodle\n" },
     { name: "blueprint", label: "theme=blueprint", template: "theme=blueprint\n" },
     { name: "midnight", label: "theme=midnight", template: "theme=midnight\n" },
     { name: "graphite", label: "theme=graphite", template: "theme=graphite\n" },
@@ -443,6 +445,8 @@ const playgroundStructuredData = [
                   <option value="paper">theme=paper</option>
                   <option value="editorial">theme=editorial</option>
                   <option value="sketchy">theme=sketchy</option>
+                  <option value="draft">theme=draft</option>
+                  <option value="doodle">theme=doodle</option>
                 </optgroup>
                 <optgroup label="Dark Themes">
                   <option value="midnight">theme=midnight</option>
@@ -771,10 +775,15 @@ const playgroundStructuredData = [
               <div class="export-card-icon">🎬</div>
               <div class="export-card-content">
                 <strong>Animated GIF <span class="export-card-badge">.gif</span></strong>
-                <span>Smooth looping animation capture with LZW compression</span>
+                <span>Smooth motion capture with Smart Inter-frame Diffing</span>
               </div>
             </div>
-            <div class="export-card-actions">
+            <div class="export-card-actions" style="display: flex; align-items: center; gap: 8px;">
+              <select id="gif-quality-select" style="font-size: 11px; padding: 5px 8px; border-radius: 6px; background: rgba(255, 255, 255, 0.06); color: inherit; border: 1px solid rgba(255, 255, 255, 0.15); cursor: pointer; outline: none;" title="Select GIF Export Quality">
+                <option value="hd" selected style="background: #1e293b; color: #fff;">🌟 HD 2x (20fps)</option>
+                <option value="standard" style="background: #1e293b; color: #fff;">⚡ Standard 1.25x (14fps)</option>
+                <option value="compact" style="background: #1e293b; color: #fff;">🚀 Compact 1.0x (10fps)</option>
+              </select>
               <button id="copy-gif-btn" class="export-card-btn" type="button" title="Copy GIF Data URL or save locally">Copy GIF 📋</button>
               <button id="export-gif-btn" class="export-card-btn export-card-btn--primary" type="button" title="Download animated GIF sequence">Download .gif ↓</button>
             </div>
@@ -1388,6 +1397,9 @@ const playgroundStructuredData = [
   }
 
   // ─── Studio Toast Notification Helper ──────────────────────────────
+  let activeToast: HTMLElement | null = null;
+  let activeToastTimer: any = null;
+
   function showToast(message: string, duration = 2800): void {
     let container = document.querySelector(".markdy-toast-container");
     if (!container) {
@@ -1395,15 +1407,24 @@ const playgroundStructuredData = [
       container.className = "markdy-toast-container";
       document.body.appendChild(container);
     }
-    const toast = document.createElement("div");
-    toast.className = "markdy-toast";
-    toast.textContent = message;
-    container.appendChild(toast);
-    requestAnimationFrame(() => toast.classList.add("toast-show"));
-    setTimeout(() => {
-      toast.classList.remove("toast-show");
-      setTimeout(() => toast.remove(), 250);
-    }, duration);
+    if (!activeToast || !activeToast.isConnected) {
+      activeToast = document.createElement("div");
+      activeToast.className = "markdy-toast";
+      container.appendChild(activeToast);
+      requestAnimationFrame(() => activeToast?.classList.add("toast-show"));
+    }
+    activeToast.textContent = message;
+    if (activeToastTimer) clearTimeout(activeToastTimer);
+    if (duration > 0) {
+      activeToastTimer = setTimeout(() => {
+        if (activeToast) {
+          activeToast.classList.remove("toast-show");
+          const t = activeToast;
+          setTimeout(() => t.remove(), 250);
+          activeToast = null;
+        }
+      }, duration);
+    }
   }
 
   // ─── Theme Setter Helper ───────────────────────────────────────────
@@ -1605,16 +1626,23 @@ const playgroundStructuredData = [
     }
     const wasPlaying = diagram?.isPlaying?.();
     const resumeAt = diagram?.currentTime?.() ?? 0;
+    const qualitySelect = document.getElementById("gif-quality-select") as HTMLSelectElement | null;
+    const quality = qualitySelect?.value || "hd";
+    const exportConfig = quality === "compact"
+      ? { fps: 10, pixelRatio: 1.0, diff: true }
+      : quality === "standard"
+      ? { fps: 14, pixelRatio: 1.25, diff: true }
+      : { fps: 20, pixelRatio: 2.0, diff: true };
+
     try {
       showToast("🎬 Recording animated GIF frames (0%)...");
       if (exportGifBtn) exportGifBtn.disabled = true;
       const gifBlob = await exportDiagramAsGif(target, diagram, {
-        fps: 8,
-        pixelRatio: 0.8,
+        ...exportConfig,
         dither: false,
         onProgress: (progress, frame, total) => {
           const pct = Math.round(progress * 100);
-          showToast(`🎬 Recording GIF frame ${frame}/${total} (${pct}%)...`);
+          showToast(`🎬 Recording GIF frame ${frame}/${total} (${pct}%)...`, 0);
         },
       });
       const gifUrl = URL.createObjectURL(gifBlob);
@@ -1645,16 +1673,23 @@ const playgroundStructuredData = [
     }
     const wasPlaying = diagram?.isPlaying?.();
     const resumeAt = diagram?.currentTime?.() ?? 0;
+    const qualitySelect = document.getElementById("gif-quality-select") as HTMLSelectElement | null;
+    const quality = qualitySelect?.value || "hd";
+    const exportConfig = quality === "compact"
+      ? { fps: 10, pixelRatio: 1.0, diff: true }
+      : quality === "standard"
+      ? { fps: 14, pixelRatio: 1.25, diff: true }
+      : { fps: 20, pixelRatio: 2.0, diff: true };
+
     try {
       showToast("🎬 Recording animated GIF frames (0%)...");
       if (copyGifBtn) copyGifBtn.disabled = true;
       const gifBlob = await exportDiagramAsGif(target, diagram, {
-        fps: 8,
-        pixelRatio: 0.8,
+        ...exportConfig,
         dither: false,
         onProgress: (progress, frame, total) => {
           const pct = Math.round(progress * 100);
-          showToast(`🎬 Recording GIF frame ${frame}/${total} (${pct}%)...`);
+          showToast(`🎬 Recording GIF frame ${frame}/${total} (${pct}%)...`, 0);
         },
       });
       const reader = new FileReader();
@@ -1760,7 +1795,7 @@ const playgroundStructuredData = [
 
   // ─── Theme Switcher (Random Dark / Random Light Toggle) ───────────
   const DARK_THEMES = ["midnight", "blueprint", "graphite", "nebula", "terminal"];
-  const LIGHT_THEMES = ["paper", "editorial", "sketchy"];
+  const LIGHT_THEMES = ["paper", "editorial", "sketchy", "draft", "doodle"];
 
   function toggleRandomThemeInPlayground(): void {
     const current = getCode();

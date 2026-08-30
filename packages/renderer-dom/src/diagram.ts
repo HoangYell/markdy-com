@@ -1383,7 +1383,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     button.className = "markdy-control-theme";
     button.addEventListener("click", () => {
       const darkThemes = ["midnight", "blueprint", "graphite", "nebula", "terminal"];
-      const lightThemes = ["paper", "editorial", "sketchy"];
+      const lightThemes = ["paper", "editorial", "sketchy", "draft", "doodle"];
       const currentName = plan.theme.name || "paper";
       const isDark = darkThemes.includes(currentName);
       const targetThemes = isDark ? lightThemes : darkThemes;

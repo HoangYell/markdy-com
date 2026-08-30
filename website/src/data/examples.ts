@@ -46,7 +46,7 @@ export interface ExampleMeta {
   /** Short description for gallery cards and SEO. */
   description?: string;
   /** Semantic theme used by the scene. */
-  theme?: "midnight" | "paper" | "blueprint" | "graphite" | "editorial" | "nebula" | "terminal" | "sketchy";
+  theme?: "midnight" | "paper" | "blueprint" | "graphite" | "editorial" | "nebula" | "terminal" | "sketchy" | "draft" | "doodle";
   /** Path relative to the repo's `examples/` directory. */
   file: string;
   playback?: {

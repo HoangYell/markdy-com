@@ -241,7 +241,7 @@ function routeEdgePoints(
 }
 
 function isDarkTheme(theme: ThemeTokens): boolean {
-  if (theme.name === "paper" || theme.name === "editorial" || theme.name === "sketchy") {
+  if (theme.name === "paper" || theme.name === "editorial" || theme.name === "sketchy" || theme.name === "draft" || theme.name === "doodle") {
     return false;
   }
   const canvas = (theme.canvas || theme.surface || "").trim();
@@ -811,7 +811,7 @@ export function exportLiveSceneAsPureVectorSvg(
       });
 
       // 5. Flow Dots (particles)
-      const dotEls = sceneEl.querySelectorAll<SVGCircleElement>(".markdy-edge-dot");
+      const dotEls = sceneEl.querySelectorAll<SVGCircleElement>(".markdy-edge-dot, .markdy-sequence-pulse");
       dotEls.forEach((dotEl) => {
         const comp = window.getComputedStyle(dotEl);
         const opacity = comp.display === "none" || comp.visibility === "hidden" ? 0 : parseFloat(comp.opacity || "0");
