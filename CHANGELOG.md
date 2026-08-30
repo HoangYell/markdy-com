@@ -5,6 +5,13 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.3] — 2026-08-30
+
+### Fixed
+- **Studio Layout Grid Collapse Fix (`@markdy/website`)**:
+  - Moved the Studio Quick Start onboarding banner and screen-reader announcer outside the 3-column workspace CSS grid (`.workspace`).
+  - Fixed an issue where first-time visitors (or users in Incognito mode) experienced a collapsed, blank right pane when viewing query parameter links such as `/playground/?example=url-shortener-architecture` because the banner occupied a grid cell intended for the code editor panel.
+
 ## [1.1.2] — 2026-08-30
 
 ### Added
