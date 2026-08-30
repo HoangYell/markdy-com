@@ -19,7 +19,6 @@
 
 <p align="center">
   <a href="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml"><img src="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><img src="https://img.shields.io/visual-studio-marketplace/v/hoangyell.markdy-vscode?color=blue&label=VS%20Code" alt="VS Code Extension" /></a>
   <a href="https://open-vsx.org/extension/hoangyell/markdy-vscode"><img src="https://img.shields.io/open-vsx/v/hoangyell/markdy-vscode?color=purple&label=Open%20VSX" alt="Open VSX Extension" /></a>
   <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/npm/v/@markdy/core?color=blue&label=%40markdy%2Fcore" alt="npm version" /></a>
   <a href="https://www.npmjs.com/package/@markdy/mcp-server"><img src="https://img.shields.io/npm/v/@markdy/mcp-server?color=purple&label=MCP%20Server" alt="MCP Server version" /></a>

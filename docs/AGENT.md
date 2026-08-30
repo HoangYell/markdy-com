@@ -4,7 +4,7 @@
 > - **Status**: Active & Canonical
 > - **Current Version**: v1.1.7
 > - **Specification Version**: 1.1.x
-> - **Time Updated**: 2026-08-30T07:29:12.163Z
+> - **Time Updated**: 2026-08-30T07:44:13.324Z
 > - **Last Updated**: 2026-08-30
 > - **Canonical URL**: <https://markdy.com/AGENT.md>
 > - **Human-Readable Mirror**: <https://markdy.com/agent/>
