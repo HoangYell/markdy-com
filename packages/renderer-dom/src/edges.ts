@@ -365,20 +365,21 @@ export function createEdgeRuntime(
     plate.style.filter = "none";
     group.appendChild(plate);
 
-    labelEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    labelEl.setAttribute("class", "markdy-edge-label");
-    labelEl.setAttribute("x", String(placement.x));
-    labelEl.setAttribute("text-anchor", "middle");
-    labelEl.setAttribute("font-size", "10.5");
-    labelEl.setAttribute("font-weight", "500");
-    labelEl.setAttribute("letter-spacing", "0.02em");
-    labelEl.setAttribute("font-family", "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace");
-    labelEl.setAttribute("fill", labelColor);
+    const textEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    labelEl = textEl;
+    textEl.setAttribute("class", "markdy-edge-label");
+    textEl.setAttribute("x", String(placement.x));
+    textEl.setAttribute("text-anchor", "middle");
+    textEl.setAttribute("font-size", "10.5");
+    textEl.setAttribute("font-weight", "500");
+    textEl.setAttribute("letter-spacing", "0.02em");
+    textEl.setAttribute("font-family", "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace");
+    textEl.setAttribute("fill", labelColor);
 
     if (lines.length === 1) {
-      labelEl.setAttribute("y", String(placement.y + 0.5));
-      labelEl.setAttribute("dominant-baseline", "middle");
-      labelEl.textContent = lines[0];
+      textEl.setAttribute("y", String(placement.y + 0.5));
+      textEl.setAttribute("dominant-baseline", "middle");
+      textEl.textContent = lines[0];
     } else {
       const startY = placement.y - ((lines.length - 1) * lineHeight) / 2 + 3.5;
       lines.forEach((lineText, idx) => {
@@ -387,13 +388,13 @@ export function createEdgeRuntime(
         tspan.setAttribute("y", String(startY + idx * lineHeight));
         tspan.setAttribute("text-anchor", "middle");
         tspan.textContent = idx < lines.length - 1 ? `${lineText} ` : lineText;
-        labelEl.appendChild(tspan);
+        textEl.appendChild(tspan);
       });
     }
 
-    labelEl.style.opacity = "0";
-    group.appendChild(labelEl);
-    (labelEl as unknown as { __plate?: SVGRectElement }).__plate = plate;
+    textEl.style.opacity = "0";
+    group.appendChild(textEl);
+    (textEl as unknown as { __plate?: SVGRectElement }).__plate = plate;
   }
 
   svg.appendChild(group);

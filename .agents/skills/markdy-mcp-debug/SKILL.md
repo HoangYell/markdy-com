@@ -37,7 +37,6 @@ beat reveal "System Overview":
   show $nodes stagger=40ms
 
 beat checkout "Process Order":
-  frame ApiGateway OrderService dataTier zoom=1.12
   MobileApp -> ApiGateway "POST /checkout" -> OrderService "create_order"
   OrderService -> RedisCache "check inventory"
   OrderService -> MainDB "insert order"

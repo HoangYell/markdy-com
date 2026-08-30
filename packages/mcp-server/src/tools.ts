@@ -75,17 +75,16 @@ beat reveal "System Overview":
   show $nodes stagger=40ms
 
 beat authFlow "Authenticate Request":
-  frame clients ApiGateway AuthService zoom=1.12
   WebApp -> ApiGateway "GET /profile" -> AuthService "validate_jwt"
   WebApp <- ApiGateway "200 OK (Claims)"
 
 beat checkout "Process Order":
-  frame ApiGateway OrderService PaymentService dataTier zoom=1.1
   MobileApp -> ApiGateway "POST /checkout" -> OrderService "create_order"
   OrderService -> RedisCache "check inventory"
   OrderService -> PaymentService "authorize charge"
   PaymentService -> MainDB "record transaction"
-  MobileApp <- ApiGateway "201 Created"`,
+  MobileApp <- ApiGateway "201 Created"
+  glow MainDB color=#10b981`,
   },
   {
     id: "ai-rag-pipeline",
@@ -110,13 +109,11 @@ beat init "System Reveal":
   show $nodes stagger=50ms
 
 beat retrieve "Query & Vector Search":
-  frame User ChatUI Orchestrator aiCore zoom=1.12
   User -> ChatUI "Ask technical question" -> Orchestrator "parse intent"
   Orchestrator -> Embedder "embed(query)" -> VectorDB "cosine search (k=5)"
   Orchestrator <- VectorDB "retrieved context chunks"
 
 beat generate "Synthesis & Tool Execution":
-  frame Orchestrator LLM Tools zoom=1.15
   Orchestrator -> LLM "prompt + context"
   LLM -> Tools "execute_code(sql)"
   LLM <- Tools "tool_result"
@@ -146,15 +143,14 @@ beat reveal "Topology":
   show $nodes stagger=40ms
 
 beat publish "Publish Event":
-  frame IngestionAPI KafkaTopic zoom=1.15
   IngestionAPI ~> KafkaTopic "publish(OrderPlaced)"
   glow KafkaTopic color=#38bdf8
 
 beat fanout "Parallel Fan-out Processing":
-  frame KafkaTopic workers zoom=1.12
   KafkaTopic ~> InventoryWorker "consume event" & KafkaTopic ~> NotificationWorker "consume event" & KafkaTopic ~> AnalyticsWorker "consume event"
   InventoryWorker -> InventoryDB "UPDATE stock"
-  AnalyticsWorker -> AnalyticsDB "INSERT analytics"`,
+  AnalyticsWorker -> AnalyticsDB "INSERT analytics"
+  glow AnalyticsDB color=#10b981`,
   },
   {
     id: "k8s-ingress-cluster",
@@ -180,11 +176,11 @@ beat reveal "Cluster Architecture":
   show $nodes stagger=40ms
 
 beat routing "Ingress Traffic Routing":
-  frame CDN Ingress frontendPods zoom=1.12
   CDN -> Ingress "HTTPS Request" -> WebPod1 "reverse proxy"
   WebPod1 -> ClusterIP "internal call" -> ApiPod1 "gRPC invocation"
   ApiPod1 -> PV "read/write volume"
-  CDN <- Ingress "200 HTTP OK"`,
+  CDN <- Ingress "200 HTTP OK"
+  glow ApiPod1 color=#10b981`,
   },
   {
     id: "cicd-gitops-pipeline",
@@ -205,7 +201,6 @@ beat reveal "Pipeline Infrastructure":
   show $nodes stagger=45ms
 
 beat build "Commit & Build Validation":
-  frame Dev GitHub Actions DockerHub zoom=1.12
   Dev -> GitHub "git push origin main"
   GitHub ~> Actions "trigger workflow"
   Actions -> Actions "run unit & visual tests"
@@ -213,7 +208,6 @@ beat build "Commit & Build Validation":
   glow DockerHub color=#10b981
 
 beat deploy "GitOps Sync & Deployment":
-  frame DockerHub ArgoCD Production zoom=1.15
   ArgoCD -> GitHub "detect manifest drift"
   ArgoCD -> DockerHub "pull image:v1.0.7"
   ArgoCD -> Production "apply rollout"
@@ -236,14 +230,12 @@ beat reveal "System Overview":
   show $nodes stagger=50ms
 
 beat redirect "Authorize & Consent":
-  frame User ClientApp IdP zoom=1.15
   User -> ClientApp "click 'Login with IdP'"
   User <- ClientApp "302 Redirect to /authorize"
   User -> IdP "submit credentials & consent"
   User <- IdP "302 Redirect with ?code=AUTH_CODE"
 
 beat exchange "Token Exchange & API Access":
-  frame ClientApp IdP ResourceServer zoom=1.15
   ClientApp -> IdP "POST /token (code + secret)"
   ClientApp <- IdP "200 OK (access_token + id_token)"
   ClientApp -> ResourceServer "GET /userinfo (Bearer Token)"
@@ -272,16 +264,16 @@ beat reveal "Global Infrastructure":
   show $nodes stagger=40ms
 
 beat readCache "Cache-Aside Read Flow":
-  frame GeoDNS eastTier AuroraGlobal zoom=1.12
   GeoDNS -> RegionEast "route nearest user" -> RedisPrimary "GET item:101"
   RegionEast <- RedisPrimary "cache miss"
   RegionEast -> AuroraGlobal "SELECT FROM db"
   RegionEast -> RedisPrimary "SET item:101 (TTL 60s)"
   GeoDNS <- RegionEast "200 OK (Payload)"
+  glow RedisPrimary color=#38bdf8
 
 beat replication "Global Storage Replication":
-  frame RedisPrimary RedisReplica AuroraGlobal zoom=1.15
-  RedisPrimary ~> RedisReplica "async sync" & AuroraGlobal ~> AuroraGlobal "storage replication"`,
+  RedisPrimary ~> RedisReplica "async sync" & AuroraGlobal ~> AuroraGlobal "storage replication"
+  glow AuroraGlobal color=#10b981`,
   },
   {
     id: "decision-flowchart",
