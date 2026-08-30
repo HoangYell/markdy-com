@@ -51,14 +51,20 @@
 
 You don't need to write MarkdyScript manually. Ask **Cursor**, **Claude Code**, **Google Antigravity**, **ChatGPT**, or any coding agent:
 
-> **Example Prompt:**
->
+<details>
+<summary><b>💬 Example Prompt</b></summary>
+<br>
+
 > "Follow the canonical Markdy specification (https://markdy.com/AGENT.md) and generate a `.markdy` scene:  
 > Explain a **Cache-Aside Architecture** with a Web Client, API Gateway, URL Service, Redis Cluster, and PostgreSQL database. Include two animated storyboard beats: **1. Cache Hit Path** and **2. Cache Miss & Async Warm**."
 
 *(Tip: If you have the official [Markdy MCP Server](#mcp-setup) installed, just ask: `"Create an animated Markdy architecture diagram for our cache-aside service."`)*
 
-#### 🤖 AI-Generated MarkdyScript (`system.markdy`):
+</details>
+
+<details>
+<summary><b>🤖 AI-Generated MarkdyScript (<code>system.markdy</code>)</b></summary>
+<br>
 
 ```markdy
 scene "Cache-Aside Architecture" theme=auto
@@ -86,15 +92,15 @@ beat cache_miss "2. Cache Miss & Async Warm":
   glow Postgres color=#38bdf8 & glow Redis color=#22c55e
 ```
 
+</details>
+
 ### 2. Preview & Explore
 
 - **VS Code / Cursor**: Press **`Cmd+K V`** (macOS) or **`Ctrl+K V`** (Windows/Linux) using the [`hoangyell.markdy-vscode`](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode) extension for live side-by-side animated preview.
 - **Web Studio**: Paste into [markdy.com/playground](https://markdy.com/playground/) for interactive timeline scrubbing and shareable links.
 - **Terminal & CI/CD**: Run `npx @markdy/cli render system.markdy --out diagram.html`.
 
----
-
-## 📦 Embedding in Web Apps & Docs
+### 3. Embed in Web Apps & Docs
 
 Render 60fps interactive diagrams directly in your web applications, documentation, or blog:
 
@@ -249,6 +255,10 @@ markdy import flow.mmd --out flow.markdy
 
 ## 📊 Feature Comparison
 
+<details>
+<summary><b>Feature Matrix (vs Mermaid, PlantUML, Excalidraw, Draw.io)</b></summary>
+<br>
+
 | Capability | Mermaid / PlantUML | Excalidraw / Draw.io | Markdy |
 |---|---|---|---|
 | **Animation & Timing** | ❌ Static SVG / PNG | ❌ Static canvas | ✅ **60fps WAAPI motion & step-by-step narrative beats** |
@@ -259,9 +269,15 @@ markdy import flow.mmd --out flow.markdy
 | **Universal Ingestion** | ❌ Manual rewrite | ❌ Manual export | ✅ **1-Click Transpiler for Mermaid, Compose, K8s, Terraform** |
 | **Core Footprint** | ~2 MB+ runtime | Heavy web app | ✅ **~14 kB core parser, zero dependencies** |
 
+</details>
+
 ---
 
 ## 📦 Component Responsibilities & Packages
+
+<details>
+<summary><b>Monorepo Package Directory &amp; Core Responsibilities</b></summary>
+<br>
 
 Markdy is architected as a modular monorepo where each package fulfills a focused responsibility:
 
@@ -276,6 +292,8 @@ Markdy is architected as a modular monorepo where each package fulfills a focuse
 | **[`@markdy/astro`](packages/astro)** & **[`@markdy/mdx`](packages/mdx)** | **Docs & Blog Integrations** | Zero-CLS, SSR-placeholder islands with viewport hydration for content sites. |
 | **[`@markdy/language-server`](packages/markdy-language-server)** | **Headless LSP Server** | Diagnostic publishing, hover docs, formatting, and completions for language clients. |
 | **[`@markdy/stdlib-systems`](packages/stdlib-systems)** | **Domain Vocabulary** | Semantic primitives for cloud, infrastructure, and distributed systems. |
+
+</details>
 
 ---
 
