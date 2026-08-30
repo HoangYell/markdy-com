@@ -94,19 +94,6 @@ beat cache_miss "2. Cache Miss & Async Warm":
 
 ---
 
-## ⚡ Why Markdy?
-
-Static boxes and arrows fail to capture distributed systems in action. **Markdy turns text into choreographed 60fps motion graphics** directly in your browser.
-
-- 🎬 **Kinetic Storytelling**: Choreograph requests (`->`), responses (`<-`), and events (`~>`) across sequential `beat` timelines with auto-zooms and glow cues.
-- 📐 **Zero-Config Layout**: Collision-aware orthogonal Manhattan edge routing and rank-based auto-layout.
-- ⚡ **Zero-Dep & Web-Native**: Powered by pure CSS/SVG transforms and the Web Animations API (WAAPI) — ~14 kB parser, no Canvas, no GSAP.
-- 🔄 **Universal Ingestion**: 1-click migration from Mermaid, Draw.io, Docker Compose, Kubernetes manifests, and Terraform states.
-- 🤖 **AI-Native & MCP**: Official Model Context Protocol (MCP) server for Claude, Cursor, Antigravity, and Cline with self-healing syntax diagnostics.
-- 🛡️ **Architecture Governance**: Built-in rules prevent deadlock cycles and cross-layer bypasses.
-
----
-
 ## 📦 Embedding in Web Apps & Docs
 
 Render 60fps interactive diagrams directly in your web applications, documentation, or blog:
@@ -130,6 +117,19 @@ const diagram = createDiagram({
 > 💡 **Using Astro or Next.js/MDX?** See the **[@markdy/astro Guide ↗](packages/astro/README.md)** and **[@markdy/mdx Guide ↗](packages/mdx/README.md)** (or jump to [Astro `<Markdy />`](#astro-integration) and [MDX / React](#mdx-integration) below) for 1-line zero-JS declarative components.
 
 👉 **[@markdy/renderer-dom Guide ↗](packages/renderer-dom/README.md)** &nbsp;•&nbsp; **[@markdy/core Guide ↗](packages/core/README.md)**
+
+---
+
+## ⚡ Why Markdy?
+
+Static boxes and arrows fail to capture distributed systems in action. **Markdy turns text into choreographed 60fps motion graphics** directly in your browser.
+
+- 🎬 **Kinetic Storytelling**: Choreograph requests (`->`), responses (`<-`), and events (`~>`) across sequential `beat` timelines with auto-zooms and glow cues.
+- 📐 **Zero-Config Layout**: Collision-aware orthogonal Manhattan edge routing and rank-based auto-layout.
+- ⚡ **Zero-Dep & Web-Native**: Powered by pure CSS/SVG transforms and the Web Animations API (WAAPI) — ~14 kB parser, no Canvas, no GSAP.
+- 🔄 **Universal Ingestion**: 1-click migration from Mermaid, Draw.io, Docker Compose, Kubernetes manifests, and Terraform states.
+- 🤖 **AI-Native & MCP**: Official Model Context Protocol (MCP) server for Claude, Cursor, Antigravity, and Cline with self-healing syntax diagnostics.
+- 🛡️ **Architecture Governance**: Built-in rules prevent deadlock cycles and cross-layer bypasses.
 
 ---
 
