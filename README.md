@@ -160,17 +160,19 @@ Equip your favorite AI Coding Agent with native Markdy tools (`validate_markdy_c
 
 | AI Environment | Setup Action | Method |
 |---|---|---|
-| **Cursor** | [![Install in Cursor](https://img.shields.io/badge/⚡_Install_in-Cursor-000000?style=for-the-badge&logo=cursor&logoColor=white)](https://markdy.com/mcp/cursor) | **[1-Click Install ↗](https://markdy.com/mcp/cursor)** or [JSON Config](#2-cursor-cursor_mcpjson-or-cursor_mcpjson) |
-| **VS Code / Copilot** | [![Install in VS Code](https://img.shields.io/badge/⚡_Install_in-VS_Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white)](https://markdy.com/mcp/vscode) | **[1-Click Install ↗](https://markdy.com/mcp/vscode)** or [JSON Config](#2-cursor-cursor_mcpjson-or-cursor_mcpjson) |
-| **Claude Code & Desktop** | [![Setup in Claude](https://img.shields.io/badge/⚡_Setup_in-Claude-D97706?style=for-the-badge&logo=anthropic&logoColor=white)](#1-claude-code--claude-desktop) | **CLI (`claude mcp add`) & JSON** |
-| **Google Antigravity** | [![Setup in Antigravity](https://img.shields.io/badge/⚡_Setup_in-Antigravity-4285F4?style=for-the-badge&logo=google&logoColor=white)](#3-google-antigravity--gemini-cli) | **1-Command CLI (`agy mcp add`)** |
-| **Cline / Roo Code** | [![Config in Cline](https://img.shields.io/badge/Config_in-Cline-6366F1?style=for-the-badge)](#4-cline--roo-code-cline_mcp_settingsjson) | **Config File (`cline_mcp_settings.json`)** |
-| **Windsurf / Cascade** | [![Config in Windsurf](https://img.shields.io/badge/Config_in-Windsurf-09B6A2?style=for-the-badge&logo=codeium&logoColor=white)](#5-windsurf--cascade-codeiumwindsurfmcp_configjson) | **Config File (`mcp_config.json`)** |
+| **Cursor** | [![Install in Cursor](https://img.shields.io/badge/⚡_Install_in-Cursor-000000?style=for-the-badge&logo=cursor&logoColor=white)](https://markdy.com/mcp/cursor) | **[1-Click Install ↗](https://markdy.com/mcp/cursor)** or [JSON Config](#cursor-setup) |
+| **VS Code / Copilot** | [![Install in VS Code](https://img.shields.io/badge/⚡_Install_in-VS_Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white)](https://markdy.com/mcp/vscode) | **[1-Click Install ↗](https://markdy.com/mcp/vscode)** or [JSON Config](#vscode-setup) |
+| **Claude Code & Desktop** | [![Setup in Claude](https://img.shields.io/badge/⚡_Setup_in-Claude-D97706?style=for-the-badge&logo=anthropic&logoColor=white)](#claude-setup) | **CLI (`claude mcp add`) & JSON** |
+| **Google Antigravity** | [![Setup in Antigravity](https://img.shields.io/badge/⚡_Setup_in-Antigravity-4285F4?style=for-the-badge&logo=google&logoColor=white)](#antigravity-setup) | **1-Command CLI (`agy mcp add`)** |
+| **Cline / Roo Code** | [![Config in Cline](https://img.shields.io/badge/Config_in-Cline-6366F1?style=for-the-badge)](#cline-setup) | **Config File (`cline_mcp_settings.json`)** |
+| **Windsurf / Cascade** | [![Config in Windsurf](https://img.shields.io/badge/Config_in-Windsurf-09B6A2?style=for-the-badge&logo=codeium&logoColor=white)](#windsurf-setup) | **Config File (`mcp_config.json`)** |
+| **Zed Editor** | [![Config in Zed](https://img.shields.io/badge/Config_in-Zed-4B5563?style=for-the-badge)](#zed-setup) | **Config File (`settings.json`)** |
 
 ---
 
 ### 🛠️ Client Configuration Snippets
 
+<a id="claude-setup"></a>
 #### 1. Claude Code & Claude Desktop
 
 **Claude Code (Anthropic CLI):**
@@ -190,7 +192,9 @@ claude mcp add markdy -- npx -y @markdy/mcp-server
 }
 ```
 
-#### 2. Cursor (`~/.cursor/mcp.json` or `.cursor/mcp.json`)
+<a id="cursor-setup"></a>
+<a id="vscode-setup"></a>
+#### 2. Cursor & VS Code (`.cursor/mcp.json` or `.vscode/mcp.json`)
 ```json
 {
   "mcpServers": {
@@ -202,6 +206,7 @@ claude mcp add markdy -- npx -y @markdy/mcp-server
 }
 ```
 
+<a id="antigravity-setup"></a>
 #### 3. Google Antigravity & Gemini CLI
 
 **Via 1-Command CLI:**
@@ -221,6 +226,7 @@ agy mcp add markdy -- npx -y @markdy/mcp-server
 }
 ```
 
+<a id="cline-setup"></a>
 #### 4. Cline & Roo Code (`cline_mcp_settings.json`)
 ```json
 {
@@ -233,6 +239,7 @@ agy mcp add markdy -- npx -y @markdy/mcp-server
 }
 ```
 
+<a id="windsurf-setup"></a>
 #### 5. Windsurf / Cascade (`~/.codeium/windsurf/mcp_config.json`)
 ```json
 {
@@ -245,6 +252,7 @@ agy mcp add markdy -- npx -y @markdy/mcp-server
 }
 ```
 
+<a id="zed-setup"></a>
 #### 6. Zed Editor (`settings.json`)
 ```json
 {

@@ -423,22 +423,6 @@ const playgroundStructuredData = [
           </div>
 
           <div class="canvas-header-actions" aria-label="Canvas playback and studio controls">
-            <!-- Instant Paste Button (First & Highly Visible on Mobile & Canvas Mode) -->
-            <button id="canvas-paste-btn" class="canvas-ctrl-btn canvas-ctrl-btn--paste" type="button" title="Paste MarkdyScript from clipboard and view diagram immediately" aria-label="Paste MarkdyScript">
-              <span>📋 Paste</span>
-            </button>
-
-            <!-- Play / Pause Button -->
-            <button id="canvas-play-btn" class="canvas-ctrl-btn" type="button" title="Play / Pause Motion (Space)" aria-label="Play or Pause Motion">
-              <span id="canvas-play-icon" class="ctrl-icon">▶</span>
-              <span id="canvas-play-label" class="ctrl-text">Play</span>
-            </button>
-
-            <!-- Replay / Reset Button -->
-            <button id="canvas-replay-btn" class="canvas-ctrl-btn" type="button" title="Restart animation from beat 1" aria-label="Restart Animation">
-              <span class="ctrl-icon">↺</span>
-            </button>
-
             <!-- Playback Speed -->
             <div class="canvas-select-wrapper" title="Playback speed multiplier">
               <select id="canvas-speed-select" class="canvas-select" aria-label="Playback speed">
@@ -911,12 +895,7 @@ const playgroundStructuredData = [
   const shareUrlInput = document.getElementById("share-url-input") as HTMLInputElement | null;
   const copyShareUrlBtn = document.getElementById("copy-share-url-btn") as HTMLButtonElement | null;
 
-  // Canvas Playback & Studio Controls
-  const canvasPlayBtn = document.getElementById("canvas-play-btn") as HTMLButtonElement | null;
-  const canvasPlayIcon = document.getElementById("canvas-play-icon") as HTMLSpanElement | null;
-  const canvasPlayLabel = document.getElementById("canvas-play-label") as HTMLSpanElement | null;
-  const canvasReplayBtn = document.getElementById("canvas-replay-btn") as HTMLButtonElement | null;
-  const canvasPasteBtn = document.getElementById("canvas-paste-btn") as HTMLButtonElement | null;
+  // Canvas Studio Controls
   const canvasSpeedSelect = document.getElementById("canvas-speed-select") as HTMLSelectElement | null;
   const canvasThemeSelect = document.getElementById("canvas-theme-select") as HTMLSelectElement | null;
   const canvasFitBtn = document.getElementById("canvas-fit-btn") as HTMLButtonElement | null;
@@ -1370,14 +1349,12 @@ const playgroundStructuredData = [
         const rate = parseFloat(canvasSpeedSelect.value) || 1;
         diagram.setPlaybackRate(rate);
       }
-      updatePlaybackUi(true);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       if (stageCanvas) stageCanvas.innerHTML = `<div class="parse-error">⚠️ ${message}</div>`;
       updateStatusIndicator(false, 0, 0, message);
       announce(`Preview could not update. ${message}`);
       showDiagnostics([message]);
-      updatePlaybackUi(false);
     }
   }
 
@@ -1398,21 +1375,6 @@ const playgroundStructuredData = [
       toast.classList.remove("toast-show");
       setTimeout(() => toast.remove(), 250);
     }, duration);
-  }
-
-  // ─── Playback UI Sync ──────────────────────────────────────────────
-  function updatePlaybackUi(isPlaying: boolean) {
-    if (canvasPlayIcon && canvasPlayLabel) {
-      if (isPlaying) {
-        canvasPlayIcon.textContent = "⏸";
-        canvasPlayLabel.textContent = "Pause";
-        if (canvasPlayBtn) canvasPlayBtn.title = "Pause Motion (Space)";
-      } else {
-        canvasPlayIcon.textContent = "▶";
-        canvasPlayLabel.textContent = "Play";
-        if (canvasPlayBtn) canvasPlayBtn.title = "Play Motion (Space)";
-      }
-    }
   }
 
   // ─── Theme Setter Helper ───────────────────────────────────────────
@@ -2579,27 +2541,6 @@ Requirements:
 
 
   // ─── Canvas Studio Controls ────────────────────────────────────────
-  canvasPlayBtn?.addEventListener("click", () => {
-    if (!diagram) return;
-    if (diagram.isPlaying()) {
-      diagram.pause();
-      updatePlaybackUi(false);
-      showToast("⏸ Motion paused");
-    } else {
-      diagram.play();
-      updatePlaybackUi(true);
-      showToast("▶ Motion playing");
-    }
-  });
-
-  canvasReplayBtn?.addEventListener("click", () => {
-    if (!diagram) return;
-    diagram.seek(0);
-    diagram.play();
-    updatePlaybackUi(true);
-    showToast("↺ Restarted animation from beat 1");
-  });
-
   canvasSpeedSelect?.addEventListener("change", () => {
     if (!diagram || !canvasSpeedSelect) return;
     const rate = parseFloat(canvasSpeedSelect.value) || 1;
@@ -2657,7 +2598,6 @@ Requirements:
   runBtn?.addEventListener("click", () => render(getCode()));
   resetBtn?.addEventListener("click", () => loadExample(selectedExample >= 0 ? selectedExample : 0));
   pasteCodeBtn?.addEventListener("click", () => pasteCodeToEditor(pasteCodeBtn));
-  canvasPasteBtn?.addEventListener("click", () => pasteCodeToEditor(canvasPasteBtn));
   topbarPasteBtn?.addEventListener("click", () => pasteCodeToEditor(topbarPasteBtn));
   copyCodeBtn?.addEventListener("click", () => {
     if (copyCodeBtn) writeClipboard(getCode(), copyCodeBtn, "Copied");
@@ -2847,14 +2787,23 @@ Requirements:
       canvasFitBtn?.click();
     } else if (!isTyping && event.key.toLowerCase() === "r") {
       event.preventDefault();
-      canvasReplayBtn?.click();
+      if (diagram) {
+        diagram.seek(0);
+        diagram.play();
+        showToast("↺ Restarted animation from beat 1");
+      }
     } else if (!isTyping && event.key.toLowerCase() === "t") {
       event.preventDefault();
       switchThemeBtn?.click();
     } else if (event.key === " " && !isTyping) {
       event.preventDefault();
-      if (diagram?.isPlaying()) diagram.pause();
-      else diagram?.play();
+      if (diagram?.isPlaying()) {
+        diagram.pause();
+        showToast("⏸ Motion paused");
+      } else if (diagram) {
+        diagram.play();
+        showToast("▶ Motion playing");
+      }
     } else if (event.key === "Escape") {
       deselectCanvas();
       importModal?.close();

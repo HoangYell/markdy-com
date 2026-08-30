@@ -5,6 +5,24 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.5] — 2026-08-30
+
+### Fixed & Enhanced
+- **Publish Pipeline & Registry Resilience (`scripts/publish-packages.mjs`)**:
+  - `isVersionPublished()` now executes within `cwd: pkgPath`, properly inheriting local `.npmrc` authentication tokens and scoped registry credentials for GitHub Packages (`https://npm.pkg.github.com`).
+  - Added graceful `409 Conflict` / `E409` handling so already-published packages are skipped cleanly without failing the multi-package release workflow.
+  - Synchronized workspace versions across `@markdy/astro` and example starters.
+- **De-cluttered Visual Canvas Studio Header (`@markdy/website`)**:
+  - Removed cramped canvas playback and paste buttons (`canvas-paste-btn`, `canvas-play-btn`, `canvas-replay-btn`) from the preview panel header bar.
+  - Kept essential quick controls: Playback Speed, Theme Selector, Reset Viewport (`F`), and Export CTA.
+  - Keyboard shortcuts <kbd>Space</kbd> (Play / Pause) and <kbd>R</kbd> (Restart animation from beat 1) continue to operate directly on the diagram engine.
+  - Paste remains readily available on the main topbar and editor toolbars.
+- **Documentation & README Anchor Deep Links**:
+  - Fixed MCP client configuration deep links with explicit HTML anchor tags (`#cursor-setup`, `#vscode-setup`, `#claude-setup`, `#antigravity-setup`, `#cline-setup`, `#windsurf-setup`, `#zed-setup`).
+  - Enhanced code block contrast and styling on standalone MCP installation pages (`/mcp/cursor`, `/mcp/vscode`).
+- **Export Modal Fast Copy**:
+  - Added 1-click **Copy SVG** and **Copy PNG** buttons to the Export dialog for immediate pasting into slides, docs, Figma, and chat apps.
+
 ## [1.1.4] — 2026-08-30
 
 ### Added
