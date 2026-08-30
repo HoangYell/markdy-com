@@ -220,6 +220,14 @@ export function playerSettingScope(scope: PlayerScope, key: string): Setting | u
   return SCOPES[scope][key];
 }
 
+export function isKnownPlayerSetting(key: string, scope?: PlayerScope): boolean {
+  if (scope) return Boolean(SCOPES[scope]?.[key]);
+  return (
+    (PLAYER_GROUPS as readonly string[]).includes(key) ||
+    Object.values(SCOPES).some((scopeMap) => Boolean(scopeMap[key]))
+  );
+}
+
 /**
  * Applies one `key value` pair into `config`. Returns an error message when the
  * key is unknown or the value does not fit the setting type.

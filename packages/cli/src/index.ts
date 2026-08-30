@@ -1,5 +1,7 @@
 import {
   parse,
+  compile,
+  ParseError,
   validateArchitecture,
   resolveArchitectureConfig,
   diffDiagramASTs,
@@ -103,6 +105,8 @@ export async function runCli(
       return aiCommand(parsed, io, runtime);
     case "suggest":
       return suggestCommand(parsed, io);
+    case "check":
+      return checkCommand(parsed, io);
     case "check-all":
       return checkAllCommand(parsed, io);
     default:
@@ -504,6 +508,499 @@ async function checkAllCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult
     io.stdout(`markdy check-all: PASS — scanned ${files.length} file(s).`);
   }
   return result;
+}
+
+export type ExtractedDiagram = {
+  code: string;
+  line: number;
+  kind: "markdy" | "fence" | "mdx-jsx";
+};
+
+export function extractDiagramsFromMarkdown(content: string): ExtractedDiagram[] {
+  const diagrams: ExtractedDiagram[] = [];
+  const lines = content.replace(/\r\n/g, "\n").split("\n");
+
+  // 1. Scan for fenced code blocks: ```markdy ... ``` or ```markdyscript ... ```
+  let inFence = false;
+  let fenceStartLine = 0;
+  let fenceBuffer: string[] = [];
+
+  for (let idx = 0; idx < lines.length; idx++) {
+    const line = lines[idx];
+    const lineNo = idx + 1;
+    const trimmed = line.trim();
+
+    if (!inFence) {
+      const match = trimmed.match(/^```+(markdy|markdyscript)\b/i);
+      if (match) {
+        inFence = true;
+        fenceStartLine = lineNo + 1;
+        fenceBuffer = [];
+        continue;
+      }
+    } else {
+      if (/^```+\s*$/.test(trimmed)) {
+        inFence = false;
+        diagrams.push({
+          code: fenceBuffer.join("\n"),
+          line: fenceStartLine,
+          kind: "fence",
+        });
+        fenceBuffer = [];
+        continue;
+      }
+      fenceBuffer.push(line);
+    }
+  }
+
+  // 2. Scan for JSX / MDX <Markdy ... /> or <MarkdyDiagram ... /> components
+  const jsxRegex = /<(?:Markdy|MarkdyDiagram)\b([\s\S]*?)(?:\/>|<\/(?:Markdy|MarkdyDiagram)>)/g;
+  let jsxMatch: RegExpExecArray | null;
+
+  while ((jsxMatch = jsxRegex.exec(content)) !== null) {
+    const tagContent = jsxMatch[1];
+    const tagStartIndex = jsxMatch.index;
+    const lineBefore = content.slice(0, tagStartIndex).split("\n").length;
+
+    // Look for code={`...`}
+    const templateMatch = tagContent.match(/\bcode=\{\s*`([\s\S]*?)`\s*\}/);
+    if (templateMatch) {
+      const offsetLines = tagContent.slice(0, tagContent.indexOf(templateMatch[0])).split("\n").length - 1;
+      diagrams.push({
+        code: templateMatch[1],
+        line: lineBefore + offsetLines,
+        kind: "mdx-jsx",
+      });
+      continue;
+    }
+
+    // Look for code={"..."} or code={'...'}
+    const stringExprMatch = tagContent.match(/\bcode=\{\s*(?:"([^"]*)"|'([^']*)')\s*\}/);
+    if (stringExprMatch) {
+      const val = stringExprMatch[1] ?? stringExprMatch[2] ?? "";
+      const offsetLines = tagContent.slice(0, tagContent.indexOf(stringExprMatch[0])).split("\n").length - 1;
+      diagrams.push({
+        code: val.replace(/\\n/g, "\n"),
+        line: lineBefore + offsetLines,
+        kind: "mdx-jsx",
+      });
+      continue;
+    }
+
+    // Look for code="..." or code='...'
+    const rawStringMatch = tagContent.match(/\bcode=(?:"([^"]*)"|'([^']*)')/);
+    if (rawStringMatch) {
+      const val = rawStringMatch[1] ?? rawStringMatch[2] ?? "";
+      const offsetLines = tagContent.slice(0, tagContent.indexOf(rawStringMatch[0])).split("\n").length - 1;
+      diagrams.push({
+        code: val.replace(/\\n/g, "\n"),
+        line: lineBefore + offsetLines,
+        kind: "mdx-jsx",
+      });
+      continue;
+    }
+  }
+
+  return diagrams;
+}
+
+export function extractDiagramsFromHtml(content: string): ExtractedDiagram[] {
+  const diagrams: ExtractedDiagram[] = [];
+  const b64Regex = /\bdata-markdy-code-b64=(?:"([^"]+)"|'([^']+)')/g;
+  let match: RegExpExecArray | null;
+
+  while ((match = b64Regex.exec(content)) !== null) {
+    const b64 = match[1] ?? match[2];
+    const startIndex = match.index;
+    const line = content.slice(0, startIndex).split("\n").length;
+    try {
+      const decoded = Buffer.from(b64, "base64").toString("utf8");
+      diagrams.push({
+        code: decoded,
+        line,
+        kind: "markdy",
+      });
+    } catch {
+      // ignore invalid base64 decode, validation step will flag
+    }
+  }
+
+  const legacyRegex = /\bdata-markdy-code=(?:"([^"]+)"|'([^']+)')/g;
+  while ((match = legacyRegex.exec(content)) !== null) {
+    const raw = match[1] ?? match[2];
+    const startIndex = match.index;
+    const line = content.slice(0, startIndex).split("\n").length;
+    const unescaped = raw
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&");
+    diagrams.push({
+      code: unescaped,
+      line,
+      kind: "markdy",
+    });
+  }
+
+  return diagrams;
+}
+
+async function collectAllCheckFiles(
+  inputs: string[],
+  distDir?: string,
+): Promise<{ markdyFiles: string[]; markdownFiles: string[]; htmlFiles: string[] }> {
+  const markdyFiles = new Set<string>();
+  const markdownFiles = new Set<string>();
+  const htmlFiles = new Set<string>();
+
+  const candidates = inputs.length > 0 ? inputs : (distDir ? [] : [process.cwd()]);
+
+  for (const candidate of candidates) {
+    const resolved = resolve(candidate);
+    const info = await stat(resolved).catch(() => null);
+    if (!info) continue;
+
+    if (info.isDirectory()) {
+      await walkCheckDirectory(resolved, markdyFiles, markdownFiles, htmlFiles);
+      continue;
+    }
+
+    if (info.isFile()) {
+      const ext = extname(resolved).toLowerCase();
+      if (ext === ".markdy") markdyFiles.add(resolved);
+      else if (ext === ".md" || ext === ".mdx") markdownFiles.add(resolved);
+      else if (ext === ".html" || ext === ".htm") htmlFiles.add(resolved);
+    }
+  }
+
+  if (distDir) {
+    const resolvedDist = resolve(distDir);
+    const info = await stat(resolvedDist).catch(() => null);
+    if (info && info.isDirectory()) {
+      await walkHtmlFiles(resolvedDist, htmlFiles);
+    } else if (info && info.isFile()) {
+      htmlFiles.add(resolvedDist);
+    }
+  }
+
+  return {
+    markdyFiles: [...markdyFiles].sort(),
+    markdownFiles: [...markdownFiles].sort(),
+    htmlFiles: [...htmlFiles].sort(),
+  };
+}
+
+async function walkCheckDirectory(
+  root: string,
+  markdyFiles: Set<string>,
+  markdownFiles: Set<string>,
+  htmlFiles: Set<string>,
+): Promise<void> {
+  const entries = await readdir(root, { withFileTypes: true }).catch(() => []);
+
+  for (const entry of entries) {
+    if (entry.name === ".git" || entry.name === "node_modules" || entry.name === "dist") {
+      continue;
+    }
+    const fullPath = join(root, entry.name);
+    if (entry.isDirectory()) {
+      await walkCheckDirectory(fullPath, markdyFiles, markdownFiles, htmlFiles);
+      continue;
+    }
+    if (entry.isFile()) {
+      const ext = extname(entry.name).toLowerCase();
+      if (ext === ".markdy") markdyFiles.add(fullPath);
+      else if (ext === ".md" || ext === ".mdx") markdownFiles.add(fullPath);
+      else if (ext === ".html" || ext === ".htm") htmlFiles.add(fullPath);
+    }
+  }
+}
+
+async function walkHtmlFiles(root: string, htmlFiles: Set<string>): Promise<void> {
+  const entries = await readdir(root, { withFileTypes: true }).catch(() => []);
+  for (const entry of entries) {
+    if (entry.name === ".git" || entry.name === "node_modules") continue;
+    const fullPath = join(root, entry.name);
+    if (entry.isDirectory()) {
+      await walkHtmlFiles(fullPath, htmlFiles);
+      continue;
+    }
+    if (entry.isFile() && (entry.name.endsWith(".html") || entry.name.endsWith(".htm"))) {
+      htmlFiles.add(fullPath);
+    }
+  }
+}
+
+async function checkCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
+  const distDir = getStringFlag(parsed, "dist");
+  const { markdyFiles, markdownFiles, htmlFiles } = await collectAllCheckFiles(
+    parsed.positionals,
+    distDir,
+  );
+
+  const totalFiles = markdyFiles.length + markdownFiles.length + htmlFiles.length;
+  if (totalFiles === 0) {
+    io.stderr("markdy check: expected at least one .markdy, .md, .mdx, or HTML file, or pass --dist <dir>");
+    return { exitCode: 1 };
+  }
+
+  const strict = hasFlag(parsed, "strict");
+  const checkArchRules = hasFlag(parsed, "arch-rules");
+  const configPath = getStringFlag(parsed, "config");
+  const jsonOutput = hasFlag(parsed, "json");
+
+  let customRules: ArchitectureRule[] | undefined;
+  if (configPath) {
+    try {
+      const raw = await readFile(resolve(process.cwd(), configPath), "utf-8");
+      const json = JSON.parse(raw);
+      customRules = resolveArchitectureConfig(json);
+    } catch (err) {
+      io.stderr(`markdy check: failed to read config "${configPath}": ${(err as Error).message}`);
+      return { exitCode: 1 };
+    }
+  } else {
+    for (const defaultName of [".markdyrc.json", "markdy.config.json", ".markdyrc"]) {
+      try {
+        const candidate = resolve(process.cwd(), defaultName);
+        const raw = await readFile(candidate, "utf-8");
+        const json = JSON.parse(raw);
+        customRules = resolveArchitectureConfig(json);
+        break;
+      } catch {
+        // ignore if not present
+      }
+    }
+  }
+
+  let totalDiagrams = 0;
+  let errorCount = 0;
+  let warningCount = 0;
+  const jsonResults: Array<{
+    file: string;
+    diagrams: number;
+    errors: Array<{ line: number; message: string; suggestion?: string }>;
+    warnings: Array<{ line: number; message: string }>;
+  }> = [];
+
+  // 1. Process .markdy files
+  for (const file of markdyFiles) {
+    totalDiagrams++;
+    const fileErrors: Array<{ line: number; message: string; suggestion?: string }> = [];
+    const fileWarnings: Array<{ line: number; message: string }> = [];
+
+    try {
+      const source = await readFile(file, "utf-8");
+      const ast = parse(source);
+      compile(ast);
+
+      for (const w of ast.diagnostics.filter((d) => d.severity === "warning")) {
+        warningCount++;
+        fileWarnings.push({ line: w.line, message: w.message });
+        if (!jsonOutput) io.stderr(`WARN ${file}:${w.line} ${w.message}`);
+      }
+
+      if (checkArchRules || customRules) {
+        const violations = validateArchitecture(ast, customRules);
+        for (const v of violations) {
+          if (v.severity === "error") {
+            errorCount++;
+            fileErrors.push({ line: v.line ?? 1, message: `[${v.ruleName}] ${v.message}` });
+            if (!jsonOutput) io.stderr(`ARCH_FAIL ${file}:${v.line ?? 1} [${v.ruleName}] ${v.message}`);
+          } else {
+            warningCount++;
+            fileWarnings.push({ line: v.line ?? 1, message: `[${v.ruleName}] ${v.message}` });
+            if (!jsonOutput) io.stderr(`ARCH_WARN ${file}:${v.line ?? 1} [${v.ruleName}] ${v.message}`);
+          }
+        }
+      }
+
+      if (fileErrors.length === 0 && !jsonOutput) {
+        io.stdout(`OK   ${file}`);
+      }
+    } catch (error) {
+      errorCount++;
+      const errLine = (error instanceof ParseError && error.line) ? error.line : 1;
+      const diag = await readFile(file, "utf-8")
+        .then((raw) => diagnoseMarkdyCode(raw, { checkArchitecture: true }))
+        .catch(() => null);
+
+      if (diag && diag.issues.length > 0) {
+        for (const iss of diag.issues) {
+          fileErrors.push({ line: iss.line, message: iss.message, suggestion: iss.suggestion });
+          if (!jsonOutput) {
+            io.stderr(`FAIL ${file}:${iss.line} [${iss.code}] ${iss.message}`);
+            if (iss.suggestion) io.stderr(`       💡 Recommendation: ${iss.suggestion}`);
+          }
+        }
+      } else {
+        const msg = describeError(error);
+        fileErrors.push({ line: errLine, message: msg });
+        if (!jsonOutput) io.stderr(`FAIL ${file}:${errLine} ${msg}`);
+      }
+    }
+
+    jsonResults.push({ file, diagrams: 1, errors: fileErrors, warnings: fileWarnings });
+  }
+
+  // 2. Process .md and .mdx files
+  for (const file of markdownFiles) {
+    const fileErrors: Array<{ line: number; message: string; suggestion?: string }> = [];
+    const fileWarnings: Array<{ line: number; message: string }> = [];
+    let fileDiagramCount = 0;
+
+    try {
+      const content = await readFile(file, "utf-8");
+      const diagrams = extractDiagramsFromMarkdown(content);
+      fileDiagramCount = diagrams.length;
+      totalDiagrams += diagrams.length;
+
+      for (let dIdx = 0; dIdx < diagrams.length; dIdx++) {
+        const diagram = diagrams[dIdx];
+        const lineOffset = diagram.line;
+
+        try {
+          const ast = parse(diagram.code);
+          compile(ast);
+
+          for (const w of ast.diagnostics.filter((d) => d.severity === "warning")) {
+            warningCount++;
+            const mappedLine = lineOffset + w.line - 1;
+            fileWarnings.push({ line: mappedLine, message: w.message });
+            if (!jsonOutput) io.stderr(`WARN ${file}:${mappedLine} ${w.message}`);
+          }
+
+          if (checkArchRules || customRules) {
+            const violations = validateArchitecture(ast, customRules);
+            for (const v of violations) {
+              const mappedLine = lineOffset + (v.line ?? 1) - 1;
+              if (v.severity === "error") {
+                errorCount++;
+                fileErrors.push({ line: mappedLine, message: `[${v.ruleName}] ${v.message}` });
+                if (!jsonOutput) io.stderr(`ARCH_FAIL ${file}:${mappedLine} [${v.ruleName}] ${v.message}`);
+              } else {
+                warningCount++;
+                fileWarnings.push({ line: mappedLine, message: `[${v.ruleName}] ${v.message}` });
+                if (!jsonOutput) io.stderr(`ARCH_WARN ${file}:${mappedLine} [${v.ruleName}] ${v.message}`);
+              }
+            }
+          }
+        } catch (error) {
+          errorCount++;
+          const diag = diagnoseMarkdyCode(diagram.code, { checkArchitecture: true });
+          if (diag.issues.length > 0) {
+            for (const iss of diag.issues) {
+              const mappedLine = lineOffset + iss.line - 1;
+              fileErrors.push({ line: mappedLine, message: iss.message, suggestion: iss.suggestion });
+              if (!jsonOutput) {
+                io.stderr(`FAIL ${file}:${mappedLine} [${iss.code}] ${iss.message}`);
+                if (iss.suggestion) io.stderr(`       💡 Recommendation: ${iss.suggestion}`);
+              }
+            }
+          } else {
+            const relLine = (error instanceof ParseError && error.line) ? error.line : 1;
+            const mappedLine = lineOffset + relLine - 1;
+            const msg = describeError(error);
+            fileErrors.push({ line: mappedLine, message: msg });
+            if (!jsonOutput) io.stderr(`FAIL ${file}:${mappedLine} ${msg}`);
+          }
+        }
+      }
+
+      if (fileErrors.length === 0 && !jsonOutput) {
+        const desc = fileDiagramCount === 1 ? "1 diagram" : `${fileDiagramCount} diagrams`;
+        io.stdout(`OK   ${file} (${desc})`);
+      }
+    } catch (err) {
+      errorCount++;
+      const msg = describeError(err);
+      fileErrors.push({ line: 1, message: msg });
+      if (!jsonOutput) io.stderr(`FAIL ${file}:1 ${msg}`);
+    }
+
+    jsonResults.push({ file, diagrams: fileDiagramCount, errors: fileErrors, warnings: fileWarnings });
+  }
+
+  // 3. Process HTML files (e.g. from --dist or directly passed)
+  for (const file of htmlFiles) {
+    const fileErrors: Array<{ line: number; message: string; suggestion?: string }> = [];
+    const fileWarnings: Array<{ line: number; message: string }> = [];
+    let fileDiagramCount = 0;
+
+    try {
+      const content = await readFile(file, "utf-8");
+      const diagrams = extractDiagramsFromHtml(content);
+      fileDiagramCount = diagrams.length;
+      totalDiagrams += diagrams.length;
+
+      for (let dIdx = 0; dIdx < diagrams.length; dIdx++) {
+        const diagram = diagrams[dIdx];
+        const lineNo = diagram.line;
+
+        try {
+          const ast = parse(diagram.code);
+          compile(ast);
+
+          for (const w of ast.diagnostics.filter((d) => d.severity === "warning")) {
+            warningCount++;
+            fileWarnings.push({ line: lineNo, message: w.message });
+            if (!jsonOutput) io.stderr(`WARN ${file}:${lineNo} ${w.message}`);
+          }
+        } catch (error) {
+          errorCount++;
+          const msg = describeError(error);
+          fileErrors.push({ line: lineNo, message: msg });
+          if (!jsonOutput) io.stderr(`FAIL ${file}:${lineNo} (compiled AST decode): ${msg}`);
+        }
+      }
+
+      if (fileErrors.length === 0 && !jsonOutput) {
+        const desc = fileDiagramCount === 1 ? "1 compiled runtime diagram" : `${fileDiagramCount} compiled runtime diagrams`;
+        io.stdout(`OK   ${file} (${desc})`);
+      }
+    } catch (err) {
+      errorCount++;
+      const msg = describeError(err);
+      fileErrors.push({ line: 1, message: msg });
+      if (!jsonOutput) io.stderr(`FAIL ${file}:1 ${msg}`);
+    }
+
+    jsonResults.push({ file, diagrams: fileDiagramCount, errors: fileErrors, warnings: fileWarnings });
+  }
+
+  if (jsonOutput) {
+    io.stdout(
+      JSON.stringify(
+        {
+          summary: {
+            filesScanned: totalFiles,
+            diagramsVerified: totalDiagrams,
+            errors: errorCount,
+            warnings: warningCount,
+            passed: errorCount === 0 && (!strict || warningCount === 0),
+          },
+          results: jsonResults,
+        },
+        null,
+        2,
+      ),
+    );
+    return { exitCode: (errorCount > 0 || (strict && warningCount > 0)) ? 1 : 0 };
+  }
+
+  if (strict && warningCount > 0) {
+    io.stderr(`markdy check: ${warningCount} warning(s) treated as failures.`);
+    return { exitCode: 1 };
+  }
+
+  if (errorCount > 0) {
+    io.stderr(`markdy check: ${errorCount} error(s) across ${totalFiles} file(s).`);
+    return { exitCode: 1 };
+  }
+
+  io.stdout(`markdy check: PASS — ${totalFiles} file(s) scanned, ${totalDiagrams} diagram(s) verified, 0 warnings.`);
+  return { exitCode: 0 };
 }
 
 async function suggestCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
@@ -992,6 +1489,7 @@ function helpText(): string {
     "",
     "Usage:",
     "  markdy",
+    "  markdy check [file-or-dir] [--dist <dir>] [--strict] [--arch-rules] [--json]",
     "  markdy lint <file-or-dir> [--strict] [--arch-rules]",
     "  markdy fmt <file-or-dir> [--write | --check]",
     "  markdy render <file.markdy> [--out file.html] [--port 4242] [--no-open]",
@@ -1070,7 +1568,15 @@ function parseArgv(argv: string[]): ParsedArgs {
 }
 
 function expectsValue(flag: string): boolean {
-  return flag === "out" || flag === "port" || flag === "config";
+  return (
+    flag === "out" ||
+    flag === "port" ||
+    flag === "config" ||
+    flag === "dist" ||
+    flag === "from" ||
+    flag === "line" ||
+    flag === "col"
+  );
 }
 
 function hasFlag(parsed: ParsedArgs, name: string): boolean {

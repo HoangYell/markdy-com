@@ -5,6 +5,32 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] — 2026-08-30
+
+### Added
+- **Resilient MDX Indentation Recovery (`@markdy/core`)**:
+  - Automatically recovers `player:` configuration blocks and group directives (`playback:`, `controls:`, `interaction:`, `chrome:`) when embedded inside MDX JSX template strings where processors (e.g. `@astrojs/mdx`, `remark-mdx`) strip leading spaces.
+  - Fully backward-compatible with 2-space, 4-space, 8-space, and tab indentation styles.
+- **CI/CD Multi-Format Diagram Validator (`@markdy/cli`)**:
+  - Added `markdy check [files/globs...] [--dist <dir>] [--strict] [--arch-rules] [--json]` command.
+  - Recursively extracts and validates MarkdyScript blocks from Markdown (`.md`), MDX (`.mdx`), base64-encoded SSR HTML bundles in `--dist`, and native `.markdy` files.
+- **Full System Capability & Compatibility Matrix**:
+  - Added comprehensive status matrix for Transpilation Inputs (Mermaid, Docker Compose, Kubernetes, Terraform, Draw.io) and Export Targets (WAAPI, SVG, HTML, PNG, Astro, MDX, MCP Server, CI/CD Governance).
+- **Studio Onboarding & Scene Synchronization**:
+  - Added 3-step dismissible Quick Start onboarding guide in Web Studio with `localStorage` persistence.
+  - Added deterministic URL parameter loading (`/playground/?example=<id>`) and synchronized default scene with Homepage demo.
+  - Added dynamic "Open in Full Studio ⚡" bridge from Homepage live interactive demo.
+- **Mobile Responsive 2-Tab Mode**:
+  - Automatically converts Split view into clean full-width `[ 🎨 Canvas ] [ 📄 Code ]` tabs on mobile devices (`<= 768px`).
+
+### Changed & Optimized
+- **100% WCAG AA Color Contrast & Accessibility Across All Pages**:
+  - Upgraded `--text-muted` from `#94a3b8` to `#64748b` (Slate 500) and tuned badge/pill colors for minimum 4.5:1 contrast ratio.
+  - Aligned accessible names (`aria-label`) with visible text labels (`label-content-name-mismatch` eliminated).
+  - Achieved **100 / 100 on Accessibility, Best Practices, SEO, and Agentic Browsing** across all pages (Homepage, Studio, Docs, Examples).
+- **High-Efficiency WebP Asset Delivery**:
+  - Re-encoded hero assets (`hero-bg.webp` -63%) and created dimension-matched WebP icons (`male-markdy-sm.webp` -95%, `3d-icon-sm.webp` -88%), accelerating LCP to 3.0s (FCP 1.8s) on throttled mobile networks.
+
 ## [1.1.1] — 2026-08-29
 
 ### Added

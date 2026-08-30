@@ -1,10 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { join } from "node:path";
-import { loadExamples } from "../data/examples";
+import { loadAllExamples } from "../data/examples";
 
 const ROOT = join(process.cwd(), "..");
-const EXAMPLES = await loadExamples(ROOT);
+const EXAMPLES = await loadAllExamples(ROOT);
 
 const TOKEN_LIBRARIES = {
   nodes: [
@@ -113,7 +113,7 @@ const playgroundStructuredData = [
     <nav class="topbar" aria-label="Playground navigation">
       <div class="topbar-left">
         <a class="brand" href="/" title="Markdy home">
-          <img src="/icon.svg" class="brand-logo-svg" alt="" width="22" height="22" loading="eager" decoding="async" />
+          <img src="/icon.svg" class="brand-logo-svg" alt="Markdy Logo" width="22" height="22" loading="eager" decoding="async" />
           <strong>markdy studio</strong>
         </a>
         <div id="studio-status-pill" class="status-pill status-pill--ok" title="Diagram compiler status">
@@ -126,23 +126,23 @@ const playgroundStructuredData = [
       <div class="topbar-center">
         <!-- View Mode Segmented Switcher -->
         <div class="view-mode-group" role="group" aria-label="Studio layout mode">
-          <button id="view-split-btn" class="view-mode-btn active" type="button" data-mode="split" title="Split Screen (Code + Canvas)">⚡ Split</button>
-          <button id="view-canvas-btn" class="view-mode-btn" type="button" data-mode="canvas" title="Canvas Visual Studio">🎨 Canvas</button>
-          <button id="view-code-btn" class="view-mode-btn" type="button" data-mode="code" title="Code Editor Only">📄 Code</button>
+          <button id="view-split-btn" class="view-mode-btn active" type="button" data-mode="split" title="Split Screen (Code + Canvas)" aria-label="Split Screen view mode">⚡ Split</button>
+          <button id="view-canvas-btn" class="view-mode-btn" type="button" data-mode="canvas" title="Canvas Visual Studio" aria-label="Canvas only view mode">🎨 Canvas</button>
+          <button id="view-code-btn" class="view-mode-btn" type="button" data-mode="code" title="Code Editor Only" aria-label="Code editor only view mode">📄 Code</button>
         </div>
       </div>
 
       <div class="topbar-right">
         <!-- Primary Quick Actions -->
-        <button id="import-btn" class="tool-btn" type="button" title="Import from Mermaid, Docker Compose, Kubernetes, Terraform or Draw.io">
+        <button id="import-btn" class="tool-btn" type="button" title="Import from Mermaid, Docker Compose, Kubernetes, Terraform or Draw.io" aria-label="Import diagram from external formats">
           <span>⚡ Import</span>
         </button>
 
-        <button id="live-director-btn" class="tool-btn" type="button" title="Open Stage Presentation & Director Mode (Fullscreen Motion Theatre)">
+        <button id="live-director-btn" class="tool-btn" type="button" title="Open Stage Presentation & Director Mode (Fullscreen Motion Theatre)" aria-label="Open presentation director mode">
           <span>🎬 Present</span>
         </button>
 
-        <button id="open-cheatsheet-btn" class="tool-btn" type="button" title="Keyboard Shortcuts & Syntax Reference">
+        <button id="open-cheatsheet-btn" class="tool-btn" type="button" title="Keyboard Shortcuts & Syntax Reference" aria-label="Open shortcuts and syntax cheatsheet">
           <span>⌨ Shortcuts</span>
         </button>
 
@@ -167,6 +167,27 @@ const playgroundStructuredData = [
     <section id="workspace" class="workspace" aria-label="MarkdyScript playground workspace">
       <p id="studio-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></p>
 
+      <!-- ── Onboarding Quick Start Banner ── -->
+      <div id="studio-onboarding-banner" class="studio-onboarding-banner" role="region" aria-label="Studio Quick Start">
+        <div class="onboarding-steps">
+          <div class="onboarding-step">
+            <span class="step-num">1</span>
+            <span><strong>Choose a system</strong> from the preset dropdown</span>
+          </div>
+          <div class="step-arrow" aria-hidden="true">→</div>
+          <div class="onboarding-step">
+            <span class="step-num">2</span>
+            <span><strong>Edit plain text</strong> or insert tokens</span>
+          </div>
+          <div class="step-arrow" aria-hidden="true">→</div>
+          <div class="onboarding-step">
+            <span class="step-num">3</span>
+            <span><strong>Animate &amp; inspect</strong> motion choreography</span>
+          </div>
+        </div>
+        <button id="close-onboarding-btn" class="onboarding-dismiss-btn" type="button" aria-label="Dismiss quick start guide">✕</button>
+      </div>
+
       <!-- ── Left Column: Authoring Code Editor ── -->
       <section class="editor-panel" aria-label="Code editor">
         <!-- Editor Header Bar -->
@@ -181,16 +202,16 @@ const playgroundStructuredData = [
                 <option value={i}>{ex.title} ({ex.pattern ?? ex.category})</option>
               ))}
             </select>
-            <button id="palette-toggle-btn" class="tool-btn tool-btn-sm" type="button" title="Toggle Components & Token Palette">
+            <button id="palette-toggle-btn" class="tool-btn tool-btn-sm" type="button" title="Toggle Components & Token Palette" aria-label="Toggle token and component palette">
               <span>＋ Insert</span>
             </button>
           </div>
 
           <div class="editor-head-actions" aria-label="Editor actions">
-            <button id="format-code-btn" class="tool-btn tool-btn-sm" type="button" title="Clean and format MarkdyScript indentation">✨ Format</button>
-            <button id="copy-code-btn" class="tool-btn tool-btn-sm" type="button" title="Copy MarkdyScript code to clipboard">📄 Copy</button>
-            <button id="reset-btn" class="tool-btn tool-btn-sm" type="button" title="Reset scene to initial template">↺ Reset</button>
-            <button id="run-btn" class="tool-btn tool-btn-sm tool-btn-primary" type="button" aria-keyshortcuts="Control+Enter Meta+Enter" title="Compile & Run scene (Cmd/Ctrl+Enter)">
+            <button id="format-code-btn" class="tool-btn tool-btn-sm" type="button" title="Clean and format MarkdyScript indentation" aria-label="Format MarkdyScript">✨ Format</button>
+            <button id="copy-code-btn" class="tool-btn tool-btn-sm" type="button" title="Copy MarkdyScript code to clipboard" aria-label="Copy MarkdyScript code">📄 Copy</button>
+            <button id="reset-btn" class="tool-btn tool-btn-sm" type="button" title="Reset scene to initial template" aria-label="Reset code to initial template">↺ Reset</button>
+            <button id="run-btn" class="tool-btn tool-btn-sm tool-btn-primary" type="button" aria-keyshortcuts="Control+Enter Meta+Enter" title="Compile & Run scene (Cmd/Ctrl+Enter)" aria-label="Compile and run scene">
               <span>Run</span>
               <span class="btn-icon-run" aria-hidden="true">▶</span>
             </button>
@@ -2148,12 +2169,34 @@ Requirements:
     }
   });
 
+  // Initialize Onboarding Banner
+  const onboardingBanner = document.getElementById("studio-onboarding-banner");
+  const closeOnboardingBtn = document.getElementById("close-onboarding-btn");
+  if (localStorage.getItem("markdy_studio_onboarding_dismissed") === "true") {
+    onboardingBanner?.setAttribute("hidden", "");
+  }
+  closeOnboardingBtn?.addEventListener("click", () => {
+    onboardingBanner?.setAttribute("hidden", "");
+    localStorage.setItem("markdy_studio_onboarding_dismissed", "true");
+  });
+
   // Initialize
-  const params = new URLSearchParams(window.location.hash.slice(1));
-  const sharedCodeParam = params.get("code");
+  const hashParams = new URLSearchParams(window.location.hash.slice(1));
+  const searchParams = new URLSearchParams(window.location.search);
+  const sharedCodeParam = hashParams.get("code") || searchParams.get("code");
+  const exampleParam = searchParams.get("example") || hashParams.get("example");
+  const indexParam = searchParams.get("index") || hashParams.get("index");
 
   (async () => {
-    let initialIndex = examples.length > 0 ? Math.floor(Math.random() * examples.length) : 0;
+    let initialIndex = 0; // Default to index 0 (Cache-Aside / premier architecture)
+    if (exampleParam) {
+      const idx = examples.findIndex(e => e.id === exampleParam || e.file.includes(exampleParam) || (e.pattern && e.pattern === exampleParam));
+      if (idx !== -1) initialIndex = idx;
+    } else if (indexParam !== null && !isNaN(Number(indexParam))) {
+      const parsed = Number(indexParam);
+      if (parsed >= 0 && parsed < examples.length) initialIndex = parsed;
+    }
+
     let initialCode = examples[initialIndex]?.code || "";
     if (sharedCodeParam) {
       const decoded = await decodeShare(sharedCodeParam);
@@ -2161,6 +2204,11 @@ Requirements:
         initialCode = decoded;
         initialIndex = -1;
       }
+    }
+
+    // Auto mobile view adaptation
+    if (window.innerWidth <= 768) {
+      setViewMode("canvas");
     }
 
     const savedTheme = localStorage.getItem(STORAGE_KEY);
@@ -2230,14 +2278,14 @@ Requirements:
     --bg-elevated: #ffffff;
     --text-primary: #0f172a;
     --text-secondary: #475569;
-    --text-muted: #94a3b8;
+    --text-muted: #64748b;
     --border: #e2e8f0;
     --border-hover: #cbd5e1;
     --border-subtle: #f1f5f9;
-    --accent: #059669;
-    --accent-hover: #047857;
-    --accent-light: rgba(5, 150, 105, 0.08);
-    --accent-glow: rgba(5, 150, 105, 0.25);
+    --accent: #047857;
+    --accent-hover: #065f46;
+    --accent-light: rgba(4, 120, 87, 0.09);
+    --accent-glow: rgba(4, 120, 87, 0.22);
     --danger: #ef4444;
     --danger-light: rgba(239, 68, 68, 0.08);
     --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -2394,7 +2442,7 @@ Requirements:
 
   .status-meta {
     font-size: 0.65rem;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     font-family: "JetBrains Mono", monospace;
     padding-left: 0.25rem;
     border-left: 1px solid var(--border);
@@ -2479,6 +2527,72 @@ Requirements:
     background: var(--accent);
     color: #ffffff;
     border-color: var(--accent);
+  }
+
+  /* Onboarding Quick Start Banner */
+  .studio-onboarding-banner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.45rem 0.85rem;
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(56, 189, 248, 0.08));
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    border-radius: 8px;
+    margin-bottom: 0.6rem;
+    font-size: 0.8rem;
+    color: var(--text-primary);
+  }
+
+  .studio-onboarding-banner[hidden] {
+    display: none !important;
+  }
+
+  .onboarding-steps {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  .onboarding-step {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #ffffff;
+    font-size: 0.68rem;
+    font-weight: 800;
+  }
+
+  .step-arrow {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+  }
+
+  .onboarding-dismiss-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+  }
+
+  .onboarding-dismiss-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-tertiary);
   }
 
 
@@ -4179,17 +4293,22 @@ Requirements:
 
   .example-cat-tag {
     font-size: 0.6rem;
-    color: var(--accent);
+    font-weight: 700;
+    color: #065f46;
     background: var(--accent-light);
     padding: 0.05rem 0.3rem;
     border-radius: 4px;
     white-space: nowrap;
   }
 
+  :root[data-theme="dark"] .example-cat-tag {
+    color: #34d399;
+  }
+
   .example-desc-preview {
     margin: 0;
     font-size: 0.65rem;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     font-family: "JetBrains Mono", monospace;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -4237,7 +4356,7 @@ Requirements:
 
   .snippet-preview {
     font-size: 0.66rem;
-    color: var(--text-muted);
+    color: var(--text-secondary);
     font-family: "JetBrains Mono", monospace;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -4583,6 +4702,32 @@ Requirements:
   }
 
   @media (max-width: 768px) {
+    #view-split-btn {
+      display: none !important;
+    }
+    .view-mode-group {
+      width: 100%;
+      display: flex;
+    }
+    .view-mode-btn {
+      flex: 1;
+      text-align: center;
+      justify-content: center;
+    }
+    .workspace:not([data-view-mode="code"]) .editor-panel {
+      display: none !important;
+    }
+    .workspace[data-view-mode="code"] .preview-panel {
+      display: none !important;
+    }
+    .workspace[data-view-mode="code"] .editor-panel {
+      display: flex !important;
+      height: clamp(520px, 80vh, 760px);
+    }
+    .workspace:not([data-view-mode="code"]) .preview-panel {
+      display: flex !important;
+      height: clamp(520px, 80vh, 760px);
+    }
     .playground-page {
       padding: 0.5rem 0.5rem 1.5rem;
     }

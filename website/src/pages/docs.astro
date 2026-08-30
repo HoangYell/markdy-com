@@ -98,7 +98,7 @@ const docStructuredData = [
       </nav>
 
       <div class="topbar-actions">
-        <button id="mobile-docs-toc-btn" class="btn-topbar-theme mobile-docs-toc-btn" aria-label="Table of Contents" aria-expanded="false" aria-controls="mobile-docs-drawer" title="Table of Contents">
+        <button id="mobile-docs-toc-btn" class="btn-topbar-theme mobile-docs-toc-btn" aria-label="TOC (Table of Contents)" aria-expanded="false" aria-controls="mobile-docs-drawer" title="Table of Contents">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="15" y2="12"></line><line x1="3" y1="18" x2="18" y2="18"></line></svg>
           <span>TOC</span>
         </button>
@@ -1460,8 +1460,8 @@ client Browser -> service Api -> database DB
 
   .code-title {
     font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--text-muted);
+    font-weight: 700;
+    color: var(--text-secondary);
     font-family: "JetBrains Mono", monospace;
   }
 
@@ -1561,12 +1561,20 @@ client Browser -> service Api -> database DB
 
   .gov-badge--crit {
     background: rgba(239, 68, 68, 0.12);
-    color: var(--danger);
+    color: #991b1b;
+  }
+
+  :root[data-theme="dark"] .gov-badge--crit {
+    color: #f87171;
   }
 
   .gov-badge--warn {
     background: rgba(245, 158, 11, 0.12);
-    color: var(--warning);
+    color: #92400e;
+  }
+
+  :root[data-theme="dark"] .gov-badge--warn {
+    color: #fbbf24;
   }
 
   /* ─── Grids ────────────────────────────────────────────────────────── */
@@ -1638,7 +1646,7 @@ client Browser -> service Api -> database DB
     align-items: center;
     justify-content: space-between;
     font-size: 0.8rem;
-    color: var(--text-muted);
+    color: var(--text-secondary);
   }
 
   .footer-links {

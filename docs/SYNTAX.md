@@ -115,9 +115,7 @@ beat create "Create a short URL":
 
 The optional beat label is rendered as a short caption during that beat.
 
-Canonical beat and pattern blocks end with `:` and use indentation. The parser also accepts `{ ... }` block delimiters and `#` comments because LLMs often emit that style, but generated documentation should prefer the colon form above.
-
-When a host strips indentation (common with MDX/JSX template literals), the parser recovers colon bodies by reading until the next top-level statement. Prefer keeping real indentation or loading MarkdyScript from a raw `.markdy` file when you control the embed path; use brace blocks only when a host cannot preserve indentation.
+When a host strips indentation (common with MDX/JSX template literals), the parser automatically recovers colon bodies and nested player groups (`playback:`, `controls:`, `interaction:`, `chrome:`) by inferring the block hierarchy until the next top-level statement. Standard 2-space indentation remains canonical for maximum readability.
 
 Flow operators:
 - `->` — Forward request/call (determines forward layout rank)

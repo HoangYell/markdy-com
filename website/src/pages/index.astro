@@ -343,7 +343,7 @@ const homepageStructuredData = [
   title="Markdy — Animated Architecture Diagrams as Code"
   description="Markdy is a diagram-as-code DSL for animated architecture and system diagrams: declare semantic nodes, flows, and beats in plain text. Zero coordinate math, browser-native motion."
   keywords="Markdy, animated architecture diagram, diagram as code, mermaid alternative, animated system diagram, architecture visualization, docs as code, MCP server diagrams"
-  preloadImage="/og-image.webp"
+  preloadImage="/hero-bg.webp"
   structuredData={homepageStructuredData}
 >
   <!-- ─── Floating Pill Navigation ────────────────────────────────────── -->
@@ -403,7 +403,7 @@ const homepageStructuredData = [
     <!-- Hero Showcase Stage with og-image.webp Visual Foundation -->
     <div class="hero-stage">
       <img
-        src="/og-image.webp"
+        src="/hero-bg.webp"
         class="hero-stage-bg"
         alt="Markdy Animated Diagrams Foundation"
         fetchpriority="high"
@@ -448,7 +448,7 @@ const homepageStructuredData = [
         <div class="prompt-tutorial-header">
           <div class="prompt-header-left">
             <span class="prompt-badge">
-              <img src="/images/3d-icon.webp" alt="" class="prompt-badge-icon" width="14" height="14" loading="lazy" decoding="async" fetchpriority="low" />
+              <img src="/images/3d-icon-sm.webp" alt="Markdy 3D Icon" class="prompt-badge-icon" width="14" height="14" loading="lazy" decoding="async" fetchpriority="low" />
               AI AGENT PROMPT TUTORIAL
             </span>
             <h2>Generate Animated Architecture with AI Agents</h2>
@@ -458,7 +458,7 @@ const homepageStructuredData = [
           </div>
           <div class="prompt-header-right">
             <div class="prompt-mascot-guide" title="Markdy Assistant">
-              <img src="/images/male-markdy.webp" class="prompt-mascot-img" alt="Markdy Mascot" width="52" height="52" loading="lazy" decoding="async" fetchpriority="low" />
+              <img src="/images/male-markdy-sm.webp" class="prompt-mascot-img" alt="Markdy Mascot" width="52" height="52" loading="lazy" decoding="async" fetchpriority="low" />
               <div class="prompt-mascot-speech">
                 <span>AI Prompt Guide</span>
               </div>
@@ -587,8 +587,11 @@ const homepageStructuredData = [
           </div>
         </div>
         <div class="studio-right-actions">
-          <a href="/examples/" class="studio-gallery-link" title="Explore all 30+ Architecture Examples">
-            <span>All Examples (30+) ↗</span>
+          <a id="open-full-studio-btn" href="/playground/?example=url-shortener-architecture" class="studio-gallery-link" title="Open selected scene in Full Studio">
+            <span>Open in Full Studio ⚡</span>
+          </a>
+          <a href="/examples/" class="studio-gallery-link" title="Explore all 29+ Architecture Blueprints">
+            <span>Browse 29+ Architectures ↗</span>
           </a>
         </div>
       </div>
@@ -720,7 +723,7 @@ const homepageStructuredData = [
           <div class="ingestion-transpile-bridge" aria-hidden="true">
             <div class="bridge-line"></div>
             <div class="bridge-pill">
-              <img src="/images/3d-icon.webp" alt="" class="bridge-icon-img" width="16" height="16" loading="lazy" decoding="async" fetchpriority="low" />
+              <img src="/images/3d-icon-sm.webp" alt="Markdy 3D Icon" class="bridge-icon-img" width="16" height="16" loading="lazy" decoding="async" fetchpriority="low" />
               <span>1-Click Transpile</span>
             </div>
             <div class="bridge-line"></div>
@@ -763,6 +766,133 @@ const homepageStructuredData = [
             <div class="pillar-learn-more">Learn more ↗</div>
           </a>
         ))}
+      </div>
+    </section>
+
+    <!-- ─── Capability & Compatibility Matrix ─────────────────────────────── -->
+    <section id="matrix" class="matrix-section">
+      <div class="section-heading-block">
+        <span class="section-tag">Capability Matrix</span>
+        <h2>Full System Support &amp; Integration Matrix</h2>
+        <p>Transparent overview of supported ingestion formats, export targets, analysis features, and framework integrations.</p>
+      </div>
+
+      <div class="matrix-container">
+        <!-- Ingestion & Transpilation -->
+        <div class="matrix-category">
+          <div class="matrix-category-header">
+            <span class="category-icon">🔄</span>
+            <h3>Ingestion &amp; Transpilation Inputs</h3>
+          </div>
+          <div class="matrix-table-wrap">
+            <table class="matrix-table">
+              <thead>
+                <tr>
+                  <th>Source Format</th>
+                  <th>Status</th>
+                  <th>Supported Features</th>
+                  <th>Documentation &amp; Demo</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Mermaid Flowcharts</strong> (<code>.mmd</code>, <code>```mermaid</code>)</td>
+                  <td><span class="matrix-badge badge-stable">Stable</span></td>
+                  <td>Nodes, subgraphs, direction (LR/TB), flow labels, shapes</td>
+                  <td><a href="/blog/mermaid-alternative/">Migration Guide ↗</a></td>
+                </tr>
+                <tr>
+                  <td><strong>Docker Compose</strong> (<code>docker-compose.yml</code>)</td>
+                  <td><span class="matrix-badge badge-stable">Stable</span></td>
+                  <td>Services, container ports, volume storage, networks</td>
+                  <td><a href="/playground/?example=url-shortener-architecture">Import in Studio ↗</a></td>
+                </tr>
+                <tr>
+                  <td><strong>Kubernetes Manifests</strong> (<code>k8s.yaml</code>)</td>
+                  <td><span class="matrix-badge badge-stable">Stable</span></td>
+                  <td>Deployments, Pods, Services, Ingress, PersistentVolumes</td>
+                  <td><a href="/blog/kubernetes-architecture-diagram/">K8s Guide ↗</a></td>
+                </tr>
+                <tr>
+                  <td><strong>Terraform State / HCL</strong> (<code>.tf</code>, <code>.tfstate</code>)</td>
+                  <td><span class="matrix-badge badge-stable">Stable</span></td>
+                  <td>AWS / GCP / Azure resources, VPCs, subnets, DAG dependencies</td>
+                  <td><a href="/playground/">Import in Studio ↗</a></td>
+                </tr>
+                <tr>
+                  <td><strong>Draw.io XML</strong> (<code>.drawio</code>, <code>.xml</code>)</td>
+                  <td><span class="matrix-badge badge-beta">Beta</span></td>
+                  <td>mxGraph vertex geometry, labels, grouped containers</td>
+                  <td><a href="/playground/">Try Draw.io Import ↗</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Output Targets & Frameworks -->
+        <div class="matrix-category">
+          <div class="matrix-category-header">
+            <span class="category-icon">🚀</span>
+            <h3>Export Targets &amp; Developer Frameworks</h3>
+          </div>
+          <div class="matrix-table-wrap">
+            <table class="matrix-table">
+              <thead>
+                <tr>
+                  <th>Target / Platform</th>
+                  <th>Status</th>
+                  <th>Package / Tool</th>
+                  <th>Capabilities</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Browser Web Animations (WAAPI)</strong></td>
+                  <td><span class="matrix-badge badge-stable">Stable</span></td>
+                  <td><code>@markdy/renderer-dom</code></td>
+                  <td>Hardware-accelerated 60fps motion, camera framing, pulse cues</td>
+                </tr>
+                <tr>
+                  <td><strong>Standalone HTML Bundle</strong></td>
+                  <td><span class="matrix-badge badge-stable">Stable</span></td>
+                  <td><code>markdy render &lt;file&gt;</code></td>
+                  <td>Zero-dependency offline HTML file with embedded dark/light themes</td>
+                </tr>
+                <tr>
+                  <td><strong>Vector SVG &amp; PNG Raster</strong></td>
+                  <td><span class="matrix-badge badge-stable">Stable</span></td>
+                  <td>Studio / CLI</td>
+                  <td>Crisp infinite-resolution SVG vectors with embedded styles</td>
+                </tr>
+                <tr>
+                  <td><strong>Astro Integration</strong></td>
+                  <td><span class="matrix-badge badge-stable">Stable</span></td>
+                  <td><code>@markdy/astro</code></td>
+                  <td>SSR-friendly <code>&lt;Markdy /&gt;</code> component with client hydration</td>
+                </tr>
+                <tr>
+                  <td><strong>MDX / Next.js / Docusaurus</strong></td>
+                  <td><span class="matrix-badge badge-stable">Stable</span></td>
+                  <td><code>@markdy/mdx</code></td>
+                  <td><code>&lt;MarkdyDiagram /&gt;</code> component with indentation collapse resiliency</td>
+                </tr>
+                <tr>
+                  <td><strong>AI MCP Server &amp; Diagnostics</strong></td>
+                  <td><span class="matrix-badge badge-stable">Stable</span></td>
+                  <td><code>@markdy/mcp-server</code></td>
+                  <td>Native tools for Cursor, Claude, Antigravity with self-healing repairs</td>
+                </tr>
+                <tr>
+                  <td><strong>CI/CD Governance &amp; Multi-File Check</strong></td>
+                  <td><span class="matrix-badge badge-stable">Stable</span></td>
+                  <td><code>markdy check</code> / <code>markdy lint</code></td>
+                  <td>Deadlock cycle prevention, cross-layer linter, <code>--dist</code> HTML validator</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -927,7 +1057,7 @@ markdy check-all ./docs/diagrams</code></pre>
           <a class="f-logo" href="/" aria-label="Markdy home">
             <img src="/images/markdy-com.webp" class="f-logo-wordmark" alt="Markdy" width="148" height="48" loading="lazy" decoding="async" fetchpriority="low" />
           </a>
-          <img src="/images/male-markdy.webp" class="footer-mascot" alt="Markdy Mascot" width="68" height="68" loading="lazy" decoding="async" fetchpriority="low" />
+          <img src="/images/male-markdy-sm.webp" class="footer-mascot" alt="Markdy Mascot" width="68" height="68" loading="lazy" decoding="async" fetchpriority="low" />
         </div>
         <p>Diagrams-as-code with native browser motion, built for the way modern engineering teams explain systems.</p>
         <a class="footer-cta" href="/playground/">Open the studio <span aria-hidden="true">→</span></a>
@@ -1202,6 +1332,18 @@ markdy check-all ./docs/diagrams</code></pre>
     void render(code);
   }
 
+  const openFullStudioBtn = document.getElementById("open-full-studio-btn") as HTMLAnchorElement;
+
+  function updateFullStudioLink(exampleIndex: number) {
+    if (!openFullStudioBtn) return;
+    const ex = examples[exampleIndex];
+    if (ex?.id) {
+      openFullStudioBtn.href = `/playground/?example=${encodeURIComponent(ex.id)}`;
+    } else {
+      openFullStudioBtn.href = `/playground/?index=${exampleIndex}`;
+    }
+  }
+
   // Preset chips handler
   presetChips.forEach((chip) => {
     chip.addEventListener("click", () => {
@@ -1213,6 +1355,7 @@ markdy check-all ./docs/diagrams</code></pre>
         setEditorCode(examples[index].code);
         if (exampleSelect) exampleSelect.value = String(index);
         presetChips.forEach((c) => c.classList.toggle("active", c === chip));
+        updateFullStudioLink(index);
       }
     });
   });
@@ -1226,6 +1369,7 @@ markdy check-all ./docs/diagrams</code></pre>
     if (examples[idx]) {
       setEditorCode(examples[idx].code);
       presetChips.forEach((c) => c.classList.toggle("active", c.dataset.index === String(idx)));
+      updateFullStudioLink(idx);
     }
   });
 
@@ -3200,6 +3344,128 @@ markdy check-all ./docs/diagrams</code></pre>
     .bridge-pill {
       flex-direction: row;
     }
+  }
+
+  /* ─── Capability & Compatibility Matrix ─────────────────────────────── */
+  .matrix-section {
+    margin-bottom: 4.5rem;
+  }
+
+  .matrix-container {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .matrix-category {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .matrix-category-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .matrix-category-header .category-icon {
+    font-size: 1.3rem;
+  }
+
+  .matrix-category-header h3 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .matrix-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    text-align: left;
+  }
+
+  .matrix-table th {
+    padding: 0.75rem 1rem;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .matrix-table td {
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    vertical-align: middle;
+  }
+
+  .matrix-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .matrix-table tr:hover td {
+    background: var(--bg-secondary);
+  }
+
+  .matrix-table strong {
+    color: var(--text-primary);
+  }
+
+  .matrix-table code {
+    font-size: 0.78rem;
+    background: var(--bg-tertiary);
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    color: var(--accent);
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  .matrix-table a {
+    color: var(--accent);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .matrix-table a:hover {
+    text-decoration: underline;
+  }
+
+  .matrix-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+  }
+
+  .badge-stable {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+
+  .badge-beta {
+    background: rgba(245, 158, 11, 0.15);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.3);
   }
 
   /* ─── AI Section ───────────────────────────────────────────────────── */
