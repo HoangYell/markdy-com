@@ -561,9 +561,12 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
           svg += `        <tspan x="${textStartX}" y="${labelY + idx * 15}">${escapeXml(l)}</tspan>\n`;
         });
       }
-      svg += `      </text>
-      <!-- Tech / Subtitle -->
-      <text x="${textStartX}" y="${node.height / 2 + 15}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Inter, monospace" font-size="10.5" font-weight="400" fill="${textMuted}">${escapeXml(techText)}</text>\n`;
+      svg += `      </text>\n`;
+      const techBadgeW = Math.min(availTextWidth, techText.length * 6.2 + 12);
+      const techBadgeY = node.height / 2 + 6;
+      svg += `      <!-- Tech Badge -->
+      <rect x="${textStartX}" y="${techBadgeY}" width="${techBadgeW}" height="16" rx="4" fill="${textColor}" fill-opacity="${isDark ? '0.08' : '0.05'}" stroke="${border}" stroke-width="0.75"/>
+      <text x="${textStartX + 6}" y="${techBadgeY + 11.5}" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="9.5" font-weight="500" fill="${textMuted}">${escapeXml(techText)}</text>\n`;
     } else {
       svg += `      <!-- Label -->
       <text x="${textStartX}" font-family="ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}">

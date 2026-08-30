@@ -93,8 +93,16 @@ export function ensureNodeStyles(doc: Document): void {
 .markdy-node__icon[data-fit="cover"] img {
   object-fit: cover;
 }
-.markdy-node__label {
+.markdy-node__content {
   flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+}
+.markdy-node__label {
+  flex: 0 1 auto;
   min-width: 0;
   padding: 0;
   font-size: 13.5px;
@@ -104,12 +112,29 @@ export function ensureNodeStyles(doc: Document): void {
   color: var(--md-text);
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   overflow: hidden;
   overflow-wrap: anywhere;
   word-break: break-word;
   text-wrap: pretty;
+}
+.markdy-node__tech {
+  align-self: flex-start;
+  font-family: var(--md-font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--md-text-muted, #94a3b8);
+  background: color-mix(in srgb, var(--md-text, #ffffff) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--md-border, #475569) 55%, transparent);
+  padding: 1.5px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 .markdy-node__value {
   flex: 0 0 auto;
@@ -117,6 +142,14 @@ export function ensureNodeStyles(doc: Document): void {
   font-weight: 700;
   color: var(--md-ink, var(--md-text));
   font-variant-numeric: tabular-nums;
+}
+.markdy-node[data-visible="1"]:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 3px 8px color-mix(in srgb, var(--md-shadow, rgba(2, 6, 23, 0.35)) 45%, transparent),
+    0 16px 32px -8px var(--md-shadow, rgba(2, 6, 23, 0.5)),
+    inset 0 0 0 1px var(--md-hairline, color-mix(in srgb, var(--md-border) 60%, transparent)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 .markdy-node[data-role="client"] { border-radius: 14px 14px 10px 10px; }
 .markdy-node[data-role="data"] { border-radius: 12px 12px 16px 16px; }
@@ -692,11 +725,26 @@ export function createNodeEl(node: PositionedNode, theme: ThemeTokens, assets?: 
 
   const body = document.createElement("div");
   body.className = "markdy-node__body";
+  if (node.shape !== "diamond") body.append(createNodeMediaEl(document, node, assets));
+
+  const content = document.createElement("div");
+  content.className = "markdy-node__content";
+
   const label = document.createElement("div");
   label.className = "markdy-node__label";
   label.textContent = node.label;
-  if (node.shape !== "diamond") body.append(createNodeMediaEl(document, node, assets));
-  body.append(label);
+  content.appendChild(label);
+
+  const tech = node.props?.tech ?? node.props?.sub;
+  if (tech !== undefined && tech !== null && String(tech).trim().length > 0) {
+    const techEl = document.createElement("div");
+    techEl.className = "markdy-node__tech";
+    techEl.textContent = String(tech);
+    content.appendChild(techEl);
+  }
+
+  body.append(content);
+
   const value = node.props?.value ?? node.props?.metric;
   if (value !== undefined && value !== null) {
     const valueEl = document.createElement("div");
