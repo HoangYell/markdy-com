@@ -141,17 +141,19 @@ const jsonConfig = `{
     transform: translateY(-1px);
   }
   .secondary-btn {
-    background: var(--bg-primary);
+    background: var(--bg-elevated);
     color: var(--text-primary);
     font-weight: 600;
     padding: 0.85rem 1.5rem;
     border-radius: 9999px;
     border: 1px solid var(--border);
     text-decoration: none;
-    transition: background 0.2s ease;
+    transition: all 0.2s ease;
   }
   .secondary-btn:hover {
-    background: var(--bg-hover, var(--bg-secondary));
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-light);
   }
   .manual-fallback {
     text-align: left;
@@ -171,33 +173,46 @@ const jsonConfig = `{
   }
   .code-wrap {
     position: relative;
-    background: var(--code-bg, #0d1117);
-    border: 1px solid var(--border-subtle);
-    border-radius: 8px;
+    background: #0d1117;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
     overflow: hidden;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
   }
   pre {
     margin: 0;
-    padding: 1rem;
+    padding: 1.25rem 1.25rem 1.25rem 1.25rem;
     overflow-x: auto;
     font-size: 0.88rem;
     color: #e6edf3;
+    font-family: "JetBrains Mono", monospace;
+    line-height: 1.55;
+    background: #0d1117;
+  }
+  pre code {
+    color: #e6edf3;
+    background: transparent;
+    border: none;
+    padding: 0;
   }
   .copy-btn {
     position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    color: #fff;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    top: 0.65rem;
+    right: 0.65rem;
+    background: rgba(255, 255, 255, 0.12);
+    color: #f0f6fc;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 6px;
     padding: 0.35rem 0.75rem;
     font-size: 0.8rem;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: all 0.2s ease;
   }
   .copy-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.35);
+    color: #ffffff;
   }
   @keyframes spin {
     from { transform: rotate(0deg); }

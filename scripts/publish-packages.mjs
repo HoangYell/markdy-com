@@ -18,14 +18,40 @@ const targetRegistry = registryArg ? registryArg.replace('--registry=', '') : 'h
 const scopeArg = args.find((a) => a.startsWith('--scope='));
 const targetScope = scopeArg ? scopeArg.replace('--scope=', '').replace(/^@/, '').toLowerCase() : null;
 
-async function isVersionPublished(name, version, registry) {
+async function isVersionPublished(name, version, registry, cwd) {
   try {
     const result = spawnSync('npm', ['view', `${name}@${version}`, 'version', `--registry=${registry}`], {
+      cwd: cwd || ROOT,
       encoding: 'utf8',
       stdio: ['pipe', 'pipe', 'pipe'],
       env: process.env,
     });
-    return result.status === 0 && result.stdout.trim() === version;
+    if (result.status === 0 && result.stdout.trim().includes(version)) {
+      return true;
+    }
+
+    const versionsResult = spawnSync('npm', ['view', name, 'versions', '--json', `--registry=${registry}`], {
+      cwd: cwd || ROOT,
+      encoding: 'utf8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env: process.env,
+    });
+    if (versionsResult.status === 0 && versionsResult.stdout) {
+      try {
+        const parsed = JSON.parse(versionsResult.stdout.trim());
+        if (Array.isArray(parsed) && parsed.includes(version)) {
+          return true;
+        }
+        if (typeof parsed === 'string' && parsed === version) {
+          return true;
+        }
+      } catch {
+        if (versionsResult.stdout.includes(`"${version}"`) || versionsResult.stdout.includes(`'${version}'`)) {
+          return true;
+        }
+      }
+    }
+    return false;
   } catch {
     return false;
   }
@@ -123,7 +149,7 @@ async function main() {
       await writeFile(localNpmrcPath, npmrcLines.join('\n') + '\n', 'utf8');
       localNpmrcCreated = true;
 
-      const alreadyPublished = await isVersionPublished(publishName, version, targetRegistry);
+      const alreadyPublished = await isVersionPublished(publishName, version, targetRegistry, pkgPath);
       if (alreadyPublished) {
         console.log(`   ℹ️  ${publishName}@${version} is already published on ${targetRegistry}. Skipping.`);
         results.push({ name: publishName, version, status: 'already-published' });
@@ -144,16 +170,33 @@ async function main() {
 
       const res = spawnSync('pnpm', publishCmd, {
         cwd: pkgPath,
-        stdio: 'inherit',
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe'],
         env: process.env,
       });
 
+      if (res.stdout) process.stdout.write(res.stdout);
+      if (res.stderr) process.stderr.write(res.stderr);
+
       if (res.status !== 0) {
-        console.error(`   ❌ Failed to publish ${publishName}@${version}`);
-        if (!isDryRun) {
-          process.exit(res.status || 1);
+        const combinedOutput = `${res.stdout || ''}\n${res.stderr || ''}`;
+        const isConflict =
+          combinedOutput.includes('E409') ||
+          combinedOutput.includes('409 Conflict') ||
+          combinedOutput.includes('Cannot publish over existing version') ||
+          combinedOutput.includes('previously published') ||
+          combinedOutput.includes('EPUBLISHCONFLICT');
+
+        if (isConflict) {
+          console.log(`   ℹ️  ${publishName}@${version} is already published on ${targetRegistry} (409 Conflict). Skipping.`);
+          results.push({ name: publishName, version, status: 'already-published' });
+        } else {
+          console.error(`   ❌ Failed to publish ${publishName}@${version}`);
+          if (!isDryRun) {
+            process.exit(res.status || 1);
+          }
+          results.push({ name: publishName, version, status: 'failed' });
         }
-        results.push({ name: publishName, version, status: 'failed' });
       } else {
         console.log(`   ✅ Successfully published ${publishName}@${version}`);
         results.push({ name: publishName, version, status: isDryRun ? 'simulated' : 'published' });
