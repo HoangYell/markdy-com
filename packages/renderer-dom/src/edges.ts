@@ -219,14 +219,32 @@ export function updateEdgeLayerTheme(
     const color = theme.edges[runtime.kind];
     runtime.color = color;
     runtime.path.setAttribute("stroke", color);
+    runtime.path.removeAttribute("filter");
     if (runtime.kind !== "dependency") {
       runtime.path.style.filter = `drop-shadow(0 0 4px ${translucentColor(color, "44")})`;
+    } else {
+      runtime.path.style.filter = "";
     }
     runtime.dot.setAttribute("fill", color);
     runtime.dot.style.filter = `drop-shadow(0 0 6px ${color}) drop-shadow(0 0 12px ${color}88)`;
     if (runtime.labelPlate) {
-      runtime.labelPlate.setAttribute("fill", theme.canvas ?? theme.surface ?? "#ffffff");
-      runtime.labelPlate.setAttribute("stroke", translucentColor(color, "28"));
+      if (theme.name === "doodle") {
+        runtime.labelPlate.setAttribute("fill", "#ffffff");
+        runtime.labelPlate.setAttribute("stroke", "#18181b");
+        runtime.labelPlate.setAttribute("stroke-width", "1.5");
+        runtime.labelPlate.setAttribute("rx", "7");
+        runtime.labelPlate.setAttribute("ry", "7");
+        runtime.labelPlate.style.filter = "drop-shadow(2px 2px 0 #18181b)";
+      } else {
+        runtime.labelPlate.setAttribute("fill", theme.canvas ?? theme.surface ?? "#ffffff");
+        runtime.labelPlate.setAttribute("stroke", translucentColor(color, "28"));
+        runtime.labelPlate.setAttribute("stroke-width", "1");
+        runtime.labelPlate.setAttribute("rx", "5");
+        runtime.labelPlate.setAttribute("ry", "5");
+        runtime.labelPlate.style.filter = isDark
+          ? `drop-shadow(0 4px 12px ${translucentColor(color, "18")})`
+          : "drop-shadow(0 2px 6px rgba(15, 23, 42, 0.08))";
+      }
     }
     if (runtime.label) {
       runtime.label.setAttribute("fill", computeEdgeLabelColor(color, isDark));
@@ -360,16 +378,27 @@ export function createEdgeRuntime(
     plate.setAttribute("y", String(placement.y - boxHeight / 2));
     plate.setAttribute("width", String(textWidth + padX * 2));
     plate.setAttribute("height", String(boxHeight));
-    plate.setAttribute("rx", "5");
-    plate.setAttribute("ry", "5");
-    plate.setAttribute("fill", theme.canvas ?? theme.surface ?? "#ffffff");
-    plate.setAttribute("fill-opacity", isDark ? "0.88" : "0.94");
-    plate.setAttribute("stroke", translucentColor(color, isDark ? "55" : "33"));
-    plate.setAttribute("stroke-width", "1");
-    plate.style.opacity = "0";
-    plate.style.filter = isDark
-      ? "drop-shadow(0 2px 8px rgba(0, 0, 0, 0.45))"
-      : "drop-shadow(0 1px 4px rgba(0, 0, 0, 0.12))";
+    if (theme.name === "doodle") {
+      plate.setAttribute("rx", "7");
+      plate.setAttribute("ry", "7");
+      plate.setAttribute("fill", "#ffffff");
+      plate.setAttribute("fill-opacity", "1");
+      plate.setAttribute("stroke", "#18181b");
+      plate.setAttribute("stroke-width", "1.5");
+      plate.style.opacity = "0";
+      plate.style.filter = "drop-shadow(2px 2px 0 #18181b)";
+    } else {
+      plate.setAttribute("rx", "5");
+      plate.setAttribute("ry", "5");
+      plate.setAttribute("fill", theme.canvas ?? theme.surface ?? "#ffffff");
+      plate.setAttribute("fill-opacity", isDark ? "0.88" : "0.94");
+      plate.setAttribute("stroke", translucentColor(color, isDark ? "55" : "33"));
+      plate.setAttribute("stroke-width", "1");
+      plate.style.opacity = "0";
+      plate.style.filter = isDark
+        ? "drop-shadow(0 2px 8px rgba(0, 0, 0, 0.45))"
+        : "drop-shadow(0 1px 4px rgba(0, 0, 0, 0.12))";
+    }
     group.appendChild(plate);
 
     const textEl = document.createElementNS("http://www.w3.org/2000/svg", "text");

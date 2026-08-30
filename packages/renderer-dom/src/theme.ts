@@ -178,9 +178,10 @@ export function ensureSceneStyles(doc: Document): void {
   background: #ffffff;
   border: 2px solid #18181b;
   color: #18181b;
-  border-radius: 12px 16px 14px 10px;
-  box-shadow: 3px 3px 0 #18181b;
-  font-weight: 700;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  box-shadow: 4px 4px 0 #18181b, 0 8px 20px -4px rgba(24, 24, 27, 0.12);
+  font-weight: 800;
+  padding: 10px 20px;
 }
 .markdy-diagram-root {
   position: relative;

@@ -419,42 +419,45 @@ export function ensureNodeStyles(doc: Document): void {
 .markdy-scene-root[data-markdy-theme="doodle"] .markdy-node {
   background: #ffffff;
   border: 2px solid #18181b;
-  border-radius: 12px 14px 10px 16px / 14px 10px 16px 12px;
-  box-shadow: 3.5px 3.5px 0 #18181b;
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+  box-shadow: 4px 4px 0 #18181b, 0 8px 16px -4px rgba(24, 24, 27, 0.08);
 }
 .markdy-scene-root[data-markdy-theme="doodle"] .markdy-node[data-visible="1"]:hover {
-  transform: translate(-1px, -1px) rotate(-0.5deg);
-  box-shadow: 5px 5px 0 #18181b;
+  transform: translate(-1.5px, -1.5px) rotate(-0.6deg);
+  box-shadow: 5.5px 5.5px 0 #18181b, 0 10px 20px -4px rgba(24, 24, 27, 0.12);
 }
 .markdy-scene-root[data-markdy-theme="doodle"] .markdy-node__icon {
   background: color-mix(in srgb, var(--md-role-color, var(--md-accent)) 16%, #ffffff);
-  border: 1.5px solid #18181b;
-  border-radius: 8px;
+  border: 1.75px solid #18181b;
+  border-radius: 50% 45% 55% 48% / 48% 55% 45% 50%;
   width: 30px;
   height: 30px;
+  box-shadow: 1.5px 1.5px 0 #18181b;
 }
 .markdy-scene-root[data-markdy-theme="doodle"] .markdy-node__tech {
   background: #fef08a;
   color: #18181b;
   border: 1.5px solid #18181b;
-  border-radius: 6px;
-  font-weight: 700;
-  box-shadow: 1.5px 1.5px 0 #18181b;
+  border-radius: 4px 8px 5px 7px;
+  font-weight: 800;
+  box-shadow: 2px 2px 0 #18181b;
+  transform: rotate(-1.2deg);
 }
 .markdy-scene-root[data-markdy-theme="doodle"] .markdy-node[data-shape="diamond"] {
-  filter: drop-shadow(0 0 1px #18181b) drop-shadow(3.5px 3.5px 0 #18181b);
+  filter: drop-shadow(0 0 1px #18181b) drop-shadow(4px 4px 0 #18181b);
 }
 .markdy-scene-root[data-markdy-theme="doodle"] .markdy-node[data-focal="1"] {
-  border-color: #f43f5e;
-  background: #fff8f8;
-  box-shadow: 4px 4px 0 #f43f5e, 0 0 0 3px rgba(244, 63, 94, 0.15);
+  border: 2.25px solid #18181b;
+  background: linear-gradient(135deg, #ffffff 0%, #fff1f2 100%);
+  box-shadow: 4.5px 4.5px 0 #f43f5e, 0 0 0 2px #18181b;
 }
 .markdy-scene-root[data-markdy-theme="doodle"] .markdy-node[data-focal="1"] .markdy-node__icon {
-  background: rgba(244, 63, 94, 0.18);
-  border-color: #f43f5e;
+  background: #f43f5e;
+  color: #ffffff;
+  border-color: #18181b;
 }
 .markdy-scene-root[data-markdy-theme="doodle"] .markdy-node[data-shape="diamond"][data-focal="1"] {
-  filter: drop-shadow(0 0 1.5px #f43f5e) drop-shadow(3.5px 3.5px 0 #f43f5e);
+  filter: drop-shadow(0 0 1.5px #18181b) drop-shadow(4.5px 4.5px 0 #f43f5e);
 }
 .markdy-scene-root[data-markdy-theme="nebula"] .markdy-node[data-shape="diamond"] {
   filter: drop-shadow(0 0 1px var(--md-hairline)) drop-shadow(0 0 18px -4px color-mix(in srgb, var(--md-role-color, var(--md-accent)) 60%, transparent));

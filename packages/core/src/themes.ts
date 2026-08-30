@@ -384,9 +384,9 @@ export const THEMES: Record<string, ThemeTokens> = {
       dependency: "#a1a1aa",
     },
     fonts: {
-      title: '"Chalkboard SE", "Comic Neue", "Caveat", "Comic Sans MS", "Patrick Hand", cursive, sans-serif',
-      nodeName: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif',
-      mono: '"SF Mono", ui-monospace, Menlo, monospace',
+      title: '"Caveat", "Comic Neue", "Chalkboard SE", "Patrick Hand", "Comic Sans MS", cursive, sans-serif',
+      nodeName: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, sans-serif',
+      mono: '"JetBrains Mono", "SF Mono", ui-monospace, Menlo, monospace',
     },
     radiusMd: 12,
     spacing: { xs: 4, sm: 8, md: 16, lg: 24, xl: 40 },

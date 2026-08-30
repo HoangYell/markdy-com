@@ -42,6 +42,35 @@ export function ensureGroupStyles(doc: Document): void {
   align-items: center;
   gap: 6px;
 }
+.markdy-scene-root[data-markdy-theme="doodle"] .markdy-group-boundary {
+  border: 2px dashed #18181b;
+  border-radius: 20px 24px 18px 22px / 22px 18px 24px 20px;
+  background: rgba(254, 240, 138, 0.08);
+  box-shadow: 3px 3px 0 rgba(24, 24, 27, 0.08);
+}
+.markdy-scene-root[data-markdy-theme="doodle"] .markdy-group-boundary__label {
+  border: 1.5px solid #18181b;
+  border-radius: 6px;
+  box-shadow: 2px 2px 0 #18181b;
+  background: #fef08a;
+  color: #18181b;
+  font-weight: 800;
+  transform: rotate(-0.8deg);
+}
+.markdy-scene-root[data-markdy-theme="draft"] .markdy-group-boundary {
+  border: 1.25px dashed #282c37;
+  border-radius: 10px;
+  background: rgba(244, 240, 230, 0.45);
+  box-shadow: 2px 2px 0 rgba(40, 44, 55, 0.08);
+}
+.markdy-scene-root[data-markdy-theme="draft"] .markdy-group-boundary__label {
+  border: 1px solid #282c37;
+  border-radius: 4px;
+  box-shadow: 1.5px 1.5px 0 rgba(40, 44, 55, 0.12);
+  background: #ffffff;
+  color: #1a1f2c;
+  font-weight: 600;
+}
 `;
   doc.head.appendChild(style);
 }

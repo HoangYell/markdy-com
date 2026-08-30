@@ -2781,13 +2781,25 @@ Requirements:
     if (e.target === exportModal) exportModal.close();
   });
 
-  exportSvgBtn?.addEventListener("click", exportSvg);
+  exportSvgBtn?.addEventListener("click", () => {
+    exportModal?.close();
+    exportSvg();
+  });
   copySvgBtn?.addEventListener("click", copySvgToClipboard);
-  exportPngBtn?.addEventListener("click", exportPng);
+  exportPngBtn?.addEventListener("click", () => {
+    exportModal?.close();
+    exportPng();
+  });
   copyPngBtn?.addEventListener("click", copyPngToClipboard);
-  exportGifBtn?.addEventListener("click", exportGif);
+  exportGifBtn?.addEventListener("click", () => {
+    exportModal?.close();
+    exportGif();
+  });
   copyGifBtn?.addEventListener("click", copyGifDataUrl);
-  exportSourceBtn?.addEventListener("click", downloadMarkdyFile);
+  exportSourceBtn?.addEventListener("click", () => {
+    exportModal?.close();
+    downloadMarkdyFile();
+  });
   copySourceCodeBtn?.addEventListener("click", copySourceCodeToClipboard);
   exportMarkdownBtn?.addEventListener("click", copyMarkdownBlock);
 
