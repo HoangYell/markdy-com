@@ -149,6 +149,10 @@ const playgroundStructuredData = [
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
             <span>Code</span>
           </button>
+          <button id="topbar-paste-btn" class="view-mode-btn view-mode-btn--paste" type="button" title="Paste MarkdyScript from clipboard and render immediately" aria-label="Paste MarkdyScript">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+            <span>📋 Paste</span>
+          </button>
         </div>
       </div>
 
@@ -234,21 +238,19 @@ const playgroundStructuredData = [
                 <option value={i}>{ex.title} ({ex.pattern ?? ex.category})</option>
               ))}
             </select>
-            <button id="palette-toggle-btn" class="tool-btn tool-btn-sm" type="button" title="Toggle Components & Token Palette" aria-label="Toggle token and component palette">
-              <span>＋ Insert</span>
-            </button>
           </div>
 
           <div class="editor-head-actions" aria-label="Editor actions">
             <button id="paste-code-btn" class="tool-btn tool-btn-sm tool-btn-paste" type="button" title="Paste MarkdyScript from clipboard and render immediately" aria-label="Paste MarkdyScript">📋 Paste</button>
+            <button id="palette-toggle-btn" class="tool-btn tool-btn-sm" type="button" title="Toggle Components & Token Palette" aria-label="Toggle token and component palette">
+              <span>＋ Insert</span>
+            </button>
             <button id="format-code-btn" class="tool-btn tool-btn-sm" type="button" title="Clean and format MarkdyScript indentation" aria-label="Format MarkdyScript">✨ Format</button>
             <button id="copy-code-btn" class="tool-btn tool-btn-sm" type="button" title="Copy MarkdyScript code to clipboard" aria-label="Copy MarkdyScript code">📄 Copy</button>
-            <button id="reset-btn" class="tool-btn tool-btn-sm" type="button" title="Reset scene to initial template" aria-label="Reset code to initial template">↺ Reset</button>
-            <button id="run-btn" class="tool-btn tool-btn-sm tool-btn-primary" type="button" aria-keyshortcuts="Control+Enter Meta+Enter" title="Compile & Run scene (Cmd/Ctrl+Enter)" aria-label="Compile and run scene">
-              <span>Run</span>
-              <span class="btn-icon-run" aria-hidden="true">▶</span>
-            </button>
-            <!-- Hidden compatibility elements -->
+            
+            <!-- Hidden compatibility elements to ensure no legacy JS / keyboard shortcut errors -->
+            <button id="reset-btn" type="button" style="display:none;" aria-hidden="true"></button>
+            <button id="run-btn" type="button" style="display:none;" aria-hidden="true"></button>
             <button id="switch-theme-btn" type="button" style="display:none;" aria-hidden="true"><span id="playground-theme-label">Theme</span></button>
           </div>
         </div>
@@ -421,6 +423,11 @@ const playgroundStructuredData = [
           </div>
 
           <div class="canvas-header-actions" aria-label="Canvas playback and studio controls">
+            <!-- Instant Paste Button (First & Highly Visible on Mobile & Canvas Mode) -->
+            <button id="canvas-paste-btn" class="canvas-ctrl-btn canvas-ctrl-btn--paste" type="button" title="Paste MarkdyScript from clipboard and view diagram immediately" aria-label="Paste MarkdyScript">
+              <span>📋 Paste</span>
+            </button>
+
             <!-- Play / Pause Button -->
             <button id="canvas-play-btn" class="canvas-ctrl-btn" type="button" title="Play / Pause Motion (Space)" aria-label="Play or Pause Motion">
               <span id="canvas-play-icon" class="ctrl-icon">▶</span>
@@ -463,11 +470,6 @@ const playgroundStructuredData = [
             </div>
 
             <div class="canvas-divider" aria-hidden="true"></div>
-
-            <!-- Instant Paste Button (Mobile & Canvas Mode) -->
-            <button id="canvas-paste-btn" class="canvas-ctrl-btn canvas-ctrl-btn--paste" type="button" title="Paste MarkdyScript from clipboard and view diagram immediately" aria-label="Paste MarkdyScript">
-              <span>📋 Paste</span>
-            </button>
 
             <!-- Fit View Button -->
             <button id="canvas-fit-btn" class="canvas-ctrl-btn" type="button" title="Reset diagram viewport" aria-label="Reset Zoom and View">
@@ -904,6 +906,7 @@ const playgroundStructuredData = [
   const runBtn = document.getElementById("run-btn") as HTMLButtonElement;
   const resetBtn = document.getElementById("reset-btn") as HTMLButtonElement;
   const pasteCodeBtn = document.getElementById("paste-code-btn") as HTMLButtonElement;
+  const topbarPasteBtn = document.getElementById("topbar-paste-btn") as HTMLButtonElement | null;
   const copyCodeBtn = document.getElementById("copy-code-btn") as HTMLButtonElement;
   const formatCodeBtn = document.getElementById("format-code-btn") as HTMLButtonElement;
   const switchThemeBtn = document.getElementById("switch-theme-btn") as HTMLButtonElement | null;
@@ -2078,6 +2081,7 @@ const playgroundStructuredData = [
   function setViewMode(mode: "split" | "canvas" | "code") {
     workspace.dataset.viewMode = mode;
     viewModeBtns.forEach(btn => {
+      if (!btn.dataset.mode) return;
       const active = btn.dataset.mode === mode;
       btn.classList.toggle("active", active);
       btn.setAttribute("aria-pressed", active ? "true" : "false");
@@ -2090,6 +2094,7 @@ const playgroundStructuredData = [
   }
 
   viewModeBtns.forEach(btn => {
+    if (!btn.dataset.mode) return;
     btn.addEventListener("click", () => {
       setViewMode((btn.dataset.mode as any) || "split");
     });
@@ -2536,6 +2541,7 @@ Requirements:
   resetBtn?.addEventListener("click", () => loadExample(selectedExample >= 0 ? selectedExample : 0));
   pasteCodeBtn?.addEventListener("click", () => pasteCodeToEditor(pasteCodeBtn));
   canvasPasteBtn?.addEventListener("click", () => pasteCodeToEditor(canvasPasteBtn));
+  topbarPasteBtn?.addEventListener("click", () => pasteCodeToEditor(topbarPasteBtn));
   copyCodeBtn?.addEventListener("click", () => {
     if (copyCodeBtn) writeClipboard(getCode(), copyCodeBtn, "Copied");
   });
@@ -3008,6 +3014,19 @@ Requirements:
   .view-mode-btn.active svg {
     opacity: 1;
     stroke: var(--accent);
+  }
+
+  .view-mode-btn--paste {
+    color: var(--accent) !important;
+    font-weight: 700 !important;
+    background: var(--accent-light) !important;
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent) !important;
+  }
+
+  .view-mode-btn--paste:hover {
+    background: var(--accent) !important;
+    color: #ffffff !important;
+    border-color: var(--accent) !important;
   }
 
   /* Topbar Right Actions */
