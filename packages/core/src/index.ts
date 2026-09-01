@@ -88,6 +88,7 @@ export type {
   DiagramDiffResult,
   NodeDiff,
   EdgeDiff,
+  GroupDiff,
   DiffChangeType,
 } from "./diff.js";
 
@@ -100,13 +101,36 @@ export {
   getBoxPortPosition,
   selectOptimalPorts,
   routeOrthogonalEdge,
+  allocatePortLanes,
+  buildSmoothSvgPath,
 } from "./router.js";
 export type {
   Point,
   Box,
   CardinalPort,
+  PortLane,
+  RouteOptions,
   RoutedPath,
 } from "./router.js";
+
+export {
+  VECTOR_SYMBOLS,
+  resolveVectorSymbol,
+  renderSymbolSvg,
+  listAvailableSymbols,
+} from "./symbols.js";
+export type { VectorSymbol } from "./symbols.js";
+
+export {
+  parseCodeAnchor,
+  extractDiagramCodeAnchors,
+  verifyCodeAnchorsWithReader,
+} from "./provenance.js";
+export type {
+  CodeProvenanceAnchor,
+  CodeProvenanceDiagnostic,
+  CodeProvenanceVerificationReport,
+} from "./provenance.js";
 
 export { analyzeAndBuildRepairPrompt } from "./ai-healing.js";
 export type { RepairPromptBundle } from "./ai-healing.js";
@@ -146,4 +170,3 @@ export type {
 } from "./intellicode.js";
 
 export { formatScene } from "./format.js";
-

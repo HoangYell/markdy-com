@@ -17,3 +17,11 @@ export type { PngExportOptions } from "./export/png-exporter.js";
 
 export { DiagramPresentationController } from "./presentation-controller.js";
 export type { ControllerOptions } from "./presentation-controller.js";
+
+export {
+  calculateBlastRadius,
+  findShortestRoute,
+  applyImpactHighlight,
+  clearImpactHighlight,
+} from "./impact.js";
+export type { BlastRadiusResult } from "./impact.js";
