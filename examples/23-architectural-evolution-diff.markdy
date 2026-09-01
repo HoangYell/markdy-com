@@ -1,0 +1,28 @@
+// Showcase: Architectural Evolution & Migration Matrix
+// Visualizes architecture diffing from monolithic baseline to distributed event-driven topology.
+scene "Architectural Evolution: Monolith to Event-Driven" theme=paper
+layout LR
+
+browser Client "Client Browser"
+service Monolith "Legacy Monolith"
+gateway ApiGateway "API Gateway"
+service OrderSvc "Order Service"
+queue Kafka "Kafka Event Hub"
+service Inventory "Inventory Svc"
+database Postgres "PostgreSQL 16"
+
+beat baseline:
+  show Client Monolith Postgres
+  Client -> Monolith "HTTP Request" -> Postgres "Direct SQL"
+
+beat infrastructure_migration:
+  glow Monolith color=#fb7185 strength=1.2
+  hide Monolith dur=600ms
+  show ApiGateway OrderSvc Kafka Inventory stagger=80ms
+  glow ApiGateway OrderSvc Kafka Inventory color=#34d399 strength=1.5
+
+beat cutover_flow:
+  Client -> ApiGateway "POST /orders" -> OrderSvc "Process Order"
+  OrderSvc -> Postgres "Persist Order"
+  OrderSvc ~> Kafka "OrderCreated Event"
+  Kafka -> Inventory "Consume & Reserve"

@@ -1,0 +1,25 @@
+// Showcase: Blast Radius & Impact Lens Analysis
+// Computes upstream dependency callers and downstream transitive blast radius.
+scene "Blast Radius & Topology Impact Lens" theme=midnight
+layout LR
+
+client Ingest "Ingest Producer"
+gateway Router "Ingress Router"
+service Worker "Processing Engine"
+service Transform "Data Transformer"
+cache HotBuffer "Redis Buffer"
+database CentralStore "Primary Warehouse"
+service Analytics "Real-Time Dashboard"
+
+beat pipeline_flow:
+  show $nodes stagger=60ms
+  Ingest -> Router "Push Telemetry" -> Worker "Task Queue"
+  Worker -> Transform "Normalize Payload"
+  Transform -> HotBuffer "Stage Batch"
+  Transform -> CentralStore "Bulk Commit"
+  CentralStore -> Analytics "Query Materialized View"
+
+beat simulate_impact:
+  frame Transform HotBuffer CentralStore zoom=1.15
+  glow Transform color=#fbbf24
+  glow HotBuffer color=#fb7185 & glow CentralStore color=#fb7185

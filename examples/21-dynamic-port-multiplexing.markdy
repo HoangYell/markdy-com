@@ -1,0 +1,23 @@
+// Showcase: Dynamic Port Multiplexing & Multi-Lane Fan-In
+// Automatically balances parallel connections along node perimeters with zero overlapping lines.
+scene "Dynamic Port Multiplexer & Lane Balancing" theme=paper
+layout LR
+
+client WebClient "Web Client"
+client MobileApp "Mobile App"
+gateway ApiGateway "API Gateway"
+service OrderSvc "Order Service"
+service UserSvc "User Service"
+service Analytics "Analytics Worker"
+database Database "PostgreSQL 16"
+cache Cache "Redis Cache"
+
+beat fan_in:
+  show $nodes stagger=60ms
+  WebClient -> ApiGateway "HTTPS /api" & MobileApp -> ApiGateway "gRPC /api"
+  ApiGateway -> OrderSvc "Dispatch Order" & ApiGateway -> UserSvc "Auth & Profile"
+  OrderSvc -> Database "INSERT INTO orders" & UserSvc -> Database "SELECT user" & Analytics -> Database "Audit Snapshot"
+  OrderSvc ~> Cache "SETEX order:key" & UserSvc ~> Cache "GET user:session"
+
+beat finish:
+  glow Database color=#34d399 & glow Cache color=#38bdf8

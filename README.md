@@ -152,13 +152,49 @@ Choose the package that fits your stack:
 Static boxes and arrows fail to capture distributed systems in action. **Markdy turns text into choreographed 60fps motion graphics** directly in your browser.
 
 - 🎬 **Kinetic Storytelling**: Choreograph requests (`->`), responses (`<-`), and events (`~>`) across sequential `beat` timelines with auto-zooms and glow cues.
-- 📐 **Zero-Config Layout**: Collision-aware orthogonal Manhattan edge routing and rank-based auto-layout.
+- 📐 **Dynamic Port Multiplexing**: Automatically balances parallel connections across node boundaries with zero line congestion or overlapping paths.
+- 🔗 **Code Provenance & Git Grounding**: Anchor high-level architecture nodes directly to verified source code (`@src="src/auth.ts#L10-L50"`) with automated in-tree Git verification.
+- 🔄 **Architectural Evolution Matrix**: Compare architecture states across Git commits and automatically synthesize animated migration storyboards.
+- 🔬 **Blast Radius & Route Pathfinder**: Compute upstream dependency callers, downstream failure blast radius, and shortest message paths in real-time.
+- 💎 **Native Vector Symbol Registry**: Embedded, zero-dependency SVG vector glyphs for AWS, GCP, Kubernetes, Docker, Postgres, Redis, Kafka, and 20+ stacks.
 - ⚡ **Zero-Dep & Web-Native**: Powered by pure CSS/SVG transforms and the Web Animations API (WAAPI) — ~14 kB parser, no Canvas, no GSAP.
 - 🔄 **Universal Ingestion**: 1-click migration from Mermaid, Draw.io, Docker Compose, Kubernetes manifests, and Terraform states.
 - 🤖 **AI-Native & MCP**: Official Model Context Protocol (MCP) server for Claude, Cursor, Antigravity, and Cline with self-healing syntax diagnostics.
 - 🛡️ **Architecture Governance**: Built-in rules prevent deadlock cycles and cross-layer bypasses.
 
 </details>
+
+---
+
+## 🌟 Advanced Engineering Superpowers
+
+Markdy goes beyond basic diagram drawing into a comprehensive **Architecture Intelligence Platform**:
+
+```markdy
+scene "Cloud Native Microservices Mesh" theme=paper
+layout LR
+
+gateway ApiGateway "API Gateway" icon=nginx @src="src/gateway/router.ts#L20"
+service OrderSvc "Order Service" icon=nodejs @src="src/orders/service.ts#L45"
+service UserSvc "User Service" icon=golang @src="src/users/handler.go#L30"
+cache Redis "Redis Cluster" icon=redis
+database Postgres "PostgreSQL 16" icon=postgresql
+
+beat workflow:
+  show $nodes stagger=60ms
+  ApiGateway -> OrderSvc "POST /orders" & ApiGateway -> UserSvc "GET /profile"
+  OrderSvc -> Postgres "Write Order" & UserSvc -> Postgres "Read User"
+  OrderSvc ~> Redis "Cache Invalidation"
+```
+
+| Superpower | Syntax / API | Developer Impact |
+| :--- | :--- | :--- |
+| **Dynamic Port Multiplexing** | Auto-calculated | Perfectly balanced multi-lane fan-in/fan-out with smooth fillet curves |
+| **Code Provenance Anchors** | `@src="path/file.ts#L10"` | Guaranteed synchronization between architecture diagrams and real Git code |
+| **Evolution Git-Diff** | `diffDiagramASTs(v1, v2)` | Automated visual diffing and animated migration timeline generation |
+| **Blast Radius Lens** | `calculateBlastRadius(node, ast)` | Real-time upstream impact and downstream failure cascade isolation |
+| **Native Vector Symbols** | `icon=redis`, `icon=kafka` | Zero-CDN, lightweight vector badges embedded directly in the artifact |
+
 
 ---
 
