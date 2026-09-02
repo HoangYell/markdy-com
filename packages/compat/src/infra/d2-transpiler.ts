@@ -101,15 +101,52 @@ export function transpileD2ToMarkdy(d2Source: string): D2TranspileResult {
       continue;
     }
 
+    // Shape/Icon property assignment: nodeId.shape: cylinder or nodeId.icon: postgres
+    const propMatch = rawLine.match(/^([a-zA-Z0-9_.-]+)\.(shape|icon|style\.fill)\s*:\s*(.*)$/i);
+    if (propMatch) {
+      const id = sanitizeId(propMatch[1]);
+      const propKey = propMatch[2].toLowerCase();
+      let propVal = propMatch[3].trim();
+      if (propVal.startsWith('"') && propVal.endsWith('"')) {
+        propVal = propVal.slice(1, -1);
+      }
+
+      const existing = nodes.get(id) || { id, label: id, kind: inferNodeKind(id) };
+      if (propKey === "shape") {
+        existing.kind = inferNodeKind(existing.label, propVal);
+      } else if (propKey === "icon") {
+        existing.icon = propVal.toLowerCase().replace(/[^a-z0-9]/g, "");
+      }
+      nodes.set(id, existing);
+      continue;
+    }
+
     // Node declaration: nodeId: Label or nodeId: "Label"
     const nodeMatch = rawLine.match(/^([a-zA-Z0-9_.-]+)\s*:\s*(.*)$/);
     if (nodeMatch) {
-      const id = sanitizeId(nodeMatch[1]);
+      const rawKey = nodeMatch[1];
       let label = nodeMatch[2].trim();
       if (label.startsWith('"') && label.endsWith('"')) {
         label = label.slice(1, -1);
       }
 
+      // Check if it's a nested container path: parent.child
+      if (rawKey.includes(".")) {
+        const parts = rawKey.split(".");
+        const parent = sanitizeId(parts[0]);
+        const childId = sanitizeId(rawKey);
+
+        if (!containers.has(parent)) {
+          containers.set(parent, []);
+        }
+        containers.get(parent)!.push(childId);
+
+        const kind = inferNodeKind(label || childId);
+        nodes.set(childId, { id: childId, label: label || childId, kind });
+        continue;
+      }
+
+      const id = sanitizeId(rawKey);
       const kind = inferNodeKind(label || id);
       nodes.set(id, { id, label: label || id, kind });
 
@@ -172,3 +209,4 @@ export function transpileD2ToMarkdy(d2Source: string): D2TranspileResult {
     warnings,
   };
 }
+

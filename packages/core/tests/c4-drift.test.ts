@@ -1,7 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { parseAndCompile } from "../src/parser.js";
-import { analyzeC4Model, filterC4Hierarchy, generateC4Storyboard } from "../src/c4.js";
-import { detectArchitectureDrift } from "../src/drift.js";
+import {
+  analyzeC4Model,
+  filterC4Hierarchy,
+  generateC4Storyboard,
+  exportC4LevelViews,
+  validateC4Containment,
+} from "../src/c4.js";
+import { detectArchitectureDrift, autoHealArchitectureDrift } from "../src/drift.js";
 
 describe("C4 Model & Architecture Drift Engines", () => {
   const code = `
@@ -77,4 +83,44 @@ beat main:
     expect(drift.brokenAnchors[0].nodeId).toBe("OrderSvc");
     expect(drift.brokenAnchors[0].reason).toBe("file_not_found");
   });
+
+  it("exports isolated MarkdyScript blueprints for all 4 C4 levels", () => {
+    const { ast } = parseAndCompile(code);
+    const views = exportC4LevelViews(ast);
+
+    expect(views.context.nodeCount).toBe(1);
+    expect(views.container.nodeCount).toBe(4);
+    expect(views.component.nodeCount).toBe(5);
+    expect(views.code.nodeCount).toBe(5);
+
+    expect(views.context.markdyScript).toContain("Customer");
+    expect(views.container.markdyScript).toContain("Gateway");
+  });
+
+  it("validates C4 containment consistency", () => {
+    const { ast } = parseAndCompile(code);
+    const validation = validateC4Containment(ast);
+    expect(validation.isValid).toBe(true);
+    expect(validation.issues.length).toBe(0);
+  });
+
+  it("auto-heals broken code provenance anchors using fuzzy path matching", () => {
+    const { ast } = parseAndCompile(code);
+    const movedRepoFiles = [
+      "src/orders/main.ts", // Moved from index.ts to main.ts!
+      "src/payments/service.ts", // New unmapped service
+    ];
+
+    const drift = detectArchitectureDrift(ast, movedRepoFiles);
+    expect(drift.brokenAnchors.length).toBe(1);
+
+    const healed = autoHealArchitectureDrift(ast, drift, movedRepoFiles);
+    expect(healed.healedAnchorCount).toBe(1);
+    expect(healed.addedServiceCount).toBe(1);
+    expect(healed.healedMappings[0].nodeId).toBe("OrderSvc");
+    expect(healed.healedMappings[0].newPath).toContain("src/orders/main.ts");
+    expect(healed.healedMarkdyScript).toContain("@src=\"src/orders/main.ts#L10\"");
+    expect(healed.healedMarkdyScript).toContain('service PaymentsSvc');
+  });
 });
+

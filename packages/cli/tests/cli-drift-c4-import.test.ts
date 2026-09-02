@@ -104,7 +104,42 @@ describe("markdy cli c4, drift, and universal import commands", () => {
     const io = new BufferIo();
     const result = await runCli(["import", pumlFile, "--from", "plantuml"], io, { openBrowser: async () => {} });
     expect(result.exitCode).toBe(0);
-    expect(io.out.join("\n")).toContain('scene "PlantUML Mesh" theme=midnight');
+    expect(io.out.join("\n")).toContain('scene "PlantUML Mesh" theme=auto');
     expect(io.out.join("\n")).toContain('Client -> Gateway "POST /api"');
   });
+
+  it("runs markdy drift with --fix to automatically heal broken anchors", async () => {
+    const dir = await tempDir();
+    const srcDir = join(dir, "src", "orders");
+    await mkdir(srcDir, { recursive: true });
+    await writeFile(join(srcDir, "main.ts"), "export const order = {};\n", "utf8");
+
+    const file = join(dir, "arch.markdy");
+    await writeFile(
+      file,
+      `scene "Shop" theme=midnight\nlayout LR\nservice OrderSvc "Orders" @src="src/orders/index.ts#L1"\n`,
+      "utf8"
+    );
+
+    const io = new BufferIo();
+    const result = await runCli(["drift", file, "--repo", dir, "--fix"], io, { openBrowser: async () => {} });
+    expect(result.exitCode).toBe(0);
+    expect(io.out.join("\n")).toContain("Auto-healed");
+  });
+
+  it("runs markdy c4 with --export-views to generate L1-L4 sub-blueprints", async () => {
+    const dir = await tempDir();
+    const file = join(dir, "system.markdy");
+    await writeFile(
+      file,
+      `scene "Banking Architecture" theme=midnight\nlayout LR\nclient User "User" @c4=1\ngateway Edge "Edge" @c4=2\nservice Ledger "Ledger" @c4=3\n\nbeat main:\n  User -> Edge "Auth"\n  Edge -> Ledger "Post"\n`,
+      "utf8"
+    );
+
+    const io = new BufferIo();
+    const result = await runCli(["c4", file, "--export-views", "--out", dir], io, { openBrowser: async () => {} });
+    expect(result.exitCode).toBe(0);
+    expect(io.out.join("\n")).toContain("Successfully exported 4 C4 level blueprints");
+  });
 });
+

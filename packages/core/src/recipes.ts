@@ -393,6 +393,150 @@ beat auto_heal "2. Self-Healing Pod Recycle & Resolution":
   glow K8sAutoHealer color=#22c55e & glow StatusPageSync color=#38bdf8
 `,
   },
+  {
+    id: "agentic-multi-swarm",
+    name: "Autonomous Multi-Agent Engineering Swarm",
+    category: "ai",
+    description: "Multi-agent collaborative architecture with Orchestrator Leader, Specialized Coder/Reviewer Subagents, Sandboxed Tool Execution, and Consensus Verification.",
+    keywords: ["agent", "swarm", "multi-agent", "orchestrator", "mcp", "subagent", "sandbox", "ai"],
+    recommendedLayout: "LR",
+    primaryNodes: ["UserLead", "OrchestratorAgent", "CoderSubagent", "ReviewerSubagent", "SandboxRuntime"],
+    highlights: [
+      "Dynamic hierarchical task delegation",
+      "Dual-agent verification & adversarial review",
+      "Isolated sandboxed execution with telemetry",
+    ],
+    code: `scene "Autonomous Multi-Agent Engineering Swarm" theme=graphite
+layout LR
+
+browser UserLead "Lead Engineer / IDE" icon=gemini
+service OrchestratorAgent "Orchestrator Leader" icon=nodejs @src="src/agent/leader.ts#L10"
+service CoderSubagent "Coder Subagent" icon=typescript @src="src/agent/coder.ts#L15"
+service ReviewerSubagent "Reviewer Subagent" icon=python @src="src/agent/critic.ts#L20"
+service SandboxRuntime "Secure Tool Sandbox" icon=docker @src="src/tools/mcp_host.ts#L5"
+
+beat task_delegation "1. Task Decomposition & Parallel Spawn":
+  show $nodes stagger=60ms
+  UserLead -> OrchestratorAgent "Prompt: Implement Feature & Tests"
+  OrchestratorAgent -> CoderSubagent "Spawn task: Write TypeScript Implementation"
+  OrchestratorAgent -> ReviewerSubagent "Spawn task: Construct Invariant Quality Gate"
+
+beat tool_verification "2. Sandboxed Execution & Review Consensus":
+  CoderSubagent -> SandboxRuntime "Execute unit tests in sandbox"
+  CoderSubagent <- SandboxRuntime "308 tests pass (100%)"
+  ReviewerSubagent -> CoderSubagent "Verify Code Provenance & Zero Regressions"
+  OrchestratorAgent <- ReviewerSubagent "Consensus Approved: Ready for PR"
+  UserLead <- OrchestratorAgent "200 Feature Complete & Verified"
+  glow OrchestratorAgent color=#38bdf8 & glow SandboxRuntime color=#10b981
+`,
+  },
+  {
+    id: "edge-serverless-mesh",
+    name: "Edge-First Serverless & Distributed Vector Mesh",
+    category: "resilience",
+    description: "Ultra-low-latency globally distributed edge architecture with Cloudflare Workers, KV caching, D1 relational store, and Vectorize embedding search.",
+    keywords: ["edge", "cloudflare", "workers", "serverless", "d1", "vector", "embedding", "kv"],
+    recommendedLayout: "LR",
+    primaryNodes: ["GlobalClient", "EdgeWorker", "EdgeKV", "D1Database", "VectorizeStore"],
+    highlights: [
+      "Sub-10ms global edge invocation",
+      "Local relational replication with D1",
+      "Native vector similarity lookup at the edge",
+    ],
+    code: `scene "Edge-First Serverless & Vector Mesh" theme=paper
+layout LR
+
+browser GlobalClient "Global Mobile/Web Client" icon=chrome
+gateway EdgeWorker "Cloudflare Edge Worker" icon=cloudflare @src="src/worker/index.ts#L1"
+cache EdgeKV "Global KV Cache" icon=redis
+database D1Database "Cloudflare D1 SQL" icon=postgresql @src="src/db/schema.sql#L10"
+database VectorizeStore "Vectorize Embedding DB" icon=gemini
+
+beat edge_lookup "1. Nearest Edge Routing & Cache Hit":
+  show $nodes stagger=50ms
+  GlobalClient -> EdgeWorker "GET /recommendations (Geo: Tokyo)"
+  EdgeWorker -> EdgeKV "GET edge_cache:user_tokyo"
+  EdgeWorker <- EdgeKV "Hit (3ms latency)"
+
+beat semantic_search "2. Edge Vector Search & D1 Fetch":
+  EdgeWorker -> VectorizeStore "Query vector topK=5"
+  EdgeWorker <- VectorizeStore "Embedding Matches"
+  EdgeWorker -> D1Database "SELECT metadata FROM products WHERE id IN (...)"
+  EdgeWorker <- D1Database "Product Records"
+  GlobalClient <- EdgeWorker "200 OK (8ms total transit)"
+  glow EdgeWorker color=#f59e0b & glow VectorizeStore color=#ec4899
+`,
+  },
+  {
+    id: "zero-downtime-canary",
+    name: "Zero-Downtime Blue-Green & Canary Deployment",
+    category: "resilience",
+    description: "Progressive delivery traffic routing with Envoy/Ingress, Blue (Stable) vs Green (Canary) cluster weighting, and automated rollback on error spikes.",
+    keywords: ["canary", "blue-green", "deployment", "envoy", "kubernetes", "traffic", "rollback", "zero-downtime"],
+    recommendedLayout: "LR",
+    primaryNodes: ["IngressController", "EnvoyMesh", "BlueCluster", "GreenCanary", "PrometheusWatcher"],
+    highlights: [
+      "Fine-grained 90/10 traffic split",
+      "Zero dropped active connections during migration",
+      "Sub-second automated circuit breaker rollback",
+    ],
+    code: `scene "Zero-Downtime Canary Deployment" theme=terminal
+layout LR
+
+browser UserTraffic "Live Production Traffic" icon=chrome
+gateway EnvoyMesh "Envoy Service Mesh" icon=envoy @src="k8s/envoy-config.yaml#L1"
+service BlueCluster "Blue Pods (v1.2.0 Stable 90%)" icon=kubernetes @src="deploy/blue.yaml#L1"
+service GreenCanary "Green Pods (v1.3.0 Canary 10%)" icon=docker @src="deploy/green.yaml#L1"
+service PrometheusWatcher "Canary Health Sentry" icon=prometheus
+
+beat canary_routing "1. Weighted Traffic Split (90/10)":
+  show $nodes stagger=50ms
+  UserTraffic -> EnvoyMesh "Production Request Pool"
+  EnvoyMesh -> BlueCluster "Route 90% Stable"
+  EnvoyMesh -> GreenCanary "Route 10% Canary"
+
+beat health_verification "2. Automated Sentry Gate & 100% Promotion":
+  PrometheusWatcher -> GreenCanary "Monitor Error Rate (< 0.01%) & P99"
+  PrometheusWatcher -> EnvoyMesh "Signal: Canary Healthy -> Shift 100% to Green"
+  EnvoyMesh -> GreenCanary "Promote to 100% Live"
+  glow GreenCanary color=#22c55e & glow BlueCluster color=#64748b
+`,
+  },
+  {
+    id: "opentelemetry-tracing",
+    name: "Full-Stack Distributed Tracing & Observability",
+    category: "observability",
+    description: "End-to-end W3C trace context propagation across Frontend, API Gateway, Microservices, and OpenTelemetry Collector with Jaeger/Grafana visualization.",
+    keywords: ["opentelemetry", "tracing", "jaeger", "grafana", "prometheus", "span", "context", "observability"],
+    recommendedLayout: "LR",
+    primaryNodes: ["WebFrontend", "ApiGateway", "OrderService", "OtelCollector", "JaegerGrafana"],
+    highlights: [
+      "Unified W3C traceparent context injection",
+      "Non-blocking asynchronous telemetry batching",
+      "Unified metrics, logs, and trace correlation",
+    ],
+    code: `scene "Full-Stack Distributed Tracing" theme=editorial
+layout LR
+
+browser WebFrontend "Web App (OTel Web SDK)" icon=chrome @src="src/tracing/web.ts#L5"
+gateway ApiGateway "Kong API Gateway" icon=nginx
+service OrderService "Order Microservice" icon=golang @src="src/orders/main.go#L30"
+service OtelCollector "OpenTelemetry Collector" icon=docker @src="otel/collector.yaml#L1"
+database JaegerGrafana "Jaeger & Grafana Cloud" icon=datadog
+
+beat trace_propagation "1. Context Injection & Downstream Propagation":
+  show $nodes stagger=50ms
+  WebFrontend -> ApiGateway "POST /checkout [traceparent: 00-4bf92...]"
+  ApiGateway -> OrderService "Forward [traceparent: 00-4bf92...]"
+  WebFrontend ~> OtelCollector "Async Span: browser_render (42ms)"
+
+beat collector_export "2. OTLP gRPC Batch Ingestion & Indexing":
+  ApiGateway ~> OtelCollector "Async Span: gateway_auth (12ms)"
+  OrderService ~> OtelCollector "Async Span: db_transaction (88ms)"
+  OtelCollector -> JaegerGrafana "Export OTLP Batch (Traces + Metrics)"
+  glow OtelCollector color=#38bdf8 & glow JaegerGrafana color=#ec4899
+`,
+  },
 ];
 
 export interface PatternRecommendationResult {
@@ -469,6 +613,143 @@ export function recommendArchitecturePattern(query: string): PatternRecommendati
   return results;
 }
 
+export interface SynthesizedRecipeResult {
+  markdyScript: string;
+  detectedComponents: Array<{ id: string; label: string; kind: string; icon?: string }>;
+  inferredPattern: string;
+  rationale: string;
+}
+
+/**
+ * Zero-token deterministic dynamic architecture synthesis engine.
+ * Parses user requirements and synthesizes custom tailor-made MarkdyScript diagrams.
+ */
+export function synthesizeCustomRecipe(query: string): SynthesizedRecipeResult {
+  const text = query.toLowerCase();
+  const detected: Array<{ id: string; label: string; kind: string; icon?: string }> = [];
+
+  // 1. Client / Frontend Detection
+  if (text.includes("next") || text.includes("nextjs") || text.includes("react") || text.includes("web")) {
+    detected.push({ id: "NextApp", label: "Next.js Web Client", kind: "browser", icon: "chrome" });
+  } else if (text.includes("mobile") || text.includes("ios") || text.includes("android") || text.includes("flutter")) {
+    detected.push({ id: "MobileApp", label: "Mobile Client Application", kind: "mobile", icon: "chrome" });
+  } else {
+    detected.push({ id: "ClientApp", label: "Client Application", kind: "browser", icon: "chrome" });
+  }
+
+  // 2. Gateway / Edge Proxy Detection
+  if (text.includes("cloudflare") || text.includes("edge") || text.includes("cdn")) {
+    detected.push({ id: "CloudflareEdge", label: "Cloudflare Edge Ingress", kind: "gateway", icon: "cloudflare" });
+  } else if (text.includes("nginx") || text.includes("envoy") || text.includes("kong") || text.includes("gateway")) {
+    detected.push({ id: "ApiGateway", label: "API Gateway & Ingress", kind: "gateway", icon: "nginx" });
+  }
+
+  // 3. Security / Auth / Third-Party Integration
+  if (text.includes("stripe") || text.includes("payment") || text.includes("checkout")) {
+    detected.push({ id: "StripeGateway", label: "Stripe Payment Gateway", kind: "service", icon: "docker" });
+  }
+  if (text.includes("keycloak") || text.includes("auth0") || text.includes("jwt") || text.includes("oauth")) {
+    detected.push({ id: "AuthService", label: "Identity & Access Provider", kind: "service", icon: "keycloak" });
+  }
+  if (text.includes("vault") || text.includes("secret") || text.includes("opa")) {
+    detected.push({ id: "SecurityVault", label: "Security & Secret Store", kind: "service", icon: "vault" });
+  }
+
+  // 4. Core Backend Services
+  if (text.includes("fastapi") || text.includes("python") || text.includes("django")) {
+    detected.push({ id: "PythonBackend", label: "FastAPI Core Service", kind: "service", icon: "python" });
+  } else if (text.includes("go") || text.includes("golang") || text.includes("gin")) {
+    detected.push({ id: "GoCoreSvc", label: "Go Microservice Core", kind: "service", icon: "golang" });
+  } else if (text.includes("rust") || text.includes("actix") || text.includes("axum")) {
+    detected.push({ id: "RustService", label: "High-Performance Rust Core", kind: "service", icon: "docker" });
+  } else if (text.includes("nest") || text.includes("express") || text.includes("node") || text.includes("typescript")) {
+    detected.push({ id: "BackendSvc", label: "Node.js Backend Service", kind: "service", icon: "nodejs" });
+  } else {
+    detected.push({ id: "AppService", label: "Application Core Service", kind: "service", icon: "nodejs" });
+  }
+
+  // 5. Cache Layer
+  if (text.includes("redis") || text.includes("cache") || text.includes("memcached")) {
+    detected.push({ id: "RedisCache", label: "Redis Distributed Cache", kind: "cache", icon: "redis" });
+  }
+
+  // 6. Queue / Streaming Layer
+  if (text.includes("kafka") || text.includes("stream") || text.includes("event") || text.includes("cdc")) {
+    detected.push({ id: "KafkaStream", label: "Kafka Event Stream", kind: "queue", icon: "kafka" });
+  } else if (text.includes("rabbit") || text.includes("queue") || text.includes("sqs") || text.includes("nats")) {
+    detected.push({ id: "MessageQueue", label: "Message Queue Broker", kind: "queue", icon: "rabbitmq" });
+  }
+
+  // 7. Database Layer
+  if (text.includes("postgres") || text.includes("postgresql") || text.includes("sql") || text.includes("db")) {
+    detected.push({ id: "PostgresDB", label: "PostgreSQL 16 Primary", kind: "database", icon: "postgresql" });
+  } else if (text.includes("mongo") || text.includes("nosql") || text.includes("dynamo")) {
+    detected.push({ id: "NoSqlStore", label: "NoSQL Document Store", kind: "database", icon: "docker" });
+  } else {
+    detected.push({ id: "PrimaryDB", label: "Primary Database Store", kind: "database", icon: "postgresql" });
+  }
+
+  // Deduplicate IDs
+  const nodeMap = new Map<string, typeof detected[0]>();
+  for (const n of detected) {
+    if (!nodeMap.has(n.id)) nodeMap.set(n.id, n);
+  }
+  const nodes = Array.from(nodeMap.values());
+
+  // Build MarkdyScript dynamically
+  const lines: string[] = [];
+  lines.push(`scene "Synthesized Architecture: ${query.slice(0, 40)}" theme=midnight`);
+  lines.push(`layout LR`);
+  lines.push(``);
+
+  for (const node of nodes) {
+    const iconAttr = node.icon ? ` icon=${node.icon}` : "";
+    lines.push(`${node.kind} ${node.id} "${node.label}"${iconAttr}`);
+  }
+
+  lines.push(``);
+  lines.push(`beat synchronous_flow "1. Client Ingress & Request Path":`);
+  lines.push(`  show $nodes stagger=50ms`);
+
+  // Build linear ingress flow
+  const clientNode = nodes.find((n) => n.kind === "browser" || n.kind === "mobile") || nodes[0];
+  const gatewayNode = nodes.find((n) => n.kind === "gateway");
+  const mainSvc = nodes.find((n) => n.kind === "service") || nodes[1];
+  const dbNode = nodes.find((n) => n.kind === "database") || nodes[nodes.length - 1];
+  const cacheNode = nodes.find((n) => n.kind === "cache");
+  const queueNode = nodes.find((n) => n.kind === "queue");
+
+  if (gatewayNode) {
+    lines.push(`  ${clientNode.id} -> ${gatewayNode.id} "HTTPS TLS Request" -> ${mainSvc.id} "Route dispatch"`);
+  } else {
+    lines.push(`  ${clientNode.id} -> ${mainSvc.id} "HTTPS API Request"`);
+  }
+
+  if (cacheNode) {
+    lines.push(`  ${mainSvc.id} -> ${cacheNode.id} "GET /cached-data"`);
+  }
+  lines.push(`  ${mainSvc.id} -> ${dbNode.id} "SELECT transaction record"`);
+
+  if (queueNode) {
+    lines.push(``);
+    lines.push(`beat async_events "2. Asynchronous Event Propagation":`);
+    lines.push(`  ${mainSvc.id} ~> ${queueNode.id} "Publish state.changed"`);
+    lines.push(`  glow ${queueNode.id} color=#38bdf8 & glow ${dbNode.id} color=#10b981`);
+  } else {
+    lines.push(``);
+    lines.push(`beat ack_response "2. State Commit & Response":`);
+    lines.push(`  ${clientNode.id} <- ${mainSvc.id} "200 OK JSON Response"`);
+    lines.push(`  glow ${mainSvc.id} color=#38bdf8 & glow ${dbNode.id} color=#10b981`);
+  }
+
+  return {
+    markdyScript: lines.join("\n") + "\n",
+    detectedComponents: nodes,
+    inferredPattern: queueNode ? "Event-Driven Microservices" : "Layered Service Mesh",
+    rationale: `Synthesized ${nodes.length} architectural components (${nodes.map((n) => n.id).join(", ")}) based on query criteria.`,
+  };
+}
+
 /**
  * Retrieves an architecture recipe by its exact ID or alias.
  */
@@ -485,3 +766,4 @@ export function getArchitectureRecipe(id: string): ArchitectureRecipe | undefine
 export function listArchitectureRecipes(): ArchitectureRecipe[] {
   return [...ARCHITECTURE_RECIPES];
 }
+

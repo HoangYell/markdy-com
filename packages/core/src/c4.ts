@@ -192,3 +192,87 @@ export function generateC4Storyboard(ast: DiagramAST): string {
 
   return beats.join("\n") + "\n";
 }
+
+export interface C4LevelViewExport {
+  level: C4Level;
+  levelNumber: 1 | 2 | 3 | 4;
+  title: string;
+  markdyScript: string;
+  nodeCount: number;
+  edgeCount: number;
+}
+
+/**
+ * Exports isolated, production-ready MarkdyScript blueprints for each of the 4 C4 levels.
+ */
+export function exportC4LevelViews(ast: DiagramAST): Record<C4Level, C4LevelViewExport> {
+  const levels: C4Level[] = ["context", "container", "component", "code"];
+  const result: Record<string, C4LevelViewExport> = {};
+
+  for (const lvl of levels) {
+    const { filteredAst } = filterC4Hierarchy(ast, lvl);
+    const nodes = Object.values(filteredAst.nodes || {});
+    const edges = filteredAst.edges || [];
+
+    const lines: string[] = [];
+    const levelTitle = `C4 L${LEVEL_ORDER[lvl]} ${lvl.toUpperCase()}: ${ast.meta?.title || "Architecture"}`;
+    lines.push(`scene "${levelTitle}" theme=auto`);
+    lines.push(`layout LR`);
+    lines.push(``);
+
+    for (const node of nodes) {
+      const iconProp = node.props?.["icon"] ? ` icon=${node.props["icon"]}` : "";
+      const srcProp = lvl === "code" && node.props?.["@src"] ? ` @src="${node.props["@src"]}"` : "";
+      lines.push(`${node.kind || "service"} ${node.id} "${node.label || node.id}"${iconProp}${srcProp}`);
+    }
+
+    lines.push(``);
+    lines.push(`beat c4_view "C4 ${lvl.toUpperCase()} Topology":`);
+    lines.push(`  show $nodes stagger=50ms`);
+
+    for (const edge of edges) {
+      const label = edge.label ? ` "${edge.label}"` : "";
+      const op = (edge as any).op || (edge.kind === "event" ? "~>" : edge.kind === "response" ? "<-" : "->");
+      lines.push(`  ${edge.from} ${op} ${edge.to}${label}`);
+    }
+
+    result[lvl] = {
+      level: lvl,
+      levelNumber: LEVEL_ORDER[lvl],
+      title: levelTitle,
+      markdyScript: lines.join("\n") + "\n",
+      nodeCount: nodes.length,
+      edgeCount: edges.length,
+    };
+  }
+
+  return result as Record<C4Level, C4LevelViewExport>;
+}
+
+/**
+ * Validates cross-level containment and flags orphaned lower-level components.
+ */
+export function validateC4Containment(ast: DiagramAST): { isValid: boolean; issues: string[] } {
+  const nodes = Object.values(ast.nodes || {});
+  const issues: string[] = [];
+
+  const l3OrL4Nodes = nodes.filter((n) => {
+    const { levelNumber } = inferNodeC4Level(n);
+    return levelNumber >= 3;
+  });
+
+  const containers = nodes.filter((n) => {
+    const { levelNumber } = inferNodeC4Level(n);
+    return levelNumber === 2;
+  });
+
+  if (l3OrL4Nodes.length > 0 && containers.length === 0) {
+    issues.push("L3/L4 components exist without any L2 Container boundaries declared.");
+  }
+
+  return {
+    isValid: issues.length === 0,
+    issues,
+  };
+}
+

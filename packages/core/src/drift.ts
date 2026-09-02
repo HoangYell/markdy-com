@@ -66,7 +66,7 @@ export function detectArchitectureDrift(
           brokenAnchors.push({
             nodeId: node.id,
             nodeLabel: node.label,
-            declaredPath: anchor.filePath,
+            declaredPath: String(rawSrc),
             reason: "file_not_found",
           });
         } else {
@@ -144,3 +144,148 @@ export function detectArchitectureDrift(
     healingMarkdySnippet,
   };
 }
+
+/**
+ * Calculates Levenshtein distance between two strings for fuzzy path healing.
+ */
+function levenshteinDistance(a: string, b: string): number {
+  const matrix: number[][] = [];
+  for (let i = 0; i <= b.length; i++) matrix[i] = [i];
+  for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+      if (b.charAt(i - 1) === a.charAt(j - 1)) {
+        matrix[i][j] = matrix[i - 1][j - 1];
+      } else {
+        matrix[i][j] = Math.min(
+          matrix[i - 1][j - 1] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j] + 1
+        );
+      }
+    }
+  }
+  return matrix[b.length][a.length];
+}
+
+export interface AutoHealResult {
+  healedAst: DiagramAST;
+  healedMarkdyScript: string;
+  healedAnchorCount: number;
+  addedServiceCount: number;
+  healedMappings: Array<{ nodeId: string; oldPath: string; newPath: string }>;
+}
+
+/**
+ * Automatically heals broken architecture anchors and incorporates orphan code services.
+ */
+export function autoHealArchitectureDrift(
+  ast: DiagramAST,
+  report: ArchitectureDriftReport,
+  existingFiles: string[] = []
+): AutoHealResult {
+  const cleanExisting = existingFiles.map((f) => f.replace(/^[./\\]+/, ""));
+  const clonedNodes: Record<string, NodeDecl> = JSON.parse(JSON.stringify(ast.nodes || {}));
+  const healedMappings: Array<{ nodeId: string; oldPath: string; newPath: string }> = [];
+
+  let healedAnchorCount = 0;
+
+  // 1. Heal broken anchors using fuzzy path matching
+  for (const broken of report.brokenAnchors) {
+    const node = clonedNodes[broken.nodeId];
+    if (!node) continue;
+
+    const [cleanPath, lineSuffix] = broken.declaredPath.split("#");
+    const oldPath = cleanPath.replace(/^[./\\]+/, "");
+    const lineTag = lineSuffix ? `#${lineSuffix}` : "#L1";
+    const baseName = oldPath.split("/").pop() || oldPath;
+
+    // Find best candidate in existingFiles
+    let bestMatch: string | null = null;
+    let minDistance = Infinity;
+
+    for (const cand of cleanExisting) {
+      const candBase = cand.split("/").pop() || cand;
+      const oldDir = oldPath.includes("/") ? oldPath.substring(0, oldPath.lastIndexOf("/")) : "";
+      const candDir = cand.includes("/") ? cand.substring(0, cand.lastIndexOf("/")) : "";
+
+      let dist = levenshteinDistance(oldPath.toLowerCase(), cand.toLowerCase());
+      if (oldDir && oldDir === candDir) {
+        dist = Math.min(dist, levenshteinDistance(baseName.toLowerCase(), candBase.toLowerCase()));
+      }
+
+      if (dist < minDistance && (dist <= 6 || (oldDir && oldDir === candDir))) {
+        minDistance = dist;
+        bestMatch = cand;
+      }
+    }
+
+    if (bestMatch) {
+      const newPath = `${bestMatch}${lineTag}`;
+      node.props = node.props || {};
+      node.props["@src"] = newPath;
+      healedAnchorCount++;
+      healedMappings.push({
+        nodeId: broken.nodeId,
+        oldPath: broken.declaredPath,
+        newPath,
+      });
+    }
+  }
+
+  // 2. Incorporate unmapped orphan services
+  let addedServiceCount = 0;
+  for (const orphan of report.orphanCodeServices) {
+    if (!clonedNodes[orphan.suggestedId]) {
+      clonedNodes[orphan.suggestedId] = {
+        id: orphan.suggestedId,
+        label: orphan.suggestedId,
+        kind: orphan.suggestedKind as any,
+        line: 1,
+        props: {
+          "@src": `${orphan.discoveredPath}#L1`,
+        },
+      };
+      addedServiceCount++;
+    }
+  }
+
+  const healedAst: DiagramAST = {
+    ...ast,
+    nodes: clonedNodes,
+  };
+
+  // Re-generate MarkdyScript
+  const lines: string[] = [];
+  lines.push(`scene "${ast.meta?.title || "Architecture Diagram"}" theme=midnight`);
+  lines.push(`layout LR`);
+  lines.push(``);
+
+  for (const node of Object.values(clonedNodes)) {
+    const srcProp = node.props?.["@src"] ? ` @src="${node.props["@src"]}"` : "";
+    const iconProp = node.props?.["icon"] ? ` icon=${node.props["icon"]}` : "";
+    lines.push(`${node.kind || "service"} ${node.id} "${node.label || node.id}"${iconProp}${srcProp}`);
+  }
+
+  lines.push(``);
+  lines.push(`beat initial_flow "1. System Flow & Connectivity":`);
+  lines.push(`  show $nodes stagger=50ms`);
+
+  if (ast.edges && ast.edges.length > 0) {
+    for (const edge of ast.edges) {
+      const label = edge.label ? ` "${edge.label}"` : "";
+      const op = (edge as any).op || (edge.kind === "event" ? "~>" : edge.kind === "response" ? "<-" : "->");
+      lines.push(`  ${edge.from} ${op} ${edge.to}${label}`);
+    }
+  }
+
+  return {
+    healedAst,
+    healedMarkdyScript: lines.join("\n") + "\n",
+    healedAnchorCount,
+    addedServiceCount,
+    healedMappings,
+  };
+}
+

@@ -47,6 +47,15 @@ describe("markdy cli guide, recipe, and verify commands", () => {
     expect(io.out.join("\n")).toContain("cache RedisCluster");
   });
 
+  it("runs markdy guide with --synthesize to generate custom architecture dynamically", async () => {
+    const io = new BufferIo();
+    const result = await runCli(["guide", "Next.js", "frontend", "with", "Redis", "cache", "--synthesize"], io, { openBrowser: async () => {} });
+    expect(result.exitCode).toBe(0);
+    expect(io.out.join("\n")).toContain("Dynamic Architecture Synthesis");
+    expect(io.out.join("\n")).toContain("NextApp");
+    expect(io.out.join("\n")).toContain("RedisCache");
+  });
+
   it("runs markdy verify on a valid diagram scene", async () => {
     const dir = await tempDir();
     const file = join(dir, "valid.markdy");
@@ -78,7 +87,8 @@ describe("markdy cli guide, recipe, and verify commands", () => {
     expect(result.exitCode).toBe(0);
     const parsed = JSON.parse(io.out.join("\n"));
     expect(parsed.passed).toBe(true);
-    expect(parsed.checks.length).toBe(9);
+    expect(parsed.checks.length).toBe(12);
     expect(parsed.sha256Receipt).toBeDefined();
   });
 });
+

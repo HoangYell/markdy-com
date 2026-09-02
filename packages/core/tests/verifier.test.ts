@@ -23,12 +23,48 @@ beat flow:
 
     expect(report.passed).toBe(true);
     expect(report.errorCount).toBe(0);
-    expect(report.checks.length).toBe(9);
+    expect(report.checks.length).toBe(12);
     expect(report.sha256Receipt).toMatch(/^sha256-[0-9a-f]{32}$/);
     expect(report.metrics.nodeCount).toBe(4);
     expect(report.metrics.hasCodeProvenance).toBe(true);
     expect(report.metrics.provenanceAnchorCount).toBe(2);
     expect(report.viewportCompliance["1440x900"]).toBe(true);
+  });
+
+  it("detects orphan disconnected nodes in topology", () => {
+    const code = `
+scene "Orphan Node Detection" theme=midnight
+service NodeA "Active Service A"
+service NodeB "Active Service B"
+service OrphanSvc "Orphaned Unconnected Service"
+
+beat flow:
+  NodeA -> NodeB "Direct request"
+`;
+    const { ast } = parseAndCompile(code);
+    const report = verifyDiagramQuality(ast);
+    const orphanCheck = report.checks.find((c) => c.id === "orphan_nodes");
+    expect(orphanCheck?.status).toBe("warn");
+    expect(orphanCheck?.message).toContain("OrphanSvc");
+  });
+
+  it("detects synchronous blocking deadlock cycles", () => {
+    const code = `
+scene "Deadlock Cycle Detection" theme=midnight
+service SvcA "Service A"
+service SvcB "Service B"
+service SvcC "Service C"
+
+beat cycle:
+  SvcA -> SvcB "Calls B"
+  SvcB -> SvcC "Calls C"
+  SvcC -> SvcA "Calls back A synchronously"
+`;
+    const { ast } = parseAndCompile(code);
+    const report = verifyDiagramQuality(ast);
+    const deadlockCheck = report.checks.find((c) => c.id === "sync_deadlock");
+    expect(deadlockCheck?.status).toBe("warn");
+    expect(deadlockCheck?.message).toContain("Synchronous circular blocking dependency detected");
   });
 
   it("fails verification on empty AST", () => {
@@ -66,3 +102,4 @@ beat main:
     expect(report.qualityProfile).toBe("showcase");
   });
 });
+

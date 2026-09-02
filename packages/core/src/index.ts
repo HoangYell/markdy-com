@@ -174,12 +174,14 @@ export { formatScene } from "./format.js";
 export {
   ARCHITECTURE_RECIPES,
   recommendArchitecturePattern,
+  synthesizeCustomRecipe,
   getArchitectureRecipe,
   listArchitectureRecipes,
 } from "./recipes.js";
 export type {
   ArchitectureRecipe,
   PatternRecommendationResult,
+  SynthesizedRecipeResult,
 } from "./recipes.js";
 
 export {
@@ -198,20 +200,26 @@ export {
   analyzeC4Model,
   filterC4Hierarchy,
   generateC4Storyboard,
+  exportC4LevelViews,
+  validateC4Containment,
 } from "./c4.js";
 export type {
   C4Level,
   C4NodeMeta,
   C4ModelReport,
+  C4LevelViewExport,
 } from "./c4.js";
 
 export {
   detectArchitectureDrift,
+  autoHealArchitectureDrift,
 } from "./drift.js";
 export type {
   BrokenAnchorDrift,
   OrphanCodeServiceDrift,
   ArchitectureDriftReport,
+  AutoHealResult,
 } from "./drift.js";
+
 
 

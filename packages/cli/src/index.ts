@@ -12,13 +12,17 @@ import {
   predictNextLineSuggestion,
   getArchitectureSuggestions,
   recommendArchitecturePattern,
+  synthesizeCustomRecipe,
   getArchitectureRecipe,
   listArchitectureRecipes,
   verifyDiagramQuality,
   analyzeC4Model,
   filterC4Hierarchy,
   generateC4Storyboard,
+  exportC4LevelViews,
+  validateC4Containment,
   detectArchitectureDrift,
+  autoHealArchitectureDrift,
   type C4Level,
   type DiagramAST,
   type Diagnostic,
@@ -364,6 +368,7 @@ async function explainCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult>
 async function guideCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
   const query = parsed.positionals.join(" ").trim();
   const jsonMode = hasFlag(parsed, "json");
+  const synthesizeMode = hasFlag(parsed, "synthesize");
 
   if (!query) {
     const recipes = listArchitectureRecipes();
@@ -375,6 +380,21 @@ async function guideCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
         io.stdout(`  • [${r.id}] ${r.name} (${r.category}) - ${r.description}`);
       }
       io.stdout('\nRun `markdy guide "<query>"` or `markdy recipe <id>` to view full blueprint code.');
+    }
+    return { exitCode: 0 };
+  }
+
+  if (synthesizeMode) {
+    const synthesized = synthesizeCustomRecipe(query);
+    if (jsonMode) {
+      io.stdout(JSON.stringify(synthesized, null, 2));
+    } else {
+      io.stdout(`\n⚡ Dynamic Architecture Synthesis for: "${query}"`);
+      io.stdout(`Pattern: ${synthesized.inferredPattern}`);
+      io.stdout(`Components: ${synthesized.detectedComponents.map((c) => `${c.id} (${c.kind})`).join(", ")}`);
+      io.stdout(`Rationale: ${synthesized.rationale}\n`);
+      io.stdout("Synthesized MarkdyScript:\n");
+      io.stdout(synthesized.markdyScript);
     }
     return { exitCode: 0 };
   }
@@ -596,6 +616,22 @@ async function driftCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
   const repoFiles = await collectRepoFiles(repoRoot);
   const report = detectArchitectureDrift(scene.ast, repoFiles);
 
+  const fixMode = hasFlag(parsed, "fix");
+  if (fixMode) {
+    const healed = autoHealArchitectureDrift(scene.ast, report, repoFiles);
+    await writeFile(scene.filePath, healed.healedMarkdyScript, "utf8");
+    if (hasFlag(parsed, "json")) {
+      io.stdout(JSON.stringify({ report, healed }, null, 2));
+    } else {
+      io.stdout(report.summaryMarkdown);
+      io.stdout(`\n✅ Auto-healed ${healed.healedAnchorCount} broken anchor(s) and incorporated ${healed.addedServiceCount} orphan service(s) into ${file}`);
+      for (const m of healed.healedMappings) {
+        io.stdout(`  • ${m.nodeId}: \`${m.oldPath}\` → \`${m.newPath}\``);
+      }
+    }
+    return { exitCode: 0 };
+  }
+
   if (hasFlag(parsed, "json")) {
     io.stdout(JSON.stringify(report, null, 2));
     return { exitCode: report.isSynchronized ? 0 : 1 };
@@ -603,7 +639,7 @@ async function driftCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
 
   io.stdout(report.summaryMarkdown);
   if (report.healingMarkdySnippet) {
-    io.stdout("\n✨ Suggested MarkdyScript Additions:\n```markdy\n" + report.healingMarkdySnippet + "\n```\n");
+    io.stdout("\n✨ Suggested MarkdyScript Additions (Pass `--fix` to auto-apply):\n```markdy\n" + report.healingMarkdySnippet + "\n```\n");
   }
 
   return { exitCode: report.isSynchronized ? 0 : 1 };
@@ -625,6 +661,20 @@ async function c4Command(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
   if (hasFlag(parsed, "storyboard")) {
     const storyboard = generateC4Storyboard(scene.ast);
     io.stdout(storyboard);
+    return { exitCode: 0 };
+  }
+
+  if (hasFlag(parsed, "export-views")) {
+    const views = exportC4LevelViews(scene.ast);
+    const targetDir = getStringFlag(parsed, "out") || dirname(resolve(file));
+    const base = basename(file, extname(file));
+
+    for (const [lvl, exportData] of Object.entries(views)) {
+      const outPath = join(targetDir, `${base}-L${exportData.levelNumber}-${lvl}.markdy`);
+      await writeFile(outPath, exportData.markdyScript, "utf8");
+      io.stdout(`  ✓ Exported C4 L${exportData.levelNumber} [${lvl.toUpperCase()}]: ${outPath} (${exportData.nodeCount} nodes, ${exportData.edgeCount} flows)`);
+    }
+    io.stdout(`\n📦 Successfully exported 4 C4 level blueprints to ${targetDir}`);
     return { exitCode: 0 };
   }
 

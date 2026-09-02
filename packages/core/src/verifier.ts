@@ -77,7 +77,40 @@ function computeDeterministicReceipt(content: string): string {
 }
 
 /**
- * Runs the complete 9-Point Quality Gate & Viewport Verification on a DiagramAST.
+ * Extracts all flow connections from both top-level edges and animated beat cues
+ */
+function collectAllFlows(ast: DiagramAST): Array<{ from: string; to: string; op: string; isSync: boolean }> {
+  const flows: Array<{ from: string; to: string; op: string; isSync: boolean }> = [];
+
+  for (const edge of ast.edges || []) {
+    const rawOp = (edge as any).op || (edge.kind === "request" ? "->" : edge.kind === "event" ? "~>" : edge.kind === "response" ? "<-" : "->");
+    const isSync = rawOp === "->" || rawOp === "<->" || edge.kind === "request";
+    flows.push({ from: edge.from, to: edge.to, op: rawOp, isSync });
+  }
+
+  function extractCues(cues: any[]) {
+    for (const cue of cues || []) {
+      if (cue.kind === "flow" && Array.isArray(cue.segments)) {
+        for (const seg of cue.segments) {
+          const op = seg.op || "->";
+          const isSync = op === "->" || op === "<->" || op === "request";
+          flows.push({ from: seg.from, to: seg.to, op, isSync });
+        }
+      } else if (cue.kind === "parallel" && Array.isArray(cue.cues)) {
+        extractCues(cue.cues);
+      }
+    }
+  }
+
+  for (const beat of ast.beats || []) {
+    extractCues(beat.cues);
+  }
+
+  return flows;
+}
+
+/**
+ * Runs the complete 12-Point Quality Gate & Viewport Verification on a DiagramAST.
  */
 export function verifyDiagramQuality(
   ast: DiagramAST,
@@ -317,6 +350,115 @@ export function verifyDiagramQuality(
     message: `Theme '${themeName}' verified with high-contrast canvas (${themeObj.canvas}) and text (${themeObj.text}).`,
   });
 
+  // 10. Orphan Node & Dead-End Isolation Detection
+  const allFlows = collectAllFlows(ast);
+  const inDegree: Record<string, number> = {};
+  const outDegree: Record<string, number> = {};
+  for (const n of nodes) {
+    inDegree[n.id] = 0;
+    outDegree[n.id] = 0;
+  }
+  for (const f of allFlows) {
+    if (outDegree[f.from] !== undefined) outDegree[f.from]++;
+    if (inDegree[f.to] !== undefined) inDegree[f.to]++;
+  }
+
+  const orphanNodes = nodes.filter(
+    (n) => nodeCount > 1 && inDegree[n.id] === 0 && outDegree[n.id] === 0
+  );
+  if (orphanNodes.length > 0) {
+    checks.push({
+      id: "orphan_nodes",
+      name: "Dead-End & Orphan Node Isolation",
+      category: "geometry",
+      status: "warn",
+      message: `${orphanNodes.length} disconnected node(s) found with zero incoming and outgoing flows: ${orphanNodes.map((n) => n.id).join(", ")}.`,
+    });
+  } else {
+    checks.push({
+      id: "orphan_nodes",
+      name: "Dead-End & Orphan Node Isolation",
+      category: "geometry",
+      status: "pass",
+      message: "All nodes participate actively in system topology flows.",
+    });
+  }
+
+  // 11. Synchronous Blocking Deadlock Cycle Detection (DFS)
+  const syncAdj = new Map<string, string[]>();
+  for (const n of nodes) syncAdj.set(n.id, []);
+  for (const f of allFlows) {
+    if (f.isSync) {
+      syncAdj.get(f.from)?.push(f.to);
+    }
+  }
+
+  const visited = new Set<string>();
+  const recStack = new Set<string>();
+  let detectedCycle: string[] | null = null;
+
+  function dfsCycle(curr: string, path: string[]): boolean {
+    visited.add(curr);
+    recStack.add(curr);
+    const neighbors = syncAdj.get(curr) || [];
+    for (const neighbor of neighbors) {
+      if (!visited.has(neighbor)) {
+        if (dfsCycle(neighbor, [...path, neighbor])) return true;
+      } else if (recStack.has(neighbor)) {
+        detectedCycle = [...path, neighbor];
+        return true;
+      }
+    }
+    recStack.delete(curr);
+    return false;
+  }
+
+  for (const n of nodes) {
+    if (!visited.has(n.id)) {
+      if (dfsCycle(n.id, [n.id])) break;
+    }
+  }
+
+  if (detectedCycle && Array.isArray(detectedCycle)) {
+    const cyclePathStr = (detectedCycle as string[]).join(" -> ");
+    checks.push({
+      id: "sync_deadlock",
+      name: "Synchronous Request Cycle & Deadlock Hazard",
+      category: "governance",
+      status: "warn",
+      message: `Synchronous circular blocking dependency detected: ${cyclePathStr}. Consider decoupling with async events (~>).`,
+    });
+  } else {
+    checks.push({
+      id: "sync_deadlock",
+      name: "Synchronous Request Cycle & Deadlock Hazard",
+      category: "governance",
+      status: "pass",
+      message: "Zero circular synchronous blocking request cycles detected.",
+    });
+  }
+
+  // 12. Viewport Density & 60fps Motion Sanity
+  const totalFlowCount = Math.max(edges.length, allFlows.length);
+  const density = nodeCount > 0 ? totalFlowCount / nodeCount : 0;
+  if (density > 4.5) {
+    checks.push({
+      id: "motion_density",
+      name: "Viewport Layout Density & Motion Sanity",
+      category: "geometry",
+      status: "warn",
+      message: `High connectivity density (${density.toFixed(1)} flows/node). Ensure adequate layout spacing for motion paths.`,
+    });
+  } else {
+    checks.push({
+      id: "motion_density",
+      name: "Viewport Layout Density & Motion Sanity",
+      category: "geometry",
+      status: "pass",
+      message: `Optimal connectivity density (${density.toFixed(1)} flows/node) for 16:9 canvas and 60fps WAAPI playback.`,
+    });
+  }
+
   const errorCount = checks.filter((c) => c.status === "fail").length;
   const warningCount = checks.filter((c) => c.status === "warn").length;
   const passed = profile === "showcase" ? errorCount === 0 && warningCount === 0 : errorCount === 0;
@@ -350,3 +492,4 @@ export function verifyDiagramQuality(
     },
   };
 }
+

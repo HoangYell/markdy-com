@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   recommendArchitecturePattern,
+  synthesizeCustomRecipe,
   getArchitectureRecipe,
   listArchitectureRecipes,
   ARCHITECTURE_RECIPES,
@@ -37,7 +38,22 @@ describe("Architecture Pattern Recipes & Recommender", () => {
     expect(recs[0].recipe.id).toBe("zero-trust-security");
   });
 
-  it("ensures all recipe MarkdyScript templates compile cleanly without parse errors", () => {
+  it("synthesizes a tailored MarkdyScript diagram dynamically from custom user requirements", () => {
+    const query = "Next.js frontend with Stripe payment gateway, Redis caching, and PostgreSQL database";
+    const res = synthesizeCustomRecipe(query);
+    expect(res.detectedComponents.length).toBeGreaterThanOrEqual(4);
+    expect(res.detectedComponents.map((c) => c.id)).toContain("NextApp");
+    expect(res.detectedComponents.map((c) => c.id)).toContain("StripeGateway");
+    expect(res.detectedComponents.map((c) => c.id)).toContain("RedisCache");
+    expect(res.detectedComponents.map((c) => c.id)).toContain("PostgresDB");
+
+    const { ast } = parseAndCompile(res.markdyScript);
+    expect(Object.keys(ast.nodes).length).toBeGreaterThanOrEqual(4);
+    expect(ast.diagnostics.filter((d) => d.severity === "error").length).toBe(0);
+  });
+
+  it("ensures all 14 recipe MarkdyScript templates compile cleanly without parse errors", () => {
+    expect(ARCHITECTURE_RECIPES.length).toBeGreaterThanOrEqual(14);
     for (const recipe of ARCHITECTURE_RECIPES) {
       const { ast } = parseAndCompile(recipe.code);
       expect(Object.keys(ast.nodes).length, `Recipe ${recipe.id} nodes`).toBeGreaterThan(0);
@@ -46,3 +62,4 @@ describe("Architecture Pattern Recipes & Recommender", () => {
     }
   });
 });
+

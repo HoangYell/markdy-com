@@ -79,6 +79,76 @@ export function transpilePlantUmlToMarkdy(pumlSource: string): PlantUmlTranspile
       continue;
     }
 
+    // C4 Macro Support: Person(id, "label", "desc"), Container(id, "label", "tech"), ContainerDb(id, "label", "tech"), Rel(from, to, "label", "tech")
+    const c4NodeMatch = line.match(/^(Person|Person_Ext|System|System_Ext|SystemDb|Container|ContainerDb|ContainerQueue|Component|ComponentDb)\s*\(\s*([a-zA-Z0-9_]+)\s*,\s*["']([^"']+)["'](?:\s*,\s*["']([^"']*)["'])?(?:\s*,\s*["']([^"']*)["'])?\s*\)/i);
+    if (c4NodeMatch) {
+      const macro = c4NodeMatch[1].toLowerCase();
+      const id = sanitizeId(c4NodeMatch[2]);
+      const label = c4NodeMatch[3];
+      const techOrDesc = c4NodeMatch[4] || "";
+
+      let kind = "service";
+      let icon = "nodejs";
+
+      if (macro.includes("person")) {
+        kind = "browser";
+        icon = "chrome";
+      } else if (macro.includes("db")) {
+        kind = "database";
+        icon = "postgresql";
+      } else if (macro.includes("queue")) {
+        kind = "queue";
+        icon = "kafka";
+      } else if (macro.includes("gateway") || techOrDesc.toLowerCase().includes("gateway") || techOrDesc.toLowerCase().includes("proxy")) {
+        kind = "gateway";
+        icon = "nginx";
+      }
+
+      nodes.set(id, { id, label, kind, icon });
+      if (currentGroup && groups.has(currentGroup)) {
+        groups.get(currentGroup)!.members.push(id);
+      }
+      continue;
+    }
+
+    const c4RelMatch = line.match(/^Rel(?:_[RLDUB]|_Neighbor|_Back)?\s*\(\s*([a-zA-Z0-9_]+)\s*,\s*([a-zA-Z0-9_]+)\s*,\s*["']([^"']+)["'](?:\s*,\s*["']([^"']*)["'])?\s*\)/i);
+    if (c4RelMatch) {
+      const fromId = sanitizeId(c4RelMatch[1]);
+      const toId = sanitizeId(c4RelMatch[2]);
+      const desc = c4RelMatch[3];
+      const tech = c4RelMatch[4];
+      const fullLabel = tech ? `${desc} (${tech})` : desc;
+
+      if (!nodes.has(fromId)) {
+        nodes.set(fromId, { id: fromId, label: fromId, kind: mapPlantUmlKind("service", fromId) });
+      }
+      if (!nodes.has(toId)) {
+        nodes.set(toId, { id: toId, label: toId, kind: mapPlantUmlKind("service", toId) });
+      }
+
+      edges.push({ from: fromId, to: toId, op: "->", label: fullLabel });
+      continue;
+    }
+
+    // Explicit node declaration: service Svc "Label" [icon] or class Foo or component Bar or database DB
+    const declMatch = line.match(/^(component|interface|database|queue|actor|boundary|control|entity|participant|node)\s+(?:"([^"]+)"\s+as\s+(\w+)|(\w+)(?:\s+as\s+(\w+))?|(\w+))/i);
+    if (declMatch) {
+      const rawType = declMatch[1];
+      const label = declMatch[2] || declMatch[4] || declMatch[6];
+      const id = sanitizeId(declMatch[3] || declMatch[5] || declMatch[6] || label);
+
+      nodes.set(id, {
+        id,
+        label,
+        kind: mapPlantUmlKind(rawType, label),
+      });
+
+      if (currentGroup && groups.has(currentGroup)) {
+        groups.get(currentGroup)!.members.push(id);
+      }
+      continue;
+    }
+
     // Connection: A -> B : Label or A --> B : Label or A <-> B : Label
     const connMatch = line.match(/^([a-zA-Z0-9_.-]+)\s*(-+>|<-+|<->|-+)\s*([a-zA-Z0-9_.-]+)(?:\s*:\s*(.*))?$/);
     if (connMatch) {
@@ -98,63 +168,48 @@ export function transpilePlantUmlToMarkdy(pumlSource: string): PlantUmlTranspile
       }
 
       let op = "->";
-      if (arrow.includes("<") && arrow.includes(">")) op = "<->";
-      else if (arrow.startsWith("<-")) op = "<-";
-      else if (arrow.includes("--")) op = "->";
+      if (arrow.startsWith("<-")) op = "<-";
+      else if (arrow === "<->") op = "<->";
+      else if (arrow.startsWith("--") || arrow === "-") op = "..>";
 
       edges.push({ from: fromId, to: toId, op, label });
       continue;
     }
 
-    // Node declarations: database "PostgreSQL" as DB or service OrderSvc or [Order Service] as OrderSvc
-    const nodeDeclMatch = line.match(/^(actor|boundary|control|entity|database|queue|component|node|cloud)?\s*(?:"([^"]+)"|\[([^\]]+)\]|([a-zA-Z0-9_.-]+))(?:\s+as\s+([a-zA-Z0-9_.-]+))?$/i);
-    if (nodeDeclMatch) {
-      const rawType = nodeDeclMatch[1] || "service";
-      const rawLabel = nodeDeclMatch[2] || nodeDeclMatch[3] || nodeDeclMatch[4];
-      const id = sanitizeId(nodeDeclMatch[5] || rawLabel);
-      const label = rawLabel || id;
-      const kind = mapPlantUmlKind(rawType, label);
-
-      nodes.set(id, { id, label, kind });
-      if (currentGroup) {
-        groups.get(currentGroup)?.members.push(id);
-      }
-      continue;
-    }
+    warnings.push(`Ignored unsupported PlantUML syntax at line ${idx + 1}: ${line.slice(0, 40)}`);
   }
 
   // Generate MarkdyScript
-  const outLines: string[] = [
-    `scene "${sceneTitle}" theme=midnight`,
-    `layout LR`,
-    "",
-  ];
+  const scriptLines: string[] = [];
+  scriptLines.push(`scene "${sceneTitle}" theme=auto`);
+  scriptLines.push(`layout LR`);
+  scriptLines.push(``);
 
-  for (const [, node] of nodes) {
-    const iconAttr = node.icon ? ` icon=${node.icon}` : "";
-    outLines.push(`${node.kind} ${node.id} "${node.label}"${iconAttr}`);
+  for (const node of nodes.values()) {
+    const iconProp = node.icon ? ` icon=${node.icon}` : "";
+    scriptLines.push(`${node.kind} ${node.id} "${node.label}"${iconProp}`);
   }
 
   if (groups.size > 0) {
-    outLines.push("");
-    for (const [, grp] of groups) {
-      if (grp.members.length > 0) {
-        outLines.push(`group ${grp.id} "${grp.label}": ${grp.members.join(" ")}`);
+    scriptLines.push(``);
+    for (const group of groups.values()) {
+      if (group.members.length > 0) {
+        scriptLines.push(`group ${group.id} "${group.label}": ${group.members.join(" ")}`);
       }
     }
   }
 
-  outLines.push("");
-  outLines.push(`beat main_flow "1. Execution Flow":`);
-  outLines.push(`  show $nodes stagger=40ms`);
+  scriptLines.push(``);
+  scriptLines.push(`beat system_flow "Imported PlantUML Flow":`);
+  scriptLines.push(`  show $nodes stagger=50ms`);
 
   for (const edge of edges) {
-    const lbl = edge.label ? ` "${edge.label}"` : "";
-    outLines.push(`  ${edge.from} ${edge.op} ${edge.to}${lbl}`);
+    const label = edge.label ? ` "${edge.label}"` : "";
+    scriptLines.push(`  ${edge.from} ${edge.op} ${edge.to}${label}`);
   }
 
   return {
-    markdyScript: outLines.join("\n") + "\n",
+    markdyScript: scriptLines.join("\n") + "\n",
     nodeCount: nodes.size,
     edgeCount: edges.length,
     groupCount: groups.size,
