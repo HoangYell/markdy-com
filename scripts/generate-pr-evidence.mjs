@@ -1,12 +1,30 @@
-import puppeteer from "puppeteer-core";
-import * as chromeLauncher from "chrome-launcher";
-import { mkdir, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
-import { join, resolve } from "node:path";
+import puppeteer from 'puppeteer-core';
+import * as chromeLauncher from 'chrome-launcher';
+import { createServer } from 'node:http';
+import { readFile, mkdir } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import fs from 'node:fs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const rootDir = resolve(__dirname, '..');
 
 function resolveChromePath() {
-  if (process.env.CHROME_PATH && existsSync(process.env.CHROME_PATH)) {
+  if (process.env.CHROME_PATH && fs.existsSync(process.env.CHROME_PATH)) {
     return process.env.CHROME_PATH;
+  }
+  const defaultPaths = [
+    '/snap/bin/chromium',
+    '/usr/bin/chromium-browser',
+    '/usr/bin/chromium',
+    '/usr/bin/google-chrome',
+    '/usr/bin/google-chrome-stable',
+    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+    '/Applications/Chromium.app/Contents/MacOS/Chromium',
+  ];
+  for (const p of defaultPaths) {
+    if (fs.existsSync(p)) return p;
   }
   try {
     const installations = chromeLauncher.Launcher.getInstallations();
@@ -14,321 +32,364 @@ function resolveChromePath() {
       return installations[0];
     }
   } catch {}
-  const defaultPaths = [
-    "/usr/bin/google-chrome",
-    "/usr/bin/google-chrome-stable",
-    "/usr/bin/chromium",
-    "/usr/bin/chromium-browser",
-    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-  ];
-  for (const p of defaultPaths) {
-    if (existsSync(p)) return p;
-  }
-  throw new Error("Chrome executable could not be found.");
+  throw new Error('Chrome executable could not be found.');
 }
+
+const CHROME_PATH = resolveChromePath();
+const EVIDENCE_DIR = resolve(rootDir, 'docs/images/evidence');
+const MASCOT_DIR = resolve(rootDir, 'docs/images/mascot');
+const CORE_DIST = resolve(rootDir, 'packages/core/dist');
+const RENDERER_DIST = resolve(rootDir, 'packages/renderer-dom/dist');
+const PORT = 4699;
 
 const evidenceCards = [
   {
-    file: "01-route-pathfinder-card.webp",
-    badge: "ROUTE PATHFINDER",
-    badgeColor: "#38bdf8",
-    title: "Client → Database Active Route Pathfinder",
-    telemetry: "Pathway: Client (Port 443) → Envoy Proxy → Router Svc → Postgres (Port 5432) • 3 Hops • TLS 1.3",
-    groups: [
-      { label: "Public Edge", x: 40, y: 130, w: 260, h: 260, color: "rgba(56, 189, 248, 0.15)" },
-      { label: "VPC Private Mesh", x: 340, y: 90, w: 520, h: 300, color: "rgba(99, 102, 241, 0.15)" },
-      { label: "Storage Tier", x: 900, y: 130, w: 260, h: 260, color: "rgba(34, 197, 94, 0.15)" },
-    ],
-    nodes: [
-      { id: "Client", label: "Web Client", sub: "Chrome / React", icon: "🌐", x: 80, y: 200, color: "#38bdf8", active: true },
-      { id: "EdgeProxy", label: "Edge Envoy Proxy", sub: "Ingress Gateway", icon: "🛡️", x: 380, y: 200, color: "#38bdf8", active: true },
-      { id: "RouterSvc", label: "Router Service", sub: "Port Multiplexer", icon: "⚡", x: 640, y: 200, color: "#38bdf8", active: true },
-      { id: "Postgres", label: "PostgreSQL 16", sub: "Primary Master", icon: "🐘", x: 940, y: 200, color: "#38bdf8", active: true },
-      { id: "Redis", label: "Redis Cluster", sub: "Bypassed (Miss)", icon: "⚡", x: 640, y: 110, color: "#475569", active: false },
-    ],
-    flows: [
-      { x1: 220, y1: 235, x2: 380, y2: 235, label: "1. GET /api/v2", color: "#38bdf8" },
-      { x1: 520, y1: 235, x2: 640, y2: 235, label: "2. Dispatch (mTLS)", color: "#38bdf8" },
-      { x1: 780, y1: 235, x2: 940, y2: 235, label: "3. Commit WAL", color: "#38bdf8" },
-      { x1: 710, y1: 200, x2: 710, y2: 155, label: "cache bypass", color: "#334155", dashed: true },
-    ],
+    file: '01-route-pathfinder-card.webp',
+    sourceFile: 'examples/26-route-and-reach-share-cards.markdy',
+    seekPercent: 0.45,
+    title: 'Client → Database Active Route Pathfinder',
+    badge1: '🔀 Active Route Pathfinder',
+    badge2: '⚡ Dynamic Port Multiplexing',
+    tag: 'route-pathfinder // hop-telemetry',
+    theme: 'midnight',
+    stickyNote: '🔀 <b>Active Route Pathfinder:</b><br/>• Path: Client ➔ Envoy ➔ Router ➔ Redis/DB<br/>• Measures exact 3-hop transit distance<br/>• Highlights mTLS protocol & dims inactive topology ⚡',
+    explanation: '<b>Active Route Pathfinder:</b><br/>Isolates the live network pathway from client ingress down to persistence with real-time protocol telemetry! 🔀✨',
   },
   {
-    file: "02-blast-radius-reach-card.webp",
-    badge: "BLAST RADIUS LENS",
-    badgeColor: "#ef4444",
-    title: "Router Service Blast Radius & Cascade Isolation",
-    telemetry: "Root Cause: RouterSvc Failure (500 Error) • Direction: Downstream • 3 Impacted Services • Depth: 2",
-    groups: [
-      { label: "Healthy Upstream", x: 40, y: 130, w: 260, h: 260, color: "rgba(100, 116, 139, 0.15)" },
-      { label: "Failure Zone (Root)", x: 340, y: 130, w: 260, h: 260, color: "rgba(239, 68, 68, 0.2)" },
-      { label: "Cascade Risk Tier (Downstream)", x: 640, y: 90, w: 520, h: 300, color: "rgba(245, 158, 11, 0.15)" },
-    ],
-    nodes: [
-      { id: "EdgeProxy", label: "Edge Proxy", sub: "Isolated / Ok", icon: "🛡️", x: 80, y: 200, color: "#64748b", active: false },
-      { id: "RouterSvc", label: "RouterSvc", sub: "💥 FAILURE ROOT", icon: "⚠️", x: 380, y: 200, color: "#ef4444", active: true, pulse: true },
-      { id: "AuthSvc", label: "Auth Validator", sub: "Cascade Risk 1", icon: "🔑", x: 680, y: 130, color: "#f59e0b", active: true },
-      { id: "OrderSvc", label: "Order Service", sub: "Cascade Risk 2", icon: "📦", x: 680, y: 270, color: "#f59e0b", active: true },
-      { id: "Postgres", label: "Postgres Cluster", sub: "Secondary Risk", icon: "🐘", x: 960, y: 270, color: "#f59e0b", active: true },
-    ],
-    flows: [
-      { x1: 220, y1: 235, x2: 380, y2: 235, label: "Incoming Req", color: "#64748b" },
-      { x1: 520, y1: 215, x2: 680, y2: 165, label: "💥 Cascade 1", color: "#ef4444" },
-      { x1: 520, y1: 255, x2: 680, y2: 295, label: "💥 Cascade 2", color: "#ef4444" },
-      { x1: 820, y1: 305, x2: 960, y2: 305, label: "Secondary Risk", color: "#f59e0b" },
-    ],
+    file: '02-blast-radius-reach-card.webp',
+    sourceFile: 'examples/24-blast-radius-impact-lens.markdy',
+    seekPercent: 0.95,
+    title: 'Blast Radius & Cascading Failure Isolation Lens',
+    badge1: '💥 Blast Radius Impact Lens',
+    badge2: '🛡️ Outage Cascade Isolation',
+    tag: 'blast-radius // impact-lens',
+    theme: 'midnight',
+    stickyNote: '💥 <b>Failure Propagation:</b><br/>• Locates root origin: <code>Transform Engine</code><br/>• Calculates transitive downstream risk<br/>• Prevents cascading outages across services 🛡️',
+    explanation: '<b>Blast Radius Lens:</b><br/>Instantly projects cascading service impact and upstream caller dependencies when an outage occurs! 💥🛡️',
   },
   {
-    file: "03-zero-trust-enclave-blueprint.webp",
-    badge: "ZERO-TRUST SECURITY BLUEPRINT",
-    badgeColor: "#10b981",
-    title: "Zero-Trust Mesh & AWS Nitro Enclave Security",
-    telemetry: "WAF Boundary → Keycloak OIDC Token → OPA Policy → AWS Nitro Enclave → HashiCorp Vault",
-    groups: [
-      { label: "Perimeter", x: 40, y: 130, w: 240, h: 260, color: "rgba(16, 185, 129, 0.12)" },
-      { label: "Policy & Attestation Layer", x: 310, y: 90, w: 540, h: 300, color: "rgba(16, 185, 129, 0.15)" },
-      { label: "Secrets & Audit", x: 880, y: 90, w: 280, h: 300, color: "rgba(16, 185, 129, 0.12)" },
-    ],
-    nodes: [
-      { id: "WAF", label: "Cloudflare WAF", sub: "mTLS Ingress", icon: "🛡️", x: 70, y: 200, color: "#10b981", active: true },
-      { id: "OIDC", label: "Keycloak OIDC", sub: "JWT Attestation", icon: "🔑", x: 340, y: 130, color: "#10b981", active: true },
-      { id: "OPA", label: "Policy Engine OPA", sub: "RBAC Context", icon: "📜", x: 340, y: 270, color: "#10b981", active: true },
-      { id: "Enclave", label: "AWS Nitro Enclave", sub: "Confidential Run", icon: "🔒", x: 620, y: 200, color: "#10b981", active: true },
-      { id: "Vault", label: "HashiCorp Vault", sub: "Dynamic Secrets", icon: "💎", x: 920, y: 130, color: "#10b981", active: true },
-      { id: "Audit", label: "S3 WORM Audit", sub: "Immutable Log", icon: "🗄️", x: 920, y: 270, color: "#10b981", active: true },
-    ],
-    flows: [
-      { x1: 210, y1: 215, x2: 340, y2: 165, label: "1. Token Claim", color: "#10b981" },
-      { x1: 210, y1: 255, x2: 340, y2: 295, label: "2. Policy Check", color: "#10b981" },
-      { x1: 480, y1: 200, x2: 620, y2: 225, label: "3. Attested Run", color: "#10b981" },
-      { x1: 760, y1: 215, x2: 920, y2: 165, label: "4. Ephemeral Key", color: "#10b981" },
-      { x1: 760, y1: 255, x2: 920, y2: 295, label: "5. WORM Audit", color: "#10b981" },
-    ],
+    file: '03-zero-trust-enclave-blueprint.webp',
+    sourceFile: 'examples/27-zero-trust-mesh-blueprint.markdy',
+    seekPercent: 0.95,
+    title: 'Zero-Trust Security Mesh & AWS Nitro Enclave',
+    badge1: '🛡️ Zero-Trust Security Mesh',
+    badge2: '🔒 AWS Nitro Enclave + Vault',
+    tag: 'zero-trust // nitro-enclave',
+    theme: 'blueprint',
+    stickyNote: '🛡️ <b>Defense in Depth:</b><br/>• Perimeter WAF ➔ Keycloak OIDC JWT token<br/>• Open Policy Agent (OPA) RBAC checks<br/>• AWS Nitro Enclave + HashiCorp Vault secrets 🔒',
+    explanation: '<b>Zero-Trust Security Mesh:</b><br/>End-to-end cryptographic identity attestation with isolated hardware enclave execution and immutable audit trails! 🛡️💎',
   },
   {
-    file: "04-event-driven-cqrs-lakehouse.webp",
-    badge: "EVENT-DRIVEN CQRS & LAKEHOUSE",
-    badgeColor: "#a855f7",
-    title: "Event-Driven CQRS & Medallion Lakehouse Pipeline",
-    telemetry: "Command Ingress → Kafka Event Stream → Apache Spark Cleansing → Delta Lake (Silver) → Snowflake (Gold)",
-    groups: [
-      { label: "Ingress", x: 40, y: 130, w: 220, h: 260, color: "rgba(168, 85, 247, 0.12)" },
-      { label: "Streaming & Processing", x: 290, y: 130, w: 530, h: 260, color: "rgba(168, 85, 247, 0.15)" },
-      { label: "Medallion Data Lake", x: 850, y: 90, w: 310, h: 300, color: "rgba(168, 85, 247, 0.12)" },
-    ],
-    nodes: [
-      { id: "API", label: "Command API", sub: "Fastify / Node", icon: "⚡", x: 70, y: 200, color: "#a855f7", active: true },
-      { id: "Kafka", label: "Kafka Event Bus", sub: "Partitions: 32", icon: "📬", x: 320, y: 200, color: "#a855f7", active: true },
-      { id: "Spark", label: "Apache Spark ETL", sub: "Structured Stream", icon: "✨", x: 590, y: 200, color: "#a855f7", active: true },
-      { id: "Delta", label: "Delta Lake (Silver)", sub: "Cleaned Parquet", icon: "🧊", x: 890, y: 130, color: "#a855f7", active: true },
-      { id: "Snowflake", label: "Snowflake (Gold Tier)", sub: "Analytics Warehouse", icon: "❄️", x: 890, y: 270, color: "#a855f7", active: true },
-    ],
-    flows: [
-      { x1: 210, y1: 235, x2: 320, y2: 235, label: "1. Emit Event", color: "#a855f7" },
-      { x1: 460, y1: 235, x2: 590, y2: 235, label: "2. Microbatch", color: "#a855f7" },
-      { x1: 730, y1: 215, x2: 890, y2: 165, label: "3. Silver Write", color: "#a855f7" },
-      { x1: 730, y1: 255, x2: 890, y2: 295, label: "4. Gold Tier BI", color: "#a855f7" },
-    ],
+    file: '04-event-driven-cqrs-lakehouse.webp',
+    sourceFile: 'examples/28-event-driven-cqrs-lakehouse.markdy',
+    seekPercent: 0.95,
+    title: 'Event-Driven CQRS & Medallion Lakehouse Pipeline',
+    badge1: '📊 Medallion Lakehouse Tiers',
+    badge2: '📬 Kafka & Spark Streaming',
+    tag: 'cqrs-eda // medallion-lakehouse',
+    theme: 'midnight',
+    stickyNote: '📊 <b>Streaming Lakehouse:</b><br/>• Command API ➔ Kafka event streaming bus<br/>• Spark cleans Bronze logs into Delta Silver<br/>• Snowflake Gold tier powers real-time BI 🏆',
+    explanation: '<b>Event-Driven CQRS Lakehouse:</b><br/>Decouples high-throughput command writes from dimensional analytics with automated Medallion data pipelines! 📊✨',
   },
   {
-    file: "05-agentic-react-ai-orchestrator.webp",
-    badge: "AGENTIC AI BLUEPRINT",
-    badgeColor: "#ec4899",
-    title: "Autonomous ReAct Agent Loop & Tool Execution",
-    telemetry: "Workspace → Agent Core → Vector RAG Context → LLM Inference → MCP Tool Execution",
-    groups: [
-      { label: "User Interaction", x: 40, y: 130, w: 220, h: 260, color: "rgba(236, 72, 153, 0.12)" },
-      { label: "Reasoning Loop", x: 290, y: 90, w: 530, h: 300, color: "rgba(236, 72, 153, 0.18)" },
-      { label: "Tool Ecosystem", x: 850, y: 130, w: 310, h: 260, color: "rgba(236, 72, 153, 0.12)" },
-    ],
-    nodes: [
-      { id: "IDE", label: "Developer IDE", sub: "CLI / Web UI", icon: "💻", x: 70, y: 200, color: "#ec4899", active: true },
-      { id: "AgentCore", label: "ReAct Agent Core", sub: "Thought & Plan", icon: "🧠", x: 320, y: 200, color: "#ec4899", active: true },
-      { id: "VectorDB", label: "Vector DB (RAG)", sub: "Pinecone / Qdrant", icon: "📚", x: 590, y: 130, color: "#ec4899", active: true },
-      { id: "LLM", label: "Gemini / Claude", sub: "Model Inference", icon: "🤖", x: 590, y: 270, color: "#ec4899", active: true },
-      { id: "MCP", label: "MCP Tool Servers", sub: "FS / Git / Shell", icon: "🛠️", x: 890, y: 200, color: "#ec4899", active: true },
-    ],
-    flows: [
-      { x1: 210, y1: 235, x2: 320, y2: 235, label: "1. Goal Prompt", color: "#ec4899" },
-      { x1: 460, y1: 215, x2: 590, y2: 165, label: "2. Vector Query", color: "#ec4899" },
-      { x1: 460, y1: 255, x2: 590, y2: 295, label: "3. LLM Prompt", color: "#ec4899" },
-      { x1: 730, y1: 235, x2: 890, y2: 235, label: "4. Tool Action", color: "#ec4899" },
-    ],
+    file: '05-agentic-react-ai-orchestrator.webp',
+    sourceFile: 'examples/29-agentic-react-tool-orchestrator.markdy',
+    seekPercent: 0.95,
+    title: 'Autonomous ReAct AI Agent Orchestration Loop',
+    badge1: '🤖 Autonomous ReAct Agent',
+    badge2: '🛠️ Model Context Protocol (MCP)',
+    tag: 'react-agent // mcp-tools',
+    theme: 'nebula',
+    stickyNote: '🤖 <b>Agentic Reasoning Loop:</b><br/>• Developer prompt ➔ ReAct thought formulation<br/>• Qdrant Vector RAG context retrieval<br/>• Model inference ➔ MCP Tool execution (K8s) 🚀',
+    explanation: '<b>Agentic AI Orchestrator:</b><br/>Visualize the complete ReAct thought-plan-action loop with vector context memory and Model Context Protocol (MCP) execution! 🤖🧠',
   },
   {
-    file: "06-active-active-failover-consensus.webp",
-    badge: "ACTIVE-ACTIVE MULTI-REGION CONSENSUS",
-    badgeColor: "#06b6d4",
-    title: "Active-Active GeoDNS Routing & Quorum Consensus",
-    telemetry: "Route53 GeoDNS → Dual Ingress (US-East + US-West) ↔ Aurora Multi-Master Replication & Raft Quorum",
-    groups: [
-      { label: "Global Routing", x: 40, y: 130, w: 220, h: 260, color: "rgba(6, 182, 212, 0.12)" },
-      { label: "Active Dual-Region Compute", x: 290, y: 90, w: 530, h: 300, color: "rgba(6, 182, 212, 0.15)" },
-      { label: "Distributed Consensus", x: 850, y: 90, w: 310, h: 300, color: "rgba(6, 182, 212, 0.12)" },
-    ],
-    nodes: [
-      { id: "GeoDNS", label: "Route53 GeoDNS", sub: "Latency Routing", icon: "🌍", x: 70, y: 200, color: "#06b6d4", active: true },
-      { id: "ClusterEast", label: "Cluster (US-East)", sub: "Ingress 1", icon: "🏢", x: 320, y: 130, color: "#06b6d4", active: true },
-      { id: "ClusterWest", label: "Cluster (US-West)", sub: "Ingress 2", icon: "🏢", x: 320, y: 270, color: "#06b6d4", active: true },
-      { id: "AuroraEast", label: "Aurora DB (East)", sub: "Master A", icon: "🗄️", x: 590, y: 130, color: "#06b6d4", active: true },
-      { id: "AuroraWest", label: "Aurora DB (West)", sub: "Master B", icon: "🗄️", x: 590, y: 270, color: "#06b6d4", active: true },
-      { id: "Raft", label: "Raft Witness", sub: "Quorum Tie-Breaker", icon: "⚖️", x: 890, y: 200, color: "#06b6d4", active: true },
-    ],
-    flows: [
-      { x1: 210, y1: 215, x2: 320, y2: 165, label: "1. US-East Req", color: "#06b6d4" },
-      { x1: 210, y1: 255, x2: 320, y2: 295, label: "2. US-West Req", color: "#06b6d4" },
-      { x1: 460, y1: 165, x2: 590, y2: 165, label: "Local Write", color: "#06b6d4" },
-      { x1: 460, y1: 295, x2: 590, y2: 295, label: "Local Write", color: "#06b6d4" },
-      { x1: 660, y1: 195, x2: 660, y2: 255, label: "Bi-directional Sync", color: "#06b6d4", dashed: true },
-      { x1: 730, y1: 235, x2: 890, y2: 235, label: "Heartbeat", color: "#06b6d4" },
-    ],
+    file: '06-active-active-failover-consensus.webp',
+    sourceFile: 'examples/30-active-active-failover-consensus.markdy',
+    seekPercent: 0.95,
+    title: 'Active-Active Multi-Region Resilient Quorum',
+    badge1: '🌐 Active-Active Multi-Region',
+    badge2: '⚖️ Raft Consensus Witness',
+    tag: 'active-active // raft-consensus',
+    theme: 'paper',
+    stickyNote: '🌐 <b>Multi-Region Resilience:</b><br/>• Route53 Latency GeoDNS ➔ US-East & EU-West<br/>• Aurora Multi-Master bi-directional sync<br/>• Raft witness auto-triggers instant failover ⚖️',
+    explanation: '<b>Active-Active Multi-Region Quorum:</b><br/>Zero single-point-of-failure multi-region architecture with sub-second failover consensus and live replication! 🌐🛡️',
   },
 ];
 
-function generateCardHtml(c) {
-  const groupsHtml = (c.groups || []).map(g => `
-    <div style="position:absolute;left:${g.x}px;top:${g.y}px;width:${g.w}px;height:${g.h}px;border:1px dashed ${c.badgeColor};border-radius:12px;background:${g.color};pointer-events:none;box-sizing:border-box;">
-      <span style="position:absolute;top:-10px;left:14px;background:#0b111b;padding:2px 8px;border-radius:4px;font-family:ui-monospace,Menlo,monospace;font-size:10px;font-weight:700;color:${c.badgeColor};border:1px solid ${c.badgeColor};">${g.label}</span>
-    </div>
-  `).join("");
+function generateCardHtml(cardIndex) {
+  const meta = evidenceCards[cardIndex];
+  const markdyPath = resolve(rootDir, meta.sourceFile);
+  const code = fs.readFileSync(markdyPath, 'utf8');
 
-  const nodesHtml = c.nodes.map(n => `
-    <div style="position:absolute;left:${n.x}px;top:${n.y}px;width:140px;height:70px;background:#0f172a;border:1.5px solid ${n.color};border-radius:10px;padding:8px 10px;box-shadow:0 8px 24px rgba(0,0,0,0.5);display:flex;align-items:center;gap:10px;box-sizing:border-box;">
-      <span style="font-size:22px;line-height:1;">${n.icon}</span>
-      <div style="flex:1;min-width:0;overflow:hidden;">
-        <div style="font-size:11.5px;font-weight:700;color:#f8fafc;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;">${n.label}</div>
-        <div style="font-size:9.5px;color:#94a3b8;margin-top:2px;font-family:ui-monospace,Menlo,monospace;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;">${n.sub}</div>
-      </div>
-    </div>
-  `).join("");
-
-  const flowsSvg = c.flows.map(f => {
-    const x1 = f.x1, y1 = f.y1, x2 = f.x2, y2 = f.y2;
-    const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
-    const strokeDash = f.dashed ? 'stroke-dasharray="4 4"' : '';
-    const markerColorId = f.color.replace('#','');
-    const labelW = Math.max(50, f.label.length * 7 + 16);
-    return `
-      <defs>
-        <marker id="arrow-${markerColorId}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-          <path d="M 0 1 L 10 5 L 0 9 z" fill="${f.color}" />
-        </marker>
-      </defs>
-      <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${f.color}" stroke-width="2" ${strokeDash} marker-end="url(#arrow-${markerColorId})" />
-      <rect x="${mx - labelW/2}" y="${my - 9}" width="${labelW}" height="18" rx="4" fill="#0b111b" stroke="${f.color}" stroke-width="1" />
-      <text x="${mx}" y="${my + 4}" font-size="9" font-family="ui-monospace, Menlo, monospace" font-weight="700" fill="#f8fafc" text-anchor="middle">${f.label}</text>
-    `;
-  }).join("");
+  const isDarkTheme = meta.theme === 'midnight' || meta.theme === 'blueprint' || meta.theme === 'nebula' || meta.theme === 'graphite' || meta.theme === 'terminal';
+  const glowColor1 = meta.theme === 'nebula' ? '#ec4899' : (meta.theme === 'blueprint' ? '#3b82f6' : '#10b981');
+  const glowColor2 = meta.theme === 'nebula' ? '#8b5cf6' : (meta.theme === 'blueprint' ? '#06b6d4' : '#38bdf8');
 
   return `<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
+  <meta charset="UTF-8">
+  <title>${meta.title}</title>
   <style>
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      margin: 0; padding: 0; width: 1200px; height: 630px; background: #070b12; overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      width: 1600px; height: 900px; overflow: hidden;
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: radial-gradient(ellipse at 50% 25%, #ffffff 0%, #faf8f5 55%, #f2eee6 100%);
+      color: #0f172a; position: relative; -webkit-font-smoothing: antialiased; padding: 20px 24px;
     }
-    #card {
-      width: 1200px; height: 630px; position: relative;
-      background: radial-gradient(ellipse at 50% 0%, #1e1b4b 0%, #0b111b 70%);
-      border: 1px solid #1e293b; display: flex; flex-direction: column; justify-content: space-between;
+    .ambient-glow-1 {
+      position: absolute; width: 540px; height: 540px; border-radius: 50%;
+      background: ${glowColor1}; filter: blur(140px); opacity: 0.14; top: -80px; right: 140px; pointer-events: none;
     }
-    #header {
-      padding: 22px 36px 14px 36px; display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08); background: rgba(11, 17, 27, 0.85);
+    .ambient-glow-2 {
+      position: absolute; width: 540px; height: 540px; border-radius: 50%;
+      background: ${glowColor2}; filter: blur(140px); opacity: 0.12; bottom: -100px; left: 140px; pointer-events: none;
     }
-    .badge {
-      font-family: ui-monospace, Menlo, monospace; font-size: 11px; font-weight: 800; letter-spacing: 0.12em;
-      color: ${c.badgeColor}; background: rgba(255, 255, 255, 0.05); border: 1px solid ${c.badgeColor};
-      padding: 4px 12px; border-radius: 999px;
+    .bg-grid {
+      position: absolute; inset: 0;
+      background-image: radial-gradient(rgba(0,0,0,0.035) 1.5px, transparent 1.5px);
+      background-size: 24px 24px; pointer-events: none;
     }
-    .title {
-      font-family: ui-monospace, Menlo, monospace; font-size: 18px; font-weight: 700; color: #f8fafc; margin: 0 0 0 16px;
+    .header-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      height: 42px; margin-bottom: 12px; position: relative; z-index: 10;
     }
-    #telemetry {
-      padding: 8px 36px; font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; font-weight: 500;
-      color: #94a3b8; background: rgba(15, 23, 42, 0.7); border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    .brand-group { display: flex; align-items: center; gap: 10px; }
+    .brand-icon { width: 32px; height: 32px; filter: drop-shadow(0 3px 6px rgba(16,185,129,0.3)); }
+    .brand-name { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; color: #064e3b; }
+    .brand-pill {
+      font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase;
+      background: rgba(16,185,129,0.12); color: #047857; padding: 3px 10px; border-radius: 999px;
+      border: 1px solid rgba(16,185,129,0.2);
     }
-    #canvas {
-      flex: 1; width: 1200px; height: 430px; position: relative;
+    .header-badges { display: flex; align-items: center; gap: 10px; }
+    .badge-pill {
+      font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 8px;
+      background: #ffffff; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      display: flex; align-items: center; gap: 6px;
     }
-    #footer {
-      padding: 12px 36px; display: flex; align-items: center; justify-content: space-between;
-      border-top: 1px solid rgba(255, 255, 255, 0.08); font-family: ui-monospace, Menlo, monospace;
-      font-size: 11px; color: #64748b; background: rgba(11, 17, 27, 0.85);
+    .badge-pill.primary { color: #047857; background: #ecfdf5; border-color: rgba(16,185,129,0.25); }
+    .badge-pill.secondary { color: #0284c7; }
+    .main-stage { position: relative; width: 100%; height: 804px; z-index: 10; }
+    .window-card {
+      width: 100%; height: 100%; background: #ffffff; border-radius: 16px;
+      box-shadow: 0 20px 45px -10px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.07);
+      display: flex; flex-direction: column; overflow: hidden; position: relative;
+    }
+    .window-titlebar {
+      height: 38px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+      display: flex; align-items: center; padding: 0 14px; gap: 7px;
+    }
+    .traffic-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+    .window-tag {
+      margin-left: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px; font-weight: 700; color: #475569; background: #e2e8f0;
+      padding: 2px 10px; border-radius: 4px;
+    }
+    .window-status {
+      margin-left: auto; font-size: 11px; font-weight: 700; color: #059669;
+      background: #d1fae5; padding: 2px 10px; border-radius: 999px;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .diagram-viewport {
+      flex: 1; position: relative; background: ${isDarkTheme ? '#0b1120' : '#ffffff'};
+      overflow: hidden; display: flex; align-items: center; justify-content: center;
+      padding: 10px 14px 14px 14px;
+    }
+    #stage { width: 100%; height: 100%; position: relative; }
+    .markdy-diagram { width: 100% !important; height: 100% !important; }
+    .sticky-note-container {
+      position: absolute; bottom: 16px; left: 16px; z-index: 25; transform: rotate(-1deg);
+    }
+    .sticky-pin-icon {
+      position: absolute; top: -14px; left: 14px; width: 34px; height: 34px;
+      z-index: 30; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25)); transform: rotate(-8deg);
+    }
+    .sticky-note-card {
+      background: #fef08a; color: #713f12; padding: 14px 18px 14px 20px; border-radius: 12px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12), 0 2px 5px rgba(0,0,0,0.05);
+      font-size: 13px; line-height: 1.45; max-width: 390px; border: 1px solid rgba(234,179,8,0.3);
+    }
+    .sticky-note-card b { color: #854d0e; }
+    .mascot-wrapper {
+      position: absolute; right: 0px; bottom: -10px; z-index: 30;
+      display: flex; flex-direction: column; align-items: flex-end; pointer-events: none;
+    }
+    .mascot-bubble {
+      background: #ffffff; border-radius: 14px; padding: 10px 14px;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
+      font-size: 12.5px; line-height: 1.4; color: #1e293b; max-width: 320px;
+      margin-bottom: -10px; margin-right: 24px; position: relative; z-index: 35; transform: rotate(1deg);
+    }
+    .mascot-bubble::after {
+      content: ""; position: absolute; bottom: -9px; right: 50px; width: 0; height: 0;
+      border-left: 10px solid transparent; border-right: 10px solid transparent; border-top: 10px solid #ffffff;
+    }
+    .mascot-img {
+      width: 148px; height: auto; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.15)); margin-right: 12px;
     }
   </style>
+  <script type="importmap">
+    {
+      "imports": {
+        "@markdy/core": "/core/index.js",
+        "@markdy/renderer-dom": "/renderer/index.js"
+      }
+    }
+  </script>
 </head>
 <body>
-  <div id="card">
-    <div id="header">
-      <div style="display:flex;align-items:center;">
-        <span class="badge">${c.badge}</span>
-        <h1 class="title">${c.title}</h1>
+  <div class="ambient-glow-1"></div>
+  <div class="ambient-glow-2"></div>
+  <div class="bg-grid"></div>
+
+  <div class="header-bar">
+    <div class="brand-group">
+      <img src="/images/3d-icon.webp" class="brand-icon" alt="Markdy" />
+      <span class="brand-name">Markdy</span>
+      <span class="brand-pill">Architecture Intelligence</span>
+    </div>
+    <div class="header-badges">
+      <div class="badge-pill primary">
+        <span>${meta.badge1}</span>
       </div>
-      <span style="font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#38bdf8;background:rgba(56,189,248,0.1);padding:4px 12px;border-radius:4px;border:1px solid rgba(56,189,248,0.3);">Markdy v1.2</span>
-    </div>
-    <div id="telemetry">${c.telemetry}</div>
-    <div id="canvas">
-      <svg width="1200" height="430" style="position:absolute;top:0;left:0;pointer-events:none;">
-        <defs>
-          <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
-            <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#1e293b" stroke-width="0.6" stroke-opacity="0.5"/>
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#grid)" />
-        ${flowsSvg}
-      </svg>
-      ${groupsHtml}
-      ${nodesHtml}
-    </div>
-    <div id="footer">
-      <span>markdy.com • Deterministic 60fps Architecture Intelligence</span>
-      <span style="color:#22c55e;">✓ SHA-256 Verified • 9-Point Quality Gate Passed</span>
+      <div class="badge-pill secondary">
+        <span>${meta.badge2}</span>
+      </div>
     </div>
   </div>
+
+  <div class="main-stage">
+    <div class="window-card">
+      <div class="window-titlebar">
+        <div class="traffic-dot dot-red"></div>
+        <div class="traffic-dot dot-yellow"></div>
+        <div class="traffic-dot dot-green"></div>
+        <span class="window-tag">${meta.tag}</span>
+        <div class="window-status">
+          <span style="font-size: 8px;">●</span> Live Engine Rendered
+        </div>
+      </div>
+      <div class="diagram-viewport">
+        <div id="stage"></div>
+      </div>
+    </div>
+
+    <div class="sticky-note-container">
+      <svg class="sticky-pin-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="18" cy="18" r="14" fill="#ef4444" stroke="#ffffff" stroke-width="2.5"/>
+        <circle cx="15" cy="15" r="4" fill="#fca5a5"/>
+        <path d="M18 28L18 34" stroke="#991b1b" stroke-width="2.5" stroke-linecap="round"/>
+      </svg>
+      <div class="sticky-note-card">
+        ${meta.stickyNote}
+      </div>
+    </div>
+
+    <div class="mascot-wrapper">
+      <div class="mascot-bubble">
+        ${meta.explanation}
+      </div>
+      <img src="/images/markdy.webp" class="mascot-img" alt="Markdy Mascot" />
+    </div>
+  </div>
+
+  <script type="module">
+    import { createDiagram } from "@markdy/renderer-dom";
+    const markdyCode = ${JSON.stringify(code)};
+    const stage = document.getElementById("stage");
+    const d = createDiagram({ container: stage, code: markdyCode, autoplay: false });
+    if (d && typeof d.duration === "function" && typeof d.seek === "function") {
+      d.seek(d.duration() * ${meta.seekPercent});
+    }
+    window.__markdyDone = true;
+  </script>
 </body>
 </html>`;
 }
 
 async function main() {
-  console.log("Launching Headless Chrome for PR Evidence Generation...");
-  const chromePath = resolveChromePath();
+  console.log(`🚀 Starting direct showcase render server on port ${PORT}...`);
+  const server = createServer(async (req, res) => {
+    try {
+      const cleanUrl = req.url.split('?')[0];
+      if (cleanUrl.startsWith('/card/')) {
+        const idx = parseInt(cleanUrl.replace('/card/', ''), 10);
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(generateCardHtml(idx));
+      } else if (cleanUrl.startsWith('/core/')) {
+        const filePath = join(CORE_DIST, cleanUrl.replace('/core/', ''));
+        const content = await readFile(filePath);
+        res.writeHead(200, { 'Content-Type': 'application/javascript' });
+        res.end(content);
+      } else if (cleanUrl.startsWith('/renderer/')) {
+        const filePath = join(RENDERER_DIST, cleanUrl.replace('/renderer/', ''));
+        const content = await readFile(filePath);
+        res.writeHead(200, { 'Content-Type': 'application/javascript' });
+        res.end(content);
+      } else if (cleanUrl.startsWith('/images/')) {
+        const filename = cleanUrl.replace('/images/', '');
+        const imgPath = join(MASCOT_DIR, filename);
+        res.writeHead(200, { 'Content-Type': 'image/webp' });
+        res.end(await readFile(imgPath));
+      } else {
+        res.writeHead(404);
+        res.end('Not Found');
+      }
+    } catch (err) {
+      res.writeHead(500);
+      res.end(String(err));
+    }
+  });
+
+  await new Promise(r => server.listen(PORT, r));
+  await mkdir(EVIDENCE_DIR, { recursive: true });
+
+  console.log('🌐 Launching Headless Chromium via:', CHROME_PATH);
   const browser = await puppeteer.launch({
-    executablePath: chromePath,
+    executablePath: CHROME_PATH,
     headless: true,
     args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--disable-gpu",
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
     ],
   });
 
   const page = await browser.newPage();
-  await page.setViewport({ width: 1200, height: 630, deviceScaleFactor: 2 });
+  await page.setViewport({ width: 1600, height: 900, deviceScaleFactor: 2 });
 
-  const evidenceDir = resolve("docs/images/evidence");
-  await mkdir(evidenceDir, { recursive: true });
+  for (let i = 0; i < evidenceCards.length; i++) {
+    const card = evidenceCards[i];
+    console.log(`🎨 Rendering Pristine Showcase Card [${i + 1}/${evidenceCards.length}]: ${card.title}...`);
 
-  for (const item of evidenceCards) {
-    console.log(`✨ Rendering card: ${item.file}...`);
-    const html = generateCardHtml(item);
-    await page.setContent(html, { waitUntil: "load", timeout: 8000 }).catch(() => {});
-    await new Promise((r) => setTimeout(r, 200));
+    await page.goto(`http://localhost:${PORT}/card/${i}`, { waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => window.__markdyDone === true, { timeout: 8000 });
+    await new Promise(r => setTimeout(r, 250));
 
-    const outPath = join(evidenceDir, item.file);
-    await page.screenshot({ path: outPath, type: "webp", quality: 95 });
-    console.log(`✅ Saved evidence visual: ${item.file}`);
+    const outPath = join(EVIDENCE_DIR, card.file);
+    await page.screenshot({
+      path: outPath,
+      type: 'webp',
+      quality: 95,
+    });
+
+    const stats = fs.statSync(outPath);
+    console.log(`✅ Saved High-DPI Evidence Card: ${card.file} (${Math.round(stats.size / 1024)} KB)`);
   }
 
   await browser.close();
-  console.log("All pristine PR visual evidence cards created in docs/images/evidence/!");
+  server.close();
+  console.log('🎉 All 6 Authentic Compiler-Rendered Visual Evidence Cards generated successfully in docs/images/evidence/!');
 }
 
-main().catch((err) => {
-  console.error("Evidence generation error:", err);
+main().catch(err => {
+  console.error('Fatal error generating PR evidence:', err);
   process.exit(1);
 });
