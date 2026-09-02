@@ -707,17 +707,20 @@ export function synthesizeCustomRecipe(query: string): SynthesizedRecipeResult {
     lines.push(`${node.kind} ${node.id} "${node.label}"${iconAttr}`);
   }
 
-  lines.push(``);
-  lines.push(`beat synchronous_flow "1. Client Ingress & Request Path":`);
-  lines.push(`  show $nodes stagger=50ms`);
-
-  // Build linear ingress flow
+  // Separate ingress stage vs downstream persistence/events stage
   const clientNode = nodes.find((n) => n.kind === "browser" || n.kind === "mobile") || nodes[0];
   const gatewayNode = nodes.find((n) => n.kind === "gateway");
   const mainSvc = nodes.find((n) => n.kind === "service") || nodes[1];
   const dbNode = nodes.find((n) => n.kind === "database") || nodes[nodes.length - 1];
   const cacheNode = nodes.find((n) => n.kind === "cache");
   const queueNode = nodes.find((n) => n.kind === "queue");
+
+  const ingressSet = new Set([clientNode, gatewayNode, mainSvc, cacheNode].filter(Boolean).map((n) => n!.id));
+  const downstreamSet = new Set(nodes.filter((n) => !ingressSet.has(n.id)).map((n) => n.id));
+
+  lines.push(``);
+  lines.push(`beat synchronous_flow "1. Client Ingress & Request Path":`);
+  lines.push(`  show ${Array.from(ingressSet).join(" ")} stagger=50ms`);
 
   if (gatewayNode) {
     lines.push(`  ${clientNode.id} -> ${gatewayNode.id} "HTTPS TLS Request" -> ${mainSvc.id} "Route dispatch"`);
@@ -728,18 +731,27 @@ export function synthesizeCustomRecipe(query: string): SynthesizedRecipeResult {
   if (cacheNode) {
     lines.push(`  ${mainSvc.id} -> ${cacheNode.id} "GET /cached-data"`);
   }
-  lines.push(`  ${mainSvc.id} -> ${dbNode.id} "SELECT transaction record"`);
 
-  if (queueNode) {
+  if (downstreamSet.size > 0) {
     lines.push(``);
-    lines.push(`beat async_events "2. Asynchronous Event Propagation":`);
-    lines.push(`  ${mainSvc.id} ~> ${queueNode.id} "Publish state.changed"`);
-    lines.push(`  glow ${queueNode.id} color=#38bdf8 & glow ${dbNode.id} color=#10b981`);
+    if (queueNode) {
+      lines.push(`beat downstream_flow "2. Persistence & Asynchronous Event Bus":`);
+      lines.push(`  show ${Array.from(downstreamSet).join(" ")} stagger=50ms`);
+      lines.push(`  ${mainSvc.id} -> ${dbNode.id} "SELECT / INSERT transaction"`);
+      lines.push(`  ${mainSvc.id} ~> ${queueNode.id} "Publish state.changed"`);
+      lines.push(`  glow ${queueNode.id} color=#38bdf8 & glow ${dbNode.id} color=#10b981`);
+    } else {
+      lines.push(`beat persistence_and_response "2. State Commit & Response":`);
+      lines.push(`  show ${Array.from(downstreamSet).join(" ")} stagger=50ms`);
+      lines.push(`  ${mainSvc.id} -> ${dbNode.id} "SELECT / INSERT transaction"`);
+      lines.push(`  ${clientNode.id} <- ${mainSvc.id} "200 OK JSON Response"`);
+      lines.push(`  glow ${mainSvc.id} color=#38bdf8 & glow ${dbNode.id} color=#10b981`);
+    }
   } else {
     lines.push(``);
-    lines.push(`beat ack_response "2. State Commit & Response":`);
-    lines.push(`  ${clientNode.id} <- ${mainSvc.id} "200 OK JSON Response"`);
-    lines.push(`  glow ${mainSvc.id} color=#38bdf8 & glow ${dbNode.id} color=#10b981`);
+    lines.push(`beat ack_response "2. Acknowledged Response":`);
+    lines.push(`  ${clientNode.id} <- ${mainSvc.id} "200 OK Response"`);
+    lines.push(`  glow ${mainSvc.id} color=#38bdf8`);
   }
 
   return {
