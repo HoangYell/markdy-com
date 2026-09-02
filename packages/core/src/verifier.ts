@@ -209,7 +209,7 @@ export function verifyDiagramQuality(
   ];
   const violations = validateArchitecture(ast, archRules);
   const hasErrors = violations.some((v) => v.severity === "error");
-  const hasWarns = violations.some((v) => v.severity === "warn");
+  const hasWarns = violations.some((v) => v.severity === "warning");
 
   if (hasErrors) {
     checks.push({
