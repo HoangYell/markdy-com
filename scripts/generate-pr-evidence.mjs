@@ -29,7 +29,7 @@ function resolveChromePath() {
 
 const evidenceCards = [
   {
-    file: "01-route-pathfinder-card.png",
+    file: "01-route-pathfinder-card.webp",
     badge: "ROUTE PATHFINDER (1200×630)",
     title: "Client → Database Active Route Pathfinder",
     telemetry: "Active Route: Client → Gateway → Svc → Postgres (3 hops) • Protocol: HTTPS / TLS 1.3",
@@ -49,7 +49,7 @@ const evidenceCards = [
     ],
   },
   {
-    file: "02-blast-radius-reach-card.png",
+    file: "02-blast-radius-reach-card.webp",
     badge: "BLAST RADIUS LENS (1200×630)",
     title: "Router Service Blast Radius & Failure Isolation",
     telemetry: "Root: RouterSvc • Direction: DOWNSTREAM • 3 Impacted Dependents • Max Depth: 2",
@@ -69,7 +69,7 @@ const evidenceCards = [
     ],
   },
   {
-    file: "03-zero-trust-enclave-blueprint.png",
+    file: "03-zero-trust-enclave-blueprint.webp",
     badge: "ZERO-TRUST & ENCLAVE BLUEPRINT",
     title: "Zero-Trust Identity & Nitro Enclave Security Mesh",
     telemetry: "WAF Ingress → OIDC Auth → OPA Policy → AWS Nitro Enclave → HashiCorp Vault",
@@ -89,7 +89,7 @@ const evidenceCards = [
     ],
   },
   {
-    file: "04-event-driven-cqrs-lakehouse.png",
+    file: "04-event-driven-cqrs-lakehouse.webp",
     badge: "EVENT-DRIVEN CQRS & LAKEHOUSE",
     title: "Event-Driven CQRS & Medallion Lakehouse Pipeline",
     telemetry: "Command API → Kafka Stream → Spark Cleansing → Delta Lake (Silver) → Snowflake (Gold)",
@@ -109,7 +109,7 @@ const evidenceCards = [
     ],
   },
   {
-    file: "05-agentic-react-ai-orchestrator.png",
+    file: "05-agentic-react-ai-orchestrator.webp",
     badge: "AUTONOMOUS AGENTIC AI BLUEPRINT",
     title: "Autonomous ReAct Agent Loop & MCP Tool Execution",
     telemetry: "Workspace → Agent Core → Vector RAG Context → LLM Inference → MCP Tool Execution",
@@ -129,7 +129,7 @@ const evidenceCards = [
     ],
   },
   {
-    file: "06-active-active-failover-consensus.png",
+    file: "06-active-active-failover-consensus.webp",
     badge: "ACTIVE-ACTIVE MULTI-REGION CONSENSUS",
     title: "Active-Active GeoDNS Routing & Quorum Consensus",
     telemetry: "Route53 GeoDNS → Primary East Cluster + Secondary West Cluster ↔ Aurora DB Multi-Master Sync",
@@ -276,7 +276,7 @@ async function main() {
     await new Promise((r) => setTimeout(r, 200));
 
     const outPath = join(evidenceDir, item.file);
-    await page.screenshot({ path: outPath, type: "png" });
+    await page.screenshot({ path: outPath, type: "webp", quality: 95 });
     console.log(`✅ Saved evidence visual: ${item.file}`);
   }
 
