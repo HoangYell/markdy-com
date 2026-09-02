@@ -41,7 +41,7 @@ cache RedisCluster "Redis Cluster" icon=redis
 database PostgreSQL "PostgreSQL 16" icon=postgresql @src="src/db/schema.sql#L1"
 
 beat cache_hit "1. Cache Hit Path":
-  show $nodes stagger=60ms
+  show Client Gateway URLService RedisCluster stagger=50ms
   frame Client Gateway URLService RedisCluster zoom=1.12
   Client -> Gateway "GET /link" -> URLService "resolve"
   URLService -> RedisCluster "GET key:url"
@@ -49,6 +49,7 @@ beat cache_hit "1. Cache Hit Path":
   Client <- Gateway "301 Redirect"
 
 beat cache_miss "2. Cache Miss & Async Warm":
+  show PostgreSQL stagger=50ms
   frame URLService RedisCluster PostgreSQL zoom=1.15
   URLService -> PostgreSQL "SELECT dest WHERE key = 'url'"
   URLService <- PostgreSQL "Row Found"
@@ -81,12 +82,13 @@ service AnalyticsConsumer "Real-Time Analytics" icon=python
 queue DLQ "Dead Letter Queue" icon=rabbitmq
 
 beat order_outbox "1. Transactional Outbox Commit":
-  show $nodes stagger=50ms
+  show OrderSvc OrderDB DebeziumCDC KafkaCluster stagger=50ms
   OrderSvc -> OrderDB "COMMIT (Order + Outbox Event)"
   OrderDB -> DebeziumCDC "WAL Stream"
   DebeziumCDC ~> KafkaCluster "Publish order.created"
 
 beat consumer_fanout "2. Real-Time Consumer Fanout":
+  show NotificationSvc AnalyticsConsumer DLQ stagger=50ms
   KafkaCluster ~> NotificationSvc "Consume order.created"
   KafkaCluster ~> AnalyticsConsumer "Consume order.created"
   NotificationSvc -> DLQ "Routing Reject (Retries Exceeded)"
@@ -117,13 +119,14 @@ database ReadDB "Read Database" icon=mongodb
 gateway QueryAPI "Query API" icon=nodejs
 
 beat write_command "1. Command & Append Event":
-  show $nodes stagger=60ms
+  show CommandAPI CommandHandler EventStore stagger=50ms
   CommandAPI -> CommandHandler "POST /orders/create"
   CommandHandler -> EventStore "APPEND OrderCreatedEvent"
   CommandHandler <- EventStore "Event Ack (Offset: 10482)"
   CommandAPI <- CommandHandler "202 Accepted"
 
 beat async_projection "2. Asynchronous Projection Update":
+  show ProjectionEngine ReadDB QueryAPI stagger=50ms
   EventStore ~> ProjectionEngine "Tail Commit Log"
   ProjectionEngine -> ReadDB "UPSERT Materialized Order View"
   QueryAPI -> ReadDB "SELECT * FROM orders WHERE id = :id"
@@ -154,12 +157,13 @@ service InventoryMeshSvc "Inventory Service (mTLS)" icon=python
 service JaegerCollector "OpenTelemetry Collector" icon=jaeger
 
 beat ingress_auth "1. Edge Authentication & Route Verification":
-  show $nodes stagger=50ms
+  show IngressGateway AuthService JaegerCollector stagger=50ms
   IngressGateway -> AuthService "Validate JWT Bearer"
   IngressGateway <- AuthService "Claims Verified"
   IngressGateway ~> JaegerCollector "Span: ingress_entry"
 
 beat internal_mesh_flow "2. Internal mTLS Mesh Fanout":
+  show OrderMeshSvc PaymentMeshSvc InventoryMeshSvc stagger=50ms
   IngressGateway -> OrderMeshSvc "POST /checkout (mTLS)"
   OrderMeshSvc -> PaymentMeshSvc "POST /charge (mTLS)"
   OrderMeshSvc -> InventoryMeshSvc "POST /reserve (mTLS)"
@@ -192,13 +196,14 @@ service SecureEnclave "AWS Nitro Enclave" icon=aws
 database AuditLogStore "WORM Audit Store" icon=s3
 
 beat access_request "1. Identity & Policy Evaluation":
-  show $nodes stagger=60ms
+  show CloudflareWAF IdentityOIDC PolicyEngineOPA stagger=50ms
   CloudflareWAF -> IdentityOIDC "Authenticate Request"
   CloudflareWAF <- IdentityOIDC "Token Issued"
   CloudflareWAF -> PolicyEngineOPA "Evaluate RBAC/ABAC Context"
   CloudflareWAF <- PolicyEngineOPA "Decision: ALLOW"
 
 beat confidential_execution "2. Enclave Decryption & Audit":
+  show SecureEnclave KeyVault AuditLogStore stagger=50ms
   CloudflareWAF -> SecureEnclave "Execute Protected Payload"
   SecureEnclave -> KeyVault "Request Ephemeral Decryption Key"
   SecureEnclave <- KeyVault "Key Granted"
@@ -231,11 +236,12 @@ database GoldWarehouse "Gold Warehouse (Curated)" icon=snowflake
 browser SupersetBI "Apache Superset BI" icon=superset
 
 beat bronze_ingest "1. Raw Stream to Bronze Tier":
-  show $nodes stagger=60ms
+  show RawIngestKafka BronzeLake SparkCleansing stagger=50ms
   RawIngestKafka -> BronzeLake "Append Raw JSON Payload"
   BronzeLake -> SparkCleansing "Trigger Micro-Batch"
 
 beat silver_and_gold "2. Cleansing, Enrichment & BI Serving":
+  show SilverLake FlinkAggregation GoldWarehouse SupersetBI stagger=50ms
   SparkCleansing -> SilverLake "Upsert Deduplicated Parquet"
   SilverLake -> FlinkAggregation "Stream Entity Updates"
   FlinkAggregation -> GoldWarehouse "Merge Into Star Schema"
@@ -267,7 +273,7 @@ service MCPToolExecutor "MCP Tool Protocol" icon=docker @src="agent/mcp_client.p
 service SandboxRuntime "Secure Container Sandbox" icon=docker
 
 beat agent_thought "1. Plan & Context Retrieval":
-  show $nodes stagger=60ms
+  show UserClient AgentOrchestrator VectorMemory ModelInference stagger=50ms
   UserClient -> AgentOrchestrator "Goal: Deploy microservice"
   AgentOrchestrator -> VectorMemory "Query Relevant Runbooks"
   AgentOrchestrator <- VectorMemory "Runbook Context Vectors"
@@ -275,6 +281,7 @@ beat agent_thought "1. Plan & Context Retrieval":
   AgentOrchestrator <- ModelInference "Call: run_command(kubectl apply)"
 
 beat tool_execution "2. MCP Tool Execution & Observation":
+  show MCPToolExecutor SandboxRuntime stagger=50ms
   AgentOrchestrator -> MCPToolExecutor "Execute Tool Request"
   MCPToolExecutor -> SandboxRuntime "Spawn Container & Execute"
   MCPToolExecutor <- SandboxRuntime "Output: deployment created"
@@ -307,7 +314,7 @@ database DBPrimaryWest "Aurora Global DB (West)" icon=postgresql
 service HealthProbe "Global Health Checker" icon=datadog
 
 beat steady_state "1. Steady-State Geo-Routing & Sync":
-  show $nodes stagger=60ms
+  show GlobalDNS RegionUSEast DBPrimaryEast RegionEUWest DBPrimaryWest stagger=50ms
   GlobalDNS -> RegionUSEast "Route US Traffic"
   RegionUSEast -> DBPrimaryEast "Local Read/Write"
   GlobalDNS -> RegionEUWest "Route EU Traffic"
@@ -315,6 +322,7 @@ beat steady_state "1. Steady-State Geo-Routing & Sync":
   DBPrimaryEast ~> DBPrimaryWest "Cross-Region Stream Replication"
 
 beat simulated_failover "2. Outage Detection & Instant Failover":
+  show HealthProbe stagger=50ms
   HealthProbe -> RegionUSEast "HTTP Health Probe (Timeout)"
   HealthProbe ~> GlobalDNS "Withdraw US-East IP from Pool"
   GlobalDNS -> RegionEUWest "Reroute 100% Global Traffic"
@@ -344,12 +352,13 @@ service RaftFollowerB "Raft Node 3 (Follower)" icon=golang @src="raft/follower.g
 database StateStore "Committed State Machine" icon=sqlite
 
 beat propose_entry "1. Client Proposal & Log Replication":
-  show $nodes stagger=60ms
+  show ClientApp RaftLeader RaftFollowerA RaftFollowerB stagger=50ms
   ClientApp -> RaftLeader "Propose: SET key = 'val'"
   RaftLeader -> RaftFollowerA "AppendEntries(Term=2, Entry=4)"
   RaftLeader -> RaftFollowerB "AppendEntries(Term=2, Entry=4)"
 
 beat quorum_commit "2. Quorum Acknowledgment & State Commit":
+  show StateStore stagger=50ms
   RaftLeader <- RaftFollowerA "Success Ack"
   RaftLeader <- RaftFollowerB "Success Ack"
   RaftLeader -> StateStore "Apply to State Machine"
@@ -380,12 +389,13 @@ service SlackIncidentBot "Slack War Room Bot" icon=slack
 service StatusPageSync "Public Status Page" icon=cloudflare
 
 beat alert_trigger "1. High Latency P99 Breach":
-  show $nodes stagger=50ms
+  show PrometheusAlert PagerDutyEngine SlackIncidentBot StatusPageSync stagger=50ms
   PrometheusAlert -> PagerDutyEngine "TRIGGER: P99 Latency > 1500ms"
   PagerDutyEngine -> SlackIncidentBot "Spawn #incident-2026-09"
   PagerDutyEngine -> StatusPageSync "Update: Degraded Performance"
 
 beat auto_heal "2. Self-Healing Pod Recycle & Resolution":
+  show K8sAutoHealer stagger=50ms
   PagerDutyEngine -> K8sAutoHealer "Execute Remediation Runbook"
   K8sAutoHealer -> PrometheusAlert "Verify Latency Normalized (< 200ms)"
   PagerDutyEngine ~> SlackIncidentBot "Resolved: Auto-healed in 42s"
@@ -416,12 +426,13 @@ service ReviewerSubagent "Reviewer Subagent" icon=python @src="src/agent/critic.
 service SandboxRuntime "Secure Tool Sandbox" icon=docker @src="src/tools/mcp_host.ts#L5"
 
 beat task_delegation "1. Task Decomposition & Parallel Spawn":
-  show $nodes stagger=60ms
+  show UserLead OrchestratorAgent CoderSubagent ReviewerSubagent stagger=50ms
   UserLead -> OrchestratorAgent "Prompt: Implement Feature & Tests"
   OrchestratorAgent -> CoderSubagent "Spawn task: Write TypeScript Implementation"
   OrchestratorAgent -> ReviewerSubagent "Spawn task: Construct Invariant Quality Gate"
 
 beat tool_verification "2. Sandboxed Execution & Review Consensus":
+  show SandboxRuntime stagger=50ms
   CoderSubagent -> SandboxRuntime "Execute unit tests in sandbox"
   CoderSubagent <- SandboxRuntime "308 tests pass (100%)"
   ReviewerSubagent -> CoderSubagent "Verify Code Provenance & Zero Regressions"
@@ -453,12 +464,13 @@ database D1Database "Cloudflare D1 SQL" icon=postgresql @src="src/db/schema.sql#
 database VectorizeStore "Vectorize Embedding DB" icon=gemini
 
 beat edge_lookup "1. Nearest Edge Routing & Cache Hit":
-  show $nodes stagger=50ms
+  show GlobalClient EdgeWorker EdgeKV stagger=50ms
   GlobalClient -> EdgeWorker "GET /recommendations (Geo: Tokyo)"
   EdgeWorker -> EdgeKV "GET edge_cache:user_tokyo"
   EdgeWorker <- EdgeKV "Hit (3ms latency)"
 
 beat semantic_search "2. Edge Vector Search & D1 Fetch":
+  show VectorizeStore D1Database stagger=50ms
   EdgeWorker -> VectorizeStore "Query vector topK=5"
   EdgeWorker <- VectorizeStore "Embedding Matches"
   EdgeWorker -> D1Database "SELECT metadata FROM products WHERE id IN (...)"
@@ -490,12 +502,13 @@ service GreenCanary "Green Pods (v1.3.0 Canary 10%)" icon=docker @src="deploy/gr
 service PrometheusWatcher "Canary Health Sentry" icon=prometheus
 
 beat canary_routing "1. Weighted Traffic Split (90/10)":
-  show $nodes stagger=50ms
+  show UserTraffic EnvoyMesh BlueCluster GreenCanary stagger=50ms
   UserTraffic -> EnvoyMesh "Production Request Pool"
   EnvoyMesh -> BlueCluster "Route 90% Stable"
   EnvoyMesh -> GreenCanary "Route 10% Canary"
 
 beat health_verification "2. Automated Sentry Gate & 100% Promotion":
+  show PrometheusWatcher stagger=50ms
   PrometheusWatcher -> GreenCanary "Monitor Error Rate (< 0.01%) & P99"
   PrometheusWatcher -> EnvoyMesh "Signal: Canary Healthy -> Shift 100% to Green"
   EnvoyMesh -> GreenCanary "Promote to 100% Live"
@@ -525,12 +538,13 @@ service OtelCollector "OpenTelemetry Collector" icon=docker @src="otel/collector
 database JaegerGrafana "Jaeger & Grafana Cloud" icon=datadog
 
 beat trace_propagation "1. Context Injection & Downstream Propagation":
-  show $nodes stagger=50ms
+  show WebFrontend ApiGateway OrderService OtelCollector stagger=50ms
   WebFrontend -> ApiGateway "POST /checkout [traceparent: 00-4bf92...]"
   ApiGateway -> OrderService "Forward [traceparent: 00-4bf92...]"
   WebFrontend ~> OtelCollector "Async Span: browser_render (42ms)"
 
 beat collector_export "2. OTLP gRPC Batch Ingestion & Indexing":
+  show JaegerGrafana stagger=50ms
   ApiGateway ~> OtelCollector "Async Span: gateway_auth (12ms)"
   OrderService ~> OtelCollector "Async Span: db_transaction (88ms)"
   OtelCollector -> JaegerGrafana "Export OTLP Batch (Traces + Metrics)"

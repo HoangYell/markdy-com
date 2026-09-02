@@ -1020,6 +1020,18 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
   ],
   "examples/29-agentic-react-tool-orchestrator.markdy": [
     {
+      "icon": "terminal",
+      "id": "Workspace",
+      "kind": "browser",
+      "role": "client",
+    },
+    {
+      "icon": "server",
+      "id": "AgentCore",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
       "icon": "database",
       "id": "VectorStore",
       "kind": "database",
@@ -1039,21 +1051,9 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
     },
     {
       "icon": "server",
-      "id": "AgentCore",
-      "kind": "service",
-      "role": "compute",
-    },
-    {
-      "icon": "server",
       "id": "K8sCluster",
       "kind": "service",
       "role": "compute",
-    },
-    {
-      "icon": "terminal",
-      "id": "Workspace",
-      "kind": "browser",
-      "role": "client",
     },
   ],
   "examples/30-active-active-failover-consensus.markdy": [

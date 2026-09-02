@@ -724,6 +724,7 @@ export function buildCueAnimations(
     ),
   );
 
+  const shownNodeSet = new Set<string>();
   for (const cue of cues) {
     const startMs = cue.start * 1000;
     const durMs = cue.duration * 1000;
@@ -733,12 +734,22 @@ export function buildCueAnimations(
         const el = nodeEls.get(id);
         const delay = startMs + (typeof cue.params.stagger === "number" ? cue.params.stagger * 1000 * idx : 0);
         if (el) {
-          anims.push(
-            el.animate(
-              [{ opacity: 0, transform: "translateY(10px) scale(0.98)" }, { opacity: 1, transform: "translateY(0) scale(1)" }],
-              { duration: durMs, delay, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-            ),
-          );
+          if (!shownNodeSet.has(id)) {
+            shownNodeSet.add(id);
+            anims.push(
+              el.animate(
+                [{ opacity: 0, transform: "translateY(10px) scale(0.98)" }, { opacity: 1, transform: "translateY(0) scale(1)" }],
+                { duration: durMs, delay, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+              ),
+            );
+          } else {
+            anims.push(
+              el.animate(
+                [{ transform: "scale(1)" }, { transform: "scale(1.03)" }, { transform: "scale(1)" }],
+                { duration: durMs, delay, fill: "none", easing: "ease-in-out" },
+              ),
+            );
+          }
           return;
         }
         const runtime = edgeRuntimes.get(id);
@@ -866,7 +877,21 @@ export function buildCueAnimations(
         if (runtime.labelRect) placedLabels.push(runtime.labelRect);
         if (edgeId) edgeRuntimes.set(edgeId, runtime);
       }
-      anims.push(...animateEdgeReveal(runtime, startMs, durMs));
+      // Auto-reveal nodes participating in this flow if not explicitly shown yet
+      for (const id of [seg.from, seg.to]) {
+        if (!shownNodeSet.has(id)) {
+          shownNodeSet.add(id);
+          const el = nodeEls.get(id);
+          if (el) {
+            anims.push(
+              el.animate(
+                [{ opacity: 0, transform: "translateY(8px) scale(0.98)" }, { opacity: 1, transform: "translateY(0) scale(1)" }],
+                { duration: 320, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+              ),
+            );
+          }
+        }
+      }
 
       // Destination arrival micro-pulse on target node
       const toEl = nodeEls.get(seg.to);
