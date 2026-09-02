@@ -1,0 +1,23 @@
+scene "Zero-Trust Mesh & Enclave Security" theme=blueprint
+layout LR
+
+gateway CloudflareEdge "Cloudflare Edge WAF" icon=cloudflare
+service IdentityOIDC "Identity Provider (OIDC)" icon=keycloak
+service PolicyEngineOPA "Policy Engine (OPA)" icon=opa @src="policies/access.rego#L1"
+service EnclaveWorker "AWS Nitro Enclave" icon=aws @src="src/enclave/runner.c#L50"
+service SecretVault "HashiCorp Vault" icon=vault @src="vault/config.hcl#L1"
+database AuditStore "Immutable S3 Audit" icon=s3
+
+beat zero_trust_auth "1. Continuous Zero-Trust Authentication":
+  show $nodes stagger=50ms
+  CloudflareEdge -> IdentityOIDC "Authenticate Request Claims"
+  CloudflareEdge <- IdentityOIDC "Cryptographic Identity Token"
+  CloudflareEdge -> PolicyEngineOPA "Evaluate RBAC/ABAC Context"
+  CloudflareEdge <- PolicyEngineOPA "Policy Decision: ALLOW"
+
+beat enclave_computation "2. Enclave Key Decryption & WORM Audit":
+  CloudflareEdge -> EnclaveWorker "Execute Confidential Function"
+  EnclaveWorker -> SecretVault "Request Ephemeral Secret"
+  EnclaveWorker <- SecretVault "Granted (One-Time)"
+  EnclaveWorker ~> AuditStore "Emit Cryptographic Audit Record"
+  glow EnclaveWorker color=#5ba3ff & glow SecretVault color=#fb7185

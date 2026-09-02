@@ -11,13 +11,24 @@ import {
   getIntelliCodeCompletions,
   predictNextLineSuggestion,
   getArchitectureSuggestions,
+  recommendArchitecturePattern,
+  getArchitectureRecipe,
+  listArchitectureRecipes,
+  verifyDiagramQuality,
+  analyzeC4Model,
+  filterC4Hierarchy,
+  generateC4Storyboard,
+  detectArchitectureDrift,
+  type C4Level,
   type DiagramAST,
   type Diagnostic,
   type ArchitectureRule,
   type MarkdyConfig,
+  type QualityGateReport,
+  type QualityProfile,
 } from "@markdy/core";
 import { createRequire } from "node:module";
-import { basename, dirname, extname, join, resolve, sep } from "node:path";
+import { basename, dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { readdir, readFile, stat, writeFile } from "node:fs/promises";
@@ -105,6 +116,18 @@ export async function runCli(
       return aiCommand(parsed, io, runtime);
     case "suggest":
       return suggestCommand(parsed, io);
+    case "guide":
+      return guideCommand(parsed, io);
+    case "recipe":
+      return recipeCommand(parsed, io);
+    case "verify":
+    case "doctor":
+      return verifyCommand(parsed, io);
+    case "drift":
+    case "sync":
+      return driftCommand(parsed, io);
+    case "c4":
+      return c4Command(parsed, io);
     case "check":
       return checkCommand(parsed, io);
     case "check-all":
@@ -338,6 +361,108 @@ async function explainCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult>
   return { exitCode: 0 };
 }
 
+async function guideCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
+  const query = parsed.positionals.join(" ").trim();
+  const jsonMode = hasFlag(parsed, "json");
+
+  if (!query) {
+    const recipes = listArchitectureRecipes();
+    if (jsonMode) {
+      io.stdout(JSON.stringify(recipes, null, 2));
+    } else {
+      io.stdout("Markdy Architecture Recipe Catalog:\n");
+      for (const r of recipes) {
+        io.stdout(`  • [${r.id}] ${r.name} (${r.category}) - ${r.description}`);
+      }
+      io.stdout('\nRun `markdy guide "<query>"` or `markdy recipe <id>` to view full blueprint code.');
+    }
+    return { exitCode: 0 };
+  }
+
+  const recommendations = recommendArchitecturePattern(query);
+  if (jsonMode) {
+    io.stdout(JSON.stringify(recommendations, null, 2));
+    return { exitCode: 0 };
+  }
+
+  const top = recommendations[0];
+  io.stdout(`\n✨ Recommended Architecture Pattern: ${top.recipe.name} (${top.recipe.id})`);
+  io.stdout(`Category: ${top.recipe.category} | Layout: ${top.recipe.recommendedLayout}`);
+  io.stdout(`Rationale: ${top.rationale}\n`);
+  io.stdout("Highlights:");
+  for (const hl of top.recipe.highlights) {
+    io.stdout(`  - ${hl}`);
+  }
+  io.stdout("\nCanonical Markdy Blueprint:\n");
+  io.stdout(top.recipe.code);
+  return { exitCode: 0 };
+}
+
+async function recipeCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
+  const recipeId = parsed.positionals[0];
+  const jsonMode = hasFlag(parsed, "json");
+
+  if (!recipeId) {
+    return guideCommand(parsed, io);
+  }
+
+  const recipe = getArchitectureRecipe(recipeId);
+  if (!recipe) {
+    io.stderr(`markdy recipe: no recipe found for '${recipeId}'. Run 'markdy guide' to list available recipes.`);
+    return { exitCode: 1 };
+  }
+
+  if (jsonMode) {
+    io.stdout(JSON.stringify(recipe, null, 2));
+  } else {
+    io.stdout(recipe.code);
+  }
+  return { exitCode: 0 };
+}
+
+async function verifyCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
+  const file = parsed.positionals[0];
+  if (!file) {
+    io.stderr("markdy verify: expected a .markdy input file");
+    return { exitCode: 1 };
+  }
+
+  const qualityFlag = getStringFlag(parsed, "quality");
+  const profile: QualityProfile = qualityFlag === "showcase" ? "showcase" : "standard";
+  const jsonMode = hasFlag(parsed, "json");
+
+  const scene = await loadSceneFromFile(file);
+  const report = verifyDiagramQuality(scene.ast, { profile });
+
+  if (jsonMode) {
+    io.stdout(JSON.stringify(report, null, 2));
+    return { exitCode: report.passed ? 0 : 1 };
+  }
+
+  io.stdout("\n🔍 Markdy 9-Point Quality Gate & Viewport Verification");
+  io.stdout(`File: ${scene.filePath}`);
+  io.stdout(`Profile: ${report.qualityProfile.toUpperCase()} | SHA-256 Receipt: ${report.sha256Receipt}`);
+  io.stdout(`Status: ${report.passed ? "✅ PASSED" : "❌ FAILED"} (Errors: ${report.errorCount}, Warnings: ${report.warningCount})\n`);
+
+  io.stdout("Checks:");
+  for (const check of report.checks) {
+    const symbol = check.status === "pass" ? "✓" : check.status === "warn" ? "⚠" : "✗";
+    io.stdout(`  ${symbol} [${check.id}] ${check.name}: ${check.message}`);
+  }
+
+  io.stdout("\nViewport Compliance:");
+  for (const [vp, compliant] of Object.entries(report.viewportCompliance)) {
+    io.stdout(`  • ${vp}: ${compliant ? "✓ PASS" : "✗ OVERFLOW"}`);
+  }
+
+  io.stdout("\nMetrics:");
+  io.stdout(`  Nodes: ${report.metrics.nodeCount} | Edges: ${report.metrics.edgeCount} | Story Beats: ${report.metrics.beatCount}`);
+  io.stdout(`  Estimated Dimensions: ${report.metrics.estimatedWidth}×${report.metrics.estimatedHeight} (Aspect Ratio: ${report.metrics.aspectRatio})`);
+  io.stdout(`  Code Provenance Anchors: ${report.metrics.provenanceAnchorCount} | Vector Symbols: ${report.metrics.symbolCount}\n`);
+
+  return { exitCode: report.passed ? 0 : 1 };
+}
+
 async function newCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
   const target = parsed.positionals[0] ?? "scene.markdy";
   const force = hasFlag(parsed, "force");
@@ -380,6 +505,10 @@ async function importCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> 
 
   if (formatFlag === "mermaid" || ext === ".mmd" || ext === ".mermaid") {
     markdyCode = compat.transpileMermaidToMarkdy(content, title).code;
+  } else if (formatFlag === "d2" || ext === ".d2") {
+    markdyCode = compat.transpileD2ToMarkdy(content).markdyScript;
+  } else if (formatFlag === "plantuml" || formatFlag === "puml" || ext === ".puml" || ext === ".plantuml" || content.includes("@startuml")) {
+    markdyCode = compat.transpilePlantUmlToMarkdy(content).markdyScript;
   } else if (formatFlag === "compose" || ((ext === ".yml" || ext === ".yaml") && (inputFile.includes("compose") || content.includes("services:")))) {
     markdyCode = compat.transpileDockerComposeToMarkdy(content, title);
   } else if (formatFlag === "k8s" || (content.includes("apiVersion:") && content.includes("kind:"))) {
@@ -430,6 +559,89 @@ async function diffCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
   }
 
   io.stdout(diffResult.summaryMarkdown);
+  return { exitCode: 0 };
+}
+
+async function collectRepoFiles(dir: string, baseDir: string = dir): Promise<string[]> {
+  const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
+  const files: string[] = [];
+  for (const entry of entries) {
+    if (entry.name.startsWith(".") || entry.name === "node_modules" || entry.name === "dist" || entry.name === "build") {
+      continue;
+    }
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      files.push(...await collectRepoFiles(full, baseDir));
+    } else if (entry.isFile()) {
+      files.push(relative(baseDir, full).replace(/\\/g, "/"));
+    }
+  }
+  return files;
+}
+
+async function driftCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
+  const file = parsed.positionals[0];
+  if (!file) {
+    io.stderr("markdy drift: expected a .markdy input file (e.g. markdy drift system.markdy)");
+    return { exitCode: 1 };
+  }
+
+  const scene = await loadSceneFromFile(file).catch((err) => {
+    io.stderr(`markdy drift: ${describeError(err)}`);
+    return null;
+  });
+  if (!scene) return { exitCode: 1 };
+
+  const repoRoot = resolve(getStringFlag(parsed, "repo") || process.cwd());
+  const repoFiles = await collectRepoFiles(repoRoot);
+  const report = detectArchitectureDrift(scene.ast, repoFiles);
+
+  if (hasFlag(parsed, "json")) {
+    io.stdout(JSON.stringify(report, null, 2));
+    return { exitCode: report.isSynchronized ? 0 : 1 };
+  }
+
+  io.stdout(report.summaryMarkdown);
+  if (report.healingMarkdySnippet) {
+    io.stdout("\n✨ Suggested MarkdyScript Additions:\n```markdy\n" + report.healingMarkdySnippet + "\n```\n");
+  }
+
+  return { exitCode: report.isSynchronized ? 0 : 1 };
+}
+
+async function c4Command(parsed: ParsedArgs, io: CliIo): Promise<RunResult> {
+  const file = parsed.positionals[0];
+  if (!file) {
+    io.stderr("markdy c4: expected a .markdy input file (e.g. markdy c4 system.markdy)");
+    return { exitCode: 1 };
+  }
+
+  const scene = await loadSceneFromFile(file).catch((err) => {
+    io.stderr(`markdy c4: ${describeError(err)}`);
+    return null;
+  });
+  if (!scene) return { exitCode: 1 };
+
+  if (hasFlag(parsed, "storyboard")) {
+    const storyboard = generateC4Storyboard(scene.ast);
+    io.stdout(storyboard);
+    return { exitCode: 0 };
+  }
+
+  const levelFlag = getStringFlag(parsed, "level") as C4Level | undefined;
+  if (levelFlag) {
+    const { visibleNodeIds } = filterC4Hierarchy(scene.ast, levelFlag);
+    io.stdout(`C4 Level [${levelFlag.toUpperCase()}]: ${visibleNodeIds.length} nodes visible (${visibleNodeIds.join(", ")})`);
+    return { exitCode: 0 };
+  }
+
+  const report = analyzeC4Model(scene.ast);
+  if (hasFlag(parsed, "json")) {
+    io.stdout(JSON.stringify(report, null, 2));
+    return { exitCode: 0 };
+  }
+
+  io.stdout(report.summaryMarkdown);
   return { exitCode: 0 };
 }
 
@@ -1493,6 +1705,9 @@ function helpText(): string {
     "  markdy lint <file-or-dir> [--strict] [--arch-rules]",
     "  markdy fmt <file-or-dir> [--write | --check]",
     "  markdy render <file.markdy> [--out file.html] [--port 4242] [--no-open]",
+    "  markdy verify <file.markdy> [--quality showcase] [--json]",
+    "  markdy guide [scenario-query] [--json]",
+    "  markdy recipe <recipe-id> [--json]",
     "  markdy explain <file.markdy> [--json]",
     "  markdy import <file> [--from compose|k8s|terraform|mermaid] [--out scene.markdy]",
     "  markdy diff <before.markdy> <after.markdy> [--evolution]",
@@ -1575,7 +1790,12 @@ function expectsValue(flag: string): boolean {
     flag === "dist" ||
     flag === "from" ||
     flag === "line" ||
-    flag === "col"
+    flag === "col" ||
+    flag === "quality" ||
+    flag === "level" ||
+    flag === "repo" ||
+    flag === "theme" ||
+    flag === "format"
   );
 }
 

@@ -261,6 +261,30 @@ export const ARCH_RULE_PRESETS: Record<string, ArchitecturePreset> = {
       },
     ],
   },
+  deploymentOwnership: {
+    id: "deployment-ownership",
+    name: "Deployment Ownership & Regional Governance",
+    description: "Ensure production stateful stores and services are guarded in explicit group perimeters",
+    rules: [
+      {
+        id: "no-unprotected-public-database",
+        name: "No Public Database Exposure",
+        description: "Databases and stateful stores must not be directly accessed from public browser/mobile clients.",
+        severity: "error",
+        type: "cannot-connect",
+        from: { roleEquals: "client" },
+        to: { roleEquals: "data" },
+      },
+      {
+        id: "no-cross-region-sync-bypasses",
+        name: "Synchronous Request Cycle Prevention",
+        description: "Synchronous requests must not form cycles across microservices.",
+        severity: "error",
+        type: "forbidden-cycle",
+        edge: { kind: "request" },
+      },
+    ],
+  },
 };
 
 export function validateArchitecture(

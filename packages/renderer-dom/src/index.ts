@@ -25,3 +25,16 @@ export {
   clearImpactHighlight,
 } from "./impact.js";
 export type { BlastRadiusResult } from "./impact.js";
+
+export {
+  renderShareCardSvg,
+  exportDiagramAsShareCard,
+  exportRouteShareCard,
+  exportReachShareCard,
+} from "./export/share-card.js";
+export type {
+  ShareCardOptions,
+  RouteCardOptions,
+  ReachCardOptions,
+} from "./export/share-card.js";
+

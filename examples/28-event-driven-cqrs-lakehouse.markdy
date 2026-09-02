@@ -1,0 +1,24 @@
+scene "Event-Driven CQRS & Medallion Lakehouse" theme=midnight
+layout LR
+
+gateway CommandAPI "Command API" icon=nginx
+service CommandSvc "Command Engine" icon=golang @src="src/commands/order.go#L30"
+queue KafkaTopic "Kafka Event Bus" icon=kafka
+service SparkJob "Spark Streaming Cleanser" icon=spark @src="jobs/cleanse.py#L12"
+database DeltaSilver "Delta Lake (Silver)" icon=delta
+database SnowflakeGold "Snowflake (Gold Tier)" icon=snowflake
+browser AnalyticsBI "Apache Superset" icon=superset
+
+beat write_event "1. Command Append & Kafka Stream":
+  show $nodes stagger=50ms
+  CommandAPI -> CommandSvc "POST /orders/checkout"
+  CommandSvc ~> KafkaTopic "Publish OrderPlacedEvent"
+  CommandAPI <- CommandSvc "202 Accepted (Queued)"
+
+beat lakehouse_pipeline "2. Medallion Ingestion & Dimensional Serving":
+  KafkaTopic -> SparkJob "Micro-Batch Stream"
+  SparkJob -> DeltaSilver "Upsert Deduplicated Parquet"
+  DeltaSilver -> SnowflakeGold "Sync Materialized Dimension"
+  AnalyticsBI -> SnowflakeGold "Query Executive KPI Dashboard"
+  AnalyticsBI <- SnowflakeGold "Render Real-Time Metrics"
+  glow KafkaTopic color=#fbbf24 & glow SnowflakeGold color=#38bdf8

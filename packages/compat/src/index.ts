@@ -37,3 +37,14 @@ export type {
   DrawioCell,
   DrawioModel,
 } from "./infra/drawio-transpiler.js";
+
+export {
+  transpileD2ToMarkdy,
+} from "./infra/d2-transpiler.js";
+export type { D2TranspileResult } from "./infra/d2-transpiler.js";
+
+export {
+  transpilePlantUmlToMarkdy,
+} from "./infra/plantuml-transpiler.js";
+export type { PlantUmlTranspileResult } from "./infra/plantuml-transpiler.js";
+

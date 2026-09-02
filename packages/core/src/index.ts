@@ -170,3 +170,48 @@ export type {
 } from "./intellicode.js";
 
 export { formatScene } from "./format.js";
+
+export {
+  ARCHITECTURE_RECIPES,
+  recommendArchitecturePattern,
+  getArchitectureRecipe,
+  listArchitectureRecipes,
+} from "./recipes.js";
+export type {
+  ArchitectureRecipe,
+  PatternRecommendationResult,
+} from "./recipes.js";
+
+export {
+  verifyDiagramQuality,
+} from "./verifier.js";
+export type {
+  QualityProfile,
+  QualityCheckItem,
+  DiagramQualityMetrics,
+  QualityGateReport,
+  QualityGateOptions,
+} from "./verifier.js";
+
+export {
+  inferNodeC4Level,
+  analyzeC4Model,
+  filterC4Hierarchy,
+  generateC4Storyboard,
+} from "./c4.js";
+export type {
+  C4Level,
+  C4NodeMeta,
+  C4ModelReport,
+} from "./c4.js";
+
+export {
+  detectArchitectureDrift,
+} from "./drift.js";
+export type {
+  BrokenAnchorDrift,
+  OrphanCodeServiceDrift,
+  ArchitectureDriftReport,
+} from "./drift.js";
+
+

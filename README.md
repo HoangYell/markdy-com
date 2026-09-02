@@ -193,7 +193,11 @@ beat workflow:
 | **Code Provenance Anchors** | `@src="path/file.ts#L10"` | Guaranteed synchronization between architecture diagrams and real Git code |
 | **Evolution Git-Diff** | `diffDiagramASTs(v1, v2)` | Automated visual diffing and animated migration timeline generation |
 | **Blast Radius Lens** | `calculateBlastRadius(node, ast)` | Real-time upstream impact and downstream failure cascade isolation |
+| **Contextual Share Cards (1200×630)** | `exportRouteShareCard()`, `exportReachShareCard()` | High-impact social & README cards with active route/blast-radius telemetry |
+| **9-Point Showcase Quality Gate** | `markdy verify <file> --quality showcase` | Deterministic SHA-256 integrity receipt & responsive viewport validation |
+| **Architecture Recipe Guidance** | `markdy guide "<query>"` | Instant AI scenario pattern matching for cache-aside, EDA, zero-trust, and lakehouse |
 | **Native Vector Symbols** | `icon=redis`, `icon=kafka` | Zero-CDN, lightweight vector badges embedded directly in the artifact |
+
 
 
 ---

@@ -121,7 +121,7 @@ function parseProps(raw: string): Record<string, unknown> {
       i = raw.length - parsed.rest.length;
       continue;
     }
-    const keyMatch = raw.slice(i).match(/^(\w[\w.-]*)=/);
+    const keyMatch = raw.slice(i).match(/^(@?[\w.-]+)=/);
     if (!keyMatch) {
       i++;
       continue;
