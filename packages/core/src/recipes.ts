@@ -278,8 +278,8 @@ beat tool_execution "2. MCP Tool Execution & Observation":
   AgentOrchestrator -> MCPToolExecutor "Execute Tool Request"
   MCPToolExecutor -> SandboxRuntime "Spawn Container & Execute"
   MCPToolExecutor <- SandboxRuntime "Output: deployment created"
-  MCPToolExecutor ~> AgentOrchestrator "Observation Receipt"
-  AgentOrchestrator -> UserClient "Goal Achieved: Deployed successfully"
+  AgentOrchestrator <- MCPToolExecutor "Observation Receipt"
+  UserClient <- AgentOrchestrator "Goal Achieved: Deployed successfully"
   glow AgentOrchestrator color=#c4b5fd & glow MCPToolExecutor color=#67e8f9
 `,
   },

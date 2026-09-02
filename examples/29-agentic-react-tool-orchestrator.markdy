@@ -20,6 +20,6 @@ beat tool_execution "2. MCP Tool Invocation & Verification":
   AgentCore -> MCPServer "Invoke MCP Tool"
   MCPServer -> K8sCluster "kubectl scale --replicas=5"
   MCPServer <- K8sCluster "Deployment successfully updated"
-  MCPServer ~> AgentCore "Tool Observation Payload"
-  AgentCore -> Workspace "Goal Complete: Replicas scaled to 5"
+  AgentCore <- MCPServer "Tool Observation Payload"
+  Workspace <- AgentCore "Goal Complete: Replicas scaled to 5"
   glow AgentCore color=#c4b5fd & glow K8sCluster color=#67e8f9
