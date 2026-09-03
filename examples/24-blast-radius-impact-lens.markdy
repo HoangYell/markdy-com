@@ -3,13 +3,13 @@
 scene "Blast Radius & Topology Impact Lens" theme=midnight
 layout LR
 
-client Ingest "Ingest Producer"
-gateway Router "Ingress Router"
-service Worker "Processing Engine"
-service Transform "Data Transformer"
-cache HotBuffer "Redis Buffer"
-database CentralStore "Primary Warehouse"
-service Analytics "Real-Time Dashboard"
+client Ingest "Ingest Producer" icon=terminal
+gateway Router "Ingress Router" icon=nginx
+service Worker "Processing Engine" icon=golang
+service Transform "Data Transformer" icon=python stroke="#ef4444" accent="#ef4444" tech="Root Fault"
+cache HotBuffer "Redis Buffer" icon=redis stroke="#f97316" accent="#f97316" tech="Blast Radius"
+database CentralStore "Primary Warehouse" icon=postgres stroke="#f97316" accent="#f97316" tech="Blast Radius"
+service Analytics "Real-Time Dashboard" icon=grafana
 
 beat pipeline_flow:
   show $nodes stagger=60ms
@@ -19,7 +19,6 @@ beat pipeline_flow:
   Transform -> CentralStore "Bulk Commit"
   CentralStore -> Analytics "Query Materialized View"
 
-beat simulate_impact:
-  frame Transform HotBuffer CentralStore zoom=1.15
-  glow Transform color=#fbbf24
-  glow HotBuffer color=#fb7185 & glow CentralStore color=#fb7185
+beat simulate_impact "Cascading Blast Radius & Impact Lens":
+  glow Transform color=#ef4444
+  glow HotBuffer color=#f97316 & glow CentralStore color=#f97316

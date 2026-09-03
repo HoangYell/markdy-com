@@ -877,6 +877,7 @@ export function buildCueAnimations(
         if (runtime.labelRect) placedLabels.push(runtime.labelRect);
         if (edgeId) edgeRuntimes.set(edgeId, runtime);
       }
+      anims.push(...animateEdgeReveal(runtime, startMs, durMs));
       // Auto-reveal nodes participating in this flow if not explicitly shown yet
       for (const id of [seg.from, seg.to]) {
         if (!shownNodeSet.has(id)) {

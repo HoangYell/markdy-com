@@ -383,21 +383,20 @@ export function placeFlowLabel(
     }
 
     // Perpendicular offsets above / below / left / right
-    const perpStep = halfH + 8;
-    for (let k = 1; k <= 3; k++) {
-      const stepPerp = k * perpStep;
+    const perpSteps = [halfH + 8, halfH + 22, halfH + 38, halfH + 56];
+    perpSteps.forEach((stepPerp, k) => {
       if (horizontal) {
         candidates.push(
-          { x: mid.x, y: mid.y - stepPerp, penalty: 20 + k * 6 },
-          { x: mid.x, y: mid.y + stepPerp, penalty: 24 + k * 6 },
+          { x: mid.x, y: mid.y - stepPerp, penalty: 20 + k * 8 },
+          { x: mid.x, y: mid.y + stepPerp, penalty: 24 + k * 8 },
         );
       } else {
         candidates.push(
-          { x: mid.x - stepPerp, y: mid.y, penalty: 20 + k * 6 },
-          { x: mid.x + stepPerp, y: mid.y, penalty: 24 + k * 6 },
+          { x: mid.x - stepPerp, y: mid.y, penalty: 20 + k * 8 },
+          { x: mid.x + stepPerp, y: mid.y, penalty: 24 + k * 8 },
         );
       }
-    }
+    });
 
     for (const cand of candidates) {
       const cx = clamp(cand.x, pad + halfW, bounds.width - pad - halfW);
@@ -643,8 +642,9 @@ export function routeOrthogonal(
       sY = clamp(sourceCenter.y + dirSign * 12, sourceRect.y1 + 10, sourceRect.y2 - 10);
       tY = clamp(targetCenter.y - dirSign * 12, targetRect.y1 + 10, targetRect.y2 - 10);
     } else {
-      sY = clamp(sourceCenter.y + (lane > 0 ? (lane % 2 === 1 ? 4 : -4) : 0), sourceRect.y1 + 10, sourceRect.y2 - 10);
-      tY = clamp(targetCenter.y + (lane > 0 ? (lane % 2 === 1 ? 4 : -4) : 0), targetRect.y1 + 10, targetRect.y2 - 10);
+      const fwdShift = lane > 0 ? (lane % 2 === 1 ? 14 : -14) : 0;
+      sY = clamp(sourceCenter.y + fwdShift, sourceRect.y1 + 10, sourceRect.y2 - 10);
+      tY = clamp(targetCenter.y + fwdShift, targetRect.y1 + 10, targetRect.y2 - 10);
     }
 
     const sPort: Point = { x: sourceRect.x2, y: sY };
@@ -715,6 +715,10 @@ export function routeOrthogonal(
       const dirSign = Math.sign(dy);
       sY = clamp(sourceCenter.y + dirSign * 12, sourceRect.y1 + 10, sourceRect.y2 - 10);
       tY = clamp(targetCenter.y - dirSign * 12, targetRect.y1 + 10, targetRect.y2 - 10);
+    } else {
+      const retShift = lane > 0 ? (lane % 2 === 1 ? -16 : 16) : 14;
+      sY = clamp(sourceCenter.y + retShift, sourceRect.y1 + 10, sourceRect.y2 - 10);
+      tY = clamp(targetCenter.y + retShift, targetRect.y1 + 10, targetRect.y2 - 10);
     }
     const sPortL: Point = { x: sourceRect.x1, y: sY };
     const tPortR: Point = { x: targetRect.x2, y: tY };

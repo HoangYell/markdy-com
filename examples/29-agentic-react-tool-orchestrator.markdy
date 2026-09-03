@@ -14,7 +14,7 @@ beat reasoning_loop "1. Context Retrieval & Thought Formulation":
   AgentCore -> VectorStore "Query Similarity Embedding"
   AgentCore <- VectorStore "Top-3 Matched Runbooks"
   AgentCore -> LLMInference "Generate Plan & Tool Call"
-  AgentCore <- LLMInference "ToolCall: k8s_scale(replicas=5)"
+  AgentCore <- LLMInference "ToolCall: scale_k8s(5)"
 
 beat tool_execution "2. MCP Tool Invocation & Verification":
   AgentCore -> MCPServer "Invoke MCP Tool"

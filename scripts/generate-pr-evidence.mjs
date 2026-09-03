@@ -11,10 +11,16 @@ const __dirname = dirname(__filename);
 const rootDir = resolve(__dirname, '..');
 
 function resolveChromePath() {
+  const customWrapper = '/home/ya/bin/google-chrome';
+  if (fs.existsSync(customWrapper)) {
+    return customWrapper;
+  }
   if (process.env.CHROME_PATH && fs.existsSync(process.env.CHROME_PATH)) {
     return process.env.CHROME_PATH;
   }
   const defaultPaths = [
+    '/home/ya/bin/google-chrome',
+    '/home/ya/bin/chromium',
     '/snap/bin/chromium',
     '/usr/bin/chromium-browser',
     '/usr/bin/chromium',
@@ -58,19 +64,19 @@ const evidenceCards = [
   {
     file: '02-blast-radius-reach-card.webp',
     sourceFile: 'examples/24-blast-radius-impact-lens.markdy',
-    seekPercent: 0.95,
+    seekPercent: 0.65,
     title: 'Blast Radius & Cascading Failure Isolation Lens',
     badge1: '💥 Blast Radius Impact Lens',
     badge2: '🛡️ Outage Cascade Isolation',
     tag: 'blast-radius // impact-lens',
     theme: 'midnight',
-    stickyNote: '💥 <b>Failure Propagation:</b><br/>• Locates root origin: <code>Transform Engine</code><br/>• Calculates transitive downstream risk<br/>• Prevents cascading outages across services 🛡️',
+    stickyNote: '💥 <b>Failure Propagation:</b><br/>• Fault Origin: <code>Data Transformer</code><br/>• Cascading Impact: Buffer & Warehouse<br/>• Prevents cascading outages across services 🛡️',
     explanation: '<b>Blast Radius Lens:</b><br/>Instantly projects cascading service impact and upstream caller dependencies when an outage occurs! 💥🛡️',
   },
   {
     file: '03-zero-trust-enclave-blueprint.webp',
     sourceFile: 'examples/27-zero-trust-mesh-blueprint.markdy',
-    seekPercent: 0.95,
+    seekPercent: 0.60,
     title: 'Zero-Trust Security Mesh & AWS Nitro Enclave',
     badge1: '🛡️ Zero-Trust Security Mesh',
     badge2: '🔒 AWS Nitro Enclave + Vault',
@@ -82,7 +88,7 @@ const evidenceCards = [
   {
     file: '04-event-driven-cqrs-lakehouse.webp',
     sourceFile: 'examples/28-event-driven-cqrs-lakehouse.markdy',
-    seekPercent: 0.95,
+    seekPercent: 0.60,
     title: 'Event-Driven CQRS & Medallion Lakehouse Pipeline',
     badge1: '📊 Medallion Lakehouse Tiers',
     badge2: '📬 Kafka & Spark Streaming',
@@ -94,7 +100,7 @@ const evidenceCards = [
   {
     file: '05-agentic-react-ai-orchestrator.webp',
     sourceFile: 'examples/29-agentic-react-tool-orchestrator.markdy',
-    seekPercent: 0.95,
+    seekPercent: 0.60,
     title: 'Autonomous ReAct AI Agent Orchestration Loop',
     badge1: '🤖 Autonomous ReAct Agent',
     badge2: '🛠️ Model Context Protocol (MCP)',
@@ -106,7 +112,7 @@ const evidenceCards = [
   {
     file: '06-active-active-failover-consensus.webp',
     sourceFile: 'examples/30-active-active-failover-consensus.markdy',
-    seekPercent: 0.95,
+    seekPercent: 0.60,
     title: 'Active-Active Multi-Region Resilient Quorum',
     badge1: '🌐 Active-Active Multi-Region',
     badge2: '⚖️ Raft Consensus Witness',
@@ -135,7 +141,7 @@ function generateCardHtml(cardIndex) {
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       width: 1600px; height: 900px; overflow: hidden;
-      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: "Noto Color Emoji", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: radial-gradient(ellipse at 50% 25%, #ffffff 0%, #faf8f5 55%, #f2eee6 100%);
       color: #0f172a; position: relative; -webkit-font-smoothing: antialiased; padding: 20px 24px;
     }
@@ -199,16 +205,16 @@ function generateCardHtml(cardIndex) {
     .diagram-viewport {
       flex: 1; position: relative; background: ${isDarkTheme ? '#0b1120' : '#ffffff'};
       overflow: hidden; display: flex; align-items: center; justify-content: center;
-      padding: 10px 14px 14px 14px;
+      padding: 24px 28px 28px 28px;
     }
     #stage { width: 100%; height: 100%; position: relative; }
     .markdy-diagram { width: 100% !important; height: 100% !important; }
     .sticky-note-container {
-      position: absolute; bottom: 16px; left: 16px; z-index: 25; transform: rotate(-1deg);
+      position: absolute; bottom: 24px; left: 24px; z-index: 40; transform: rotate(-1deg);
     }
     .sticky-pin-icon {
       position: absolute; top: -14px; left: 14px; width: 34px; height: 34px;
-      z-index: 30; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25)); transform: rotate(-8deg);
+      z-index: 45; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25)); transform: rotate(-8deg);
     }
     .sticky-note-card {
       background: #fef08a; color: #713f12; padding: 14px 18px 14px 20px; border-radius: 12px;
@@ -217,14 +223,14 @@ function generateCardHtml(cardIndex) {
     }
     .sticky-note-card b { color: #854d0e; }
     .mascot-wrapper {
-      position: absolute; right: 0px; bottom: -10px; z-index: 30;
+      position: absolute; right: 24px; bottom: 16px; z-index: 40;
       display: flex; flex-direction: column; align-items: flex-end; pointer-events: none;
     }
     .mascot-bubble {
       background: #ffffff; border-radius: 14px; padding: 10px 14px;
       box-shadow: 0 10px 24px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.06);
       font-size: 12.5px; line-height: 1.4; color: #1e293b; max-width: 320px;
-      margin-bottom: -10px; margin-right: 24px; position: relative; z-index: 35; transform: rotate(1deg);
+      margin-bottom: 2px; margin-right: 20px; position: relative; z-index: 45; transform: rotate(1deg);
     }
     .mascot-bubble::after {
       content: ""; position: absolute; bottom: -9px; right: 50px; width: 0; height: 0;
@@ -303,7 +309,13 @@ function generateCardHtml(cardIndex) {
     import { createDiagram } from "@markdy/renderer-dom";
     const markdyCode = ${JSON.stringify(code)};
     const stage = document.getElementById("stage");
-    const d = createDiagram({ container: stage, code: markdyCode, autoplay: false });
+    const d = createDiagram({
+      container: stage,
+      code: markdyCode,
+      autoplay: false,
+      sceneBoundaryProgress: false,
+      progressBar: false,
+    });
     if (d && typeof d.duration === "function" && typeof d.seek === "function") {
       d.seek(d.duration() * ${meta.seekPercent});
     }

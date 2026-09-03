@@ -824,7 +824,7 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
   ],
   "examples/24-blast-radius-impact-lens.markdy": [
     {
-      "icon": "user",
+      "icon": "terminal",
       "id": "Ingest",
       "kind": "client",
       "role": "client",
