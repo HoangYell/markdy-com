@@ -13,7 +13,7 @@
   <a href="https://markdy.com/playground/"><b>⚡ Live Studio</b></a> &nbsp;•&nbsp;
   <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><b>🔌 VS Code Extension</b></a> &nbsp;•&nbsp;
   <a href="https://markdy.com/docs/"><b>📖 Documentation</b></a> &nbsp;•&nbsp;
-  <a href="https://markdy.com/examples/"><b>🌟 29 Blueprints</b></a> &nbsp;•&nbsp;
+  <a href="https://markdy.com/examples/"><b>🌟 33 Blueprints</b></a> &nbsp;•&nbsp;
   <a href="https://markdy.com/agent/"><b>🤖 AI &amp; Agent Guide</b></a>
 </p>
 
@@ -520,7 +520,7 @@ agy mcp add markdy -- npx -y @markdy/mcp-server
 - 🔄 `transpile_to_markdy`: Convert Mermaid, Docker Compose, Kubernetes, Terraform, or Draw.io into valid MarkdyScript.
 - 📚 `markdy://spec/agent-reference`: Full AST grammar reference and token catalog.
 - 🏛️ `markdy://governance/rules`: Architecture rules (Well-Architected, cycle bounds, layer separation).
-- 📦 `markdy://templates/catalog`: 29 production-grade architecture blueprints.
+- 📦 `markdy://templates/catalog`: 33 production-grade architecture blueprints.
 
 👉 *[Read the Full AI Agent Reference Guide (`AGENT.md`) ↗](https://markdy.com/agent/)*
 </details>

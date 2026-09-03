@@ -241,6 +241,13 @@ export const VECTOR_SYMBOLS: Record<string, VectorSymbol> = {
     svgPaths: `<path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm-1 5h2v6h-2zm0 8h2v2h-2z"/>`,
     brandColor: "#60D0E4",
   },
+  grafana: {
+    name: "Grafana",
+    category: "observability",
+    viewBox: "0 0 24 24",
+    svgPaths: `<path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 14.93c-2.82-.41-5-2.85-5-5.93 0-.82.16-1.6.46-2.31l3.07 3.07c-.12.4-.19.82-.19 1.25 0 1.66 1.34 3 3 3 .43 0 .85-.07 1.25-.19l-2.59-2.59zM16.5 12c0 1.93-1.12 3.6-2.76 4.38l-4.12-4.12A4.47 4.47 0 0 1 12 7.5c2.48 0 4.5 2.02 4.5 4.5z"/>`,
+    brandColor: "#F46800",
+  },
   pagerduty: {
     name: "PagerDuty",
     category: "observability",

@@ -135,7 +135,7 @@ code --install-extension hoangyell.markdy-vscode
 Create a `system.markdy` file, press `Cmd+K V`, and watch your architecture come alive.
 
 ### 2. In Your Browser:
-Visit the interactive [Markdy Web Studio](https://markdy.com/playground/) to experiment with 29 pre-built architecture blueprints (Kafka, Kubernetes, OAuth PKCE, Medallion Lakehouse, Microservices).
+Visit the interactive [Markdy Web Studio](https://markdy.com/playground/) to experiment with 33 pre-built architecture blueprints (Kafka, Kubernetes, OAuth PKCE, Medallion Lakehouse, Microservices).
 
 ### 3. In Your Terminal / CI/CD:
 Render diagrams into standalone interactive HTML or SVG vector bundles:
