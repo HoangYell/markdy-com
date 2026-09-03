@@ -92,9 +92,13 @@ export function transpileD2ToMarkdy(d2Source: string): D2TranspileResult {
         nodes.set(toId, { id: toId, label: toId, kind: inferNodeKind(toId) });
       }
 
+      if (rawOp === "<->") {
+        edges.push({ from: fromId, to: toId, op: "->", label });
+        edges.push({ from: toId, to: fromId, op: "<-", label });
+        continue;
+      }
       let op = "->";
       if (rawOp === "<-") op = "<-";
-      else if (rawOp === "<->") op = "<->";
       else if (rawOp === "--") op = "..>";
 
       edges.push({ from: fromId, to: toId, op, label });

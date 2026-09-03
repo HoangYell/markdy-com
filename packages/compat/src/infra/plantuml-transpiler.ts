@@ -167,9 +167,13 @@ export function transpilePlantUmlToMarkdy(pumlSource: string): PlantUmlTranspile
         nodes.set(toId, { id: toId, label: toId, kind: mapPlantUmlKind("service", toId) });
       }
 
+      if (arrow === "<->") {
+        edges.push({ from: fromId, to: toId, op: "->", label });
+        edges.push({ from: toId, to: fromId, op: "<-", label });
+        continue;
+      }
       let op = "->";
       if (arrow.startsWith("<-")) op = "<-";
-      else if (arrow === "<->") op = "<->";
       else if (arrow.startsWith("--") || arrow === "-") op = "..>";
 
       edges.push({ from: fromId, to: toId, op, label });

@@ -90,5 +90,27 @@ vpc.app -> vpc.cache: "Cache Lookup"
     expect(result.markdyScript).toContain('database vpc_cache "Redis Cache" icon=redis');
     expect(result.markdyScript).toContain('group vpc "vpc": vpc_app vpc_cache');
   });
+
+  it("transpiles D2 and PlantUML bidirectional <-> and dependency -- connectors", () => {
+    const d2 = `
+api <-> cache: sync
+svc -- db: relies on
+`;
+    const d2Res = transpileD2ToMarkdy(d2);
+    expect(d2Res.markdyScript).toContain('api -> cache "sync"');
+    expect(d2Res.markdyScript).toContain('cache <- api "sync"');
+    expect(d2Res.markdyScript).toContain('svc ..> db "relies on"');
+
+    const puml = `
+@startuml
+serviceA <-> serviceB : handshake
+serviceB -- db : persistence
+@enduml
+`;
+    const pumlRes = transpilePlantUmlToMarkdy(puml);
+    expect(pumlRes.markdyScript).toContain('serviceA -> serviceB "handshake"');
+    expect(pumlRes.markdyScript).toContain('serviceB <- serviceA "handshake"');
+    expect(pumlRes.markdyScript).toContain('serviceB ..> db "persistence"');
+  });
 });
 

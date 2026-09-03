@@ -1061,4 +1061,28 @@ beat transition "Cleanup & Concurrent Flow":
       expect(parallel.cues[1].kind).toBe("flow");
     }
   });
+
+  it("parses weak dependency flow operator (..>) into dependency edge kind", () => {
+    const code = `
+scene "Dependency Flow Test"
+service App "App Server"
+database DB "Postgres DB"
+
+beat flow "Flow":
+  App ..> DB "depends on"
+`;
+    const ast = parse(code);
+    expect(ast.beats).toHaveLength(1);
+    const flowCue = ast.beats[0].cues[0];
+    expect(flowCue.kind).toBe("flow");
+    if (flowCue.kind === "flow") {
+      expect(flowCue.segments).toHaveLength(1);
+      expect(flowCue.segments[0]).toEqual({
+        from: "App",
+        op: "dependency",
+        to: "DB",
+        label: "depends on",
+      });
+    }
+  });
 });

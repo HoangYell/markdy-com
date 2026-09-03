@@ -60,7 +60,7 @@ export type ParseOptions = {
   parseOnly?: boolean;
 };
 
-const FLOW_OP_RE = /(->|<-|~>|--)/;
+const FLOW_OP_RE = /(->|<-|~>|--|\.\.>)/;
 
 function stripComment(line: string): string {
   let inString = false;
@@ -244,6 +244,14 @@ function tokenizeFlowChain(line: string): string[] {
     if (ch === '"') {
       inString = true;
       current += ch;
+      continue;
+    }
+    const op3 = line.slice(i, i + 3);
+    if (op3 === "..>") {
+      if (current.trim()) parts.push(current.trim());
+      parts.push(op3);
+      current = "";
+      i += 2;
       continue;
     }
     const op = line.slice(i, i + 2);
