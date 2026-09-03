@@ -169,6 +169,53 @@ function levenshteinDistance(a: string, b: string): number {
   return matrix[b.length][a.length];
 }
 
+function serializeDriftCue(cue: any): string {
+  switch (cue.kind) {
+    case "flow": {
+      const parts: string[] = [];
+      for (let i = 0; i < (cue.segments || []).length; i++) {
+        const seg = cue.segments[i];
+        const opSymbol =
+          seg.op === "response" ? "<-" :
+          seg.op === "event" ? "~>" :
+          seg.op === "dependency" ? "--" : "->";
+        const label = seg.label ? ` "${seg.label}"` : "";
+        if (i === 0) {
+          parts.push(`${seg.from} ${opSymbol} ${seg.to}${label}`);
+        } else {
+          parts.push(`${opSymbol} ${seg.to}${label}`);
+        }
+      }
+      return parts.join(" ");
+    }
+    case "show": {
+      const stagger = cue.stagger
+        ? (cue.stagger < 1 ? ` stagger=${Math.round(cue.stagger * 1000)}ms` : ` stagger=${cue.stagger}s`)
+        : "";
+      return `show ${cue.targets.join(" ")}${stagger}`;
+    }
+    case "hide":
+      return `hide ${cue.targets.join(" ")}`;
+    case "glow": {
+      const col = cue.color ? ` color=${cue.color}` : "";
+      const str = cue.strength ? ` strength=${cue.strength}` : "";
+      return `glow ${cue.targets.join(" ")}${col}${str}`;
+    }
+    case "focus": {
+      const zoom = cue.zoom ? ` zoom=${cue.zoom}` : "";
+      return `focus ${cue.targets.join(" ")}${zoom}`;
+    }
+    case "frame": {
+      const zoom = cue.zoom ? ` zoom=${cue.zoom}` : "";
+      return `frame ${cue.targets.join(" ")}${zoom}`;
+    }
+    case "parallel":
+      return (cue.cues || []).map(serializeDriftCue).join(" & ");
+    default:
+      return "";
+  }
+}
+
 export interface AutoHealResult {
   healedAst: DiagramAST;
   healedMarkdyScript: string;
@@ -224,6 +271,7 @@ export function autoHealArchitectureDrift(
     if (bestMatch) {
       const newPath = `${bestMatch}${lineTag}`;
       node.props = node.props || {};
+      delete node.props["src"];
       node.props["@src"] = newPath;
       healedAnchorCount++;
       healedMappings.push({
@@ -263,20 +311,46 @@ export function autoHealArchitectureDrift(
   lines.push(``);
 
   for (const node of Object.values(clonedNodes)) {
-    const srcProp = node.props?.["@src"] ? ` @src="${node.props["@src"]}"` : "";
+    const rawSrc = node.props?.["@src"] || node.props?.["src"];
+    const srcProp = rawSrc ? ` @src="${rawSrc}"` : "";
     const iconProp = node.props?.["icon"] ? ` icon=${node.props["icon"]}` : "";
     lines.push(`${node.kind || "service"} ${node.id} "${node.label || node.id}"${iconProp}${srcProp}`);
   }
 
-  lines.push(``);
-  lines.push(`beat initial_flow "1. System Flow & Connectivity":`);
-  lines.push(`  show $nodes stagger=50ms`);
+  // Preserve groups if present
+  if (ast.groups && Object.keys(ast.groups).length > 0) {
+    lines.push(``);
+    for (const group of Object.values(ast.groups)) {
+      const label = group.label ? ` "${group.label}"` : "";
+      lines.push(`group ${group.id}${label}: ${group.members.join(" ")}`);
+    }
+  }
 
-  if (ast.edges && ast.edges.length > 0) {
-    for (const edge of ast.edges) {
-      const label = edge.label ? ` "${edge.label}"` : "";
-      const op = (edge as any).op || (edge.kind === "event" ? "~>" : edge.kind === "response" ? "<-" : "->");
-      lines.push(`  ${edge.from} ${op} ${edge.to}${label}`);
+  // Preserve user-authored beats & cues non-destructively
+  if (ast.beats && ast.beats.length > 0) {
+    for (const beat of ast.beats) {
+      lines.push(``);
+      const beatLabel = beat.label ? ` "${beat.label}"` : "";
+      lines.push(`beat ${beat.name}${beatLabel}:`);
+      for (const cue of beat.cues) {
+        const serialized = serializeDriftCue(cue);
+        if (serialized) lines.push(`  ${serialized}`);
+      }
+    }
+  } else {
+    lines.push(``);
+    lines.push(`beat initial_flow "1. System Flow & Connectivity":`);
+    lines.push(`  show $nodes stagger=50ms`);
+
+    if (ast.edges && ast.edges.length > 0) {
+      for (const edge of ast.edges) {
+        const label = edge.label ? ` "${edge.label}"` : "";
+        let op = "->";
+        if (edge.kind === "event") op = "~>";
+        else if (edge.kind === "response") op = "<-";
+        else if (edge.kind === "dependency") op = "--";
+        lines.push(`  ${edge.from} ${op} ${edge.to}${label}`);
+      }
     }
   }
 

@@ -301,7 +301,7 @@ export function validateArchitecture(
   ]
 ): ArchitectureViolation[] {
   const violations: ArchitectureViolation[] = [];
-  const nodes = Object.values(ast.nodes);
+  const nodes = Object.values(ast?.nodes || {});
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
   const edges = extractAllEdges(ast);
 

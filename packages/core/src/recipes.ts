@@ -233,7 +233,7 @@ service SparkCleansing "Spark Cleansing Job" icon=spark @src="jobs/cleanse_bronz
 database SilverLake "Silver Lake (Enriched)" icon=delta
 service FlinkAggregation "Flink Streaming Aggregator" icon=flink
 database GoldWarehouse "Gold Warehouse (Curated)" icon=snowflake
-browser SupersetBI "Apache Superset BI" icon=superset
+dashboard SupersetBI "Apache Superset BI" icon=superset
 
 beat bronze_ingest "1. Raw Stream to Bronze Tier":
   show RawIngestKafka BronzeLake SparkCleansing stagger=50ms
@@ -390,7 +390,7 @@ service StatusPageSync "Public Status Page" icon=cloudflare
 
 beat alert_trigger "1. High Latency P99 Breach":
   show PrometheusAlert PagerDutyEngine SlackIncidentBot StatusPageSync stagger=50ms
-  PrometheusAlert -> PagerDutyEngine "TRIGGER: P99 Latency > 1500ms"
+  PrometheusAlert ~> PagerDutyEngine "TRIGGER: P99 Latency > 1500ms"
   PagerDutyEngine -> SlackIncidentBot "Spawn #incident-2026-09"
   PagerDutyEngine -> StatusPageSync "Update: Degraded Performance"
 

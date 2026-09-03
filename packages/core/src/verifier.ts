@@ -6,6 +6,7 @@
  */
 
 import type { DiagramAST } from "./ast.js";
+import { parse } from "./parser.js";
 import { resolveVectorSymbol } from "./symbols.js";
 import { parseCodeAnchor } from "./provenance.js";
 import { validateArchitecture, ARCH_RULE_PRESETS } from "./arch-lint.js";
@@ -113,9 +114,52 @@ function collectAllFlows(ast: DiagramAST): Array<{ from: string; to: string; op:
  * Runs the complete 12-Point Quality Gate & Viewport Verification on a DiagramAST.
  */
 export function verifyDiagramQuality(
-  ast: DiagramAST,
+  astOrCode: DiagramAST | string,
   options: QualityGateOptions = {}
 ): QualityGateReport {
+  let ast: DiagramAST;
+  if (typeof astOrCode === "string") {
+    try {
+      ast = parse(astOrCode);
+    } catch (err: any) {
+      return {
+        passed: false,
+        qualityProfile: options.profile || "standard",
+        errorCount: 1,
+        warningCount: 0,
+        sha256Receipt: "",
+        checks: [
+          {
+            id: "syntax_validity",
+            name: "Syntax & Structural Validity",
+            category: "syntax",
+            status: "fail",
+            message: `Syntax parse error: ${err.message}`,
+          },
+        ],
+        metrics: {
+          nodeCount: 0,
+          edgeCount: 0,
+          beatCount: 0,
+          hasCodeProvenance: false,
+          provenanceAnchorCount: 0,
+          symbolCount: 0,
+          estimatedWidth: 0,
+          estimatedHeight: 0,
+          aspectRatio: 1.0,
+        },
+        viewportCompliance: {
+          "1440x900": false,
+          "1600x1000": false,
+          "1920x1080": false,
+          "2048x1320": false,
+        },
+      };
+    }
+  } else {
+    ast = astOrCode;
+  }
+
   const profile = options.profile || "standard";
   const checks: QualityCheckItem[] = [];
 

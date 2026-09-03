@@ -222,7 +222,8 @@ export function exportC4LevelViews(ast: DiagramAST): Record<C4Level, C4LevelView
 
     for (const node of nodes) {
       const iconProp = node.props?.["icon"] ? ` icon=${node.props["icon"]}` : "";
-      const srcProp = lvl === "code" && node.props?.["@src"] ? ` @src="${node.props["@src"]}"` : "";
+      const rawSrc = node.props?.["@src"] || node.props?.["src"];
+      const srcProp = lvl === "code" && rawSrc ? ` @src="${rawSrc}"` : "";
       lines.push(`${node.kind || "service"} ${node.id} "${node.label || node.id}"${iconProp}${srcProp}`);
     }
 
@@ -232,7 +233,10 @@ export function exportC4LevelViews(ast: DiagramAST): Record<C4Level, C4LevelView
 
     for (const edge of edges) {
       const label = edge.label ? ` "${edge.label}"` : "";
-      const op = (edge as any).op || (edge.kind === "event" ? "~>" : edge.kind === "response" ? "<-" : "->");
+      let op = "->";
+      if (edge.kind === "event") op = "~>";
+      else if (edge.kind === "response") op = "<-";
+      else if (edge.kind === "dependency") op = "--";
       lines.push(`  ${edge.from} ${op} ${edge.to}${label}`);
     }
 
