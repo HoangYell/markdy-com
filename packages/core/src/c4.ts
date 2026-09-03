@@ -168,9 +168,9 @@ export function generateC4Storyboard(ast: DiagramAST): string {
     beats.push(`  glow ${l1Nodes.slice(0, 2).join(" & glow ")} color=#38bdf8`);
   }
 
-  beats.push(``);
-  beats.push(`beat c4_l2_containers "Level 2: Container Topology & Stores":`);
   if (l2Nodes.length > 0) {
+    beats.push(``);
+    beats.push(`beat c4_l2_containers "Level 2: Container Topology & Stores":`);
     beats.push(`  frame ${l2Nodes.join(" ")} zoom=1.15`);
     beats.push(`  glow ${l2Nodes.slice(0, 3).join(" & glow ")} color=#10b981`);
   }

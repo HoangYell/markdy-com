@@ -447,8 +447,9 @@ async function verifyCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> 
     return { exitCode: 1 };
   }
 
-  const qualityFlag = getStringFlag(parsed, "quality");
-  const profile: QualityProfile = qualityFlag === "showcase" ? "showcase" : "standard";
+  const qualityFlag = getStringFlag(parsed, "quality")?.toLowerCase();
+  const strict = hasFlag(parsed, "strict") || qualityFlag === "strict" || qualityFlag === "showcase";
+  const profile: QualityProfile = strict ? "showcase" : "standard";
   const jsonMode = hasFlag(parsed, "json");
 
   const scene = await loadSceneFromFile(file);
