@@ -7,7 +7,7 @@ queue KafkaTopic "Kafka Event Bus" icon=kafka
 service SparkJob "Spark Streaming Cleanser" icon=spark @src="jobs/cleanse.py#L12"
 database DeltaSilver "Delta Lake (Silver)" icon=delta
 database SnowflakeGold "Snowflake (Gold Tier)" icon=snowflake
-browser AnalyticsBI "Apache Superset" icon=superset
+dashboard AnalyticsBI "Apache Superset" icon=superset
 
 beat write_event "1. Command Append & Kafka Stream":
   show $nodes stagger=50ms

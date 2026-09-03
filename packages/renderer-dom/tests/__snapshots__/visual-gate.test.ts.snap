@@ -982,10 +982,10 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "network",
     },
     {
-      "icon": "browser",
+      "icon": "metrics",
       "id": "AnalyticsBI",
-      "kind": "browser",
-      "role": "client",
+      "kind": "dashboard",
+      "role": "observability",
     },
     {
       "icon": "server",

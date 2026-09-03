@@ -413,13 +413,26 @@ export function verifyDiagramQuality(
     return false;
   }
 
-  for (const n of nodes) {
-    if (!visited.has(n.id)) {
-      if (dfsCycle(n.id, [n.id])) break;
+  const dtype = ast.meta?.type || (ast as any).config?.type || "";
+  const nonServiceArchetypes = ["state", "sequence", "layers", "flywheel", "loop", "venn"];
+  const isLoopArchetype = nonServiceArchetypes.includes(dtype);
+  if (!isLoopArchetype) {
+    for (const n of nodes) {
+      if (!visited.has(n.id)) {
+        if (dfsCycle(n.id, [n.id])) break;
+      }
     }
   }
 
-  if (detectedCycle && Array.isArray(detectedCycle)) {
+  if (isLoopArchetype) {
+    checks.push({
+      id: "sync_deadlock",
+      name: "Synchronous Request Cycle & Deadlock Hazard",
+      category: "governance",
+      status: "pass",
+      message: `Intentional transitions and protocol traversals permitted for '${dtype}' archetype.`,
+    });
+  } else if (detectedCycle && Array.isArray(detectedCycle)) {
     const cyclePathStr = (detectedCycle as string[]).join(" -> ");
     checks.push({
       id: "sync_deadlock",

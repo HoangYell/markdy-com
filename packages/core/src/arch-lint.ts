@@ -64,7 +64,13 @@ function matchNode(node: NodeDecl, selector?: NodeSelector): boolean {
   if (selector.kindEquals && node.kind.toLowerCase() !== selector.kindEquals.toLowerCase()) return false;
   if (selector.roleEquals) {
     const role = nodeRole(node.kind);
-    if (role.toLowerCase() !== selector.roleEquals.toLowerCase()) return false;
+    const targetRole = selector.roleEquals.toLowerCase();
+    if (targetRole === "gateway") {
+      const isGateway = role === "network" || ["gateway", "api_gateway", "reverse_proxy", "proxy", "router"].includes(node.kind.toLowerCase());
+      if (!isGateway) return false;
+    } else if (role.toLowerCase() !== targetRole) {
+      return false;
+    }
   }
   if (selector.labelContains) {
     const target = (node.label || node.id).toLowerCase();
@@ -355,6 +361,11 @@ export function validateArchitecture(
       }
 
       case "forbidden-cycle": {
+        const dtype = ast.meta?.type || (ast as any).config?.type || "architecture";
+        const nonServiceArchetypes = ["state", "sequence", "layers", "flywheel", "loop", "venn"];
+        if (nonServiceArchetypes.includes(dtype)) {
+          break;
+        }
         const cycleInfo = detectCycleInGraph(nodes, edges, rule.edge);
         if (cycleInfo) {
           violations.push({
