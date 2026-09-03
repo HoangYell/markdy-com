@@ -60,7 +60,7 @@ export type ParseOptions = {
   parseOnly?: boolean;
 };
 
-const FLOW_OP_RE = /(->|<-|~>|--|\.\.>)/;
+const FLOW_OP_RE = /(->|<-|~>|--|\.\.>|<->)/;
 
 function stripComment(line: string): string {
   let inString = false;
@@ -247,7 +247,7 @@ function tokenizeFlowChain(line: string): string[] {
       continue;
     }
     const op3 = line.slice(i, i + 3);
-    if (op3 === "..>") {
+    if (op3 === "..>" || op3 === "<->") {
       if (current.trim()) parts.push(current.trim());
       parts.push(op3);
       current = "";
@@ -279,12 +279,30 @@ function parseFlowChain(line: string, lineNo: number): FlowSegment[] {
   let from = splitTargetLabel(parts[i++], lineNo).node;
   while (i < parts.length) {
     const opToken = parts[i++];
-    const op = EDGE_OPERATORS[opToken];
-    if (!op) throw new ParseError(`unknown flow operator '${opToken}'`, lineNo);
     if (i >= parts.length) throw new ParseError(`expected target after '${opToken}'`, lineNo);
 
     const { node: to, label } = splitTargetLabel(parts[i++], lineNo);
     if (!to) throw new ParseError(`expected target node after '${opToken}'`, lineNo);
+
+    if (opToken === "<->") {
+      segments.push({
+        from,
+        op: "request",
+        to,
+        label,
+      });
+      segments.push({
+        from: to,
+        op: "response",
+        to: from,
+        label,
+      });
+      from = to;
+      continue;
+    }
+
+    const op = EDGE_OPERATORS[opToken];
+    if (!op) throw new ParseError(`unknown flow operator '${opToken}'`, lineNo);
 
     segments.push({
       from: op === "response" ? to : from,

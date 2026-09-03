@@ -1085,4 +1085,34 @@ beat flow "Flow":
       });
     }
   });
+
+  it("parses bidirectional operator (<->) into paired forward request and return response", () => {
+    const code = `
+scene "Bidirectional Flow Test"
+browser WebApp "Web App"
+gateway Gateway "API Gateway"
+
+beat socket "Socket":
+  WebApp <-> Gateway "WebSocket Stream"
+`;
+    const ast = parse(code);
+    expect(ast.beats).toHaveLength(1);
+    const flowCue = ast.beats[0].cues[0];
+    expect(flowCue.kind).toBe("flow");
+    if (flowCue.kind === "flow") {
+      expect(flowCue.segments).toHaveLength(2);
+      expect(flowCue.segments[0]).toEqual({
+        from: "WebApp",
+        op: "request",
+        to: "Gateway",
+        label: "WebSocket Stream",
+      });
+      expect(flowCue.segments[1]).toEqual({
+        from: "Gateway",
+        op: "response",
+        to: "WebApp",
+        label: "WebSocket Stream",
+      });
+    }
+  });
 });
