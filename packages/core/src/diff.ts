@@ -46,6 +46,43 @@ export interface DiagramDiffResult {
   evolutionMarkdyScript: string;
 }
 
+function extractDiffEdges(ast: DiagramAST): Array<{ from: string; to: string; kind: string; label?: string }> {
+  const edges: Array<{ from: string; to: string; kind: string; label?: string }> = [];
+  const seen = new Set<string>();
+
+  const add = (from: string, to: string, kind: string, label?: string) => {
+    const key = `${from}->${to}:${kind}`;
+    if (!seen.has(key)) {
+      seen.add(key);
+      edges.push({ from, to, kind, label });
+    }
+  };
+
+  for (const edge of ast.edges || []) {
+    add(edge.from, edge.to, edge.kind, edge.label);
+  }
+
+  for (const beat of ast.beats || []) {
+    for (const cue of beat.cues || []) {
+      if (cue.kind === "flow") {
+        for (const seg of cue.segments) {
+          add(seg.from, seg.to, seg.op, seg.label);
+        }
+      } else if (cue.kind === "parallel") {
+        for (const child of cue.cues) {
+          if (child.kind === "flow") {
+            for (const seg of child.segments) {
+              add(seg.from, seg.to, seg.op, seg.label);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return edges;
+}
+
 /**
  * Compares two Diagram ASTs to produce a comprehensive architectural evolution report.
  */
@@ -100,10 +137,12 @@ export function diffDiagramASTs(beforeAST: DiagramAST, afterAST: DiagramAST): Di
     }
   }
 
-  // 3. Process Edges
+  // 3. Process Edges (Both static edges and animated beat flows)
   const edgeKey = (e: { from: string; to: string; kind: string }) => `${e.from}->${e.to}:${e.kind}`;
-  const beforeEdgeMap = new Map((beforeAST.edges || []).map((e) => [edgeKey(e), e]));
-  const afterEdgeMap = new Map((afterAST.edges || []).map((e) => [edgeKey(e), e]));
+  const beforeEdges = extractDiffEdges(beforeAST);
+  const afterEdges = extractDiffEdges(afterAST);
+  const beforeEdgeMap = new Map(beforeEdges.map((e) => [edgeKey(e), e as any]));
+  const afterEdgeMap = new Map(afterEdges.map((e) => [edgeKey(e), e as any]));
 
   let addedEdgesCount = 0;
   let removedEdgesCount = 0;
