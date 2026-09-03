@@ -69,4 +69,26 @@ describe("Router & Dynamic Port Multiplexer", () => {
     }
     expect(routed.svgPathData).toContain("Q");
   });
+
+  it("allocates distinct parallel lanes for bidirectional request/response pairs", () => {
+    const edges = [
+      { from: "a", to: "b", id: "req" },
+      { from: "b", to: "a", id: "res" },
+    ];
+    const boxes = { a: boxA, b: boxB };
+    const laneMap = allocatePortLanes(edges, boxes);
+
+    const reqLanes = laneMap.get(edges[0])!;
+    const resLanes = laneMap.get(edges[1])!;
+
+    expect(reqLanes.sourceLane?.total).toBe(2);
+    expect(resLanes.targetLane?.total).toBe(2);
+    // Request forward and response return must have different indices (parallel, no collision)
+    expect(reqLanes.sourceLane?.index).not.toBe(resLanes.targetLane?.index);
+    expect(reqLanes.targetLane?.index).not.toBe(resLanes.sourceLane?.index);
+
+    const reqStart = getBoxPortPosition(boxA, "right", reqLanes.sourceLane);
+    const resEnd = getBoxPortPosition(boxA, "right", resLanes.targetLane);
+    expect(reqStart.y).not.toBe(resEnd.y);
+  });
 });

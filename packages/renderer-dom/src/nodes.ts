@@ -1,4 +1,4 @@
-import type { PositionedNode, ThemeTokens } from "@markdy/core";
+import { resolveVectorSymbol, type PositionedNode, type ThemeTokens } from "@markdy/core";
 
 const STYLE_ID = "markdy-diagram-node-styles";
 
@@ -685,6 +685,7 @@ export const ICON_REGISTRY: Readonly<Record<string, IconSpec>> = Object.freeze(I
 export function iconKeyForNode(node: PositionedNode): string {
   const override = typeof node.props?.icon === "string" ? node.props.icon.toLowerCase() : undefined;
   if (override && ICONS[override]) return override;
+  if (override && resolveVectorSymbol(override)) return override;
   if (node.kind === "api_gateway" || node.kind === "gateway" || node.kind === "load_balancer" || node.kind === "ingress") return "gateway";
   if (node.kind === "db" || node.kind === "database" || node.kind === "sql" || node.kind === "nosql" || node.kind === "warehouse") return "database";
   if (node.kind === "bucket" || node.kind === "object_store" || node.kind === "blob" || node.kind === "volume" || node.kind === "disk") return "storage";
@@ -764,6 +765,22 @@ function createNodeMediaEl(doc: Document, node: PositionedNode, assets?: Record<
       appendGlyph(doc, wrap, ICONS[iconKeyForNode(node)] ?? ICONS.service);
     });
     wrap.appendChild(img);
+    return wrap;
+  }
+
+  const symbolKey = typeof node.props?.icon === "string" ? node.props.icon : typeof node.props?.symbol === "string" ? node.props.symbol : undefined;
+  const vectorSymbol = symbolKey ? resolveVectorSymbol(symbolKey) : null;
+  if (vectorSymbol) {
+    wrap.dataset.vectorSymbol = vectorSymbol.name;
+    const svg = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("viewBox", vectorSymbol.viewBox);
+    svg.setAttribute("width", "26");
+    svg.setAttribute("height", "26");
+    if (vectorSymbol.brandColor) {
+      svg.style.color = vectorSymbol.brandColor;
+    }
+    svg.innerHTML = vectorSymbol.svgPaths;
+    wrap.appendChild(svg);
     return wrap;
   }
 

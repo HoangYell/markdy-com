@@ -370,6 +370,7 @@ export function createEdgeRuntime(
 
     const placement = placeFlowLabel(points, textWidth, labelObstacles, bounds, boxHeight);
     labelRect = placement.rect;
+    labelObstacles.push(inflateRect(labelRect, 4));
     const plate = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     const padX = 6;
     const halfW = textWidth / 2;
@@ -479,7 +480,7 @@ function translucentColor(color: string, alpha = "aa"): string {
   return `color-mix(in srgb, ${value} 67%, transparent)`;
 }
 
-function nextEdgeLane(
+export function nextEdgeLane(
   lanes: Map<string, number>,
   from: PositionedNode | string,
   to: PositionedNode | string,

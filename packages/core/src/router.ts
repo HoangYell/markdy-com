@@ -302,7 +302,8 @@ export function routeOrthogonalEdge(
 
 /**
  * Dynamic Port Multiplexer:
- * Allocates balanced port lanes for multiple edges attaching to the same node boundary.
+ * Allocates balanced, collision-free port lanes for multiple edges attaching to the same node boundary.
+ * Seamlessly handles multi-edge fan-in/fan-out and bidirectional request/response pairs without overlapping.
  */
 export function allocatePortLanes<T extends { from: string; to: string; id?: string }>(
   edges: T[],
@@ -310,10 +311,14 @@ export function allocatePortLanes<T extends { from: string; to: string; id?: str
 ): Map<T, { sourceLane?: PortLane; targetLane?: PortLane }> {
   const result = new Map<T, { sourceLane?: PortLane; targetLane?: PortLane }>();
 
-  // Group outgoing edges by (fromNodeId, sourcePort)
-  const outGroups = new Map<string, { edge: T; targetCenterY: number; targetCenterX: number }[]>();
-  // Group incoming edges by (toNodeId, targetPort)
-  const inGroups = new Map<string, { edge: T; sourceCenterY: number; sourceCenterX: number }[]>();
+  // Group ALL edge connections (source and target attachments) by (nodeId:port)
+  type PortAttachment = {
+    edge: T;
+    role: "source" | "target";
+    otherCenterY: number;
+    otherCenterX: number;
+  };
+  const portGroups = new Map<string, PortAttachment[]>();
 
   for (const edge of edges) {
     if (edge.from === edge.to) continue;
@@ -328,31 +333,58 @@ export function allocatePortLanes<T extends { from: string; to: string; id?: str
     const tgtCenter = { x: tBox.x + tBox.width / 2, y: tBox.y + tBox.height / 2 };
     const srcCenter = { x: sBox.x + sBox.width / 2, y: sBox.y + sBox.height / 2 };
 
-    if (!outGroups.has(sKey)) outGroups.set(sKey, []);
-    outGroups.get(sKey)!.push({ edge, targetCenterY: tgtCenter.y, targetCenterX: tgtCenter.x });
+    if (!portGroups.has(sKey)) portGroups.set(sKey, []);
+    portGroups.get(sKey)!.push({
+      edge,
+      role: "source",
+      otherCenterY: tgtCenter.y,
+      otherCenterX: tgtCenter.x,
+    });
 
-    if (!inGroups.has(tKey)) inGroups.set(tKey, []);
-    inGroups.get(tKey)!.push({ edge, sourceCenterY: srcCenter.y, sourceCenterX: srcCenter.x });
-  }
-
-  // Sort and assign lanes for outgoing ports
-  for (const [key, list] of outGroups.entries()) {
-    const isVertical = key.endsWith(":left") || key.endsWith(":right");
-    list.sort((a, b) => (isVertical ? a.targetCenterY - b.targetCenterY : a.targetCenterX - b.targetCenterX));
-    list.forEach((item, index) => {
-      const existing = result.get(item.edge) || {};
-      existing.sourceLane = { index, total: list.length };
-      result.set(item.edge, existing);
+    if (!portGroups.has(tKey)) portGroups.set(tKey, []);
+    portGroups.get(tKey)!.push({
+      edge,
+      role: "target",
+      otherCenterY: srcCenter.y,
+      otherCenterX: srcCenter.x,
     });
   }
 
-  // Sort and assign lanes for incoming ports
-  for (const [key, list] of inGroups.entries()) {
+  // Sort attachments and assign balanced lanes across each port
+  for (const [key, list] of portGroups.entries()) {
+    if (list.length <= 1) continue;
+
     const isVertical = key.endsWith(":left") || key.endsWith(":right");
-    list.sort((a, b) => (isVertical ? a.sourceCenterY - b.sourceCenterY : a.sourceCenterX - b.sourceCenterX));
+    list.sort((a, b) => {
+      if (isVertical) {
+        if (Math.abs(a.otherCenterY - b.otherCenterY) > 1) {
+          return a.otherCenterY - b.otherCenterY;
+        }
+      } else {
+        if (Math.abs(a.otherCenterX - b.otherCenterX) > 1) {
+          return a.otherCenterX - b.otherCenterX;
+        }
+      }
+      // Canonical tie-breaker for bidirectional pairs: keep forward and return lanes parallel
+      const aMin = a.edge.from < a.edge.to ? a.edge.from : a.edge.to;
+      const aMax = a.edge.from < a.edge.to ? a.edge.to : a.edge.from;
+      const bMin = b.edge.from < b.edge.to ? b.edge.from : b.edge.to;
+      const bMax = b.edge.from < b.edge.to ? b.edge.to : b.edge.from;
+      if (aMin !== bMin || aMax !== bMax) {
+        return (a.edge.id || "").localeCompare(b.edge.id || "");
+      }
+      const aDir = a.edge.from < a.edge.to ? 0 : 1;
+      const bDir = b.edge.from < b.edge.to ? 0 : 1;
+      return aDir - bDir;
+    });
+
     list.forEach((item, index) => {
       const existing = result.get(item.edge) || {};
-      existing.targetLane = { index, total: list.length };
+      if (item.role === "source") {
+        existing.sourceLane = { index, total: list.length };
+      } else {
+        existing.targetLane = { index, total: list.length };
+      }
       result.set(item.edge, existing);
     });
   }

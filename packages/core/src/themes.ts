@@ -184,7 +184,7 @@ export const THEMES: Record<string, ThemeTokens> = {
       dependency: "#818cf8",
     },
     fonts: {
-      title: "Georgia, Times New Roman, serif",
+      title: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Inter, sans-serif",
       nodeName: "ui-sans-serif, system-ui, sans-serif",
       mono: "ui-monospace, SFMono-Regular, Menlo, monospace",
     },

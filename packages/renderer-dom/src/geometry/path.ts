@@ -642,7 +642,7 @@ export function routeOrthogonal(
       sY = clamp(sourceCenter.y + dirSign * 12, sourceRect.y1 + 10, sourceRect.y2 - 10);
       tY = clamp(targetCenter.y - dirSign * 12, targetRect.y1 + 10, targetRect.y2 - 10);
     } else {
-      const fwdShift = lane > 0 ? (lane % 2 === 1 ? 14 : -14) : 0;
+      const fwdShift = lane > 0 ? (lane % 2 === 1 ? -10 : -18) : 0;
       sY = clamp(sourceCenter.y + fwdShift, sourceRect.y1 + 10, sourceRect.y2 - 10);
       tY = clamp(targetCenter.y + fwdShift, targetRect.y1 + 10, targetRect.y2 - 10);
     }
@@ -716,7 +716,7 @@ export function routeOrthogonal(
       sY = clamp(sourceCenter.y + dirSign * 12, sourceRect.y1 + 10, sourceRect.y2 - 10);
       tY = clamp(targetCenter.y - dirSign * 12, targetRect.y1 + 10, targetRect.y2 - 10);
     } else {
-      const retShift = lane > 0 ? (lane % 2 === 1 ? -16 : 16) : 14;
+      const retShift = lane > 0 ? (lane % 2 === 1 ? 10 : 18) : 10;
       sY = clamp(sourceCenter.y + retShift, sourceRect.y1 + 10, sourceRect.y2 - 10);
       tY = clamp(targetCenter.y + retShift, targetRect.y1 + 10, targetRect.y2 - 10);
     }

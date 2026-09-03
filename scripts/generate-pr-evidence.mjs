@@ -141,7 +141,7 @@ function generateCardHtml(cardIndex) {
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       width: 1600px; height: 900px; overflow: hidden;
-      font-family: "Noto Color Emoji", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, ui-sans-serif, sans-serif, "Noto Color Emoji";
       background: radial-gradient(ellipse at 50% 25%, #ffffff 0%, #faf8f5 55%, #f2eee6 100%);
       color: #0f172a; position: relative; -webkit-font-smoothing: antialiased; padding: 20px 24px;
     }
