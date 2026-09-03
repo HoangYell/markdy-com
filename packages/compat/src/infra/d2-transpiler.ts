@@ -73,8 +73,8 @@ export function transpileD2ToMarkdy(d2Source: string): D2TranspileResult {
       continue;
     }
 
-    // Connection: A -> B: Label or A -- B: Label or A <-> B: Label
-    const connMatch = rawLine.match(/^([a-zA-Z0-9_.-]+)\s*(->|<-|<->|--)\s*([a-zA-Z0-9_.-]+)(?:\s*:\s*(.*))?$/);
+    // Connection: A -> B: Label or A -- B: Label or A <-> B: Label or A ..> B: Label
+    const connMatch = rawLine.match(/^([a-zA-Z0-9_.-]+)\s*(->|<-|<->|--|\.\.>|\.\.)\s*([a-zA-Z0-9_.-]+)(?:\s*:\s*(.*))?$/);
     if (connMatch) {
       const fromId = sanitizeId(connMatch[1]);
       const rawOp = connMatch[2];
@@ -99,7 +99,7 @@ export function transpileD2ToMarkdy(d2Source: string): D2TranspileResult {
       }
       let op = "->";
       if (rawOp === "<-") op = "<-";
-      else if (rawOp === "--") op = "..>";
+      else if (rawOp === "--" || rawOp === ".." || rawOp === "..>") op = "..>";
 
       edges.push({ from: fromId, to: toId, op, label });
       continue;

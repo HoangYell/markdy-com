@@ -22,8 +22,21 @@ describe("Code Provenance & Verification Engine", () => {
     expect(anchor?.endLine).toBe(42);
   });
 
+  it("parses relative anchors with ./ prefix and Windows backslashes", () => {
+    const relAnchor = parseCodeAnchor("./src/auth/jwt.service.ts#L20-L85");
+    expect(relAnchor).not.toBeNull();
+    expect(relAnchor?.filePath).toBe("src/auth/jwt.service.ts");
+    expect(relAnchor?.startLine).toBe(20);
+
+    const winAnchor = parseCodeAnchor("src\\auth\\jwt.service.ts#L10");
+    expect(winAnchor).not.toBeNull();
+    expect(winAnchor?.filePath).toBe("src/auth/jwt.service.ts");
+    expect(winAnchor?.startLine).toBe(10);
+  });
+
   it("rejects path traversal attempts", () => {
     expect(parseCodeAnchor("../etc/passwd#L1")).toBeNull();
+    expect(parseCodeAnchor("foo/../../bar#L1")).toBeNull();
     expect(parseCodeAnchor("/root/secret.key")).toBeNull();
   });
 

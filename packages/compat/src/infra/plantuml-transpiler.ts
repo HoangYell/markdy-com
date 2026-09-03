@@ -149,8 +149,8 @@ export function transpilePlantUmlToMarkdy(pumlSource: string): PlantUmlTranspile
       continue;
     }
 
-    // Connection: A -> B : Label or A --> B : Label or A <-> B : Label
-    const connMatch = line.match(/^([a-zA-Z0-9_.-]+)\s*(-+>|<-+|<->|-+)\s*([a-zA-Z0-9_.-]+)(?:\s*:\s*(.*))?$/);
+    // Connection: A -> B : Label or A --> B : Label or A <-> B : Label or A ..> B : Label
+    const connMatch = line.match(/^([a-zA-Z0-9_.-]+)\s*(<[-.]+>|[-.]+>|<[-.]+|[-.]+)\s*([a-zA-Z0-9_.-]+)(?:\s*:\s*(.*))?$/);
     if (connMatch) {
       const fromId = sanitizeId(connMatch[1]);
       const arrow = connMatch[2];
@@ -167,14 +167,14 @@ export function transpilePlantUmlToMarkdy(pumlSource: string): PlantUmlTranspile
         nodes.set(toId, { id: toId, label: toId, kind: mapPlantUmlKind("service", toId) });
       }
 
-      if (arrow === "<->") {
+      if (arrow.startsWith("<") && arrow.endsWith(">")) {
         edges.push({ from: fromId, to: toId, op: "->", label });
         edges.push({ from: toId, to: fromId, op: "<-", label });
         continue;
       }
       let op = "->";
-      if (arrow.startsWith("<-")) op = "<-";
-      else if (arrow.startsWith("--") || arrow === "-") op = "..>";
+      if (arrow.startsWith("<")) op = "<-";
+      else if (arrow.includes(".") || arrow.startsWith("--") || arrow === "-") op = "..>";
 
       edges.push({ from: fromId, to: toId, op, label });
       continue;

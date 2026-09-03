@@ -66,16 +66,23 @@ export function parseCodeAnchor(raw: unknown, repositoryUrl?: string, revision?:
     };
   }
 
-  // Handle local POSIX repo path with fragment
+  // Handle local repo path with fragment (POSIX or Windows)
   const [filePathRaw, fragment] = trimmed.split("#");
-  const filePath = filePathRaw.trim();
+  let filePath = filePathRaw.trim().replace(/\\/g, "/");
 
+  // Allow standard relative prefix "./"
+  if (filePath.startsWith("./")) {
+    filePath = filePath.slice(2);
+  }
+
+  // Reject empty, absolute, traversal escapes, or control characters
   if (
     !filePath ||
     filePath.startsWith("/") ||
-    filePath.startsWith(".") ||
-    filePath.includes("..") ||
-    filePath.includes("\\") ||
+    filePath.startsWith("../") ||
+    filePath === ".." ||
+    filePath.includes("/../") ||
+    filePath.endsWith("/..") ||
     CONTROL_CHAR_RE.test(filePath)
   ) {
     return null;

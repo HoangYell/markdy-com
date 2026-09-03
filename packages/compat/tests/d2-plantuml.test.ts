@@ -111,6 +111,24 @@ serviceB -- db : persistence
     expect(pumlRes.markdyScript).toContain('serviceA -> serviceB "handshake"');
     expect(pumlRes.markdyScript).toContain('serviceB <- serviceA "handshake"');
     expect(pumlRes.markdyScript).toContain('serviceB ..> db "persistence"');
+
+    const pumlDotted = `
+@startuml
+frontend ..> backend : depends on
+backend .. db : weak
+@enduml
+`;
+    const pumlDottedRes = transpilePlantUmlToMarkdy(pumlDotted);
+    expect(pumlDottedRes.markdyScript).toContain('frontend ..> backend "depends on"');
+    expect(pumlDottedRes.markdyScript).toContain('backend ..> db "weak"');
+
+    const d2Dotted = `
+client ..> api: depends
+api .. cache: loosely coupled
+`;
+    const d2DottedRes = transpileD2ToMarkdy(d2Dotted);
+    expect(d2DottedRes.markdyScript).toContain('client ..> api "depends"');
+    expect(d2DottedRes.markdyScript).toContain('api ..> cache "loosely coupled"');
   });
 });
 

@@ -335,7 +335,7 @@ export function resolveVectorSymbol(nameOrAlias: string): VectorSymbol | null {
     cli: "terminal",
     console: "terminal",
     shell: "terminal",
-    aws_s3: "s3",
+    awss3: "s3",
     deltalake: "delta",
     lakehouse: "delta",
     llm: "gemini",
