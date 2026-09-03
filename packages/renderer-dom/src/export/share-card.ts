@@ -145,7 +145,7 @@ export function renderShareCardSvg(
   let vbHeight = 500;
   if (vbMatch) {
     const parts = vbMatch[1].split(/\s+/).map(Number);
-    if (parts.length === 4) {
+    if (parts.length === 4 && parts[2] > 0 && parts[3] > 0) {
       vbWidth = parts[2];
       vbHeight = parts[3];
     }
@@ -162,10 +162,15 @@ export function renderShareCardSvg(
   const targetX = (canvasW - targetW) / 2;
   const targetY = 110 + (availH - targetH) / 2;
 
-  // Clean inner SVG tags to embed as a <g> or nested <svg>
+  // Clean inner SVG tags to embed cleanly without redundant nested root <svg> tags
   const cleanedInnerSvg = diagramSvgXml
     .replace(/^<\?xml[^>]*\?>/i, "")
-    .replace(/^<!DOCTYPE[^>]*>/i, "");
+    .replace(/^<!DOCTYPE[^>]*>/i, "")
+    .trim();
+
+  const innerContent = cleanedInnerSvg
+    .replace(/^<svg[^>]*>/i, "")
+    .replace(/<\/svg>\s*$/i, "");
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
@@ -209,7 +214,7 @@ export function renderShareCardSvg(
   <!-- Embedded Scaled Diagram -->
   <g transform="translate(${targetX}, ${targetY})">
     <svg width="${targetW}" height="${targetH}" viewBox="0 0 ${vbWidth} ${vbHeight}">
-      ${cleanedInnerSvg}
+      ${innerContent}
     </svg>
   </g>
 

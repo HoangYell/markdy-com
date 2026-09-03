@@ -145,6 +145,69 @@ export function routeOrthogonalEdge(
   targetBox: Box,
   options: RouteOptions = {}
 ): RoutedPath {
+  const isSelfLoop =
+    sourceBox === targetBox ||
+    (sourceBox.x === targetBox.x &&
+      sourceBox.y === targetBox.y &&
+      sourceBox.width === targetBox.width &&
+      sourceBox.height === targetBox.height);
+
+  const MARGIN = options.margin ?? 20;
+
+  if (isSelfLoop) {
+    const loopSpan = Math.max(28, MARGIN * 1.5);
+    const port = options.sourcePort || options.targetPort || "top";
+
+    let start: Point;
+    let end: Point;
+    let waypoints: Point[];
+
+    if (port === "top") {
+      const startX = sourceBox.x + sourceBox.width * 0.35;
+      const endX = sourceBox.x + sourceBox.width * 0.65;
+      const topY = sourceBox.y;
+      const apexY = topY - loopSpan;
+      start = { x: startX, y: topY };
+      end = { x: endX, y: topY };
+      waypoints = [{ x: startX, y: apexY }, { x: endX, y: apexY }];
+    } else if (port === "bottom") {
+      const startX = sourceBox.x + sourceBox.width * 0.35;
+      const endX = sourceBox.x + sourceBox.width * 0.65;
+      const botY = sourceBox.y + sourceBox.height;
+      const apexY = botY + loopSpan;
+      start = { x: startX, y: botY };
+      end = { x: endX, y: botY };
+      waypoints = [{ x: startX, y: apexY }, { x: endX, y: apexY }];
+    } else if (port === "left") {
+      const startY = sourceBox.y + sourceBox.height * 0.35;
+      const endY = sourceBox.y + sourceBox.height * 0.65;
+      const leftX = sourceBox.x;
+      const apexX = leftX - loopSpan;
+      start = { x: leftX, y: startY };
+      end = { x: leftX, y: endY };
+      waypoints = [{ x: apexX, y: startY }, { x: apexX, y: endY }];
+    } else {
+      // right
+      const startY = sourceBox.y + sourceBox.height * 0.35;
+      const endY = sourceBox.y + sourceBox.height * 0.65;
+      const rightX = sourceBox.x + sourceBox.width;
+      const apexX = rightX + loopSpan;
+      start = { x: rightX, y: startY };
+      end = { x: rightX, y: endY };
+      waypoints = [{ x: apexX, y: startY }, { x: apexX, y: endY }];
+    }
+
+    const svgPathData = buildSmoothSvgPath(start, waypoints, end, options.cornerRadius ?? 6);
+    return {
+      sourcePort: port,
+      targetPort: port,
+      startPoint: start,
+      endPoint: end,
+      waypoints,
+      svgPathData,
+    };
+  }
+
   const optimal = selectOptimalPorts(sourceBox, targetBox);
   const sourcePort = options.sourcePort || optimal.sourcePort;
   const targetPort = options.targetPort || optimal.targetPort;
@@ -153,7 +216,6 @@ export function routeOrthogonalEdge(
   const end = getBoxPortPosition(targetBox, targetPort, options.targetLane);
 
   const waypoints: Point[] = [];
-  const MARGIN = options.margin ?? 20;
 
   if (sourcePort === "right" && targetPort === "left") {
     if (start.x <= end.x - MARGIN * 2) {
@@ -254,6 +316,7 @@ export function allocatePortLanes<T extends { from: string; to: string; id?: str
   const inGroups = new Map<string, { edge: T; sourceCenterY: number; sourceCenterX: number }[]>();
 
   for (const edge of edges) {
+    if (edge.from === edge.to) continue;
     const sBox = boxes[edge.from];
     const tBox = boxes[edge.to];
     if (!sBox || !tBox) continue;

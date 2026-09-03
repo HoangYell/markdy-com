@@ -56,4 +56,17 @@ describe("Router & Dynamic Port Multiplexer", () => {
     expect(routed.svgPathData).toContain("Q");
     expect(routed.svgPathData).toContain("300 180");
   });
+
+  it("routes self-loop edge as smooth arch without cutting through node", () => {
+    const routed = routeOrthogonalEdge(boxA, boxA, { cornerRadius: 6, margin: 20 });
+    expect(routed.sourcePort).toBe("top");
+    expect(routed.targetPort).toBe("top");
+    expect(routed.startPoint.y).toBe(boxA.y);
+    expect(routed.endPoint.y).toBe(boxA.y);
+    // Waypoints must loop above the box (y < boxA.y)
+    for (const wp of routed.waypoints) {
+      expect(wp.y).toBeLessThan(boxA.y);
+    }
+    expect(routed.svgPathData).toContain("Q");
+  });
 });

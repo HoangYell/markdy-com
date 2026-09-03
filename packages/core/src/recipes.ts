@@ -712,7 +712,8 @@ export function synthesizeCustomRecipe(query: string): SynthesizedRecipeResult {
 
   // Build MarkdyScript dynamically
   const lines: string[] = [];
-  lines.push(`scene "Synthesized Architecture: ${query.slice(0, 40)}" theme=midnight`);
+  const safeTitle = query.replace(/["\n\r\\]/g, " ").replace(/\s+/g, " ").trim().slice(0, 50);
+  lines.push(`scene "Synthesized Architecture: ${safeTitle}" theme=midnight`);
   lines.push(`layout LR`);
   lines.push(``);
 

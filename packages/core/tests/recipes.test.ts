@@ -52,6 +52,15 @@ describe("Architecture Pattern Recipes & Recommender", () => {
     expect(ast.diagnostics.filter((d) => d.severity === "error").length).toBe(0);
   });
 
+  it("safely handles queries containing quotes, backslashes, and special characters", () => {
+    const rawQuery = 'Next.js "Client" with "Postgres" & "Redis"\\cache\nnew line';
+    const res = synthesizeCustomRecipe(rawQuery);
+    const { ast } = parseAndCompile(res.markdyScript);
+    expect(ast.meta.title).toContain("Postgres");
+    expect(ast.meta.title).not.toContain('"');
+    expect(ast.diagnostics.filter((d) => d.severity === "error").length).toBe(0);
+  });
+
   it("ensures all 14 recipe MarkdyScript templates compile cleanly without parse errors", () => {
     expect(ARCHITECTURE_RECIPES.length).toBeGreaterThanOrEqual(14);
     for (const recipe of ARCHITECTURE_RECIPES) {
