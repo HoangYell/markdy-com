@@ -1,5 +1,4 @@
-scene "Order Fulfillment State Machine" theme=auto type=state width=1320 height=720
-layout LR
+scene "Order Fulfillment State Machine" theme=auto type=state
 
 state Pending "1. Pending Payment"
 state Paid "2. Payment Settled"

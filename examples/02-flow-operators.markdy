@@ -1,6 +1,5 @@
 // The four flow operators, each rendered with its own edge style.
 scene theme=paper
-layout LR
 
 client WebApp
 service Api

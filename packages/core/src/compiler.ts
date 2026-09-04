@@ -328,7 +328,7 @@ function layoutRanked(
     const maxNodeH = Math.max(...nodeIds.map((id) => nodeDims.get(id)?.height ?? NODE_H));
     const rowGap = Math.max(maxNodeH + 40, Math.min(200, contentH / Math.max(rankCount, 1)));
     const totalH = (rankCount - 1) * rowGap + maxNodeH;
-    const startY = TITLE_BAND + Math.max(0, (contentH - totalH) / 2);
+    const startY = TITLE_BAND + Math.max(28, (contentH - totalH) / 2);
 
     for (const [rank, ids] of [...byRank.entries()].sort((a, b) => a[0] - b[0])) {
       const rowCount = ids.length;
@@ -709,7 +709,8 @@ function layoutMedallion(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[]
 
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
-  const colGap = Math.max(NODE_W + 48, contentW / (tierCount + 1));
+  const availableColGap = tierCount > 1 ? (contentW - NODE_W) / (tierCount - 1) : 0;
+  const colGap = Math.max(NODE_W + 36, Math.min(320, availableColGap));
   const totalW = (tierCount - 1) * colGap + NODE_W;
   const startX = SAFE + Math.max(0, (contentW - totalW) / 2);
   const nodes: PositionedNode[] = [];
@@ -1191,9 +1192,9 @@ function layoutNodes(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
     case "nested":
       return layoutNested(ast);
     case "state":
-      return layoutRanked(ast, cycleSafeEdges(Object.keys(ast.nodes), edges), { forceVertical: false });
+      return layoutRanked(ast, cycleSafeEdges(Object.keys(ast.nodes), edges), { forceVertical: ast.meta.direction === "TB" || ast.meta.direction === "BT" });
     default:
-      return layoutRanked(ast, edges, { forceVertical: false });
+      return layoutRanked(ast, edges, { forceVertical: ast.meta.direction === "TB" || ast.meta.direction === "BT" });
   }
 }
 
@@ -1506,8 +1507,14 @@ export function computeAdaptiveDimensions(
   const isVertical = direction === "TB" || direction === "BT";
   const groupCount = Object.keys(ast.groups).length;
 
-  let autoW = 1280;
-  let autoH = 720;
+  const hasTitle = Boolean(ast.meta.title && ast.meta.title.trim().length > 0);
+  const titleBand = hasTitle ? TITLE_BAND : 0;
+  const hasBeatCaptions = ast.beats.some((b) => b.label && b.label.trim().length > 0);
+  const bottomBand = hasBeatCaptions ? 44 : 0;
+  const titleW = hasTitle ? Math.max(320, ast.meta.title!.trim().length * 11 + SAFE * 2) : 0;
+
+  let autoW = 1024;
+  let autoH = 640;
 
   if (nodeCount === 0) {
     autoW = 1280;
@@ -1516,10 +1523,16 @@ export function computeAdaptiveDimensions(
     const flowCues = ast.beats.flatMap((b) => b.cues).filter((c) => c.kind === "flow");
     const count = Math.max(nodeCount, 1);
     const flowCount = flowCues.length;
-    const requiredW = SAFE * 2 + Math.max(count * 220, 800);
+    const requiredW = SAFE * 2 + Math.max(count * 280, 800, titleW);
     const requiredH = TITLE_BAND + NODE_H + 56 + Math.max(flowCount * 76, 280) + SAFE + 48;
-    autoW = Math.max(1088, Math.min(2560, requiredW));
+    autoW = Math.max(1280, Math.min(2560, requiredW));
     autoH = Math.max(640, Math.min(1800, requiredH));
+  } else if (dtype === "medallion") {
+    const tierCount = 4;
+    const requiredW = Math.max(SAFE * 2 + tierCount * 300, titleW);
+    const requiredH = TITLE_BAND + SAFE * 2 + 560;
+    autoW = Math.max(1360, Math.min(2560, requiredW));
+    autoH = Math.max(760, Math.min(1600, requiredH));
   } else if (dtype === "tree") {
     const children = new Map<string, string[]>();
     const hasParent = new Set<string>();
@@ -1568,7 +1581,7 @@ export function computeAdaptiveDimensions(
     const activeRoots = roots.length > 0 ? roots : nodeIds;
     for (const r of activeRoots) totalRootsWidth += measureSubtree(r);
 
-    const requiredW = SAFE * 2 + totalRootsWidth;
+    const requiredW = Math.max(SAFE * 2 + totalRootsWidth, titleW);
     const requiredH = TITLE_BAND + SAFE * 2 + (maxDepth + 1) * 140;
     autoW = Math.max(1120, Math.min(2560, requiredW));
     autoH = Math.max(640, Math.min(1600, requiredH));
@@ -1579,7 +1592,7 @@ export function computeAdaptiveDimensions(
       Math.ceil(nodeCount / laneCount),
       1,
     );
-    const requiredW = SAFE * 2 + 140 + maxInLane * 220;
+    const requiredW = Math.max(SAFE * 2 + 140 + maxInLane * 220, titleW);
     const requiredH = TITLE_BAND + SAFE * 2 + laneCount * 140;
     autoW = Math.max(1152, Math.min(2560, requiredW));
     autoH = Math.max(640, Math.min(1600, requiredH));
@@ -1595,7 +1608,7 @@ export function computeAdaptiveDimensions(
     autoH = Math.max(640, Math.min(1440, requiredH));
   } else if (dtype === "timeline" || dtype === "gantt") {
     const milestones = Math.max(nodeCount, 1);
-    const requiredW = SAFE * 2 + milestones * 240;
+    const requiredW = Math.max(SAFE * 2 + milestones * 240, titleW);
     const requiredH = TITLE_BAND + SAFE * 2 + 380;
     autoW = Math.max(1200, Math.min(2560, requiredW));
     autoH = Math.max(640, Math.min(1200, requiredH));
@@ -1603,7 +1616,7 @@ export function computeAdaptiveDimensions(
     const N = Math.max(nodeCount, 3);
     const minRadius = 200;
     const radiusNeeded = Math.max(minRadius, (N * 180) / (2 * Math.PI));
-    const requiredW = SAFE * 2 + radiusNeeded * 2 + 240;
+    const requiredW = Math.max(SAFE * 2 + radiusNeeded * 2 + 240, titleW);
     const requiredH = TITLE_BAND + SAFE * 2 + radiusNeeded * 2 + 140;
     autoW = Math.max(1088, Math.min(2200, requiredW));
     autoH = Math.max(720, Math.min(1600, requiredH));
@@ -1623,43 +1636,34 @@ export function computeAdaptiveDimensions(
     const rankCount = Math.max(...byRank.keys(), 0) + 1;
     const maxInRank = Math.max(...[...byRank.values()].map((v) => v.length), 1);
     const groupPaddingBonus = groupCount > 0 ? GROUP_PAD * 2 : 0;
+    const maxRankW = Math.max(...nodeIds.map((id) => computeNodeDimensions(ast.nodes[id]).width));
+    const maxRankH = Math.max(...nodeIds.map((id) => computeNodeDimensions(ast.nodes[id]).height));
 
     if (forceVertical) {
-      const requiredW = SAFE * 2 + maxInRank * NODE_W + (maxInRank - 1) * 44 + groupPaddingBonus;
-      const requiredH = SAFE * 2 + TITLE_BAND + rankCount * NODE_H + (rankCount - 1) * 56 + groupPaddingBonus;
+      const colSpacing = 44;
+      const rowGap = 56;
+      const contentNeededW = maxInRank * maxRankW + Math.max(0, maxInRank - 1) * colSpacing + groupPaddingBonus;
+      const requiredW = SAFE * 2 + contentNeededW;
+      autoW = Math.max(requiredW, titleW);
+      autoW = Math.max(380, Math.min(2400, autoW));
 
-      if (nodeCount <= 2) {
-        autoW = 960;
-        autoH = 640;
-      } else if (nodeCount <= 4 && rankCount <= 3) {
-        autoW = 1024;
-        autoH = 720;
-      } else {
-        autoW = Math.max(960, Math.min(2400, requiredW));
-        autoH = Math.max(720, Math.min(2000, requiredH));
-      }
+      const contentNeededH = rankCount * maxRankH + Math.max(0, rankCount - 1) * rowGap + groupPaddingBonus;
+      const requiredH = SAFE * 2 + TITLE_BAND + bottomBand + contentNeededH;
+      autoH = Math.max(720, Math.min(3200, requiredH));
     } else {
-      const hasTitle = Boolean(ast.meta.title && ast.meta.title.trim().length > 0);
-      const hasBeatCaptions = ast.beats.some((b) => b.label && b.label.trim().length > 0);
-      const titleBand = hasTitle ? TITLE_BAND : 0;
-      const bottomBand = hasBeatCaptions ? 44 : 0;
-      const maxRankW = Math.max(...nodeIds.map((id) => computeNodeDimensions(ast.nodes[id]).width));
-      const maxRankH = Math.max(...nodeIds.map((id) => computeNodeDimensions(ast.nodes[id]).height));
-      const requiredW = SAFE * 2 + rankCount * maxRankW + (rankCount - 1) * 56 + groupPaddingBonus;
-      const requiredH = SAFE * 2 + titleBand + bottomBand + maxInRank * maxRankH + (maxInRank - 1) * 44 + groupPaddingBonus;
+      const colGap = 56;
+      const rowGap = 44;
+      const contentNeededW = rankCount * maxRankW + Math.max(0, rankCount - 1) * colGap + groupPaddingBonus;
+      const requiredW = SAFE * 2 + contentNeededW;
+      const contentNeededH = maxInRank * maxRankH + Math.max(0, maxInRank - 1) * rowGap + groupPaddingBonus;
+      const requiredH = SAFE * 2 + titleBand + bottomBand + contentNeededH;
 
       if (maxInRank === 1 && !hasTitle) {
-        // Horizontal single-row chain without title: snug ribbon height
         autoW = Math.max(1024, Math.min(2560, requiredW));
         autoH = Math.max(hasBeatCaptions ? 240 : 208, Math.min(360, requiredH + 24));
       } else if (maxInRank === 2 && !hasTitle) {
-        // 2-row horizontal layout: compact dual-tier height
         autoW = Math.max(1024, Math.min(2560, requiredW));
         autoH = Math.max(hasBeatCaptions ? 368 : 336, Math.min(480, requiredH + 24));
-      } else if (maxInRank === 3 && !hasTitle) {
-        // 3-row horizontal layout: compact tri-tier height
-        autoW = Math.max(1152, Math.min(2560, requiredW));
-        autoH = Math.max(hasBeatCaptions ? 480 : 448, Math.min(640, requiredH + 24));
       } else if (nodeCount <= 2 && rankCount <= 2) {
         autoW = 1024;
         autoH = hasTitle ? 576 : 384;
@@ -1667,7 +1671,7 @@ export function computeAdaptiveDimensions(
         autoW = 1152;
         autoH = hasTitle ? 648 : 448;
       } else {
-        autoW = Math.max(1152, Math.min(2560, requiredW));
+        autoW = Math.max(1024, Math.min(2560, Math.max(requiredW, titleW)));
         autoH = Math.max(hasTitle ? 648 : (maxInRank <= 2 ? 448 : 576), Math.min(1600, requiredH));
       }
     }

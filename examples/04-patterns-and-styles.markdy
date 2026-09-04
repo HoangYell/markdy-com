@@ -1,7 +1,6 @@
 // Patterns are reusable cue templates expanded with `use`.
 // $params are substituted at the call site. `style` themes a node.
 scene theme=paper
-layout TB
 
 style hot = fill=#f59e0b
 

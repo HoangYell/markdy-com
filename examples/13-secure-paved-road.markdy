@@ -1,7 +1,7 @@
 # 13-secure-paved-road.markdy
 # Demonstrates Secure Paved Road Architectural Pattern with Trust Boundaries & Permitted vs Blocked Egress.
 
-scene theme=editorial width=1800 height=800
+scene theme=editorial
 
 group untrusted_zone "Untrusted Public Perimeter": UntrustedClient PublicInternet
 group ingress_security "Identity & Perimeter WAF": EdgeWAF OIDCGateway

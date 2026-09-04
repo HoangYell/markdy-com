@@ -1,5 +1,4 @@
-scene "Organizational Leadership & Hierarchy Tree" theme=auto type=tree width=1280 height=720
-layout TB
+scene "Organizational Leadership & Hierarchy Tree" theme=auto type=tree
 
 service CEO "Chief Executive Officer"
 service Eng "Engineering Leadership"

@@ -1,5 +1,4 @@
-scene "OAuth 2.0 & OIDC Authorization Code Flow" theme=auto width=1920 height=800
-layout LR
+scene "OAuth 2.0 & OIDC Authorization Code Flow" theme=auto
 
 user User "End User"
 browser UserAgent "Browser / Mobile App"

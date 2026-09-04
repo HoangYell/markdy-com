@@ -1,7 +1,7 @@
 # nested-security-perimeter.markdy
 # Kubernetes Zero-Trust Security Perimeter & VPC Defense-in-Depth
 
-scene "Kubernetes Zero-Trust Security Perimeter" theme=auto type=nested width=1280 height=760
+scene "Kubernetes Zero-Trust Security Perimeter" theme=auto type=nested
 
 security PublicEdge "Layer 1: Global Edge (Cloudflare WAF & DDoS Shield)"
 security DMZIngress "Layer 2: DMZ Ingress (Envoy Gateway & Rate Limiter)"

@@ -1,7 +1,7 @@
 # nebula-constellation.markdy
 # Raft Quorum Consensus & Leader Heartbeat Constellation
 
-scene "Raft Leader Election & Quorum Heartbeat Constellation" theme=auto type=constellation width=1280 height=760
+scene "Raft Leader Election & Quorum Heartbeat Constellation" theme=auto type=constellation
 
 service RaftLeader "Elected Raft Leader (Term 42)" focal=true
 service Follower1 "Raft Follower Node 1 (AZ-1a)"

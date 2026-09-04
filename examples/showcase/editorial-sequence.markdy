@@ -1,5 +1,4 @@
-scene "Editorial Authentication Sequence Flow" theme=auto type=sequence width=1360 height=760
-layout LR
+scene "Editorial Authentication Sequence Flow" theme=auto type=sequence
 
 participant Browser "Web Browser"
 participant API "API Gateway"

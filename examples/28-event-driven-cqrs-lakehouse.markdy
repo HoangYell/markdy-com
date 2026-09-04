@@ -1,5 +1,4 @@
 scene "Event-Driven CQRS & Medallion Lakehouse" theme=midnight
-layout LR
 
 gateway CommandAPI "Command API" icon=nginx
 service CommandSvc "Command Engine" icon=golang @src="src/commands/order.go#L30"

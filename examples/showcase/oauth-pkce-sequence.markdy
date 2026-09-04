@@ -1,8 +1,7 @@
 # oauth-pkce-sequence.markdy
 # OAuth 2.0 PKCE & OIDC Authentication Sequence
 
-scene "OAuth 2.0 PKCE Handshake Sequence" theme=auto type=sequence width=1280 height=760
-layout LR
+scene "OAuth 2.0 PKCE Handshake Sequence" theme=auto type=sequence
 
 participant BrowserApp "Single Page App (Browser)"
 participant AuthServer "Authorization Server (OIDC)"
@@ -23,7 +22,7 @@ beat token_exchange "2. Code Exchange for Cryptographic JWT":
   glow TokenEndpoint color=#047857
 
 beat authorized_request "3. Authenticated Bearer Token Resource Access":
-  frame BrowserApp ResourceApi zoom=1.12 dur=500ms
+  frame BrowserApp ResourceApi zoom=1.04 dur=500ms
   BrowserApp -> ResourceApi "GET /api/v1/orders (Authorization: Bearer <jwt>)"
   ResourceApi -> ResourceApi "validate RS256 signature & claims"
   BrowserApp <- ResourceApi "200 OK (Protected JSON Payload)"

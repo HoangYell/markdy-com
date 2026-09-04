@@ -2,8 +2,7 @@
 import { Markdy } from "@markdy/astro";
 
 const code = `
-scene "Distributed Cache-Aside Architecture" theme=paper width=960 height=520
-layout LR
+scene "Distributed Cache-Aside Architecture" theme=paper
 
 browser Client "Web Client"
 gateway Gateway "API Gateway"
@@ -70,7 +69,7 @@ player:
     <h1>Markdy + Astro Sandbox</h1>
     <p>Live interactive architecture diagram compiled to 60fps Web Animations</p>
     <div class="container">
-      <Markdy code={code} width={960} height={520} bg="#fafafa" autoplay loop />
+      <Markdy code={code} bg="#fafafa" autoplay loop />
     </div>
   </body>
 </html>

@@ -1,5 +1,5 @@
-scene "Editorial Edge-to-Core Architecture" theme=auto type=architecture width=1480 height=760
-layout LR
+scene "Editorial Edge-to-Core Architecture" theme=auto type=architecture
+
 annotation "Public edge" target=Gateway position=top-right
 
 browser WebClient "Reader Web Client"

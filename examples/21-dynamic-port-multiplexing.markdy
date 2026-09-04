@@ -1,7 +1,6 @@
 // Showcase: Dynamic Port Multiplexing & Multi-Lane Fan-In
 // Automatically balances parallel connections along node perimeters with zero overlapping lines.
 scene "Dynamic Port Multiplexer & Lane Balancing" theme=paper
-layout LR
 
 client WebClient "Web Client"
 client MobileApp "Mobile App"

@@ -1,5 +1,4 @@
 scene "Active-Active Failover & Raft Consensus" theme=paper
-layout LR
 
 gateway Route53DNS "AWS Route53 Latency DNS" icon=aws
 service PrimaryCluster "Region US-East Cluster" icon=kubernetes @src="infra/us-east.tf#L20"

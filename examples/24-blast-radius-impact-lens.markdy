@@ -1,7 +1,6 @@
 // Showcase: Blast Radius & Impact Lens Analysis
 // Computes upstream dependency callers and downstream transitive blast radius.
 scene "Blast Radius & Topology Impact Lens" theme=midnight
-layout LR
 
 client Ingest "Ingest Producer" icon=terminal
 gateway Router "Ingress Router" icon=nginx
