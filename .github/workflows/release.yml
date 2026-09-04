@@ -99,6 +99,7 @@ jobs:
             | [`@markdy/language-server`](https://www.npmjs.com/package/@markdy/language-server) | [npmjs.com](https://www.npmjs.com/package/@markdy/language-server) | `pnpm add -D @markdy/language-server` |
             | [`@markdy/mcp-server`](https://www.npmjs.com/package/@markdy/mcp-server) | [npmjs.com](https://www.npmjs.com/package/@markdy/mcp-server) | `pnpm add -D @markdy/mcp-server` |
             | [`@markdy/mdx`](https://www.npmjs.com/package/@markdy/mdx) | [npmjs.com](https://www.npmjs.com/package/@markdy/mdx) | `pnpm add @markdy/mdx` |
+            | [`@markdy/compat`](https://www.npmjs.com/package/@markdy/compat) | [npmjs.com](https://www.npmjs.com/package/@markdy/compat) | `pnpm add @markdy/compat` |
 
             ### 🚀 Quick Start
             ```sh
