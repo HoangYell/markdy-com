@@ -1,11 +1,32 @@
 ---
 name: markdy-diagram-author
-description: Author, design, and optimize kinetic architecture diagrams using MarkdyScript DSL. Use when creating system designs, cloud topologies, sequence diagrams, microservices flows, or converting static diagrams to animated 60fps scenes.
+description: Author, design, and optimize kinetic architecture diagrams, scenario recipes, and high-impact share cards using MarkdyScript DSL. Use when creating system designs, cloud topologies, sequence diagrams, microservices flows, or converting static diagrams to animated 60fps scenes.
 ---
 
 # Markdy Diagram Authoring Skill
 
-This skill guides AI agents in authoring production-grade, 60fps kinetic architecture diagrams using the **MarkdyScript** DSL.
+This skill guides AI agents in authoring production-grade, 60fps kinetic architecture diagrams and verified blueprints using the **MarkdyScript** DSL.
+
+---
+
+## 🧭 Scenario Recipe Router
+
+When user prompts match a common architectural domain, start from a proven blueprint:
+
+| Scenario / Domain | Recipe ID | Primary Pattern |
+|---|---|---|
+| **Cache-Aside / Fast Lookups** | `cache-aside` | Gateway → Service → Redis (Hit) / Postgres (Miss & Warm) |
+| **Event-Driven / CDC** | `event-driven-eda` | Service → DB WAL → Debezium CDC → Kafka → Consumers |
+| **CQRS & Event Sourcing** | `cqrs-event-sourcing` | Command API → EventStore → Projection Engine → Read DB |
+| **Microservices Mesh** | `api-gateway-mesh` | Envoy Ingress → mTLS Sidecars → Distributed Tracing |
+| **Zero-Trust & Enclave** | `zero-trust-security` | WAF → OIDC Auth → OPA Policy → AWS Nitro Enclave → Vault |
+| **Medallion Lakehouse** | `medallion-lakehouse` | Kafka → Bronze Lake → Spark Cleansing → Silver → Gold Tier |
+| **Agentic AI & ReAct** | `agentic-react-tools` | Workspace → Agent Core → Vector RAG → LLM → MCP Tools |
+| **Active-Active Resilient** | `active-active-failover` | GeoDNS → Multi-Region Clusters → Bidirectional DB Sync |
+| **Raft Distributed Consensus**| `distributed-consensus-raft`| Client → Leader → Follower Quorum → Committed State |
+| **SRE Incident Runbook** | `incident-runbook` | Prometheus Alert → PagerDuty → K8s Auto-Healer → Slack Bot |
+
+> **CLI Helper**: Run `markdy guide "<query>"` or `markdy recipe <recipe-id>` to output instant canonical MarkdyScript.
 
 ---
 
@@ -18,14 +39,14 @@ Every MarkdyScript file (`.markdy` or `.mdy`) follows a clean 4-part structure:
 scene "Distributed Payment Processing" theme=midnight width=1440 height=800
 layout LR
 
-# 2. Node Declarations: <kind> <Id> ["Human Label"]
-browser Client "Web / Mobile Client"
-gateway Gateway "Kong API Gateway"
-service OrderSvc "Order Service"
-service PaySvc "Payment Service"
-queue Kafka "Kafka Event Stream"
-database OrdersDB "PostgreSQL 16"
-cache Redis "Redis Cluster"
+# 2. Node Declarations: <kind> <Id> ["Human Label"] [icon=<glyph>] [@src="path/file.ts#L10"]
+browser Client "Web / Mobile Client" icon=chrome
+gateway Gateway "Kong API Gateway" icon=nginx @src="src/gateway/router.ts#L15"
+service OrderSvc "Order Service" icon=nodejs @src="src/orders/service.ts#L30"
+service PaySvc "Payment Service" icon=golang @src="src/payment/handler.go#L40"
+queue Kafka "Kafka Event Stream" icon=kafka
+database OrdersDB "PostgreSQL 16" icon=postgresql @src="src/db/schema.sql#L1"
+cache Redis "Redis Cluster" icon=redis
 
 # 3. Logical Groups (Perimeters & Tiers)
 group edgeTier "Edge Tier": Client Gateway
@@ -52,23 +73,24 @@ beat payment "2. Payment Execution & Event Fan-out":
 
 ---
 
-## 🎨 Supported Node Kinds
+## 🔍 9-Point Showcase Quality Gate
 
-| Kind | Usage |
-|---|---|
-| `browser` | Web browser application surface |
-| `mobile` | Mobile smartphone/tablet client |
-| `client` | Generic external consumer or SDK |
-| `gateway` | API Gateway, load balancer, reverse proxy |
-| `service` | Microservice or backend application process |
-| `worker` | Background worker, queue consumer, cron job |
-| `database` | Relational / document database |
-| `cache` | In-memory key-value store (Redis, Memcached) |
-| `queue` | Message broker queue (RabbitMQ, SQS) |
-| `topic` | Pub/sub event stream (Kafka, Pulsar, EventBridge) |
-| `storage` | Blob / object storage (S3, GCS) |
-| `actor` | Human persona, admin, or external actor |
-| `stat` | Live metric or KPI summary card |
+Before handing off any diagram, verify it with the CLI quality gate:
+
+```bash
+markdy verify system.markdy --quality showcase --json
+```
+
+A passing showcase verification validates:
+1. **Syntax Validity**: Complete AST without fatal syntax or token errors.
+2. **Viewport Containment**: Bounds fit responsive desktop ladder (1440×900, 1600×1000, 1920×1080, 2048×1320).
+3. **Node Collision Free**: Distinct IDs and balanced spatial distribution.
+4. **Label Legibility Floor**: High-density typography without text crowding.
+5. **Cycle Governance**: Sync request flows (`->`) do not create circular deadlocks.
+6. **Dynamic Port Multiplexing**: Auto-balanced connection lanes with smooth fillet transitions.
+7. **Code Provenance Anchors**: `@src="path/file.ext#L10-L50"` anchors verified.
+8. **Native Vector Symbols**: Zero-CDN SVG icons resolved from registry (`icon=redis`, `icon=kafka`, `icon=aws`, etc.).
+9. **Theme Contrast**: Meets WCAG AA contrast against canvas and node surfaces.
 
 ---
 
@@ -89,3 +111,12 @@ beat payment "2. Payment Execution & Event Fan-out":
 - `glow NodeId [color=#hex]` : Kinetic light pulse on target node
 - `pulse NodeId` : Ripple wave animation
 - `focus NodeId` : Highlights target node while dimming others
+
+---
+
+## 🎴 Contextual Share Cards (1200×630)
+
+Generate OpenGraph and README-ready presentation cards:
+- **Standard Share Card**: Clean framing with title and badge.
+- **Route Share Card**: Focuses on active message pathway (`from` → `to`) with hop count and protocol telemetry.
+- **Reach Share Card**: Highlights blast radius / upstream callers or downstream dependents with impact metrics.

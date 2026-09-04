@@ -10,6 +10,7 @@
 import {
   parseAndCompile,
   resolveTheme,
+  resolveVectorSymbol,
   type EdgeKind,
   type GroupBoundary,
   type PositionedNode,
@@ -29,6 +30,7 @@ import {
 } from "../geometry/path.js";
 import { boxRect, inflateRect, type Point, type Rect } from "../geometry/rect.js";
 import { ICON_REGISTRY, iconKeyForNode, type IconSpec } from "../nodes.js";
+import { nextEdgeLane } from "../edges.js";
 
 export interface SvgExportOptions {
   includeThemeStyles?: boolean;
@@ -502,6 +504,7 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
   if (plan.diagramType !== "sequence" && plan.edges && plan.edges.length > 0) {
     svg += `  <!-- Edge Connections -->\n  <g class="markdy-edges-layer">\n`;
     const nodeMap = new Map(plan.nodes.map((n) => [n.id, n]));
+    const laneByPair = new Map<string, number>();
 
     plan.edges.forEach((edge, index) => {
       const from = nodeMap.get(edge.from);
@@ -515,9 +518,10 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
       const color = theme.edges?.[edge.kind] || accent;
       const style = EDGE_STYLES[edge.kind] || EDGE_STYLES.request;
       const isSelfLoop = from.id === to.id;
+      const lane = nextEdgeLane(laneByPair, from, to);
       const points = isSelfLoop
         ? dedupePoints(selfLoopPath(from, bounds))
-        : dedupePoints(routeEdgePoints(from, to, routeObstacles, bounds, index));
+        : dedupePoints(routeEdgePoints(from, to, routeObstacles, bounds, lane));
 
       const d = toPathD(points, 14, existingPaths);
       existingPaths.push(points);
@@ -554,6 +558,7 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
         const boxHeight = lines.length === 1 ? 18 : lines.length * lineHeight + 6;
 
         const placement = placeFlowLabel(points, textWidth, labelObstacles, bounds, boxHeight);
+        labelObstacles.push(inflateRect(placement.rect, 4));
         const padX = 6;
         const halfW = textWidth / 2;
         const labelX = placement.x - halfW - padX;
@@ -665,10 +670,19 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
       const iconX = (node.width - circleIconSize) / 2;
       const iconY = node.height / 2 - 20;
 
+      const circleSymbolKey = typeof node.props?.icon === "string" ? node.props.icon : typeof node.props?.symbol === "string" ? node.props.symbol : undefined;
+      const circleVectorSymbol = circleSymbolKey ? resolveVectorSymbol(circleSymbolKey) : null;
+
       const rawImage = node.props?.image ?? node.props?.logo;
       if (typeof rawImage === "string" && rawImage.length > 0) {
         svg += `      <!-- Centered Custom Image -->
       <image href="${escapeXml(rawImage)}" x="${iconX}" y="${iconY}" width="${circleIconSize}" height="${circleIconSize}" preserveAspectRatio="xMidYMid meet"/>\n`;
+      } else if (circleVectorSymbol) {
+        const symColor = circleVectorSymbol.brandColor || roleColor;
+        svg += `      <!-- Centered Vector Symbol: ${escapeXml(circleVectorSymbol.name)} -->
+      <g transform="translate(${iconX}, ${iconY}) scale(${circleIconSize / 24})" fill="currentColor" color="${symColor}">
+        ${circleVectorSymbol.svgPaths}
+      </g>\n`;
       } else {
         svg += `      <!-- Centered Icon Glyph -->
       <g transform="translate(${iconX}, ${iconY}) scale(${circleIconSize / 24})" fill="none" stroke="${roleColor}" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">
@@ -696,10 +710,19 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
       const iconX = 16;
       const iconY = (node.height - iconSize) / 2;
 
+      const cardSymbolKey = typeof node.props?.icon === "string" ? node.props.icon : typeof node.props?.symbol === "string" ? node.props.symbol : undefined;
+      const cardVectorSymbol = cardSymbolKey ? resolveVectorSymbol(cardSymbolKey) : null;
+
       const rawImage = node.props?.image ?? node.props?.logo;
       if (typeof rawImage === "string" && rawImage.length > 0) {
         svg += `      <!-- Node Custom Image -->
       <image href="${escapeXml(rawImage)}" x="${iconX}" y="${iconY}" width="${iconSize}" height="${iconSize}" preserveAspectRatio="xMidYMid meet"/>\n`;
+      } else if (cardVectorSymbol) {
+        const symColor = cardVectorSymbol.brandColor || roleColor;
+        svg += `      <!-- Native Vector Symbol: ${escapeXml(cardVectorSymbol.name)} -->
+      <g transform="translate(${iconX}, ${iconY}) scale(${iconSize / 24})" fill="currentColor" color="${symColor}">
+        ${cardVectorSymbol.svgPaths}
+      </g>\n`;
       } else {
         // Frameless Icon Glyph
         svg += `      <!-- Frameless Icon Glyph -->

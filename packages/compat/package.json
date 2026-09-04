@@ -1,27 +1,68 @@
 {
   "name": "@markdy/compat",
   "version": "1.2.0",
-  "private": true,
-  "description": "Backwards-compatibility gate for MarkdyScript. Snapshots every fixture in packages/compat/fixtures with the current parser and diffs ASTs on every CI run.",
+  "description": "Universal ingestion transpilers (D2, PlantUML, Mermaid, Docker Compose, Kubernetes, Terraform, Draw.io) and backwards-compatibility gate for Markdy.",
   "license": "MIT",
   "type": "module",
-  "main": "./src/index.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
-    ".": "./src/index.ts",
-    "./mermaid": "./src/mermaid/mermaid-transpiler.ts",
-    "./infra": "./src/index.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./mermaid": {
+      "types": "./dist/mermaid/mermaid-transpiler.d.ts",
+      "import": "./dist/mermaid/mermaid-transpiler.js"
+    },
+    "./infra": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "keywords": [
+    "markdy",
+    "diagram-native",
+    "diagram-as-code",
+    "transpiler",
+    "ingestion",
+    "d2",
+    "plantuml",
+    "mermaid",
+    "architecture-diagram"
+  ],
+  "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
+  "homepage": "https://markdy.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/HoangYell/markdy-com.git",
+    "directory": "packages/compat"
+  },
+  "bugs": {
+    "url": "https://github.com/HoangYell/markdy-com/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
+    "build": "tsup",
     "test": "vitest run",
     "gate": "tsx src/gate.ts",
     "gate:update": "tsx src/gate.ts --update",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@markdy/core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^25.9.5",
+    "tsup": "^8.5.1",
     "tsx": "^4.23.1",
     "typescript": "^5.9.3",
     "vitest": "^4.1.7"

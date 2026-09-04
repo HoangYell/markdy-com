@@ -46,7 +46,7 @@ const FEATURES = [
 ];
 
 // The canonical, always-current reference for AI tools. The website serves this
-// from docs/AGENT.md, so agents should fetch it instead of relying on this short prompt alone.
+// from AGENT.md, so agents should fetch it instead of relying on this short prompt alone.
 const CANONICAL_AGENT_URL = "https://markdy.com/AGENT.md";
 const CANONICAL_LLMS_URL = "https://markdy.com/llms.txt";
 

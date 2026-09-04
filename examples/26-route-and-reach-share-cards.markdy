@@ -1,0 +1,26 @@
+scene "Contextual Route & Reach Share Cards" theme=midnight
+layout LR
+
+browser Client "Web Browser" icon=chrome
+gateway EdgeProxy "Edge Envoy Proxy" icon=envoy @src="src/proxy/gateway.ts#L15"
+service RouterSvc "Dynamic Port Router" icon=nodejs @src="src/router/multiplexer.ts#L30"
+cache RedisCache "Redis Cluster" icon=redis
+database PrimaryPostgres "PostgreSQL 16" icon=postgresql @src="src/db/schema.sql#L10"
+
+beat route_inspection "1. Active Route Pathfinder":
+  show $nodes stagger=60ms
+  frame Client EdgeProxy RouterSvc RedisCache zoom=1.12
+  Client -> EdgeProxy "GET /api/v2/products"
+  EdgeProxy -> RouterSvc "Dispatch (mTLS)"
+  RouterSvc -> RedisCache "Query Cache Layer"
+  RouterSvc <- RedisCache "Cache Hit (200 OK)"
+  EdgeProxy <- RouterSvc "Forward Payload"
+  Client <- EdgeProxy "Render UI Response"
+  glow RouterSvc color=#38bdf8 & glow RedisCache color=#22c55e
+
+beat reach_blast_radius "2. Reachability & Blast Radius Isolation":
+  frame RouterSvc RedisCache PrimaryPostgres zoom=1.15
+  RouterSvc -> PrimaryPostgres "Write Mutation (UPDATE products)"
+  RouterSvc <- PrimaryPostgres "Transaction Committed"
+  RouterSvc ~> RedisCache "Invalidate Key Tag"
+  glow PrimaryPostgres color=#a78bfa & glow RedisCache color=#fb7185

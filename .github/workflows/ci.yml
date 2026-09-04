@@ -41,7 +41,7 @@ jobs:
         run: pnpm run lint
 
   test:
-    name: Test & Compatibility Gate (Node ${{ matrix.node-version }})
+    name: Build & Test (${{ matrix.node-version }})
     runs-on: ubuntu-latest
 
     strategy:

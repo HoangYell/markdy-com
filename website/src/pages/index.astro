@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { join } from "node:path";
-import { loadExamples } from "../data/examples";
+import { loadExamples, FULL_GALLERY_REGISTRY } from "../data/examples";
 
 const ROOT = join(process.cwd(), "..");
 const HOMEPAGE_HIDDEN_CONTROLS = new Set(["play", "restart", "prev_beat", "next_beat", "seek"]);
@@ -592,8 +592,8 @@ const homepageStructuredData = [
           <a id="open-full-studio-btn" href="/playground/?example=url-shortener-architecture" class="studio-action-btn studio-action-btn--primary studio-gallery-link" title="Open selected scene in Full Studio">
             <span>Open in Full Studio ⚡</span>
           </a>
-          <a href="/examples/" class="studio-action-btn studio-action-btn--secondary studio-gallery-link" title="Explore all 29 Architecture Blueprints">
-            <span>Browse 29 Blueprints ↗</span>
+          <a href="/examples/" class="studio-action-btn studio-action-btn--secondary studio-gallery-link" title={`Explore all ${FULL_GALLERY_REGISTRY.length} Architecture Blueprints`}>
+            <span>Browse {FULL_GALLERY_REGISTRY.length} Blueprints ↗</span>
           </a>
         </div>
       </div>

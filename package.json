@@ -47,6 +47,9 @@
     "gate:update": "pnpm --filter @markdy/compat run gate:update",
     "verify:examples": "tsx scripts/verify-examples.ts",
     "test:devtools": "node scripts/chrome-devtools-adaptive-test.mjs",
+    "test:visual": "node scripts/chrome-devtools-adaptive-test.mjs",
+    "test:visual:update": "node scripts/chrome-devtools-adaptive-test.mjs --update-baselines",
+    "test:perf": "node scripts/chrome-devtools-perf-benchmark.mjs",
     "regen": "tsx scripts/regenerate-all.ts",
     "harness": "pnpm --filter @markdy/renderer-dom run harness",
     "ci": "pnpm run test && pnpm run gate && pnpm run verify:examples && pnpm run test:devtools",
@@ -54,8 +57,12 @@
     "release": "./scripts/release.sh"
   },
   "devDependencies": {
+    "@types/pixelmatch": "^5.2.6",
+    "@types/pngjs": "^6.0.5",
     "chrome-launcher": "^1.2.1",
     "lighthouse": "^13.4.0",
+    "pixelmatch": "^7.2.0",
+    "pngjs": "^7.0.0",
     "puppeteer-core": "^25.7.0",
     "tsx": "^4.23.1",
     "typescript": "^6.0.2"

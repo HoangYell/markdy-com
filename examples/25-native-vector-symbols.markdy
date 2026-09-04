@@ -1,0 +1,21 @@
+// Showcase: Native Zero-Dependency Vector Symbol Registry
+// Embedded high-fidelity vector icons for top cloud, database, and messaging tech stacks.
+scene "Cloud Native Architecture with Vector Symbols" theme=paper
+layout LR
+
+cloud AwsEdge "AWS CloudFront" icon=aws
+service K8sCluster "EKS Kubernetes Cluster" icon=kubernetes
+database Postgres "PostgreSQL Storage" icon=postgresql
+cache Redis "Redis Memory Store" icon=redis
+queue Kafka "Apache Kafka Stream" icon=kafka
+gateway Nginx "Nginx Ingress" icon=nginx
+
+beat flow:
+  show $nodes stagger=70ms
+  AwsEdge -> Nginx "HTTPS Request" -> K8sCluster "Cluster Routing"
+  K8sCluster -> Postgres "Transactional Write"
+  K8sCluster -> Redis "Cache Lookup"
+  K8sCluster ~> Kafka "Emit CDC Event"
+
+beat highlight_stacks:
+  glow Postgres color=#336791 & glow Redis color=#dc382d & glow Kafka color=#231f20

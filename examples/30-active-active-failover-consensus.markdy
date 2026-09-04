@@ -1,0 +1,23 @@
+scene "Active-Active Failover & Raft Consensus" theme=paper
+layout LR
+
+gateway Route53DNS "AWS Route53 Latency DNS" icon=aws
+service PrimaryCluster "Region US-East Cluster" icon=kubernetes @src="infra/us-east.tf#L20"
+database AuroraMasterEast "Aurora DB (US-East)" icon=postgresql
+service SecondaryCluster "Region EU-West Cluster" icon=kubernetes @src="infra/eu-west.tf#L20"
+database AuroraMasterWest "Aurora DB (EU-West)" icon=postgresql
+service QuorumWitness "Raft Quorum Witness" icon=golang @src="raft/witness.go#L12"
+
+beat active_routing "1. Balanced Dual-Region Active Traffic":
+  show $nodes stagger=60ms
+  Route53DNS -> PrimaryCluster "50% US Traffic"
+  PrimaryCluster -> AuroraMasterEast "Read/Write Transaction"
+  Route53DNS -> SecondaryCluster "50% EU Traffic"
+  SecondaryCluster -> AuroraMasterWest "Read/Write Transaction"
+  AuroraMasterEast ~> AuroraMasterWest "Bi-Directional Stream Sync"
+
+beat failover_quorum "2. Quorum Failover on Regional Outage":
+  QuorumWitness -> PrimaryCluster "Health Check: TIMEOUT"
+  QuorumWitness ~> Route53DNS "Trigger Instant Failover"
+  Route53DNS -> SecondaryCluster "Reroute 100% Global Load"
+  glow SecondaryCluster color=#16a34a & glow PrimaryCluster color=#dc2626

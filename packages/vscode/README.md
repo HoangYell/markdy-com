@@ -22,9 +22,9 @@
 
 <p align="center">
   <a href="https://markdy.com/playground/"><b>⚡ Web Studio</b></a> &nbsp;•&nbsp;
-  <a href="https://markdy.com/docs/"><b>📖 Full Docs</b></a> &nbsp;•&nbsp;
-  <a href="https://markdy.com/examples/"><b>🌟 29 Blueprints</b></a> &nbsp;•&nbsp;
-  <a href="https://github.com/HoangYell/markdy-com"><b>🐙 GitHub Repo</b></a>
+  <a href="https://markdy.com/docs/"><b>📖 Documentation</b></a> &nbsp;•&nbsp;
+  <a href="https://markdy.com/examples/"><b>🌟 33 Blueprints</b></a> &nbsp;•&nbsp;
+  <a href="https://markdy.com/agent/"><b>🤖 AI &amp; Agent Guide</b></a>
 </p>
 
 <p align="center">

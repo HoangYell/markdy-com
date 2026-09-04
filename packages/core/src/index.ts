@@ -88,6 +88,7 @@ export type {
   DiagramDiffResult,
   NodeDiff,
   EdgeDiff,
+  GroupDiff,
   DiffChangeType,
 } from "./diff.js";
 
@@ -100,13 +101,36 @@ export {
   getBoxPortPosition,
   selectOptimalPorts,
   routeOrthogonalEdge,
+  allocatePortLanes,
+  buildSmoothSvgPath,
 } from "./router.js";
 export type {
   Point,
   Box,
   CardinalPort,
+  PortLane,
+  RouteOptions,
   RoutedPath,
 } from "./router.js";
+
+export {
+  VECTOR_SYMBOLS,
+  resolveVectorSymbol,
+  renderSymbolSvg,
+  listAvailableSymbols,
+} from "./symbols.js";
+export type { VectorSymbol } from "./symbols.js";
+
+export {
+  parseCodeAnchor,
+  extractDiagramCodeAnchors,
+  verifyCodeAnchorsWithReader,
+} from "./provenance.js";
+export type {
+  CodeProvenanceAnchor,
+  CodeProvenanceDiagnostic,
+  CodeProvenanceVerificationReport,
+} from "./provenance.js";
 
 export { analyzeAndBuildRepairPrompt } from "./ai-healing.js";
 export type { RepairPromptBundle } from "./ai-healing.js";
@@ -146,4 +170,56 @@ export type {
 } from "./intellicode.js";
 
 export { formatScene } from "./format.js";
+
+export {
+  ARCHITECTURE_RECIPES,
+  recommendArchitecturePattern,
+  synthesizeCustomRecipe,
+  getArchitectureRecipe,
+  listArchitectureRecipes,
+} from "./recipes.js";
+export type {
+  ArchitectureRecipe,
+  PatternRecommendationResult,
+  SynthesizedRecipeResult,
+} from "./recipes.js";
+
+export {
+  verifyDiagramQuality,
+} from "./verifier.js";
+export type {
+  QualityProfile,
+  QualityCheckItem,
+  DiagramQualityMetrics,
+  QualityGateReport,
+  QualityGateOptions,
+} from "./verifier.js";
+
+export {
+  inferNodeC4Level,
+  analyzeC4Model,
+  filterC4Hierarchy,
+  generateC4Storyboard,
+  exportC4LevelViews,
+  validateC4Containment,
+} from "./c4.js";
+export type {
+  C4Level,
+  C4NodeMeta,
+  C4ModelReport,
+  C4LevelViewExport,
+} from "./c4.js";
+
+export {
+  detectArchitectureDrift,
+  autoHealArchitectureDrift,
+} from "./drift.js";
+export type {
+  BrokenAnchorDrift,
+  OrphanCodeServiceDrift,
+  ArchitectureDriftReport,
+  AutoHealResult,
+} from "./drift.js";
+
+
 

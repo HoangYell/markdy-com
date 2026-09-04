@@ -64,7 +64,13 @@ function matchNode(node: NodeDecl, selector?: NodeSelector): boolean {
   if (selector.kindEquals && node.kind.toLowerCase() !== selector.kindEquals.toLowerCase()) return false;
   if (selector.roleEquals) {
     const role = nodeRole(node.kind);
-    if (role.toLowerCase() !== selector.roleEquals.toLowerCase()) return false;
+    const targetRole = selector.roleEquals.toLowerCase();
+    if (targetRole === "gateway") {
+      const isGateway = role === "network" || ["gateway", "api_gateway", "reverse_proxy", "proxy", "router"].includes(node.kind.toLowerCase());
+      if (!isGateway) return false;
+    } else if (role.toLowerCase() !== targetRole) {
+      return false;
+    }
   }
   if (selector.labelContains) {
     const target = (node.label || node.id).toLowerCase();
@@ -261,6 +267,30 @@ export const ARCH_RULE_PRESETS: Record<string, ArchitecturePreset> = {
       },
     ],
   },
+  deploymentOwnership: {
+    id: "deployment-ownership",
+    name: "Deployment Ownership & Regional Governance",
+    description: "Ensure production stateful stores and services are guarded in explicit group perimeters",
+    rules: [
+      {
+        id: "no-unprotected-public-database",
+        name: "No Public Database Exposure",
+        description: "Databases and stateful stores must not be directly accessed from public browser/mobile clients.",
+        severity: "error",
+        type: "cannot-connect",
+        from: { roleEquals: "client" },
+        to: { roleEquals: "data" },
+      },
+      {
+        id: "no-cross-region-sync-bypasses",
+        name: "Synchronous Request Cycle Prevention",
+        description: "Synchronous requests must not form cycles across microservices.",
+        severity: "error",
+        type: "forbidden-cycle",
+        edge: { kind: "request" },
+      },
+    ],
+  },
 };
 
 export function validateArchitecture(
@@ -271,7 +301,7 @@ export function validateArchitecture(
   ]
 ): ArchitectureViolation[] {
   const violations: ArchitectureViolation[] = [];
-  const nodes = Object.values(ast.nodes);
+  const nodes = Object.values(ast?.nodes || {});
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
   const edges = extractAllEdges(ast);
 
@@ -331,6 +361,11 @@ export function validateArchitecture(
       }
 
       case "forbidden-cycle": {
+        const dtype = ast.meta?.type || (ast as any).config?.type || "architecture";
+        const nonServiceArchetypes = ["state", "sequence", "layers", "flywheel", "loop", "venn"];
+        if (nonServiceArchetypes.includes(dtype)) {
+          break;
+        }
         const cycleInfo = detectCycleInGraph(nodes, edges, rule.edge);
         if (cycleInfo) {
           violations.push({

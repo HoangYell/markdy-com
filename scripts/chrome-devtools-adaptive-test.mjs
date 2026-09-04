@@ -5,6 +5,8 @@ import { readFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'node:fs';
+import pixelmatch from 'pixelmatch';
+import { PNG } from 'pngjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -23,6 +25,8 @@ function resolveChromePath() {
     // continue to fallback list
   }
   const defaultPaths = [
+    '/home/ya/.local/bin/google-chrome',
+    '/home/ya/.local/share/chrome-standalone/opt/google/chrome/chrome',
     '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     '/Applications/Chromium.app/Contents/MacOS/Chromium',
     '/usr/bin/google-chrome',
@@ -38,7 +42,9 @@ function resolveChromePath() {
 
 const CHROME_PATH = resolveChromePath();
 const ARTIFACTS_DIR = process.env.ARTIFACTS_DIR || resolve(rootDir, 'tmp/devtools-artifacts');
+const BASELINES_DIR = process.env.BASELINES_DIR || resolve(rootDir, 'tests/visual-baselines');
 fs.mkdirSync(ARTIFACTS_DIR, { recursive: true });
+fs.mkdirSync(BASELINES_DIR, { recursive: true });
 
 const CORE_DIST = resolve(rootDir, 'packages/core/dist');
 const RENDERER_DIST = resolve(rootDir, 'packages/renderer-dom/dist');
@@ -267,6 +273,7 @@ async function runBrowserTests() {
   await page.goto(`http://localhost:${PORT}/index.html`, { waitUntil: 'networkidle0' });
 
   const results = [];
+  const visualFailures = [];
 
   for (const tc of testCases) {
     console.log(`\n🔍 Testing: ${tc.name} (${tc.description})`);
@@ -275,7 +282,7 @@ async function runBrowserTests() {
     }, tc.code);
 
     // Wait for autoplay animations to reveal cards and flow
-    await new Promise((r) => setTimeout(r, 600));
+    await new Promise((r) => setTimeout(r, 800));
 
     // Capture screenshot
     const screenshotPath = join(ARTIFACTS_DIR, `${tc.name}.png`);
@@ -307,6 +314,41 @@ async function runBrowserTests() {
     console.log(`  ✓ Scene transform: ${domMetrics.sceneTransform}`);
     console.log(`  📸 Screenshot saved: ${screenshotPath}`);
 
+    // --- Automated Visual Regression Gate ---
+    const baselinePath = join(BASELINES_DIR, `${tc.name}.png`);
+    const updateBaselines = process.argv.includes('--update-baselines');
+
+    if (updateBaselines || !fs.existsSync(baselinePath)) {
+      fs.copyFileSync(screenshotPath, baselinePath);
+      console.log(`  📸 Baseline seeded/updated: ${baselinePath}`);
+    } else {
+      const img1 = PNG.sync.read(fs.readFileSync(baselinePath));
+      const img2 = PNG.sync.read(fs.readFileSync(screenshotPath));
+
+      if (img1.width !== img2.width || img1.height !== img2.height) {
+        console.error(`  ❌ Visual dimension mismatch: ${img1.width}x${img1.height} vs ${img2.width}x${img2.height}`);
+        visualFailures.push({ test: tc.name, reason: `Dimension mismatch: ${img1.width}x${img1.height} vs ${img2.width}x${img2.height}` });
+      } else {
+        const diff = new PNG({ width: img1.width, height: img1.height });
+        const diffPixels = pixelmatch(img1.data, img2.data, diff.data, img1.width, img1.height, {
+          threshold: 0.1,
+          diffColor: [255, 0, 100],
+          alpha: 0.3
+        });
+        const diffPct = (diffPixels / (img1.width * img1.height)) * 100;
+
+        const maxTolerance = Number(process.env.VISUAL_TOLERANCE) || 0.15;
+        if (diffPct > maxTolerance) {
+          const diffPath = join(ARTIFACTS_DIR, `${tc.name}.diff.png`);
+          fs.writeFileSync(diffPath, PNG.sync.write(diff));
+          console.error(`  ❌ Visual Regression: ${diffPct.toFixed(3)}% diff (${diffPixels} px)! Saved diff to ${diffPath}`);
+          visualFailures.push({ test: tc.name, diffPct, diffPixels, diffPath });
+        } else {
+          console.log(`  👁️  Visual gate: ${diffPct.toFixed(3)}% diff (tolerance: ${maxTolerance}% — PASSED)`);
+        }
+      }
+    }
+
     results.push({
       test: tc.name,
       metaWidth: metrics.metaWidth,
@@ -318,7 +360,15 @@ async function runBrowserTests() {
 
   await browser.close();
   server.close();
-  console.log('\n🎉 All Chrome DevTools browser verification tests completed successfully!');
+
+  if (visualFailures.length > 0) {
+    console.error(`\n❌ [VISUAL REGRESSION GATE FAILED] ${visualFailures.length} visual discrepancy(ies) detected!`);
+    console.error(`   Inspect diff artifacts in: ${ARTIFACTS_DIR}`);
+    console.error(`   If intentional, re-run with '--update-baselines' to accept changes.`);
+    process.exit(1);
+  }
+
+  console.log('\n🎉 All Chrome DevTools verification tests & Visual Regression Gates passed successfully! 🚀');
 }
 
 runBrowserTests().catch((err) => {

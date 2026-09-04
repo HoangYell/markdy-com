@@ -1,11 +1,25 @@
 # @markdy/core
 
-The parser and AST types for [MarkdyScript](../../docs/SYNTAX.md) — a diagram-native DSL for animated architecture diagrams that AI agents can generate reliably.
+<p align="center">
+  <a href="https://markdy.com/playground/"><img src="https://img.shields.io/badge/⚡_Live_Studio-markdy.com%2Fplayground-3b82f6?style=for-the-badge" alt="Live Studio" /></a>
+  <a href="https://markdy.com/docs/"><img src="https://img.shields.io/badge/📖_Docs-Documentation-10b981?style=for-the-badge" alt="Documentation" /></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><img src="https://img.shields.io/badge/🔌_VS_Code-Extension-8b5cf6?style=for-the-badge" alt="VS Code Extension" /></a>
+</p>
+
+The zero-dependency parser, dynamic port multiplexer, and AST routing engine for [MarkdyScript](https://markdy.com/docs/) — a diagram-native DSL for animated architecture diagrams that AI agents generate reliably.
+
+> 🚀 **Try it live**: Test MarkdyScript in the browser at **[markdy.com/playground](https://markdy.com/playground/)**  
+> 📚 **Documentation**: Complete syntax guide and examples at **[markdy.com/docs](https://markdy.com/docs/)**  
+> 🌟 **Architecture Blueprints**: 30+ canonical production diagrams at **[markdy.com/examples](https://markdy.com/examples/)**
 
 ## Features
 
 - **Zero runtime dependencies** — pure TypeScript, no DOM or platform APIs (~14 KB minzipped)
 - **Single-pass parser** — line-by-line state machine with strict `ParseError` line-number diagnostics
+- **Dynamic Port Multiplexer & Smooth Router** — obstacle-aware orthogonal Manhattan routing with balanced multi-lane fan-in/fan-out and smooth fillet curves
+- **Code Provenance & Git In-Tree Grounding** — anchor architecture nodes directly to source files (`@src="path/file.ts#L10-L40"`) with automated path traversal security and bounds validation
+- **Architectural Evolution & Git-Diff Matrix** — deep structural and visual comparison of architecture states with auto-generated animated migration storyboards
+- **Native Vector Symbol Registry** — zero-dependency vector SVG icons for 20+ top cloud, database, runtime, and messaging technologies
 - **17 Specialized Layout Engines** — `architecture`, `flowchart`, `tree`, `sequence`, `state`, `layers`, `nested`, `swimlane`, `timeline`, `gantt`, `medallion`, `flywheel`, `constellation`, `quadrant`, `pyramid`, `radar`, `venn`
 - **10 Semantic Themes** — `paper`, `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `terminal`, `sketchy`, `ink`, `doodle`
 - **Content-Adaptive Canvas Sizing** — automatically calculates optimal aspect ratio and bounds based on diagram items and topology
@@ -18,31 +32,22 @@ The parser and AST types for [MarkdyScript](../../docs/SYNTAX.md) — a diagram-
 pnpm add @markdy/core
 ```
 
-## Package position (text)
+## Package Position
 
 ```text
 @markdy/core
   -> parser + AST types (no DOM, no runtime deps)
+  -> dynamic port multiplexer & orthogonal router
+  -> code provenance & git verification
+  -> architectural evolution & diff matrix
+  -> native vector symbol registry
   -> foundation for renderer, CLI, language server, and integrations
 ```
-
-## Output preview
-
-<p align="center">
-  <a href="https://markdy.com/playground/">
-    <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-url-shortener.webp" alt="Markdy Core Parser Architecture Preview" width="900" />
-  </a>
-</p>
-<p align="center">
-  <a href="https://markdy.com/playground/">
-    <img src="https://raw.githubusercontent.com/HoangYell/markdy-com/main/website/public/images/scene-concurrency-decision-flowchart.webp" alt="Markdy Concurrency Flowchart Preview" width="900" />
-  </a>
-</p>
 
 ## Usage
 
 ```typescript
-import { parse, ParseError } from "@markdy/core";
+import { parse, ParseError, diffDiagramASTs, resolveVectorSymbol } from "@markdy/core";
 import type { DiagramAST } from "@markdy/core";
 
 const source = `
@@ -51,8 +56,9 @@ layout LR
 
 browser Client "Web Client"
 gateway Gateway "API Gateway"
-service Shortener "URL Service"
-cache Redis "Redis Cluster"
+service Shortener "URL Service" @src="src/url/service.ts#L15-L80"
+cache Redis "Redis Cluster" icon=redis
+database Postgres "PostgreSQL 16" icon=postgresql
 
 beat hit:
   show $nodes stagger=60ms
@@ -66,7 +72,7 @@ try {
   const ast: DiagramAST = parse(source);
 
   console.log(ast.meta);   // { width: 1280, height: 720, fps: 60, theme: "paper", direction: "LR", title: "Cache-Aside Architecture" }
-  console.log(ast.nodes);  // { Client: { kind: "browser", ... }, Gateway: { ... } }
+  console.log(ast.nodes);  // { Client: { kind: "browser", ... }, Shortener: { ... } }
   console.log(ast.beats);  // [{ name: "hit", cues: [...] }]
 } catch (e) {
   if (e instanceof ParseError) {
@@ -75,33 +81,31 @@ try {
 }
 ```
 
-## Exports
+## Key API Exports
 
 | Export | Type | Description |
 |---|---|---|
 | `parse` | `(source, opts?) => DiagramAST` | Parse MarkdyScript source into a diagram AST |
 | `compile` | `(ast) => RenderPlan` | Lay out nodes, route edges, and schedule cues |
-| `compilePlan` | `(ast, theme) => RenderPlan` | Compile AST against a resolved theme token set |
-| `computeAdaptiveDimensions` | `(ast, edges?) => { width, height }` | Compute content-adaptive canvas dimensions from topology & items |
-| `parseAndCompile` | `(source) => { ast, plan }` | Parse and compile in one call |
-| `ParseError` | class | Error with `.line` number for diagnostics |
-| `DiagramAST` | type | Parsed scene: meta, nodes, edges, groups, patterns, beats |
-| `RenderPlan` | type | Positioned nodes, routed edges, group zones, sequence messages, timed cues, beat ranges |
-| `SceneMeta` | type | Scene configuration; `meta.player` is authoritative, with deprecated flat mirrors retained for compatibility |
-| `PlayerConfig` / `resolvePlayer` | type / function | Grouped playback, controls, interaction, and chrome configuration with host resolution |
+| `routeOrthogonalEdge` | `(src, tgt, opts?) => RoutedPath` | Compute collision-aware orthogonal waypoints with smooth fillet curves |
+| `allocatePortLanes` | `(edges, boxes) => Map` | Dynamic port multiplexer distributing multi-edge lanes along node perimeters |
+| `parseCodeAnchor` / `extractDiagramCodeAnchors` | `functions` | Parse and extract `@src` code provenance anchors from diagram nodes |
+| `verifyCodeAnchorsWithReader` | `(anchors, reader) => Report` | Verify code anchors against local repository files and line counts |
+| `diffDiagramASTs` | `(astA, astB) => DiffResult` | Compare architecture versions and generate executable migration storyboards |
+| `resolveVectorSymbol` / `renderSymbolSvg` | `functions` | Zero-dependency vector SVG icon registry (AWS, K8s, Redis, Postgres, Kafka...) |
 | `generateThemeFromBrand` | `(hexColor, name?) => { light, dark }` | Generate WCAG-compliant light and dark theme palettes from any brand hex color |
-| `validateArchitectureRules` | `(ast) => Diagnostic[]` | Run Well-Architected rules: cycle detection, layer boundaries, and gateway checks |
-| `diffAST` | `(astA, astB) => ASTDiffResult` | Compare architecture versions, calculate diff metrics, and generate migration scenes |
-| `compressUrlState` / `decompressUrlState` | `(code, opts?) => string` | Zero-dependency URL hash state encoder for shareable playground links |
-| `THEMES` / `resolveTheme` | tokens / function | 10 Semantic theme palettes (`paper`, `editorial`, `nebula`, `midnight`, `blueprint`, `graphite`, `terminal`, `sketchy`, `ink`, `doodle`) |
+| `compressMarkdyToUrlHash` / `decompress` | `functions` | Lossless URL hash state encoder for shareable playground links |
+| `THEMES` / `resolveTheme` | tokens / function | 10 Semantic theme palettes |
 
-## Documentation
+## Ecosystem & Documentation
 
-- **[Syntax Reference](../../docs/SYNTAX.md)** — complete DSL language spec
-- **[Tutorial](../../docs/TUTORIAL.md)** — step-by-step guide
-- **[Agent Guide](https://markdy.com/agent/)** — structured reference for AI/LLM code generation
-- **[Architecture](../../docs/ARCHITECTURE.md)** — parser internals and design decisions
+- ⚡ **[Interactive Studio / Playground](https://markdy.com/playground/)** — edit MarkdyScript with instant live preview in your browser
+- 📖 **[Syntax Guide & Reference](https://markdy.com/docs/)** — complete language specification and keywords
+- 🌟 **[Canonical Blueprints](https://markdy.com/examples/)** — production-grade distributed system and cloud architectures
+- 🤖 **[Agent Engineering Guide](https://markdy.com/agent/)** — instructions for LLMs (Claude, GPT, Gemini) to generate valid Markdy
+- 🔌 **[VS Code Marketplace Extension](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode)** — syntax highlighting and live preview in editor
+- 📦 **[GitHub Repository](https://github.com/HoangYell/markdy-com)** — source code, benchmarks, and issue tracker
 
 ## License
 
-[MIT](../../LICENSE)
+[MIT](https://github.com/HoangYell/markdy-com/blob/main/LICENSE)

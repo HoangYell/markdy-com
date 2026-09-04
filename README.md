@@ -13,7 +13,7 @@
   <a href="https://markdy.com/playground/"><b>⚡ Live Studio</b></a> &nbsp;•&nbsp;
   <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><b>🔌 VS Code Extension</b></a> &nbsp;•&nbsp;
   <a href="https://markdy.com/docs/"><b>📖 Documentation</b></a> &nbsp;•&nbsp;
-  <a href="https://markdy.com/examples/"><b>🌟 29 Blueprints</b></a> &nbsp;•&nbsp;
+  <a href="https://markdy.com/examples/"><b>🌟 33 Blueprints</b></a> &nbsp;•&nbsp;
   <a href="https://markdy.com/agent/"><b>🤖 AI &amp; Agent Guide</b></a>
 </p>
 
@@ -152,13 +152,53 @@ Choose the package that fits your stack:
 Static boxes and arrows fail to capture distributed systems in action. **Markdy turns text into choreographed 60fps motion graphics** directly in your browser.
 
 - 🎬 **Kinetic Storytelling**: Choreograph requests (`->`), responses (`<-`), and events (`~>`) across sequential `beat` timelines with auto-zooms and glow cues.
-- 📐 **Zero-Config Layout**: Collision-aware orthogonal Manhattan edge routing and rank-based auto-layout.
+- 📐 **Dynamic Port Multiplexing**: Automatically balances parallel connections across node boundaries with zero line congestion or overlapping paths.
+- 🔗 **Code Provenance & Git Grounding**: Anchor high-level architecture nodes directly to verified source code (`@src="src/auth.ts#L10-L50"`) with automated in-tree Git verification.
+- 🔄 **Architectural Evolution Matrix**: Compare architecture states across Git commits and automatically synthesize animated migration storyboards.
+- 🔬 **Blast Radius & Route Pathfinder**: Compute upstream dependency callers, downstream failure blast radius, and shortest message paths in real-time.
+- 💎 **Native Vector Symbol Registry**: Embedded, zero-dependency SVG vector glyphs for AWS, GCP, Kubernetes, Docker, Postgres, Redis, Kafka, and 20+ stacks.
 - ⚡ **Zero-Dep & Web-Native**: Powered by pure CSS/SVG transforms and the Web Animations API (WAAPI) — ~14 kB parser, no Canvas, no GSAP.
 - 🔄 **Universal Ingestion**: 1-click migration from Mermaid, Draw.io, Docker Compose, Kubernetes manifests, and Terraform states.
 - 🤖 **AI-Native & MCP**: Official Model Context Protocol (MCP) server for Claude, Cursor, Antigravity, and Cline with self-healing syntax diagnostics.
 - 🛡️ **Architecture Governance**: Built-in rules prevent deadlock cycles and cross-layer bypasses.
 
 </details>
+
+---
+
+## 🌟 Advanced Engineering Superpowers
+
+Markdy goes beyond basic diagram drawing into a comprehensive **Architecture Intelligence Platform**:
+
+```markdy
+scene "Cloud Native Microservices Mesh" theme=paper
+layout LR
+
+gateway ApiGateway "API Gateway" icon=nginx @src="src/gateway/router.ts#L20"
+service OrderSvc "Order Service" icon=nodejs @src="src/orders/service.ts#L45"
+service UserSvc "User Service" icon=golang @src="src/users/handler.go#L30"
+cache Redis "Redis Cluster" icon=redis
+database Postgres "PostgreSQL 16" icon=postgresql
+
+beat workflow:
+  show $nodes stagger=60ms
+  ApiGateway -> OrderSvc "POST /orders" & ApiGateway -> UserSvc "GET /profile"
+  OrderSvc -> Postgres "Write Order" & UserSvc -> Postgres "Read User"
+  OrderSvc ~> Redis "Cache Invalidation"
+```
+
+| Superpower | Syntax / API | Developer Impact |
+| :--- | :--- | :--- |
+| **Dynamic Port Multiplexing** | Auto-calculated | Perfectly balanced multi-lane fan-in/fan-out with smooth fillet curves |
+| **Code Provenance Anchors** | `@src="path/file.ts#L10"` | Guaranteed synchronization between architecture diagrams and real Git code |
+| **Evolution Git-Diff** | `diffDiagramASTs(v1, v2)` | Automated visual diffing and animated migration timeline generation |
+| **Blast Radius Lens** | `calculateBlastRadius(node, ast)` | Real-time upstream impact and downstream failure cascade isolation |
+| **Contextual Share Cards (1200×630)** | `exportRouteShareCard()`, `exportReachShareCard()` | High-impact social & README cards with active route/blast-radius telemetry |
+| **9-Point Showcase Quality Gate** | `markdy verify <file> --quality showcase` | Deterministic SHA-256 integrity receipt & responsive viewport validation |
+| **Architecture Recipe Guidance** | `markdy guide "<query>"` | Instant AI scenario pattern matching for cache-aside, EDA, zero-trust, and lakehouse |
+| **Native Vector Symbols** | `icon=redis`, `icon=kafka` | Zero-CDN, lightweight vector badges embedded directly in the artifact |
+
+
 
 ---
 
@@ -180,7 +220,7 @@ claude mcp add markdy -- npx -y @markdy/mcp-server
 agy mcp add markdy -- npx -y @markdy/mcp-server
 ```
 
-👉 **[1-Click Install for Cursor ↗](https://markdy.com/mcp/cursor)** &nbsp;•&nbsp; **[1-Click Install for VS Code ↗](https://markdy.com/mcp/vscode)** &nbsp;•&nbsp; **[Full JSON Configs for 6 IDEs ↓](#mcp-setup)** &nbsp;•&nbsp; **[AI Agent Guide (`AGENT.md`) ↗](docs/AGENT.md)**
+👉 **[1-Click Install for Cursor ↗](https://markdy.com/mcp/cursor)** &nbsp;•&nbsp; **[1-Click Install for VS Code ↗](https://markdy.com/mcp/vscode)** &nbsp;•&nbsp; **[Full JSON Configs for 6 IDEs ↓](#mcp-setup)** &nbsp;•&nbsp; **[AI Agent Guide (`AGENT.md`) ↗](AGENT.md)**
 </details>
 
 <details>
@@ -480,10 +520,24 @@ agy mcp add markdy -- npx -y @markdy/mcp-server
 - 🔄 `transpile_to_markdy`: Convert Mermaid, Docker Compose, Kubernetes, Terraform, or Draw.io into valid MarkdyScript.
 - 📚 `markdy://spec/agent-reference`: Full AST grammar reference and token catalog.
 - 🏛️ `markdy://governance/rules`: Architecture rules (Well-Architected, cycle bounds, layer separation).
-- 📦 `markdy://templates/catalog`: 29 production-grade architecture blueprints.
+- 📦 `markdy://templates/catalog`: 33 production-grade architecture blueprints.
 
 👉 *[Read the Full AI Agent Reference Guide (`AGENT.md`) ↗](https://markdy.com/agent/)*
 </details>
+
+---
+
+## 🚦 Verification Gates & Quality Engineering
+
+Every pull request and build must pass the automated full-cycle verification pipeline:
+
+| Command | Verification Gate | Focus Area |
+|---|---|---|
+| `pnpm test` | **Unit & Integration Suite** | AST parser, compiler math, layout solvers, CLI |
+| `pnpm test:visual` | **Automated Visual Gate** | Headless Chrome + Pixelmatch against golden baselines (`tests/visual-baselines/`) |
+| `pnpm test:perf` | **Sub-Frame Performance Gate** | Chrome DevTools Protocol tracing (sub-40ms render, <25MB JS heap) |
+| `pnpm verify:examples` | **Canonical Showcase Gate** | 33 production blueprints compile with zero warnings |
+| `cleanroom-guard check` | **Anti-Leak & Clean-Room** | Pre-commit secret scanning and clean-room zero-footprint protection |
 
 ---
 
@@ -493,7 +547,7 @@ agy mcp add markdy -- npx -y @markdy/mcp-server
 |---|---|
 | **[Syntax Reference (SYNTAX.md)](docs/SYNTAX.md)** | Full DSL grammar, flow operators, selectors, cues, and player settings |
 | **[Step-by-Step Tutorial (TUTORIAL.md)](docs/TUTORIAL.md)** | Step-by-step guide from basic flows to multi-beat kinetic scenes |
-| **[AI Agent Guide (AGENT.md)](docs/AGENT.md)** | LLM system prompts, token rules, and anti-patterns |
+| **[AI Agent Guide (AGENT.md)](AGENT.md)** | LLM system prompts, token rules, and anti-patterns |
 | **[Architecture Internals (ARCHITECTURE.md)](docs/ARCHITECTURE.md)** | Compiler pipelines, WAAPI loop, and orthogonal routing geometry |
 | **[VS Code Extension Guide](packages/vscode/README.md)** | Shortcuts, settings, and IDE features |
 

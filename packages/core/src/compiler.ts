@@ -49,11 +49,14 @@ export function computeNodeDimensions(
   const valueW = valLen > 0 ? Math.max(50, valLen * 9.5 + 16) : 0;
 
   // Content width needed for label & tech badge
-  const neededLabelChars = labelLen > 18 ? Math.ceil(labelLen / 2) : labelLen;
+  const words = (decl.label || "").trim().split(/\s+/).filter(Boolean);
+  const longestWord = Math.max(...words.map((w) => w.length), 0);
+  const avgLineChars = words.length > 1 ? Math.ceil(labelLen / Math.min(words.length, 2)) : labelLen;
+  const neededLabelChars = Math.max(longestWord + 2, avgLineChars, Math.min(labelLen, 22));
   const maxChars = Math.max(neededLabelChars, techLen);
-  const neededTextW = Math.max(88, maxChars * 7.8);
+  const neededTextW = Math.max(96, maxChars * 8.4);
 
-  const calculatedW = 56 + neededTextW + (valueW > 0 ? valueW + 14 : 0) + 16;
+  const calculatedW = 56 + neededTextW + (valueW > 0 ? valueW + 14 : 0) + 18;
   const minW = Math.max(baseW, Math.min(360, calculatedW));
 
   let width = Math.ceil(minW / 8) * 8;

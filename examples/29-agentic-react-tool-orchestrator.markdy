@@ -1,0 +1,25 @@
+scene "Agentic ReAct Tool Orchestrator Loop" theme=nebula
+layout LR
+
+browser Workspace "Engineer Workspace" icon=terminal
+service AgentCore "ReAct Agent Orchestrator" icon=python @src="agent/runtime.py#L40"
+database VectorStore "Qdrant Vector DB" icon=redis
+service LLMInference "Gemini 1.5 Pro API" icon=gemini
+service MCPServer "MCP Tool Protocol" icon=docker @src="mcp/server.py#L18"
+service K8sCluster "Production Kubernetes" icon=kubernetes
+
+beat reasoning_loop "1. Context Retrieval & Thought Formulation":
+  show $nodes stagger=60ms
+  Workspace -> AgentCore "Prompt: Scale production deployment"
+  AgentCore -> VectorStore "Query Similarity Embedding"
+  AgentCore <- VectorStore "Top-3 Matched Runbooks"
+  AgentCore -> LLMInference "Generate Plan & Tool Call"
+  AgentCore <- LLMInference "ToolCall: scale_k8s(5)"
+
+beat tool_execution "2. MCP Tool Invocation & Verification":
+  AgentCore -> MCPServer "Invoke MCP Tool"
+  MCPServer -> K8sCluster "kubectl scale --replicas=5"
+  MCPServer <- K8sCluster "Deployment successfully updated"
+  AgentCore <- MCPServer "Tool Observation Payload"
+  Workspace <- AgentCore "Goal Complete: Replicas scaled to 5"
+  glow AgentCore color=#c4b5fd & glow K8sCluster color=#67e8f9

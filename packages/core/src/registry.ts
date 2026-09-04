@@ -37,6 +37,7 @@ export const EDGE_OPERATORS: Record<string, "request" | "response" | "event" | "
   "<-": "response",
   "~>": "event",
   "--": "dependency",
+  "..>": "dependency",
 };
 
 export const RESERVED_SELECTORS = new Set(["$title", "$nodes", "$edges"]);

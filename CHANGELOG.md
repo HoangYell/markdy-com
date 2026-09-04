@@ -5,6 +5,36 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] — 2026-09-04
+
+### Added & Enhanced
+- **⚡ Deterministic Architecture Intelligence & Recipe Synthesizer (`@markdy/core`, `@markdy/cli`)**:
+  - Dynamic heuristic recipe synthesizer: generates valid `.markdy` AST in <2ms with zero LLM API token consumption.
+  - 14 canonical production architecture recipes: Multi-Tier Cache-Aside, Event-Driven EDA with Kafka & CDC, CQRS & Event Sourcing, OAuth2 PKCE, Zero-Trust Enclave, Active-Active Multi-Region Resilient Quorum, Agentic ReAct Tool Orchestrator, Canary Deployment, OTel Distributed Tracing, Edge Serverless Mesh, Saga Orchestration, Medallion Lakehouse, Vector Search RAG, and Sharded Microservices.
+  - Interactive CLI discovery & synthesis: `markdy guide "<query>"`, `markdy guide "<query>" --synthesize`, and `markdy recipe <id>`.
+- **🛡️ 12-Point Quality Gate & Responsive Viewport Verifier (`@markdy/core`, `@markdy/cli`)**:
+  - Deterministic 12-point architecture validation: syntax validity, responsive desktop ladder (1440x900 to 2048x1320), node collision safety, typography & label legibility floor (<50 chars), architecture governance & clean architecture rules, dynamic port routing clarity, code provenance anchor validation (`@src`), native vector symbol resolution, theme contrast (WCAG AA), orphan node isolation, DFS circular deadlock detection on synchronous request flows, and viewport connectivity density (<4.5 flows/node for 60fps motion).
+  - Synchronous AST fingerprinting with deterministic receipt generation (`markdy verify <file> --quality strict --json`).
+- **🔄 Universal DSL Ingestion (`@markdy/compat`, `@markdy/cli`)**:
+  - Upgraded `@markdy/compat` to a public publishable package with standalone programmatic APIs.
+  - D2 Transpiler: 1-click import from D2 declarative scripts (`markdy import arch.d2 --from d2`), preserving containers, shapes, and bidirectional connectors (`<->`, `..>`).
+  - PlantUML Transpiler: 1-click import from PlantUML (`markdy import arch.puml --from plantuml`), supporting packages, rectangles, sequence syntax, and C4 macros (`Person`, `Container`, `ContainerDb`, `Rel`).
+- **🏗️ C4 Hierarchical Architecture Engine (`@markdy/core`, `@markdy/cli`)**:
+  - Full C4 model hierarchy: L1 System Context, L2 Containers, L3 Components, and L4 Code Provenance.
+  - Automatic C4 level inference and cross-level containment validation (`markdy c4 <file>`).
+  - View extraction pipeline: exports isolated standalone sub-blueprints per C4 level (`markdy c4 <file> --export-views --out ./views`).
+  - Multi-beat narrative storyboard zoom generator (`markdy c4 <file> --storyboard`).
+- **🔍 Architecture Drift Detection & In-Tree Auto-Healing (`@markdy/core`, `@markdy/cli`)**:
+  - Real filesystem scanner matching `@src` code provenance anchors against repository files (`markdy drift <file> --repo ./my-app`).
+  - Non-destructive auto-healing using directory-aware Levenshtein fuzzy distance (`--fix`) to reconnect moved files and discover unmapped physical services.
+- **⚡ Dynamic Port Multiplexing & Dual-Highway Edge Routing (`@markdy/renderer-dom`)**:
+  - Balanced multi-lane fan-in and fan-out with non-collinear orthogonal routing and smooth fillet transitions.
+  - Dual-highway bidirectional separation: forward requests (`->`) and reverse responses (`<-`) occupy parallel lanes, eliminating label-on-connector collisions.
+- **🎴 Contextual Share Cards & Visual Blast Radius Lens (`@markdy/renderer-dom`)**:
+  - High-impact 1600×900 social & documentation share cards: Standard Showcase Card, Route Pathfinder Card (hop telemetry & path isolation), and Blast Radius Reach Card (root fault isolation & cascading risk tiers).
+- **💎 31 Native Vector Badges (`@markdy/core`, `@markdy/renderer-dom`)**:
+  - Built-in zero-CDN vector icons for cloud, infrastructure, databases, and AI: AWS, GCP, Azure, K8s, Docker, Postgres, Redis, Kafka, Nginx, Envoy, Vault, OPA, Keycloak, Prometheus, Datadog, Spark, Flink, Snowflake, Delta, Gemini, and more.
+
 ## [1.2.0] — 2026-08-30
 
 ### Added & Enhanced

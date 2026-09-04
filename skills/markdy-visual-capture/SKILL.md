@@ -10,15 +10,21 @@ This skill teaches the agent how to capture crisp 2× Retina screenshots from th
 
 ---
 
-## 🎨 Visual Composition Rules
+## 🎨 Visual Composition & Verification Rules
 
-1. **Landscape 16:9 Format**: All documentation images must use `1600×900` px rendered at `deviceScaleFactor: 2` (3200×1800 virtual resolution) and saved as optimized `.webp`.
-2. **Dominant Main Window**: The main diagram window card takes up ~95% of the canvas width, framed with a clean macOS titlebar (🔴 🟡 🟢 traffic light dots and scene tags).
-3. **Mascot Placement**: The cute Markdy axolotl mascot (`docs/images/mascot/markdy.png`) sits at the **bottom-right corner**, naturally overlapping the frame without obscuring key diagram nodes.
-4. **Speech Bubble Explanations**: Positioned directly above the mascot, providing concise, human-readable explanations of the architectural mechanics (e.g. *how Redis caches slugs in under 2ms*, *how Kubernetes Ingress terminates TLS*).
-5. **3D Icon Pinned Sticky Note**: An enlarged yellow sticky note is positioned at the **bottom-left corner**, pinned at its top-left by the 3D glossy Markdy hexagon icon (`docs/images/mascot/3d-icon.png`).
-6. **No Center Link Distractions**: Do NOT draw heavy magical beams or lines crossing over the diagram content. The diagram must remain clear, sharp, and dominant.
-7. **Brand Top Bar**: Sleek header with the 3D Markdy icon, `Markdy.com` logo, and 3D architectural pattern badges.
+1. **Zero Fake Mockup Policy**: NEVER fabricate evidence using raw HTML `<div>` mocks, hardcoded emojis (`🌐`, `⚡`, `🐘`), or dummy SVG lines. All evidence must come from either 100% authentic compiler-rendered ASTs or live web app pages.
+2. **Mandatory Live Server Execution**: Always start the authentic local web application (e.g. `pnpm --filter @markdy/website run preview --port 4321`) and use Browser Automation MCP tools (`puppeteer_navigate`, `puppeteer_screenshot`) to capture real UI in action.
+3. **Dual Visual Evidence Deliverables**:
+   - **Live Production UI in Action**: Monaco/CodeMirror split editor, live WAAPI motion canvas, token shelf, diagnostics panel (`/playground`, `/examples`, `/`).
+   - **Authentic Compiler-Rendered Blueprints**: 1600×900 high-DPI showcase cards compiled directly via `@markdy/core` + `@markdy/renderer-dom`, seeked to active beats with native vector icons and glow shaders.
+4. **Landscape 16:9 Format**: All documentation and showcase images must use `1600×900` px rendered at `deviceScaleFactor: 2` (3200×1800 virtual resolution) and saved as optimized `.webp`.
+5. **Dominant Main Window**: The main diagram window card takes up ~95% of the canvas width, framed with a clean macOS titlebar (🔴 🟡 🟢 traffic light dots and scene tags).
+6. **Mascot Placement**: The cute Markdy axolotl mascot (`docs/images/mascot/markdy.webp`) sits at the **bottom-right corner**, naturally overlapping the frame without obscuring key diagram nodes.
+7. **Speech Bubble Explanations**: Positioned directly above the mascot, providing concise, human-readable explanations of the architectural mechanics (e.g. *how Redis caches slugs in under 2ms*, *how Kubernetes Ingress terminates TLS*).
+8. **3D Icon Pinned Sticky Note**: An enlarged yellow sticky note is positioned at the **bottom-left corner**, pinned at its top-left by the 3D glossy Markdy hexagon icon (`docs/images/mascot/3d-icon.webp`).
+9. **No Center Link Distractions**: Do NOT draw heavy magical beams or lines crossing over the diagram content. The diagram must remain clear, sharp, and dominant.
+10. **Brand Top Bar**: Sleek header with the 3D Markdy icon, `Markdy.com` logo, and 3D architectural pattern badges.
+
 
 ---
 
