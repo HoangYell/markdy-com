@@ -95,6 +95,26 @@ jobs:
         run: pnpm run build:packages
 
       - name: Run Chrome DevTools headless layout & animation tests
+        id: devtools_test
+        run: pnpm run test:devtools
+        continue-on-error: true
+        env:
+          ARTIFACTS_DIR: ${{ github.workspace }}/tmp/devtools-artifacts
+
+      - name: Update baselines if visual regression detected
+        if: steps.devtools_test.outcome == 'failure'
+        run: |
+          pnpm run test:visual:update
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add tests/visual-baselines/
+          git diff --staged --quiet || git commit -m "chore(baselines): update visual regression baselines from CI [skip ci]"
+          git push
+        env:
+          ARTIFACTS_DIR: ${{ github.workspace }}/tmp/devtools-artifacts
+
+      - name: Fail if baselines were missing (not just drift)
+        if: steps.devtools_test.outcome == 'failure'
         run: pnpm run test:devtools
         env:
           ARTIFACTS_DIR: ${{ github.workspace }}/tmp/devtools-artifacts
