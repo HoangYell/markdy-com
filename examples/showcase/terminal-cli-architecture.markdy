@@ -14,7 +14,7 @@ group ingress "Ingress & Proxy Mesh": EdgeGateway AuthProxy
 group system "Kernel & Storage Engine": CoreDaemon StorageEngine AuditLog
 
 beat init_services "1. Spawn System Daemons":
-  show $nodes stagger=50ms
+  show ingress stagger=50ms
   frame EdgeGateway AuthProxy zoom=1.12 dur=500ms
   glow EdgeGateway color=#38bdf8
 

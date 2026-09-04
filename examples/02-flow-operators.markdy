@@ -8,7 +8,6 @@ database RecordsDb
 queue EventQueue
 
 beat flows:
-  show $nodes
   WebApp -> Api "request"          // -> solid request edge
   Api <- WebApp "response"         // <- dashed response (drawn back toward API)
   Api ~> EventQueue "event"        // ~> dotted event edge

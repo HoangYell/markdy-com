@@ -12,7 +12,6 @@ database CentralStore "Primary Warehouse" icon=postgres stroke="#f97316" accent=
 service Analytics "Real-Time Dashboard" icon=grafana
 
 beat pipeline_flow:
-  show $nodes stagger=60ms
   Ingest -> Router "Push Telemetry" -> Worker "Task Queue"
   Worker -> Transform "Normalize Payload"
   Transform -> HotBuffer "Stage Batch"

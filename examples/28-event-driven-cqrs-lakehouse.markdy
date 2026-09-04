@@ -10,7 +10,6 @@ database SnowflakeGold "Snowflake (Gold Tier)" icon=snowflake
 dashboard AnalyticsBI "Apache Superset" icon=superset
 
 beat write_event "1. Command Append & Kafka Stream":
-  show $nodes stagger=50ms
   CommandAPI -> CommandSvc "POST /orders/checkout"
   CommandSvc ~> KafkaTopic "Publish OrderPlacedEvent"
   CommandAPI <- CommandSvc "202 Accepted (Queued)"

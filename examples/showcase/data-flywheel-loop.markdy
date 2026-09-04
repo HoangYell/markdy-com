@@ -17,7 +17,6 @@ edge e4: MerkleTreeSync -> QuorumReadRepair
 edge e5: QuorumReadRepair -> NodeMutation
 
 beat compounding_loop "1. Continuous Anti-Entropy Convergence Cycle":
-  show $nodes stagger=50ms
   frame ConvergenceCore NodeMutation GossipBroadcast VectorClockCompare MerkleTreeSync QuorumReadRepair zoom=1.05 dur=500ms
   NodeMutation -> GossipBroadcast "UDP gossip packet" -> VectorClockCompare "detect causality" -> MerkleTreeSync "range mismatch" -> QuorumReadRepair "backfill stale node" -> NodeMutation "converge state"
   glow ConvergenceCore color=#047857

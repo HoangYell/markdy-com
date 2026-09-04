@@ -518,4 +518,32 @@ service API
     const plan = compile(parse(source));
     expect(plan.title).toBe("");
   });
+
+  it("does not auto-inject __intro show cues for nodes that participate in flow choreography", () => {
+    const source = `
+scene "Progressive Reveal Flow" theme=midnight
+service Ingest
+service Router
+service Worker
+
+beat main:
+  Ingest -> Router "telemetry" -> Worker "task"
+`;
+    const plan = compile(parse(source));
+    const introCue = plan.cues.find((c) => c.beat === "__intro");
+    expect(introCue).toBeUndefined();
+    expect(plan.cues.filter((c) => c.kind === "flow").length).toBe(2);
+  });
+
+  it("auto-injects __intro show cue for isolated nodes or diagrams without flow cues", () => {
+    const source = `
+scene "Static Scene" theme=paper
+service Ingest
+service Router
+`;
+    const plan = compile(parse(source));
+    const introCue = plan.cues.find((c) => c.beat === "__intro");
+    expect(introCue).toBeDefined();
+    expect(introCue?.targets).toEqual(["Ingest", "Router"]);
+  });
 });

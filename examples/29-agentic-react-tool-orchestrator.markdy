@@ -9,7 +9,6 @@ service MCPServer "MCP Tool Protocol" icon=docker @src="mcp/server.py#L18"
 service K8sCluster "Production Kubernetes" icon=kubernetes
 
 beat reasoning_loop "1. Context Retrieval & Thought Formulation":
-  show $nodes stagger=60ms
   Workspace -> AgentCore "Prompt: Scale production deployment"
   AgentCore -> VectorStore "Query Similarity Embedding"
   AgentCore <- VectorStore "Top-3 Matched Runbooks"

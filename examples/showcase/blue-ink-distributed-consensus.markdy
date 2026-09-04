@@ -39,6 +39,7 @@ beat commit "3. Quorum Acknowledgment & State Machine Apply":
   FollowerB <- Leader "ack_ok"
   frame storage zoom=1.15 dur=450ms
   Leader -> StateMachine "apply_committed_tx"
+  frame $nodes dur=450ms
   Client <- Proxy "200 Committed (tx=402)"
   glow StateMachine color=#0284c7 strength=1.2
 

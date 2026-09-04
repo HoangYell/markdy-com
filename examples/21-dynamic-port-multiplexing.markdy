@@ -13,7 +13,6 @@ database Database "PostgreSQL 16"
 cache Cache "Redis Cache"
 
 beat fan_in:
-  show $nodes stagger=60ms
   WebClient -> ApiGateway "HTTPS /api" & MobileApp -> ApiGateway "gRPC /api"
   ApiGateway -> OrderSvc "Dispatch Order" & ApiGateway -> UserSvc "Auth & Profile"
   OrderSvc -> Database "INSERT INTO orders" & UserSvc -> Database "SELECT user" & Analytics -> Database "Audit Snapshot"

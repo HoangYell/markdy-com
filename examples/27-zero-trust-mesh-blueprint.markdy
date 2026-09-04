@@ -9,7 +9,6 @@ service SecretVault "HashiCorp Vault" icon=vault @src="vault/config.hcl#L1"
 database AuditStore "Immutable S3 Audit" icon=s3
 
 beat zero_trust_auth "1. Continuous Zero-Trust Authentication":
-  show $nodes stagger=50ms
   CloudflareEdge -> IdentityOIDC "Authenticate Request Claims"
   CloudflareEdge <- IdentityOIDC "Cryptographic Identity Token"
   CloudflareEdge -> PolicyEngineOPA "Evaluate RBAC/ABAC Context"

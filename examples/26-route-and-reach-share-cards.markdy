@@ -8,7 +8,6 @@ cache RedisCache "Redis Cluster" icon=redis
 database PrimaryPostgres "PostgreSQL 16" icon=postgresql @src="src/db/schema.sql#L10"
 
 beat route_inspection "1. Active Route Pathfinder":
-  show $nodes stagger=60ms
   frame Client EdgeProxy RouterSvc RedisCache zoom=1.12
   Client -> EdgeProxy "GET /api/v2/products"
   EdgeProxy -> RouterSvc "Dispatch (mTLS)"

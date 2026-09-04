@@ -11,7 +11,7 @@ service Validation "4. Customer Usability Testing"
 service Decision "5. Ship or Pivot Decision"
 
 beat discovery_flow "1. Initialize Discovery Phases":
-  show $nodes stagger=60ms
+  show ProblemDef
   frame ProblemDef zoom=1.15 dur=500ms
   glow ProblemDef color=#eab308
 

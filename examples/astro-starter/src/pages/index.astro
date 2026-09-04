@@ -15,7 +15,6 @@ group app "Application Tier": Gateway Shortener
 group data "Persistence Tier": Redis Postgres
 
 beat hit "1. Sub-2ms Cache Hit Path":
-  show $nodes stagger=60ms
   frame Client Gateway Shortener Redis zoom=1.1
   Client -> Gateway "GET /x9" -> Shortener "resolve"
   Shortener -> Redis "GET slug:x9"

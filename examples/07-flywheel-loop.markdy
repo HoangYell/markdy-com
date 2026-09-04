@@ -12,7 +12,6 @@ station Measure "Observability & Feedback"
 station Evolve "Model Fine-Tuning"
 
 beat perimeter_operating_flow "1. Clockwise Operating Cycle":
-  show $nodes stagger=40ms
   Capture -> Synthesize "raw telemetry & user prompts"
   Synthesize -> Decide "structured context & citations"
   Decide -> Act "approved execution plan"

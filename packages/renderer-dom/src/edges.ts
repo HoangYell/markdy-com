@@ -306,8 +306,8 @@ export function createEdgeRuntime(
   existingPaths: Point[][] = [],
 ): EdgeRuntime {
   ensureDefs(svg, theme, sceneId);
-  const color = theme.edges[kind];
-  const style = EDGE_STYLES[kind];
+  const color = theme.edges[kind] ?? theme.edges.request ?? theme.accent;
+  const style = EDGE_STYLES[kind] ?? EDGE_STYLES.request;
   const isSelfLoop = from.id === to.id;
   const points = isSelfLoop
     ? dedupePoints(selfLoopPath(from, bounds))
@@ -740,7 +740,7 @@ export function buildCueAnimations(
             anims.push(
               el.animate(
                 [{ opacity: 0, transform: "translateY(10px) scale(0.98)" }, { opacity: 1, transform: "translateY(0) scale(1)" }],
-                { duration: durMs, delay, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+                { duration: durMs, delay, fill: "both", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
               ),
             );
           } else {
@@ -880,18 +880,31 @@ export function buildCueAnimations(
       }
       anims.push(...animateEdgeReveal(runtime, startMs, durMs));
       // Auto-reveal nodes participating in this flow if not explicitly shown yet
-      for (const id of [seg.from, seg.to]) {
-        if (!shownNodeSet.has(id)) {
-          shownNodeSet.add(id);
-          const el = nodeEls.get(id);
-          if (el) {
-            anims.push(
-              el.animate(
-                [{ opacity: 0, transform: "translateY(8px) scale(0.98)" }, { opacity: 1, transform: "translateY(0) scale(1)" }],
-                { duration: 320, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-              ),
-            );
-          }
+      if (!shownNodeSet.has(seg.from)) {
+        shownNodeSet.add(seg.from);
+        const fromEl = nodeEls.get(seg.from);
+        if (fromEl) {
+          anims.push(
+            fromEl.animate(
+              [{ opacity: 0, transform: "translateY(8px) scale(0.98)" }, { opacity: 1, transform: "translateY(0) scale(1)" }],
+              { duration: 320, delay: startMs, fill: "both", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+            ),
+          );
+        }
+      }
+
+      if (!shownNodeSet.has(seg.to)) {
+        shownNodeSet.add(seg.to);
+        const toEl = nodeEls.get(seg.to);
+        if (toEl) {
+          // Reveal destination node exactly as the connection reaches it
+          const arrivalDelay = startMs + Math.min(240, durMs * 0.65);
+          anims.push(
+            toEl.animate(
+              [{ opacity: 0, transform: "translateY(8px) scale(0.98)" }, { opacity: 1, transform: "translateY(0) scale(1)" }],
+              { duration: 300, delay: arrivalDelay, fill: "both", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+            ),
+          );
         }
       }
 
@@ -916,7 +929,7 @@ export function buildCueAnimations(
   return anims;
 }
 
-/** Renders top-level `edge` declarations as static SVG paths (revealed at t=0). */
+/** Renders top-level `edge` declarations as structural SVG paths, progressively revealed when endpoints enter. */
 export function buildStructuralEdgeAnimations(
   edges: RoutedEdge[],
   nodes: PositionedNode[],
@@ -926,6 +939,7 @@ export function buildStructuralEdgeAnimations(
   edgeRuntimes: EdgeRuntimeMap = new Map(),
   sceneId = createEdgeSceneId(),
   diagramType: DiagramType = "architecture",
+  cues: TimedCue[] = [],
 ): Animation[] {
   const structural = edges.filter((e) =>
     e.structural &&
@@ -941,6 +955,32 @@ export function buildStructuralEdgeAnimations(
   const placedPaths: Point[][] = [];
   const laneByPair = new Map<string, number>();
   const svg = ensureEdgeLayer(scene);
+
+  const anims: Animation[] = [];
+  const nodeRevealTime = new Map<string, number>();
+
+  for (const cue of cues) {
+    const cueStartMs = cue.start * 1000;
+    const durMs = cue.duration * 1000;
+    if (cue.kind === "show") {
+      cue.targets.forEach((id, idx) => {
+        const stagger = typeof cue.params?.stagger === "number" ? cue.params.stagger * 1000 * idx : 0;
+        const reveal = cueStartMs + stagger;
+        if (!nodeRevealTime.has(id) || reveal < nodeRevealTime.get(id)!) {
+          nodeRevealTime.set(id, reveal);
+        }
+      });
+    } else if (cue.kind === "flow" && cue.segments?.[0] && diagramType !== "sequence") {
+      const seg = cue.segments[0];
+      if (!nodeRevealTime.has(seg.from) || cueStartMs < nodeRevealTime.get(seg.from)!) {
+        nodeRevealTime.set(seg.from, cueStartMs);
+      }
+      const arrival = cueStartMs + Math.min(240, durMs * 0.65);
+      if (!nodeRevealTime.has(seg.to) || arrival < nodeRevealTime.get(seg.to)!) {
+        nodeRevealTime.set(seg.to, arrival);
+      }
+    }
+  }
 
   for (const edge of structural) {
     const from = nodeById.get(edge.from);
@@ -965,9 +1005,24 @@ export function buildStructuralEdgeAnimations(
     );
     placedPaths.push(runtime.points);
     if (runtime.labelRect) placedLabels.push(runtime.labelRect);
-    setEdgeVisible(runtime, true);
     edgeRuntimes.set(edge.id, runtime);
+
+    const hasCues = cues.length > 0;
+    const tFrom = nodeRevealTime.get(edge.from) ?? 0;
+    const tTo = nodeRevealTime.get(edge.to) ?? 0;
+    const revealDelay = Math.max(tFrom, tTo);
+
+    if (hasCues) {
+      anims.push(
+        runtime.group.animate(
+          [{ opacity: 0 }, { opacity: 1 }],
+          { duration: 240, delay: revealDelay, fill: "both", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+        ),
+      );
+    } else {
+      setEdgeVisible(runtime, true);
+    }
   }
 
-  return [];
+  return anims;
 }

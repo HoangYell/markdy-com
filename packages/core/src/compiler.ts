@@ -1281,17 +1281,48 @@ function scheduleBeats(ast: DiagramAST, edges: RoutedEdge[]): { cues: TimedCue[]
   const edgeIds = edges.map((e) => e.id);
   const groupMap = Object.fromEntries(Object.entries(ast.groups).map(([k, g]) => [k, g.members]));
 
-  const hasIntro = ast.beats.some((b) => b.cues.some((c) => c.kind === "show"));
-  if (!hasIntro && Object.keys(ast.nodes).length > 0) {
-    cues.push({
-      start: 0,
-      duration: DEFAULTS.show,
-      kind: "show",
-      targets: Object.keys(ast.nodes),
-      params: { stagger: DEFAULTS.stagger },
-      beat: "__intro",
-    });
-    t += DEFAULTS.show + DEFAULTS.cueGap;
+  const hasShowCue = ast.beats.some((b) =>
+    b.cues.some((c) => c.kind === "show" || (c.kind === "parallel" && c.cues.some((pc) => pc.kind === "show")))
+  );
+  const flowNodeIds = new Set<string>();
+  for (const b of ast.beats) {
+    for (const c of b.cues) {
+      if (c.kind === "flow") {
+        for (const seg of c.segments) {
+          flowNodeIds.add(seg.from);
+          flowNodeIds.add(seg.to);
+        }
+      } else if (c.kind === "parallel") {
+        for (const pc of c.cues) {
+          if (pc.kind === "flow") {
+            for (const seg of pc.segments) {
+              flowNodeIds.add(seg.from);
+              flowNodeIds.add(seg.to);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  const isSequence = ast.meta.type === "sequence";
+
+  // Auto-inject __intro only when nodes are not revealed dynamically by flow cues
+  if (!hasShowCue && Object.keys(ast.nodes).length > 0) {
+    const nodesToReveal = (!isSequence && flowNodeIds.size > 0)
+      ? Object.keys(ast.nodes).filter((id) => !flowNodeIds.has(id))
+      : Object.keys(ast.nodes);
+    if (nodesToReveal.length > 0) {
+      cues.push({
+        start: 0,
+        duration: DEFAULTS.show,
+        kind: "show",
+        targets: nodesToReveal,
+        params: { stagger: DEFAULTS.stagger },
+        beat: "__intro",
+      });
+      t += DEFAULTS.show + DEFAULTS.cueGap;
+    }
   }
 
   for (const beat of ast.beats) {

@@ -14,7 +14,6 @@ pattern replicate(leader, follower):
   $leader <- $follower "ack"
 
 beat main:
-  show $nodes stagger=90ms
   Api -> PrimaryDb "write"
   use replicate(PrimaryDb, ReadReplica)
   Api -> ReadReplica "read"

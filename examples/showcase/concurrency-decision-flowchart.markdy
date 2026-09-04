@@ -27,7 +27,7 @@ edge e9: ThreadPoolEngine -> Result
 edge e10: MultiProcEngine -> Result
 
 beat reveal "1. Workload Profiling Entrance":
-  show $nodes stagger=30ms
+  show Start Nature stagger=30ms
   frame Start Nature zoom=1.12 dur=500ms
   glow Nature color=#eab308
 
