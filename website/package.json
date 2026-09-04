@@ -16,7 +16,7 @@
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
     "@codemirror/autocomplete": "^6.20.3",
-    "@codemirror/commands": "^6.10.3",
+    "@codemirror/commands": "^6.11.0",
     "@codemirror/language": "^6.12.3",
     "@codemirror/search": "^6.7.0",
     "@codemirror/state": "^6.6.0",
