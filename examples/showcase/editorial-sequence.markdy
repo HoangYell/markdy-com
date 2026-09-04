@@ -1,4 +1,4 @@
-scene "Editorial Authentication Sequence Flow" theme=auto type=sequence width=1280 height=720
+scene "Editorial Authentication Sequence Flow" theme=auto type=sequence width=1360 height=760
 layout LR
 
 participant Browser "Web Browser"
@@ -8,7 +8,7 @@ database SessionDB "Session Store"
 
 beat auth "1. Authenticate User & Issue Token":
   show $nodes stagger=40ms
-  frame Browser API Auth zoom=1.1 dur=500ms
+  frame Browser API Auth SessionDB zoom=1.0 dur=500ms
   Browser -> API "POST /login"
   API -> Auth "verify user credentials"
   Auth -> SessionDB "create signed session"

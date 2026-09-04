@@ -1,7 +1,7 @@
 # url-shortener-architecture.markdy
 # Distributed Cache-Aside & Sharded URL Shortener Architecture
 
-scene "Cache-Aside & Sharded Microservices" theme=auto type=architecture width=1380 height=780
+scene "Cache-Aside & Sharded Microservices" theme=auto type=architecture width=1680 height=780
 layout LR
 
 user Visitor "Global Web Visitor"

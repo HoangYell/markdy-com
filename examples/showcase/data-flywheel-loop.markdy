@@ -10,12 +10,6 @@ service VectorClockCompare "3. Vector Clock Resolution"
 service MerkleTreeSync "4. Merkle Tree Range Sync"
 service QuorumReadRepair "5. Quorum Read-Repair"
 
-edge e1: NodeMutation -> GossipBroadcast
-edge e2: GossipBroadcast -> VectorClockCompare
-edge e3: VectorClockCompare -> MerkleTreeSync
-edge e4: MerkleTreeSync -> QuorumReadRepair
-edge e5: QuorumReadRepair -> NodeMutation
-
 beat compounding_loop "1. Continuous Anti-Entropy Convergence Cycle":
   frame ConvergenceCore NodeMutation GossipBroadcast VectorClockCompare MerkleTreeSync QuorumReadRepair zoom=1.05 dur=500ms
   NodeMutation -> GossipBroadcast "UDP gossip packet" -> VectorClockCompare "detect causality" -> MerkleTreeSync "range mismatch" -> QuorumReadRepair "backfill stale node" -> NodeMutation "converge state"

@@ -196,31 +196,97 @@ export function ensureNodeStyles(doc: Document): void {
 .markdy-scene-root[data-markdy-theme="nebula"] .markdy-node[data-shape="diamond"][data-focal="1"] {
   border: none;
   box-shadow: none;
+  background: transparent;
 }
 .markdy-node[data-shape="diamond"] {
   border-radius: 0;
   transform: rotate(0deg);
-  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-  filter: drop-shadow(0 0 1px var(--md-hairline, rgba(15, 23, 42, 0.2))) drop-shadow(0 4px 12px var(--md-shadow, rgba(2, 6, 23, 0.15)));
+  clip-path: none;
+  background: transparent;
+  overflow: visible;
 }
-.markdy-node[data-shape="diamond"][data-focal="1"] {
-  filter: drop-shadow(0 0 1.5px var(--md-accent)) drop-shadow(0 4px 14px var(--md-shadow, rgba(2, 6, 23, 0.15)));
+.markdy-node[data-shape="diamond"] .markdy-node__shape-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  filter: drop-shadow(0 4px 16px var(--md-shadow, rgba(2, 6, 23, 0.28)));
 }
-.markdy-node[data-shape="diamond"][data-focused="1"] {
-  filter: drop-shadow(0 0 2px var(--md-accent)) drop-shadow(0 0 14px color-mix(in srgb, var(--md-accent) 60%, transparent));
+.markdy-node[data-shape="diamond"] .markdy-node__diamond-polygon {
+  fill: var(--md-node-surface, var(--md-surface));
+  stroke: var(--md-hairline, rgba(255, 255, 255, 0.18));
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  transition: stroke 0.2s ease, fill 0.2s ease, filter 0.2s ease;
 }
-.markdy-node[data-shape="diamond"][data-glow="1"] {
-  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--md-glow-color, var(--md-accent)) 70%, transparent)) drop-shadow(0 0 24px color-mix(in srgb, var(--md-glow-color, var(--md-accent)) 55%, transparent));
+.markdy-node[data-shape="diamond"] .markdy-node__diamond-facet {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.08);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.markdy-node[data-shape="diamond"][data-focal="1"] .markdy-node__diamond-polygon,
+.markdy-node[data-shape="diamond"][data-focused="1"] .markdy-node__diamond-polygon {
+  stroke: var(--md-accent);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 6px var(--md-accent));
+}
+.markdy-node[data-shape="diamond"][data-glow="1"] .markdy-node__diamond-polygon {
+  stroke: var(--md-glow-color, var(--md-accent));
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 10px var(--md-glow-color, var(--md-accent)));
+}
+.markdy-node[data-shape="diamond"]:hover .markdy-node__diamond-polygon {
+  stroke: var(--md-role-color, var(--md-accent));
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--md-role-color, var(--md-accent)) 60%, transparent));
 }
 .markdy-node[data-shape="diamond"] .markdy-node__body {
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  padding: 6px 16%;
+  padding: 8px 14%;
   text-align: center;
+  gap: 3px;
+  position: relative;
+  z-index: 2;
+}
+.markdy-node[data-shape="diamond"] .markdy-node__icon {
+  width: 20px;
+  height: 20px;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--md-role-color, var(--md-accent));
+  opacity: 0.95;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--md-role-color, var(--md-accent)) 40%, transparent));
+}
+.markdy-node[data-shape="diamond"] .markdy-node__icon svg {
+  width: 18px;
+  height: 18px;
+}
+.markdy-node[data-shape="diamond"] .markdy-node__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 .markdy-node[data-shape="diamond"] .markdy-node__label {
   flex: 0 1 auto;
-  line-height: 1.18;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.25;
   text-align: center;
+  color: var(--md-text);
+}
+.markdy-node[data-shape="diamond"] .markdy-node__tech {
+  align-self: center;
+  font-size: 9px;
+  padding: 1px 5px;
+  margin-top: 2px;
 }
 .markdy-node[data-shape="pill"] {
   border-radius: 999px;
@@ -838,9 +904,31 @@ export function createNodeEl(node: PositionedNode, theme: ThemeTokens, assets?: 
   el.title = `${node.label} (${typeText})`;
   el.setAttribute("aria-label", el.title);
 
+  if (node.shape === "diamond") {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "markdy-node__shape-svg");
+    svg.setAttribute("viewBox", `0 0 ${node.width} ${node.height}`);
+    svg.setAttribute("aria-hidden", "true");
+
+    const hw = node.width / 2;
+    const hh = node.height / 2;
+
+    const bg = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    bg.setAttribute("points", `${hw},1.5 ${node.width - 1.5},${hh} ${hw},${node.height - 1.5} 1.5,${hh}`);
+    bg.setAttribute("class", "markdy-node__diamond-polygon");
+    svg.appendChild(bg);
+
+    const facet = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+    facet.setAttribute("points", `${hw},4 ${node.width - 4},${hh} ${hw},${node.height - 4} 4,${hh}`);
+    facet.setAttribute("class", "markdy-node__diamond-facet");
+    svg.appendChild(facet);
+
+    el.prepend(svg);
+  }
+
   const body = document.createElement("div");
   body.className = "markdy-node__body";
-  if (node.shape !== "diamond") body.append(createNodeMediaEl(document, node, assets));
+  body.append(createNodeMediaEl(document, node, assets));
 
   const content = document.createElement("div");
   content.className = "markdy-node__content";

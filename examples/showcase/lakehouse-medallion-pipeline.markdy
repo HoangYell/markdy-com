@@ -15,14 +15,6 @@ gold GoldFeatureStore "Gold: Low-Latency Feature Store"
 client BIDashboards "Executive BI Dashboards"
 client MLServing "Real-Time ML Inference"
 
-edge e1: BronzeRaw -> BronzeDelta "ingest"
-edge e2: BronzeDelta -> SilverCleanse "stream"
-edge e3: SilverCleanse -> SilverEnrich "cleanse"
-edge e4: SilverEnrich -> GoldAggregates "aggregate"
-edge e5: SilverEnrich -> GoldFeatureStore
-edge e6: GoldAggregates -> BIDashboards
-edge e7: GoldFeatureStore -> MLServing
-
 beat reveal "1. Multi-Tier Medallion Data Topology":
   show $nodes stagger=35ms
   glow SilverCleanse color=#047857

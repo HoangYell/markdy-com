@@ -48,6 +48,10 @@ export function computeNodeDimensions(
   // Right value: metric length * 9.5 + right padding (16px)
   const valueW = valLen > 0 ? Math.max(50, valLen * 9.5 + 16) : 0;
 
+  const isDiamond = decl.props?.shape === "diamond" || decl.kind === "decision" || decl.kind === "condition";
+  const effectiveBaseW = isDiamond ? Math.max(baseW, 208) : baseW;
+  const effectiveBaseH = isDiamond ? Math.max(baseH, 88) : baseH;
+
   // Content width needed for label & tech badge
   const words = (decl.label || "").trim().split(/\s+/).filter(Boolean);
   const longestWord = Math.max(...words.map((w) => w.length), 0);
@@ -56,12 +60,16 @@ export function computeNodeDimensions(
   const maxChars = Math.max(neededLabelChars, techLen);
   const neededTextW = Math.max(96, maxChars * 8.4);
 
-  const calculatedW = 56 + neededTextW + (valueW > 0 ? valueW + 14 : 0) + 18;
-  const minW = Math.max(baseW, Math.min(360, calculatedW));
+  const calculatedW = isDiamond
+    ? Math.max(208, 48 + neededTextW * 1.25 + 24)
+    : 56 + neededTextW + (valueW > 0 ? valueW + 14 : 0) + 18;
+  const minW = Math.max(effectiveBaseW, Math.min(380, calculatedW));
 
   let width = Math.ceil(minW / 8) * 8;
-  let height = baseH;
-  if (labelLen > 24 && techLen > 0) {
+  let height = effectiveBaseH;
+  if (isDiamond && (labelLen > 18 || techLen > 0)) {
+    height = Math.max(height, 96);
+  } else if (labelLen > 24 && techLen > 0) {
     height = Math.max(height, 84);
   }
 
@@ -1305,24 +1313,37 @@ function scheduleBeats(ast: DiagramAST, edges: RoutedEdge[]): { cues: TimedCue[]
     }
   }
 
+  const explicitlyShownNodes = new Set<string>();
+  for (const b of ast.beats) {
+    for (const c of b.cues) {
+      if (c.kind === "show") {
+        resolveTargets(c.targets, ast, groupMap, edgeIds).forEach((id) => explicitlyShownNodes.add(id));
+      } else if (c.kind === "parallel") {
+        for (const pc of c.cues) {
+          if (pc.kind === "show") {
+            resolveTargets(pc.targets, ast, groupMap, edgeIds).forEach((id) => explicitlyShownNodes.add(id));
+          }
+        }
+      }
+    }
+  }
+
   const isSequence = ast.meta.type === "sequence";
 
-  // Auto-inject __intro only when nodes are not revealed dynamically by flow cues
-  if (!hasShowCue && Object.keys(ast.nodes).length > 0) {
-    const nodesToReveal = (!isSequence && flowNodeIds.size > 0)
-      ? Object.keys(ast.nodes).filter((id) => !flowNodeIds.has(id))
-      : Object.keys(ast.nodes);
-    if (nodesToReveal.length > 0) {
-      cues.push({
-        start: 0,
-        duration: DEFAULTS.show,
-        kind: "show",
-        targets: nodesToReveal,
-        params: { stagger: DEFAULTS.stagger },
-        beat: "__intro",
-      });
-      t += DEFAULTS.show + DEFAULTS.cueGap;
-    }
+  // Auto-inject __intro for nodes that will not be dynamically revealed by flow cues or explicit show cues
+  const nodesToReveal = (!isSequence && flowNodeIds.size > 0)
+    ? Object.keys(ast.nodes).filter((id) => !flowNodeIds.has(id) && !explicitlyShownNodes.has(id))
+    : (!hasShowCue ? Object.keys(ast.nodes) : []);
+  if (nodesToReveal.length > 0) {
+    cues.push({
+      start: 0,
+      duration: DEFAULTS.show,
+      kind: "show",
+      targets: nodesToReveal,
+      params: { stagger: DEFAULTS.stagger },
+      beat: "__intro",
+    });
+    t += DEFAULTS.show + DEFAULTS.cueGap;
   }
 
   for (const beat of ast.beats) {

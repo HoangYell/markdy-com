@@ -17,17 +17,6 @@ database VNodeB_Replica "vNode Beta (AZ-1c Replica)"
 database VNodeC_Primary "vNode Gamma (Primary)"
 database VNodeC_Replica "vNode Gamma (AZ-1a Replica)"
 
-edge e1: RingCoordinator -> PartRangeA
-edge e2: RingCoordinator -> PartRangeB
-edge e3: RingCoordinator -> PartRangeC
-
-edge e4: PartRangeA -> VNodeA_Primary
-edge e5: PartRangeA -> VNodeA_Replica
-edge e6: PartRangeB -> VNodeB_Primary
-edge e7: PartRangeB -> VNodeB_Replica
-edge e8: PartRangeC -> VNodeC_Primary
-edge e9: PartRangeC -> VNodeC_Replica
-
 group cluster: RingCoordinator PartRangeA PartRangeB PartRangeC VNodeA_Primary VNodeA_Replica VNodeB_Primary VNodeB_Replica VNodeC_Primary VNodeC_Replica
 
 beat hierarchy_reveal "1. Hash Ring Topology Discovery":

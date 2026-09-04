@@ -14,12 +14,6 @@ group ingress "Ingress Tier": Client Proxy
 group raft "Consensus Quorum": Leader FollowerA FollowerB
 group storage "Persistent Storage": StateMachine WAL
 
-edge ingress_flow: Client -> Proxy -> Leader
-edge quorum_a: Leader -> FollowerA
-edge quorum_b: Leader -> FollowerB
-edge persist_wal: Leader -> WAL
-edge apply_sm: Leader -> StateMachine
-
 beat reveal "1. Cluster Initialization & Quorum Discovery":
   show ingress stagger=40ms & show raft stagger=40ms & show storage stagger=40ms
   frame raft zoom=1.12 dur=450ms

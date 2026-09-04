@@ -27,6 +27,10 @@ beat ap_focus "3. High Availability & Eventual Consistency (AP)":
   frame Cassandra DynamoDB zoom=1.15 dur=500ms
   glow Cassandra color=#38bdf8 & glow DynamoDB color=#38bdf8 strength=1.4
 
+beat summary "4. Complete Distributed Database Landscape":
+  frame Spanner Cockroach Cassandra DynamoDB SQLite Postgres RedisCluster zoom=1.0 dur=500ms
+  glow Spanner color=#22c55e & glow Cassandra color=#38bdf8
+
 player:
   playback:
     loop true

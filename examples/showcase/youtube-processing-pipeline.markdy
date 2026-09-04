@@ -1,4 +1,4 @@
-scene "Video Ingestion & Transcoding Pipeline" theme=auto width=1360 height=760
+scene "Video Ingestion & Transcoding Pipeline" theme=auto width=2560 height=840
 layout LR
 
 user Creator "Video Creator"
