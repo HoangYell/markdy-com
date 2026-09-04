@@ -23,57 +23,137 @@ const NODE_H = 76;
 const VENN_NODE_SIZE = 220;
 const GROUP_PAD = 28;
 
+function estimateTextLines(words: string[], charsPerLine: number): number {
+  if (words.length === 0) return 0;
+  let lines = 1;
+  let curLen = 0;
+  for (const w of words) {
+    if (curLen === 0) {
+      curLen = w.length;
+    } else if (curLen + 1 + w.length <= charsPerLine) {
+      curLen += 1 + w.length;
+    } else {
+      lines++;
+      curLen = w.length;
+    }
+  }
+  return lines;
+}
+
 export function computeNodeDimensions(
   decl: NodeDecl,
   baseW = 180,
   baseH = 76,
 ): { width: number; height: number } {
-  if (typeof decl.props?.width === "number") {
-    return {
-      width: decl.props.width,
-      height: typeof decl.props.height === "number" ? decl.props.height : baseH,
-    };
-  }
-
-  const labelLen = (decl.label || "").length;
-  const tech = decl.props?.tech ?? decl.props?.sub;
-  const techLen = tech ? String(tech).length : 0;
-  const val = decl.props?.value ?? decl.props?.metric;
-  const valLen = val ? String(val).length : 0;
-
   if (decl.kind === "dot") return { width: 64, height: 64 };
   if (decl.kind === "matrix") return { width: 220, height: 96 };
 
+  const rawLabel = (decl.label || "").trim();
+  const labelLen = rawLabel.length;
+  const words = rawLabel.split(/\s+/).filter(Boolean);
+  const longestWord = Math.max(...words.map((w) => w.length), 0);
+
+  const tech = decl.props?.tech ?? decl.props?.sub;
+  const techStr = tech ? String(tech).trim() : "";
+  const techLen = techStr.length;
+
+  const val = decl.props?.value ?? decl.props?.metric;
+  const valStr = val ? String(val).trim() : "";
+  const valLen = valStr.length;
+
   // Left space: icon (28px) + left padding (16px) + gap (12px) = 56px
+  const leftSpace = 56;
   // Right value: metric length * 9.5 + right padding (16px)
   const valueW = valLen > 0 ? Math.max(50, valLen * 9.5 + 16) : 0;
+  const rightSpace = valueW > 0 ? valueW + 14 : 18;
 
   const isDiamond = decl.props?.shape === "diamond" || decl.kind === "decision" || decl.kind === "condition";
-  const effectiveBaseW = isDiamond ? Math.max(baseW, 208) : baseW;
-  const effectiveBaseH = isDiamond ? Math.max(baseH, 88) : baseH;
+  const isCircle = decl.props?.shape === "circle";
+  const isPill = decl.props?.shape === "pill";
 
-  // Content width needed for label & tech badge
-  const words = (decl.label || "").trim().split(/\s+/).filter(Boolean);
-  const longestWord = Math.max(...words.map((w) => w.length), 0);
-  const avgLineChars = words.length > 1 ? Math.ceil(labelLen / Math.min(words.length, 2)) : labelLen;
-  const neededLabelChars = Math.max(longestWord + 2, avgLineChars, Math.min(labelLen, 22));
-  const maxChars = Math.max(neededLabelChars, techLen);
-  const neededTextW = Math.max(96, maxChars * 8.4);
+  const effectiveBaseW = isDiamond ? Math.max(baseW, 208) : isCircle ? Math.max(baseW, 140) : baseW;
+  const effectiveBaseH = isDiamond ? Math.max(baseH, 88) : isCircle ? Math.max(baseH, 140) : baseH;
 
-  const calculatedW = isDiamond
-    ? Math.max(208, 48 + neededTextW * 1.25 + 24)
-    : 56 + neededTextW + (valueW > 0 ? valueW + 14 : 0) + 18;
-  const minW = Math.max(effectiveBaseW, Math.min(380, calculatedW));
+  // Tech badge width needed (font 10px mono ~6.6px per char + 16px badge padding)
+  const neededTechW = techLen > 0 ? Math.ceil(techLen * 6.6 + 16) : 0;
+  // Width needed for longest single word so unbroken words never clip or overflow
+  const longestWordW = Math.ceil(longestWord * 8.4 + 4);
+  const minColW = Math.max(96, longestWordW, neededTechW);
 
-  let width = Math.ceil(minW / 8) * 8;
-  let height = effectiveBaseH;
-  if (isDiamond && (labelLen > 18 || techLen > 0)) {
-    height = Math.max(height, 96);
-  } else if (labelLen > 24 && techLen > 0) {
-    height = Math.max(height, 84);
+  if (isCircle) {
+    // Circle shape: diameter must fit icon, all lines of label, and tech badge within inscribed circular region
+    const targetTextW = Math.max(minColW, Math.min(220, Math.ceil(labelLen * 7.5)));
+    const charsPerLine = Math.max(longestWord, Math.floor(targetTextW / 8.0));
+    const numLines = Math.max(words.length > 0 ? 1 : 0, estimateTextLines(words, charsPerLine));
+    const labelH = numLines * 16;
+    const techH = techLen > 0 ? 20 : 0;
+    const circleContentH = 28 + labelH + techH;
+    const circleContentW = Math.max(targetTextW, 60);
+    const radiusNeeded = Math.sqrt((circleContentW / 2) ** 2 + (circleContentH / 2) ** 2) + 20;
+    const diameter = Math.max(effectiveBaseW, effectiveBaseH, Math.ceil((radiusNeeded * 2) / 8) * 8);
+    return {
+      width: typeof decl.props?.width === "number" ? Math.max(decl.props.width, diameter) : diameter,
+      height: typeof decl.props?.height === "number" ? Math.max(decl.props.height, diameter) : diameter,
+    };
   }
 
-  return { width, height };
+  if (isDiamond) {
+    // Diamond shape: diamond vertices slope at 45 degrees, center is widest
+    let targetTextW: number;
+    if (labelLen <= 12) {
+      targetTextW = Math.max(minColW, Math.ceil(labelLen * 8.0));
+    } else if (labelLen <= 28) {
+      targetTextW = Math.max(minColW, Math.min(180, Math.ceil((labelLen / 2) * 8.2 + 8)));
+    } else {
+      targetTextW = Math.max(minColW, Math.min(260, Math.ceil((labelLen / 3) * 8.2 + 12)));
+    }
+    const charsPerLine = Math.max(longestWord, Math.floor(targetTextW / 8.0));
+    const numLines = Math.max(words.length > 0 ? 1 : 0, estimateTextLines(words, charsPerLine));
+    const labelH = numLines * 16;
+    const techH = techLen > 0 ? 20 : 0;
+    const diamondContentH = 24 + labelH + techH;
+
+    const neededH = Math.max(effectiveBaseH, Math.ceil((diamondContentH / 0.58) / 8) * 8);
+    const neededW = Math.max(effectiveBaseW, Math.ceil(((targetTextW + 32) / 0.52) / 8) * 8);
+    return {
+      width: typeof decl.props?.width === "number" ? Math.max(decl.props.width, neededW) : neededW,
+      height: typeof decl.props?.height === "number" ? Math.max(decl.props.height, neededH) : neededH,
+    };
+  }
+
+  // Standard Card, Rounded, Terminal, Pill, Container
+  let targetTextW: number;
+  if (labelLen <= 14) {
+    targetTextW = Math.max(minColW, Math.ceil(labelLen * 8.4));
+  } else if (labelLen <= 30) {
+    targetTextW = Math.max(minColW, Math.min(220, Math.ceil(labelLen * 8.4)));
+  } else if (labelLen <= 54) {
+    targetTextW = Math.max(minColW, Math.min(260, Math.max(180, Math.ceil((labelLen / 2) * 8.4 + 8))));
+  } else if (labelLen <= 84) {
+    targetTextW = Math.max(minColW, Math.min(300, Math.max(220, Math.ceil((labelLen / 3) * 8.4 + 12))));
+  } else {
+    targetTextW = Math.max(minColW, Math.min(360, Math.max(250, Math.ceil((labelLen / 4) * 8.4 + 16))));
+  }
+
+  const charsPerLine = Math.max(longestWord, Math.floor((targetTextW - 4) / 8.2));
+  const numLines = Math.max(words.length > 0 ? 1 : 0, estimateTextLines(words, charsPerLine));
+
+  const labelLineH = 18;
+  const labelH = numLines * labelLineH;
+  const techH = techLen > 0 ? 22 : 0;
+  const padV = 28;
+  const neededContentH = Math.max(28, labelH + techH);
+  const neededH = neededContentH + padV;
+  const height = Math.max(effectiveBaseH, Math.ceil(neededH / 8) * 8);
+
+  const pillPad = isPill ? 24 : 0;
+  const calculatedW = leftSpace + targetTextW + rightSpace + pillPad;
+  const width = Math.max(effectiveBaseW, Math.ceil(calculatedW / 8) * 8);
+
+  return {
+    width: typeof decl.props?.width === "number" ? Math.max(decl.props.width, width) : width,
+    height: typeof decl.props?.height === "number" ? Math.max(decl.props.height, height) : height,
+  };
 }
 
 function resolveNodeStyle(decl: NodeDecl, ast: DiagramAST): Record<string, unknown> | undefined {
@@ -328,7 +408,7 @@ function layoutRanked(
     const maxNodeH = Math.max(...nodeIds.map((id) => nodeDims.get(id)?.height ?? NODE_H));
     const rowGap = Math.max(maxNodeH + 40, Math.min(200, contentH / Math.max(rankCount, 1)));
     const totalH = (rankCount - 1) * rowGap + maxNodeH;
-    const startY = TITLE_BAND + Math.max(28, (contentH - totalH) / 2);
+    const startY = TITLE_BAND + Math.max(0, (contentH - totalH) / 2);
 
     for (const [rank, ids] of [...byRank.entries()].sort((a, b) => a[0] - b[0])) {
       const rowCount = ids.length;
@@ -423,6 +503,12 @@ function layoutTree(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
   const nodeIds = Object.keys(ast.nodes);
   if (nodeIds.length === 0) return [];
 
+  const nodeDims = new Map<string, { width: number; height: number }>();
+  for (const id of nodeIds) {
+    nodeDims.set(id, computeNodeDimensions(ast.nodes[id]));
+  }
+  const maxNodeH = Math.max(...nodeIds.map((id) => nodeDims.get(id)!.height), NODE_H);
+
   const children = new Map<string, string[]>();
   const parent = new Map<string, string>();
   for (const id of nodeIds) children.set(id, []);
@@ -457,19 +543,23 @@ function layoutTree(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
 
   // Subtree width calculation (recursive)
   const subtreeSpan = new Map<string, number>();
-  const minLeafWidth = NODE_W + 48;
+  function leafSpan(id: string): number {
+    const w = nodeDims.get(id)?.width ?? NODE_W;
+    return w + 36;
+  }
 
   function measureSubtree(id: string): number {
     const kids = children.get(id) ?? [];
+    const minSpan = leafSpan(id);
     if (kids.length === 0) {
-      subtreeSpan.set(id, minLeafWidth);
-      return minLeafWidth;
+      subtreeSpan.set(id, minSpan);
+      return minSpan;
     }
     let total = 0;
     for (const kid of kids) {
       total += measureSubtree(kid);
     }
-    const span = Math.max(minLeafWidth, total);
+    const span = Math.max(minSpan, total);
     subtreeSpan.set(id, span);
     return span;
   }
@@ -482,8 +572,8 @@ function layoutTree(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
   const treeStartX = SAFE + Math.max(0, (contentW - totalRootsWidth) / 2);
-  const levelHeight = Math.max(NODE_H + 48, Math.min(160, contentH / Math.max(maxDepth + 1, 1)));
-  const totalTreeHeight = maxDepth * levelHeight + NODE_H;
+  const levelHeight = Math.max(maxNodeH + 40, Math.min(220, contentH / Math.max(maxDepth + 1, 1)));
+  const totalTreeHeight = maxDepth * levelHeight + maxNodeH;
   const treeStartY = TITLE_BAND + Math.max(16, (contentH - totalTreeHeight) / 2);
 
   const nodePositions = new Map<string, { x: number; y: number }>();
@@ -492,17 +582,18 @@ function layoutTree(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
     const d = depth.get(id) ?? 0;
     const y = treeStartY + d * levelHeight;
     const kids = children.get(id) ?? [];
-    const span = subtreeSpan.get(id) ?? minLeafWidth;
+    const span = subtreeSpan.get(id) ?? leafSpan(id);
+    const dims = nodeDims.get(id) ?? { width: NODE_W, height: NODE_H };
 
     if (kids.length === 0) {
       const centerX = leftX + span / 2;
-      nodePositions.set(id, { x: centerX - NODE_W / 2, y });
+      nodePositions.set(id, { x: centerX - dims.width / 2, y });
       return;
     }
 
     let curX = leftX;
     for (const kid of kids) {
-      const kidSpan = subtreeSpan.get(kid) ?? minLeafWidth;
+      const kidSpan = subtreeSpan.get(kid) ?? leafSpan(kid);
       positionSubtree(kid, curX);
       curX += kidSpan;
     }
@@ -510,13 +601,15 @@ function layoutTree(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
     // Parent centered over first and last child
     const firstChild = nodePositions.get(kids[0])!;
     const lastChild = nodePositions.get(kids[kids.length - 1])!;
-    const parentCenterX = (firstChild.x + NODE_W / 2 + lastChild.x + NODE_W / 2) / 2;
-    nodePositions.set(id, { x: parentCenterX - NODE_W / 2, y });
+    const firstDims = nodeDims.get(kids[0]) ?? { width: NODE_W, height: NODE_H };
+    const lastDims = nodeDims.get(kids[kids.length - 1]) ?? { width: NODE_W, height: NODE_H };
+    const parentCenterX = (firstChild.x + firstDims.width / 2 + lastChild.x + lastDims.width / 2) / 2;
+    nodePositions.set(id, { x: parentCenterX - dims.width / 2, y });
   }
 
   let currentRootLeft = treeStartX;
   for (const r of roots) {
-    const span = subtreeSpan.get(r) ?? minLeafWidth;
+    const span = subtreeSpan.get(r) ?? leafSpan(r);
     positionSubtree(r, currentRootLeft);
     currentRootLeft += span;
   }
@@ -525,6 +618,7 @@ function layoutTree(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
   for (const id of nodeIds) {
     const decl = ast.nodes[id];
     const pos = nodePositions.get(id) ?? { x: SAFE, y: TITLE_BAND };
+    const dims = nodeDims.get(id) ?? { width: NODE_W, height: NODE_H };
     nodes.push({
       id,
       kind: decl.kind,
@@ -532,12 +626,12 @@ function layoutTree(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
       label: decl.label,
       x: snapGrid(pos.x),
       y: snapGrid(pos.y),
-      width: NODE_W,
-      height: NODE_H,
+      width: dims.width,
+      height: dims.height,
       style: resolveNodeStyle(decl, ast),
       props: decl.props,
       opacity: 0,
-      shape: "card",
+      shape: nodeShape(decl.kind, "tree", decl.props),
       focal: decl.props.focal === true || decl.props.accent === true,
     });
   }
@@ -578,6 +672,13 @@ function layoutConstellation(ast: DiagramAST): PositionedNode[] {
   const nodeIds = Object.keys(ast.nodes);
   if (nodeIds.length === 0) return [];
 
+  const nodeDims = new Map<string, { width: number; height: number }>();
+  for (const id of nodeIds) {
+    nodeDims.set(id, computeNodeDimensions(ast.nodes[id]));
+  }
+  const maxNodeW = Math.max(...nodeIds.map((id) => nodeDims.get(id)!.width), NODE_W);
+  const maxNodeH = Math.max(...nodeIds.map((id) => nodeDims.get(id)!.height), NODE_H);
+
   const incoming = new Set<string>();
   for (const edge of ast.edges) {
     if (edge.kind !== "response" && edge.from !== edge.to && ast.nodes[edge.to]) incoming.add(edge.to);
@@ -588,20 +689,19 @@ function layoutConstellation(ast: DiagramAST): PositionedNode[] {
     nodeIds[0];
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
-  const centerX = SAFE + contentW / 2 - NODE_W / 2;
-  const centerY = TITLE_BAND + contentH / 2 - NODE_H / 2;
   const orbitIds = nodeIds.filter((id) => id !== focalId);
-  const radiusX = Math.max(140, contentW / 2 - NODE_W / 2 - SAFE);
-  const radiusY = Math.max(120, contentH / 2 - NODE_H / 2 - SAFE);
+  const radiusX = Math.max(140, contentW / 2 - maxNodeW / 2 - SAFE);
+  const radiusY = Math.max(120, contentH / 2 - maxNodeH / 2 - SAFE);
   const nodes: PositionedNode[] = [];
 
   for (const id of nodeIds) {
     const decl = ast.nodes[id];
+    const dims = nodeDims.get(id) ?? { width: NODE_W, height: NODE_H };
     const isFocal = id === focalId;
     const index = orbitIds.indexOf(id);
     const angle = orbitIds.length > 0 ? -Math.PI / 2 + (index * Math.PI * 2) / orbitIds.length : 0;
-    const x = isFocal ? centerX : SAFE + contentW / 2 + Math.cos(angle) * radiusX - NODE_W / 2;
-    const y = isFocal ? centerY : TITLE_BAND + contentH / 2 + Math.sin(angle) * radiusY - NODE_H / 2;
+    const x = isFocal ? SAFE + contentW / 2 - dims.width / 2 : SAFE + contentW / 2 + Math.cos(angle) * radiusX - dims.width / 2;
+    const y = isFocal ? TITLE_BAND + contentH / 2 - dims.height / 2 : TITLE_BAND + contentH / 2 + Math.sin(angle) * radiusY - dims.height / 2;
     nodes.push({
       id,
       kind: decl.kind,
@@ -609,8 +709,8 @@ function layoutConstellation(ast: DiagramAST): PositionedNode[] {
       label: decl.label,
       x: snapGrid(x),
       y: snapGrid(y),
-      width: NODE_W,
-      height: NODE_H,
+      width: dims.width,
+      height: dims.height,
       style: resolveNodeStyle(decl, ast),
       props: decl.props,
       opacity: 0,
@@ -624,6 +724,13 @@ function layoutConstellation(ast: DiagramAST): PositionedNode[] {
 function layoutLoop(ast: DiagramAST): PositionedNode[] {
   const nodeIds = Object.keys(ast.nodes);
   if (nodeIds.length === 0) return [];
+
+  const nodeDims = new Map<string, { width: number; height: number }>();
+  for (const id of nodeIds) {
+    nodeDims.set(id, computeNodeDimensions(ast.nodes[id]));
+  }
+  const maxNodeW = Math.max(...nodeIds.map((id) => nodeDims.get(id)!.width), NODE_W);
+  const maxNodeH = Math.max(...nodeIds.map((id) => nodeDims.get(id)!.height), NODE_H);
 
   const hubId =
     nodeIds.find((id) => {
@@ -640,25 +747,28 @@ function layoutLoop(ast: DiagramAST): PositionedNode[] {
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
   const centerX = SAFE + contentW / 2;
   const centerY = TITLE_BAND + contentH / 2;
-  const radiusX = Math.min(contentW * 0.40, Math.max(220, (contentW - NODE_W) / 2 - 32));
-  const radiusY = Math.min(contentH * 0.38, Math.max(150, (contentH - NODE_H) / 2 - 32));
+  const radiusX = Math.min(contentW * 0.40, Math.max(220, (contentW - maxNodeW) / 2 - 32));
+  const radiusY = Math.min(contentH * 0.38, Math.max(150, (contentH - maxNodeH) / 2 - 32));
 
   const nodes: PositionedNode[] = [];
 
   for (const id of nodeIds) {
     const decl = ast.nodes[id];
     const isHub = id === hubId;
+    const dims = nodeDims.get(id) ?? { width: NODE_W, height: NODE_H };
+    const w = isHub ? Math.max(dims.width, snapGrid(NODE_W * 1.25)) : dims.width;
+    const h = isHub ? Math.max(dims.height, snapGrid(NODE_H * 1.15)) : dims.height;
     let x: number;
     let y: number;
 
     if (isHub) {
-      x = centerX - (NODE_W * 1.25) / 2;
-      y = centerY - (NODE_H * 1.15) / 2;
+      x = centerX - w / 2;
+      y = centerY - h / 2;
     } else {
       const idx = stationIds.indexOf(id);
       const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / Math.max(stationIds.length, 1);
-      x = centerX + Math.cos(angle) * radiusX - NODE_W / 2;
-      y = centerY + Math.sin(angle) * radiusY - NODE_H / 2;
+      x = centerX + Math.cos(angle) * radiusX - w / 2;
+      y = centerY + Math.sin(angle) * radiusY - h / 2;
     }
 
     const focal = isHub || decl.props.focal === true || decl.props.accent === true;
@@ -669,8 +779,8 @@ function layoutLoop(ast: DiagramAST): PositionedNode[] {
       label: decl.label,
       x: snapGrid(x),
       y: snapGrid(y),
-      width: isHub ? snapGrid(NODE_W * 1.25) : NODE_W,
-      height: isHub ? snapGrid(NODE_H * 1.15) : NODE_H,
+      width: w,
+      height: h,
       style: resolveNodeStyle(decl, ast),
       props: decl.props,
       opacity: 0,
@@ -1523,9 +1633,9 @@ export function computeAdaptiveDimensions(
     const flowCues = ast.beats.flatMap((b) => b.cues).filter((c) => c.kind === "flow");
     const count = Math.max(nodeCount, 1);
     const flowCount = flowCues.length;
-    const requiredW = SAFE * 2 + Math.max(count * 280, 800, titleW);
+    const requiredW = SAFE * 2 + Math.max(count * 220, 800, titleW);
     const requiredH = TITLE_BAND + NODE_H + 56 + Math.max(flowCount * 76, 280) + SAFE + 48;
-    autoW = Math.max(1280, Math.min(2560, requiredW));
+    autoW = Math.max(1088, Math.min(2560, requiredW));
     autoH = Math.max(640, Math.min(1800, requiredH));
   } else if (dtype === "medallion") {
     const tierCount = 4;
@@ -1644,8 +1754,7 @@ export function computeAdaptiveDimensions(
       const rowGap = 56;
       const contentNeededW = maxInRank * maxRankW + Math.max(0, maxInRank - 1) * colSpacing + groupPaddingBonus;
       const requiredW = SAFE * 2 + contentNeededW;
-      autoW = Math.max(requiredW, titleW);
-      autoW = Math.max(380, Math.min(2400, autoW));
+      autoW = Math.max(960, Math.min(2400, Math.max(requiredW, titleW)));
 
       const contentNeededH = rankCount * maxRankH + Math.max(0, rankCount - 1) * rowGap + groupPaddingBonus;
       const requiredH = SAFE * 2 + TITLE_BAND + bottomBand + contentNeededH;
