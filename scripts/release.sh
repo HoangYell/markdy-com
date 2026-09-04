@@ -131,7 +131,7 @@ echo "⏱ Waiting for PR #$PR_NUMBER checks"
 gh pr checks "$PR_NUMBER" --watch || true
 
 echo "🔀 Merging PR #$PR_NUMBER"
-gh pr merge "$PR_NUMBER" --admin --merge --delete-branch
+gh pr merge "$PR_NUMBER" --merge --delete-branch || gh pr merge "$PR_NUMBER" --admin --merge --delete-branch
 
 PR_STATE="$(gh pr view "$PR_NUMBER" --json state --jq '.state')"
 if [ "$PR_STATE" != "MERGED" ]; then
