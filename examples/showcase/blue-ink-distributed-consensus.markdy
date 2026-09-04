@@ -1,5 +1,5 @@
-scene "Distributed Consensus & Raft Replication" theme=ink type=architecture width=1280 height=760
-layout LR
+scene "Distributed Consensus & Raft Replication" theme=ink type=architecture
+
 annotation "Raft Quorum (2/3)" target=Leader position=top-right
 
 browser Client "Client Application"

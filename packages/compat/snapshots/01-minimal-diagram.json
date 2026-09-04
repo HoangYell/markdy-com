@@ -32,6 +32,7 @@
   "groups": {},
   "meta": {
     "direction": "LR",
+    "explicitDirection": true,
     "explicitTheme": true,
     "fps": 60,
     "height": 720,

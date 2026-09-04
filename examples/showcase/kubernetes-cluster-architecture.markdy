@@ -1,5 +1,4 @@
-scene "Production Kubernetes Control Plane & Workloads" theme=auto width=1920 height=840
-layout LR
+scene "Production Kubernetes Control Plane & Workloads" theme=auto
 
 user Operator "DevOps Engineer"
 cli kubectl "kubectl CLI"

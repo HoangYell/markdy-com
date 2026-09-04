@@ -1,7 +1,7 @@
 # 14-fanin-queue-bottleneck.markdy
 # Demonstrates Fan-In Concurrency & Constrained Bottleneck Queue Pattern.
 
-scene theme=paper width=1440 height=800
+scene theme=paper
 
 service ProducerA "Payment Ingestion Worker"
 service ProducerB "Webhook Receiver"

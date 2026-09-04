@@ -1,5 +1,4 @@
 scene "Script-Owned Player" theme=paper
-layout LR
 
 browser Viewer
 service ApiGateway "API Gateway"

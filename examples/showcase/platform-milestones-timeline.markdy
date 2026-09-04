@@ -1,7 +1,7 @@
 # platform-milestones-timeline.markdy
 # Database Write-Ahead Log (WAL) & CDC Event Replication Timeline
 
-scene "Database Write-Ahead Log (WAL) & Event Lifecycle" theme=auto type=timeline width=1280 height=760
+scene "Database Write-Ahead Log (WAL) & Event Lifecycle" theme=auto type=timeline
 
 event T0_Write "T0: Client Ingress"
 event T1_WAL "T1: WAL fsync (Disk)" focal=true

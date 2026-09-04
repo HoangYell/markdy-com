@@ -1,8 +1,7 @@
 # showcase/terminal-cli-architecture.markdy
 # Demonstrates Terminal Theme (CLI/TUI aesthetics, dark paper, monospace typography, neon accents).
 
-scene "Low-Latency Kernel Daemon & TUI Pipeline" theme=auto type=architecture width=1500 height=720
-layout LR
+scene "Low-Latency Kernel Daemon & TUI Pipeline" theme=auto type=architecture
 
 terminal EdgeGateway "gateway.internal:443" focal=true
 terminal AuthProxy "auth-proxy:8080 (mTLS)"

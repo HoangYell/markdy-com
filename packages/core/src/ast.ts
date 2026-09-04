@@ -107,6 +107,8 @@ export type SceneMeta = {
   explicitHeight?: boolean;
   /** Whether theme was explicitly specified by the author in the script. */
   explicitTheme?: boolean;
+  /** Whether layout direction was explicitly specified by the author in the script. */
+  explicitDirection?: boolean;
   /** Opt-in diagram mode; defaults to architecture. */
   type?: DiagramType;
   /** Playback, controls, interaction, and chrome behavior. Source of truth. */

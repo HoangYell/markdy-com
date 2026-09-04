@@ -1,7 +1,6 @@
 // Showcase: Code Provenance & Git In-Tree Verification
 // Anchors high-level architecture nodes directly to verified source code line numbers.
 scene "Code Provenance & Repository Grounding" theme=midnight
-layout LR
 
 gateway ApiGateway "API Gateway" src="src/gateway/router.ts#L25-L90"
 service AuthService "Auth Service" src="src/auth/jwt.service.ts#L40-L120"

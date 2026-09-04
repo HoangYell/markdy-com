@@ -1,7 +1,7 @@
 # product-market-fit-venn.markdy
 # ACID vs BASE vs Distributed Consensus Storage Guarantees
 
-scene "ACID vs BASE vs Distributed Storage Guarantees" theme=auto type=venn width=1280 height=760
+scene "ACID vs BASE vs Distributed Storage Guarantees" theme=auto type=venn
 
 service ACID "Strict ACID Storage (Postgres/MySQL)"
 service BASE "BASE Eventual (Cassandra/DynamoDB)"

@@ -865,6 +865,7 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
     theme: "paper",
     explicitTheme: false,
     direction: "LR",
+    explicitDirection: false,
   };
   const styles: Record<string, StyleDecl> = {};
   const nodes: Record<string, NodeDecl> = {};
@@ -982,6 +983,7 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
       const inlineLayout = remainder.match(/\blayout\s+(LR|RL|TB|BT)\b/i);
       if (inlineLayout) {
         meta.direction = inlineLayout[1].toUpperCase() as LayoutDirection;
+        meta.explicitDirection = true;
         remainder = remainder.replace(/\blayout\s+(LR|RL|TB|BT)\b/i, " ");
       }
       const props = parseProps(remainder);
@@ -1003,8 +1005,10 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
           const val = String(v).toLowerCase();
           meta.theme = val;
           meta.explicitTheme = val !== "auto";
-        } else if (k === "direction" || k === "layout") meta.direction = String(v).toUpperCase() as LayoutDirection;
-        else if (PLAYER_FLAT_KEY_SET.has(k)) {
+        } else if (k === "direction" || k === "layout") {
+          meta.direction = String(v).toUpperCase() as LayoutDirection;
+          meta.explicitDirection = true;
+        } else if (PLAYER_FLAT_KEY_SET.has(k)) {
           const error = applyPlayerSetting((meta.player ??= {}), "player", k, String(v));
           if (error) diagnostics.push({ severity: "warning", message: error, line: lineNo });
         } else if (k === "type") {
@@ -1044,6 +1048,7 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
 
     if (/^layout\s+(LR|RL|TB|BT)\b/i.test(line)) {
       meta.direction = line.split(/\s+/)[1].toUpperCase() as LayoutDirection;
+      meta.explicitDirection = true;
       i++;
       continue;
     }

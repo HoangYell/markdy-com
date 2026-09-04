@@ -2,7 +2,6 @@
 # Demonstrates Well-Architected Clean Architecture and Layered Governance.
 
 scene theme=blueprint
-layout LR
 
 group presentation "Presentation Tier": WebApp MobileApp
 group edge "Security & Gateway Zone": APIGateway WAF

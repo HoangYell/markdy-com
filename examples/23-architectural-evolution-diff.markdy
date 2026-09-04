@@ -1,7 +1,6 @@
 // Showcase: Architectural Evolution & Migration Matrix
 // Visualizes architecture diffing from monolithic baseline to distributed event-driven topology.
 scene "Architectural Evolution: Monolith to Event-Driven" theme=paper
-layout LR
 
 browser Client "Client Browser"
 service Monolith "Legacy Monolith"

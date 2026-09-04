@@ -1,5 +1,4 @@
 scene "Contextual Route & Reach Share Cards" theme=midnight
-layout LR
 
 browser Client "Web Browser" icon=chrome
 gateway EdgeProxy "Edge Envoy Proxy" icon=envoy @src="src/proxy/gateway.ts#L15"

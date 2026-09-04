@@ -1,5 +1,4 @@
 scene "Zero-Trust Mesh & Enclave Security" theme=blueprint
-layout LR
 
 gateway CloudflareEdge "Cloudflare Edge WAF" icon=cloudflare
 service IdentityOIDC "Identity Provider (OIDC)" icon=keycloak

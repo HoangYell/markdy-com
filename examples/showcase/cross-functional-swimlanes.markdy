@@ -1,7 +1,7 @@
 # cross-functional-swimlanes.markdy
 # Saga Distributed Transaction Order Fulfillment Swimlanes
 
-scene "Saga Distributed Transaction Swimlanes" theme=auto type=swimlane width=1300 height=850
+scene "Saga Distributed Transaction Swimlanes" theme=auto type=swimlane
 
 group client_lane "Client Tier": WebApp MobileApp
 group edge_lane "Edge & Security Tier": CloudflareWAF KongGateway

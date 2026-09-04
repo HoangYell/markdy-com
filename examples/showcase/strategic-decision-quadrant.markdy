@@ -1,7 +1,7 @@
 # strategic-decision-quadrant.markdy
 # CAP Theorem & Distributed Data Store 2x2 Strategic Quadrant
 
-scene "CAP Theorem Distributed Storage 2x2 Matrix" theme=auto type=quadrant width=1280 height=760
+scene "CAP Theorem Distributed Storage 2x2 Matrix" theme=auto type=quadrant
 
 database Spanner "Google Cloud Spanner (CP / Strict)" quadrant=Q1 focal=true
 database Cockroach "CockroachDB (CP / Raft SQL)" quadrant=Q1

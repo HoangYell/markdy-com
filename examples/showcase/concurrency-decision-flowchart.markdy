@@ -1,11 +1,10 @@
 # concurrency-decision-flowchart.markdy
 # Decision Flowchart for High-Concurrency Backend Architecture
 
-scene "Python Concurrency Decision Flowchart" theme=auto type=flowchart width=1920 height=760
-layout LR
+scene "Python Concurrency Decision Flowchart" theme=auto type=flowchart
 
 start Start "Workload Ingress"
-decision Nature "Workload Type?" focal=true
+decision Nature "Workload Type?"
 condition IOBound "I/O-Bound (Network/DB)"
 decision Scale "Concurrency Scale?"
 service AsyncioEngine "Asyncio / uvloop (Event Loop)"

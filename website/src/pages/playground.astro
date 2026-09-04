@@ -1276,15 +1276,6 @@ const playgroundStructuredData = [
         });
       }
 
-      if (!code.includes("layout LR") && !code.includes("layout TB")) {
-        suggestions.push({
-          title: "Directional layout unset",
-          desc: "Adding 'layout LR' provides a horizontal topology for clear microservice architectures.",
-          actionLabel: "+ Add layout LR",
-          onAction: () => insertCodeAtCursor("\nlayout LR\n"),
-        });
-      }
-
       suggCountBadge.textContent = String(suggestions.length);
       suggestionsContainer.innerHTML = "";
 

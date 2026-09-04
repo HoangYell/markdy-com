@@ -1,5 +1,4 @@
-scene "Service Mesh & Async Event Ingestion" theme=auto width=2400 height=840
-layout LR
+scene "Service Mesh & Async Event Ingestion" theme=auto
 
 group ingress_mesh "Ingress Controller & Sidecar": IngressController EnvoyProxy
 group business_services "Service Mesh Core": CatalogAPI InventoryWorker NotificationSvc

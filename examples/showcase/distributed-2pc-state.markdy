@@ -1,8 +1,7 @@
 # distributed-2pc-state.markdy
 # Distributed 2-Phase Commit (2PC) Consensus State Machine
 
-scene "Distributed 2-Phase Commit (2PC) State Machine" theme=auto type=state width=1680 height=760
-layout LR
+scene "Distributed 2-Phase Commit (2PC) State Machine" theme=auto type=state
 
 state Init "1. Init (Tx Started)"
 state Preparing "2. Preparing (Phase 1)"

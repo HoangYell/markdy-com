@@ -1,7 +1,7 @@
 # enterprise-value-pyramid.markdy
 # Full-Stack Observability & Telemetry Hierarchy Pyramid
 
-scene "Full-Stack Observability & Telemetry Pyramid" theme=auto type=pyramid width=1280 height=760
+scene "Full-Stack Observability & Telemetry Pyramid" theme=auto type=pyramid
 
 stat AIInsights "Layer 4: AI Root Cause Analysis & Automated Remediation" focal=true
 stat Traces "Layer 3: Distributed Tracing & APM (OpenTelemetry / Jaeger)"

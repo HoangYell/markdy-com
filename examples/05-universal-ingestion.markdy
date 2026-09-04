@@ -2,7 +2,6 @@
 # Demonstrates a microservice architecture transpiled from Docker Compose / Kubernetes.
 
 scene theme=paper
-layout TB
 
 group ingress_layer "Public Edge": alb edge_gw
 group app_mesh "Microservice Cluster": auth_svc orders_svc payment_svc

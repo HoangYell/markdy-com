@@ -3,6 +3,9 @@
  */
 import {
   compressMarkdyToUrlHash,
+  computeAdaptiveDimensions,
+  compilePlan,
+  parse,
   parseAndCompile,
   resolvePlayer,
   resolveTheme,
@@ -241,17 +244,32 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     onEnded,
   } = opts;
 
-  const { ast, plan } = parseAndCompile(code);
+  const ast = parse(code);
   for (const w of ast.diagnostics) {
     if (w.severity === "warning") onWarning(w);
   }
 
+  // Device orientation & screen adaptation:
+  // Màn hình ngang thì LR, màn hình dọc thì TB (khi tác giả không chỉ định layout cố định)
+  const hasExplicitDirection = ast.meta.explicitDirection === true;
+  if (!hasExplicitDirection) {
+    const isPortrait = typeof window !== "undefined"
+      ? (window.innerWidth < window.innerHeight || (container && container.clientWidth > 0 && container.clientWidth < 640))
+      : false;
+    ast.meta.direction = isPortrait ? "TB" : "LR";
+  }
+
+  // Tự động tính toán width & height thích ứng theo direction
+  if (!ast.meta.explicitWidth || !ast.meta.explicitHeight) {
+    const dims = computeAdaptiveDimensions(ast);
+    if (!ast.meta.explicitWidth) ast.meta.width = dims.width;
+    if (!ast.meta.explicitHeight) ast.meta.height = dims.height;
+  }
+
   // If the script did NOT explicitly specify a theme (or specified theme=auto), follow host theme!
   const hasExplicitTheme = Boolean(ast.meta.explicitTheme === true && ast.meta.theme !== "auto");
-  if (!hasExplicitTheme) {
-    const detected = detectHostTheme(container);
-    plan.theme = resolveTheme(detected);
-  }
+  const initialTheme = hasExplicitTheme ? ast.meta.theme : detectHostTheme(container);
+  const plan = compilePlan(ast, resolveTheme(initialTheme));
 
   let hostThemeObserver: MutationObserver | null = null;
   let mediaQueryListener: ((e: MediaQueryListEvent) => void) | null = null;
@@ -1861,7 +1879,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
   viewport.style.cursor = interactiveViewport ? "grab" : "pointer";
   if (interactiveViewport) {
-    viewport.style.touchAction = "none";
+    viewport.style.touchAction = "pan-y";
     if (allowZoom) viewport.addEventListener("wheel", handleViewportWheel, { passive: false });
     if (allowPan) {
       viewport.addEventListener("pointerdown", handleViewportPointerDown);

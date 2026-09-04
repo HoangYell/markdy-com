@@ -1,5 +1,4 @@
-scene "Zero-Trust FinTech Core Banking & Ledger Engine" theme=auto width=2560 height=920
-layout LR
+scene "Zero-Trust FinTech Core Banking & Ledger Engine" theme=auto
 
 group client_tier "Trader Client Terminals": WebTerminal MobileTrader
 group edge_perimeter "Edge Security Zone": WAF CloudflareEdge

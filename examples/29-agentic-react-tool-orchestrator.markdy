@@ -1,5 +1,4 @@
 scene "Agentic ReAct Tool Orchestrator Loop" theme=nebula
-layout LR
 
 browser Workspace "Engineer Workspace" icon=terminal
 service AgentCore "ReAct Agent Orchestrator" icon=python @src="agent/runtime.py#L40"

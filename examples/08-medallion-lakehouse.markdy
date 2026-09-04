@@ -1,7 +1,7 @@
 # 08-medallion-lakehouse.markdy
 # Demonstrates Multi-Tier Medallion Data Architecture (Bronze -> Silver -> Gold -> Consumers).
 
-scene theme=editorial type=medallion width=1300 height=750
+scene theme=editorial type=medallion
 
 service CDCStream "Debezium CDC Stream"
 service BatchLogs "S3 Ingestion Bucket"

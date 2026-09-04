@@ -1,7 +1,6 @@
 // Beats sequence the animation; groups let one cue target many nodes.
 // `&` runs cues in parallel. glow/focus emphasize nodes.
 scene theme=paper
-layout LR
 
 user Visitor
 gateway ApiGateway

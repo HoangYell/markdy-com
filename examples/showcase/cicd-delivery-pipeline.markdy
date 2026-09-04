@@ -1,5 +1,4 @@
-scene "Continuous Integration & Automated Canary Delivery" theme=auto width=2560 height=800
-layout LR
+scene "Continuous Integration & Automated Canary Delivery" theme=auto
 
 user Developer "Software Engineer"
 repo CodeRepo "GitHub / GitLab Monorepo"

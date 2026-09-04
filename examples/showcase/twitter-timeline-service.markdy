@@ -1,5 +1,4 @@
-scene "Distributed Timeline & Fanout Architecture" theme=auto width=1920 height=800
-layout LR
+scene "Distributed Timeline & Fanout Architecture" theme=auto
 
 user Author "Tweet Author"
 user Reader "Timeline Reader"

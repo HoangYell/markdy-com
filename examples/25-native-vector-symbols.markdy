@@ -1,7 +1,6 @@
 // Showcase: Native Zero-Dependency Vector Symbol Registry
 // Embedded high-fidelity vector icons for top cloud, database, and messaging tech stacks.
 scene "Cloud Native Architecture with Vector Symbols" theme=paper
-layout LR
 
 cloud AwsEdge "AWS CloudFront" icon=aws
 service K8sCluster "EKS Kubernetes Cluster" icon=kubernetes
