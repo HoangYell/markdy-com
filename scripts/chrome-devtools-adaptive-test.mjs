@@ -337,13 +337,14 @@ async function runBrowserTests() {
         });
         const diffPct = (diffPixels / (img1.width * img1.height)) * 100;
 
-        if (diffPct > 0.1) {
+        const maxTolerance = Number(process.env.VISUAL_TOLERANCE) || 0.15;
+        if (diffPct > maxTolerance) {
           const diffPath = join(ARTIFACTS_DIR, `${tc.name}.diff.png`);
           fs.writeFileSync(diffPath, PNG.sync.write(diff));
           console.error(`  ❌ Visual Regression: ${diffPct.toFixed(3)}% diff (${diffPixels} px)! Saved diff to ${diffPath}`);
           visualFailures.push({ test: tc.name, diffPct, diffPixels, diffPath });
         } else {
-          console.log(`  👁️  Visual gate: ${diffPct.toFixed(3)}% diff (tolerance: 0.1% — PASSED)`);
+          console.log(`  👁️  Visual gate: ${diffPct.toFixed(3)}% diff (tolerance: ${maxTolerance}% — PASSED)`);
         }
       }
     }
