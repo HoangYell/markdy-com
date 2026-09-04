@@ -220,7 +220,7 @@ claude mcp add markdy -- npx -y @markdy/mcp-server
 agy mcp add markdy -- npx -y @markdy/mcp-server
 ```
 
-👉 **[1-Click Install for Cursor ↗](https://markdy.com/mcp/cursor)** &nbsp;•&nbsp; **[1-Click Install for VS Code ↗](https://markdy.com/mcp/vscode)** &nbsp;•&nbsp; **[Full JSON Configs for 6 IDEs ↓](#mcp-setup)** &nbsp;•&nbsp; **[AI Agent Guide (`AGENT.md`) ↗](docs/AGENT.md)**
+👉 **[1-Click Install for Cursor ↗](https://markdy.com/mcp/cursor)** &nbsp;•&nbsp; **[1-Click Install for VS Code ↗](https://markdy.com/mcp/vscode)** &nbsp;•&nbsp; **[Full JSON Configs for 6 IDEs ↓](#mcp-setup)** &nbsp;•&nbsp; **[AI Agent Guide (`AGENT.md`) ↗](AGENT.md)**
 </details>
 
 <details>
@@ -547,7 +547,7 @@ Every pull request and build must pass the automated full-cycle verification pip
 |---|---|
 | **[Syntax Reference (SYNTAX.md)](docs/SYNTAX.md)** | Full DSL grammar, flow operators, selectors, cues, and player settings |
 | **[Step-by-Step Tutorial (TUTORIAL.md)](docs/TUTORIAL.md)** | Step-by-step guide from basic flows to multi-beat kinetic scenes |
-| **[AI Agent Guide (AGENT.md)](docs/AGENT.md)** | LLM system prompts, token rules, and anti-patterns |
+| **[AI Agent Guide (AGENT.md)](AGENT.md)** | LLM system prompts, token rules, and anti-patterns |
 | **[Architecture Internals (ARCHITECTURE.md)](docs/ARCHITECTURE.md)** | Compiler pipelines, WAAPI loop, and orthogonal routing geometry |
 | **[VS Code Extension Guide](packages/vscode/README.md)** | Shortcuts, settings, and IDE features |
 

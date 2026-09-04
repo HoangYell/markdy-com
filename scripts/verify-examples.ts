@@ -31,9 +31,9 @@ async function verify(): Promise<number> {
     }
   }
 
-  // Also verify all markdy code blocks inside docs/AGENT.md
+  // Also verify all markdy code blocks inside AGENT.md
   try {
-    const agentMd = await readFile(join(ROOT, "docs", "AGENT.md"), "utf8");
+    const agentMd = await readFile(join(ROOT, "AGENT.md"), "utf8");
     const codeBlockRegex = /```markdy\n([\s\S]*?)```/g;
     let match: RegExpExecArray | null;
     let blockIdx = 0;
@@ -44,16 +44,16 @@ async function verify(): Promise<number> {
       try {
         const ast = parse(code);
         const errors = ast.diagnostics.filter((d) => d.severity === "error");
-        if (errors.length) failures.push(`docs/AGENT.md block #${blockIdx}: ${errors.map((e) => e.message).join("; ")}`);
+        if (errors.length) failures.push(`AGENT.md block #${blockIdx}: ${errors.map((e) => e.message).join("; ")}`);
         for (const w of ast.diagnostics.filter((d) => d.severity === "warning")) {
-          warnings.push(`docs/AGENT.md block #${blockIdx}:${w.line} ${w.message}`);
+          warnings.push(`AGENT.md block #${blockIdx}:${w.line} ${w.message}`);
         }
       } catch (error) {
-        failures.push(`docs/AGENT.md block #${blockIdx}: ${error instanceof Error ? error.message : String(error)}`);
+        failures.push(`AGENT.md block #${blockIdx}: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
   } catch (error) {
-    failures.push(`docs/AGENT.md read: ${error instanceof Error ? error.message : String(error)}`);
+    failures.push(`AGENT.md read: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   // Shipped examples are curated: they must parse cleanly with zero warnings so
