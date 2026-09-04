@@ -49,6 +49,7 @@
     "test:devtools": "node scripts/chrome-devtools-adaptive-test.mjs",
     "test:visual": "node scripts/chrome-devtools-adaptive-test.mjs",
     "test:visual:update": "node scripts/chrome-devtools-adaptive-test.mjs --update-baselines",
+    "test:perf": "node scripts/chrome-devtools-perf-benchmark.mjs",
     "regen": "tsx scripts/regenerate-all.ts",
     "harness": "pnpm --filter @markdy/renderer-dom run harness",
     "ci": "pnpm run test && pnpm run gate && pnpm run verify:examples && pnpm run test:devtools",
