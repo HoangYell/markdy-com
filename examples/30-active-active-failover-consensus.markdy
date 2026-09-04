@@ -9,7 +9,6 @@ database AuroraMasterWest "Aurora DB (EU-West)" icon=postgresql
 service QuorumWitness "Raft Quorum Witness" icon=golang @src="raft/witness.go#L12"
 
 beat active_routing "1. Balanced Dual-Region Active Traffic":
-  show $nodes stagger=60ms
   Route53DNS -> PrimaryCluster "50% US Traffic"
   PrimaryCluster -> AuroraMasterEast "Read/Write Transaction"
   Route53DNS -> SecondaryCluster "50% EU Traffic"

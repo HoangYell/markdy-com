@@ -552,4 +552,73 @@ describe("diagram render plan", () => {
     const columns = layer.querySelectorAll(".markdy-gantt-column");
     expect(columns.length).toBeGreaterThanOrEqual(4);
   });
+
+  it("progressively auto-reveals target node when flow connection reaches it with fill: both", () => {
+    const host = document.createElement("div");
+    const title = document.createElement("div");
+    const nodes = [
+      { id: "Producer", kind: "service", role: "client", label: "Producer", x: 100, y: 120, width: 160, height: 60, opacity: 0 },
+      { id: "Consumer", kind: "service", role: "compute", label: "Consumer", x: 500, y: 120, width: 160, height: 60, opacity: 0 },
+    ];
+    const producerEl = document.createElement("div");
+    const consumerEl = document.createElement("div");
+    const nodeEls = new Map<string, HTMLElement>([
+      ["Producer", producerEl],
+      ["Consumer", consumerEl],
+    ]);
+
+    const animatedCalls: { el: HTMLElement; keyframes: any; options: any }[] = [];
+    const mockAnimate = (el: HTMLElement) => (keyframes: any, options: any) => {
+      animatedCalls.push({ el, keyframes, options });
+      return { pause() {}, cancel() {} } as unknown as Animation;
+    };
+    (title as any).animate = () => ({ pause() {} });
+    producerEl.animate = mockAnimate(producerEl) as any;
+    consumerEl.animate = mockAnimate(consumerEl) as any;
+
+    const runtimes = new Map();
+    const cues = [
+      {
+        start: 1,
+        duration: 0.6,
+        kind: "flow" as const,
+        targets: ["Producer", "Consumer"],
+        segments: [{ from: "Producer", to: "Consumer", op: "request" as const, label: "task" }],
+        params: {},
+        beat: "work",
+      },
+    ];
+
+    const origSvgAnimate = (SVGElement.prototype as any).animate;
+    (SVGElement.prototype as any).animate = () => ({ pause() {}, cancel() {} });
+
+    try {
+      buildCueAnimations(
+        cues,
+        nodeEls,
+        nodes,
+        THEMES.midnight,
+        host,
+        title,
+        { width: 1280, height: 720 },
+        [],
+        runtimes,
+        "flow-test",
+      );
+
+      // Producer should reveal at startMs (1000ms) with fill: "both"
+      const producerReveal = animatedCalls.find((c) => c.el === producerEl);
+      expect(producerReveal).toBeDefined();
+      expect(producerReveal?.options.delay).toBe(1000);
+      expect(producerReveal?.options.fill).toBe("both");
+
+      // Consumer should reveal only when connection arrives (1000 + min(240, 600 * 0.65) = 1240ms) with fill: "both"
+      const consumerReveal = animatedCalls.find((c) => c.el === consumerEl && c.keyframes[0].opacity === 0);
+      expect(consumerReveal).toBeDefined();
+      expect(consumerReveal?.options.delay).toBe(1240);
+      expect(consumerReveal?.options.fill).toBe("both");
+    } finally {
+      (SVGElement.prototype as any).animate = origSvgAnimate;
+    }
+  });
 });

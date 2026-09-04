@@ -306,8 +306,8 @@ export function createEdgeRuntime(
   existingPaths: Point[][] = [],
 ): EdgeRuntime {
   ensureDefs(svg, theme, sceneId);
-  const color = theme.edges[kind];
-  const style = EDGE_STYLES[kind];
+  const color = theme.edges[kind] ?? theme.edges.request ?? theme.accent;
+  const style = EDGE_STYLES[kind] ?? EDGE_STYLES.request;
   const isSelfLoop = from.id === to.id;
   const points = isSelfLoop
     ? dedupePoints(selfLoopPath(from, bounds))
@@ -740,7 +740,7 @@ export function buildCueAnimations(
             anims.push(
               el.animate(
                 [{ opacity: 0, transform: "translateY(10px) scale(0.98)" }, { opacity: 1, transform: "translateY(0) scale(1)" }],
-                { duration: durMs, delay, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+                { duration: durMs, delay, fill: "both", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
               ),
             );
           } else {
@@ -880,18 +880,31 @@ export function buildCueAnimations(
       }
       anims.push(...animateEdgeReveal(runtime, startMs, durMs));
       // Auto-reveal nodes participating in this flow if not explicitly shown yet
-      for (const id of [seg.from, seg.to]) {
-        if (!shownNodeSet.has(id)) {
-          shownNodeSet.add(id);
-          const el = nodeEls.get(id);
-          if (el) {
-            anims.push(
-              el.animate(
-                [{ opacity: 0, transform: "translateY(8px) scale(0.98)" }, { opacity: 1, transform: "translateY(0) scale(1)" }],
-                { duration: 320, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-              ),
-            );
-          }
+      if (!shownNodeSet.has(seg.from)) {
+        shownNodeSet.add(seg.from);
+        const fromEl = nodeEls.get(seg.from);
+        if (fromEl) {
+          anims.push(
+            fromEl.animate(
+              [{ opacity: 0, transform: "translateY(8px) scale(0.98)" }, { opacity: 1, transform: "translateY(0) scale(1)" }],
+              { duration: 320, delay: startMs, fill: "both", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+            ),
+          );
+        }
+      }
+
+      if (!shownNodeSet.has(seg.to)) {
+        shownNodeSet.add(seg.to);
+        const toEl = nodeEls.get(seg.to);
+        if (toEl) {
+          // Reveal destination node exactly as the connection reaches it
+          const arrivalDelay = startMs + Math.min(240, durMs * 0.65);
+          anims.push(
+            toEl.animate(
+              [{ opacity: 0, transform: "translateY(8px) scale(0.98)" }, { opacity: 1, transform: "translateY(0) scale(1)" }],
+              { duration: 300, delay: arrivalDelay, fill: "both", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+            ),
+          );
         }
       }
 

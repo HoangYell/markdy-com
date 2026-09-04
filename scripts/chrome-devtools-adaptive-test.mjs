@@ -187,6 +187,7 @@ const htmlContent = `
       el.innerHTML = '';
       const { ast, plan } = parseAndCompile(code);
       const diagram = createDiagram({ container: el, code, autoplay: true });
+      window.activeDiagram = diagram;
       return {
         metaWidth: plan.meta.width,
         metaHeight: plan.meta.height,
@@ -281,8 +282,14 @@ async function runBrowserTests() {
       return window.renderMarkdyDiagram('stage', code);
     }, tc.code);
 
-    // Wait for autoplay animations to reveal cards and flow
-    await new Promise((r) => setTimeout(r, 800));
+    // Let autoplay animations run smoothly, then lock to settled state for deterministic pixel fidelity
+    await new Promise((r) => setTimeout(r, 600));
+    await page.evaluate(() => {
+      if (window.activeDiagram) {
+        window.activeDiagram.pause();
+        window.activeDiagram.seek(window.activeDiagram.duration());
+      }
+    });
 
     // Capture screenshot
     const screenshotPath = join(ARTIFACTS_DIR, `${tc.name}.png`);

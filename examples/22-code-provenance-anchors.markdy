@@ -10,7 +10,6 @@ database UserDb "User Store" src="prisma/schema.prisma#L45-L70"
 database LedgerDb "Ledger DB" src="db/migrations/001_ledger.sql#L1-L35"
 
 beat verification_trace:
-  show $nodes stagger=80ms
   ApiGateway -> AuthService "POST /auth/token"
   ApiGateway -> PaymentService "POST /checkout"
   AuthService -> UserDb "SELECT credentials"

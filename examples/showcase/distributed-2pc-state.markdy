@@ -19,7 +19,6 @@ edge flow5: Aborted -> Init "Rollback"
 edge flow6: Committed -> Finalized "Finalize"
 
 beat lifecycle "1. Two-Phase Commit Consensus State Machine":
-  show $nodes stagger=45ms
   frame Init Preparing Prepared Committed Finalized zoom=1.08 dur=500ms
   Init -> Preparing "coordinator issues PREPARE"
   Preparing -> Prepared "all resource managers vote YES"

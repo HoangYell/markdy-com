@@ -11,7 +11,6 @@ queue Kafka "Apache Kafka Stream" icon=kafka
 gateway Nginx "Nginx Ingress" icon=nginx
 
 beat flow:
-  show $nodes stagger=70ms
   AwsEdge -> Nginx "HTTPS Request" -> K8sCluster "Cluster Routing"
   K8sCluster -> Postgres "Transactional Write"
   K8sCluster -> Redis "Cache Lookup"

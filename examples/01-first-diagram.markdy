@@ -7,10 +7,9 @@ browser WebApp
 service ApiServer
 database Postgres
 
-// A beat groups animated cues. `show $nodes` reveals every node,
-// then the flow chain draws request edges left to right.
+// A beat groups animated cues. The flow chain progressively reveals nodes
+// and draws request edges from client to database.
 beat main:
-  show $nodes stagger=80ms
   WebApp -> ApiServer "GET /users" -> Postgres "query"
   WebApp <- ApiServer "200 OK"
 
