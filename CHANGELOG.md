@@ -5,6 +5,22 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] — 2026-09-04
+
+### Added & Enhanced
+- **🌊 Progressive Connection Reveal & Node Entrance Synchronization (`@markdy/core`, `@markdy/renderer-dom`)**:
+  - Eliminated premature node pop-in on beat 1: nodes participating in connection flows remain gracefully hidden until flows originate from or arrive at them.
+  - Core compiler (`compiler.ts`): Refactored auto-generated `__intro` cue injection to exclude flow-participating nodes from blunt `t=0` reveal (preserving sequence lifeline participants upfront).
+  - DOM edge runtime (`edges.ts`): Decoupled `from` and `to` reveal timings. Source nodes enter at departure (`startMs`), while destination nodes reveal upon flow arrival (`startMs + durMs * 0.65`), immediately punctuated by an arrival micro-pulse.
+  - Enforced `{ fill: "both" }` keyframe persistence on delayed entrance animations to prevent initial opacity flash.
+- **⚡ Synchronized Structural Edge Delivery (`@markdy/renderer-dom`)**:
+  - Structural topology edges now calculate the exact arrival timestamps of both endpoints (`Math.max(tFrom, tTo)`), staying hidden until both nodes exist and fading in synchronously.
+  - Eradicated floating wires and disconnected arrowheads in empty canvas space.
+- **🎬 Camera Framing & Viewport Restoration (`examples/showcase`)**:
+  - Restored full-cluster camera framing (`frame $nodes`) across multi-beat architectures, eliminating HUD title collisions and ensuring downstream client responses stay centered in view.
+- **👁️ Rigorous Visual & Performance Verification**:
+  - 100% pass across 123 tests, 79 canonical example blueprints, 5 visual regression baselines (0.000% diff), and sub-frame render budgets (<1.2ms compile, <8.1ms mount, <3.5MB JS heap).
+
 ## [1.3.0] — 2026-09-04
 
 ### Added & Enhanced
