@@ -1,6 +1,15 @@
 # @markdy/mdx
 
-MDX integration for MarkdyScript with Lighthouse-safe defaults:
+<p align="center">
+  <a href="https://markdy.com/playground/"><img src="https://img.shields.io/badge/⚡_Live_Studio-markdy.com%2Fplayground-3b82f6?style=for-the-badge" alt="Live Studio" /></a>
+  <a href="https://markdy.com/docs/"><img src="https://img.shields.io/badge/📖_Docs-Documentation-10b981?style=for-the-badge" alt="Documentation" /></a>
+  <a href="https://markdy.com/examples/"><img src="https://img.shields.io/badge/🌟_Blueprints-30+_Examples-f59e0b?style=for-the-badge" alt="Examples" /></a>
+</p>
+
+MDX & remark plugin for [MarkdyScript](https://markdy.com/docs/) animated diagrams with Lighthouse-safe, zero-CLS lazy hydration:
+
+> 🚀 **Try it live**: Test MarkdyScript in the browser at **[markdy.com/playground](https://markdy.com/playground/)**  
+> 📚 **Documentation**: Complete syntax guide and examples at **[markdy.com/docs](https://markdy.com/docs/)**
 
 - `remarkMarkdy` converts fenced code blocks (` ```markdy `) into a diagram component.
 - `MarkdyDiagram` hydrates only when visible and lazy-loads `@markdy/renderer-dom`.
@@ -93,4 +102,13 @@ Fenced block metadata is passed as props to `MarkdyDiagram`. Snake-case aliases 
 | `interactive_viewport=true` | `interactiveViewport={true}` | Enable wheel zoom and drag pan on the rendered viewport |
 | `controls=true` | `controls={true}` | Supply legacy toolbar defaults; `false` suppresses controls declared by the script |
 
-> **Self-Contained MarkdyScript:** Prefer grouped `player:` settings inside the code block. Fence metadata is a host override; omit it when the script should remain authoritative.
+## Ecosystem & Documentation
+
+- ⚡ **[Interactive Studio / Playground](https://markdy.com/playground/)** — edit MarkdyScript with instant live preview in your browser
+- 📖 **[Syntax Guide & Reference](https://markdy.com/docs/)** — complete language specification and keywords
+- 🌟 **[Canonical Blueprints](https://markdy.com/examples/)** — production-grade distributed system and cloud architectures
+- 📦 **[GitHub Repository](https://github.com/HoangYell/markdy-com)** — source code, benchmarks, and issue tracker
+
+## License
+
+[MIT](https://github.com/HoangYell/markdy-com/blob/main/LICENSE)

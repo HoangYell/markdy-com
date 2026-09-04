@@ -1,6 +1,15 @@
 # @markdy/renderer-dom
 
-Web Animations API renderer for [MarkdyScript](../../docs/SYNTAX.md) scenes. Translates a parsed AST into DOM elements and drives the animation timeline with interactive analytical capabilities.
+<p align="center">
+  <a href="https://markdy.com/playground/"><img src="https://img.shields.io/badge/⚡_Live_Studio-markdy.com%2Fplayground-3b82f6?style=for-the-badge" alt="Live Studio" /></a>
+  <a href="https://markdy.com/docs/"><img src="https://img.shields.io/badge/📖_Docs-Documentation-10b981?style=for-the-badge" alt="Documentation" /></a>
+  <a href="https://markdy.com/examples/"><img src="https://img.shields.io/badge/🌟_Blueprints-30+_Examples-f59e0b?style=for-the-badge" alt="Examples" /></a>
+</p>
+
+Web Animations API renderer for [MarkdyScript](https://markdy.com/docs/) scenes. Translates a parsed AST into 60fps GPU-accelerated DOM elements and drives the animation timeline with interactive analytical capabilities (Blast Radius, Route Pathfinder, and SVG/GIF export).
+
+> 🚀 **Try it live**: Test MarkdyScript in the browser at **[markdy.com/playground](https://markdy.com/playground/)**  
+> 📚 **Documentation**: Complete syntax guide and examples at **[markdy.com/docs](https://markdy.com/docs/)**
 
 ## Features
 
@@ -80,6 +89,13 @@ console.log("Route:", shortestPath); // ['Client', 'Gateway', 'PaymentSvc', 'Led
 | `exportDiagramAsPng(container, opts?)` | `Function` | Export high-DPI rasterized PNG Blob |
 | `exportDiagramAsGif(diagram, opts?)` | `Function` | Export animated GIF89a recording |
 
+## Ecosystem & Documentation
+
+- ⚡ **[Interactive Studio / Playground](https://markdy.com/playground/)** — edit MarkdyScript with instant live preview in your browser
+- 📖 **[Syntax Guide & Reference](https://markdy.com/docs/)** — complete language specification and keywords
+- 🌟 **[Canonical Blueprints](https://markdy.com/examples/)** — production-grade distributed system and cloud architectures
+- 📦 **[GitHub Repository](https://github.com/HoangYell/markdy-com)** — source code, benchmarks, and issue tracker
+
 ## License
 
-[MIT](../../LICENSE)
+[MIT](https://github.com/HoangYell/markdy-com/blob/main/LICENSE)

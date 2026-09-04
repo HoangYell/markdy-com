@@ -1,6 +1,15 @@
 # @markdy/astro
 
-[Astro](https://astro.build/) island component for [MarkdyScript](../../docs/SYNTAX.md) animated scenes.
+<p align="center">
+  <a href="https://markdy.com/playground/"><img src="https://img.shields.io/badge/⚡_Live_Studio-markdy.com%2Fplayground-3b82f6?style=for-the-badge" alt="Live Studio" /></a>
+  <a href="https://markdy.com/docs/"><img src="https://img.shields.io/badge/📖_Docs-Documentation-10b981?style=for-the-badge" alt="Documentation" /></a>
+  <a href="https://markdy.com/examples/"><img src="https://img.shields.io/badge/🌟_Blueprints-30+_Examples-f59e0b?style=for-the-badge" alt="Examples" /></a>
+</p>
+
+[Astro](https://astro.build/) island component for [MarkdyScript](https://markdy.com/docs/) animated scenes. Embed interactive, zero-CLS architecture diagrams directly inside your Astro blogs, docs, and landing pages.
+
+> 🚀 **Try it live**: Test MarkdyScript in the browser at **[markdy.com/playground](https://markdy.com/playground/)**  
+> 📚 **Documentation**: Complete syntax guide and examples at **[markdy.com/docs](https://markdy.com/docs/)**
 
 ## Features
 
@@ -121,11 +130,13 @@ beat hit:
 3. **On viewport entry:** the observer fires, clears the placeholder, and calls `createDiagram()` from `@markdy/renderer-dom`
 4. **View Transitions:** listens for `astro:page-load` to re-observe newly added elements
 
-## Documentation
+## Ecosystem & Documentation
 
-- **[Tutorial](../../docs/TUTORIAL.md)** — step-by-step guide from zero to animated scenes
-- **[Syntax Reference](../../docs/SYNTAX.md)** — complete DSL language spec
+- ⚡ **[Interactive Studio / Playground](https://markdy.com/playground/)** — edit MarkdyScript with instant live preview in your browser
+- 📖 **[Syntax Guide & Reference](https://markdy.com/docs/)** — complete language specification and keywords
+- 🌟 **[Canonical Blueprints](https://markdy.com/examples/)** — production-grade distributed system and cloud architectures
+- 📦 **[GitHub Repository](https://github.com/HoangYell/markdy-com)** — source code, benchmarks, and issue tracker
 
 ## License
 
-[MIT](../../LICENSE)
+[MIT](https://github.com/HoangYell/markdy-com/blob/main/LICENSE)

@@ -1,6 +1,16 @@
 # @markdy/core
 
-The parser, routing engine, and AST types for [MarkdyScript](../../docs/SYNTAX.md) — a diagram-native DSL for animated architecture diagrams that AI agents can generate reliably.
+<p align="center">
+  <a href="https://markdy.com/playground/"><img src="https://img.shields.io/badge/⚡_Live_Studio-markdy.com%2Fplayground-3b82f6?style=for-the-badge" alt="Live Studio" /></a>
+  <a href="https://markdy.com/docs/"><img src="https://img.shields.io/badge/📖_Docs-Documentation-10b981?style=for-the-badge" alt="Documentation" /></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><img src="https://img.shields.io/badge/🔌_VS_Code-Extension-8b5cf6?style=for-the-badge" alt="VS Code Extension" /></a>
+</p>
+
+The zero-dependency parser, dynamic port multiplexer, and AST routing engine for [MarkdyScript](https://markdy.com/docs/) — a diagram-native DSL for animated architecture diagrams that AI agents generate reliably.
+
+> 🚀 **Try it live**: Test MarkdyScript in the browser at **[markdy.com/playground](https://markdy.com/playground/)**  
+> 📚 **Documentation**: Complete syntax guide and examples at **[markdy.com/docs](https://markdy.com/docs/)**  
+> 🌟 **Architecture Blueprints**: 30+ canonical production diagrams at **[markdy.com/examples](https://markdy.com/examples/)**
 
 ## Features
 
@@ -87,13 +97,15 @@ try {
 | `compressMarkdyToUrlHash` / `decompress` | `functions` | Lossless URL hash state encoder for shareable playground links |
 | `THEMES` / `resolveTheme` | tokens / function | 10 Semantic theme palettes |
 
-## Documentation
+## Ecosystem & Documentation
 
-- **[Syntax Reference](../../docs/SYNTAX.md)** — complete DSL language spec
-- **[Tutorial](../../docs/TUTORIAL.md)** — step-by-step guide
-- **[Agent Guide](https://markdy.com/agent/)** — structured reference for AI/LLM code generation
-- **[Architecture](../../docs/ARCHITECTURE.md)** — parser internals and design decisions
+- ⚡ **[Interactive Studio / Playground](https://markdy.com/playground/)** — edit MarkdyScript with instant live preview in your browser
+- 📖 **[Syntax Guide & Reference](https://markdy.com/docs/)** — complete language specification and keywords
+- 🌟 **[Canonical Blueprints](https://markdy.com/examples/)** — production-grade distributed system and cloud architectures
+- 🤖 **[Agent Engineering Guide](https://markdy.com/agent/)** — instructions for LLMs (Claude, GPT, Gemini) to generate valid Markdy
+- 🔌 **[VS Code Marketplace Extension](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode)** — syntax highlighting and live preview in editor
+- 📦 **[GitHub Repository](https://github.com/HoangYell/markdy-com)** — source code, benchmarks, and issue tracker
 
 ## License
 
-[MIT](../../LICENSE)
+[MIT](https://github.com/HoangYell/markdy-com/blob/main/LICENSE)
