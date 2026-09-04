@@ -527,6 +527,20 @@ agy mcp add markdy -- npx -y @markdy/mcp-server
 
 ---
 
+## 🚦 Verification Gates & Quality Engineering
+
+Every pull request and build must pass the automated full-cycle verification pipeline:
+
+| Command | Verification Gate | Focus Area |
+|---|---|---|
+| `pnpm test` | **Unit & Integration Suite** | AST parser, compiler math, layout solvers, CLI |
+| `pnpm test:visual` | **Automated Visual Gate** | Headless Chrome + Pixelmatch against golden baselines (`tests/visual-baselines/`) |
+| `pnpm test:perf` | **Sub-Frame Performance Gate** | Chrome DevTools Protocol tracing (sub-40ms render, <25MB JS heap) |
+| `pnpm verify:examples` | **Canonical Showcase Gate** | 33 production blueprints compile with zero warnings |
+| `cleanroom-guard check` | **Anti-Leak & Clean-Room** | Pre-commit secret scanning and clean-room zero-footprint protection |
+
+---
+
 ## 📖 Documentation Links
 
 | Guide | Description |
