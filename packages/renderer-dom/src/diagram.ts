@@ -693,6 +693,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       edgeRuntimes,
       edgeSceneId,
       plan.diagramType,
+      plan.cues,
     ),
     ...buildCueAnimations(plan.cues, nodeEls, plan.nodes, plan.theme, cameraLayer, titleEl, {
       width: plan.meta.width,

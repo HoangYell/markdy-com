@@ -929,7 +929,7 @@ export function buildCueAnimations(
   return anims;
 }
 
-/** Renders top-level `edge` declarations as static SVG paths (revealed at t=0). */
+/** Renders top-level `edge` declarations as structural SVG paths, progressively revealed when endpoints enter. */
 export function buildStructuralEdgeAnimations(
   edges: RoutedEdge[],
   nodes: PositionedNode[],
@@ -939,6 +939,7 @@ export function buildStructuralEdgeAnimations(
   edgeRuntimes: EdgeRuntimeMap = new Map(),
   sceneId = createEdgeSceneId(),
   diagramType: DiagramType = "architecture",
+  cues: TimedCue[] = [],
 ): Animation[] {
   const structural = edges.filter((e) =>
     e.structural &&
@@ -954,6 +955,32 @@ export function buildStructuralEdgeAnimations(
   const placedPaths: Point[][] = [];
   const laneByPair = new Map<string, number>();
   const svg = ensureEdgeLayer(scene);
+
+  const anims: Animation[] = [];
+  const nodeRevealTime = new Map<string, number>();
+
+  for (const cue of cues) {
+    const cueStartMs = cue.start * 1000;
+    const durMs = cue.duration * 1000;
+    if (cue.kind === "show") {
+      cue.targets.forEach((id, idx) => {
+        const stagger = typeof cue.params?.stagger === "number" ? cue.params.stagger * 1000 * idx : 0;
+        const reveal = cueStartMs + stagger;
+        if (!nodeRevealTime.has(id) || reveal < nodeRevealTime.get(id)!) {
+          nodeRevealTime.set(id, reveal);
+        }
+      });
+    } else if (cue.kind === "flow" && cue.segments?.[0] && diagramType !== "sequence") {
+      const seg = cue.segments[0];
+      if (!nodeRevealTime.has(seg.from) || cueStartMs < nodeRevealTime.get(seg.from)!) {
+        nodeRevealTime.set(seg.from, cueStartMs);
+      }
+      const arrival = cueStartMs + Math.min(240, durMs * 0.65);
+      if (!nodeRevealTime.has(seg.to) || arrival < nodeRevealTime.get(seg.to)!) {
+        nodeRevealTime.set(seg.to, arrival);
+      }
+    }
+  }
 
   for (const edge of structural) {
     const from = nodeById.get(edge.from);
@@ -978,9 +1005,24 @@ export function buildStructuralEdgeAnimations(
     );
     placedPaths.push(runtime.points);
     if (runtime.labelRect) placedLabels.push(runtime.labelRect);
-    setEdgeVisible(runtime, true);
     edgeRuntimes.set(edge.id, runtime);
+
+    const hasCues = cues.length > 0;
+    const tFrom = nodeRevealTime.get(edge.from) ?? 0;
+    const tTo = nodeRevealTime.get(edge.to) ?? 0;
+    const revealDelay = Math.max(tFrom, tTo);
+
+    if (hasCues) {
+      anims.push(
+        runtime.group.animate(
+          [{ opacity: 0 }, { opacity: 1 }],
+          { duration: 240, delay: revealDelay, fill: "both", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
+        ),
+      );
+    } else {
+      setEdgeVisible(runtime, true);
+    }
   }
 
-  return [];
+  return anims;
 }
