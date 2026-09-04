@@ -162,7 +162,7 @@ function circleBoundaryRoute(from: PositionedNode, to: PositionedNode): Point[] 
   ]);
 }
 
-function snapPortToNodeShape(node: PositionedNode, port: Point, neighbor: Point, isSource: boolean): Point {
+function snapPortToNodeShape(node: PositionedNode, port: Point, neighbor: Point, _isSource: boolean): Point {
   if (!node.shape || node.shape === "card" || node.shape === "rounded" || node.shape === "terminal" || node.shape === "container") {
     return port;
   }
@@ -171,51 +171,49 @@ function snapPortToNodeShape(node: PositionedNode, port: Point, neighbor: Point,
   const hw = node.width / 2;
   const hh = node.height / 2;
 
+  const facingRight = neighbor.x > port.x;
+  const facingDown = neighbor.y > port.y;
+  const isHoriz = Math.abs(port.y - neighbor.y) <= Math.abs(port.x - neighbor.x);
+
   if (node.shape === "diamond") {
-    const isVert = Math.abs(port.x - neighbor.x) < 0.01;
-    const isHoriz = Math.abs(port.y - neighbor.y) < 0.01;
-    if (isVert) {
-      const goingDown = isSource ? neighbor.y > port.y : port.y > neighbor.y;
-      const boundaryY = goingDown
-        ? cy + hh * (1 - Math.min(1, Math.abs(port.x - cx) / hw))
-        : cy - hh * (1 - Math.min(1, Math.abs(port.x - cx) / hw));
-      return { x: port.x, y: Math.round(boundaryY * 10) / 10 };
-    }
     if (isHoriz) {
-      const goingRight = isSource ? neighbor.x > port.x : port.x > neighbor.x;
-      const boundaryX = goingRight
+      const boundaryX = facingRight
         ? cx + hw * (1 - Math.min(1, Math.abs(port.y - cy) / hh))
         : cx - hw * (1 - Math.min(1, Math.abs(port.y - cy) / hh));
       return { x: Math.round(boundaryX * 10) / 10, y: port.y };
+    } else {
+      const boundaryY = facingDown
+        ? cy + hh * (1 - Math.min(1, Math.abs(port.x - cx) / hw))
+        : cy - hh * (1 - Math.min(1, Math.abs(port.x - cx) / hw));
+      return { x: port.x, y: Math.round(boundaryY * 10) / 10 };
     }
   }
 
   if (node.shape === "circle") {
     const r = Math.min(node.width, node.height) / 2;
-    const isVert = Math.abs(port.x - neighbor.x) < 0.01;
-    const isHoriz = Math.abs(port.y - neighbor.y) < 0.01;
-    if (isVert) {
-      const goingDown = isSource ? neighbor.y > port.y : port.y > neighbor.y;
-      return { x: cx, y: goingDown ? cy + r : cy - r };
-    }
     if (isHoriz) {
-      const goingRight = isSource ? neighbor.x > port.x : port.x > neighbor.x;
-      return { x: goingRight ? cx + r : cx - r, y: cy };
+      const dy = Math.abs(port.y - cy);
+      const dx = dy <= r ? Math.sqrt(Math.max(0, r * r - dy * dy)) : 0;
+      return { x: Math.round((facingRight ? cx + dx : cx - dx) * 10) / 10, y: port.y };
+    } else {
+      const dx = Math.abs(port.x - cx);
+      const dy = dx <= r ? Math.sqrt(Math.max(0, r * r - dx * dx)) : 0;
+      return { x: port.x, y: Math.round((facingDown ? cy + dy : cy - dy) * 10) / 10 };
     }
   }
 
   if (node.shape === "pill") {
     const r = node.height / 2;
-    const isVert = Math.abs(port.x - neighbor.x) < 0.01;
-    const isHoriz = Math.abs(port.y - neighbor.y) < 0.01;
     if (isHoriz) {
-      const goingRight = isSource ? neighbor.x > port.x : port.x > neighbor.x;
-      return { x: goingRight ? node.x + node.width : node.x, y: cy };
-    }
-    if (isVert) {
-      const goingDown = isSource ? neighbor.y > port.y : port.y > neighbor.y;
+      const dy = Math.abs(port.y - cy);
+      const dx = dy <= r ? Math.sqrt(Math.max(0, r * r - dy * dy)) : 0;
+      const boundaryX = facingRight
+        ? (node.x + node.width - r) + dx
+        : (node.x + r) - dx;
+      return { x: Math.round(boundaryX * 10) / 10, y: port.y };
+    } else {
       const clampedX = Math.max(node.x + r, Math.min(node.x + node.width - r, port.x));
-      return { x: clampedX, y: goingDown ? node.y + node.height : node.y };
+      return { x: clampedX, y: facingDown ? node.y + node.height : node.y };
     }
   }
 
@@ -609,7 +607,8 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
     if (isDiamond) {
       const hw = node.width / 2;
       const hh = node.height / 2;
-      svg += `      <polygon points="${hw},0 ${node.width},${hh} ${hw},${node.height} 0,${hh}" fill="${surface}" stroke="${border}" stroke-width="1" filter="url(#markdy-node-shadow)"/>\n`;
+      svg += `      <polygon points="${hw},1.5 ${node.width - 1.5},${hh} ${hw},${node.height - 1.5} 1.5,${hh}" fill="${surface}" stroke="${border}" stroke-width="1.5" stroke-linejoin="round" filter="url(#markdy-node-shadow)"/>
+      <polygon points="${hw},3.5 ${node.width - 3.5},${hh} ${hw},${node.height - 3.5} 3.5,${hh}" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1" stroke-linejoin="round"/>\n`;
     } else if (isCircle) {
       const r = Math.min(node.width, node.height) / 2;
       svg += `      <circle cx="${node.width / 2}" cy="${node.height / 2}" r="${r}" fill="${surface}" stroke="${border}" stroke-width="1" filter="url(#markdy-node-shadow)"/>\n`;
@@ -632,34 +631,51 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
 
     // Node contents rendering based on shape
     if (isDiamond) {
-      // Diamond: No icon (matches DOM), horizontally & vertically centered text
-      const availTextWidth = Math.max(40, node.width * 0.65);
-      const lines = wrapNodeLabel(node.label, availTextWidth, 12.5);
+      // Diamond: Centered column with icon above label, inside the diamond's widest center
       const centerX = node.width / 2;
+      const availTextWidth = Math.max(40, node.width * 0.62);
+      const lines = wrapNodeLabel(node.label, availTextWidth, 12);
+      const diamondIconSize = 18;
+      const iconX = (node.width - diamondIconSize) / 2;
+      const iconY = node.height / 2 - (hasTech ? 26 : lines.length > 1 ? 22 : 18);
+
+      const symbolKey = typeof node.props?.icon === "string" ? node.props.icon : typeof node.props?.symbol === "string" ? node.props.symbol : undefined;
+      const vectorSymbol = symbolKey ? resolveVectorSymbol(symbolKey) : null;
+      const rawImage = node.props?.image ?? node.props?.logo;
+
+      if (typeof rawImage === "string" && rawImage.length > 0) {
+        svg += `      <image href="${escapeXml(rawImage)}" x="${iconX}" y="${iconY}" width="${diamondIconSize}" height="${diamondIconSize}" preserveAspectRatio="xMidYMid meet"/>\n`;
+      } else if (vectorSymbol) {
+        const symColor = vectorSymbol.brandColor || roleColor;
+        svg += `      <g transform="translate(${iconX}, ${iconY}) scale(${diamondIconSize / 24})" fill="currentColor" color="${symColor}">
+        ${vectorSymbol.svgPaths}
+      </g>\n`;
+      } else {
+        svg += `      <g transform="translate(${iconX}, ${iconY}) scale(${diamondIconSize / 24})" fill="none" stroke="${roleColor}" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">\n`;
+        if (glyphSpec) {
+          for (const [tag, attrs] of glyphSpec) {
+            const attrStr = Object.entries(attrs).map(([k, v]) => `${k}="${escapeXml(v)}"`).join(" ");
+            svg += `        <${tag} ${attrStr} />\n`;
+          }
+        }
+        svg += `      </g>\n`;
+      }
+
+      const textCenterY = node.height / 2 + (hasTech ? 4 : lines.length > 1 ? 8 : 7);
+      if (lines.length === 1) {
+        svg += `      <text x="${centerX}" y="${textCenterY}" class="markdy-svg-text" font-size="12" font-weight="600" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(lines[0])}</text>\n`;
+      } else {
+        const startY = textCenterY - ((lines.length - 1) * 14) / 2;
+        lines.forEach((l, idx) => {
+          svg += `      <text x="${centerX}" y="${startY + idx * 14}" class="markdy-svg-text" font-size="12" font-weight="600" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(l)}</text>\n`;
+        });
+      }
 
       if (hasTech) {
-        const labelCenterY = node.height / 2 - 8;
-        if (lines.length === 1) {
-          svg += `      <text x="${centerX}" y="${labelCenterY}" class="markdy-svg-text" font-size="12.5" font-weight="600" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(lines[0])}</text>\n`;
-        } else {
-          const startY = labelCenterY - ((lines.length - 1) * 14) / 2;
-          lines.forEach((l, idx) => {
-            svg += `      <text x="${centerX}" y="${startY + idx * 14}" class="markdy-svg-text" font-size="12" font-weight="600" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(l)}</text>\n`;
-          });
-        }
-        const techBadgeW = Math.min(availTextWidth, techText.length * 6.2 + 12);
-        const techBadgeY = node.height / 2 + 5;
-        svg += `      <rect x="${centerX - techBadgeW / 2}" y="${techBadgeY}" width="${techBadgeW}" height="15" rx="4" fill="${textColor}" fill-opacity="${isDark ? '0.08' : '0.05'}" stroke="${border}" stroke-width="0.75"/>
-      <text x="${centerX}" y="${techBadgeY + 7.5}" class="markdy-svg-mono" font-size="9" font-weight="500" fill="${textMuted}" text-anchor="middle" dominant-baseline="central">${escapeXml(techText)}</text>\n`;
-      } else {
-        if (lines.length === 1) {
-          svg += `      <text x="${centerX}" y="${node.height / 2}" class="markdy-svg-text" font-size="13" font-weight="600" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(lines[0])}</text>\n`;
-        } else {
-          const startY = node.height / 2 - ((lines.length - 1) * 15) / 2;
-          lines.forEach((l, idx) => {
-            svg += `      <text x="${centerX}" y="${startY + idx * 15}" class="markdy-svg-text" font-size="12.5" font-weight="600" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(l)}</text>\n`;
-          });
-        }
+        const techBadgeW = Math.min(availTextWidth, techText.length * 6 + 10);
+        const techBadgeY = textCenterY + (lines.length * 7) + 6;
+        svg += `      <rect x="${centerX - techBadgeW / 2}" y="${techBadgeY}" width="${techBadgeW}" height="14" rx="3" fill="${textColor}" fill-opacity="${isDark ? '0.08' : '0.05'}" stroke="${border}" stroke-width="0.75"/>
+      <text x="${centerX}" y="${techBadgeY + 7}" class="markdy-svg-mono" font-size="8.5" font-weight="500" fill="${textMuted}" text-anchor="middle" dominant-baseline="central">${escapeXml(techText)}</text>\n`;
       }
     } else if (isCircle) {
       // Circle: Centered column with icon above label

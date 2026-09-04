@@ -1,4 +1,4 @@
-scene "Production Kubernetes Control Plane & Workloads" theme=auto width=1320 height=780
+scene "Production Kubernetes Control Plane & Workloads" theme=auto width=1920 height=840
 layout LR
 
 user Operator "DevOps Engineer"

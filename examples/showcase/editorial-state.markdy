@@ -1,4 +1,4 @@
-scene "Order Fulfillment State Machine" theme=auto type=state width=1100 height=720
+scene "Order Fulfillment State Machine" theme=auto type=state width=1320 height=720
 layout LR
 
 state Pending "1. Pending Payment"
@@ -6,14 +6,11 @@ state Paid "2. Payment Settled"
 state Shipped "3. Carrier Shipped"
 state Closed "4. Order Completed"
 
-edge flow1: Pending -> Paid
-edge flow2: Paid -> Shipped
-edge flow3: Shipped -> Closed
 edge loop: Pending -> Pending
 
 beat lifecycle "Order Lifecycle Transitions":
   show $nodes stagger=50ms
-  frame Pending Paid zoom=1.1 dur=500ms
+  frame Pending Paid Shipped Closed zoom=1.0 dur=500ms
   Pending -> Paid "payment captured"
   Paid -> Shipped "carrier pickup & tracking"
   Shipped -> Closed "customer delivery confirmed"

@@ -1,4 +1,4 @@
-scene "OAuth 2.0 & OIDC Authorization Code Flow" theme=auto width=1280 height=760
+scene "OAuth 2.0 & OIDC Authorization Code Flow" theme=auto width=1920 height=800
 layout LR
 
 user User "End User"

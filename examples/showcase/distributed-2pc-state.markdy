@@ -1,7 +1,7 @@
 # distributed-2pc-state.markdy
 # Distributed 2-Phase Commit (2PC) Consensus State Machine
 
-scene "Distributed 2-Phase Commit (2PC) State Machine" theme=auto type=state width=1380 height=760
+scene "Distributed 2-Phase Commit (2PC) State Machine" theme=auto type=state width=1680 height=760
 layout LR
 
 state Init "1. Init (Tx Started)"
@@ -10,13 +10,6 @@ state Prepared "3. Prepared (All YES)" focal=true
 state Aborted "4. Aborted (Vote NO)"
 state Committed "5. Committed (Phase 2 ACK)"
 state Finalized "6. Finalized (WAL Cleaned)"
-
-edge flow1: Init -> Preparing "PREPARE"
-edge flow2: Preparing -> Prepared "Vote YES"
-edge flow3: Preparing -> Aborted "Vote NO"
-edge flow4: Prepared -> Committed "GLOBAL COMMIT"
-edge flow5: Aborted -> Init "Rollback"
-edge flow6: Committed -> Finalized "Finalize"
 
 beat lifecycle "1. Two-Phase Commit Consensus State Machine":
   frame Init Preparing Prepared Committed Finalized zoom=1.08 dur=500ms
@@ -27,7 +20,7 @@ beat lifecycle "1. Two-Phase Commit Consensus State Machine":
   glow Committed color=#22c55e & glow Finalized color=#047857
 
 beat abort_case "2. Distributed Rollback Edge Case":
-  frame Preparing Aborted Init zoom=1.12 dur=500ms
+  frame Init Preparing Prepared Aborted Committed Finalized zoom=1.0 dur=500ms
   Preparing -> Aborted "single node timeout or vote NO"
   Aborted -> Init "coordinator issues GLOBAL ABORT & rollback"
   glow Aborted color=#ef4444

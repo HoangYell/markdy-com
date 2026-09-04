@@ -49,7 +49,7 @@ function circleBoundaryRoute(from: PositionedNode, to: PositionedNode): Point[] 
   ]);
 }
 
-function snapPortToNodeShape(node: PositionedNode, port: Point, neighbor: Point, isSource: boolean): Point {
+function snapPortToNodeShape(node: PositionedNode, port: Point, neighbor: Point, _isSource: boolean): Point {
   if (!node.shape || node.shape === "card" || node.shape === "rounded" || node.shape === "terminal" || node.shape === "container") {
     return port;
   }
@@ -58,51 +58,49 @@ function snapPortToNodeShape(node: PositionedNode, port: Point, neighbor: Point,
   const hw = node.width / 2;
   const hh = node.height / 2;
 
+  const facingRight = neighbor.x > port.x;
+  const facingDown = neighbor.y > port.y;
+  const isHoriz = Math.abs(port.y - neighbor.y) <= Math.abs(port.x - neighbor.x);
+
   if (node.shape === "diamond") {
-    const isVert = Math.abs(port.x - neighbor.x) < 0.01;
-    const isHoriz = Math.abs(port.y - neighbor.y) < 0.01;
-    if (isVert) {
-      const goingDown = isSource ? neighbor.y > port.y : port.y > neighbor.y;
-      const boundaryY = goingDown
-        ? cy + hh * (1 - Math.min(1, Math.abs(port.x - cx) / hw))
-        : cy - hh * (1 - Math.min(1, Math.abs(port.x - cx) / hw));
-      return { x: port.x, y: Math.round(boundaryY * 10) / 10 };
-    }
     if (isHoriz) {
-      const goingRight = isSource ? neighbor.x > port.x : port.x > neighbor.x;
-      const boundaryX = goingRight
+      const boundaryX = facingRight
         ? cx + hw * (1 - Math.min(1, Math.abs(port.y - cy) / hh))
         : cx - hw * (1 - Math.min(1, Math.abs(port.y - cy) / hh));
       return { x: Math.round(boundaryX * 10) / 10, y: port.y };
+    } else {
+      const boundaryY = facingDown
+        ? cy + hh * (1 - Math.min(1, Math.abs(port.x - cx) / hw))
+        : cy - hh * (1 - Math.min(1, Math.abs(port.x - cx) / hw));
+      return { x: port.x, y: Math.round(boundaryY * 10) / 10 };
     }
   }
 
   if (node.shape === "circle") {
     const r = Math.min(node.width, node.height) / 2;
-    const isVert = Math.abs(port.x - neighbor.x) < 0.01;
-    const isHoriz = Math.abs(port.y - neighbor.y) < 0.01;
-    if (isVert) {
-      const goingDown = isSource ? neighbor.y > port.y : port.y > neighbor.y;
-      return { x: cx, y: goingDown ? cy + r : cy - r };
-    }
     if (isHoriz) {
-      const goingRight = isSource ? neighbor.x > port.x : port.x > neighbor.x;
-      return { x: goingRight ? cx + r : cx - r, y: cy };
+      const dy = Math.abs(port.y - cy);
+      const dx = dy <= r ? Math.sqrt(Math.max(0, r * r - dy * dy)) : 0;
+      return { x: Math.round((facingRight ? cx + dx : cx - dx) * 10) / 10, y: port.y };
+    } else {
+      const dx = Math.abs(port.x - cx);
+      const dy = dx <= r ? Math.sqrt(Math.max(0, r * r - dx * dx)) : 0;
+      return { x: port.x, y: Math.round((facingDown ? cy + dy : cy - dy) * 10) / 10 };
     }
   }
 
   if (node.shape === "pill") {
     const r = node.height / 2;
-    const isVert = Math.abs(port.x - neighbor.x) < 0.01;
-    const isHoriz = Math.abs(port.y - neighbor.y) < 0.01;
     if (isHoriz) {
-      const goingRight = isSource ? neighbor.x > port.x : port.x > neighbor.x;
-      return { x: goingRight ? node.x + node.width : node.x, y: cy };
-    }
-    if (isVert) {
-      const goingDown = isSource ? neighbor.y > port.y : port.y > neighbor.y;
+      const dy = Math.abs(port.y - cy);
+      const dx = dy <= r ? Math.sqrt(Math.max(0, r * r - dy * dy)) : 0;
+      const boundaryX = facingRight
+        ? (node.x + node.width - r) + dx
+        : (node.x + r) - dx;
+      return { x: Math.round(boundaryX * 10) / 10, y: port.y };
+    } else {
       const clampedX = Math.max(node.x + r, Math.min(node.x + node.width - r, port.x));
-      return { x: clampedX, y: goingDown ? node.y + node.height : node.y };
+      return { x: clampedX, y: facingDown ? node.y + node.height : node.y };
     }
   }
 
@@ -639,12 +637,6 @@ export function computeFrameTransform(
   const selected = nodes.filter((node) => targets.has(node.id));
   if (selected.length === 0) return undefined;
 
-  // Framing every node means "show the whole diagram", so reset the camera.
-  const framesEveryNode = selected.length === nodes.length && nodes.every((node) => targets.has(node.id));
-  if (framesEveryNode) return INITIAL_CAMERA_TRANSFORM;
-
-  const zoom = Number.isFinite(requestedZoom) && requestedZoom > 0 ? requestedZoom : DEFAULT_FRAME_ZOOM;
-
   const minX = Math.min(...selected.map((node) => node.x));
   const minY = Math.min(...selected.map((node) => node.y));
   const maxX = Math.max(...selected.map((node) => node.x + node.width));
@@ -652,6 +644,22 @@ export function computeFrameTransform(
   const frameWidth = Math.max(1, maxX - minX + FRAME_PADDING * 2);
   const frameHeight = Math.max(1, maxY - minY + FRAME_PADDING * 2);
   const fitScale = Math.min(bounds.width / frameWidth, bounds.height / frameHeight);
+
+  // Framing every node means "show the whole diagram", so fit all nodes within the canvas.
+  const framesEveryNode = selected.length === nodes.length && nodes.every((node) => targets.has(node.id));
+  if (framesEveryNode) {
+    if (fitScale >= 1 && minX >= 0 && maxX <= bounds.width && minY >= 0 && maxY <= bounds.height) {
+      return INITIAL_CAMERA_TRANSFORM;
+    }
+    const scale = Math.min(1, Math.max(0.4, fitScale));
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+    const tx = Math.round((bounds.width / 2 - centerX * scale) * 10) / 10;
+    const ty = Math.round((bounds.height / 2 - centerY * scale) * 10) / 10;
+    return `translate(${tx}px, ${ty}px) scale(${Math.round(scale * 1000) / 1000})`;
+  }
+
+  const zoom = Number.isFinite(requestedZoom) && requestedZoom > 0 ? requestedZoom : DEFAULT_FRAME_ZOOM;
   const scale = Math.max(1, Math.min(zoom, fitScale, MAX_FRAME_ZOOM));
   const centerX = (minX + maxX) / 2;
   const centerY = (minY + maxY) / 2;

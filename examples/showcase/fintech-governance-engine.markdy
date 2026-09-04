@@ -1,6 +1,7 @@
-scene "Zero-Trust FinTech Core Banking & Ledger Engine" theme=auto width=1760 height=900
+scene "Zero-Trust FinTech Core Banking & Ledger Engine" theme=auto width=2560 height=920
 layout LR
 
+group client_tier "Trader Client Terminals": WebTerminal MobileTrader
 group edge_perimeter "Edge Security Zone": WAF CloudflareEdge
 group gateway_tier "API Orchestration & Auth": KongGateway AuthEngine
 group core_domain "Ledger & Transaction Processing": TransactionService AccountService
@@ -25,9 +26,10 @@ queue KafkaTopic "Kafka Audit Log Stream"
 worker AuditWorker "Regulatory Compliance Engine"
 
 beat perimeter "1. Perimeter Inspection & mTLS":
-  show edge_perimeter gateway_tier stagger=40ms
+  show client_tier edge_perimeter gateway_tier stagger=40ms
   frame edge_perimeter gateway_tier zoom=1.12 dur=500ms
-  WebTerminal -> CloudflareEdge "TLS 1.3" -> WAF "DDoS Filter" -> KongGateway "mTLS"
+  WebTerminal -> CloudflareEdge "TLS 1.3" & MobileTrader -> CloudflareEdge "Mobile HTTPS"
+  CloudflareEdge -> WAF "DDoS Filter" -> KongGateway "mTLS"
   KongGateway -> AuthEngine "Validate JWT Claims"
   KongGateway <- AuthEngine "Claims Validated"
 
@@ -42,7 +44,7 @@ beat transaction_flow "2. Transaction Execution & ACID Commit":
 
 beat audit_trail "3. Asynchronous Compliance Stream & Confirmation":
   show event_stream stagger=40ms
-  frame event_stream persistence zoom=1.12 dur=500ms
+  frame client_tier edge_perimeter gateway_tier core_domain persistence event_stream zoom=1.0 dur=500ms
   TransactionService ~> KafkaTopic "TradeExecuted"
   KafkaTopic ~> AuditWorker "Verify Audit Compliance"
   AuditWorker -> AuroraPostgres "Write Audit Record"

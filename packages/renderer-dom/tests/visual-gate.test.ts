@@ -63,7 +63,7 @@ describe("renderer visual gate", () => {
         const media = el.querySelector(".markdy-node__icon");
         const hasGlyph = !!media?.querySelector("svg") || !!media?.querySelector("img");
         const label = el.querySelector(".markdy-node__label")?.textContent ?? "";
-        expect(hasGlyph, `${scene.name}:${node.id} media matches its shape`).toBe(node.shape !== "diamond");
+        expect(hasGlyph, `${scene.name}:${node.id} media matches its shape`).toBe(true);
         expect(label.length, `${scene.name}:${node.id} has a label`).toBeGreaterThan(0);
         expect(el.querySelector(".markdy-node__rail"), `${scene.name}:${node.id} has no rail`).toBeNull();
       }

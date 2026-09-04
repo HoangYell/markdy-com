@@ -1,7 +1,7 @@
 # showcase/terminal-cli-architecture.markdy
 # Demonstrates Terminal Theme (CLI/TUI aesthetics, dark paper, monospace typography, neon accents).
 
-scene "Low-Latency Kernel Daemon & TUI Pipeline" theme=auto type=architecture width=1200 height=700
+scene "Low-Latency Kernel Daemon & TUI Pipeline" theme=auto type=architecture width=1500 height=720
 layout LR
 
 terminal EdgeGateway "gateway.internal:443" focal=true
@@ -19,7 +19,8 @@ beat init_services "1. Spawn System Daemons":
   glow EdgeGateway color=#38bdf8
 
 beat dispatch_traffic "2. Low-Latency IPC & Disk Fsync":
-  frame system zoom=1.12 dur=500ms
+  show system stagger=40ms
+  frame ingress system zoom=1.0 dur=500ms
   EdgeGateway -> AuthProxy "verify client mTLS"
   AuthProxy -> CoreDaemon "unix_socket:dispatch"
   CoreDaemon -> StorageEngine "io_uring fsync block"

@@ -1,7 +1,7 @@
 # secure-paved-road-enforcement.markdy
 # Demonstrates Secure Paved Road Architectural Pattern with Trust Boundaries & Permitted vs Blocked Egress.
 
-scene "Secure Paved Road Architecture & Zero-Trust Governance" theme=auto width=1300 height=800
+scene "Secure Paved Road Architecture & Zero-Trust Governance" theme=auto width=1800 height=800
 layout LR
 
 group untrusted_zone "Untrusted Public Perimeter": UntrustedClient PublicInternet
@@ -32,7 +32,7 @@ beat ingress_enforcement "1. Validated Paved Ingress & mTLS":
 
 beat audit_and_alert "2. Real-Time Immutable Audit Logging":
   show audit_sink stagger=30ms
-  frame audit_sink trusted_mesh zoom=1.12 dur=500ms
+  frame untrusted_zone ingress_security trusted_mesh audit_sink zoom=1.0 dur=500ms
   CoreBanking ~> AuditStorage "audit log: TradeExecuted"
   OIDCGateway ~> SIEMAlerts "telemetry: AuthSuccess"
   glow AuditStorage color=#38bdf8 & glow SIEMAlerts color=#f59e0b
