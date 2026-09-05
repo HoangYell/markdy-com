@@ -3,18 +3,24 @@
 
 scene "ACID vs BASE vs Distributed Storage Guarantees" theme=auto type=venn
 
-service ACID "Strict ACID Storage (Postgres/MySQL)"
-service BASE "BASE Eventual (Cassandra/DynamoDB)"
+service ACID "Strict ACID Consistency (Postgres/MySQL)"
+service BASE "High Availability & Scale (Cassandra/DynamoDB)"
 service DistributedSQL "Distributed Consensus (Spanner/CockroachDB)" focal=true
 
-beat reveal "1. Storage Model Set Overlaps":
+beat set_discovery "1. Storage Paradigm Sets":
   show $nodes stagger=60ms
-  frame ACID BASE DistributedSQL zoom=1.05 dur=500ms
-  glow DistributedSQL color=#047857
+  frame ACID BASE DistributedSQL zoom=1.04 dur=500ms
+  glow ACID color=#22c55e & glow BASE color=#38bdf8 & glow DistributedSQL color=#047857
 
-beat intersection_highlight "2. Modern Distributed SQL Convergence":
-  frame DistributedSQL zoom=1.15 dur=500ms
-  glow ACID color=#22c55e & glow BASE color=#38bdf8 & glow DistributedSQL color=#047857 strength=1.4
+beat pairwise_intersections "2. Architectural Set Intersections":
+  ACID -> BASE "Sharded RDBMS (Vitess/Citus)" & BASE -> DistributedSQL "Quorum NoSQL (Dynamo/Cassandra)" & DistributedSQL -> ACID "Synchronous HA Primary (Patroni)"
+  glow ACID color=#22c55e & glow BASE color=#38bdf8 & glow DistributedSQL color=#047857
+
+beat sweet_spot_convergence "3. Modern Distributed SQL Convergence":
+  hide $edges
+  ACID -> DistributedSQL "Google Spanner (TrueTime)" & BASE -> DistributedSQL "CockroachDB (Multi-Raft)"
+  frame DistributedSQL zoom=1.12 dur=500ms
+  glow DistributedSQL color=#047857 strength=1.5
 
 player:
   playback:

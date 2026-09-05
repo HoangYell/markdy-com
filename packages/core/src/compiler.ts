@@ -567,92 +567,53 @@ function layoutTree(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
   const nodePositions = new Map<string, { x: number; y: number }>();
 
   if (isVertical) {
-    // "Căn dọc" — Vertical Portrait Tree Layout
-    const allDirectKids = roots.flatMap((r) => children.get(r) ?? []);
-    const allGrandKids = allDirectKids.flatMap((k) => children.get(k) ?? []);
+    // "Căn dọc" — Vertical Portrait Tree Layout: Indented Hierarchy Outline
+    const indentStep = 32;
+    const siblingGap = 16;
+    const branchGap = 28;
+    const titleTop = effectiveTitleBand(ast) + 16;
 
-    if (allGrandKids.length > 0) {
-      // Multi-tier hierarchy (Root Coordinator -> Partition Branches -> Virtual Node Leaves)
-      const branchColW = Math.max(...allDirectKids.map((id) => nodeDims.get(id)!.width), 220);
-      const leafColW = Math.max(...allGrandKids.map((id) => nodeDims.get(id)!.width), 200);
-      const colGap = 44;
-      const totalColsW = branchColW + colGap + leafColW;
-      const leftColX = SAFE + Math.max(0, (contentW - totalColsW) / 2);
-      const rightColX = leftColX + branchColW + colGap;
+    const maxTreeW = maxDepth * indentStep + Math.max(...nodeIds.map((id) => nodeDims.get(id)!.width));
+    const treeStartX = SAFE + Math.max(12, (contentW - maxTreeW) / 2);
 
-      let curY = TITLE_BAND + 16;
-      for (const r of roots) {
-        const rDims = nodeDims.get(r)!;
-        nodePositions.set(r, {
-          x: SAFE + (contentW - rDims.width) / 2,
-          y: curY,
-        });
-        curY += rDims.height + 40;
-      }
+    const visited = new Set<string>();
+    let curY = titleTop;
 
-      for (const bId of allDirectKids) {
-        const bDims = nodeDims.get(bId)!;
-        const gKids = children.get(bId) ?? [];
+    function layoutSubtree(nodeId: string, d: number): void {
+      if (visited.has(nodeId)) return;
+      visited.add(nodeId);
 
-        if (gKids.length === 0) {
-          nodePositions.set(bId, {
-            x: leftColX + (branchColW - bDims.width) / 2,
-            y: curY,
-          });
-          curY += bDims.height + 28;
-        } else {
-          const kidGap = 16;
-          const totalKidsH = gKids.reduce((acc, kId) => acc + nodeDims.get(kId)!.height, 0) + (gKids.length - 1) * kidGap;
-          const tierH = Math.max(bDims.height, totalKidsH);
+      const dims = nodeDims.get(nodeId)!;
+      const x = treeStartX + d * indentStep;
+      nodePositions.set(nodeId, { x, y: curY });
 
-          const bY = curY + (tierH - bDims.height) / 2;
-          nodePositions.set(bId, {
-            x: leftColX + (branchColW - bDims.width) / 2,
-            y: bY,
-          });
+      const kids = (children.get(nodeId) ?? []).filter((k) => !visited.has(k));
+      curY += dims.height + siblingGap;
 
-          let kidY = curY + (tierH - totalKidsH) / 2;
-          for (const kId of gKids) {
-            const kDims = nodeDims.get(kId)!;
-            nodePositions.set(kId, {
-              x: rightColX + (leafColW - kDims.width) / 2,
-              y: kidY,
-            });
-            kidY += kDims.height + kidGap;
-          }
-
-          curY += tierH + 28;
+      kids.forEach((kId, idx) => {
+        layoutSubtree(kId, d + 1);
+        if (idx === kids.length - 1 && d === 0) {
+          // Extra breathing room between top-level branches
+          curY += branchGap - siblingGap;
         }
-      }
-    } else {
-      // 2-tier tree (Root -> direct children only)
-      let curY = TITLE_BAND + 16;
-      for (const r of roots) {
-        const rDims = nodeDims.get(r)!;
-        nodePositions.set(r, {
-          x: SAFE + (contentW - rDims.width) / 2,
-          y: curY,
-        });
-        curY += rDims.height + 36;
-      }
-      for (const cId of allDirectKids) {
-        const cDims = nodeDims.get(cId)!;
-        nodePositions.set(cId, {
-          x: SAFE + (contentW - cDims.width) / 2,
-          y: curY,
-        });
-        curY += cDims.height + 24;
-      }
+      });
     }
 
-    // Ensure any orphan nodes are positioned
+    for (const r of roots) {
+      layoutSubtree(r, 0);
+      curY += branchGap;
+    }
+
+    // Ensure any orphan/unvisited nodes are positioned
     for (const id of nodeIds) {
-      if (!nodePositions.has(id)) {
+      if (!visited.has(id)) {
+        visited.add(id);
         const dims = nodeDims.get(id)!;
         nodePositions.set(id, {
-          x: SAFE + (contentW - dims.width) / 2,
-          y: TITLE_BAND + 16,
+          x: treeStartX,
+          y: curY,
         });
+        curY += dims.height + siblingGap;
       }
     }
   } else {
@@ -1365,37 +1326,55 @@ function layoutVenn(ast: DiagramAST): PositionedNode[] {
     nodeDims.set(id, computeNodeDimensions(ast.nodes[id]));
   }
 
+  const titleBand = effectiveTitleBand(ast);
+  const bottomBand = ast.beats.some((b) => b.label && b.label.trim().length > 0) ? 44 : 0;
   const contentW = ast.meta.width - SAFE * 2;
-  const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const contentH = ast.meta.height - titleBand - bottomBand - SAFE * 2;
   const centerX = SAFE + contentW / 2;
-  const centerY = TITLE_BAND + contentH / 2;
+  const centerY = titleBand + SAFE + contentH / 2;
   const N = nodeIds.length;
-  const maxNodeDim = Math.max(...nodeIds.map(id => Math.max(nodeDims.get(id)!.width, nodeDims.get(id)!.height)));
-  const vennSize = Math.max(VENN_NODE_SIZE, maxNodeDim);
-  const radius = Math.max(vennSize * 0.7, Math.min(contentW, contentH) * 0.24);
+
   const nodes: PositionedNode[] = [];
 
-  nodeIds.forEach((id, idx) => {
-    const decl = ast.nodes[id];
-    const dims = nodeDims.get(id)!;
-    const circleSize = Math.max(vennSize, dims.width, dims.height);
-    let x: number, y: number;
-    if (N === 2) {
-      x = centerX + (idx === 0 ? -radius * 0.7 : radius * 0.7) - circleSize / 2;
-      y = centerY - circleSize / 2;
-    } else {
-      const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / N;
-      x = centerX + radius * 0.85 * Math.cos(angle) - circleSize / 2;
-      y = centerY + radius * 0.85 * Math.sin(angle) - circleSize / 2;
-    }
-    const focal = decl.props.focal === true || decl.props.accent === true;
-    nodes.push({
-      id, kind: decl.kind, role: nodeRole(decl.kind), label: decl.label,
-      x: snapGrid(x), y: snapGrid(y), width: circleSize, height: circleSize,
-      style: resolveNodeStyle(decl, ast),
-      props: decl.props, opacity: 0, shape: "circle", focal,
+  if (N === 2) {
+    const circleSize = snapGrid(Math.min(contentH * 0.85, (contentW * 0.85) / 1.6), 16);
+    const radius = circleSize * 0.35;
+    nodeIds.forEach((id, idx) => {
+      const decl = ast.nodes[id];
+      const x = centerX + (idx === 0 ? -radius : radius) - circleSize / 2;
+      const y = centerY - circleSize / 2;
+      const focal = decl.props.focal === true || decl.props.accent === true;
+      nodes.push({
+        id, kind: decl.kind, role: nodeRole(decl.kind), label: decl.label,
+        x: snapGrid(x), y: snapGrid(y), width: circleSize, height: circleSize,
+        style: resolveNodeStyle(decl, ast),
+        props: decl.props, opacity: 0, shape: "circle", focal,
+      });
     });
-  });
+  } else {
+    // 3-circle (or N-circle) Venn
+    // Cluster height = 1.78 * circleSize <= contentH * 0.88
+    // Cluster width = 1.90 * circleSize <= contentW * 0.88
+    const maxCircleByH = (contentH * 0.88) / 1.78;
+    const maxCircleByW = (contentW * 0.88) / 1.90;
+    const circleSize = snapGrid(Math.min(320, Math.max(180, Math.min(maxCircleByH, maxCircleByW))), 16);
+    const radius = circleSize * 0.52;
+    const clusterCenterY = centerY + (N === 3 ? radius * 0.25 : 0);
+
+    nodeIds.forEach((id, idx) => {
+      const decl = ast.nodes[id];
+      const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / N;
+      const x = centerX + radius * Math.cos(angle) - circleSize / 2;
+      const y = clusterCenterY + radius * Math.sin(angle) - circleSize / 2;
+      const focal = decl.props.focal === true || decl.props.accent === true;
+      nodes.push({
+        id, kind: decl.kind, role: nodeRole(decl.kind), label: decl.label,
+        x: snapGrid(x), y: snapGrid(y), width: circleSize, height: circleSize,
+        style: resolveNodeStyle(decl, ast),
+        props: decl.props, opacity: 0, shape: "circle", focal,
+      });
+    });
+  }
   return nodes;
 }
 
@@ -1684,25 +1663,47 @@ function computeTreeBuses(ast: DiagramAST, nodes: PositionedNode[], edges: Route
     parent.add(edge.to);
   }
 
+  const isVertical = ast.meta.direction === "TB" || ast.meta.direction === "BT";
   const buses: TreeBus[] = [];
   for (const [parentId, childIds] of children) {
     const parentNode = byId.get(parentId);
     const childNodes = childIds.map((id) => byId.get(id)).filter(Boolean) as PositionedNode[];
     if (!parentNode || childNodes.length === 0) continue;
-    const parentX = parentNode.x + parentNode.width / 2;
-    const parentY = parentNode.y + parentNode.height;
-    const childY = Math.min(...childNodes.map((node) => node.y));
-    buses.push({
-      id: `tree_bus_${parentId}`,
-      parentId,
-      childIds,
-      parentX: snapGrid(parentX),
-      parentY: snapGrid(parentY),
-      branchY: snapGrid((parentY + childY) / 2),
-      childXs: childNodes.map((node) => snapGrid(node.x + node.width / 2)),
-      childY: snapGrid(childY),
-      childYs: childNodes.map((node) => snapGrid(node.y)),
-    });
+
+    if (isVertical) {
+      // Indented vertical tree: trunk on the left of parent with elbows to child left-centers
+      const trunkX = snapGrid(parentNode.x + 18);
+      const parentY = snapGrid(parentNode.y + parentNode.height);
+      const childXs = childNodes.map((node) => snapGrid(node.x));
+      const childYs = childNodes.map((node) => snapGrid(node.y + node.height / 2));
+      buses.push({
+        id: `tree_bus_${parentId}`,
+        parentId,
+        childIds,
+        parentX: trunkX,
+        parentY,
+        branchY: parentY,
+        childXs,
+        childY: childYs[0],
+        childYs,
+        vertical: true,
+      });
+    } else {
+      const parentX = parentNode.x + parentNode.width / 2;
+      const parentY = parentNode.y + parentNode.height;
+      const childY = Math.min(...childNodes.map((node) => node.y));
+      buses.push({
+        id: `tree_bus_${parentId}`,
+        parentId,
+        childIds,
+        parentX: snapGrid(parentX),
+        parentY: snapGrid(parentY),
+        branchY: snapGrid((parentY + childY) / 2),
+        childXs: childNodes.map((node) => snapGrid(node.x + node.width / 2)),
+        childY: snapGrid(childY),
+        childYs: childNodes.map((node) => snapGrid(node.y)),
+      });
+    }
   }
   return buses;
 }
@@ -2033,42 +2034,37 @@ export function computeAdaptiveDimensions(
     const activeRoots = roots.length > 0 ? roots : nodeIds;
 
     if (isVertical) {
-      // "Căn dọc" — Portrait / Vertical Tree
-      const allDirectKids = activeRoots.flatMap((r) => children.get(r) ?? []);
-      const allGrandKids = allDirectKids.flatMap((k) => children.get(k) ?? []);
+      // "Căn dọc" — Portrait / Vertical Tree (Indented Hierarchy Outline)
+      const indentStep = 32;
+      const siblingGap = 16;
+      const branchGap = 28;
 
-      if (allGrandKids.length > 0) {
-        // Multi-tier hierarchy (Root Coordinator -> Partition Branches -> Virtual Node Leaves)
-        const branchColW = Math.max(...allDirectKids.map((id) => computeNodeDimensions(ast.nodes[id]).width), 220);
-        const leafColW = Math.max(...allGrandKids.map((id) => computeNodeDimensions(ast.nodes[id]).width), 200);
-        const colGap = 44;
-        const requiredW = Math.max(SAFE * 2 + branchColW + colGap + leafColW, titleW);
-
-        let totalTiersH = 0;
-        for (const bId of allDirectKids) {
-          const bH = computeNodeDimensions(ast.nodes[bId]).height;
-          const gKids = children.get(bId) ?? [];
-          const gKidsH = gKids.length > 0
-            ? gKids.reduce((acc, kId) => acc + computeNodeDimensions(ast.nodes[kId]).height, 0) + (gKids.length - 1) * 16
-            : bH;
-          totalTiersH += Math.max(bH, gKidsH) + 28;
+      const depth = new Map<string, number>();
+      const q = [...activeRoots];
+      for (const r of activeRoots) depth.set(r, 0);
+      while (q.length > 0) {
+        const cur = q.shift()!;
+        const d = depth.get(cur) ?? 0;
+        for (const child of children.get(cur) ?? []) {
+          if (!depth.has(child)) {
+            depth.set(child, d + 1);
+            q.push(child);
+          }
         }
-
-        const rootH = activeRoots.reduce((acc, rId) => acc + computeNodeDimensions(ast.nodes[rId]).height + 36, 0);
-        const requiredH = titleBand + SAFE * 2 + rootH + totalTiersH + bottomBand;
-        autoW = Math.max(540, Math.min(1600, snapGrid(requiredW, 16)));
-        autoH = Math.max(680, Math.min(2200, snapGrid(requiredH, 16)));
-      } else {
-        // 2-tier tree: Single centered vertical column stack
-        const maxChildW = allDirectKids.length > 0
-          ? Math.max(...allDirectKids.map((id) => computeNodeDimensions(ast.nodes[id]).width))
-          : maxNodeW;
-        const requiredW = Math.max(SAFE * 2 + Math.max(maxNodeW, maxChildW), titleW);
-        const totalNodesH = nodeIds.reduce((acc, id) => acc + computeNodeDimensions(ast.nodes[id]).height + 24, 0);
-        const requiredH = titleBand + SAFE * 2 + totalNodesH + bottomBand;
-        autoW = Math.max(480, Math.min(1400, snapGrid(requiredW, 16)));
-        autoH = Math.max(560, Math.min(2000, snapGrid(requiredH, 16)));
       }
+      const treeDepth = Math.max(...depth.values(), 0);
+      const maxTreeW = treeDepth * indentStep + maxNodeW;
+      const requiredW = Math.max(SAFE * 2 + maxTreeW + 36, titleW);
+
+      let totalNodesH = 0;
+      for (const id of nodeIds) {
+        totalNodesH += computeNodeDimensions(ast.nodes[id]).height + siblingGap;
+      }
+      totalNodesH += Math.max(0, activeRoots.length) * branchGap;
+
+      const requiredH = titleBand + SAFE * 2 + totalNodesH + bottomBand;
+      autoW = Math.max(480, Math.min(1600, snapGrid(requiredW, 16)));
+      autoH = Math.max(640, Math.min(2600, snapGrid(requiredH, 16)));
     } else {
       const depth = new Map<string, number>();
       const queue = [...roots];
@@ -2274,7 +2270,10 @@ export function compilePlan(ast: DiagramAST, theme: ThemeTokens): RenderPlan {
   }
   const nodes = layoutNodes(ast, structuralEdges);
   const groupBoundaries = computeGroupBoundaries(ast, nodes);
-  const treeBuses = computeTreeBuses(ast, nodes, structuralEdges.filter((edge) => edge.structural));
+  const treeEdges = structuralEdges.some((edge) => edge.structural)
+    ? structuralEdges.filter((edge) => edge.structural)
+    : structuralEdges;
+  const treeBuses = computeTreeBuses(ast, nodes, treeEdges);
   const { cues, beats } = scheduleBeats(ast, structuralEdges);
   const sequence = buildSequencePlan(ast, cues);
 

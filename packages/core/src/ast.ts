@@ -348,6 +348,7 @@ export type TreeBus = {
   childXs: number[];
   childY: number;
   childYs?: number[];
+  vertical?: boolean;
 };
 
 export type TimedCue = {

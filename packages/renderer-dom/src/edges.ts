@@ -43,6 +43,19 @@ function circleBoundaryRoute(from: PositionedNode, to: PositionedNode): Point[] 
   const uy = dy / distance;
   const fromRadius = Math.min(from.width, from.height) / 2;
   const toRadius = Math.min(to.width, to.height) / 2;
+
+  if (distance < fromRadius + toRadius) {
+    // Overlapping circles (e.g. Venn diagrams): route forward across the intersection lens
+    const midX = (fromCenter.x + toCenter.x) / 2;
+    const midY = (fromCenter.y + toCenter.y) / 2;
+    const overlap = fromRadius + toRadius - distance;
+    const halfSpan = Math.max(24, Math.min(64, overlap * 0.5));
+    return dedupePoints([
+      { x: midX - ux * halfSpan, y: midY - uy * halfSpan },
+      { x: midX + ux * halfSpan, y: midY + uy * halfSpan },
+    ]);
+  }
+
   return dedupePoints([
     { x: fromCenter.x + ux * fromRadius, y: fromCenter.y + uy * fromRadius },
     { x: toCenter.x - ux * toRadius, y: toCenter.y - uy * toRadius },
@@ -359,7 +372,7 @@ export function createEdgeRuntime(
     for (let i = 0; i < points.length - 1; i++) {
       longestSegLen = Math.max(longestSegLen, Math.hypot(points[i + 1].x - points[i].x, points[i + 1].y - points[i].y));
     }
-    const maxAvailW = Math.max(48, longestSegLen - 24);
+    const maxAvailW = Math.max(90, longestSegLen - 24);
     const lines = wrapFlowLabelText(label, maxAvailW);
     const maxChars = Math.max(...lines.map((l) => l.length));
     const textWidth = Math.max(36, maxChars * 6.6 + 8);
