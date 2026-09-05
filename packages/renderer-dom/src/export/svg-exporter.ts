@@ -24,6 +24,7 @@ import {
   placeFlowLabel,
   polylineLength,
   routeOrthogonal,
+  routeTreeEdgePoints,
   selfLoopPath,
   toPathD,
   wrapFlowLabelText,
@@ -234,8 +235,14 @@ function routeEdgePoints(
   routeObstacles: Rect[],
   bounds: { width: number; height: number },
   lane: number,
+  diagramType: string = "architecture",
+  isVerticalTree = false,
 ): Point[] {
   if (from.shape === "circle" && to.shape === "circle") return circleBoundaryRoute(from, to);
+  if (diagramType === "tree") {
+    const treeRoute = routeTreeEdgePoints(from, to, lane, isVerticalTree, bounds);
+    if (treeRoute) return snapRouteEndpointsToShapes(treeRoute, from, to);
+  }
   const raw = routeOrthogonal(boxRect(from), boxRect(to), routeObstacles, bounds, lane);
   return snapRouteEndpointsToShapes(raw, from, to);
 }
@@ -561,6 +568,7 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
     svg += `  <!-- Edge Connections -->\n  <g class="markdy-edges-layer">\n`;
     const nodeMap = new Map(plan.nodes.map((n) => [n.id, n]));
     const laneByPair = new Map<string, number>();
+    const isVerticalTree = Boolean(plan.treeBuses?.some((b) => b.vertical) || plan.meta?.direction === "TB" || plan.meta?.direction === "BT");
 
     plan.edges.forEach((edge, index) => {
       const from = nodeMap.get(edge.from);
@@ -577,7 +585,7 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
       const lane = nextEdgeLane(laneByPair, from, to);
       const points = isSelfLoop
         ? dedupePoints(selfLoopPath(from, bounds))
-        : dedupePoints(routeEdgePoints(from, to, routeObstacles, bounds, lane));
+        : dedupePoints(routeEdgePoints(from, to, routeObstacles, bounds, lane, plan.diagramType, isVerticalTree));
 
       const d = toPathD(points, 14, existingPaths);
       existingPaths.push(points);
@@ -606,7 +614,10 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
         for (let i = 0; i < points.length - 1; i++) {
           longestSegLen = Math.max(longestSegLen, Math.hypot(points[i + 1].x - points[i].x, points[i + 1].y - points[i].y));
         }
-        const maxAvailW = Math.max(48, longestSegLen - 24);
+        const isTreeVertical = plan.diagramType === "tree" && isVerticalTree;
+        const maxAvailW = isTreeVertical
+          ? Math.max(48, Math.min(68, longestSegLen - 12))
+          : Math.max(48, longestSegLen - 24);
         const lines = wrapFlowLabelText(edge.label, maxAvailW);
         const maxChars = Math.max(...lines.map((l) => l.length));
         const textWidth = Math.max(36, maxChars * 6.6 + 8);

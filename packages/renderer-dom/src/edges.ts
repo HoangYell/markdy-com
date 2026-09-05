@@ -1,5 +1,5 @@
 import type { DiagramType, EdgeKind, PositionedNode, RoutedEdge, ThemeTokens, TimedCue } from "@markdy/core";
-import { placeFlowLabel, polylineLength, routeOrthogonal, selfLoopPath, toPathD, wrapFlowLabelText } from "./geometry/path.js";
+import { placeFlowLabel, polylineLength, routeOrthogonal, routeTreeEdgePoints, selfLoopPath, toPathD, wrapFlowLabelText } from "./geometry/path.js";
 import { boxRect, inflateRect, type Point, type Rect } from "./geometry/rect.js";
 
 const EDGE_LAYER_ATTR = "data-markdy-edge-layer";
@@ -134,8 +134,14 @@ function routeEdgePoints(
   routeObstacles: Rect[],
   bounds: { width: number; height: number },
   lane: number,
+  diagramType: DiagramType = "architecture",
+  isVerticalTree = false,
 ): Point[] {
   if (from.shape === "circle" && to.shape === "circle") return circleBoundaryRoute(from, to);
+  if (diagramType === "tree") {
+    const treeRoute = routeTreeEdgePoints(from, to, lane, isVerticalTree, bounds);
+    if (treeRoute) return snapRouteEndpointsToShapes(treeRoute, from, to);
+  }
   const raw = routeOrthogonal(boxRect(from), boxRect(to), routeObstacles, bounds, lane);
   return snapRouteEndpointsToShapes(raw, from, to);
 }
@@ -315,6 +321,8 @@ export function createEdgeRuntime(
   bounds: { width: number; height: number },
   lane: number,
   existingPaths: Point[][] = [],
+  diagramType: DiagramType = "architecture",
+  isVerticalTree = false,
 ): EdgeRuntime {
   ensureDefs(svg, theme, sceneId);
   const color = theme.edges[kind] ?? theme.edges.request ?? theme.accent;
@@ -322,7 +330,7 @@ export function createEdgeRuntime(
   const isSelfLoop = from.id === to.id;
   const points = isSelfLoop
     ? dedupePoints(selfLoopPath(from, bounds))
-    : dedupePoints(routeEdgePoints(from, to, routeObstacles, bounds, lane));
+    : dedupePoints(routeEdgePoints(from, to, routeObstacles, bounds, lane, diagramType, isVerticalTree));
   const d = toPathD(points, 14, existingPaths);
   const len = polylineLength(points);
 
@@ -372,7 +380,10 @@ export function createEdgeRuntime(
     for (let i = 0; i < points.length - 1; i++) {
       longestSegLen = Math.max(longestSegLen, Math.hypot(points[i + 1].x - points[i].x, points[i + 1].y - points[i].y));
     }
-    const maxAvailW = Math.max(90, longestSegLen - 24);
+    const isTreeVertical = diagramType === "tree" && isVerticalTree;
+    const maxAvailW = isTreeVertical
+      ? Math.max(48, Math.min(68, longestSegLen - 12))
+      : Math.max(90, longestSegLen - 24);
     const lines = wrapFlowLabelText(label, maxAvailW);
     const maxChars = Math.max(...lines.map((l) => l.length));
     const textWidth = Math.max(36, maxChars * 6.6 + 8);
@@ -693,7 +704,9 @@ export function buildCueAnimations(
   edgeRuntimes: EdgeRuntimeMap = new Map(),
   sceneId = createEdgeSceneId(),
   diagramType: DiagramType = "architecture",
+  isVerticalTree?: boolean,
 ): Animation[] {
+  const isVertical = isVerticalTree ?? (bounds.height > bounds.width);
   const anims: Animation[] = [];
   const nodeById = new Map(nodes.map((n) => [n.id, n]));
   const rectById = new Map(nodes.map((n) => [n.id, boxRect(n)]));
@@ -732,6 +745,8 @@ export function buildCueAnimations(
       bounds,
       lane,
       placedPaths,
+      diagramType,
+      isVertical,
     );
     placedPaths.push(runtime.points);
     if (runtime.labelRect) edgeLabels.push(runtime.labelRect);
@@ -894,6 +909,8 @@ export function buildCueAnimations(
           bounds,
           lane,
           placedPaths,
+          diagramType,
+          isVertical,
         );
         placedPaths.push(runtime.points);
         if (runtime.labelRect) placedLabels.push(runtime.labelRect);
@@ -961,7 +978,9 @@ export function buildStructuralEdgeAnimations(
   sceneId = createEdgeSceneId(),
   diagramType: DiagramType = "architecture",
   cues: TimedCue[] = [],
+  isVerticalTree?: boolean,
 ): Animation[] {
+  const isVertical = isVerticalTree ?? (bounds.height > bounds.width);
   const structural = edges.filter((e) =>
     e.structural &&
     diagramType !== "sequence" &&
@@ -1023,6 +1042,8 @@ export function buildStructuralEdgeAnimations(
       bounds,
       lane,
       placedPaths,
+      diagramType,
+      isVertical,
     );
     placedPaths.push(runtime.points);
     if (runtime.labelRect) placedLabels.push(runtime.labelRect);
