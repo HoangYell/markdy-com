@@ -887,6 +887,21 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     groupLayer.innerHTML = "";
     mountGroupBoundaries(groupLayer, plan.groupBoundaries, plan.theme);
 
+    constellationLayer.innerHTML = "";
+    if (plan.diagramType === "constellation") {
+      mountConstellationLayer(constellationLayer, plan.nodes, plan.theme, { width: plan.meta.width, height: plan.meta.height });
+    } else if (plan.diagramType === "radar") {
+      mountRadarLayer(constellationLayer, plan.nodes, plan.theme, { width: plan.meta.width, height: plan.meta.height });
+    } else if (plan.diagramType === "timeline") {
+      mountTimelineLayer(constellationLayer, plan.nodes, plan.theme, { width: plan.meta.width, height: plan.meta.height });
+    } else if (plan.diagramType === "quadrant") {
+      mountQuadrantLayer(constellationLayer, plan.nodes, plan.theme, { width: plan.meta.width, height: plan.meta.height });
+    } else if (plan.diagramType === "swimlane") {
+      mountSwimlaneLayer(constellationLayer, plan.nodes, plan.theme, { width: plan.meta.width, height: plan.meta.height });
+    } else if (plan.diagramType === "gantt") {
+      mountGanttLayer(constellationLayer, plan.nodes, plan.theme, { width: plan.meta.width, height: plan.meta.height });
+    }
+
     structuralEdgeHost.innerHTML = "";
     edgeRuntimes.clear();
     const newStructuralAnims = buildStructuralEdgeAnimations(

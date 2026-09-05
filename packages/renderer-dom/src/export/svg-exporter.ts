@@ -499,6 +499,51 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
     svg += `  </g>\n`;
   }
 
+  // Timeline Layer
+  if (plan.diagramType === "timeline" && plan.nodes && plan.nodes.length > 0) {
+    svg += `  <!-- Timeline Track Layer -->\n  <g class="markdy-timeline-layer">\n`;
+    const isVertical = height > width || (plan.nodes.length > 1 && Math.abs(plan.nodes[1].y - plan.nodes[0].y) > Math.abs(plan.nodes[1].x - plan.nodes[0].x));
+    const strokeAxis = theme.edges?.dependency ?? theme.rule ?? theme.border ?? "#64748b";
+    const strokeBorder = theme.edges?.dependency ?? theme.border ?? "#64748b";
+    const surfaceFill = theme.surfaceRaised ?? theme.surface ?? (isDark ? "#1e293b" : "#ffffff");
+
+    if (isVertical) {
+      const centerX = width / 2;
+      const minY = Math.min(...plan.nodes.map((n) => n.y)) - 16;
+      const maxY = Math.max(...plan.nodes.map((n) => n.y + n.height)) + 16;
+      svg += `    <line class="markdy-timeline-axis" x1="${centerX}" y1="${Math.max(40, minY)}" x2="${centerX}" y2="${Math.min(height - 40, maxY)}" stroke="${strokeAxis}" stroke-width="2" stroke-linecap="round" opacity="0.75"/>\n`;
+      for (const node of plan.nodes) {
+        const nodeCenterY = node.y + node.height / 2;
+        const isLeft = (node.x + node.width / 2) < centerX;
+        const targetX = isLeft ? node.x + node.width : node.x;
+        const focal = node.focal;
+        const stemStroke = focal ? accent : strokeBorder;
+        const stemDash = focal ? "" : 'stroke-dasharray="4 4"';
+        svg += `    <line class="markdy-timeline-stem" x1="${centerX}" y1="${nodeCenterY}" x2="${targetX}" y2="${nodeCenterY}" stroke="${stemStroke}" stroke-width="${focal ? "2" : "1.5"}" ${stemDash} opacity="${focal ? "0.95" : "0.75"}"/>\n`;
+        svg += `    <circle class="markdy-timeline-pip" cx="${centerX}" cy="${nodeCenterY}" r="${focal ? "5.5" : "4"}" fill="${focal ? accent : surfaceFill}" stroke="${focal ? accent : strokeBorder}" stroke-width="2"/>\n`;
+      }
+    } else {
+      const SAFE = 40;
+      const TITLE_BAND = 64;
+      const contentH = height - SAFE - TITLE_BAND - SAFE;
+      const baselineY = TITLE_BAND + contentH / 2;
+      const minX = Math.min(...plan.nodes.map((n) => n.x)) - 20;
+      const maxX = Math.max(...plan.nodes.map((n) => n.x + n.width)) + 20;
+      svg += `    <line class="markdy-timeline-axis" x1="${Math.max(40, minX)}" y1="${baselineY}" x2="${Math.min(width - 40, maxX)}" y2="${baselineY}" stroke="${strokeAxis}" stroke-width="2" stroke-linecap="round" opacity="0.75"/>\n`;
+      for (const node of plan.nodes) {
+        const nodeCenterX = node.x + node.width / 2;
+        const isAbove = node.y + node.height <= baselineY + 10;
+        const targetY = isAbove ? node.y + node.height : node.y;
+        const focal = node.focal;
+        const stemStroke = focal ? accent : strokeBorder;
+        const stemDash = focal ? "" : 'stroke-dasharray="4 4"';
+        svg += `    <line class="markdy-timeline-stem" x1="${nodeCenterX}" y1="${baselineY}" x2="${nodeCenterX}" y2="${targetY}" stroke="${stemStroke}" stroke-width="${focal ? "2" : "1.5"}" ${stemDash} opacity="${focal ? "0.95" : "0.75"}"/>\n`;
+        svg += `    <circle class="markdy-timeline-pip" cx="${nodeCenterX}" cy="${baselineY}" r="${focal ? "5.5" : "4"}" fill="${focal ? accent : surfaceFill}" stroke="${focal ? accent : strokeBorder}" stroke-width="2"/>\n`;
+      }
+    }
+    svg += `  </g>\n`;
+  }
+
   // Edges & Flows (only for non-sequence diagrams)
   if (plan.diagramType !== "sequence" && plan.edges && plan.edges.length > 0) {
     svg += `  <!-- Edge Connections -->\n  <g class="markdy-edges-layer">\n`;
