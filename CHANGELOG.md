@@ -5,6 +5,24 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.0] — 2026-09-05
+
+### Added & Enhanced
+- **📱 Responsive Portrait Architecture for Specialized Archetypes (`@markdy/core`, `@markdy/renderer-dom`)**:
+  - **Hierarchical Tree (`type=tree`)**: Replaced 2-column mobile layout with an indented hierarchy outline (DFS pre-order) ensuring full card width, 0.82x–1.0x mobile scale factor, zero connector collisions, and orthogonal vertical elbow buses (`radius=10px`).
+  - **Timeline & Event Lifecycle (`type=timeline`)**: Added native vertical timeline layout (`direction: TB`) with stacked milestone rows, centered event tracks, and safe vertical clearance.
+  - **Gantt Roadmap (`type=gantt`)**: Added vertical phase-stacked layout for mobile screens, replacing squeezed horizontal phase columns with comfortable vertical task streams.
+  - **Medallion Lakehouse (`type=medallion`)**: Added vertical 4-tier row-stacked layout (`Bronze -> Silver -> Gold -> Consumers`) with centered horizontal lanes for portrait screens.
+  - **Nested Security & Cloud Perimeter (`type=nested`)**: Added vertical container bounds calculation (`layout TB`) with proportional top-to-bottom nesting clearance.
+  - **Venn Set Overlaps (`type=venn`)**: Calibrated 3-circle centroid offset (`+0.25 * radius`) and title band clearance, preventing upper circle clipping; introduced forward intersection lens routing (`distance < r1 + r2`) with centered label plates (min 90px).
+- **🛡️ Safe Boundary Clearance & Zero-Clipping Guard (`@markdy/renderer-dom`)**:
+  - Anchored content bounds to zero (`Math.min(0, ...)`), preventing negative offsets from clipping outer node edges.
+  - Dedicated multi-line `effectiveTitleBand` headroom (up to 120px) for long titles on mobile screens.
+  - Generous shadow and stroke padding (24px safe zone) preventing glow/elevation effects from being clipped by canvas boundaries.
+- **⚡ Layer Stacking & Vector Export Hardening (`@markdy/renderer-dom`)**:
+  - Raised tree bus layer `zIndex: 52` above frosted-glass group backdrops (`zIndex: 48`), keeping connection lines crisp and visible.
+  - Updated SVG pure-vector exporter to support vertical tree bus elbow paths.
+
 ## [1.3.3] — 2026-09-05
 
 ### Added & Enhanced
