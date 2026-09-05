@@ -1017,7 +1017,7 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
             diagnostics.push({ severity: "warning", message: `unknown diagram type '${v}'`, line: lineNo });
           } else {
             meta.type = t as SceneMeta["type"];
-            if (t === "flowchart" && !props.direction && !props.layout && !props.rankdir && !inlineLayout) {
+            if ((t === "flowchart" || t === "nested") && !props.direction && !props.layout && !props.rankdir && !inlineLayout) {
               meta.direction = "TB";
               meta.explicitDirection = true;
             }

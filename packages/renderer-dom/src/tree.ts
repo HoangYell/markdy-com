@@ -30,20 +30,22 @@ export function mountTreeBuses(
     const group = doc.createElementNS("http://www.w3.org/2000/svg", "g");
     group.setAttribute("data-tree-bus", bus.id);
 
-    for (const childX of bus.childXs) {
+    bus.childXs.forEach((childX, idx) => {
+      const targetY = bus.childYs ? (bus.childYs[idx] ?? bus.childY) : bus.childY;
       const pathEl = doc.createElementNS("http://www.w3.org/2000/svg", "path");
       let d: string;
       if (Math.abs(childX - bus.parentX) < 1) {
         d = toPathD([
           { x: bus.parentX, y: bus.parentY },
-          { x: childX, y: bus.childY },
+          { x: childX, y: targetY },
         ], 12);
       } else {
+        const branchY = bus.childYs ? (bus.parentY + targetY) / 2 : bus.branchY;
         d = toPathD([
           { x: bus.parentX, y: bus.parentY },
-          { x: bus.parentX, y: bus.branchY },
-          { x: childX, y: bus.branchY },
-          { x: childX, y: bus.childY },
+          { x: bus.parentX, y: branchY },
+          { x: childX, y: branchY },
+          { x: childX, y: targetY },
         ], 12);
       }
       pathEl.setAttribute("d", d);
@@ -53,7 +55,7 @@ export function mountTreeBuses(
       pathEl.setAttribute("stroke-linecap", "round");
       pathEl.setAttribute("stroke-linejoin", "round");
       group.appendChild(pathEl);
-    }
+    });
 
     svg.appendChild(group);
   }
