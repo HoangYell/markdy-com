@@ -2,8 +2,8 @@
 
 > ### DOCUMENTATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.3.3
-> - **Specification Version**: 1.3.x
+> - **Current Version**: v1.4.0
+> - **Specification Version**: 1.4.x
 > - **Last Updated**: 2026-09-05
 > - **Documentation Hub**: <https://markdy.com/docs/>
 > - **Article Comparison**: <https://markdy.com/blog/markdy-vs-mermaid/>
