@@ -13,6 +13,7 @@ import {
   type Diagnostic,
   type PlayerControlsConfig,
   type PlayerProgress,
+  type RenderPlan,
   type ThemeTokens,
 } from "@markdy/core";
 import {
@@ -74,6 +75,8 @@ export interface DiagramOptions {
   playbackRate?: number;
   /** Host interaction override. `true` enables default gestures; `false` suppresses script interaction. */
   interactiveViewport?: boolean;
+  /** Host click-to-play override. `false` disables toggling playback on viewport click. */
+  clickToPlay?: boolean;
   /** Base URL for the Share control. Defaults to the Markdy playground. */
   shareUrl?: string;
   /** Host controls override. `true` enables the legacy default set; `false` suppresses script controls; or pass a granular controls configuration object. */
@@ -222,6 +225,69 @@ export function detectHostTheme(container?: HTMLElement): "nebula" | "paper" {
   return "paper";
 }
 
+export function computeDiagramContentBounds(plan: RenderPlan): {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+  width: number;
+  height: number;
+} {
+  if (!plan.nodes || plan.nodes.length === 0) {
+    return { minX: 0, minY: 0, maxX: plan.meta.width, maxY: plan.meta.height, width: plan.meta.width, height: plan.meta.height };
+  }
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+
+  for (const node of plan.nodes) {
+    minX = Math.min(minX, node.x);
+    minY = Math.min(minY, node.y);
+    maxX = Math.max(maxX, node.x + node.width);
+    maxY = Math.max(maxY, node.y + node.height);
+  }
+
+  for (const gb of plan.groupBoundaries ?? []) {
+    minX = Math.min(minX, gb.x);
+    minY = Math.min(minY, gb.y);
+    maxX = Math.max(maxX, gb.x + gb.width);
+    maxY = Math.max(maxY, gb.y + gb.height);
+  }
+
+  for (const bus of plan.treeBuses ?? []) {
+    minX = Math.min(minX, bus.parentX, ...(bus.childXs.length ? bus.childXs : [bus.parentX]));
+    minY = Math.min(minY, bus.parentY, bus.branchY, bus.childY);
+    maxX = Math.max(maxX, bus.parentX, ...(bus.childXs.length ? bus.childXs : [bus.parentX]));
+    maxY = Math.max(maxY, bus.parentY, bus.branchY, bus.childY);
+  }
+
+  if (plan.diagramType === "sequence") {
+    let maxMsgY = minY;
+    for (const msg of plan.sequenceMessages ?? []) {
+      maxMsgY = Math.max(maxMsgY, msg.y + 60);
+    }
+    for (const act of plan.sequenceActivations ?? []) {
+      maxMsgY = Math.max(maxMsgY, act.y + act.height + 40);
+    }
+    maxY = Math.max(maxY, maxMsgY, Math.min(plan.meta.height, 420));
+  }
+
+  if (plan.title) {
+    minY = Math.min(minY, 20);
+  }
+
+  const pad = 36;
+  minX = Math.max(0, minX - pad);
+  minY = Math.max(0, minY - pad);
+  maxX = Math.min(plan.meta.width, maxX + pad);
+  maxY = Math.min(plan.meta.height, maxY + pad);
+
+  const width = Math.max(maxX - minX, 200);
+  const height = Math.max(maxY - minY, 140);
+  return { minX, minY, maxX, maxY, width, height };
+}
+
 export function createDiagram(opts: DiagramOptions): Diagram {
   const {
     container,
@@ -234,6 +300,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     playbackRate: initialPlaybackRate,
     controls: explicitControls,
     interactiveViewport: explicitInteractiveViewport,
+    clickToPlay: explicitClickToPlay,
     shareUrl,
     autoplay: explicitAutoplay,
     loop: explicitLoop,
@@ -295,6 +362,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     copyright: explicitCopyright,
     controls: explicitControls,
     interactiveViewport: explicitInteractiveViewport,
+    clickToPlay: explicitClickToPlay,
     progress: hostProgress,
     progressColor: hostProgressColor,
   });
@@ -354,18 +422,23 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   if (container.style.aspectRatio) container.style.aspectRatio = "unset";
   if (container.style.overflow === "hidden") container.style.overflow = "visible";
 
+  const initialBounds = computeDiagramContentBounds(plan);
+  const naturalRatio = `${plan.meta.width} / ${plan.meta.height}`;
+
   const viewport = document.createElement("div");
   viewport.className = "markdy-viewport";
+  applyThemeVariables(viewport, plan.theme);
   Object.assign(viewport.style, {
     position: "relative",
     width: "100%",
     maxWidth: "100%",
     maxHeight: "100%",
-    aspectRatio: `${plan.meta.width} / ${plan.meta.height}`,
+    aspectRatio: naturalRatio,
     overflow: "hidden",
     boxSizing: "border-box",
     flex: "1 1 auto",
     minHeight: "0",
+    background: plan.theme.canvas,
   });
   container.appendChild(viewport);
 
@@ -607,48 +680,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   let sceneOffsetY = 0;
 
   function computeContentBounds(): { minX: number; minY: number; maxX: number; maxY: number; width: number; height: number } {
-    if (!plan.nodes || plan.nodes.length === 0) {
-      return { minX: 0, minY: 0, maxX: plan.meta.width, maxY: plan.meta.height, width: plan.meta.width, height: plan.meta.height };
-    }
-    let minX = Infinity;
-    let minY = Infinity;
-    let maxX = -Infinity;
-    let maxY = -Infinity;
-
-    for (const node of plan.nodes) {
-      minX = Math.min(minX, node.x);
-      minY = Math.min(minY, node.y);
-      maxX = Math.max(maxX, node.x + node.width);
-      maxY = Math.max(maxY, node.y + node.height);
-    }
-
-    for (const gb of plan.groupBoundaries ?? []) {
-      minX = Math.min(minX, gb.x);
-      minY = Math.min(minY, gb.y);
-      maxX = Math.max(maxX, gb.x + gb.width);
-      maxY = Math.max(maxY, gb.y + gb.height);
-    }
-
-    for (const bus of plan.treeBuses ?? []) {
-      minX = Math.min(minX, bus.parentX, ...(bus.childXs.length ? bus.childXs : [bus.parentX]));
-      minY = Math.min(minY, bus.parentY, bus.branchY, bus.childY);
-      maxX = Math.max(maxX, bus.parentX, ...(bus.childXs.length ? bus.childXs : [bus.parentX]));
-      maxY = Math.max(maxY, bus.parentY, bus.branchY, bus.childY);
-    }
-
-    if (plan.title) {
-      minY = Math.min(minY, 20);
-    }
-
-    const pad = 36;
-    minX = Math.max(0, minX - pad);
-    minY = Math.max(0, minY - pad);
-    maxX = Math.min(plan.meta.width, maxX + pad);
-    maxY = Math.min(plan.meta.height, maxY + pad);
-
-    const width = Math.max(maxX - minX, 200);
-    const height = Math.max(maxY - minY, 140);
-    return { minX, minY, maxX, maxY, width, height };
+    return computeDiagramContentBounds(plan);
   }
 
   function scaleScene(): void {
@@ -665,10 +697,16 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     }
 
     const vWidth = viewport.clientWidth || container.clientWidth || plan.meta.width;
-    const vHeight = viewport.clientHeight || container.clientHeight || (vWidth * plan.meta.height) / plan.meta.width;
+    const fallbackHeight = (vWidth * plan.meta.height) / plan.meta.width;
+    const vHeight = viewport.clientHeight || container.clientHeight || fallbackHeight;
 
-    const canvasScaleX = vWidth / plan.meta.width;
-    const canvasScaleY = vHeight / plan.meta.height;
+    const padX = Math.max(12, Math.min(32, vWidth * 0.03));
+    const padY = Math.max(12, Math.min(28, vHeight * 0.03));
+    const availW = Math.max(80, vWidth - padX * 2);
+    const availH = Math.max(80, vHeight - padY * 2);
+
+    const canvasScaleX = availW / plan.meta.width;
+    const canvasScaleY = availH / plan.meta.height;
     fitScale = Math.min(canvasScaleX, canvasScaleY);
 
     if (!Number.isFinite(fitScale) || fitScale <= 0) fitScale = 1;
@@ -1877,7 +1915,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     syncControls();
   }
 
-  viewport.style.cursor = interactiveViewport ? "grab" : "pointer";
+  viewport.style.cursor = interactiveViewport ? "grab" : (clickToPlay ? "pointer" : "default");
   if (interactiveViewport) {
     viewport.style.touchAction = "pan-y";
     if (allowZoom) viewport.addEventListener("wheel", handleViewportWheel, { passive: false });

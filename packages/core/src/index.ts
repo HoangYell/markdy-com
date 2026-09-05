@@ -35,7 +35,7 @@ export type {
 } from "./ast.js";
 
 export { parse, compile, parseAndCompile, ParseError, compilePlan } from "./parser.js";
-export { computeAdaptiveDimensions } from "./compiler.js";
+export { computeAdaptiveDimensions, computeNodeDimensions } from "./compiler.js";
 export type { ParseOptions, ParseResult } from "./parser.js";
 
 export { resolvePlayer, applyPlayerSetting, PLAYER_GROUPS, PLAYER_FLAT_KEYS } from "./player.js";

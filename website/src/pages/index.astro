@@ -1208,6 +1208,8 @@ markdy check-all ./docs/diagrams</code></pre>
       diagram = createDiagram({
         container: stage,
         code,
+        interactiveViewport: false,
+        clickToPlay: false,
         onEnded: () => {
           if (diagram) {
             diagram.pause();
@@ -2784,7 +2786,8 @@ markdy check-all ./docs/diagrams</code></pre>
   .studio-split-body {
     display: grid;
     grid-template-columns: 460px 1fr;
-    height: 520px;
+    min-height: 520px;
+    height: clamp(520px, 60vh, 720px);
     background: var(--bg-primary);
   }
 
@@ -2885,7 +2888,19 @@ markdy check-all ./docs/diagrams</code></pre>
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem;
+    padding: 0;
+  }
+
+  #stage :global(.markdy-viewport),
+  #stage :global(.markdy-scene-root) {
+    pointer-events: none;
+    user-select: none;
+    cursor: default;
+  }
+
+  #stage :global(.markdy-viewport) {
+    height: 100% !important;
+    aspect-ratio: auto !important;
   }
 
   .stage-wrap .markdy-footer {
@@ -3920,7 +3935,7 @@ markdy check-all ./docs/diagrams</code></pre>
       border-bottom: 1px solid var(--border);
     }
     .studio-preview-pane {
-      height: 380px;
+      height: clamp(380px, 50vh, 560px);
     }
     .pillars-grid {
       grid-template-columns: repeat(2, 1fr);

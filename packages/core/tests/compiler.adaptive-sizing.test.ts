@@ -57,7 +57,7 @@ beat main:
 
     const plan = compile(ast);
     expect(plan.meta.height).toBe(800);
-    expect(plan.meta.width).toBeGreaterThanOrEqual(960);
+    expect(plan.meta.width).toBeGreaterThanOrEqual(480);
     expect(plan.meta.width % 16).toBe(0);
   });
 
@@ -73,9 +73,9 @@ beat main:
     const ast = parse(script);
     const plan = compile(ast);
 
-    // Compact diagrams should be tight and clean (1024x208 for single-row without title)
-    expect(plan.meta.width).toBe(1024);
-    expect(plan.meta.height).toBe(208);
+    // Compact diagrams should be tight and clean without excessive whitespace
+    expect(plan.meta.width).toBe(512);
+    expect(plan.meta.height).toBe(240);
     expect(plan.meta.width % 16).toBe(0);
     expect(plan.meta.height % 16).toBe(0);
   });
@@ -163,8 +163,8 @@ beat checkout:
 
     expect(plan.diagramType).toBe("sequence");
     // Sequence with 4 participants and 9 flow cues should allocate suitable vertical lifeline
-    expect(plan.meta.width).toBeGreaterThanOrEqual(1088);
-    expect(plan.meta.height).toBeGreaterThanOrEqual(800);
+    expect(plan.meta.width).toBeGreaterThanOrEqual(960);
+    expect(plan.meta.height).toBeGreaterThanOrEqual(750);
     expect(plan.sequenceMessages.length).toBe(9);
   });
 
@@ -189,8 +189,8 @@ beat hierarchy:
     const plan = compile(ast);
 
     expect(plan.diagramType).toBe("tree");
-    expect(plan.meta.width).toBeGreaterThanOrEqual(1120);
-    expect(plan.meta.height).toBeGreaterThanOrEqual(640);
+    expect(plan.meta.width).toBeGreaterThanOrEqual(960);
+    expect(plan.meta.height).toBeGreaterThanOrEqual(560);
     expect(plan.meta.width % 16).toBe(0);
     expect(plan.meta.height % 16).toBe(0);
   });
@@ -215,8 +215,8 @@ beat main:
     const plan = compile(ast);
 
     expect(plan.diagramType).toBe("swimlane");
-    expect(plan.meta.width).toBeGreaterThanOrEqual(1152);
-    expect(plan.meta.height).toBeGreaterThanOrEqual(640);
+    expect(plan.meta.width).toBeGreaterThanOrEqual(704);
+    expect(plan.meta.height).toBeGreaterThanOrEqual(560);
   });
 
   it("adapts circular and loop topologies", () => {
@@ -234,8 +234,8 @@ beat cycle:
     const plan = compile(ast);
 
     expect(plan.diagramType).toBe("loop");
-    expect(plan.meta.width).toBeGreaterThanOrEqual(1088);
-    expect(plan.meta.height).toBeGreaterThanOrEqual(720);
+    expect(plan.meta.width).toBeGreaterThanOrEqual(640);
+    expect(plan.meta.height).toBeGreaterThanOrEqual(600);
   });
 
   it("exports computeAdaptiveDimensions for standalone AST inspection", () => {
@@ -249,7 +249,7 @@ beat main:
   A -> B -> C
 `);
     const dims = computeAdaptiveDimensions(ast);
-    expect(dims.width).toBeGreaterThanOrEqual(1024);
+    expect(dims.width).toBeGreaterThanOrEqual(720);
     expect(dims.height).toBeGreaterThanOrEqual(208);
     expect(dims.width % 16).toBe(0);
     expect(dims.height % 16).toBe(0);

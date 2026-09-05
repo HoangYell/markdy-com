@@ -319,6 +319,7 @@ export type PlayerOverrides = {
   copyright?: boolean;
   controls?: boolean | (PlayerControlsConfig & { playback?: boolean });
   interactiveViewport?: boolean;
+  clickToPlay?: boolean;
   progress?: PlayerProgress;
   progressColor?: string;
 };
@@ -384,6 +385,7 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     ...requestedControls,
     speed: requestedControls.speed && speeds.length > 1,
     resetView: requestedControls.resetView && interactionEnabled,
+    fit: requestedControls.fit,
   };
   const controlsEnabled = Object.values(controls).some(Boolean);
 
@@ -403,8 +405,8 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     interaction: {
       ...gestures,
       enabled: interactionEnabled,
-      clickToPlay: interaction.clickToPlay ?? true,
-      keyboard: interaction.keyboard ?? false,
+      clickToPlay: overrides.clickToPlay ?? (interactionOn && (interaction.clickToPlay ?? true)),
+      keyboard: interactionOn && (interaction.keyboard ?? false),
     },
     chrome: {
       badge: overrides.copyright ?? chrome.badge ?? true,

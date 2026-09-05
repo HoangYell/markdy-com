@@ -26,7 +26,7 @@ export function ensureNodeStyles(doc: Document): void {
     inset 0 0 0 1px var(--md-hairline, color-mix(in srgb, var(--md-border) 50%, transparent)),
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
   font-family: var(--md-font-node, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif);
-  overflow: hidden;
+  overflow: visible;
   opacity: 0;
   transform: translateY(8px);
   transition: box-shadow 0.25s ease, transform 0.25s ease;
@@ -61,21 +61,26 @@ export function ensureNodeStyles(doc: Document): void {
   box-sizing: border-box;
 }
 .markdy-node__icon {
-  flex: 0 0 auto;
+  flex: 0 0 28px;
   width: 28px;
   height: 28px;
-  display: flex;
+  border-radius: 7px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  background: color-mix(in srgb, var(--md-role-color, var(--md-accent)) 14%, transparent);
   color: var(--md-role-color, var(--md-accent));
-  background: transparent;
-  box-shadow: none;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--md-role-color, var(--md-accent)) 35%, transparent);
+  transition: transform 0.2s ease;
 }
 .markdy-node__icon svg {
-  width: 26px;
-  height: 26px;
-  display: block;
+  width: 18px;
+  height: 18px;
   stroke: currentColor;
+  stroke-width: 1.8;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 .markdy-node__icon[data-media="image"] {
   background: transparent;
@@ -110,14 +115,10 @@ export function ensureNodeStyles(doc: Document): void {
   letter-spacing: -0.01em;
   line-height: 1.24;
   color: var(--md-text);
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  overflow: hidden;
   overflow-wrap: anywhere;
   word-break: break-word;
   text-wrap: pretty;
+  white-space: pre-line;
 }
 .markdy-node__tech {
   align-self: flex-start;
@@ -132,9 +133,8 @@ export function ensureNodeStyles(doc: Document): void {
   border-radius: 4px;
   letter-spacing: 0.01em;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   max-width: 100%;
+  box-sizing: border-box;
 }
 .markdy-node__value {
   flex: 0 0 auto;
@@ -323,8 +323,6 @@ export function ensureNodeStyles(doc: Document): void {
 }
 .markdy-node[data-shape="circle"] .markdy-node__label {
   text-align: center;
-  -webkit-line-clamp: 4;
-  line-clamp: 4;
 }
 .markdy-node[data-kind="dot"] {
   width: 64px;
