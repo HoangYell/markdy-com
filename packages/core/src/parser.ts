@@ -1019,6 +1019,7 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
             meta.type = t as SceneMeta["type"];
             if (t === "flowchart" && !props.direction && !props.layout && !inlineLayout) {
               meta.direction = "TB";
+              meta.explicitDirection = true;
             }
           }
         }

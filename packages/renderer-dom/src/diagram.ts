@@ -705,16 +705,22 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     const availW = Math.max(80, vWidth - padX * 2);
     const availH = Math.max(80, vHeight - padY * 2);
 
-    const canvasScaleX = availW / plan.meta.width;
-    const canvasScaleY = availH / plan.meta.height;
-    fitScale = Math.min(canvasScaleX, canvasScaleY);
+    const bounds = computeContentBounds();
+    const contentW = bounds.width;
+    const contentH = bounds.height;
+
+    const scaleX = availW / contentW;
+    const scaleY = availH / contentH;
+    // Prefer width scaling but keep within height constraints
+    fitScale = Math.min(scaleX, scaleY);
 
     if (!Number.isFinite(fitScale) || fitScale <= 0) fitScale = 1;
 
-    const scaledWidth = plan.meta.width * fitScale;
-    const scaledHeight = plan.meta.height * fitScale;
-    sceneOffsetX = (vWidth - scaledWidth) / 2;
-    sceneOffsetY = (vHeight - scaledHeight) / 2;
+    const scaledContentW = contentW * fitScale;
+    const scaledContentH = contentH * fitScale;
+    // Center content, adjusting for its minX/minY offset
+    sceneOffsetX = (vWidth - scaledContentW) / 2 - bounds.minX * fitScale;
+    sceneOffsetY = (vHeight - scaledContentH) / 2 - bounds.minY * fitScale;
 
     scene.style.left = `${sceneOffsetX}px`;
     scene.style.top = `${sceneOffsetY}px`;
