@@ -121,7 +121,7 @@ jobs:
 
       - name: Upload Chrome DevTools artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: chrome-devtools-screenshots
           path: tmp/devtools-artifacts/
