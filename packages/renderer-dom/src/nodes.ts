@@ -155,9 +155,10 @@ export function ensureNodeStyles(doc: Document): void {
 .markdy-node[data-role="data"] { border-radius: 12px 12px 16px 16px; }
 .markdy-scene-title {
   position: absolute;
-  left: 48px;
-  top: 28px;
-  right: 48px;
+  left: 56px;
+  top: 32px;
+  right: 56px;
+  max-width: calc(100% - 112px);
   z-index: 130;
   font-size: 30px;
   font-weight: 700;
@@ -166,6 +167,8 @@ export function ensureNodeStyles(doc: Document): void {
   opacity: 0;
   transform: translateY(-6px);
   font-family: var(--md-font-title, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif);
+  pointer-events: none;
+  word-break: break-word;
 }
 .markdy-scene-title[data-visible="1"] {
   opacity: 1;

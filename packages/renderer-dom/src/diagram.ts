@@ -334,8 +334,13 @@ export function computeDiagramContentBounds(
   }
 
   const titleText = (plan.title ?? plan.meta?.title ?? "").trim();
-  if (titleText.length > 0) {
-    minY = Math.min(minY, 20);
+  const hasTitle = titleText.length > 0;
+  if (hasTitle) {
+    minX = 0;
+    minY = 0;
+    const titleEstimatedW = Math.min(plan.meta.width, 56 + titleText.length * 17 + 56);
+    maxX = Math.max(maxX, titleEstimatedW);
+    maxY = Math.max(maxY, 72);
   }
 
   const hasBeatCaptions = plan.beats && plan.beats.some((b) => b.label && b.label.trim().length > 0);
@@ -366,6 +371,14 @@ export function computeDiagramContentBounds(
   // If bounds start within safe pad distance of canvas 0, anchor cleanly to 0
   if (minX > 0 && minX <= pad) minX = 0;
   if (minY > 0 && minY <= pad) minY = 0;
+
+  // When a scene title is present, lock minX and minY cleanly to 0.
+  // The scene title is styled with built-in safe margins (left: 56px, top: 32px),
+  // ensuring it is never shifted off-screen to negative space or clipped by container borders.
+  if (hasTitle) {
+    minX = 0;
+    minY = 0;
+  }
 
   const width = Math.max(maxX - minX, 100);
   const height = Math.max(maxY - minY, 80);
@@ -969,6 +982,10 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     scene.style.setProperty("--markdy-scale", fitScale.toFixed(4));
     viewport.style.setProperty("--markdy-scale", fitScale.toFixed(4));
     container.style.setProperty("--markdy-scale", fitScale.toFixed(4));
+
+    if (titleEl && contentW > 0) {
+      titleEl.style.maxWidth = `${Math.max(contentW - 112, 280)}px`;
+    }
 
     const scaledContentW = contentW * fitScale;
     const scaledContentH = contentH * fitScale;
