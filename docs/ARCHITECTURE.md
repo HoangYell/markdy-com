@@ -2,9 +2,9 @@
 
 > ### INTERNAL ARCHITECTURE METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.3.1
+> - **Current Version**: v1.3.2
 > - **Specification Version**: 1.3.x
-> - **Last Updated**: 2026-09-04
+> - **Last Updated**: 2026-09-05
 > - **Engine Boundary**: `@markdy/core` (AST & Layout) -> `@markdy/renderer-dom` (WAAPI)
 
 Technical deep dive into Markdy's design, data flow, and renderer internals.
