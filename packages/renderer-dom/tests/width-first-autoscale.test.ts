@@ -336,5 +336,74 @@ beat main:
 
       diagram.destroy();
     });
+
+    it("switches type=timeline to portrait orientation (TB) with vertical track and alternating milestones", () => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+
+      Object.defineProperty(container, "clientWidth", { value: 390, configurable: true });
+      Object.defineProperty(container, "clientHeight", { value: 844, configurable: true });
+
+      const code = `
+scene "WAL Event Lifecycle" theme=paper type=timeline
+event T0 "T0: Client Ingress"
+event T1 "T1: WAL fsync"
+event T2 "T2: MemTable"
+event T3 "T3: SSTable"
+`;
+      const diagram = createDiagram({
+        container,
+        code,
+        responsiveLayout: true,
+      });
+
+      const plan = (container as any).__markdyPlan;
+      expect(plan.meta.direction).toBe("TB");
+      expect(plan.meta.width).toBeLessThanOrEqual(700);
+      expect(plan.meta.height).toBeGreaterThanOrEqual(640);
+
+      // Verify scale factor is healthy (> 0.50) on mobile
+      const scaleStr = container.style.getPropertyValue("--markdy-scale");
+      const scale = parseFloat(scaleStr);
+      expect(scale).toBeGreaterThan(0.50);
+
+      // Verify vertical timeline track element exists
+      const axis = container.querySelector(".markdy-timeline-axis");
+      expect(axis).not.toBeNull();
+
+      diagram.destroy();
+    });
+
+    it("switches type=gantt to portrait orientation (TB) with responsive full-width task bars", () => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+
+      Object.defineProperty(container, "clientWidth", { value: 390, configurable: true });
+      Object.defineProperty(container, "clientHeight", { value: 844, configurable: true });
+
+      const code = `
+scene "Zero-Downtime Rollout" theme=paper type=gantt
+step S1 "Phase 1: Dual-Write"
+step S2 "Phase 2: CDC Backfill"
+step S3 "Phase 3: Shadow Reads"
+`;
+      const diagram = createDiagram({
+        container,
+        code,
+        responsiveLayout: true,
+      });
+
+      const plan = (container as any).__markdyPlan;
+      expect(plan.meta.direction).toBe("TB");
+      expect(plan.meta.width).toBeLessThanOrEqual(700);
+      expect(plan.meta.height).toBeGreaterThanOrEqual(640);
+
+      const scaleStr = container.style.getPropertyValue("--markdy-scale");
+      const scale = parseFloat(scaleStr);
+      expect(scale).toBeGreaterThan(0.50);
+
+      diagram.destroy();
+    });
   });
 });
+

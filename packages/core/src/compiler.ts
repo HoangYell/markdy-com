@@ -1246,6 +1246,43 @@ function layoutTimeline(ast: DiagramAST): PositionedNode[] {
     nodeDims.set(id, computeNodeDimensions(ast.nodes[id]));
   }
 
+  const isVertical = ast.meta.direction === "TB" || ast.meta.direction === "BT";
+
+  if (isVertical) {
+    const topBand = effectiveTitleBand(ast);
+    const contentW = ast.meta.width - SAFE * 2;
+    const contentH = ast.meta.height - SAFE - topBand - SAFE;
+    const centerX = SAFE + contentW / 2;
+    const N = nodeIds.length;
+    const spacingY = contentH / Math.max(N, 1);
+    const nodes: PositionedNode[] = [];
+
+    nodeIds.forEach((id, idx) => {
+      const decl = ast.nodes[id];
+      const dims = nodeDims.get(id)!;
+      const isLeft = N === 1 ? false : idx % 2 === 0;
+      const x = N === 1 ? centerX - dims.width / 2 : (isLeft ? centerX - dims.width - 24 : centerX + 24);
+      const y = topBand + spacingY * idx + (spacingY - dims.height) / 2;
+      const focal = decl.props.focal === true || decl.props.accent === true;
+      nodes.push({
+        id,
+        kind: decl.kind,
+        role: nodeRole(decl.kind),
+        label: decl.label,
+        x: snapGrid(x),
+        y: snapGrid(y),
+        width: dims.width,
+        height: dims.height,
+        style: resolveNodeStyle(decl, ast),
+        props: decl.props,
+        opacity: 0,
+        shape: "pill",
+        focal,
+      });
+    });
+    return nodes;
+  }
+
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
   const baselineY = TITLE_BAND + contentH / 2;
@@ -1289,19 +1326,23 @@ function layoutGantt(ast: DiagramAST): PositionedNode[] {
   const startY = topBand + Math.max(16, (contentH - totalH) / 2);
   const nodes: PositionedNode[] = [];
 
+  const hasExplicitPhases = nodeIds.some(nid => typeof ast.nodes[nid].props.phase === "number" || typeof ast.nodes[nid].props.span === "number");
+
   nodeIds.forEach((id, idx) => {
     const decl = ast.nodes[id];
     const dims = nodeDims.get(id)!;
     const phase = typeof decl.props.phase === "number" ? decl.props.phase : 0;
     const span = typeof decl.props.span === "number" ? decl.props.span : 1;
-    const totalPhases = Math.max(...nodeIds.map(nid => {
-      const p = ast.nodes[nid].props.phase;
-      const s = ast.nodes[nid].props.span;
-      return (typeof p === "number" ? p : 0) + (typeof s === "number" ? s : 1);
-    }), 1);
+    const totalPhases = hasExplicitPhases
+      ? Math.max(...nodeIds.map(nid => {
+          const p = ast.nodes[nid].props.phase;
+          const s = ast.nodes[nid].props.span;
+          return (typeof p === "number" ? p : 0) + (typeof s === "number" ? s : 1);
+        }), 1)
+      : 1;
     const unitW = contentW / totalPhases;
-    const x = SAFE + phase * unitW;
-    const w = Math.max(span * unitW - 8, dims.width);
+    const x = hasExplicitPhases ? SAFE + phase * unitW : SAFE;
+    const w = hasExplicitPhases ? Math.max(span * unitW - 8, dims.width) : contentW;
     const barH = dims.height;
     const y = startY + idx * rowH + (rowH - barH) / 2;
     const focal = decl.props.focal === true || decl.props.accent === true;
@@ -2093,26 +2134,51 @@ export function computeAdaptiveDimensions(
     autoW = Math.max(480, Math.min(2000, Math.max(SAFE * 2 + maxNodeW + 160, titleW)));
     const requiredH = titleBand + SAFE * 2 + layerCount * layerH + bottomBand;
     autoH = Math.max(320, Math.min(1440, requiredH));
-  } else if (dtype === "timeline" || dtype === "gantt") {
+  } else if (dtype === "timeline") {
     const milestones = Math.max(nodeCount, 1);
-    let totalPhases = milestones;
-    if (dtype === "gantt") {
-      totalPhases = Math.max(...nodeIds.map(nid => {
-        const p = ast.nodes[nid].props.phase;
-        const s = ast.nodes[nid].props.span;
-        return (typeof p === "number" ? p : 0) + (typeof s === "number" ? s : 1);
-      }), milestones);
+    if (isVertical) {
+      // Portrait / Vertical Timeline
+      const milestoneH = Math.max(76, maxNodeH);
+      const stepY = Math.max(92, milestoneH + 20);
+      const requiredW = Math.max(SAFE * 2 + maxNodeW * 2 + 64, titleW);
+      const contentH = milestones * stepY;
+      const requiredH = titleBand + SAFE * 2 + contentH + bottomBand;
+      autoW = Math.max(540, Math.min(1600, snapGrid(requiredW, 16)));
+      autoH = Math.max(640, Math.min(2200, snapGrid(requiredH, 16)));
+    } else {
+      // Landscape / Horizontal Timeline
+      const milestoneW = Math.max(220, maxNodeW + 36);
+      const requiredW = Math.max(SAFE * 2 + milestones * milestoneW, titleW);
+      const requiredH = titleBand + SAFE * 2 + Math.max(260, maxNodeH * 2 + 80) + bottomBand;
+      autoW = Math.max(480, Math.min(2560, requiredW));
+      autoH = Math.max(320, Math.min(1600, requiredH));
     }
-    const milestoneW = Math.max(220, maxNodeW + 36);
-    const requiredW = Math.max(
-      SAFE * 2 + (dtype === "gantt" ? totalPhases * Math.max(160, maxNodeW + 16) : milestones * milestoneW),
-      titleW,
-    );
-    const requiredH = dtype === "gantt"
-      ? titleBand + SAFE * 2 + milestones * Math.max(76, maxNodeH + 16) + 40 + bottomBand
-      : titleBand + SAFE * 2 + Math.max(260, maxNodeH * 2 + 80) + bottomBand;
-    autoW = Math.max(480, Math.min(2560, requiredW));
-    autoH = Math.max(320, Math.min(1600, requiredH));
+  } else if (dtype === "gantt") {
+    const milestones = Math.max(nodeCount, 1);
+    const hasExplicitPhases = nodeIds.some(nid => typeof ast.nodes[nid].props.phase === "number" || typeof ast.nodes[nid].props.span === "number");
+    if (isVertical) {
+      // Portrait Gantt Roadmap
+      const rowH = Math.max(68, maxNodeH + 12);
+      const contentH = milestones * rowH + 24;
+      const requiredW = Math.max(SAFE * 2 + maxNodeW + 48, titleW, 540);
+      const requiredH = titleBand + SAFE * 2 + contentH + bottomBand;
+      autoW = Math.max(540, Math.min(1600, snapGrid(requiredW, 16)));
+      autoH = Math.max(640, Math.min(2200, snapGrid(requiredH, 16)));
+    } else {
+      // Landscape Gantt Roadmap
+      const totalPhases = hasExplicitPhases
+        ? Math.max(...nodeIds.map(nid => {
+            const p = ast.nodes[nid].props.phase;
+            const s = ast.nodes[nid].props.span;
+            return (typeof p === "number" ? p : 0) + (typeof s === "number" ? s : 1);
+          }), 1)
+        : Math.min(milestones, 6);
+      const phaseColW = Math.max(120, Math.min(200, maxNodeW * 0.4));
+      const requiredW = Math.max(SAFE * 2 + (hasExplicitPhases ? totalPhases * phaseColW : maxNodeW + 200), titleW);
+      const requiredH = titleBand + SAFE * 2 + milestones * Math.max(76, maxNodeH + 16) + 40 + bottomBand;
+      autoW = Math.max(680, Math.min(2560, snapGrid(requiredW, 16)));
+      autoH = Math.max(480, Math.min(1600, snapGrid(requiredH, 16)));
+    }
   } else if (dtype === "loop" || dtype === "flywheel" || dtype === "radar" || dtype === "venn" || dtype === "constellation") {
     const N = Math.max(nodeCount, 3);
     const minRadius = Math.max(160, maxNodeW * 0.75);

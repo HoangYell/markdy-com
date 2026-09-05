@@ -325,4 +325,65 @@ beat main:
     expect(s1.y).toBeLessThan(g1.y);
     expect(g1.y).toBeLessThan(c1.y);
   });
+
+  it("adapts timeline diagrams for portrait (TB) vs landscape (LR) orientation", () => {
+    const scriptLR = `
+scene "WAL Progression" theme=auto type=timeline layout LR
+event T0 "T0: Client Ingress"
+event T1 "T1: WAL fsync"
+event T2 "T2: MemTable"
+event T3 "T3: SSTable"
+`;
+    const planLR = compile(parse(scriptLR));
+    expect(planLR.diagramType).toBe("timeline");
+    expect(planLR.meta.direction).toBe("LR");
+    // Landscape: wide horizontal layout
+    expect(planLR.meta.width).toBeGreaterThanOrEqual(960);
+
+    const scriptTB = `
+scene "WAL Progression" theme=auto type=timeline layout TB
+event T0 "T0: Client Ingress"
+event T1 "T1: WAL fsync"
+event T2 "T2: MemTable"
+event T3 "T3: SSTable"
+`;
+    const planTB = compile(parse(scriptTB));
+    expect(planTB.diagramType).toBe("timeline");
+    expect(planTB.meta.direction).toBe("TB");
+    // Portrait: compact width, tall height
+    expect(planTB.meta.width).toBeLessThanOrEqual(700);
+    expect(planTB.meta.height).toBeGreaterThanOrEqual(640);
+
+    const nodeById = new Map(planTB.nodes.map((n) => [n.id, n]));
+    const t0 = nodeById.get("T0")!;
+    const t1 = nodeById.get("T1")!;
+    const t2 = nodeById.get("T2")!;
+    const t3 = nodeById.get("T3")!;
+
+    // In portrait, milestones flow top to bottom
+    expect(t0.y).toBeLessThan(t1.y);
+    expect(t1.y).toBeLessThan(t2.y);
+    expect(t2.y).toBeLessThan(t3.y);
+
+    // Milestones alternate left and right across centerX
+    const centerX = planTB.meta.width / 2;
+    expect(t0.x + t0.width / 2).toBeLessThan(centerX);
+    expect(t1.x + t1.width / 2).toBeGreaterThan(centerX);
+    expect(t2.x + t2.width / 2).toBeLessThan(centerX);
+    expect(t3.x + t3.width / 2).toBeGreaterThan(centerX);
+  });
+
+  it("adapts gantt roadmap diagrams for portrait (TB) vs landscape (LR) orientation", () => {
+    const scriptTB = `
+scene "Phased Rollout" theme=auto type=gantt layout TB
+step S1 "Phase 1: Setup"
+step S2 "Phase 2: Migration"
+step S3 "Phase 3: Verify"
+`;
+    const planTB = compile(parse(scriptTB));
+    expect(planTB.diagramType).toBe("gantt");
+    expect(planTB.meta.direction).toBe("TB");
+    expect(planTB.meta.width).toBeLessThanOrEqual(700);
+    expect(planTB.meta.height).toBeGreaterThanOrEqual(640);
+  });
 });
