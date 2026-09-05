@@ -447,7 +447,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   // Mobile / Portrait -> direction: TB / rankdir: TB (Top-to-Bottom data flow)
   // Desktop / Landscape -> direction: LR / rankdir: LR (Left-to-Right data flow)
   const hasExplicitDirection = ast.meta.explicitDirection === true;
-  const shouldAdaptOrientation = responsiveLayout !== false && (!hasExplicitDirection || responsiveLayout === true);
+  const shouldAdaptOrientation = responsiveLayout !== false && !hasExplicitDirection;
   let activeOrientation: "portrait" | "landscape" = detectContainerOrientation();
   if (shouldAdaptOrientation) {
     ast.meta.direction = activeOrientation === "portrait" ? "TB" : "LR";
@@ -876,6 +876,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
         el.style.top = `${node.y}px`;
         el.style.width = `${node.width}px`;
         el.style.height = `${node.height}px`;
+        el.style.setProperty("--md-node-w", `${node.width}px`);
+        el.style.setProperty("--md-node-h", `${node.height}px`);
       }
     }
 

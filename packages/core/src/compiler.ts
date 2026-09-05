@@ -193,7 +193,13 @@ function diagramType(ast: DiagramAST): DiagramType {
 }
 
 function effectiveTitleBand(ast: DiagramAST): number {
-  return ast.meta.title && ast.meta.title.trim().length > 0 ? TITLE_BAND : 16;
+  if (!ast.meta.title || ast.meta.title.trim().length === 0) return 16;
+  const title = ast.meta.title.trim();
+  const isVertical = ast.meta.direction === "TB" || ast.meta.direction === "BT";
+  if (isVertical && title.length > 26) {
+    return TITLE_BAND + 52;
+  }
+  return TITLE_BAND;
 }
 
 function nodeShape(kind: string, dtype: DiagramType, props?: Record<string, unknown>): PositionedNode["shape"] {
@@ -555,77 +561,169 @@ function layoutTree(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
   for (const id of nodeIds) if (!depth.has(id)) depth.set(id, 0);
   const maxDepth = Math.max(...depth.values(), 0);
 
-  // Subtree width calculation (recursive)
-  const subtreeSpan = new Map<string, number>();
-  function leafSpan(id: string): number {
-    const w = nodeDims.get(id)?.width ?? NODE_W;
-    return w + 36;
-  }
-
-  function measureSubtree(id: string): number {
-    const kids = children.get(id) ?? [];
-    const minSpan = leafSpan(id);
-    if (kids.length === 0) {
-      subtreeSpan.set(id, minSpan);
-      return minSpan;
-    }
-    let total = 0;
-    for (const kid of kids) {
-      total += measureSubtree(kid);
-    }
-    const span = Math.max(minSpan, total);
-    subtreeSpan.set(id, span);
-    return span;
-  }
-
-  let totalRootsWidth = 0;
-  for (const r of roots) {
-    totalRootsWidth += measureSubtree(r);
-  }
-
+  const isVertical = ast.meta.direction === "TB" || ast.meta.direction === "BT";
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
-  const treeStartX = SAFE + Math.max(0, (contentW - totalRootsWidth) / 2);
-  const levelHeight = Math.max(maxNodeH + 40, Math.min(220, contentH / Math.max(maxDepth + 1, 1)));
-  const totalTreeHeight = maxDepth * levelHeight + maxNodeH;
-  const treeStartY = TITLE_BAND + Math.max(16, (contentH - totalTreeHeight) / 2);
-
   const nodePositions = new Map<string, { x: number; y: number }>();
 
-  function positionSubtree(id: string, leftX: number): void {
-    const d = depth.get(id) ?? 0;
-    const y = treeStartY + d * levelHeight;
-    const kids = children.get(id) ?? [];
-    const span = subtreeSpan.get(id) ?? leafSpan(id);
-    const dims = nodeDims.get(id) ?? { width: NODE_W, height: NODE_H };
+  if (isVertical) {
+    // "Căn dọc" — Vertical Portrait Tree Layout
+    const allDirectKids = roots.flatMap((r) => children.get(r) ?? []);
+    const allGrandKids = allDirectKids.flatMap((k) => children.get(k) ?? []);
 
-    if (kids.length === 0) {
-      const centerX = leftX + span / 2;
-      nodePositions.set(id, { x: centerX - dims.width / 2, y });
-      return;
+    if (allGrandKids.length > 0) {
+      // Multi-tier hierarchy (Root Coordinator -> Partition Branches -> Virtual Node Leaves)
+      const branchColW = Math.max(...allDirectKids.map((id) => nodeDims.get(id)!.width), 220);
+      const leafColW = Math.max(...allGrandKids.map((id) => nodeDims.get(id)!.width), 200);
+      const colGap = 44;
+      const totalColsW = branchColW + colGap + leafColW;
+      const leftColX = SAFE + Math.max(0, (contentW - totalColsW) / 2);
+      const rightColX = leftColX + branchColW + colGap;
+
+      let curY = TITLE_BAND + 16;
+      for (const r of roots) {
+        const rDims = nodeDims.get(r)!;
+        nodePositions.set(r, {
+          x: SAFE + (contentW - rDims.width) / 2,
+          y: curY,
+        });
+        curY += rDims.height + 40;
+      }
+
+      for (const bId of allDirectKids) {
+        const bDims = nodeDims.get(bId)!;
+        const gKids = children.get(bId) ?? [];
+
+        if (gKids.length === 0) {
+          nodePositions.set(bId, {
+            x: leftColX + (branchColW - bDims.width) / 2,
+            y: curY,
+          });
+          curY += bDims.height + 28;
+        } else {
+          const kidGap = 16;
+          const totalKidsH = gKids.reduce((acc, kId) => acc + nodeDims.get(kId)!.height, 0) + (gKids.length - 1) * kidGap;
+          const tierH = Math.max(bDims.height, totalKidsH);
+
+          const bY = curY + (tierH - bDims.height) / 2;
+          nodePositions.set(bId, {
+            x: leftColX + (branchColW - bDims.width) / 2,
+            y: bY,
+          });
+
+          let kidY = curY + (tierH - totalKidsH) / 2;
+          for (const kId of gKids) {
+            const kDims = nodeDims.get(kId)!;
+            nodePositions.set(kId, {
+              x: rightColX + (leafColW - kDims.width) / 2,
+              y: kidY,
+            });
+            kidY += kDims.height + kidGap;
+          }
+
+          curY += tierH + 28;
+        }
+      }
+    } else {
+      // 2-tier tree (Root -> direct children only)
+      let curY = TITLE_BAND + 16;
+      for (const r of roots) {
+        const rDims = nodeDims.get(r)!;
+        nodePositions.set(r, {
+          x: SAFE + (contentW - rDims.width) / 2,
+          y: curY,
+        });
+        curY += rDims.height + 36;
+      }
+      for (const cId of allDirectKids) {
+        const cDims = nodeDims.get(cId)!;
+        nodePositions.set(cId, {
+          x: SAFE + (contentW - cDims.width) / 2,
+          y: curY,
+        });
+        curY += cDims.height + 24;
+      }
     }
 
-    let curX = leftX;
-    for (const kid of kids) {
-      const kidSpan = subtreeSpan.get(kid) ?? leafSpan(kid);
-      positionSubtree(kid, curX);
-      curX += kidSpan;
+    // Ensure any orphan nodes are positioned
+    for (const id of nodeIds) {
+      if (!nodePositions.has(id)) {
+        const dims = nodeDims.get(id)!;
+        nodePositions.set(id, {
+          x: SAFE + (contentW - dims.width) / 2,
+          y: TITLE_BAND + 16,
+        });
+      }
+    }
+  } else {
+    // Landscape tree layout (horizontal spread across leaves)
+    const subtreeSpan = new Map<string, number>();
+    function leafSpan(id: string): number {
+      const w = nodeDims.get(id)?.width ?? NODE_W;
+      return w + 36;
     }
 
-    // Parent centered over first and last child
-    const firstChild = nodePositions.get(kids[0])!;
-    const lastChild = nodePositions.get(kids[kids.length - 1])!;
-    const firstDims = nodeDims.get(kids[0]) ?? { width: NODE_W, height: NODE_H };
-    const lastDims = nodeDims.get(kids[kids.length - 1]) ?? { width: NODE_W, height: NODE_H };
-    const parentCenterX = (firstChild.x + firstDims.width / 2 + lastChild.x + lastDims.width / 2) / 2;
-    nodePositions.set(id, { x: parentCenterX - dims.width / 2, y });
-  }
+    function measureSubtree(id: string): number {
+      const kids = children.get(id) ?? [];
+      const minSpan = leafSpan(id);
+      if (kids.length === 0) {
+        subtreeSpan.set(id, minSpan);
+        return minSpan;
+      }
+      let total = 0;
+      for (const kid of kids) {
+        total += measureSubtree(kid);
+      }
+      const span = Math.max(minSpan, total);
+      subtreeSpan.set(id, span);
+      return span;
+    }
 
-  let currentRootLeft = treeStartX;
-  for (const r of roots) {
-    const span = subtreeSpan.get(r) ?? leafSpan(r);
-    positionSubtree(r, currentRootLeft);
-    currentRootLeft += span;
+    let totalRootsWidth = 0;
+    for (const r of roots) {
+      totalRootsWidth += measureSubtree(r);
+    }
+
+    const treeStartX = SAFE + Math.max(0, (contentW - totalRootsWidth) / 2);
+    const levelHeight = Math.max(maxNodeH + 40, Math.min(220, contentH / Math.max(maxDepth + 1, 1)));
+    const totalTreeHeight = maxDepth * levelHeight + maxNodeH;
+    const treeStartY = TITLE_BAND + Math.max(16, (contentH - totalTreeHeight) / 2);
+
+    function positionSubtree(id: string, leftX: number): void {
+      const d = depth.get(id) ?? 0;
+      const y = treeStartY + d * levelHeight;
+      const kids = children.get(id) ?? [];
+      const span = subtreeSpan.get(id) ?? leafSpan(id);
+      const dims = nodeDims.get(id) ?? { width: NODE_W, height: NODE_H };
+
+      if (kids.length === 0) {
+        const centerX = leftX + span / 2;
+        nodePositions.set(id, { x: centerX - dims.width / 2, y });
+        return;
+      }
+
+      let curX = leftX;
+      for (const kid of kids) {
+        const kidSpan = subtreeSpan.get(kid) ?? leafSpan(kid);
+        positionSubtree(kid, curX);
+        curX += kidSpan;
+      }
+
+      // Parent centered over first and last child
+      const firstChild = nodePositions.get(kids[0])!;
+      const lastChild = nodePositions.get(kids[kids.length - 1])!;
+      const firstDims = nodeDims.get(kids[0]) ?? { width: NODE_W, height: NODE_H };
+      const lastDims = nodeDims.get(kids[kids.length - 1]) ?? { width: NODE_W, height: NODE_H };
+      const parentCenterX = (firstChild.x + firstDims.width / 2 + lastChild.x + lastDims.width / 2) / 2;
+      nodePositions.set(id, { x: parentCenterX - dims.width / 2, y });
+    }
+
+    let currentRootLeft = treeStartX;
+    for (const r of roots) {
+      const span = subtreeSpan.get(r) ?? leafSpan(r);
+      positionSubtree(r, currentRootLeft);
+      currentRootLeft += span;
+    }
   }
 
   const nodes: PositionedNode[] = [];
@@ -836,47 +934,92 @@ function layoutMedallion(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[]
   const activeTiers = [...tiers.entries()].filter(([_, ids]) => ids.length > 0);
   const tierCount = activeTiers.length || 1;
 
+  const isVertical = ast.meta.direction === "TB" || ast.meta.direction === "BT";
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
   const maxNodeW = Math.max(...nodeIds.map((id) => nodeDims.get(id)!.width));
-  const availableColGap = tierCount > 1 ? (contentW - maxNodeW) / (tierCount - 1) : 0;
-  const colGap = Math.max(maxNodeW + 36, Math.min(360, availableColGap));
-  const totalW = (tierCount - 1) * colGap + maxNodeW;
-  const startX = SAFE + Math.max(0, (contentW - totalW) / 2);
+  const maxNodeH = Math.max(...nodeIds.map((id) => nodeDims.get(id)!.height));
   const nodes: PositionedNode[] = [];
 
-  activeTiers.forEach(([_, ids], colIdx) => {
-    const colCount = ids.length;
-    const colTierMaxW = Math.max(...ids.map((id) => nodeDims.get(id)!.width));
-    const colTierMaxH = Math.max(...ids.map((id) => nodeDims.get(id)!.height));
-    const colX = startX + colIdx * colGap;
-    const rowSpacing = Math.max(colTierMaxH + 32, contentH / (colCount + 1));
-    const colH = (colCount - 1) * rowSpacing + colTierMaxH;
-    const startY = TITLE_BAND + Math.max(0, (contentH - colH) / 2);
+  if (isVertical) {
+    // "Căn dọc" — Vertical Portrait Medallion (4 tiers stacked as rows)
+    const availableRowGap = tierCount > 1 ? (contentH - maxNodeH * tierCount) / (tierCount - 1) : 32;
+    const rowGap = Math.max(32, Math.min(80, availableRowGap));
+    const totalH = tierCount * maxNodeH + (tierCount - 1) * rowGap;
+    const startY = TITLE_BAND + Math.max(16, (contentH - totalH) / 2);
 
-    ids.forEach((id, rowIdx) => {
-      const decl = ast.nodes[id];
-      const dims = nodeDims.get(id)!;
-      const rowY = startY + rowIdx * rowSpacing + (colTierMaxH - dims.height) / 2;
-      const nodeX = colX + (colTierMaxW - dims.width) / 2;
-      const focal = decl.props.focal === true || decl.props.accent === true;
-      nodes.push({
-        id,
-        kind: decl.kind,
-        role: nodeRole(decl.kind),
-        label: decl.label,
-        x: snapGrid(nodeX),
-        y: snapGrid(rowY),
-        width: dims.width,
-        height: dims.height,
-        style: resolveNodeStyle(decl, ast),
-        props: decl.props,
-        opacity: 0,
-        shape: "card",
-        focal,
+    activeTiers.forEach(([_, ids], rowIdx) => {
+      const rowCount = ids.length;
+      const tierMaxH = Math.max(...ids.map((id) => nodeDims.get(id)!.height));
+      const rowY = startY + rowIdx * (maxNodeH + rowGap);
+      const colSpacing = 28;
+      const totalRowNodesW = ids.reduce((acc, id) => acc + nodeDims.get(id)!.width, 0);
+      const totalRowW = totalRowNodesW + Math.max(0, rowCount - 1) * colSpacing;
+      let curX = SAFE + Math.max(0, (contentW - totalRowW) / 2);
+
+      ids.forEach((id) => {
+        const decl = ast.nodes[id];
+        const dims = nodeDims.get(id)!;
+        const nodeY = rowY + (tierMaxH - dims.height) / 2;
+        const focal = decl.props.focal === true || decl.props.accent === true;
+        nodes.push({
+          id,
+          kind: decl.kind,
+          role: nodeRole(decl.kind),
+          label: decl.label,
+          x: snapGrid(curX),
+          y: snapGrid(nodeY),
+          width: dims.width,
+          height: dims.height,
+          style: resolveNodeStyle(decl, ast),
+          props: decl.props,
+          opacity: 0,
+          shape: "card",
+          focal,
+        });
+        curX += dims.width + colSpacing;
       });
     });
-  });
+  } else {
+    // Landscape: 4 columns side by side
+    const availableColGap = tierCount > 1 ? (contentW - maxNodeW) / (tierCount - 1) : 0;
+    const colGap = Math.max(maxNodeW + 36, Math.min(360, availableColGap));
+    const totalW = (tierCount - 1) * colGap + maxNodeW;
+    const startX = SAFE + Math.max(0, (contentW - totalW) / 2);
+
+    activeTiers.forEach(([_, ids], colIdx) => {
+      const colCount = ids.length;
+      const colTierMaxW = Math.max(...ids.map((id) => nodeDims.get(id)!.width));
+      const colTierMaxH = Math.max(...ids.map((id) => nodeDims.get(id)!.height));
+      const colX = startX + colIdx * colGap;
+      const rowSpacing = Math.max(colTierMaxH + 32, contentH / (colCount + 1));
+      const colH = (colCount - 1) * rowSpacing + colTierMaxH;
+      const startY = TITLE_BAND + Math.max(0, (contentH - colH) / 2);
+
+      ids.forEach((id, rowIdx) => {
+        const decl = ast.nodes[id];
+        const dims = nodeDims.get(id)!;
+        const rowY = startY + rowIdx * rowSpacing + (colTierMaxH - dims.height) / 2;
+        const nodeX = colX + (colTierMaxW - dims.width) / 2;
+        const focal = decl.props.focal === true || decl.props.accent === true;
+        nodes.push({
+          id,
+          kind: decl.kind,
+          role: nodeRole(decl.kind),
+          label: decl.label,
+          x: snapGrid(nodeX),
+          y: snapGrid(rowY),
+          width: dims.width,
+          height: dims.height,
+          style: resolveNodeStyle(decl, ast),
+          props: decl.props,
+          opacity: 0,
+          shape: "card",
+          focal,
+        });
+      });
+    });
+  }
 
   return nodes;
 }
@@ -1270,50 +1413,108 @@ function layoutNested(ast: DiagramAST): PositionedNode[] {
     nodeDims.set(id, computeNodeDimensions(ast.nodes[id]));
   }
 
-  const topHeadroom = 20;
-  const startY = TITLE_BAND + topHeadroom;
+  const isVertical = ast.meta.direction === "TB" || ast.meta.direction === "BT";
+  const topBand = effectiveTitleBand(ast);
+  const topHeadroom = 16;
+  const startY = topBand + topHeadroom;
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - startY - SAFE;
-  const centerX = SAFE + contentW / 2;
-  const centerY = startY + contentH / 2;
   const N = nodeIds.length;
-  const padX = Math.min(54, (contentW * 0.42) / Math.max(N, 1));
-  const padY = Math.min(48, (contentH * 0.42) / Math.max(N, 1));
   const nodes: PositionedNode[] = [];
 
-  nodeIds.forEach((id, idx) => {
-    const decl = ast.nodes[id];
-    const dims = nodeDims.get(id)!;
-    const isCore = idx === N - 1;
-    let x: number, y: number, w: number, h: number;
-    if (isCore) {
-      w = Math.max(dims.width, Math.min(320, contentW - idx * padX * 2));
-      h = Math.max(dims.height, 84);
-      x = centerX - w / 2;
-      y = centerY - h / 2 + (N > 1 ? 16 : 0);
-    } else {
-      x = SAFE + idx * padX;
-      y = startY + idx * padY;
-      w = Math.max(dims.width, contentW - idx * padX * 2);
-      h = Math.max(dims.height, contentH - idx * padY * 2);
-    }
-    const focal = decl.props.focal === true || decl.props.accent === true || isCore;
-    nodes.push({
-      id,
-      kind: decl.kind,
-      role: nodeRole(decl.kind),
-      label: decl.label,
-      x: snapGrid(x),
-      y: snapGrid(y),
-      width: snapGrid(w),
-      height: snapGrid(h),
-      style: resolveNodeStyle(decl, ast),
-      props: decl.props,
-      opacity: 0,
-      shape: isCore ? "card" : "container",
-      focal,
+  if (isVertical) {
+    // "Khung dọc" — Vertical concentric containment with dedicated top header clearance
+    const stepX = Math.min(40, Math.max(24, (contentW * 0.32) / Math.max(N - 1, 1)));
+    const stepY = Math.min(60, Math.max(46, (contentH * 0.40) / Math.max(N - 1, 1)));
+    const bottomStepY = Math.min(36, Math.max(22, (contentH * 0.22) / Math.max(N - 1, 1)));
+
+    nodeIds.forEach((id, idx) => {
+      const decl = ast.nodes[id];
+      const dims = nodeDims.get(id)!;
+      const isCore = idx === N - 1;
+      let x: number, y: number, w: number, h: number;
+
+      if (isCore) {
+        const availLeft = SAFE + idx * stepX;
+        const availWidth = Math.max(dims.width, contentW - idx * stepX * 2);
+        const availTop = startY + idx * stepY;
+        const availBottom = startY + contentH - idx * bottomStepY;
+        const availHeight = Math.max(80, availBottom - availTop);
+
+        w = Math.min(availWidth - 24, Math.max(dims.width, 240));
+        h = Math.max(dims.height, 80);
+        x = availLeft + (availWidth - w) / 2;
+        y = availTop + (availHeight - h) / 2;
+      } else {
+        x = SAFE + idx * stepX;
+        y = startY + idx * stepY;
+        w = contentW - idx * stepX * 2;
+        h = contentH - idx * (stepY + bottomStepY);
+      }
+
+      const focal = decl.props.focal === true || decl.props.accent === true || isCore;
+      nodes.push({
+        id,
+        kind: decl.kind,
+        role: nodeRole(decl.kind),
+        label: decl.label,
+        x: snapGrid(x),
+        y: snapGrid(y),
+        width: snapGrid(w),
+        height: snapGrid(h),
+        style: resolveNodeStyle(decl, ast),
+        props: decl.props,
+        opacity: 0,
+        shape: isCore ? "card" : "container",
+        focal,
+      });
     });
-  });
+  } else {
+    // "Khung ngang" — Landscape concentric containment
+    const padX = Math.min(54, (contentW * 0.38) / Math.max(N, 1));
+    const padY = Math.min(48, (contentH * 0.38) / Math.max(N, 1));
+
+    nodeIds.forEach((id, idx) => {
+      const decl = ast.nodes[id];
+      const dims = nodeDims.get(id)!;
+      const isCore = idx === N - 1;
+      let x: number, y: number, w: number, h: number;
+
+      if (isCore) {
+        const availLeft = SAFE + idx * padX;
+        const availWidth = Math.max(dims.width, contentW - idx * padX * 2);
+        const availTop = startY + idx * padY;
+        const availHeight = Math.max(80, contentH - idx * padY * 2);
+
+        w = Math.min(availWidth - 24, Math.max(dims.width, 240));
+        h = Math.max(dims.height, 80);
+        x = availLeft + (availWidth - w) / 2;
+        y = availTop + (availHeight - h) / 2;
+      } else {
+        x = SAFE + idx * padX;
+        y = startY + idx * padY;
+        w = contentW - idx * padX * 2;
+        h = contentH - idx * padY * 2;
+      }
+
+      const focal = decl.props.focal === true || decl.props.accent === true || isCore;
+      nodes.push({
+        id,
+        kind: decl.kind,
+        role: nodeRole(decl.kind),
+        label: decl.label,
+        x: snapGrid(x),
+        y: snapGrid(y),
+        width: snapGrid(w),
+        height: snapGrid(h),
+        style: resolveNodeStyle(decl, ast),
+        props: decl.props,
+        opacity: 0,
+        shape: isCore ? "card" : "container",
+        focal,
+      });
+    });
+  }
   return nodes;
 }
 
@@ -1459,6 +1660,7 @@ function computeTreeBuses(ast: DiagramAST, nodes: PositionedNode[], edges: Route
       branchY: snapGrid((parentY + childY) / 2),
       childXs: childNodes.map((node) => snapGrid(node.x + node.width / 2)),
       childY: snapGrid(childY),
+      childYs: childNodes.map((node) => snapGrid(node.y)),
     });
   }
   return buses;
@@ -1720,7 +1922,7 @@ export function computeAdaptiveDimensions(
   const maxNodeH = nodeDims.length > 0 ? Math.max(...nodeDims.map((d) => d.height)) : NODE_H;
 
   const hasTitle = Boolean(ast.meta.title && ast.meta.title.trim().length > 0);
-  const titleBand = hasTitle ? TITLE_BAND : 0;
+  const titleBand = effectiveTitleBand(ast);
   const hasBeatCaptions = ast.beats.some((b) => b.label && b.label.trim().length > 0);
   const bottomBand = hasBeatCaptions ? 44 : 0;
   const titleW = hasTitle ? Math.max(320, ast.meta.title!.trim().length * 11 + SAFE * 2) : 0;
@@ -1742,20 +1944,37 @@ export function computeAdaptiveDimensions(
     autoH = Math.max(320, Math.min(1800, requiredH));
   } else if (dtype === "medallion") {
     const tierSet = new Set<number>();
+    const tierCounts = new Map<number, number>();
     for (const id of nodeIds) {
       const combined = `${id} ${ast.nodes[id].kind}`.toLowerCase();
-      if (combined.includes("bronze") || combined.includes("raw") || combined.includes("landing")) tierSet.add(1);
-      else if (combined.includes("silver") || combined.includes("clean") || combined.includes("curated") || combined.includes("conformed")) tierSet.add(2);
-      else if (combined.includes("gold") || combined.includes("agg") || combined.includes("mart") || combined.includes("analytics")) tierSet.add(3);
-      else if (combined.includes("bi") || combined.includes("dash") || combined.includes("model") || combined.includes("app") || combined.includes("consumer") || combined.includes("user") || combined.includes("client")) tierSet.add(4);
-      else tierSet.add(0);
+      let t = 0;
+      if (combined.includes("bronze") || combined.includes("raw") || combined.includes("landing")) t = 1;
+      else if (combined.includes("silver") || combined.includes("clean") || combined.includes("curated") || combined.includes("conformed")) t = 2;
+      else if (combined.includes("gold") || combined.includes("agg") || combined.includes("mart") || combined.includes("analytics")) t = 3;
+      else if (combined.includes("bi") || combined.includes("dash") || combined.includes("model") || combined.includes("app") || combined.includes("consumer") || combined.includes("user") || combined.includes("client")) t = 4;
+      tierSet.add(t);
+      tierCounts.set(t, (tierCounts.get(t) ?? 0) + 1);
     }
     const tierCount = Math.max(tierSet.size, 4);
-    const tierW = Math.max(260, maxNodeW + 48);
-    const requiredW = Math.max(SAFE * 2 + tierCount * tierW, titleW);
-    const requiredH = titleBand + SAFE * 2 + Math.max(440, maxNodeH * 3 + 120) + bottomBand;
-    autoW = Math.max(640, Math.min(2800, requiredW));
-    autoH = Math.max(400, Math.min(1600, requiredH));
+    const maxInTier = Math.max(...tierCounts.values(), 2);
+
+    if (isVertical) {
+      // "Căn dọc" — Portrait Medallion (4 tiers stacked vertically as rows)
+      const nodeColSpacing = 28;
+      const tierSpacing = 36;
+      const tierH = Math.max(76, maxNodeH + 16);
+      const requiredW = Math.max(SAFE * 2 + maxInTier * maxNodeW + (maxInTier - 1) * nodeColSpacing, titleW);
+      const requiredH = titleBand + SAFE * 2 + tierCount * tierH + (tierCount - 1) * tierSpacing + bottomBand;
+      autoW = Math.max(540, Math.min(1600, snapGrid(requiredW, 16)));
+      autoH = Math.max(680, Math.min(2000, snapGrid(requiredH, 16)));
+    } else {
+      // Landscape: 4 columns side by side
+      const tierW = Math.max(260, maxNodeW + 48);
+      const requiredW = Math.max(SAFE * 2 + tierCount * tierW, titleW);
+      const requiredH = titleBand + SAFE * 2 + Math.max(440, maxNodeH * 3 + 120) + bottomBand;
+      autoW = Math.max(640, Math.min(2800, requiredW));
+      autoH = Math.max(400, Math.min(1600, requiredH));
+    }
   } else if (dtype === "tree") {
     const children = new Map<string, string[]>();
     const hasParent = new Set<string>();
@@ -1770,45 +1989,85 @@ export function computeAdaptiveDimensions(
       }
     }
     const roots = nodeIds.filter((id) => !hasParent.has(id));
-    const depth = new Map<string, number>();
-    const queue = [...roots];
-    for (const r of roots) depth.set(r, 0);
-    while (queue.length > 0) {
-      const cur = queue.shift()!;
-      const d = depth.get(cur) ?? 0;
-      for (const child of children.get(cur) ?? []) {
-        if (!depth.has(child)) {
-          depth.set(child, d + 1);
-          queue.push(child);
+    const activeRoots = roots.length > 0 ? roots : nodeIds;
+
+    if (isVertical) {
+      // "Căn dọc" — Portrait / Vertical Tree
+      const allDirectKids = activeRoots.flatMap((r) => children.get(r) ?? []);
+      const allGrandKids = allDirectKids.flatMap((k) => children.get(k) ?? []);
+
+      if (allGrandKids.length > 0) {
+        // Multi-tier hierarchy (Root Coordinator -> Partition Branches -> Virtual Node Leaves)
+        const branchColW = Math.max(...allDirectKids.map((id) => computeNodeDimensions(ast.nodes[id]).width), 220);
+        const leafColW = Math.max(...allGrandKids.map((id) => computeNodeDimensions(ast.nodes[id]).width), 200);
+        const colGap = 44;
+        const requiredW = Math.max(SAFE * 2 + branchColW + colGap + leafColW, titleW);
+
+        let totalTiersH = 0;
+        for (const bId of allDirectKids) {
+          const bH = computeNodeDimensions(ast.nodes[bId]).height;
+          const gKids = children.get(bId) ?? [];
+          const gKidsH = gKids.length > 0
+            ? gKids.reduce((acc, kId) => acc + computeNodeDimensions(ast.nodes[kId]).height, 0) + (gKids.length - 1) * 16
+            : bH;
+          totalTiersH += Math.max(bH, gKidsH) + 28;
+        }
+
+        const rootH = activeRoots.reduce((acc, rId) => acc + computeNodeDimensions(ast.nodes[rId]).height + 36, 0);
+        const requiredH = titleBand + SAFE * 2 + rootH + totalTiersH + bottomBand;
+        autoW = Math.max(540, Math.min(1600, snapGrid(requiredW, 16)));
+        autoH = Math.max(680, Math.min(2200, snapGrid(requiredH, 16)));
+      } else {
+        // 2-tier tree: Single centered vertical column stack
+        const maxChildW = allDirectKids.length > 0
+          ? Math.max(...allDirectKids.map((id) => computeNodeDimensions(ast.nodes[id]).width))
+          : maxNodeW;
+        const requiredW = Math.max(SAFE * 2 + Math.max(maxNodeW, maxChildW), titleW);
+        const totalNodesH = nodeIds.reduce((acc, id) => acc + computeNodeDimensions(ast.nodes[id]).height + 24, 0);
+        const requiredH = titleBand + SAFE * 2 + totalNodesH + bottomBand;
+        autoW = Math.max(480, Math.min(1400, snapGrid(requiredW, 16)));
+        autoH = Math.max(560, Math.min(2000, snapGrid(requiredH, 16)));
+      }
+    } else {
+      const depth = new Map<string, number>();
+      const queue = [...roots];
+      for (const r of roots) depth.set(r, 0);
+      while (queue.length > 0) {
+        const cur = queue.shift()!;
+        const d = depth.get(cur) ?? 0;
+        for (const child of children.get(cur) ?? []) {
+          if (!depth.has(child)) {
+            depth.set(child, d + 1);
+            queue.push(child);
+          }
         }
       }
-    }
-    for (const id of nodeIds) if (!depth.has(id)) depth.set(id, 0);
-    const maxDepth = Math.max(...depth.values(), 0);
+      for (const id of nodeIds) if (!depth.has(id)) depth.set(id, 0);
+      const maxDepth = Math.max(...depth.values(), 0);
 
-    const minLeafWidth = Math.max(NODE_W + 36, maxNodeW + 36);
-    const subtreeSpan = new Map<string, number>();
-    function measureSubtree(id: string): number {
-      const kids = children.get(id) ?? [];
-      if (kids.length === 0) {
-        subtreeSpan.set(id, minLeafWidth);
-        return minLeafWidth;
+      const minLeafWidth = Math.max(NODE_W + 36, maxNodeW + 36);
+      const subtreeSpan = new Map<string, number>();
+      function measureSubtree(id: string): number {
+        const kids = children.get(id) ?? [];
+        if (kids.length === 0) {
+          subtreeSpan.set(id, minLeafWidth);
+          return minLeafWidth;
+        }
+        let total = 0;
+        for (const kid of kids) total += measureSubtree(kid);
+        const span = Math.max(minLeafWidth, total);
+        subtreeSpan.set(id, span);
+        return span;
       }
-      let total = 0;
-      for (const kid of kids) total += measureSubtree(kid);
-      const span = Math.max(minLeafWidth, total);
-      subtreeSpan.set(id, span);
-      return span;
-    }
-    let totalRootsWidth = 0;
-    const activeRoots = roots.length > 0 ? roots : nodeIds;
-    for (const r of activeRoots) totalRootsWidth += measureSubtree(r);
+      let totalRootsWidth = 0;
+      for (const r of activeRoots) totalRootsWidth += measureSubtree(r);
 
-    const levelH = Math.max(130, maxNodeH + 54);
-    const requiredW = Math.max(SAFE * 2 + totalRootsWidth, titleW);
-    const requiredH = titleBand + SAFE * 2 + (maxDepth + 1) * levelH + bottomBand;
-    autoW = Math.max(480, Math.min(2560, requiredW));
-    autoH = Math.max(320, Math.min(1800, requiredH));
+      const levelH = Math.max(130, maxNodeH + 54);
+      const requiredW = Math.max(SAFE * 2 + totalRootsWidth, titleW);
+      const requiredH = titleBand + SAFE * 2 + (maxDepth + 1) * levelH + bottomBand;
+      autoW = Math.max(480, Math.min(2560, requiredW));
+      autoH = Math.max(320, Math.min(1800, requiredH));
+    }
   } else if (dtype === "swimlane") {
     const laneCount = Math.max(groupCount, 1);
     const maxInLane = Math.max(
@@ -1868,8 +2127,35 @@ export function computeAdaptiveDimensions(
     const requiredH = titleBand + SAFE * 2 + maxNodeH * 3 + bottomBand;
     autoW = Math.min(2400, requiredW);
     autoH = Math.min(1600, requiredH);
+  } else if (dtype === "nested") {
+    const N = Math.max(nodeCount, 1);
+    const isVertical = ast.meta.direction === "TB" || ast.meta.direction === "BT";
+    if (isVertical) {
+      // "Khung dọc" (Portrait / Vertical aspect ratio)
+      const coreW = Math.max(280, maxNodeW + 48);
+      const coreH = Math.max(76, maxNodeH + 16);
+      const stepX = 36;
+      const stepY = 56;
+      const bottomStepY = 28;
+      const requiredW = Math.max(SAFE * 2 + coreW + (N - 1) * stepX * 2, titleW);
+      const contentH = (N - 1) * stepY + coreH + (N - 1) * bottomStepY + 48;
+      const requiredH = titleBand + SAFE * 2 + contentH + bottomBand;
+      autoW = Math.max(540, Math.min(1600, snapGrid(requiredW, 16)));
+      autoH = Math.max(680, Math.min(2000, snapGrid(requiredH, 16)));
+    } else {
+      // "Khung ngang" (Landscape aspect ratio)
+      const coreW = Math.max(300, maxNodeW + 48);
+      const coreH = Math.max(84, maxNodeH + 24);
+      const stepX = 48;
+      const stepY = 40;
+      const requiredW = Math.max(SAFE * 2 + coreW + (N - 1) * stepX * 2 + 100, titleW);
+      const contentH = coreH + (N - 1) * stepY * 2 + 40;
+      const requiredH = titleBand + SAFE * 2 + contentH + bottomBand;
+      autoW = Math.max(720, Math.min(2400, snapGrid(requiredW, 16)));
+      autoH = Math.max(460, Math.min(1400, snapGrid(requiredH, 16)));
+    }
   } else {
-    // Ranked Architecture, Flowchart, State, Nested
+    // Ranked Architecture, Flowchart, State
     const forceVertical = (dtype === "flowchart" && isVertical) || isVertical;
     const ranks = assignRanks(nodeIds, effectiveEdges, forceVertical ? "TB" : "LR");
     const byRank = new Map<number, string[]>();

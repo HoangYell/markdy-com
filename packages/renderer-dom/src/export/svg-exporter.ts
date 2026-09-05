@@ -413,23 +413,25 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
     svg += `  <!-- Tree Buses -->\n  <g class="markdy-tree-layer">\n`;
     const busStroke = theme.edges?.dependency ?? theme.border ?? "#64748b";
     for (const bus of plan.treeBuses) {
-      for (const childX of bus.childXs) {
+      bus.childXs.forEach((childX, idx) => {
+        const targetY = bus.childYs ? (bus.childYs[idx] ?? bus.childY) : bus.childY;
         let d: string;
         if (Math.abs(childX - bus.parentX) < 1) {
           d = toPathD([
             { x: bus.parentX, y: bus.parentY },
-            { x: childX, y: bus.childY },
+            { x: childX, y: targetY },
           ], 12);
         } else {
+          const branchY = bus.childYs ? (bus.parentY + targetY) / 2 : bus.branchY;
           d = toPathD([
             { x: bus.parentX, y: bus.parentY },
-            { x: bus.parentX, y: bus.branchY },
-            { x: childX, y: bus.branchY },
-            { x: childX, y: bus.childY },
+            { x: bus.parentX, y: branchY },
+            { x: childX, y: branchY },
+            { x: childX, y: targetY },
           ], 12);
         }
         svg += `    <path d="${d}" fill="none" stroke="${busStroke}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>\n`;
-      }
+      });
     }
     svg += `  </g>\n`;
   }

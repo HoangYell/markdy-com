@@ -345,15 +345,26 @@ export function ensureNodeStyles(doc: Document): void {
   border-radius: 999px;
 }
 .markdy-node[data-is-container="1"] {
-  background: color-mix(in srgb, var(--md-surface-raised) 25%, transparent);
-  border: 1px solid color-mix(in srgb, var(--md-role-color, var(--md-accent)) 40%, var(--md-border) 60%);
-  box-shadow: inset 0 0 0 1px var(--md-hairline), 0 4px 16px -4px var(--md-shadow, rgba(0,0,0,0.25));
+  background: color-mix(in srgb, var(--md-surface-raised) 20%, transparent);
+  border: 1.5px solid color-mix(in srgb, var(--md-role-color, var(--md-accent)) 45%, var(--md-border) 55%);
+  border-radius: 20px;
+  box-shadow: inset 0 0 0 1px var(--md-hairline), 0 8px 24px -6px var(--md-shadow, rgba(0,0,0,0.25));
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  pointer-events: none;
 }
 .markdy-node[data-is-container="1"] .markdy-node__body {
-  align-items: flex-start;
-  padding: 12px 16px;
+  height: auto;
+  min-height: 44px;
+  align-items: center;
+  padding: 10px 18px;
+  pointer-events: auto;
+}
+.markdy-node[data-is-container="1"] .markdy-node__label {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--md-text);
 }
 .markdy-node[data-is-container="1"][data-focal="1"] {
   background: color-mix(in srgb, var(--md-accent-tint, var(--md-accent)) 16%, transparent);

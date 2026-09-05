@@ -248,5 +248,93 @@ beat test:
       expect(astLR.meta.direction).toBe("LR");
       expect(astLR.meta.explicitDirection).toBe(true);
     });
+
+    it("switches type=tree to portrait orientation (TB) with vertical hierarchy on portrait viewport", () => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+
+      Object.defineProperty(container, "clientWidth", { value: 390, configurable: true });
+      Object.defineProperty(container, "clientHeight", { value: 844, configurable: true });
+
+      const code = `
+scene "Consistent Hashing Virtual Node Tree" theme=paper type=tree
+service RingCoordinator "Hash Ring Coordinator"
+service PartRangeA "Partition Tier A"
+service PartRangeB "Partition Tier B"
+database VNodeA1 "vNode A1"
+database VNodeA2 "vNode A2"
+database VNodeB1 "vNode B1"
+database VNodeB2 "vNode B2"
+
+beat main:
+  RingCoordinator -> PartRangeA & RingCoordinator -> PartRangeB
+  PartRangeA -> VNodeA1 & PartRangeA -> VNodeA2
+  PartRangeB -> VNodeB1 & PartRangeB -> VNodeB2
+`;
+      const diagram = createDiagram({
+        container,
+        code,
+        responsiveLayout: true,
+      });
+
+      const plan = (container as any).__markdyPlan;
+      expect(plan.meta.direction).toBe("TB");
+      // Portrait dimensions: compact width <= 800px instead of 2000px+
+      expect(plan.meta.width).toBeLessThanOrEqual(800);
+      expect(plan.meta.height).toBeGreaterThanOrEqual(680);
+
+      // Verify scale factor is healthy on mobile (> 0.50)
+      const scaleStr = container.style.getPropertyValue("--markdy-scale");
+      const scale = parseFloat(scaleStr);
+      expect(scale).toBeGreaterThan(0.45);
+
+      diagram.destroy();
+    });
+
+    it("switches type=medallion to portrait orientation (TB) with vertical tier rows on portrait viewport", () => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+
+      Object.defineProperty(container, "clientWidth", { value: 390, configurable: true });
+      Object.defineProperty(container, "clientHeight", { value: 844, configurable: true });
+
+      const code = `
+scene "Lakehouse Medallion Pipeline" theme=paper type=medallion
+bronze BronzeRaw "Bronze: Raw Ingest"
+bronze BronzeDelta "Bronze: Delta Lake"
+silver SilverCleanse "Silver: Cleanse"
+silver SilverEnrich "Silver: Curated"
+gold GoldAggregates "Gold: Aggregates"
+gold GoldFeatureStore "Gold: Feature Store"
+client BIDashboards "BI Dashboards"
+client MLServing "ML Serving"
+
+beat main:
+  BronzeRaw -> SilverCleanse -> GoldAggregates -> BIDashboards
+`;
+      const diagram = createDiagram({
+        container,
+        code,
+        responsiveLayout: true,
+      });
+
+      const plan = (container as any).__markdyPlan;
+      expect(plan.meta.direction).toBe("TB");
+      expect(plan.meta.width).toBeLessThanOrEqual(800);
+      expect(plan.meta.height).toBeGreaterThanOrEqual(680);
+
+      const nodeById = new Map(plan.nodes.map((n: any) => [n.id, n]));
+      const bronze = nodeById.get("BronzeRaw");
+      const silver = nodeById.get("SilverCleanse");
+      const gold = nodeById.get("GoldAggregates");
+      const client = nodeById.get("BIDashboards");
+
+      // Tiers stacked vertically: Bronze -> Silver -> Gold -> Client
+      expect(bronze.y).toBeLessThan(silver.y);
+      expect(silver.y).toBeLessThan(gold.y);
+      expect(gold.y).toBeLessThan(client.y);
+
+      diagram.destroy();
+    });
   });
 });

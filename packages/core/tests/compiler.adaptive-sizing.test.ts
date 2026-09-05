@@ -254,4 +254,75 @@ beat main:
     expect(dims.width % 16).toBe(0);
     expect(dims.height % 16).toBe(0);
   });
+
+  it("adapts tree diagrams for portrait (TB) vs landscape (LR) orientation", () => {
+    const scriptTB = `
+scene "Consistent Hash Ring" theme=paper type=tree layout TB
+service Coord "Ring Coordinator"
+service TierA "Partition Tier A"
+service TierB "Partition Tier B"
+database V1 "vNode 1"
+database V2 "vNode 2"
+database V3 "vNode 3"
+database V4 "vNode 4"
+
+beat main:
+  Coord -> TierA & Coord -> TierB
+  TierA -> V1 & TierA -> V2
+  TierB -> V3 & TierB -> V4
+`;
+    const planTB = compile(parse(scriptTB));
+    expect(planTB.diagramType).toBe("tree");
+    expect(planTB.meta.direction).toBe("TB");
+    // Portrait tree: narrower width and vertical height
+    expect(planTB.meta.width).toBeLessThanOrEqual(800);
+    expect(planTB.meta.height).toBeGreaterThanOrEqual(680);
+
+    const nodeById = new Map(planTB.nodes.map((n) => [n.id, n]));
+    const coord = nodeById.get("Coord")!;
+    const tierA = nodeById.get("TierA")!;
+    const tierB = nodeById.get("TierB")!;
+    const v1 = nodeById.get("V1")!;
+
+    // Root coordinator is above tiers
+    expect(coord.y).toBeLessThan(tierA.y);
+    // Tier A is above Tier B (stacked vertically in portrait)
+    expect(tierA.y).toBeLessThan(tierB.y);
+    // Leaves (V1) are placed to the right of branch head TierA
+    expect(v1.x).toBeGreaterThan(tierA.x);
+  });
+
+  it("adapts medallion diagrams for portrait (TB) vs landscape (LR) orientation", () => {
+    const scriptTB = `
+scene "Medallion Pipeline" theme=paper type=medallion layout TB
+bronze B1 "Bronze 1"
+bronze B2 "Bronze 2"
+silver S1 "Silver 1"
+silver S2 "Silver 2"
+gold G1 "Gold 1"
+gold G2 "Gold 2"
+client C1 "Client 1"
+client C2 "Client 2"
+
+beat main:
+  B1 -> S1 -> G1 -> C1
+`;
+    const planTB = compile(parse(scriptTB));
+    expect(planTB.diagramType).toBe("medallion");
+    expect(planTB.meta.direction).toBe("TB");
+    // Portrait medallion: compact width and vertical height with 4 rows
+    expect(planTB.meta.width).toBeLessThanOrEqual(800);
+    expect(planTB.meta.height).toBeGreaterThanOrEqual(680);
+
+    const nodeById = new Map(planTB.nodes.map((n) => [n.id, n]));
+    const b1 = nodeById.get("B1")!;
+    const s1 = nodeById.get("S1")!;
+    const g1 = nodeById.get("G1")!;
+    const c1 = nodeById.get("C1")!;
+
+    // Tiers stack top to bottom: Bronze -> Silver -> Gold -> Client
+    expect(b1.y).toBeLessThan(s1.y);
+    expect(s1.y).toBeLessThan(g1.y);
+    expect(g1.y).toBeLessThan(c1.y);
+  });
 });
