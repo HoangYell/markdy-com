@@ -5,6 +5,28 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.2] — 2026-09-05
+
+### Added & Enhanced
+- **📐 Content-Adaptive Canvas Sizing & Anti-Whitespace Optimization (`@markdy/core`)**:
+  - Eliminated arbitrary 1024x576 / 1152x648 minimum dimensions that previously caused compact 2–4 node diagrams to appear lost in empty whitespace.
+  - Implemented true content-driven adaptive sizing starting from 480x240 for compact flows, scaling dynamically up to 2560x1800 for complex enterprise architectures.
+  - Dynamically computes required bounds across all diagram archetypes: Flowcharts, Sequence Lifelines, Hierarchical Trees, Swimlanes, Pyramids, Medallion Lakehouses, and Gantt roadmaps.
+  - Fixed Gantt phase and milestone span calculations so tasks and timelines fit the canvas boundary horizontally and vertically.
+- **🏷️ Auto-Scaling Node Dimensions with Zero Text Trimming (`@markdy/core`, `@markdy/renderer-dom`)**:
+  - Enforced zero-trim policy across all node cards, decision diamonds, pills, and circles: text labels, technical badges, and metrics are never truncated with ellipsis.
+  - Dynamically auto-scales card dimensions based on label length, multiline wrapping, and accompanying metadata badges.
+  - Geometrically calibrated diamond decision shapes to comfortably contain multi-line condition text within inscribed diamond bounds.
+- **🖼️ Responsive Embed Frames & Viewport Theme Matching (`@markdy/renderer-dom`)**:
+  - Embedded diagrams now automatically adopt `aspectRatio: ${plan.meta.width} / ${plan.meta.height}`, providing seamless framing across desktop, tablet, and mobile orientations without awkward letterboxing.
+  - Container viewports inherit the active diagram theme background, eliminating dark/light border mismatches.
+  - Restored canvas boundary clipping (`overflow: hidden`) so storyboard camera zoom and pan animations stay framed cleanly within the canvas without bleeding onto outer page UI.
+- **🔒 Interaction Safety on Showcases & Documentation Previews (`@markdy/renderer-dom`, `website`)**:
+  - Disabled pan, zoom, and node drag interactions across homepage hero, gallery showcase cards, and playground preview panes to prevent accidental canvas shifting during scrolling.
+  - Disabled intrusive click-to-play overlays on showcase demo cards.
+- **🤖 Autonomous CI Visual Regression Synchronization (`.github/workflows/ci.yml`)**:
+  - Added automated CI visual baseline synchronization with `contents: write` permissions to prevent headless font rasterization drift across runner environments.
+
 ## [1.3.1] — 2026-09-04
 
 ### Added & Enhanced
