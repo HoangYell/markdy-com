@@ -85,6 +85,24 @@ export interface DiagramOptions {
   onTimeUpdate?: (seconds: number, durationSeconds: number) => void;
   onPlayStateChange?: (playing: boolean) => void;
   onEnded?: () => void;
+  /**
+   * Adaptive orientation & responsive layout mode.
+   * When true or "auto", switches to vertical Top-to-Bottom (TB) on mobile / portrait viewports,
+   * and horizontal Left-to-Right (LR) on desktop / landscape viewports.
+   * Defaults to true.
+   */
+  responsiveLayout?: boolean;
+  /**
+   * Auto-scaling mode for diagram framing:
+   * - "width" (default): Width-First Responsiveness (scale factor = containerWidth / contentWidth, filling 95% - 100% width).
+   * - "contain": Scales to fit both width and height within container bounds.
+   */
+  fitMode?: "width" | "contain";
+  /**
+   * Target container width fill fraction (0.95 - 1.0) when fitMode is "width".
+   * Defaults to 0.98 (edge-to-edge with 1% clean margins).
+   */
+  targetWidthRatio?: number;
 }
 
 export interface Diagram {
@@ -225,7 +243,10 @@ export function detectHostTheme(container?: HTMLElement): "nebula" | "paper" {
   return "paper";
 }
 
-export function computeDiagramContentBounds(plan: RenderPlan): {
+export function computeDiagramContentBounds(
+  plan: RenderPlan,
+  options?: { tight?: boolean; padding?: number },
+): {
   minX: number;
   minY: number;
   maxX: number;
@@ -265,26 +286,44 @@ export function computeDiagramContentBounds(plan: RenderPlan): {
   if (plan.diagramType === "sequence") {
     let maxMsgY = minY;
     for (const msg of plan.sequenceMessages ?? []) {
-      maxMsgY = Math.max(maxMsgY, msg.y + 60);
+      maxMsgY = Math.max(maxMsgY, msg.y + 70);
     }
     for (const act of plan.sequenceActivations ?? []) {
       maxMsgY = Math.max(maxMsgY, act.y + act.height + 40);
     }
-    maxY = Math.max(maxY, maxMsgY, Math.min(plan.meta.height, 420));
+    maxY = Math.max(maxY, maxMsgY, plan.meta.height - 24);
   }
 
-  if (plan.title) {
+  const titleText = (plan.title ?? plan.meta?.title ?? "").trim();
+  if (titleText.length > 0) {
     minY = Math.min(minY, 20);
   }
 
-  const pad = 36;
+  const hasBeatCaptions = plan.beats && plan.beats.some((b) => b.label && b.label.trim().length > 0);
+  if (hasBeatCaptions) {
+    maxY = Math.max(maxY, plan.meta.height - 18);
+  }
+
+  for (const ann of plan.annotations ?? []) {
+    const targetNode = plan.nodes.find((n) => n.id === ann.target);
+    if (targetNode) {
+      minX = Math.min(minX, targetNode.x - 24);
+      maxX = Math.max(maxX, targetNode.x + targetNode.width + 24);
+      minY = Math.min(minY, targetNode.y - 24);
+      maxY = Math.max(maxY, targetNode.y + targetNode.height + 24);
+    }
+  }
+
+  // Crop Whitespace (Bounding Box Optimization):
+  // Strip out redundant margins/padding from all sides, keeping tight padding for clean edge-to-edge fit
+  const pad = options?.padding ?? (options?.tight === false ? 24 : 10);
   minX = Math.max(0, minX - pad);
   minY = Math.max(0, minY - pad);
   maxX = Math.min(plan.meta.width, maxX + pad);
   maxY = Math.min(plan.meta.height, maxY + pad);
 
-  const width = Math.max(maxX - minX, 200);
-  const height = Math.max(maxY - minY, 140);
+  const width = Math.max(maxX - minX, 100);
+  const height = Math.max(maxY - minY, 80);
   return { minX, minY, maxX, maxY, width, height };
 }
 
@@ -309,7 +348,36 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     onTimeUpdate,
     onPlayStateChange,
     onEnded,
+    responsiveLayout = true,
+    fitMode = "width",
+    targetWidthRatio = 0.98,
   } = opts;
+
+  function detectContainerOrientation(): "portrait" | "landscape" {
+    const cWidth = container?.clientWidth || 0;
+    const cHeight = container?.clientHeight || 0;
+
+    if (typeof window === "undefined") {
+      if (cWidth > 0 && cHeight > 0) {
+        return cHeight > cWidth * 1.05 ? "portrait" : "landscape";
+      }
+      return "landscape";
+    }
+
+    const isMobileViewport = window.innerWidth < 768;
+    if (isMobileViewport) {
+      return "portrait";
+    }
+
+    // On tablet / desktop screens (innerWidth >= 768):
+    if (cWidth > 0 && cHeight > 0) {
+      // Only treat container as portrait if it is clearly vertically taller than wide
+      if (cHeight > cWidth * 1.18) return "portrait";
+      return "landscape";
+    }
+
+    return window.innerWidth < window.innerHeight ? "portrait" : "landscape";
+  }
 
   const ast = parse(code);
   for (const w of ast.diagnostics) {
@@ -317,13 +385,13 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   }
 
   // Device orientation & screen adaptation:
-  // Màn hình ngang thì LR, màn hình dọc thì TB (khi tác giả không chỉ định layout cố định)
+  // Mobile / Portrait -> direction: TB / rankdir: TB (Top-to-Bottom data flow)
+  // Desktop / Landscape -> direction: LR / rankdir: LR (Left-to-Right data flow)
   const hasExplicitDirection = ast.meta.explicitDirection === true;
-  if (!hasExplicitDirection) {
-    const isPortrait = typeof window !== "undefined"
-      ? (window.innerWidth < window.innerHeight || (container && container.clientWidth > 0 && container.clientWidth < 640))
-      : false;
-    ast.meta.direction = isPortrait ? "TB" : "LR";
+  const shouldAdaptOrientation = responsiveLayout !== false && (!hasExplicitDirection || responsiveLayout === true);
+  let activeOrientation: "portrait" | "landscape" = detectContainerOrientation();
+  if (shouldAdaptOrientation) {
+    ast.meta.direction = activeOrientation === "portrait" ? "TB" : "LR";
   }
 
   // Tự động tính toán width & height thích ứng theo direction
@@ -423,7 +491,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   if (container.style.overflow === "hidden") container.style.overflow = "visible";
 
   const initialBounds = computeDiagramContentBounds(plan);
-  const naturalRatio = `${plan.meta.width} / ${plan.meta.height}`;
+  const contentRatio = `${initialBounds.width} / ${initialBounds.height}`;
 
   const viewport = document.createElement("div");
   viewport.className = "markdy-viewport";
@@ -433,7 +501,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     width: "100%",
     maxWidth: "100%",
     maxHeight: "100%",
-    aspectRatio: naturalRatio,
+    aspectRatio: contentRatio,
     overflow: "hidden",
     boxSizing: "border-box",
     flex: "1 1 auto",
@@ -675,66 +743,9 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     nodeEls.set(node.id, el);
   }
 
-  let fitScale = 1;
-  let sceneOffsetX = 0;
-  let sceneOffsetY = 0;
-
-  function computeContentBounds(): { minX: number; minY: number; maxX: number; maxY: number; width: number; height: number } {
-    return computeDiagramContentBounds(plan);
-  }
-
-  function scaleScene(): void {
-    const isBrowserLayout = (viewport.clientWidth || container.clientWidth || 0) > 0;
-    if (!isBrowserLayout) {
-      fitScale = 1;
-      sceneOffsetX = 0;
-      sceneOffsetY = 0;
-      scene.style.left = "0px";
-      scene.style.top = "0px";
-      scene.style.transformOrigin = "0 0";
-      scene.style.transform = "scale(1)";
-      return;
-    }
-
-    const vWidth = viewport.clientWidth || container.clientWidth || plan.meta.width;
-    const fallbackHeight = (vWidth * plan.meta.height) / plan.meta.width;
-    const vHeight = viewport.clientHeight || container.clientHeight || fallbackHeight;
-
-    const padX = Math.max(12, Math.min(32, vWidth * 0.03));
-    const padY = Math.max(12, Math.min(28, vHeight * 0.03));
-    const availW = Math.max(80, vWidth - padX * 2);
-    const availH = Math.max(80, vHeight - padY * 2);
-
-    const bounds = computeContentBounds();
-    const contentW = bounds.width;
-    const contentH = bounds.height;
-
-    const scaleX = availW / contentW;
-    const scaleY = availH / contentH;
-    // Prefer width scaling but keep within height constraints
-    fitScale = Math.min(scaleX, scaleY);
-
-    if (!Number.isFinite(fitScale) || fitScale <= 0) fitScale = 1;
-
-    const scaledContentW = contentW * fitScale;
-    const scaledContentH = contentH * fitScale;
-    // Center content, adjusting for its minX/minY offset
-    sceneOffsetX = (vWidth - scaledContentW) / 2 - bounds.minX * fitScale;
-    sceneOffsetY = (vHeight - scaledContentH) / 2 - bounds.minY * fitScale;
-
-    scene.style.left = `${sceneOffsetX}px`;
-    scene.style.top = `${sceneOffsetY}px`;
-    scene.style.transformOrigin = "0 0";
-    scene.style.transform = `scale(${fitScale})`;
-  }
-  scaleScene();
-  const resizeObserver = typeof ResizeObserver === "function" ? new ResizeObserver(scaleScene) : null;
-  resizeObserver?.observe(viewport);
-  if (container !== viewport) resizeObserver?.observe(container);
-
   const edgeRuntimes: EdgeRuntimeMap = new Map();
   const edgeSceneId = createEdgeSceneId();
-  const sequenceAnims = plan.diagramType === "sequence"
+  let sequenceAnims = plan.diagramType === "sequence"
     ? mountSequenceLayer(
       sequenceLayer,
       plan.nodes,
@@ -744,7 +755,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       { width: plan.meta.width, height: plan.meta.height },
     )
     : [];
-  const allAnims = [
+  let allAnims: Animation[] = [
     ...sequenceAnims,
     ...buildStructuralEdgeAnimations(
       plan.edges,
@@ -771,6 +782,175 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     anim.pause();
     anim.currentTime = 0;
   }
+
+  let fitScale = 1;
+  let sceneOffsetX = 0;
+  let sceneOffsetY = 0;
+
+  function computeContentBounds(): { minX: number; minY: number; maxX: number; maxY: number; width: number; height: number } {
+    return computeDiagramContentBounds(plan);
+  }
+
+  function relayoutOrientation(newDirection: "TB" | "LR"): void {
+    ast.meta.direction = newDirection;
+    const dims = computeAdaptiveDimensions(ast);
+    if (!ast.meta.explicitWidth) ast.meta.width = dims.width;
+    if (!ast.meta.explicitHeight) ast.meta.height = dims.height;
+
+    const newPlan = compilePlan(ast, plan.theme);
+    const newBounds = computeDiagramContentBounds(newPlan);
+    scene.style.width = `${newPlan.meta.width}px`;
+    scene.style.height = `${newPlan.meta.height}px`;
+    viewport.style.aspectRatio = `${newBounds.width} / ${newBounds.height}`;
+    plan.nodes = newPlan.nodes;
+    plan.edges = newPlan.edges;
+    plan.groupBoundaries = newPlan.groupBoundaries;
+    plan.treeBuses = newPlan.treeBuses;
+    plan.cues = newPlan.cues;
+    plan.beats = newPlan.beats;
+    plan.meta = newPlan.meta;
+
+    for (const node of plan.nodes) {
+      const el = nodeEls.get(node.id);
+      if (el) {
+        el.style.left = `${node.x}px`;
+        el.style.top = `${node.y}px`;
+        el.style.width = `${node.width}px`;
+        el.style.height = `${node.height}px`;
+      }
+    }
+
+    treeLayer.innerHTML = "";
+    mountTreeBuses(treeLayer, plan.treeBuses, plan.theme);
+
+    groupLayer.innerHTML = "";
+    mountGroupBoundaries(groupLayer, plan.groupBoundaries, plan.theme);
+
+    structuralEdgeHost.innerHTML = "";
+    edgeRuntimes.clear();
+    const newStructuralAnims = buildStructuralEdgeAnimations(
+      plan.edges,
+      plan.nodes,
+      plan.theme,
+      structuralEdgeHost,
+      { width: plan.meta.width, height: plan.meta.height },
+      edgeRuntimes,
+      edgeSceneId,
+      plan.diagramType,
+      plan.cues,
+    );
+
+    for (const anim of allAnims) anim.cancel();
+    allAnims = [
+      ...(plan.diagramType === "sequence"
+        ? mountSequenceLayer(
+            sequenceLayer,
+            plan.nodes,
+            plan.sequenceMessages,
+            plan.sequenceActivations,
+            plan.theme,
+            { width: plan.meta.width, height: plan.meta.height },
+          )
+        : []),
+      ...newStructuralAnims,
+      ...buildCueAnimations(
+        plan.cues,
+        nodeEls,
+        plan.nodes,
+        plan.theme,
+        cameraLayer,
+        titleEl,
+        { width: plan.meta.width, height: plan.meta.height },
+        plan.edges,
+        edgeRuntimes,
+        edgeSceneId,
+        plan.diagramType,
+      ),
+      ...buildBeatCaptionAnimations(plan.beats, captionLayer),
+    ];
+
+    applyCurrentTime();
+    scaleScene();
+  }
+
+  function scaleScene(): void {
+    const isBrowserLayout = (viewport.clientWidth || container.clientWidth || 0) > 0;
+    if (!isBrowserLayout) {
+      fitScale = 1;
+      sceneOffsetX = 0;
+      sceneOffsetY = 0;
+      scene.style.left = "0px";
+      scene.style.top = "0px";
+      scene.style.transformOrigin = "0 0";
+      scene.style.transform = "scale(1)";
+      return;
+    }
+
+    if (shouldAdaptOrientation) {
+      const currentOrientation = detectContainerOrientation();
+      if (currentOrientation !== activeOrientation) {
+        activeOrientation = currentOrientation;
+        relayoutOrientation(activeOrientation === "portrait" ? "TB" : "LR");
+        return;
+      }
+    }
+
+    const vWidth = viewport.clientWidth || container.clientWidth || plan.meta.width;
+    const fallbackHeight = (vWidth * plan.meta.height) / plan.meta.width;
+    const vHeight = viewport.clientHeight || container.clientHeight || fallbackHeight;
+
+    const bounds = computeContentBounds();
+    const contentW = bounds.width;
+    const contentH = bounds.height;
+
+    // 100% Width Container Target (Width-First Responsiveness):
+    // Dynamically calculate ViewBox / Camera Transform so diagram width fills 95% - 100% of container width
+    const targetRatio = Math.min(1.0, Math.max(0.95, targetWidthRatio ?? 0.98));
+    const widthScale = (vWidth * targetRatio) / contentW;
+
+    if (fitMode === "contain") {
+      const heightScale = ((vHeight - 16) * targetRatio) / contentH;
+      fitScale = Math.min(widthScale, heightScale);
+    } else {
+      // Width-First Responsiveness: scale factor = containerWidth / contentWidth
+      fitScale = widthScale;
+    }
+
+    if (!Number.isFinite(fitScale) || fitScale <= 0) fitScale = 1;
+
+    // Proportional font & element scaling CSS variables
+    scene.style.setProperty("--markdy-scale", fitScale.toFixed(4));
+    viewport.style.setProperty("--markdy-scale", fitScale.toFixed(4));
+    container.style.setProperty("--markdy-scale", fitScale.toFixed(4));
+
+    const scaledContentW = contentW * fitScale;
+    const scaledContentH = contentH * fitScale;
+
+    // Center content horizontally:
+    sceneOffsetX = (vWidth - scaledContentW) / 2 - bounds.minX * fitScale;
+
+    // Vertical positioning:
+    // When fitMode === "contain", center vertically.
+    // When fitMode === "width", anchor near top (8px - 18px top margin) so diagram is immediately visible,
+    // avoiding large 150px+ dead voids at the top of the canvas.
+    if (fitMode === "contain") {
+      sceneOffsetY = (vHeight - scaledContentH) / 2 - bounds.minY * fitScale;
+    } else {
+      const topSafeMargin = scaledContentH <= vHeight
+        ? Math.max(8, Math.min(18, (vHeight - scaledContentH) / 2))
+        : 8;
+      sceneOffsetY = topSafeMargin - bounds.minY * fitScale;
+    }
+
+    scene.style.left = `${sceneOffsetX}px`;
+    scene.style.top = `${sceneOffsetY}px`;
+    scene.style.transformOrigin = "0 0";
+    scene.style.transform = `scale(${fitScale})`;
+  }
+  scaleScene();
+  const resizeObserver = typeof ResizeObserver === "function" ? new ResizeObserver(scaleScene) : null;
+  resizeObserver?.observe(viewport);
+  if (container !== viewport) resizeObserver?.observe(container);
 
   let sceneMs = 0;
   let lastRafTs: number | null = null;

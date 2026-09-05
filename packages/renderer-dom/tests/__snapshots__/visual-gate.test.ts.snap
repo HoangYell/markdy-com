@@ -1094,6 +1094,44 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "data",
     },
   ],
+  "examples/31-width-first-responsive-autoscale.markdy": [
+    {
+      "icon": "user",
+      "id": "MobileClient",
+      "kind": "client",
+      "role": "client",
+    },
+    {
+      "icon": "cloudflare",
+      "id": "CloudflareEdge",
+      "kind": "api_gateway",
+      "role": "network",
+    },
+    {
+      "icon": "envoy",
+      "id": "IngressRouter",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
+      "icon": "security",
+      "id": "AuthTokenService",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
+      "icon": "rust",
+      "id": "ComputeWorker",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
+      "icon": "postgresql",
+      "id": "EventStore",
+      "kind": "database",
+      "role": "data",
+    },
+  ],
   "examples/showcase/blue-ink-distributed-consensus.markdy": [
     {
       "icon": "browser",

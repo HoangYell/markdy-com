@@ -980,11 +980,11 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
         meta.title = title;
         remainder = str.rest;
       }
-      const inlineLayout = remainder.match(/\blayout\s+(LR|RL|TB|BT)\b/i);
+      const inlineLayout = remainder.match(/\b(?:layout|direction|rankdir)\s+(LR|RL|TB|BT)\b/i);
       if (inlineLayout) {
         meta.direction = inlineLayout[1].toUpperCase() as LayoutDirection;
         meta.explicitDirection = true;
-        remainder = remainder.replace(/\blayout\s+(LR|RL|TB|BT)\b/i, " ");
+        remainder = remainder.replace(/\b(?:layout|direction|rankdir)\s+(LR|RL|TB|BT)\b/i, " ");
       }
       const props = parseProps(remainder);
       for (const [k, v] of Object.entries(props)) {
@@ -1005,7 +1005,7 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
           const val = String(v).toLowerCase();
           meta.theme = val;
           meta.explicitTheme = val !== "auto";
-        } else if (k === "direction" || k === "layout") {
+        } else if (k === "direction" || k === "layout" || k === "rankdir") {
           meta.direction = String(v).toUpperCase() as LayoutDirection;
           meta.explicitDirection = true;
         } else if (PLAYER_FLAT_KEY_SET.has(k)) {
@@ -1017,7 +1017,7 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
             diagnostics.push({ severity: "warning", message: `unknown diagram type '${v}'`, line: lineNo });
           } else {
             meta.type = t as SceneMeta["type"];
-            if (t === "flowchart" && !props.direction && !props.layout && !inlineLayout) {
+            if (t === "flowchart" && !props.direction && !props.layout && !props.rankdir && !inlineLayout) {
               meta.direction = "TB";
               meta.explicitDirection = true;
             }

@@ -1,0 +1,21 @@
+scene "Width-First Responsive Edge-to-Edge Pipeline" theme=paper rankdir=TB
+
+client MobileClient "Edge Mobile App" icon=react
+gateway CloudflareEdge "Cloudflare Global Anycast WAF" icon=cloudflare
+service IngressRouter "Envoy Ingress Gateway" icon=envoy
+service AuthTokenService "OAuth2 Session Validator" icon=security
+service ComputeWorker "Distributed Task Processor" icon=rust
+database EventStore "Immutable Event Log" icon=postgresql
+
+group ingress_tier "Edge Ingress": MobileClient CloudflareEdge
+group processing_tier "Core Engine": IngressRouter AuthTokenService ComputeWorker
+
+beat ingest "1. Edge Ingress & Anycast Termination":
+  MobileClient -> CloudflareEdge "HTTPS /v1/ingest"
+  CloudflareEdge -> IngressRouter "mTLS Proxy"
+
+beat execute "2. Session Verification & Task Compute":
+  IngressRouter -> AuthTokenService "Validate Session Token"
+  IngressRouter -> ComputeWorker "Dispatch Execution Plan"
+  ComputeWorker ~> EventStore "WAL Append Record"
+  glow ComputeWorker color=#0284c7 & glow EventStore color=#16a34a
