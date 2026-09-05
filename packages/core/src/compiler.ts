@@ -40,6 +40,20 @@ function estimateTextLines(words: string[], charsPerLine: number): number {
   return lines;
 }
 
+function measureLabelLines(rawLabel: string, words: string[], charsPerLine: number): number {
+  if (words.length === 0) return 0;
+  if (!rawLabel.includes("\n")) {
+    return Math.max(1, estimateTextLines(words, charsPerLine));
+  }
+  const explicitLines = rawLabel.split("\n");
+  let total = 0;
+  for (const line of explicitLines) {
+    const lineWords = line.trim().split(/\s+/).filter(Boolean);
+    total += Math.max(1, estimateTextLines(lineWords, charsPerLine));
+  }
+  return Math.max(explicitLines.length, total);
+}
+
 export function computeNodeDimensions(
   decl: NodeDecl,
   baseW = 180,
@@ -84,7 +98,7 @@ export function computeNodeDimensions(
     // Circle shape: diameter must fit icon, all lines of label, and tech badge within inscribed circular region
     const targetTextW = Math.max(minColW, Math.min(220, Math.ceil(labelLen * 7.5)));
     const charsPerLine = Math.max(longestWord, Math.floor(targetTextW / 8.0));
-    const numLines = Math.max(words.length > 0 ? 1 : 0, estimateTextLines(words, charsPerLine));
+    const numLines = Math.max(words.length > 0 ? 1 : 0, measureLabelLines(rawLabel, words, charsPerLine));
     const labelH = numLines * 16;
     const techH = techLen > 0 ? 20 : 0;
     const circleContentH = 28 + labelH + techH;
@@ -108,7 +122,7 @@ export function computeNodeDimensions(
       targetTextW = Math.max(minColW, Math.min(260, Math.ceil((labelLen / 3) * 8.2 + 12)));
     }
     const charsPerLine = Math.max(longestWord, Math.floor(targetTextW / 8.0));
-    const numLines = Math.max(words.length > 0 ? 1 : 0, estimateTextLines(words, charsPerLine));
+    const numLines = Math.max(words.length > 0 ? 1 : 0, measureLabelLines(rawLabel, words, charsPerLine));
     const labelH = numLines * 16;
     const techH = techLen > 0 ? 20 : 0;
     const diamondContentH = 24 + labelH + techH;
@@ -136,7 +150,7 @@ export function computeNodeDimensions(
   }
 
   const charsPerLine = Math.max(longestWord, Math.floor((targetTextW - 4) / 8.2));
-  const numLines = Math.max(words.length > 0 ? 1 : 0, estimateTextLines(words, charsPerLine));
+  const numLines = Math.max(words.length > 0 ? 1 : 0, measureLabelLines(rawLabel, words, charsPerLine));
 
   const labelLineH = 18;
   const labelH = numLines * labelLineH;
@@ -805,6 +819,11 @@ function layoutMedallion(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[]
     return 0;
   }
 
+  const nodeDims = new Map<string, { width: number; height: number }>();
+  for (const id of nodeIds) {
+    nodeDims.set(id, computeNodeDimensions(ast.nodes[id]));
+  }
+
   const tiers = new Map<number, string[]>();
   for (let i = 0; i <= 4; i++) tiers.set(i, []);
 
@@ -819,32 +838,37 @@ function layoutMedallion(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[]
 
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
-  const availableColGap = tierCount > 1 ? (contentW - NODE_W) / (tierCount - 1) : 0;
-  const colGap = Math.max(NODE_W + 36, Math.min(320, availableColGap));
-  const totalW = (tierCount - 1) * colGap + NODE_W;
+  const maxNodeW = Math.max(...nodeIds.map((id) => nodeDims.get(id)!.width));
+  const availableColGap = tierCount > 1 ? (contentW - maxNodeW) / (tierCount - 1) : 0;
+  const colGap = Math.max(maxNodeW + 36, Math.min(360, availableColGap));
+  const totalW = (tierCount - 1) * colGap + maxNodeW;
   const startX = SAFE + Math.max(0, (contentW - totalW) / 2);
   const nodes: PositionedNode[] = [];
 
   activeTiers.forEach(([_, ids], colIdx) => {
     const colCount = ids.length;
+    const colTierMaxW = Math.max(...ids.map((id) => nodeDims.get(id)!.width));
+    const colTierMaxH = Math.max(...ids.map((id) => nodeDims.get(id)!.height));
     const colX = startX + colIdx * colGap;
-    const rowSpacing = Math.max(NODE_H + 32, contentH / (colCount + 1));
-    const colH = (colCount - 1) * rowSpacing + NODE_H;
+    const rowSpacing = Math.max(colTierMaxH + 32, contentH / (colCount + 1));
+    const colH = (colCount - 1) * rowSpacing + colTierMaxH;
     const startY = TITLE_BAND + Math.max(0, (contentH - colH) / 2);
 
     ids.forEach((id, rowIdx) => {
       const decl = ast.nodes[id];
-      const rowY = startY + rowIdx * rowSpacing;
+      const dims = nodeDims.get(id)!;
+      const rowY = startY + rowIdx * rowSpacing + (colTierMaxH - dims.height) / 2;
+      const nodeX = colX + (colTierMaxW - dims.width) / 2;
       const focal = decl.props.focal === true || decl.props.accent === true;
       nodes.push({
         id,
         kind: decl.kind,
         role: nodeRole(decl.kind),
         label: decl.label,
-        x: snapGrid(colX),
+        x: snapGrid(nodeX),
         y: snapGrid(rowY),
-        width: NODE_W,
-        height: NODE_H,
+        width: dims.width,
+        height: dims.height,
         style: resolveNodeStyle(decl, ast),
         props: decl.props,
         opacity: 0,
@@ -860,6 +884,11 @@ function layoutMedallion(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[]
 function layoutQuadrant(ast: DiagramAST): PositionedNode[] {
   const nodeIds = Object.keys(ast.nodes);
   if (nodeIds.length === 0) return [];
+
+  const nodeDims = new Map<string, { width: number; height: number }>();
+  for (const id of nodeIds) {
+    nodeDims.set(id, computeNodeDimensions(ast.nodes[id]));
+  }
 
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
@@ -898,12 +927,16 @@ function layoutQuadrant(ast: DiagramAST): PositionedNode[] {
 
   for (const [qNum, ids] of quadNodes) {
     const center = quadCenters[qNum as 1 | 2 | 3 | 4];
+    const offsetCount = ids.length;
+    const maxQHeight = ids.length > 0 ? Math.max(...ids.map(id => nodeDims.get(id)!.height)) : NODE_H;
+    const rowStep = maxQHeight + 20;
+
     ids.forEach((id, idx) => {
       const decl = ast.nodes[id];
-      const offsetCount = ids.length;
-      const rowOffset = (idx - (offsetCount - 1) / 2) * (NODE_H + 20);
-      const x = center.x - NODE_W / 2;
-      const y = center.y + rowOffset - NODE_H / 2;
+      const dims = nodeDims.get(id)!;
+      const rowOffset = (idx - (offsetCount - 1) / 2) * rowStep;
+      const x = center.x - dims.width / 2;
+      const y = center.y + rowOffset - dims.height / 2;
       const focal = decl.props.focal === true || decl.props.accent === true;
       nodes.push({
         id,
@@ -912,8 +945,8 @@ function layoutQuadrant(ast: DiagramAST): PositionedNode[] {
         label: decl.label,
         x: snapGrid(x),
         y: snapGrid(y),
-        width: NODE_W,
-        height: NODE_H,
+        width: dims.width,
+        height: dims.height,
         style: resolveNodeStyle(decl, ast),
         props: decl.props,
         opacity: 0,
@@ -929,6 +962,11 @@ function layoutQuadrant(ast: DiagramAST): PositionedNode[] {
 function layoutSwimlane(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
   const nodeIds = Object.keys(ast.nodes);
   if (nodeIds.length === 0) return [];
+
+  const nodeDims = new Map<string, { width: number; height: number }>();
+  for (const id of nodeIds) {
+    nodeDims.set(id, computeNodeDimensions(ast.nodes[id]));
+  }
 
   const lanes = new Map<string, string[]>();
   const groupKeys = Object.keys(ast.groups);
@@ -956,15 +994,17 @@ function layoutSwimlane(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] 
   const nodes: PositionedNode[] = [];
 
   activeLanes.forEach(([_, ids], laneIdx) => {
-    const laneY = TITLE_BAND + laneIdx * laneHeight + (laneHeight - NODE_H) / 2;
     const count = ids.length;
-    const colSpacing = Math.max(NODE_W + 48, Math.min(260, contentW / Math.max(count + 1, 2)));
-    const totalW = (count - 1) * colSpacing + NODE_W;
+    const maxLaneW = count > 0 ? Math.max(...ids.map(id => nodeDims.get(id)!.width)) : NODE_W;
+    const colSpacing = Math.max(maxLaneW + 40, Math.min(320, contentW / Math.max(count + 1, 2)));
+    const totalW = (count - 1) * colSpacing + maxLaneW;
     const startX = SAFE + Math.max(0, (contentW - totalW) / 2);
 
     ids.forEach((id, colIdx) => {
       const decl = ast.nodes[id];
-      const colX = startX + colIdx * colSpacing;
+      const dims = nodeDims.get(id)!;
+      const colX = startX + colIdx * colSpacing + (maxLaneW - dims.width) / 2;
+      const laneY = TITLE_BAND + laneIdx * laneHeight + (laneHeight - dims.height) / 2;
       const focal = decl.props.focal === true || decl.props.accent === true;
       nodes.push({
         id,
@@ -973,8 +1013,8 @@ function layoutSwimlane(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] 
         label: decl.label,
         x: snapGrid(colX),
         y: snapGrid(laneY),
-        width: NODE_W,
-        height: NODE_H,
+        width: dims.width,
+        height: dims.height,
         style: resolveNodeStyle(decl, ast),
         props: decl.props,
         opacity: 0,
@@ -991,6 +1031,11 @@ function layoutPyramid(ast: DiagramAST): PositionedNode[] {
   const nodeIds = Object.keys(ast.nodes);
   if (nodeIds.length === 0) return [];
 
+  const nodeDims = new Map<string, { width: number; height: number }>();
+  for (const id of nodeIds) {
+    nodeDims.set(id, computeNodeDimensions(ast.nodes[id]));
+  }
+
   const ranks = new Map<number, string[]>();
   nodeIds.forEach((id, idx) => {
     const decl = ast.nodes[id];
@@ -1005,22 +1050,28 @@ function layoutPyramid(ast: DiagramAST): PositionedNode[] {
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
   const centerX = SAFE + contentW / 2;
-  const totalH = tierCount * NODE_H + (tierCount - 1) * 24;
+  const maxNodeH = Math.max(...nodeIds.map(id => nodeDims.get(id)!.height));
+  const tierH = Math.max(NODE_H, maxNodeH);
+  const totalH = tierCount * tierH + (tierCount - 1) * 24;
   const startY = TITLE_BAND + Math.max(16, (contentH - totalH) / 2);
   const nodes: PositionedNode[] = [];
 
   sortedTiers.forEach(([_, ids], tierIdx) => {
-    const tierY = startY + tierIdx * (NODE_H + 24);
+    const tierY = startY + tierIdx * (tierH + 24);
     const baseFraction = 0.32 + (0.44 * tierIdx) / Math.max(tierCount - 1, 1);
     const tierWidth = contentW * baseFraction;
     const count = ids.length;
-    const nodeW = Math.max(NODE_W, Math.min(tierWidth / count - 12, 480));
+    const maxTierW = Math.max(...ids.map(id => nodeDims.get(id)!.width));
+    const nodeW = Math.max(maxTierW, Math.min(tierWidth / count - 12, 480));
     const totalTierW = count * nodeW + (count - 1) * 16;
     const tierStartX = centerX - totalTierW / 2;
 
     ids.forEach((id, idx) => {
       const decl = ast.nodes[id];
-      const x = tierStartX + idx * (nodeW + 16);
+      const dims = nodeDims.get(id)!;
+      const finalW = Math.max(nodeW, dims.width);
+      const x = tierStartX + idx * (finalW + 16);
+      const y = tierY + (tierH - dims.height) / 2;
       const focal = decl.props.focal === true || decl.props.accent === true;
       nodes.push({
         id,
@@ -1029,8 +1080,8 @@ function layoutPyramid(ast: DiagramAST): PositionedNode[] {
         label: decl.label,
         x: snapGrid(x),
         y: snapGrid(tierY),
-        width: snapGrid(nodeW),
-        height: NODE_H,
+        width: snapGrid(finalW),
+        height: dims.height,
         style: resolveNodeStyle(decl, ast),
         props: decl.props,
         opacity: 0,
@@ -1047,6 +1098,11 @@ function layoutTimeline(ast: DiagramAST): PositionedNode[] {
   const nodeIds = Object.keys(ast.nodes);
   if (nodeIds.length === 0) return [];
 
+  const nodeDims = new Map<string, { width: number; height: number }>();
+  for (const id of nodeIds) {
+    nodeDims.set(id, computeNodeDimensions(ast.nodes[id]));
+  }
+
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
   const baselineY = TITLE_BAND + contentH / 2;
@@ -1055,13 +1111,14 @@ function layoutTimeline(ast: DiagramAST): PositionedNode[] {
 
   nodeIds.forEach((id, idx) => {
     const decl = ast.nodes[id];
-    const x = SAFE + spacing * idx + (spacing - NODE_W) / 2;
+    const dims = nodeDims.get(id)!;
+    const x = SAFE + spacing * idx + (spacing - dims.width) / 2;
     const above = idx % 2 === 0;
-    const y = above ? baselineY - NODE_H - 24 : baselineY + 24;
+    const y = above ? baselineY - dims.height - 24 : baselineY + 24;
     const focal = decl.props.focal === true || decl.props.accent === true;
     nodes.push({
       id, kind: decl.kind, role: nodeRole(decl.kind), label: decl.label,
-      x: snapGrid(x), y: snapGrid(y), width: NODE_W, height: NODE_H,
+      x: snapGrid(x), y: snapGrid(y), width: dims.width, height: dims.height,
       style: resolveNodeStyle(decl, ast),
       props: decl.props, opacity: 0, shape: "pill", focal,
     });
@@ -1073,17 +1130,25 @@ function layoutGantt(ast: DiagramAST): PositionedNode[] {
   const nodeIds = Object.keys(ast.nodes);
   if (nodeIds.length === 0) return [];
 
+  const nodeDims = new Map<string, { width: number; height: number }>();
+  for (const id of nodeIds) {
+    nodeDims.set(id, computeNodeDimensions(ast.nodes[id]));
+  }
+
+  const topBand = effectiveTitleBand(ast);
   const contentW = ast.meta.width - SAFE * 2;
-  const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+  const contentH = ast.meta.height - SAFE - topBand - SAFE;
   const N = nodeIds.length;
-  const rowH = Math.min(68, Math.max(52, (contentH - 24) / Math.max(N, 1)));
-  const barH = Math.min(44, rowH - 16);
+  const maxNodeH = Math.max(...nodeIds.map(id => nodeDims.get(id)!.height));
+  const baseBarH = Math.max(44, maxNodeH);
+  const rowH = Math.max(baseBarH + 16, Math.min(100, (contentH - 24) / Math.max(N, 1)));
   const totalH = N * rowH;
-  const startY = TITLE_BAND + Math.max(16, (contentH - totalH) / 2);
+  const startY = topBand + Math.max(16, (contentH - totalH) / 2);
   const nodes: PositionedNode[] = [];
 
   nodeIds.forEach((id, idx) => {
     const decl = ast.nodes[id];
+    const dims = nodeDims.get(id)!;
     const phase = typeof decl.props.phase === "number" ? decl.props.phase : 0;
     const span = typeof decl.props.span === "number" ? decl.props.span : 1;
     const totalPhases = Math.max(...nodeIds.map(nid => {
@@ -1093,12 +1158,13 @@ function layoutGantt(ast: DiagramAST): PositionedNode[] {
     }), 1);
     const unitW = contentW / totalPhases;
     const x = SAFE + phase * unitW;
-    const w = Math.max(span * unitW - 8, NODE_W);
+    const w = Math.max(span * unitW - 8, dims.width);
+    const barH = dims.height;
     const y = startY + idx * rowH + (rowH - barH) / 2;
     const focal = decl.props.focal === true || decl.props.accent === true;
     nodes.push({
       id, kind: decl.kind, role: nodeRole(decl.kind), label: decl.label,
-      x: snapGrid(x), y: snapGrid(y), width: snapGrid(w), height: barH,
+      x: snapGrid(x), y: snapGrid(y), width: snapGrid(w), height: snapGrid(barH),
       style: resolveNodeStyle(decl, ast),
       props: decl.props, opacity: 0, shape: "pill", focal,
     });
@@ -1110,29 +1176,38 @@ function layoutVenn(ast: DiagramAST): PositionedNode[] {
   const nodeIds = Object.keys(ast.nodes);
   if (nodeIds.length === 0) return [];
 
+  const nodeDims = new Map<string, { width: number; height: number }>();
+  for (const id of nodeIds) {
+    nodeDims.set(id, computeNodeDimensions(ast.nodes[id]));
+  }
+
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
   const centerX = SAFE + contentW / 2;
   const centerY = TITLE_BAND + contentH / 2;
   const N = nodeIds.length;
-  const radius = Math.min(contentW, contentH) * 0.24;
+  const maxNodeDim = Math.max(...nodeIds.map(id => Math.max(nodeDims.get(id)!.width, nodeDims.get(id)!.height)));
+  const vennSize = Math.max(VENN_NODE_SIZE, maxNodeDim);
+  const radius = Math.max(vennSize * 0.7, Math.min(contentW, contentH) * 0.24);
   const nodes: PositionedNode[] = [];
 
   nodeIds.forEach((id, idx) => {
     const decl = ast.nodes[id];
+    const dims = nodeDims.get(id)!;
+    const circleSize = Math.max(vennSize, dims.width, dims.height);
     let x: number, y: number;
     if (N === 2) {
-      x = centerX + (idx === 0 ? -radius * 0.7 : radius * 0.7) - VENN_NODE_SIZE / 2;
-      y = centerY - VENN_NODE_SIZE / 2;
+      x = centerX + (idx === 0 ? -radius * 0.7 : radius * 0.7) - circleSize / 2;
+      y = centerY - circleSize / 2;
     } else {
       const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / N;
-      x = centerX + radius * 0.85 * Math.cos(angle) - VENN_NODE_SIZE / 2;
-      y = centerY + radius * 0.85 * Math.sin(angle) - VENN_NODE_SIZE / 2;
+      x = centerX + radius * 0.85 * Math.cos(angle) - circleSize / 2;
+      y = centerY + radius * 0.85 * Math.sin(angle) - circleSize / 2;
     }
     const focal = decl.props.focal === true || decl.props.accent === true;
     nodes.push({
       id, kind: decl.kind, role: nodeRole(decl.kind), label: decl.label,
-      x: snapGrid(x), y: snapGrid(y), width: VENN_NODE_SIZE, height: VENN_NODE_SIZE,
+      x: snapGrid(x), y: snapGrid(y), width: circleSize, height: circleSize,
       style: resolveNodeStyle(decl, ast),
       props: decl.props, opacity: 0, shape: "circle", focal,
     });
@@ -1144,19 +1219,28 @@ function layoutLayers(ast: DiagramAST): PositionedNode[] {
   const nodeIds = Object.keys(ast.nodes);
   if (nodeIds.length === 0) return [];
 
+  const nodeDims = new Map<string, { width: number; height: number }>();
+  for (const id of nodeIds) {
+    nodeDims.set(id, computeNodeDimensions(ast.nodes[id]));
+  }
+
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
   const N = nodeIds.length;
-  const layerH = Math.min(Math.max((contentH - (N - 1) * 14) / N, 52), 68);
+  const maxNodeH = Math.max(...nodeIds.map(id => nodeDims.get(id)!.height));
+  const layerH = Math.max(maxNodeH, Math.min(Math.max((contentH - (N - 1) * 14) / N, 52), 96));
   const totalH = N * layerH + (N - 1) * 14;
-  const startY = TITLE_BAND + (contentH - totalH) / 2;
-  const layerW = Math.min(contentW, 880);
+  const startY = TITLE_BAND + Math.max(16, (contentH - totalH) / 2);
+  const maxNodeW = Math.max(...nodeIds.map(id => nodeDims.get(id)!.width));
+  const layerW = Math.max(maxNodeW, Math.min(contentW, 880));
   const startX = SAFE + (contentW - layerW) / 2;
   const nodes: PositionedNode[] = [];
 
   nodeIds.forEach((id, idx) => {
     const decl = ast.nodes[id];
+    const dims = nodeDims.get(id)!;
     const y = startY + idx * (layerH + 14);
+    const nodeH = Math.max(layerH, dims.height);
     const focal = decl.props.focal === true || decl.props.accent === true;
     nodes.push({
       id,
@@ -1166,7 +1250,7 @@ function layoutLayers(ast: DiagramAST): PositionedNode[] {
       x: snapGrid(startX),
       y: snapGrid(y),
       width: snapGrid(layerW),
-      height: snapGrid(layerH),
+      height: snapGrid(nodeH),
       style: resolveNodeStyle(decl, ast),
       props: decl.props,
       opacity: 0,
@@ -1181,6 +1265,11 @@ function layoutNested(ast: DiagramAST): PositionedNode[] {
   const nodeIds = Object.keys(ast.nodes);
   if (nodeIds.length === 0) return [];
 
+  const nodeDims = new Map<string, { width: number; height: number }>();
+  for (const id of nodeIds) {
+    nodeDims.set(id, computeNodeDimensions(ast.nodes[id]));
+  }
+
   const topHeadroom = 20;
   const startY = TITLE_BAND + topHeadroom;
   const contentW = ast.meta.width - SAFE * 2;
@@ -1194,18 +1283,19 @@ function layoutNested(ast: DiagramAST): PositionedNode[] {
 
   nodeIds.forEach((id, idx) => {
     const decl = ast.nodes[id];
+    const dims = nodeDims.get(id)!;
     const isCore = idx === N - 1;
     let x: number, y: number, w: number, h: number;
     if (isCore) {
-      w = Math.min(320, contentW - idx * padX * 2);
-      h = 84;
+      w = Math.max(dims.width, Math.min(320, contentW - idx * padX * 2));
+      h = Math.max(dims.height, 84);
       x = centerX - w / 2;
       y = centerY - h / 2 + (N > 1 ? 16 : 0);
     } else {
       x = SAFE + idx * padX;
       y = startY + idx * padY;
-      w = contentW - idx * padX * 2;
-      h = contentH - idx * padY * 2;
+      w = Math.max(dims.width, contentW - idx * padX * 2);
+      h = Math.max(dims.height, contentH - idx * padY * 2);
     }
     const focal = decl.props.focal === true || decl.props.accent === true || isCore;
     nodes.push({
@@ -1231,6 +1321,11 @@ function layoutRadar(ast: DiagramAST): PositionedNode[] {
   const nodeIds = Object.keys(ast.nodes);
   if (nodeIds.length === 0) return [];
 
+  const nodeDims = new Map<string, { width: number; height: number }>();
+  for (const id of nodeIds) {
+    nodeDims.set(id, computeNodeDimensions(ast.nodes[id]));
+  }
+
   const contentW = ast.meta.width - SAFE * 2;
   const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
   const centerX = SAFE + contentW / 2;
@@ -1242,9 +1337,10 @@ function layoutRadar(ast: DiagramAST): PositionedNode[] {
 
   nodeIds.forEach((id, idx) => {
     const decl = ast.nodes[id];
+    const dims = nodeDims.get(id)!;
     const angle = -Math.PI / 2 + (idx * 2 * Math.PI) / N;
-    const x = centerX + radius * Math.cos(angle) - NODE_W / 2;
-    const y = centerY + radius * Math.sin(angle) - NODE_H / 2;
+    const x = centerX + radius * Math.cos(angle) - dims.width / 2;
+    const y = centerY + radius * Math.sin(angle) - dims.height / 2;
     const focal = decl.props.focal === true || decl.props.accent === true;
 
     nodes.push({
@@ -1254,8 +1350,8 @@ function layoutRadar(ast: DiagramAST): PositionedNode[] {
       label: decl.label,
       x: snapGrid(x),
       y: snapGrid(y),
-      width: NODE_W,
-      height: NODE_H,
+      width: dims.width,
+      height: dims.height,
       style: resolveNodeStyle(decl, ast),
       props: decl.props,
       opacity: 0,
@@ -1548,8 +1644,10 @@ function buildSequencePlan(
 ): { messages: SequenceMessage[]; activations: SequenceActivation[] } {
   if (diagramType(ast) !== "sequence") return { messages: [], activations: [] };
 
+  const nodeDims = Object.values(ast.nodes).map((n) => computeNodeDimensions(n));
+  const maxNodeH = nodeDims.length > 0 ? Math.max(...nodeDims.map((d) => d.height)) : NODE_H;
   const flowCues = cues.filter((cue) => cue.kind === "flow" && cue.segments?.[0]);
-  const firstY = TITLE_BAND + NODE_H + 56;
+  const firstY = TITLE_BAND + maxNodeH + 56;
   const lastY = ast.meta.height - SAFE - 48;
   const availH = Math.max(120, lastY - firstY);
   const step = flowCues.length > 1
@@ -1617,6 +1715,10 @@ export function computeAdaptiveDimensions(
   const isVertical = direction === "TB" || direction === "BT";
   const groupCount = Object.keys(ast.groups).length;
 
+  const nodeDims = nodeIds.map((id) => computeNodeDimensions(ast.nodes[id]));
+  const maxNodeW = nodeDims.length > 0 ? Math.max(...nodeDims.map((d) => d.width)) : NODE_W;
+  const maxNodeH = nodeDims.length > 0 ? Math.max(...nodeDims.map((d) => d.height)) : NODE_H;
+
   const hasTitle = Boolean(ast.meta.title && ast.meta.title.trim().length > 0);
   const titleBand = hasTitle ? TITLE_BAND : 0;
   const hasBeatCaptions = ast.beats.some((b) => b.label && b.label.trim().length > 0);
@@ -1627,22 +1729,33 @@ export function computeAdaptiveDimensions(
   let autoH = 640;
 
   if (nodeCount === 0) {
-    autoW = 1280;
-    autoH = 720;
+    autoW = 960;
+    autoH = 540;
   } else if (dtype === "sequence") {
     const flowCues = ast.beats.flatMap((b) => b.cues).filter((c) => c.kind === "flow");
     const count = Math.max(nodeCount, 1);
     const flowCount = flowCues.length;
-    const requiredW = SAFE * 2 + Math.max(count * 220, 800, titleW);
-    const requiredH = TITLE_BAND + NODE_H + 56 + Math.max(flowCount * 76, 280) + SAFE + 48;
-    autoW = Math.max(1088, Math.min(2560, requiredW));
-    autoH = Math.max(640, Math.min(1800, requiredH));
+    const colW = Math.max(200, maxNodeW + 36);
+    const requiredW = SAFE * 2 + Math.max(count * colW, titleW);
+    const requiredH = titleBand + maxNodeH + 48 + Math.max(flowCount * 68, 160) + SAFE + bottomBand;
+    autoW = Math.max(480, Math.min(2560, requiredW));
+    autoH = Math.max(320, Math.min(1800, requiredH));
   } else if (dtype === "medallion") {
-    const tierCount = 4;
-    const requiredW = Math.max(SAFE * 2 + tierCount * 300, titleW);
-    const requiredH = TITLE_BAND + SAFE * 2 + 560;
-    autoW = Math.max(1360, Math.min(2560, requiredW));
-    autoH = Math.max(760, Math.min(1600, requiredH));
+    const tierSet = new Set<number>();
+    for (const id of nodeIds) {
+      const combined = `${id} ${ast.nodes[id].kind}`.toLowerCase();
+      if (combined.includes("bronze") || combined.includes("raw") || combined.includes("landing")) tierSet.add(1);
+      else if (combined.includes("silver") || combined.includes("clean") || combined.includes("curated") || combined.includes("conformed")) tierSet.add(2);
+      else if (combined.includes("gold") || combined.includes("agg") || combined.includes("mart") || combined.includes("analytics")) tierSet.add(3);
+      else if (combined.includes("bi") || combined.includes("dash") || combined.includes("model") || combined.includes("app") || combined.includes("consumer") || combined.includes("user") || combined.includes("client")) tierSet.add(4);
+      else tierSet.add(0);
+    }
+    const tierCount = Math.max(tierSet.size, 4);
+    const tierW = Math.max(260, maxNodeW + 48);
+    const requiredW = Math.max(SAFE * 2 + tierCount * tierW, titleW);
+    const requiredH = titleBand + SAFE * 2 + Math.max(440, maxNodeH * 3 + 120) + bottomBand;
+    autoW = Math.max(640, Math.min(2800, requiredW));
+    autoH = Math.max(400, Math.min(1600, requiredH));
   } else if (dtype === "tree") {
     const children = new Map<string, string[]>();
     const hasParent = new Set<string>();
@@ -1673,7 +1786,7 @@ export function computeAdaptiveDimensions(
     for (const id of nodeIds) if (!depth.has(id)) depth.set(id, 0);
     const maxDepth = Math.max(...depth.values(), 0);
 
-    const minLeafWidth = NODE_W + 48;
+    const minLeafWidth = Math.max(NODE_W + 36, maxNodeW + 36);
     const subtreeSpan = new Map<string, number>();
     function measureSubtree(id: string): number {
       const kids = children.get(id) ?? [];
@@ -1691,10 +1804,11 @@ export function computeAdaptiveDimensions(
     const activeRoots = roots.length > 0 ? roots : nodeIds;
     for (const r of activeRoots) totalRootsWidth += measureSubtree(r);
 
+    const levelH = Math.max(130, maxNodeH + 54);
     const requiredW = Math.max(SAFE * 2 + totalRootsWidth, titleW);
-    const requiredH = TITLE_BAND + SAFE * 2 + (maxDepth + 1) * 140;
-    autoW = Math.max(1120, Math.min(2560, requiredW));
-    autoH = Math.max(640, Math.min(1600, requiredH));
+    const requiredH = titleBand + SAFE * 2 + (maxDepth + 1) * levelH + bottomBand;
+    autoW = Math.max(480, Math.min(2560, requiredW));
+    autoH = Math.max(320, Math.min(1800, requiredH));
   } else if (dtype === "swimlane") {
     const laneCount = Math.max(groupCount, 1);
     const maxInLane = Math.max(
@@ -1702,37 +1816,58 @@ export function computeAdaptiveDimensions(
       Math.ceil(nodeCount / laneCount),
       1,
     );
-    const requiredW = Math.max(SAFE * 2 + 140 + maxInLane * 220, titleW);
-    const requiredH = TITLE_BAND + SAFE * 2 + laneCount * 140;
-    autoW = Math.max(1152, Math.min(2560, requiredW));
-    autoH = Math.max(640, Math.min(1600, requiredH));
+    const stepX = Math.max(200, maxNodeW + 36);
+    const laneH = Math.max(130, maxNodeH + 54);
+    const requiredW = Math.max(SAFE * 2 + 140 + maxInLane * stepX, titleW);
+    const requiredH = titleBand + SAFE * 2 + laneCount * laneH + bottomBand;
+    autoW = Math.max(480, Math.min(2560, requiredW));
+    autoH = Math.max(320, Math.min(1800, requiredH));
   } else if (dtype === "pyramid") {
     const tierCount = Math.max(nodeCount, 1);
-    autoW = 1280;
-    const requiredH = TITLE_BAND + SAFE * 2 + tierCount * 110;
-    autoH = Math.max(640, Math.min(1440, requiredH));
+    const tierH = Math.max(100, maxNodeH + 28);
+    autoW = Math.max(480, Math.min(2000, Math.max(SAFE * 2 + maxNodeW * 2 + 100, titleW)));
+    const requiredH = titleBand + SAFE * 2 + tierCount * tierH + bottomBand;
+    autoH = Math.max(320, Math.min(1440, requiredH));
   } else if (dtype === "layers") {
     const layerCount = Math.max(nodeCount, 1);
-    autoW = 1280;
-    const requiredH = TITLE_BAND + SAFE * 2 + layerCount * 96;
-    autoH = Math.max(640, Math.min(1440, requiredH));
+    const layerH = Math.max(90, maxNodeH + 18);
+    autoW = Math.max(480, Math.min(2000, Math.max(SAFE * 2 + maxNodeW + 160, titleW)));
+    const requiredH = titleBand + SAFE * 2 + layerCount * layerH + bottomBand;
+    autoH = Math.max(320, Math.min(1440, requiredH));
   } else if (dtype === "timeline" || dtype === "gantt") {
     const milestones = Math.max(nodeCount, 1);
-    const requiredW = Math.max(SAFE * 2 + milestones * 240, titleW);
-    const requiredH = TITLE_BAND + SAFE * 2 + 380;
-    autoW = Math.max(1200, Math.min(2560, requiredW));
-    autoH = Math.max(640, Math.min(1200, requiredH));
+    let totalPhases = milestones;
+    if (dtype === "gantt") {
+      totalPhases = Math.max(...nodeIds.map(nid => {
+        const p = ast.nodes[nid].props.phase;
+        const s = ast.nodes[nid].props.span;
+        return (typeof p === "number" ? p : 0) + (typeof s === "number" ? s : 1);
+      }), milestones);
+    }
+    const milestoneW = Math.max(220, maxNodeW + 36);
+    const requiredW = Math.max(
+      SAFE * 2 + (dtype === "gantt" ? totalPhases * Math.max(160, maxNodeW + 16) : milestones * milestoneW),
+      titleW,
+    );
+    const requiredH = dtype === "gantt"
+      ? titleBand + SAFE * 2 + milestones * Math.max(76, maxNodeH + 16) + 40 + bottomBand
+      : titleBand + SAFE * 2 + Math.max(260, maxNodeH * 2 + 80) + bottomBand;
+    autoW = Math.max(480, Math.min(2560, requiredW));
+    autoH = Math.max(320, Math.min(1600, requiredH));
   } else if (dtype === "loop" || dtype === "flywheel" || dtype === "radar" || dtype === "venn" || dtype === "constellation") {
     const N = Math.max(nodeCount, 3);
-    const minRadius = 200;
-    const radiusNeeded = Math.max(minRadius, (N * 180) / (2 * Math.PI));
-    const requiredW = Math.max(SAFE * 2 + radiusNeeded * 2 + 240, titleW);
-    const requiredH = TITLE_BAND + SAFE * 2 + radiusNeeded * 2 + 140;
-    autoW = Math.max(1088, Math.min(2200, requiredW));
-    autoH = Math.max(720, Math.min(1600, requiredH));
+    const minRadius = Math.max(160, maxNodeW * 0.75);
+    const nodeFootprint = Math.max(160, maxNodeW + 16);
+    const radiusNeeded = Math.max(minRadius, (N * nodeFootprint) / (2 * Math.PI));
+    const requiredW = Math.max(SAFE * 2 + radiusNeeded * 2 + maxNodeW + 40, titleW);
+    const requiredH = titleBand + SAFE * 2 + radiusNeeded * 2 + maxNodeH + 40 + bottomBand;
+    autoW = Math.max(480, Math.min(2400, requiredW));
+    autoH = Math.max(360, Math.min(1800, requiredH));
   } else if (dtype === "quadrant") {
-    autoW = 1200;
-    autoH = 800;
+    const requiredW = Math.max(480, SAFE * 2 + maxNodeW * 2.5, titleW);
+    const requiredH = titleBand + SAFE * 2 + maxNodeH * 3 + bottomBand;
+    autoW = Math.min(2400, requiredW);
+    autoH = Math.min(1600, requiredH);
   } else {
     // Ranked Architecture, Flowchart, State, Nested
     const forceVertical = (dtype === "flowchart" && isVertical) || isVertical;
@@ -1746,19 +1881,19 @@ export function computeAdaptiveDimensions(
     const rankCount = Math.max(...byRank.keys(), 0) + 1;
     const maxInRank = Math.max(...[...byRank.values()].map((v) => v.length), 1);
     const groupPaddingBonus = groupCount > 0 ? GROUP_PAD * 2 : 0;
-    const maxRankW = Math.max(...nodeIds.map((id) => computeNodeDimensions(ast.nodes[id]).width));
-    const maxRankH = Math.max(...nodeIds.map((id) => computeNodeDimensions(ast.nodes[id]).height));
+    const maxRankW = maxNodeW;
+    const maxRankH = maxNodeH;
 
     if (forceVertical) {
       const colSpacing = 44;
       const rowGap = 56;
       const contentNeededW = maxInRank * maxRankW + Math.max(0, maxInRank - 1) * colSpacing + groupPaddingBonus;
       const requiredW = SAFE * 2 + contentNeededW;
-      autoW = Math.max(960, Math.min(2400, Math.max(requiredW, titleW)));
+      autoW = Math.max(480, Math.min(2400, Math.max(requiredW, titleW)));
 
       const contentNeededH = rankCount * maxRankH + Math.max(0, rankCount - 1) * rowGap + groupPaddingBonus;
-      const requiredH = SAFE * 2 + TITLE_BAND + bottomBand + contentNeededH;
-      autoH = Math.max(720, Math.min(3200, requiredH));
+      const requiredH = SAFE * 2 + titleBand + bottomBand + contentNeededH;
+      autoH = Math.max(360, Math.min(3200, requiredH));
     } else {
       const colGap = 56;
       const rowGap = 44;
@@ -1767,22 +1902,8 @@ export function computeAdaptiveDimensions(
       const contentNeededH = maxInRank * maxRankH + Math.max(0, maxInRank - 1) * rowGap + groupPaddingBonus;
       const requiredH = SAFE * 2 + titleBand + bottomBand + contentNeededH;
 
-      if (maxInRank === 1 && !hasTitle) {
-        autoW = Math.max(1024, Math.min(2560, requiredW));
-        autoH = Math.max(hasBeatCaptions ? 240 : 208, Math.min(360, requiredH + 24));
-      } else if (maxInRank === 2 && !hasTitle) {
-        autoW = Math.max(1024, Math.min(2560, requiredW));
-        autoH = Math.max(hasBeatCaptions ? 368 : 336, Math.min(480, requiredH + 24));
-      } else if (nodeCount <= 2 && rankCount <= 2) {
-        autoW = 1024;
-        autoH = hasTitle ? 576 : 384;
-      } else if (nodeCount <= 4 && rankCount <= 3 && maxInRank <= 2) {
-        autoW = 1152;
-        autoH = hasTitle ? 648 : 448;
-      } else {
-        autoW = Math.max(1024, Math.min(2560, Math.max(requiredW, titleW)));
-        autoH = Math.max(hasTitle ? 648 : (maxInRank <= 2 ? 448 : 576), Math.min(1600, requiredH));
-      }
+      autoW = Math.max(480, Math.min(2560, Math.max(requiredW, titleW)));
+      autoH = Math.max(240, Math.min(1800, requiredH));
     }
   }
 

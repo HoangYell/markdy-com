@@ -204,4 +204,19 @@ describe("SVG Export Alignment & Typography", () => {
 
     diagram.destroy();
   });
+
+  it("renders multi-line node labels completely without trimming or truncation in SVG export", () => {
+    const code = `
+      scene theme=paper
+      layout LR
+      service Svc "This is a very long service description that wraps across multiple lines and must never be trimmed or truncated"
+    `;
+    const plan = compilePlan(parse(code));
+    const svg = renderPureVectorSvg(plan);
+
+    expect(svg).toContain("This is a very long");
+    expect(svg).toContain("multiple lines and must never be");
+    expect(svg).toContain("trimmed or truncated");
+    expect(svg).not.toContain("...");
+  });
 });

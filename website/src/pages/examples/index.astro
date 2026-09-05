@@ -388,6 +388,7 @@ const structuredData = [
         loop: true,
         controls: false,
         interactiveViewport: false,
+        clickToPlay: false,
       });
     } catch (e) {
       console.warn("Failed to render diagram:", e);
@@ -807,6 +808,21 @@ const structuredData = [
     display: flex;
     align-items: center;
     justify-content: center;
+    pointer-events: none;
+    user-select: none;
+    cursor: default;
+  }
+
+  .card-stage-mount :global(.markdy-viewport),
+  .card-stage-mount :global(.markdy-scene-root) {
+    pointer-events: none;
+    user-select: none;
+    cursor: default;
+  }
+
+  .card-stage-mount :global(.markdy-viewport) {
+    height: 100% !important;
+    aspect-ratio: auto !important;
   }
 
   .stage-placeholder {

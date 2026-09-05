@@ -287,10 +287,9 @@ function wrapNodeLabel(label: string, maxWidthPx: number, fontSize = 13.5): stri
     } else {
       lines.push(current);
       current = word;
-      if (lines.length === 2) break;
     }
   }
-  if (current && lines.length < 3) {
+  if (current) {
     lines.push(current);
   }
   return lines;
@@ -758,23 +757,25 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
       const lines = wrapNodeLabel(node.label, availTextWidth, 13.5);
 
       if (hasTech) {
-        const labelCenterY = Math.round(node.height / 2 - 8);
+        const lineHeight = 14;
+        const totalTextH = (lines.length - 1) * lineHeight;
+        const totalContentH = totalTextH + 26;
+        const startY = Math.round(node.height / 2 - totalContentH / 2 + 6);
         if (lines.length === 1) {
           svg += `      <!-- Label -->
-      <text x="${textStartX}" y="${labelCenterY}" class="markdy-svg-text" font-size="13" font-weight="600" letter-spacing="-0.01em" fill="${textColor}" dominant-baseline="central">${escapeXml(lines[0])}</text>\n`;
+      <text x="${textStartX}" y="${startY}" class="markdy-svg-text" font-size="13" font-weight="600" letter-spacing="-0.01em" fill="${textColor}" dominant-baseline="central">${escapeXml(lines[0])}</text>\n`;
         } else {
-          const startY = Math.round(labelCenterY - ((lines.length - 1) * 14) / 2);
           svg += `      <!-- Label -->
       <text class="markdy-svg-text" font-size="12.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}">
 `;
           lines.forEach((l, idx) => {
-            svg += `        <tspan x="${textStartX}" y="${startY + idx * 14}" dominant-baseline="central">${escapeXml(l)}</tspan>\n`;
+            svg += `        <tspan x="${textStartX}" y="${startY + idx * lineHeight}" dominant-baseline="central">${escapeXml(l)}</tspan>\n`;
           });
           svg += `      </text>\n`;
         }
 
         const techBadgeW = Math.min(availTextWidth, techText.length * 6.2 + 12);
-        const techBadgeY = Math.round(node.height / 2 + 5);
+        const techBadgeY = startY + (lines.length - 1) * lineHeight + 12;
         svg += `      <!-- Tech Badge -->
       <rect x="${textStartX}" y="${techBadgeY}" width="${techBadgeW}" height="16" rx="4" fill="${textColor}" fill-opacity="${isDark ? '0.08' : '0.05'}" stroke="${border}" stroke-width="0.75"/>
       <text x="${textStartX + 6}" y="${techBadgeY + 8}" class="markdy-svg-mono" font-size="9.5" font-weight="500" fill="${textMuted}" dominant-baseline="central">${escapeXml(techText)}</text>\n`;
@@ -782,17 +783,14 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
         if (lines.length === 1) {
           svg += `      <!-- Label -->
       <text x="${textStartX}" y="${Math.round(node.height / 2)}" class="markdy-svg-text" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}" dominant-baseline="central">${escapeXml(lines[0])}</text>\n`;
-        } else if (lines.length === 2) {
-          const startY = Math.round(node.height / 2 - 8);
-          svg += `      <!-- Label -->
-      <text x="${textStartX}" y="${startY}" class="markdy-svg-text" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}" dominant-baseline="central">${escapeXml(lines[0])}</text>
-      <text x="${textStartX}" y="${startY + 16}" class="markdy-svg-text" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}" dominant-baseline="central">${escapeXml(lines[1])}</text>\n`;
         } else {
-          const startY = Math.round(node.height / 2 - 15);
-          svg += `      <!-- Label -->
-      <text x="${textStartX}" y="${startY}" class="markdy-svg-text" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}" dominant-baseline="central">${escapeXml(lines[0])}</text>
-      <text x="${textStartX}" y="${startY + 15}" class="markdy-svg-text" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}" dominant-baseline="central">${escapeXml(lines[1])}</text>
-      <text x="${textStartX}" y="${startY + 30}" class="markdy-svg-text" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}" dominant-baseline="central">${escapeXml(lines[2])}</text>\n`;
+          const lineHeight = 16;
+          const totalTextH = (lines.length - 1) * lineHeight;
+          const startY = Math.round(node.height / 2 - totalTextH / 2);
+          svg += `      <!-- Label -->\n`;
+          lines.forEach((l, idx) => {
+            svg += `      <text x="${textStartX}" y="${startY + idx * lineHeight}" class="markdy-svg-text" font-size="13.5" font-weight="600" letter-spacing="-0.01em" fill="${textColor}" dominant-baseline="central">${escapeXml(l)}</text>\n`;
+          });
         }
       }
     }

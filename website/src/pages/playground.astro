@@ -460,8 +460,8 @@ const playgroundStructuredData = [
 
             <div class="canvas-divider" aria-hidden="true"></div>
 
-            <!-- Fit View Button -->
-            <button id="canvas-fit-btn" class="canvas-ctrl-btn" type="button" title="Reset diagram viewport" aria-label="Reset Zoom and View">
+            <!-- Fit View Button (hidden when viewport interaction is disabled) -->
+            <button id="canvas-fit-btn" class="canvas-ctrl-btn" type="button" title="Reset diagram viewport" aria-label="Reset Zoom and View" style="display:none;" aria-hidden="true">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
             </button>
 
@@ -1358,6 +1358,8 @@ const playgroundStructuredData = [
       diagram = createDiagram({
         container: stageCanvas || stage,
         code,
+        interactiveViewport: false,
+        clickToPlay: false,
         shareUrl: `${window.location.origin}${window.location.pathname}`,
         onWarning(warning: Diagnostic) {
           warnings.push(`line ${warning.line}: ${warning.message}`);
@@ -1366,7 +1368,6 @@ const playgroundStructuredData = [
       announce("Preview updated successfully.");
       showDiagnostics(warnings);
       updateEntitiesAndSuggestions(code);
-      attachCanvasInteraction();
 
       // Sync Theme dropdown
       const themeMatch = code.match(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/);
@@ -4626,6 +4627,18 @@ Requirements:
     flex-direction: column;
     align-items: stretch;
     justify-content: space-between;
+  }
+
+  .stage-canvas :global(.markdy-viewport),
+  .stage-canvas :global(.markdy-scene-root) {
+    pointer-events: none;
+    user-select: none;
+    cursor: default;
+  }
+
+  .stage-canvas :global(.markdy-viewport) {
+    height: 100% !important;
+    aspect-ratio: auto !important;
   }
 
   .stage .markdy-footer {
