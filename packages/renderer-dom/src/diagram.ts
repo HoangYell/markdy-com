@@ -814,6 +814,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       { width: plan.meta.width, height: plan.meta.height },
     )
     : [];
+  const isVerticalTree = Boolean(plan.treeBuses?.some((b) => b.vertical) || ast.meta.direction === "TB");
   let allAnims: Animation[] = [
     ...sequenceAnims,
     ...buildStructuralEdgeAnimations(
@@ -826,11 +827,12 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       edgeSceneId,
       plan.diagramType,
       plan.cues,
+      isVerticalTree,
     ),
     ...buildCueAnimations(plan.cues, nodeEls, plan.nodes, plan.theme, cameraLayer, titleEl, {
       width: plan.meta.width,
       height: plan.meta.height,
-    }, plan.edges, edgeRuntimes, edgeSceneId, plan.diagramType),
+    }, plan.edges, edgeRuntimes, edgeSceneId, plan.diagramType, isVerticalTree),
     ...buildBeatCaptionAnimations(plan.beats, captionLayer),
   ];
   mountAnnotations(annotationLayer, plan.annotations, plan.nodes, plan.theme, {
@@ -914,6 +916,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       edgeSceneId,
       plan.diagramType,
       plan.cues,
+      Boolean(plan.treeBuses?.some((b) => b.vertical) || ast.meta.direction === "TB"),
     );
 
     for (const anim of allAnims) anim.cancel();
@@ -941,6 +944,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
         edgeRuntimes,
         edgeSceneId,
         plan.diagramType,
+        Boolean(plan.treeBuses?.some((b) => b.vertical) || ast.meta.direction === "TB"),
       ),
       ...buildBeatCaptionAnimations(plan.beats, captionLayer),
     ];

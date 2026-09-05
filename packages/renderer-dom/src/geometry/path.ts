@@ -288,7 +288,7 @@ export function wrapFlowLabelText(text: string, maxAvailableWidth: number): stri
   const CHAR_WIDTH = 6.6;
   const PAD = 8;
   const singleLineWidth = text.length * CHAR_WIDTH + PAD;
-  if (singleLineWidth <= maxAvailableWidth || text.length <= 18 || !text.includes(" ")) {
+  if (singleLineWidth <= maxAvailableWidth || (maxAvailableWidth >= 70 && text.length <= 18) || !text.includes(" ")) {
     return [text];
   }
 
@@ -810,4 +810,78 @@ export function routeOrthogonal(
   }
 
   return cleanCollinearPoints(best.map((p) => clampPointToScene(p, bounds)));
+}
+
+/**
+ * Routes hierarchical parent-to-child edges in tree diagrams.
+ * - In portrait/vertical indented outline trees: routes cleanly down the parent trunk corridor,
+ *   with horizontal branches into each child's left-center edge, matching the layout structure.
+ * - In landscape trees: routes down from parent bottom-center, along a horizontal branch bus,
+ *   and down into child top-center.
+ */
+export function routeTreeEdgePoints(
+  from: { x: number; y: number; width: number; height: number },
+  to: { x: number; y: number; width: number; height: number },
+  lane: number,
+  isVertical: boolean,
+  bounds: { width: number; height: number },
+): Point[] | null {
+  // Only apply tree routing for downward/descendant flows
+  if (to.y < from.y + from.height - 12) return null;
+
+  if (isVertical) {
+    // Vertical indented tree outline (Portrait)
+    // If child is positioned to the left of parent, it is not an indented descendant
+    if (to.x < from.x - 4) return null;
+
+    // If child is directly below parent with no indentation (same column)
+    if (Math.abs(to.x - from.x) < 4) {
+      const pX = round1(from.x + from.width / 2);
+      const cX = round1(to.x + to.width / 2);
+      return cleanCollinearPoints([
+        { x: pX, y: from.y + from.height },
+        { x: cX, y: to.y },
+      ].map((p) => clampPointToScene(p, bounds)));
+    }
+
+    // Base trunk runs down along the parent indentation corridor
+    const trunkBaseX = Math.round((from.x + 18) / 4) * 4;
+    const maxShift = Math.max(0, Math.min(16, (to.x - from.x) / 3));
+    const shift = lane === 0 ? 0 : -Math.min(maxShift, lane * 4);
+    const trunkX = trunkBaseX + shift;
+    const fromY = from.y + from.height;
+    const toY = round1(to.y + to.height / 2);
+
+    const raw: Point[] = [
+      { x: trunkX, y: fromY },
+      { x: trunkX, y: toY },
+      { x: to.x, y: toY },
+    ];
+    return cleanCollinearPoints(raw.map((p) => clampPointToScene(p, bounds)));
+  } else {
+    // Horizontal landscape tree (Desktop)
+    const pX = round1(from.x + from.width / 2);
+    const pY = from.y + from.height;
+    const cX = round1(to.x + to.width / 2);
+    const cY = to.y;
+
+    if (Math.abs(pX - cX) < 2) {
+      return cleanCollinearPoints([
+        { x: pX, y: pY },
+        { x: cX, y: cY },
+      ].map((p) => clampPointToScene(p, bounds)));
+    }
+
+    const branchY = round1((pY + cY) / 2);
+    const laneShift = lane === 0 ? 0 : (lane % 2 === 1 ? 1 : -1) * Math.ceil(lane / 2) * 5;
+    const midY = round1(branchY + laneShift);
+
+    const raw: Point[] = [
+      { x: pX, y: pY },
+      { x: pX, y: midY },
+      { x: cX, y: midY },
+      { x: cX, y: cY },
+    ];
+    return cleanCollinearPoints(raw.map((p) => clampPointToScene(p, bounds)));
+  }
 }

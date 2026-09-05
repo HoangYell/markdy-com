@@ -24,6 +24,7 @@ import {
   polylineLength,
   round1,
   routeOrthogonal,
+  routeTreeEdgePoints,
   toPathD,
 } from "../src/geometry/path.js";
 
@@ -260,5 +261,75 @@ describe("cleanCollinearPoints", () => {
     const raw = [{ x: 10, y: 10 }, { x: 10, y: 10 }, { x: 50, y: 10 }];
     const cleaned = cleanCollinearPoints(raw);
     expect(cleaned).toEqual([{ x: 10, y: 10 }, { x: 50, y: 10 }]);
+  });
+});
+
+describe("routeTreeEdgePoints", () => {
+  const boundsPortrait = { width: 496, height: 1232 };
+  const boundsLandscape = { width: 1920, height: 1080 };
+
+  const rootNode = { x: 68, y: 152, width: 256, height: 76 };
+  const childA = { x: 100, y: 244, width: 256, height: 76 };
+  const childB = { x: 100, y: 520, width: 256, height: 76 };
+  const childC = { x: 100, y: 796, width: 256, height: 76 };
+
+  it("routes vertical indented tree edges along parent trunk corridor into child left edge", () => {
+    const routeA = routeTreeEdgePoints(rootNode, childA, 0, true, boundsPortrait);
+    expect(routeA).not.toBeNull();
+    expect(routeA).toHaveLength(3);
+    // Exits bottom of parent at trunk corridor
+    expect(routeA![0].y).toBe(rootNode.y + rootNode.height); // 228
+    expect(routeA![0].x).toBe(88);
+    // Drops vertically along trunk to child center-Y
+    expect(routeA![1].x).toBe(88);
+    expect(routeA![1].y).toBe(childA.y + childA.height / 2); // 282
+    // Turns horizontally right into child left edge
+    expect(routeA![2].x).toBe(childA.x); // 100
+    expect(routeA![2].y).toBe(childA.y + childA.height / 2); // 282
+  });
+
+  it("assigns distinct parallel trunk lanes for concurrent child flows", () => {
+    const routeA = routeTreeEdgePoints(rootNode, childA, 0, true, boundsPortrait);
+    const routeB = routeTreeEdgePoints(rootNode, childB, 1, true, boundsPortrait);
+    const routeC = routeTreeEdgePoints(rootNode, childC, 2, true, boundsPortrait);
+
+    expect(routeA![0].x).toBe(88);
+    expect(routeB![0].x).toBe(84);
+    expect(routeC![0].x).toBe(80);
+
+    // Each target receives line at its own center-Y
+    expect(routeB![2]).toEqual({ x: 100, y: 558 });
+    expect(routeC![2]).toEqual({ x: 100, y: 834 });
+  });
+
+  it("routes direct vertical child in same column straight down", () => {
+    const nodeA = { x: 100, y: 100, width: 200, height: 60 };
+    const nodeB = { x: 100, y: 220, width: 200, height: 60 };
+    const route = routeTreeEdgePoints(nodeA, nodeB, 0, true, boundsPortrait);
+    expect(route).toEqual([
+      { x: 200, y: 160 },
+      { x: 200, y: 220 },
+    ]);
+  });
+
+  it("routes landscape tree edges from parent bottom via horizontal branch to child top", () => {
+    const parent = { x: 800, y: 100, width: 200, height: 60 };
+    const child = { x: 300, y: 240, width: 180, height: 60 };
+    const route = routeTreeEdgePoints(parent, child, 0, false, boundsLandscape);
+    expect(route).not.toBeNull();
+    expect(route).toHaveLength(4);
+    expect(route![0]).toEqual({ x: 900, y: 160 }); // parent bottom-center
+    expect(route![1].x).toBe(900); // drops to branch level
+    expect(route![1].y).toBe(200); // (160 + 240) / 2
+    expect(route![2].x).toBe(390); // runs to child center-X (300 + 90)
+    expect(route![2].y).toBe(200);
+    expect(route![3]).toEqual({ x: 390, y: 240 }); // enters child top-center
+  });
+
+  it("returns null for non-downward or backward edges so orthogonal fallback applies", () => {
+    const lower = { x: 100, y: 400, width: 200, height: 60 };
+    const upper = { x: 100, y: 100, width: 200, height: 60 };
+    expect(routeTreeEdgePoints(lower, upper, 0, true, boundsPortrait)).toBeNull();
+    expect(routeTreeEdgePoints(lower, upper, 0, false, boundsLandscape)).toBeNull();
   });
 });
