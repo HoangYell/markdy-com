@@ -5,6 +5,19 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] — 2026-09-05
+
+### Fixed & Enhanced
+- **🌲 Clean Indented Trunk Routing for Portrait Trees (`@markdy/renderer-dom`)**:
+  - Introduced `routeTreeEdgePoints` geometry routing specifically tailored for hierarchical tree diagrams (`type=tree`).
+  - In mobile portrait viewports (`direction: TB` indented outline), dynamic beat connector lines route straight down along the dedicated indentation trunk corridor (`from.x + 18`) and branch horizontally at 90° directly into the left edge of each child card, eradicating top-looping detours and node collisions.
+  - Added multi-channel lane separation (`lane * 4`) to prevent connector overlapping when concurrent flow streams diverge from a parent node.
+  - Automatically wraps narrow tree flow edge labels into compact multi-line badges (`maxAvailableWidth < 70`), keeping text comfortably contained within indentation gutters without overflowing into node boundaries.
+  - Fully synchronized pure-vector SVG exporter (`svg-exporter.ts`) with identical tree trunk routing mechanics.
+- **🎨 Borderless Icon Presentation & Full-Scale Logos (`@markdy/renderer-dom`)**:
+  - Removed redundant opaque badge background boxes and borders from node item icons, letting SVGs render cleanly with their authentic brand silhouette.
+  - Scaled SVG logo dimensions directly to fill the icon container box (up to 28px–32px), dramatically improving icon prominence, clarity, and visual punch across both light and dark themes.
+
 ## [1.4.0] — 2026-09-05
 
 ### Added & Enhanced
