@@ -104,6 +104,29 @@ beat loop:
       expect(plan.edges.some((e) => e.selfLoop)).toBe(true);
       expect(bounds.height).toBeGreaterThan(0);
     });
+
+    it("anchors bounds to minX = 0, minY = 0 and accommodates title width when a scene title is present", () => {
+      const title = "Distributed 2-Phase Commit Consensus State Machine";
+      const code = `
+scene "${title}" width=1200 theme=paper
+service Coordinator
+service Worker1
+service Worker2
+beat flow:
+  Coordinator -> Worker1 & Coordinator -> Worker2
+`;
+      const ast = parse(code);
+      const plan = compilePlan(ast, resolveTheme("paper"));
+      const bounds = computeDiagramContentBounds(plan);
+
+      // When a scene title is present, minX and minY MUST be locked to 0
+      // so the title is never translated into negative coordinates outside the viewport.
+      expect(bounds.minX).toBe(0);
+      expect(bounds.minY).toBe(0);
+      expect(bounds.maxX).toBeGreaterThanOrEqual(56 + title.length * 17 + 56);
+      expect(bounds.width).toBe(bounds.maxX - bounds.minX);
+      expect(bounds.height).toBe(bounds.maxY - bounds.minY);
+    });
   });
 
   describe("100% Width Container Target & Scale Factor Calculation", () => {
