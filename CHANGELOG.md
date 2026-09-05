@@ -5,6 +5,23 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.3] — 2026-09-05
+
+### Added & Enhanced
+- **📱 Width-First Responsiveness & Adaptive Orientation Engine (`@markdy/renderer-dom`, `@markdy/core`)**:
+  - Implemented Width-First auto-scaling formula: `fitScale = (containerWidth * targetRatio) / contentWidth` (targeting 95%–100% container width fill factor).
+  - Dynamically detects container and screen orientation: automatically switches diagram structure to vertical Top-to-Bottom (`direction: TB` / `rankdir: TB`) on mobile portrait viewports, and horizontal Left-to-Right (`direction: LR` / `rankdir: LR`) on desktop landscape viewports.
+  - Added native DSL parser support for graphviz-standard `rankdir=TB` and `rankdir=LR` keywords in `@markdy/core`.
+- **✂️ Tight Whitespace Cropping & Bounding Box Optimization (`@markdy/renderer-dom`)**:
+  - Overhauled `computeDiagramContentBounds` with strict margin stripping, reducing redundant canvas border bloat down to a crisp 10px safe margin around actual nodes and group clusters.
+  - Safely bounds beat captions (`.markdy-beat-caption-layer`), annotations, sequence message lifelines, and diagram titles to eliminate visual clipping.
+- **⚓ Top-Anchored Vertical Positioning & Zero-Void Layout (`@markdy/renderer-dom`)**:
+  - Eliminated awkward 150px–200px empty vertical voids on portrait viewports by replacing blind centering with safe top-anchoring (`topSafeMargin = 8px–18px`).
+  - Set viewport `aspectRatio` directly to content bounds `${bounds.width} / ${bounds.height}`, ensuring containers and canvases wrap diagrams with tailored precision.
+- **🎨 Responsive Studio & Playground Containers (`website`)**:
+  - Refactored homepage preview and interactive playground stage containers to use auto-adjusting heights on mobile (`height: auto !important; min-height: 380px; max-height: 85vh`), eradicating conflicting rigid aspect-ratios.
+  - Created canonical showcase blueprint `examples/31-width-first-responsive-autoscale.markdy`.
+
 ## [1.3.2] — 2026-09-05
 
 ### Added & Enhanced

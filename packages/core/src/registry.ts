@@ -67,6 +67,7 @@ export const SCENE_KEYS = new Set([
   "duration",
   "direction",
   "layout",
+  "rankdir",
   "type",
   ...PLAYER_FLAT_KEYS,
 ]);

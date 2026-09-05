@@ -1,6 +1,6 @@
 {
   "name": "@markdy/compat",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "Universal ingestion transpilers (D2, PlantUML, Mermaid, Docker Compose, Kubernetes, Terraform, Draw.io) and backwards-compatibility gate for Markdy.",
   "license": "MIT",
   "type": "module",

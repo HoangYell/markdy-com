@@ -2,7 +2,7 @@
 
 > ### SPECIFICATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.3.2
+> - **Current Version**: v1.3.3
 > - **Specification Version**: 1.3.x
 > - **Last Updated**: 2026-09-05
 > - **Documentation Hub**: <https://markdy.com/docs/>

@@ -1353,13 +1353,16 @@ const playgroundStructuredData = [
     diagram = null;
     if (stageCanvas) stageCanvas.innerHTML = "";
     deselectCanvas();
-    const warnings: string[] = [];
     try {
+      const warnings: string[] = [];
       diagram = createDiagram({
         container: stageCanvas || stage,
         code,
         interactiveViewport: false,
         clickToPlay: false,
+        responsiveLayout: true,
+        fitMode: "width",
+        targetWidthRatio: 0.98,
         shareUrl: `${window.location.origin}${window.location.pathname}`,
         onWarning(warning: Diagnostic) {
           warnings.push(`line ${warning.line}: ${warning.message}`);
@@ -3041,6 +3044,21 @@ Requirements:
       }
     }
   });
+
+  let playgroundResizeTimer: any = null;
+  let lastPlaygroundWidth = typeof window !== "undefined" ? window.innerWidth : 0;
+  window.addEventListener("resize", () => {
+    if (typeof window === "undefined") return;
+    const currentWidth = window.innerWidth;
+    const crossedBreakpoint = (lastPlaygroundWidth < 768 && currentWidth >= 768) || (lastPlaygroundWidth >= 768 && currentWidth < 768) || (lastPlaygroundWidth < 1080 && currentWidth >= 1080) || (lastPlaygroundWidth >= 1080 && currentWidth < 1080);
+    lastPlaygroundWidth = currentWidth;
+    if (crossedBreakpoint) {
+      if (playgroundResizeTimer) clearTimeout(playgroundResizeTimer);
+      playgroundResizeTimer = setTimeout(() => {
+        render(getCode());
+      }, 150);
+    }
+  });
 </script>
 
 <style>
@@ -4598,7 +4616,7 @@ Requirements:
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    justify-content: space-between;
+    justify-content: flex-start;
   }
 
   .stage-grid--dots {
@@ -4626,7 +4644,7 @@ Requirements:
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    justify-content: space-between;
+    justify-content: flex-start;
   }
 
   .stage-canvas :global(.markdy-viewport),
@@ -4636,9 +4654,19 @@ Requirements:
     cursor: default;
   }
 
+  .stage-canvas :global(.markdy-diagram-root) {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
   .stage-canvas :global(.markdy-viewport) {
-    height: 100% !important;
-    aspect-ratio: auto !important;
+    width: 100% !important;
+    flex: 1 1 auto;
+    min-height: 0;
   }
 
   .stage .markdy-footer {
@@ -6141,7 +6169,19 @@ Requirements:
     }
     .workspace:not([data-view-mode="code"]) .preview-panel {
       display: flex !important;
-      height: clamp(520px, 82vh, 760px);
+      flex-direction: column;
+      height: auto !important;
+      min-height: 440px;
+      max-height: 85vh;
+    }
+    .stage {
+      height: auto !important;
+      min-height: 400px;
+      flex: 1 1 auto;
+    }
+    .stage-canvas {
+      height: auto !important;
+      min-height: 380px;
     }
 
     /* Editor Header Bar */
@@ -6263,6 +6303,22 @@ Requirements:
     }
     .export-grid {
       grid-template-columns: 1fr;
+    }
+    .workspace:not([data-view-mode="code"]) .preview-panel {
+      min-height: 420px;
+      max-height: 88vh;
+      height: auto !important;
+      display: flex !important;
+      flex-direction: column;
+    }
+    .stage {
+      min-height: 380px;
+      height: auto !important;
+      flex: 1 1 auto;
+    }
+    .stage-canvas {
+      height: auto !important;
+      min-height: 360px;
     }
   }
 </style>

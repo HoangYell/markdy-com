@@ -1210,6 +1210,9 @@ markdy check-all ./docs/diagrams</code></pre>
         code,
         interactiveViewport: false,
         clickToPlay: false,
+        responsiveLayout: true,
+        fitMode: "width",
+        targetWidthRatio: 0.98,
         onEnded: () => {
           if (diagram) {
             diagram.pause();
@@ -1754,6 +1757,22 @@ markdy check-all ./docs/diagrams</code></pre>
       render(initialCode);
     }, 40);
   }
+
+  let homeResizeTimer: any = null;
+  let lastHomeWidth = typeof window !== "undefined" ? window.innerWidth : 0;
+  window.addEventListener("resize", () => {
+    if (typeof window === "undefined") return;
+    const currentWidth = window.innerWidth;
+    const crossedBreakpoint = (lastHomeWidth < 768 && currentWidth >= 768) || (lastHomeWidth >= 768 && currentWidth < 768) || (lastHomeWidth < 980 && currentWidth >= 980) || (lastHomeWidth >= 980 && currentWidth < 980);
+    lastHomeWidth = currentWidth;
+    if (crossedBreakpoint) {
+      if (homeResizeTimer) clearTimeout(homeResizeTimer);
+      homeResizeTimer = setTimeout(() => {
+        const code = getEditorCode();
+        if (code) void render(code);
+      }, 150);
+    }
+  });
 </script>
 
 <style>
@@ -2886,8 +2905,9 @@ markdy check-all ./docs/diagrams</code></pre>
     min-height: 0;
     position: relative;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
     padding: 0;
   }
 
@@ -2898,9 +2918,19 @@ markdy check-all ./docs/diagrams</code></pre>
     cursor: default;
   }
 
+  #stage :global(.markdy-diagram-root) {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+
   #stage :global(.markdy-viewport) {
-    height: 100% !important;
-    aspect-ratio: auto !important;
+    width: 100% !important;
+    flex: 1 1 auto;
+    min-height: 0;
   }
 
   .stage-wrap .markdy-footer {
@@ -3935,7 +3965,16 @@ markdy check-all ./docs/diagrams</code></pre>
       border-bottom: 1px solid var(--border);
     }
     .studio-preview-pane {
-      height: clamp(380px, 50vh, 560px);
+      height: auto !important;
+      min-height: 420px;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .stage-wrap {
+      height: auto;
+      min-height: 380px;
+      flex: 1 1 auto;
     }
     .pillars-grid {
       grid-template-columns: repeat(2, 1fr);
@@ -4151,7 +4190,13 @@ markdy check-all ./docs/diagrams</code></pre>
       height: 220px;
     }
     .studio-preview-pane {
-      height: 340px;
+      height: auto !important;
+      min-height: 400px;
+      max-height: 85vh;
+    }
+    .stage-wrap {
+      height: auto;
+      min-height: 360px;
     }
     .cmd-row {
       flex-direction: column;

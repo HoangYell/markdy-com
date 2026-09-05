@@ -411,7 +411,7 @@ export function diagnoseMarkdyCode(
       }
 
       // Check scene layout property
-      const layoutMatch = trimmed.match(/\blayout\s*=?\s*(\w+)/i);
+      const layoutMatch = trimmed.match(/\b(?:layout|direction|rankdir)\s*=?\s*(\w+)/i);
       if (layoutMatch) {
         const layoutVal = layoutMatch[1].toUpperCase();
         if (!LAYOUT_DIRECTIONS.includes(layoutVal)) {
