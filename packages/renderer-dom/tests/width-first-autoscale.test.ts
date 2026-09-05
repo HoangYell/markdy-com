@@ -40,16 +40,21 @@ beat flow:
       const nodeMinY = Math.min(...plan.nodes.map((n) => n.y));
       const nodeMaxY = Math.max(...plan.nodes.map((n) => n.y + n.height));
 
-      // With tight padding = 10px:
-      expect(bounds.minX).toBe(Math.max(0, nodeMinX - 10));
-      expect(bounds.maxX).toBe(Math.min(plan.meta.width, nodeMaxX + 10));
-      expect(bounds.minY).toBe(Math.max(0, nodeMinY - 10));
-      expect(bounds.maxY).toBe(Math.min(plan.meta.height, nodeMaxY + 10));
+      // Default safe padding = 22px:
+      expect(bounds.minX).toBe(nodeMinX - 22 <= 22 ? 0 : nodeMinX - 22);
+      expect(bounds.maxX).toBe(Math.min(plan.meta.width + 22, nodeMaxX + 22));
+      expect(bounds.minY).toBe(nodeMinY - 22 <= 22 ? 0 : nodeMinY - 22);
+      expect(bounds.maxY).toBe(Math.min(plan.meta.height + 22, nodeMaxY + 22));
       expect(bounds.width).toBe(bounds.maxX - bounds.minX);
       expect(bounds.height).toBe(bounds.maxY - bounds.minY);
+
+      // Explicit custom tight padding:
+      const tightBounds = computeDiagramContentBounds(plan, { padding: 10 });
+      expect(tightBounds.minX).toBe(nodeMinX - 10 <= 10 ? 0 : nodeMinX - 10);
+      expect(tightBounds.maxX).toBe(Math.min(plan.meta.width + 10, nodeMaxX + 10));
     });
 
-    it("includes group boundaries in tight bounding box computation", () => {
+    it("includes group boundaries in bounding box computation with safe 28px clearance", () => {
       const code = `
 scene theme=paper
 service Auth
@@ -62,8 +67,42 @@ group secure: Auth Storage
 
       expect(plan.groupBoundaries.length).toBeGreaterThan(0);
       const gb = plan.groupBoundaries[0];
+      // Bound should accommodate group boundary plus safe clearance
       expect(bounds.minX).toBeLessThanOrEqual(gb.x);
       expect(bounds.maxX).toBeGreaterThanOrEqual(gb.x + gb.width);
+    });
+
+    it("preserves full coordinate space for canvas-wide archetypes without clipping axes or dividers", () => {
+      const archetypes = ["quadrant", "swimlane", "timeline", "radar", "gantt"];
+      for (const type of archetypes) {
+        const code = `
+scene theme=paper type=${type}
+service A
+service B
+service C
+`;
+        const ast = parse(code);
+        const plan = compilePlan(ast, resolveTheme("paper"));
+        const bounds = computeDiagramContentBounds(plan);
+        expect(bounds.width, `${type} width preserves full canvas`).toBe(plan.meta.width);
+        expect(bounds.height, `${type} height preserves full canvas`).toBe(plan.meta.height);
+        expect(bounds.minX).toBe(0);
+        expect(bounds.minY).toBe(0);
+      }
+    });
+
+    it("expands bounding box for selfLoop edge arcs", () => {
+      const code = `
+scene theme=paper
+service Worker
+beat loop:
+  Worker -> Worker "retry loop"
+`;
+      const ast = parse(code);
+      const plan = compilePlan(ast, resolveTheme("paper"));
+      const bounds = computeDiagramContentBounds(plan);
+      expect(plan.edges.some((e) => e.selfLoop)).toBe(true);
+      expect(bounds.height).toBeGreaterThan(0);
     });
   });
 

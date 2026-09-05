@@ -99,10 +99,15 @@ export interface DiagramOptions {
    */
   fitMode?: "width" | "contain";
   /**
-   * Target container width fill fraction (0.95 - 1.0) when fitMode is "width".
-   * Defaults to 0.98 (edge-to-edge with 1% clean margins).
+   * Target container width fill fraction (0.90 - 1.0) when fitMode is "width".
+   * Defaults to 0.96 (clean edge-to-edge framing with comfortable 2% safe margins).
    */
   targetWidthRatio?: number;
+  /**
+   * Custom safe clearance padding in px around diagram elements.
+   * Defaults to 28px for grouped diagrams and 22px for ungrouped diagrams.
+   */
+  contentPadding?: number;
 }
 
 export interface Diagram {
@@ -243,6 +248,15 @@ export function detectHostTheme(container?: HTMLElement): "nebula" | "paper" {
   return "paper";
 }
 
+const CANVAS_WIDE_ARCHETYPES = new Set([
+  "quadrant",
+  "swimlane",
+  "timeline",
+  "radar",
+  "constellation",
+  "gantt",
+]);
+
 export function computeDiagramContentBounds(
   plan: RenderPlan,
   options?: { tight?: boolean; padding?: number },
@@ -257,6 +271,21 @@ export function computeDiagramContentBounds(
   if (!plan.nodes || plan.nodes.length === 0) {
     return { minX: 0, minY: 0, maxX: plan.meta.width, maxY: plan.meta.height, width: plan.meta.width, height: plan.meta.height };
   }
+
+  // Archetypes with canvas-wide visual structures (axes, tracks, divider lanes, spoke rings, orbital halos)
+  // span the full coordinate canvas by architectural design. Cropping their bounds strictly to nodes
+  // clips off their boundary tracks, lane lines, and crosshair axes.
+  if (CANVAS_WIDE_ARCHETYPES.has(plan.diagramType)) {
+    return {
+      minX: 0,
+      minY: 0,
+      maxX: plan.meta.width,
+      maxY: plan.meta.height,
+      width: plan.meta.width,
+      height: plan.meta.height,
+    };
+  }
+
   let minX = Infinity;
   let minY = Infinity;
   let maxX = -Infinity;
@@ -281,6 +310,16 @@ export function computeDiagramContentBounds(
     minY = Math.min(minY, bus.parentY, bus.branchY, bus.childY);
     maxX = Math.max(maxX, bus.parentX, ...(bus.childXs.length ? bus.childXs : [bus.parentX]));
     maxY = Math.max(maxY, bus.parentY, bus.branchY, bus.childY);
+  }
+
+  for (const edge of plan.edges ?? []) {
+    if (edge.selfLoop) {
+      const fromNode = plan.nodes.find((n) => n.id === edge.from);
+      if (fromNode) {
+        minY = Math.min(minY, fromNode.y - 40);
+        maxY = Math.max(maxY, fromNode.y + fromNode.height + 40);
+      }
+    }
   }
 
   if (plan.diagramType === "sequence") {
@@ -314,13 +353,19 @@ export function computeDiagramContentBounds(
     }
   }
 
-  // Crop Whitespace (Bounding Box Optimization):
-  // Strip out redundant margins/padding from all sides, keeping tight padding for clean edge-to-edge fit
-  const pad = options?.padding ?? (options?.tight === false ? 24 : 10);
-  minX = Math.max(0, minX - pad);
-  minY = Math.max(0, minY - pad);
-  maxX = Math.min(plan.meta.width, maxX + pad);
-  maxY = Math.min(plan.meta.height, maxY + pad);
+  // Safe Breathing Room Padding:
+  // Strip out redundant margins/padding while keeping safe clearance for 32px drop shadows,
+  // focus glows, group boundaries, and node badges so nothing is clipped by container borders.
+  const defaultPad = (plan.groupBoundaries && plan.groupBoundaries.length > 0) ? 28 : 22;
+  const pad = options?.padding ?? (options?.tight === false ? 36 : defaultPad);
+  minX = Math.max(-pad, minX - pad);
+  minY = Math.max(-pad, minY - pad);
+  maxX = Math.min(plan.meta.width + pad, maxX + pad);
+  maxY = Math.min(plan.meta.height + pad, maxY + pad);
+
+  // If bounds start within safe pad distance of canvas 0, anchor cleanly to 0
+  if (minX > 0 && minX <= pad) minX = 0;
+  if (minY > 0 && minY <= pad) minY = 0;
 
   const width = Math.max(maxX - minX, 100);
   const height = Math.max(maxY - minY, 80);
@@ -350,7 +395,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     onEnded,
     responsiveLayout = true,
     fitMode = "width",
-    targetWidthRatio = 0.98,
+    targetWidthRatio = 0.96,
+    contentPadding,
   } = opts;
 
   function detectContainerOrientation(): "portrait" | "landscape" {
@@ -490,7 +536,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   if (container.style.aspectRatio) container.style.aspectRatio = "unset";
   if (container.style.overflow === "hidden") container.style.overflow = "visible";
 
-  const initialBounds = computeDiagramContentBounds(plan);
+  const initialBounds = computeDiagramContentBounds(plan, contentPadding !== undefined ? { padding: contentPadding } : undefined);
   const contentRatio = `${initialBounds.width} / ${initialBounds.height}`;
 
   const viewport = document.createElement("div");
@@ -618,7 +664,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     left: "0",
     width: `${plan.meta.width}px`,
     height: `${plan.meta.height}px`,
-    overflow: "hidden",
+    overflow: "visible",
     userSelect: "none",
     transformOrigin: "0 0",
   });
@@ -788,7 +834,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   let sceneOffsetY = 0;
 
   function computeContentBounds(): { minX: number; minY: number; maxX: number; maxY: number; width: number; height: number } {
-    return computeDiagramContentBounds(plan);
+    return computeDiagramContentBounds(plan, contentPadding !== undefined ? { padding: contentPadding } : undefined);
   }
 
   function relayoutOrientation(newDirection: "TB" | "LR"): void {
@@ -798,7 +844,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     if (!ast.meta.explicitHeight) ast.meta.height = dims.height;
 
     const newPlan = compilePlan(ast, plan.theme);
-    const newBounds = computeDiagramContentBounds(newPlan);
+    const newBounds = computeDiagramContentBounds(newPlan, contentPadding !== undefined ? { padding: contentPadding } : undefined);
     scene.style.width = `${newPlan.meta.width}px`;
     scene.style.height = `${newPlan.meta.height}px`;
     viewport.style.aspectRatio = `${newBounds.width} / ${newBounds.height}`;
@@ -903,13 +949,14 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     const contentW = bounds.width;
     const contentH = bounds.height;
 
-    // 100% Width Container Target (Width-First Responsiveness):
-    // Dynamically calculate ViewBox / Camera Transform so diagram width fills 95% - 100% of container width
-    const targetRatio = Math.min(1.0, Math.max(0.95, targetWidthRatio ?? 0.98));
+    // Clean Edge-to-Edge Container Framing:
+    // Dynamically calculate ViewBox / Camera Transform so diagram width fills ~96% of container width
+    // with comfortable breathing room avoiding border clipping and scene boundary progress collisions.
+    const targetRatio = Math.min(1.0, Math.max(0.90, targetWidthRatio ?? 0.96));
     const widthScale = (vWidth * targetRatio) / contentW;
 
     if (fitMode === "contain") {
-      const heightScale = ((vHeight - 16) * targetRatio) / contentH;
+      const heightScale = ((vHeight - 24) * targetRatio) / contentH;
       fitScale = Math.min(widthScale, heightScale);
     } else {
       // Width-First Responsiveness: scale factor = containerWidth / contentWidth
@@ -931,14 +978,14 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
     // Vertical positioning:
     // When fitMode === "contain", center vertically.
-    // When fitMode === "width", anchor near top (8px - 18px top margin) so diagram is immediately visible,
-    // avoiding large 150px+ dead voids at the top of the canvas.
+    // When fitMode === "width", anchor near top (14px - 24px top safe margin) so diagram is immediately visible,
+    // avoiding large dead voids at the top while keeping clean breathing room from the top border.
     if (fitMode === "contain") {
       sceneOffsetY = (vHeight - scaledContentH) / 2 - bounds.minY * fitScale;
     } else {
       const topSafeMargin = scaledContentH <= vHeight
-        ? Math.max(8, Math.min(18, (vHeight - scaledContentH) / 2))
-        : 8;
+        ? Math.max(14, Math.min(24, (vHeight - scaledContentH) / 2))
+        : 14;
       sceneOffsetY = topSafeMargin - bounds.minY * fitScale;
     }
 
