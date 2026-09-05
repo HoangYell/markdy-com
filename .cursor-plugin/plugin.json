@@ -1,6 +1,6 @@
 {
   "name": "markdy",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Declarative 60fps kinetic architecture diagrams as code. Design animated cloud, microservices, and system diagrams directly with MarkdyScript and AI agents.",
   "author": {
     "name": "Hoang Yell",
