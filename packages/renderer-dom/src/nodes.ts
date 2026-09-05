@@ -61,26 +61,29 @@ export function ensureNodeStyles(doc: Document): void {
   box-sizing: border-box;
 }
 .markdy-node__icon {
-  flex: 0 0 28px;
+  flex: 0 0 auto;
   width: 28px;
   height: 28px;
-  border-radius: 7px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  background: color-mix(in srgb, var(--md-role-color, var(--md-accent)) 14%, transparent);
+  background: transparent;
+  box-shadow: none;
   color: var(--md-role-color, var(--md-accent));
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--md-role-color, var(--md-accent)) 35%, transparent);
   transition: transform 0.2s ease;
 }
 .markdy-node__icon svg {
-  width: 18px;
-  height: 18px;
+  width: 26px;
+  height: 26px;
+  display: block;
   stroke: currentColor;
   stroke-width: 1.8;
   fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+.markdy-node__icon[data-vector-symbol] svg {
+  stroke: none;
 }
 .markdy-node__icon[data-media="image"] {
   background: transparent;
@@ -462,13 +465,6 @@ export function ensureNodeStyles(doc: Document): void {
     0 8px 24px -4px rgba(29, 78, 216, 0.14),
     inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
-.markdy-scene-root[data-markdy-theme="ink"] .markdy-node__icon {
-  background: color-mix(in srgb, var(--md-role-color, var(--md-accent)) 10%, #ffffff);
-  border: 1px solid color-mix(in srgb, var(--md-role-color, var(--md-accent)) 30%, transparent);
-  border-radius: 6px;
-  width: 30px;
-  height: 30px;
-}
 .markdy-scene-root[data-markdy-theme="ink"] .markdy-node__tech {
   background: #eff6ff;
   color: #1e3a8a;
@@ -487,10 +483,6 @@ export function ensureNodeStyles(doc: Document): void {
     0 8px 24px -4px rgba(29, 78, 216, 0.18),
     inset 0 1px 0 #ffffff;
 }
-.markdy-scene-root[data-markdy-theme="ink"] .markdy-node[data-focal="1"] .markdy-node__icon {
-  background: rgba(29, 78, 216, 0.12);
-  border-color: rgba(29, 78, 216, 0.40);
-}
 .markdy-scene-root[data-markdy-theme="ink"] .markdy-node[data-shape="diamond"][data-focal="1"] {
   filter: drop-shadow(0 0 1.5px #1d4ed8) drop-shadow(3px 3px 0 rgba(29, 78, 216, 0.25)) drop-shadow(0 6px 20px rgba(29, 78, 216, 0.16));
 }
@@ -503,14 +495,6 @@ export function ensureNodeStyles(doc: Document): void {
 .markdy-scene-root[data-markdy-theme="doodle"] .markdy-node[data-visible="1"]:hover {
   transform: translate(-1.5px, -1.5px) rotate(-0.6deg);
   box-shadow: 5.5px 5.5px 0 #18181b, 0 10px 20px -4px rgba(24, 24, 27, 0.12);
-}
-.markdy-scene-root[data-markdy-theme="doodle"] .markdy-node__icon {
-  background: color-mix(in srgb, var(--md-role-color, var(--md-accent)) 16%, #ffffff);
-  border: 1.75px solid #18181b;
-  border-radius: 50% 45% 55% 48% / 48% 55% 45% 50%;
-  width: 30px;
-  height: 30px;
-  box-shadow: 1.5px 1.5px 0 #18181b;
 }
 .markdy-scene-root[data-markdy-theme="doodle"] .markdy-node__tech {
   background: #fef08a;
@@ -528,12 +512,6 @@ export function ensureNodeStyles(doc: Document): void {
   border: 2.25px solid #18181b;
   background: linear-gradient(135deg, #ffffff 0%, #fff1f2 100%);
   box-shadow: 4.5px 4.5px 0 #f43f5e, 0 0 0 2px #18181b;
-}
-.markdy-scene-root[data-markdy-theme="doodle"] .markdy-node[data-focal="1"] .markdy-node__icon {
-  background: #f43f5e;
-  color: #ffffff;
-  border-color: #18181b;
-}
 .markdy-scene-root[data-markdy-theme="doodle"] .markdy-node[data-shape="diamond"][data-focal="1"] {
   filter: drop-shadow(0 0 1.5px #18181b) drop-shadow(4.5px 4.5px 0 #f43f5e);
 }
