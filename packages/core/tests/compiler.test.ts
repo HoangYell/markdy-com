@@ -2,6 +2,75 @@ import { describe, it, expect } from "vitest";
 import { parse, compile } from "../src/parser.js";
 
 describe("compiler", () => {
+  it.each(["architecture", "flowchart", "state"])("honors bottom-to-top direction for %s", (type) => {
+    const plan = compile(parse(`scene type=${type} layout=BT
+service Source
+service Target
+beat main:
+  Source -> Target
+`));
+    const source = plan.nodes.find((node) => node.id === "Source")!;
+    const target = plan.nodes.find((node) => node.id === "Target")!;
+    expect(source.y).toBeGreaterThan(target.y);
+  });
+
+  it.each(["LR", "RL", "TB", "BT"])("keeps crossed declarations aligned in %s", (direction) => {
+    const plan = compile(parse(`scene layout=${direction}
+service Alpha
+service Beta
+service Gamma
+service Delta
+beat main:
+  Alpha -> Delta
+  Beta -> Gamma
+`));
+    const coordinates = new Map(plan.nodes.map((node) => [node.id,
+      direction === "LR" || direction === "RL" ? node.y : node.x,
+    ]));
+    expect((coordinates.get("Alpha")! - coordinates.get("Beta")!) *
+      (coordinates.get("Delta")! - coordinates.get("Gamma")!)).toBeGreaterThan(0);
+  });
+
+  it.each([
+    ["architecture", ""],
+    ["tree", ""],
+    ["tree", "service Orphan"],
+  ])("keeps cyclic %s diagrams finite and inside the automatic canvas (%s)", (type, orphan) => {
+    const plan = compile(parse(`scene type=${type}
+service Alpha
+service Beta
+${orphan}
+beat main:
+  Alpha -> Beta
+  Beta -> Alpha
+`));
+    expect(plan.nodes).toHaveLength(orphan ? 3 : 2);
+    expect(plan.edges).toHaveLength(2);
+    for (const node of plan.nodes) {
+      expect(node.x).toBeGreaterThanOrEqual(0);
+      expect(node.y).toBeGreaterThanOrEqual(0);
+      expect(node.x + node.width).toBeLessThanOrEqual(plan.meta.width);
+      expect(node.y + node.height).toBeLessThanOrEqual(plan.meta.height);
+    }
+  });
+
+  it("reduces crossings upstream while preserving downstream group order", () => {
+    const plan = compile(parse(`scene layout=LR
+service Alpha
+service Beta
+service Gamma
+service Delta
+group first: Gamma
+group second: Delta
+beat main:
+  Alpha -> Delta
+  Beta -> Gamma
+`));
+    const coordinates = new Map(plan.nodes.map((node) => [node.id, node.y]));
+    expect(coordinates.get("Gamma")).toBeLessThan(coordinates.get("Delta")!);
+    expect(coordinates.get("Beta")).toBeLessThan(coordinates.get("Alpha")!);
+  });
+
   it("produces deterministic layout for the same source", () => {
     const source = `
 scene "Demo" theme=midnight

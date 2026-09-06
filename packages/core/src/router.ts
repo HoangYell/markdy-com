@@ -137,6 +137,97 @@ export function buildSmoothSvgPath(start: Point, waypoints: Point[], end: Point,
   return d;
 }
 
+function routeAroundObstacles(
+  sourceBox: Box,
+  targetBox: Box,
+  points: Point[],
+  options: RouteOptions & { sourcePort: CardinalPort; targetPort: CardinalPort },
+): Point[] {
+  if (!options.obstacles?.length) return points;
+  const margin = options.margin ?? 20;
+  const obstacles = [sourceBox, targetBox, ...options.obstacles];
+  const intersections = (route: Point[]) => {
+    let hits = 0;
+    for (let index = 1; index < route.length; index++) {
+      const start = route[index - 1];
+      const end = route[index];
+      if (start.x === end.x && start.y === end.y) continue;
+      for (const box of obstacles) {
+        if (start.y === end.y && start.y > box.y && start.y < box.y + box.height &&
+          Math.max(start.x, end.x) > box.x && Math.min(start.x, end.x) < box.x + box.width) hits++;
+        else if (start.x === end.x && start.x > box.x && start.x < box.x + box.width &&
+          Math.max(start.y, end.y) > box.y && Math.min(start.y, end.y) < box.y + box.height) hits++;
+      }
+    }
+    return hits;
+  };
+  if (intersections(points) === 0) return points;
+
+  const start = points[0];
+  const end = points[points.length - 1];
+  const stub = (point: Point, port: CardinalPort): Point => {
+    let distance = margin;
+    for (const box of obstacles) {
+      let clearance = Number.POSITIVE_INFINITY;
+      if (point.y > box.y && point.y < box.y + box.height) {
+        if (port === "right") clearance = box.x - point.x;
+        if (port === "left") clearance = point.x - box.x - box.width;
+      }
+      if (point.x > box.x && point.x < box.x + box.width) {
+        if (port === "bottom") clearance = box.y - point.y;
+        if (port === "top") clearance = point.y - box.y - box.height;
+      }
+      if (clearance >= 0) distance = Math.min(distance, clearance / 2);
+    }
+    return {
+      x: point.x + (port === "right" ? distance : port === "left" ? -distance : 0),
+      y: point.y + (port === "bottom" ? distance : port === "top" ? -distance : 0),
+    };
+  };
+  const sourceStub = stub(start, options.sourcePort);
+  const targetStub = stub(end, options.targetPort);
+  const corridorsX = new Set<number>();
+  const corridorsY = new Set<number>();
+  for (const box of obstacles) {
+    corridorsX.add(box.x - margin);
+    corridorsX.add(box.x + box.width + margin);
+    corridorsY.add(box.y - margin);
+    corridorsY.add(box.y + box.height + margin);
+  }
+  const candidates = [
+    points,
+    [start, sourceStub, { x: sourceStub.x, y: targetStub.y }, targetStub, end],
+    [start, sourceStub, { x: targetStub.x, y: sourceStub.y }, targetStub, end],
+  ];
+  for (const corridor of corridorsX) {
+    candidates.push([start, sourceStub, { x: corridor, y: sourceStub.y },
+      { x: corridor, y: targetStub.y }, targetStub, end]);
+  }
+  for (const corridor of corridorsY) {
+    candidates.push([start, sourceStub, { x: sourceStub.x, y: corridor },
+      { x: targetStub.x, y: corridor }, targetStub, end]);
+  }
+
+  let best = points;
+  let bestHits = Number.POSITIVE_INFINITY;
+  let bestLength = Number.POSITIVE_INFINITY;
+  for (const candidate of candidates) {
+    const hits = intersections(candidate);
+    let length = 0;
+    for (let index = 1; index < candidate.length; index++) {
+      length += Math.abs(candidate[index].x - candidate[index - 1].x) +
+        Math.abs(candidate[index].y - candidate[index - 1].y);
+    }
+    if (hits < bestHits || (hits === bestHits && length < bestLength)) {
+      best = candidate;
+      bestHits = hits;
+      bestLength = length;
+    }
+  }
+  return best.filter((point, index) => index === 0 ||
+    point.x !== best[index - 1].x || point.y !== best[index - 1].y);
+}
+
 /**
  * Routes an orthogonal edge between two boxes with collision awareness and dynamic port multiplexing.
  */
@@ -197,6 +288,9 @@ export function routeOrthogonalEdge(
       waypoints = [{ x: apexX, y: startY }, { x: apexX, y: endY }];
     }
 
+    waypoints = routeAroundObstacles(sourceBox, targetBox, [start, ...waypoints, end], {
+      ...options, sourcePort: port, targetPort: port,
+    }).slice(1, -1);
     const svgPathData = buildSmoothSvgPath(start, waypoints, end, options.cornerRadius ?? 6);
     return {
       sourcePort: port,
@@ -288,14 +382,17 @@ export function routeOrthogonalEdge(
     waypoints.push(p2);
   }
 
-  const svgPathData = buildSmoothSvgPath(start, waypoints, end, options.cornerRadius ?? 6);
+  const routedWaypoints = routeAroundObstacles(sourceBox, targetBox, [start, ...waypoints, end], {
+    ...options, sourcePort, targetPort,
+  }).slice(1, -1);
+  const svgPathData = buildSmoothSvgPath(start, routedWaypoints, end, options.cornerRadius ?? 6);
 
   return {
     sourcePort,
     targetPort,
     startPoint: start,
     endPoint: end,
-    waypoints,
+    waypoints: routedWaypoints,
     svgPathData,
   };
 }

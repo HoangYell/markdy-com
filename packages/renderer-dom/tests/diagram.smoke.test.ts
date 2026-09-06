@@ -17,6 +17,7 @@ const animateStub = vi.fn(function animate(this: Element) {
 });
 
 let animationFrameCallbacks: FrameRequestCallback[] = [];
+let resizeCallbacks: (() => void)[] = [];
 
 function pointerEvent(type: string, props: { pointerId?: number; clientX: number; clientY: number; button?: number }): Event {
   const event = new Event(type, { bubbles: true, cancelable: true });
@@ -55,6 +56,7 @@ beat finish:
 describe("createDiagram integration", () => {
   beforeEach(() => {
     animationFrameCallbacks = [];
+    resizeCallbacks = [];
     (Element.prototype as unknown as { animate: typeof animateStub }).animate = animateStub;
     (HTMLElement.prototype as unknown as { setPointerCapture: (pointerId: number) => void }).setPointerCapture = vi.fn();
     (HTMLElement.prototype as unknown as { releasePointerCapture: (pointerId: number) => void }).releasePointerCapture = vi.fn();
@@ -65,6 +67,7 @@ describe("createDiagram integration", () => {
     }));
     vi.stubGlobal("cancelAnimationFrame", vi.fn());
     (globalThis as unknown as { ResizeObserver: unknown }).ResizeObserver = class {
+      constructor(callback: () => void) { resizeCallbacks.push(callback); }
       observe() {}
       unobserve() {}
       disconnect() {}
@@ -125,6 +128,85 @@ describe("createDiagram integration", () => {
     expect(() => diagram.destroy()).not.toThrow();
   });
 
+  it("reflows an explicitly responsive width-fit diagram on container resize without resetting playback", () => {
+    const container = document.createElement("div");
+    let width = 1000;
+    Object.defineProperties(container, {
+      clientWidth: { get: () => width },
+      clientHeight: { get: () => 600 },
+    });
+    document.body.appendChild(container);
+    const diagram = createDiagram({ container, code: SCENE, responsiveLayout: true, fitMode: "width", autoplay: false, copyright: false });
+    const firstNode = container.querySelector<HTMLElement>('[data-node="Web"]')!;
+    const initialLeft = firstNode.style.left;
+    diagram.seek(1);
+    diagram.play();
+    const previousAnimations = animateStub.mock.results.map((result) => result.value as Animation);
+    const cancelSpies = previousAnimations.map((animation) => vi.spyOn(animation, "cancel"));
+
+    width = 480;
+    resizeCallbacks.forEach((callback) => callback());
+    animationFrameCallbacks.splice(0).forEach((callback) => callback(1000));
+    expect(firstNode.style.left).not.toBe(initialLeft);
+    expect(diagram.currentTime()).toBe(1);
+    expect(diagram.isPlaying()).toBe(true);
+    expect(cancelSpies.every((spy) => spy.mock.calls.length > 0)).toBe(true);
+
+    const narrowLeft = firstNode.style.left;
+    width = 650;
+    diagram.resize();
+    expect(firstNode.style.left).toBe(narrowLeft);
+
+    width = 1000;
+    diagram.resize();
+    expect(firstNode.style.left).toBe(initialLeft);
+    expect(container.querySelectorAll(".markdy-node")).toHaveLength(3);
+    expect(container.querySelectorAll(".markdy-camera-layer > svg")).toHaveLength(1);
+    diagram.destroy();
+  });
+
+  it("preserves reverse flow when adapting from RL to BT", () => {
+    const container = document.createElement("div");
+    let width = 1000;
+    Object.defineProperty(container, "clientWidth", { get: () => width });
+    document.body.appendChild(container);
+    const diagram = createDiagram({ container, code: SCENE.replace("layout LR", "layout RL"), responsiveLayout: true, autoplay: false, copyright: false });
+    const web = container.querySelector<HTMLElement>('[data-node="Web"]')!;
+    const api = container.querySelector<HTMLElement>('[data-node="API"]')!;
+    expect(parseFloat(web.style.left)).toBeGreaterThan(parseFloat(api.style.left));
+    width = 480;
+    diagram.resize();
+    expect(parseFloat(web.style.top)).toBeGreaterThan(parseFloat(api.style.top));
+    diagram.destroy();
+  });
+
+  it("coalesces resize notifications and cancels pending work on destroy", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const diagram = createDiagram({ container, code: SCENE, autoplay: false, copyright: false });
+    for (let notification = 0; notification < 5; notification++) resizeCallbacks[0]();
+    expect(animationFrameCallbacks).toHaveLength(1);
+    diagram.destroy();
+    expect(cancelAnimationFrame).toHaveBeenCalledWith(1);
+  });
+
+  it.each([undefined, false])("preserves explicit layout when responsiveLayout is %s", (responsiveLayout) => {
+    const container = document.createElement("div");
+    let width = 1000;
+    Object.defineProperties(container, {
+      clientWidth: { get: () => width },
+      clientHeight: { get: () => 600 },
+    });
+    document.body.appendChild(container);
+    const diagram = createDiagram({ container, code: SCENE, responsiveLayout, autoplay: false, copyright: false });
+    const firstNode = container.querySelector<HTMLElement>('[data-node="Web"]')!;
+    const initialLeft = firstNode.style.left;
+    width = 480;
+    diagram.resize();
+    expect(firstNode.style.left).toBe(initialLeft);
+    diagram.destroy();
+  });
+
   it("defaults playback to normalized 1x and falls back to 1x for invalid initial rates", () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
@@ -158,6 +240,60 @@ describe("createDiagram integration", () => {
     animationFrameCallbacks[1](2000);
     expect(diagram.currentTime()).toBeCloseTo(0.4);
 
+    diagram.destroy();
+  });
+
+  it("plays native animations without seeking every animation on each frame", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const diagram = createDiagram({ container, code: SCENE, autoplay: false, copyright: false });
+    const animations = animateStub.mock.results.map((result) => result.value as Animation);
+    const playSpies = animations.map((animation) => vi.spyOn(animation, "play"));
+    const pauseSpies = animations.map((animation) => vi.spyOn(animation, "pause"));
+    const timeWrites = animations.map((animation) => {
+      let currentTime = animation.currentTime;
+      const setTime = vi.fn((value) => { currentTime = value; });
+      Object.defineProperty(animation, "currentTime", { get: () => currentTime, set: setTime });
+      return setTime;
+    });
+
+    diagram.play();
+    expect(playSpies.every((spy) => spy.mock.calls.length === 1)).toBe(true);
+    expect(animations.every((animation) => animation.playbackRate === 0.8)).toBe(true);
+    timeWrites.forEach((spy) => spy.mockClear());
+    animationFrameCallbacks[0](1000);
+    animationFrameCallbacks[1](1016);
+    expect(timeWrites.every((spy) => spy.mock.calls.length === 0)).toBe(true);
+
+    diagram.pause();
+    expect(pauseSpies.every((spy) => spy.mock.calls.length > 0)).toBe(true);
+    expect(timeWrites.every((spy, index) => spy.mock.invocationCallOrder[0] > pauseSpies[index].mock.invocationCallOrder[0])).toBe(true);
+    expect(animations.every((animation) => animation.currentTime === diagram.currentTime() * 1000)).toBe(true);
+    diagram.seek(1);
+    expect(animations.every((animation) => animation.currentTime === 1000)).toBe(true);
+    diagram.setPlaybackRate(2);
+    diagram.play();
+    expect(animations.every((animation) => animation.playbackRate === 1.6)).toBe(true);
+    diagram.seek(0.5);
+    expect(animations.every((animation) => animation.currentTime === 500)).toBe(true);
+    expect(diagram.isPlaying()).toBe(true);
+    diagram.destroy();
+  });
+
+  it.each([false, true])("synchronizes native animation time at the end with loop=%s", (loop) => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const onEnded = vi.fn();
+    const diagram = createDiagram({ container, code: SCENE, autoplay: false, copyright: false, loop, onEnded });
+    const animations = animateStub.mock.results.map((result) => result.value as Animation);
+    diagram.seek(diagram.duration() - 0.1);
+    diagram.play();
+    animationFrameCallbacks[0](1000);
+    animationFrameCallbacks[1](1250);
+    expect(diagram.currentTime()).toBeCloseTo(loop ? 0.1 : diagram.duration());
+    expect(diagram.isPlaying()).toBe(loop);
+    expect(animations.every((animation) => animation.currentTime === diagram.currentTime() * 1000)).toBe(true);
+    expect(onEnded).toHaveBeenCalledTimes(loop ? 0 : 1);
     diagram.destroy();
   });
 

@@ -76,6 +76,66 @@ const shortestPath = findShortestRoute("Client", "LedgerDb", ast);
 console.log("Route:", shortestPath); // ['Client', 'Gateway', 'PaymentSvc', 'LedgerDb']
 ```
 
+## Responsive Playback
+
+Animations run on the browser's Web Animations timeline. JavaScript synchronizes
+them on play, pause, seek, speed changes, and layout changes, not on every frame.
+
+`responsiveLayout` controls whether the renderer may change orientation:
+
+- `"auto"` (default): adapt diagrams without an explicit `layout` directive.
+- `true`: also adapt diagrams that declare a direction, as in the playground.
+- `false`: keep the source layout fixed and only scale the scene.
+
+With `fitMode: "auto"` (default), automatically sized architecture, flowchart,
+state, and tree diagrams compare cached horizontal and vertical layouts against
+the available width and height. Orientation changes only when the alternative
+improves the fitted scale by more than 20%. Other cases use a width breakpoint
+around 640px with a 32px margin on either side. Reverse flow stays BT/RL, and
+explicit scene dimensions are preserved, including partially specified sizes.
+
+Auto fitting uses width-first framing in natural-height embeds and contain
+framing in height-constrained hosts. If fitting requires a scale below
+`minReadableScale` (default `0.9`, valid range `0` to `1`), the viewport scrolls
+instead of shrinking further. Set it to `0` to disable the readability floor.
+The Fit control toggles between a contained overview and readable framing.
+Scrollable framing starts horizontally centered and pins storyboard camera motion
+so frame cues do not compete with manual scrolling; other animations keep playing.
+Explicit `fitMode: "width"` and `fitMode: "contain"` keep their original scaling
+behavior without a readability floor.
+
+Bounds include routed paths and label rectangles, even outside the estimated
+scene dimensions, and are cached after mounting or re-layout. Container resizing
+preserves playback time and state. ResizeObserver handles split panes as well as
+window resizing; hosts can call `diagram.resize()` after revealing a hidden preview.
+
+## Animated GIF Export
+
+```typescript
+const gif = await diagram.exportGif({
+  fps: 12,
+  pixelRatio: 1,
+  maxFrames: 120,
+  maxWidth: 1600,
+  holdEndMs: 1400,
+  loop: true,
+  onProgress: (progress) => console.log(Math.round(progress * 100)),
+});
+```
+
+GIF export captures the rendered DOM, including node styling, shadows, and
+the current animation state. Use `mode: "pure"` for the previous vector-based
+rasterization path. PNG and SVG exports keep their existing defaults.
+
+`fps` and `pixelRatio` are targets. Long scenes are sampled evenly across the
+complete timeline, with at most `maxFrames` frames including the final hold.
+Output width is capped by `maxWidth`; resolution is reduced further when needed
+to keep captured frames within a 48-megapixel budget. Repeated frames are merged
+without losing their delays, so compression preserves playback duration.
+
+Playback time and playing/paused state are restored after export, including
+when capture fails. Browser font and cross-origin image restrictions still apply.
+
 ## API Exports
 
 | Export | Type | Description |
@@ -87,7 +147,7 @@ console.log("Route:", shortestPath); // ['Client', 'Gateway', 'PaymentSvc', 'Led
 | `clearImpactHighlight(container)` | `Function` | Resets all impact highlighting |
 | `exportDiagramAsVectorSvg(container, opts?)` | `Function` | Export pure SVG vector snapshot of active scene frame |
 | `exportDiagramAsPng(container, opts?)` | `Function` | Export high-DPI rasterized PNG Blob |
-| `exportDiagramAsGif(diagram, opts?)` | `Function` | Export animated GIF89a recording |
+| `exportDiagramAsGif(container, timeline, opts?)` | `Function` | Export animated GIF89a recording |
 
 ## Ecosystem & Documentation
 

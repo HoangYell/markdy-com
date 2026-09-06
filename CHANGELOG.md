@@ -5,6 +5,20 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.3] — 2026-09-06
+
+### Fixed & Enhanced
+- **📐 Aspect-Ratio Aware Auto-Layout for Split & Square Desktop Containers (`@markdy/renderer-dom`, `website`)**:
+  - Resolved issue where desktop split studios and square preview containers (e.g. 580px wide × 430px tall) were prematurely treated as mobile portrait screens due to naive `width < 640px` breakpoint, incorrectly forcing multi-tier diagrams into vertical stacking (`TB`).
+  - Added aspect-ratio ($W / H$) and constrained container height checks to `detectContainerOrientation()`: keeps horizontal layout (`LR`) when $W / H \ge 1.0$, preventing tall vertical tier overflow.
+  - Expanded adaptive layout scoring in `scaleScene` to support `"medallion"`, `"swimlane"`, `"timeline"`, `"gantt"`, `"layers"`, and `"loop"`, with a guard ensuring landscape containers ($W / H \ge 1.0$) are never forced into portrait stacking.
+  - Set homepage Live Studio stage to `fitMode: "contain"` with `targetWidthRatio: 0.96` so all blueprints fit cleanly without vertical clipping.
+- **🟩 Boundary Progress Bar Edge Tracking & Aspect Normalization (`@markdy/renderer-dom`)**:
+  - Fixed boundary progress bar slicing through diagram centers by dynamically computing aspect angle normalization from rendered client dimensions.
+  - Converted boundary wrapper to sticky positioning with negative margins to track perimeter borders across all scale modes.
+- **🎬 Animated GIF & High-DPI PNG Exporters (`@markdy/renderer-dom`)**:
+  - Added native `diagram.exportGif()` and `diagram.exportPng()` APIs backed by a lightweight, zero-dependency pure TypeScript GIF encoder.
+
 ## [1.4.2] — 2026-09-06
 
 ### Fixed & Enhanced

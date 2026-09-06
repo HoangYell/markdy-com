@@ -51,7 +51,9 @@
     "@markdy/compat": "workspace:*",
     "@markdy/core": "workspace:*",
     "@markdy/renderer-dom": "workspace:*",
-    "@markdy/stdlib-systems": "workspace:*"
+    "@markdy/stdlib-systems": "workspace:*",
+    "mdast-util-from-markdown": "^2.0.3",
+    "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
     "@types/node": "^25.9.5",

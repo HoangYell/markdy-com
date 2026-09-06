@@ -1,21 +1,32 @@
-scene "Active-Active Failover & Raft Consensus" theme=paper
+scene "Active-Active Apps & Aurora Regional Failover" theme=paper
 
-gateway Route53DNS "AWS Route53 Latency DNS" icon=aws
-service PrimaryCluster "Region US-East Cluster" icon=kubernetes @src="infra/us-east.tf#L20"
-database AuroraMasterEast "Aurora DB (US-East)" icon=postgresql
-service SecondaryCluster "Region EU-West Cluster" icon=kubernetes @src="infra/eu-west.tf#L20"
-database AuroraMasterWest "Aurora DB (EU-West)" icon=postgresql
-service QuorumWitness "Raft Quorum Witness" icon=golang @src="raft/witness.go#L12"
+gateway Route53DNS "Route53 Latency Routing" icon=aws
+service PrimaryCluster "US-East Application" icon=kubernetes
+database AuroraMasterEast "Aurora US-East: Initial Writer" icon=postgresql
+service SecondaryCluster "EU-West Application" icon=kubernetes
+database AuroraMasterWest "Aurora EU-West: Initial Reader" icon=postgresql
+service RecoveryControl "Managed Recovery Workflow" icon=aws
 
-beat active_routing "1. Balanced Dual-Region Active Traffic":
-  Route53DNS -> PrimaryCluster "50% US Traffic"
-  PrimaryCluster -> AuroraMasterEast "Read/Write Transaction"
-  Route53DNS -> SecondaryCluster "50% EU Traffic"
-  SecondaryCluster -> AuroraMasterWest "Read/Write Transaction"
-  AuroraMasterEast ~> AuroraMasterWest "Bi-Directional Stream Sync"
+beat active_routing "1. Active Applications with Regional Reads":
+  Route53DNS -> PrimaryCluster "Route by latency & health"
+  Route53DNS -> SecondaryCluster "Route by latency & health"
+  PrimaryCluster -> AuroraMasterEast "Read from primary"
+  SecondaryCluster -> AuroraMasterWest "Local read (may lag)"
 
-beat failover_quorum "2. Quorum Failover on Regional Outage":
-  QuorumWitness -> PrimaryCluster "Health Check: TIMEOUT"
-  QuorumWitness ~> Route53DNS "Trigger Instant Failover"
-  Route53DNS -> SecondaryCluster "Reroute 100% Global Load"
-  glow SecondaryCluster color=#16a34a & glow PrimaryCluster color=#dc2626
+beat single_writer "2. One Writer with Asynchronous Replication":
+  PrimaryCluster -> AuroraMasterEast "Write via global writer endpoint"
+  SecondaryCluster -> AuroraMasterEast "Write via global writer endpoint"
+  AuroraMasterEast ~> AuroraMasterWest "Asynchronous replication"
+
+beat promote_replica "3. Primary Outage: Promote Replica (Data Loss Possible)":
+  glow PrimaryCluster AuroraMasterEast color=#dc2626
+  RecoveryControl -> AuroraMasterWest "Managed failover: promote writer"
+  RecoveryControl <- AuroraMasterWest "Promotion complete; writer endpoint updated"
+  glow AuroraMasterWest color=#16a34a
+
+beat recover_traffic "4. Resume Writes after Promotion & Reconnection":
+  RecoveryControl ~> Route53DNS "Route away from failed region; TTL applies"
+  Route53DNS -> SecondaryCluster "New requests use healthy region"
+  SecondaryCluster -> AuroraMasterWest "Write via reconnected global writer endpoint"
+  SecondaryCluster <- AuroraMasterWest "Transaction committed"
+  glow SecondaryCluster color=#16a34a

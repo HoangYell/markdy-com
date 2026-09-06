@@ -21,6 +21,36 @@ describe("Width-First Responsiveness & Auto-Scaling", () => {
   });
 
   describe("Whitespace Cropping (Bounding Box Optimization)", () => {
+    it("keeps nodes beyond the estimated canvas reachable, including negative coordinates", () => {
+      const plan = compilePlan(parse('scene "Overflow"\nservice Gateway'), resolveTheme("paper"));
+      plan.nodes[0].x = -120;
+      plan.nodes[0].y = -80;
+      plan.nodes[0].width = plan.meta.width + 240;
+      plan.nodes[0].height = plan.meta.height + 160;
+      const bounds = computeDiagramContentBounds(plan, { padding: 12 });
+      expect(bounds.minX).toBe(-132);
+      expect(bounds.minY).toBe(-92);
+      expect(bounds.maxX).toBe(plan.meta.width + 132);
+      expect(bounds.maxY).toBe(plan.meta.height + 92);
+    });
+
+    it.each(["architecture", "timeline"])("includes routed paths and labels outside the estimated %s canvas", (type) => {
+      const plan = compilePlan(parse(`scene "Routing bounds" type=${type}\nservice Gateway\nservice Backend`), resolveTheme("paper"));
+      const bounds = computeDiagramContentBounds(plan, {
+        padding: 12,
+        routedEdges: [{
+          points: [{ x: -80, y: -60 }, { x: plan.meta.width + 100, y: plan.meta.height + 80 }],
+          labelRect: { x1: -120, y1: -90, x2: plan.meta.width + 140, y2: plan.meta.height + 100 },
+        }],
+      });
+      expect(bounds.minX).toBe(-132);
+      expect(bounds.minY).toBe(-102);
+      expect(bounds.maxX).toBe(plan.meta.width + 152);
+      expect(bounds.maxY).toBe(plan.meta.height + 112);
+      expect(bounds.width).toBe(bounds.maxX - bounds.minX);
+      expect(bounds.height).toBe(bounds.maxY - bounds.minY);
+    });
+
     it("strips out redundant canvas margins and returns a tight bounding box around nodes", () => {
       const code = `
 scene theme=paper
@@ -130,6 +160,101 @@ beat flow:
   });
 
   describe("100% Width Container Target & Scale Factor Calculation", () => {
+    it.each(["width", "height"])("preserves an explicit %s while sizing the other dimension automatically", (dimension) => {
+      const container = document.createElement("div");
+      Object.defineProperties(container, { clientWidth: { value: 360 }, clientHeight: { value: 240 } });
+      document.body.appendChild(container);
+      const diagram = createDiagram({
+        container,
+        code: `scene ${dimension}=520\nservice Start\nservice End\nbeat flow:\n  Start -> End`,
+        autoplay: false,
+      });
+      const plan = (container as any).__markdyPlan;
+      expect(plan.meta[dimension]).toBe(520);
+      expect(plan.meta[dimension === "width" ? "height" : "width"]).toBeGreaterThan(0);
+      diagram.destroy();
+    });
+
+    it("toggles between readable scrolling and an overview without changing playback time", () => {
+      const container = document.createElement("div");
+      Object.defineProperties(container, { clientWidth: { value: 360 }, clientHeight: { value: 220 } });
+      document.body.appendChild(container);
+      const diagram = createDiagram({
+        container,
+        code: "scene\nlayout LR\nservice Start\nservice Middle\nservice End\nbeat flow:\n  Start -> Middle -> End",
+        autoplay: false,
+        controls: { fit: true },
+      });
+      const viewport = container.querySelector<HTMLElement>(".markdy-viewport")!;
+      const fit = container.querySelector<HTMLButtonElement>(".markdy-control-fit")!;
+      diagram.seek(0.5);
+      expect(viewport.style.overflow).toBe("auto");
+      expect(viewport.scrollLeft).toBeGreaterThan(0);
+      const boundaryProgress = container.querySelector<HTMLElement>(".markdy-boundary-progress")!;
+      expect(boundaryProgress.style.position).toBe("sticky");
+      expect(boundaryProgress.style.width).toBe("100%");
+      expect(boundaryProgress.style.height).toBe("100%");
+      const camera = container.querySelector<HTMLElement>(".markdy-camera-layer")!;
+      expect(camera.style.getPropertyPriority("transform")).toBe("important");
+      viewport.scrollLeft = 80;
+      diagram.resize();
+      expect(viewport.scrollLeft).toBe(80);
+      fit.click();
+      expect(viewport.style.overflow).toBe("hidden");
+      expect(fit.getAttribute("aria-pressed")).toBe("true");
+      expect(diagram.currentTime()).toBe(0.5);
+      fit.click();
+      expect(viewport.style.overflow).toBe("auto");
+      expect(viewport.scrollLeft).toBeGreaterThan(0);
+      expect(fit.getAttribute("aria-pressed")).toBe("false");
+      diagram.destroy();
+    });
+
+    it.each(["auto", "contain", "width"] as const)("uses %s framing without changing explicitly declared scene dimensions", (fitMode) => {
+      const container = document.createElement("div");
+      Object.defineProperties(container, { clientWidth: { value: 360 }, clientHeight: { value: 220 } });
+      document.body.appendChild(container);
+      const diagram = createDiagram({
+        container,
+        code: 'scene width=1200 height=800\nlayout LR\nservice Start\nservice End\nbeat flow:\n  Start -> End "request"',
+        autoplay: false,
+        fitMode,
+      });
+      const viewport = container.querySelector<HTMLElement>(".markdy-viewport")!;
+      const scene = container.querySelector<HTMLElement>(".markdy-scene-root")!;
+      const scale = parseFloat(scene.style.getPropertyValue("--markdy-scale"));
+      expect(scene.style.width).toBe("1200px");
+      expect(scene.style.height).toBe("800px");
+      if (fitMode === "auto") {
+        expect(scale).toBeGreaterThanOrEqual(0.9);
+        expect(viewport.style.overflow).toBe("auto");
+        expect(viewport.tabIndex).toBe(0);
+        const wheel = new WheelEvent("wheel", { deltaY: 100, cancelable: true });
+        viewport.dispatchEvent(wheel);
+        expect(wheel.defaultPrevented).toBe(false);
+      } else {
+        expect(viewport.style.overflow).toBe("hidden");
+        expect(scale).toBeLessThan(0.9);
+      }
+      diagram.destroy();
+    });
+
+    it("uses width-fit for natural-height embeds and allows disabling the readability floor", () => {
+      const container = document.createElement("div");
+      Object.defineProperty(container, "clientWidth", { value: 360 });
+      document.body.appendChild(container);
+      const diagram = createDiagram({
+        container,
+        code: "scene\nlayout LR\nservice Start\nservice End\nbeat flow:\n  Start -> End",
+        autoplay: false,
+        minReadableScale: 0,
+      });
+      const viewport = container.querySelector<HTMLElement>(".markdy-viewport")!;
+      expect(viewport.dataset.fitMode).toBe("width");
+      expect(viewport.style.overflow).toBe("hidden");
+      diagram.destroy();
+    });
+
     it("calculates scale factor = containerWidth / contentWidth and sets --markdy-scale", () => {
       const container = document.createElement("div");
       document.body.appendChild(container);
@@ -169,6 +294,36 @@ beat main:
   });
 
   describe("Responsive Layout Rules by Orientation", () => {
+    it("chooses a wider but shorter layout in a short preview instead of following the width breakpoint", () => {
+      const container = document.createElement("div");
+      let height = 180;
+      Object.defineProperties(container, {
+        clientWidth: { value: 600 },
+        clientHeight: { get: () => height },
+      });
+      document.body.appendChild(container);
+      const diagram = createDiagram({
+        container,
+        code: "scene\nservice Start\nservice Middle\nservice End\nbeat flow:\n  Start -> Middle -> End",
+        autoplay: false,
+        fitMode: "auto",
+      });
+      const plan = (container as any).__markdyPlan;
+      expect(plan.meta.direction).toBe("LR");
+      diagram.seek(0.5);
+      diagram.play();
+      height = 900;
+      diagram.resize();
+      expect(plan.meta.direction).toBe("TB");
+      expect(diagram.currentTime()).toBe(0.5);
+      expect(diagram.isPlaying()).toBe(true);
+      const nodes = plan.nodes;
+      height = 880;
+      diagram.resize();
+      expect(plan.nodes).toBe(nodes);
+      diagram.destroy();
+    });
+
     it("switches to vertical Top-to-Bottom (TB) on portrait viewport", () => {
       const container = document.createElement("div");
       document.body.appendChild(container);
@@ -401,6 +556,104 @@ step S3 "Phase 3: Shadow Reads"
       const scaleStr = container.style.getPropertyValue("--markdy-scale");
       const scale = parseFloat(scaleStr);
       expect(scale).toBeGreaterThan(0.50);
+
+      diagram.destroy();
+    });
+
+    it("preserves horizontal orientation (LR) on desktop split pane (580x430) where width < 640 but width > height", () => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+
+      // Desktop split pane: width is 580 (< 640), but height is 430 -> width > height (ratio ~1.35)
+      Object.defineProperty(container, "clientWidth", { value: 580, configurable: true });
+      Object.defineProperty(container, "clientHeight", { value: 430, configurable: true });
+
+      const code = `
+scene "Streaming Lakehouse Medallion Pipeline" theme=paper
+bronze BronzeRaw "Bronze: Raw Ingest (Kafka Events)"
+bronze BronzeDelta "Bronze: Delta Lake (Append-Only)"
+silver SilverCleanse "Silver: Cleanse (Schema Validate)"
+silver SilverEnrich "Silver: Curated (De-duplicated)"
+gold GoldAggregates "Gold: Business Metrics (Rollups)"
+gold GoldFeatureStore "Gold: Low-Latency Feature Store"
+client BIDashboards "Executive BI Dashboards"
+client MLServing "Real-Time ML Inference"
+beat main:
+  BronzeRaw -> SilverCleanse -> GoldAggregates -> BIDashboards
+`;
+      const diagram = createDiagram({
+        container,
+        code,
+        responsiveLayout: true,
+        fitMode: "auto",
+      });
+
+      const plan = (container as any).__markdyPlan;
+      expect(plan.meta.direction).toBe("LR");
+
+      diagram.destroy();
+    });
+
+    it("preserves horizontal orientation (LR) on square container (500x500) where vertical space is constrained", () => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+
+      // Square container: 500x500 (ratio = 1.0)
+      Object.defineProperty(container, "clientWidth", { value: 500, configurable: true });
+      Object.defineProperty(container, "clientHeight", { value: 500, configurable: true });
+
+      const code = `
+scene "Streaming Lakehouse Medallion Pipeline" theme=paper
+bronze BronzeRaw "Bronze: Raw Ingest (Kafka Events)"
+bronze BronzeDelta "Bronze: Delta Lake (Append-Only)"
+silver SilverCleanse "Silver: Cleanse (Schema Validate)"
+silver SilverEnrich "Silver: Curated (De-duplicated)"
+gold GoldAggregates "Gold: Business Metrics (Rollups)"
+gold GoldFeatureStore "Gold: Low-Latency Feature Store"
+client BIDashboards "Executive BI Dashboards"
+client MLServing "Real-Time ML Inference"
+beat main:
+  BronzeRaw -> SilverCleanse -> GoldAggregates -> BIDashboards
+`;
+      const diagram = createDiagram({
+        container,
+        code,
+        responsiveLayout: true,
+        fitMode: "auto",
+      });
+
+      const plan = (container as any).__markdyPlan;
+      expect(plan.meta.direction).toBe("LR");
+
+      diagram.destroy();
+    });
+
+    it("switches medallion diagram to vertical (TB) on genuine mobile phone portrait screen (390x844)", () => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+
+      // Mobile phone portrait: width is 390, height is 844 -> height >> width (ratio ~0.46)
+      Object.defineProperty(container, "clientWidth", { value: 390, configurable: true });
+      Object.defineProperty(container, "clientHeight", { value: 844, configurable: true });
+
+      const code = `
+scene "Streaming Lakehouse Medallion Pipeline" theme=paper
+bronze BronzeRaw "Bronze: Raw Ingest"
+silver SilverCleanse "Silver: Cleanse"
+gold GoldAggregates "Gold: Business Metrics"
+client BIDashboards "Executive BI Dashboards"
+beat main:
+  BronzeRaw -> SilverCleanse -> GoldAggregates -> BIDashboards
+`;
+      const diagram = createDiagram({
+        container,
+        code,
+        responsiveLayout: true,
+        fitMode: "auto",
+      });
+
+      const plan = (container as any).__markdyPlan;
+      expect(plan.meta.direction).toBe("TB");
 
       diagram.destroy();
     });

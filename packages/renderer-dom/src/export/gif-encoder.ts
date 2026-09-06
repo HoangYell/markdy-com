@@ -349,6 +349,7 @@ export function encodeGifSequence(
   }
 
   let prevQuantized: Uint8Array | null = null;
+  let previousDelayOffset = -1;
 
   for (let frameIdx = 0; frameIdx < frames.length; frameIdx++) {
     const frame = frames[frameIdx];
@@ -360,6 +361,7 @@ export function encodeGifSequence(
 
       // Graphic Control Extension (Disposal 1: Leave in place)
       buffer.push(0x21, 0xf9, 0x04, 0x04);
+      previousDelayOffset = buffer.length;
       pushU16(delayHundredths);
       buffer.push(0x00, 0x00);
 
@@ -396,8 +398,14 @@ export function encodeGifSequence(
       }
 
       if (maxX < minX || maxY < minY) {
-        // Zero visual change across entire frame: skip encoding duplicate frame
-        continue;
+        const previousDelay = buffer[previousDelayOffset] | (buffer[previousDelayOffset + 1] << 8);
+        const combinedDelay = previousDelay + delayHundredths;
+        if (combinedDelay <= 0xffff) {
+          buffer[previousDelayOffset] = combinedDelay & 0xff;
+          buffer[previousDelayOffset + 1] = combinedDelay >> 8;
+          continue;
+        }
+        minX = maxX = minY = maxY = 0;
       }
 
       const diffW = maxX - minX + 1;
@@ -420,6 +428,7 @@ export function encodeGifSequence(
 
       // Graphic Control Extension (Disposal 1 + Transparent Flag 1, Index 255)
       buffer.push(0x21, 0xf9, 0x04, 0x05); // 0x05 = disposal 1 (leave) + transparency enabled
+      previousDelayOffset = buffer.length;
       pushU16(delayHundredths);
       buffer.push(TRANSPARENT_COLOR_INDEX, 0x00);
 
