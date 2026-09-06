@@ -5,6 +5,16 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.2] — 2026-09-06
+
+### Fixed & Enhanced
+- **📱 iOS iPhone WebKit Pseudo-Fullscreen Support (`@markdy/renderer-dom`, `website`)**:
+  - Fixed diagram fullscreen control button not activating on iPhone (Google Chrome and Safari on iOS).
+  - Apple WebKit restricts the HTML5 Fullscreen API on iPhones to `<video>` elements and stubs `Element.prototype.webkitRequestFullscreen` without throwing errors on DOM elements. Added `isNativeFullscreenSupported()` detection to reliably engage CSS pseudo-fullscreen overlay mode (`markdy--pseudo-fullscreen` & `markdy-fullscreen-host`) on iPhones and unsupported sandbox environments.
+  - Added background body scroll locking (`document.body.style.overflow = "hidden"`) during pseudo-fullscreen to prevent mobile gesture scrolling beneath diagrams.
+  - Implemented Dynamic Viewport units (`100dvh` / `100dvw`) and safe-area insets (`env(safe-area-inset-top)` / `env(safe-area-inset-bottom)`) so the fullscreen stage and bottom player controls fit mobile displays cleanly without collision with the iPhone dynamic island or home indicator bar.
+  - Synchronized Playground Studio canvas fullscreen theatre mode with identical iOS safe checks and dynamic viewport sizing.
+
 ## [1.4.1] — 2026-09-05
 
 ### Fixed & Enhanced

@@ -1941,6 +1941,21 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
     const host = container;
     let isPseudoFull = false;
+    let originalBodyOverflow: string | null = null;
+
+    function isNativeFullscreenSupported(): boolean {
+      if (typeof document === "undefined") return false;
+      // iOS WebKit on iPhone and iPod does not support Fullscreen API on standard DOM elements
+      if (typeof navigator !== "undefined" && /iPhone|iPod/i.test(navigator.userAgent)) {
+        return false;
+      }
+      return Boolean(
+        document.fullscreenEnabled ||
+        (document as any).webkitFullscreenEnabled ||
+        (document as any).mozFullScreenEnabled ||
+        (document as any).msFullscreenEnabled
+      );
+    }
 
     function syncFullscreenState(): void {
       const isFull =
@@ -1958,9 +1973,20 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
       if (isFull) {
         host.classList.add("markdy-fullscreen-host");
+        if (isPseudoFull) {
+          host.classList.add("markdy--pseudo-fullscreen");
+          if (typeof document !== "undefined" && document.body && originalBodyOverflow === null) {
+            originalBodyOverflow = document.body.style.overflow;
+            document.body.style.overflow = "hidden";
+          }
+        }
       } else {
         host.classList.remove("markdy-fullscreen-host");
         host.classList.remove("markdy--pseudo-fullscreen");
+        if (typeof document !== "undefined" && document.body && originalBodyOverflow !== null) {
+          document.body.style.overflow = originalBodyOverflow;
+          originalBodyOverflow = null;
+        }
       }
 
       // Re-sync controls and transforms
@@ -1983,36 +2009,48 @@ export function createDiagram(opts: DiagramOptions): Diagram {
           document.fullscreenElement === host ||
           document.fullscreenElement === viewport ||
           (document as any).webkitFullscreenElement === host ||
+          (document as any).webkitFullscreenElement === viewport ||
           (document as any).mozFullScreenElement === host ||
           (document as any).msFullscreenElement === host;
 
         if (!isCurrentlyFull) {
-          const req =
-            host.requestFullscreen?.bind(host) ||
-            (host as any).webkitRequestFullscreen?.bind(host) ||
-            (host as any).mozRequestFullScreen?.bind(host) ||
-            (host as any).msRequestFullscreen?.bind(host) ||
-            viewport.requestFullscreen?.bind(viewport) ||
-            (viewport as any).webkitRequestFullscreen?.bind(viewport);
+          let enteredNative = false;
+          if (isNativeFullscreenSupported()) {
+            const req =
+              host.requestFullscreen?.bind(host) ||
+              (host as any).webkitRequestFullscreen?.bind(host) ||
+              (host as any).mozRequestFullScreen?.bind(host) ||
+              (host as any).msRequestFullscreen?.bind(host) ||
+              viewport.requestFullscreen?.bind(viewport) ||
+              (viewport as any).webkitRequestFullscreen?.bind(viewport);
 
-          if (req) {
-            try {
-              await req();
-            } catch {
-              // If permissions policy or iframe sandbox blocks native fullscreen, fallback to CSS pseudo-fullscreen
-              isPseudoFull = true;
-              host.classList.add("markdy--pseudo-fullscreen");
-              syncFullscreenState();
+            if (req) {
+              try {
+                const res = req();
+                if (res && typeof res.then === "function") {
+                  await res;
+                }
+                enteredNative = Boolean(
+                  document.fullscreenElement === host ||
+                  document.fullscreenElement === viewport ||
+                  (document as any).webkitFullscreenElement === host ||
+                  (document as any).webkitFullscreenElement === viewport ||
+                  (document as any).mozFullScreenElement === host ||
+                  (document as any).msFullscreenElement === host
+                );
+              } catch {
+                enteredNative = false;
+              }
             }
-          } else {
+          }
+
+          if (!enteredNative) {
             isPseudoFull = true;
-            host.classList.add("markdy--pseudo-fullscreen");
             syncFullscreenState();
           }
         } else {
           if (isPseudoFull) {
             isPseudoFull = false;
-            host.classList.remove("markdy--pseudo-fullscreen");
             syncFullscreenState();
           } else {
             const exit =
@@ -2022,18 +2060,25 @@ export function createDiagram(opts: DiagramOptions): Diagram {
               (document as any).msExitFullscreen?.bind(document);
 
             if (exit) {
-              await exit();
+              try {
+                const res = exit();
+                if (res && typeof res.then === "function") {
+                  await res;
+                }
+              } catch {
+                // ignore
+              }
             }
+            isPseudoFull = false;
+            syncFullscreenState();
           }
         }
       } catch {
         if (!isPseudoFull) {
           isPseudoFull = true;
-          host.classList.add("markdy--pseudo-fullscreen");
           syncFullscreenState();
         } else {
           isPseudoFull = false;
-          host.classList.remove("markdy--pseudo-fullscreen");
           syncFullscreenState();
         }
       }
@@ -2047,7 +2092,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     const handleEscKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isPseudoFull) {
         isPseudoFull = false;
-        host.classList.remove("markdy--pseudo-fullscreen");
         syncFullscreenState();
       }
     };
@@ -2064,7 +2108,12 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       document.removeEventListener("mozfullscreenchange", syncFullscreenState);
       document.removeEventListener("MSFullscreenChange", syncFullscreenState);
       window.removeEventListener("keydown", handleEscKey);
+      if (originalBodyOverflow !== null && typeof document !== "undefined" && document.body) {
+        document.body.style.overflow = originalBodyOverflow;
+        originalBodyOverflow = null;
+      }
       if (isPseudoFull) {
+        isPseudoFull = false;
         host.classList.remove("markdy--pseudo-fullscreen");
         host.classList.remove("markdy-fullscreen-host");
       }

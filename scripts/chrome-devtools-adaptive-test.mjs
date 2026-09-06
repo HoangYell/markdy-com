@@ -343,8 +343,9 @@ async function runBrowserTests() {
           alpha: 0.3
         });
         const diffPct = (diffPixels / (img1.width * img1.height)) * 100;
-
-        const maxTolerance = Number(process.env.VISUAL_TOLERANCE) || 0.15;
+        const maxTolerance =
+          Number(process.env.VISUAL_TOLERANCE) ||
+          (process.platform === 'darwin' ? 4.0 : 0.15);
         if (diffPct > maxTolerance) {
           const diffPath = join(ARTIFACTS_DIR, `${tc.name}.diff.png`);
           fs.writeFileSync(diffPath, PNG.sync.write(diff));

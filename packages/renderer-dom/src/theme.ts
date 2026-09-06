@@ -703,16 +703,20 @@ export function ensureSceneStyles(doc: Document): void {
   inset: 0 !important;
   z-index: 999999 !important;
   width: 100vw !important;
+  width: 100dvw !important;
   height: 100vh !important;
+  height: 100dvh !important;
   max-width: 100vw !important;
+  max-width: 100dvw !important;
   max-height: 100vh !important;
+  max-height: 100dvh !important;
   background-color: var(--md-canvas, #0b101b) !important;
   box-sizing: border-box !important;
   display: flex !important;
   flex-direction: column !important;
   justify-content: space-between !important;
   align-items: center !important;
-  padding: 16px 20px 12px !important;
+  padding: max(16px, env(safe-area-inset-top, 16px)) max(20px, env(safe-area-inset-right, 20px)) max(12px, env(safe-area-inset-bottom, 12px)) max(20px, env(safe-area-inset-left, 20px)) !important;
   overflow: hidden !important;
 }
 .markdy-fullscreen-host .markdy-diagram-root,
@@ -736,6 +740,7 @@ export function ensureSceneStyles(doc: Document): void {
   height: 100% !important;
   max-width: 100% !important;
   max-height: calc(100vh - 64px) !important;
+  max-height: calc(100dvh - 64px) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -750,7 +755,7 @@ export function ensureSceneStyles(doc: Document): void {
   width: 100% !important;
   max-width: 1400px !important;
   margin: 0 auto !important;
-  padding: 8px 12px 4px !important;
+  padding: 8px 12px max(4px, env(safe-area-inset-bottom, 4px)) !important;
 }
 @media (hover: none) and (pointer: coarse) {
   .markdy-controls {

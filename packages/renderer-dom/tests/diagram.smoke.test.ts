@@ -1002,6 +1002,69 @@ service API "<img data-test=unsafe>"
     container.remove();
   });
 
+  it("activates pseudo-fullscreen gracefully on iPhone Chrome / iOS WebKit where native element fullscreen is unsupported", async () => {
+    const originalUA = navigator.userAgent;
+    const iPhoneUA =
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/125.0.6422.80 Mobile/15E148 Safari/604.1";
+    Object.defineProperty(navigator, "userAgent", {
+      value: iPhoneUA,
+      configurable: true,
+    });
+
+    const container = document.createElement("div");
+    (container as any).webkitRequestFullscreen = vi.fn().mockReturnValue(undefined);
+    document.body.appendChild(container);
+
+    const diagram = createDiagram({
+      container,
+      code: SCENE,
+      autoplay: false,
+      controls: {
+        fullscreen: true,
+      },
+    });
+
+    const fullBtn = container.querySelector<HTMLButtonElement>(".markdy-control-fullscreen");
+    expect(fullBtn).not.toBeNull();
+    expect(fullBtn?.getAttribute("aria-pressed")).toBe("false");
+    expect(fullBtn?.textContent).toContain("Full");
+    expect(container.classList.contains("markdy--pseudo-fullscreen")).toBe(false);
+
+    // Click to enter fullscreen on iPhone
+    fullBtn?.click();
+
+    // Since it's iPhone, it activates pseudo-fullscreen directly and locks body scroll
+    expect((container as any).webkitRequestFullscreen).not.toHaveBeenCalled();
+    expect(fullBtn?.getAttribute("aria-pressed")).toBe("true");
+    expect(fullBtn?.textContent).toContain("Exit");
+    expect(container.classList.contains("markdy-fullscreen-host")).toBe(true);
+    expect(container.classList.contains("markdy--pseudo-fullscreen")).toBe(true);
+    expect(document.body.style.overflow).toBe("hidden");
+
+    // Click again to exit
+    fullBtn?.click();
+    expect(fullBtn?.getAttribute("aria-pressed")).toBe("false");
+    expect(fullBtn?.textContent).toContain("Full");
+    expect(container.classList.contains("markdy--pseudo-fullscreen")).toBe(false);
+    expect(container.classList.contains("markdy-fullscreen-host")).toBe(false);
+    expect(document.body.style.overflow).toBe("");
+
+    // Test Esc key to exit
+    fullBtn?.click();
+    expect(container.classList.contains("markdy--pseudo-fullscreen")).toBe(true);
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    expect(container.classList.contains("markdy--pseudo-fullscreen")).toBe(false);
+    expect(fullBtn?.getAttribute("aria-pressed")).toBe("false");
+
+    diagram.destroy();
+    container.remove();
+
+    Object.defineProperty(navigator, "userAgent", {
+      value: originalUA,
+      configurable: true,
+    });
+  });
+
   it("renders and animates all connection lines properly in doodle theme", async () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
