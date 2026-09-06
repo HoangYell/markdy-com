@@ -2972,19 +2972,32 @@ Requirements:
       updateFullscreenUI(false);
       showToast("⤡ Exited fullscreen");
     } else {
-      let enteredNative = false;
-      try {
-        const req =
-          stagePane.requestFullscreen?.bind(stagePane) ||
-          (stagePane as any).webkitRequestFullscreen?.bind(stagePane) ||
-          (stagePane as any).mozRequestFullScreen?.bind(stagePane) ||
-          (stagePane as any).msRequestFullscreen?.bind(stagePane);
-        if (req) {
-          await req();
-          enteredNative = true;
+      const canNative =
+        typeof document !== "undefined" &&
+        !(typeof navigator !== "undefined" && /iPhone|iPod/i.test(navigator.userAgent)) &&
+        Boolean(
+          document.fullscreenEnabled ||
+          (document as any).webkitFullscreenEnabled ||
+          (document as any).mozFullScreenEnabled ||
+          (document as any).msFullscreenEnabled
+        );
+
+      if (canNative) {
+        try {
+          const req =
+            stagePane.requestFullscreen?.bind(stagePane) ||
+            (stagePane as any).webkitRequestFullscreen?.bind(stagePane) ||
+            (stagePane as any).mozRequestFullScreen?.bind(stagePane) ||
+            (stagePane as any).msRequestFullscreen?.bind(stagePane);
+          if (req) {
+            const res = req();
+            if (res && typeof res.then === "function") {
+              await res;
+            }
+          }
+        } catch {
+          // Fallback to CSS pseudo-fullscreen theatre
         }
-      } catch {
-        // Fallback to CSS pseudo-fullscreen theatre
       }
       updateFullscreenUI(true);
       if (triggerPlay && diagram) {
@@ -3656,7 +3669,11 @@ Requirements:
     inset: 0;
     z-index: 99999;
     width: 100vw;
+    width: 100dvw;
     height: 100vh;
+    height: 100dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
     border-radius: 0;
     border: none;
     background: #090d16;
@@ -3668,8 +3685,11 @@ Requirements:
   .preview-panel.director-theatre-active .stage {
     flex: 1 1 auto;
     height: calc(100vh - 46px);
+    height: calc(100dvh - 46px);
     width: 100vw;
+    width: 100dvw;
     max-height: 100vh;
+    max-height: 100dvh;
   }
 
   .preview-panel:fullscreen .stage-canvas,
