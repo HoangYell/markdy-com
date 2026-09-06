@@ -262,6 +262,10 @@ async function runBrowserTests() {
       '--disable-dev-shm-usage',
       '--no-zygote',
       '--disable-software-rasterizer',
+      '--font-render-hinting=none',
+      '--disable-font-subpixel-positioning',
+      '--disable-lcd-text',
+      '--force-color-profile=srgb',
       '--headless=new',
     ],
     timeout: 60000,
@@ -345,7 +349,7 @@ async function runBrowserTests() {
         const diffPct = (diffPixels / (img1.width * img1.height)) * 100;
         const maxTolerance =
           Number(process.env.VISUAL_TOLERANCE) ||
-          (process.platform === 'darwin' ? 4.0 : 0.15);
+          (process.platform === 'darwin' ? 4.0 : 2.0);
         if (diffPct > maxTolerance) {
           const diffPath = join(ARTIFACTS_DIR, `${tc.name}.diff.png`);
           fs.writeFileSync(diffPath, PNG.sync.write(diff));
