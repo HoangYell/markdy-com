@@ -127,6 +127,8 @@ export interface Diagram {
   exportSvg(options?: SvgExportOptions): string;
   exportPng(options?: PngExportOptions): Promise<Blob>;
   exportGif(options?: GifDiagramExportOptions): Promise<Blob>;
+  resize(): void;
+  resetView(): void;
   destroy(): void;
 }
 
@@ -1451,6 +1453,14 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     async exportGif(options?: GifDiagramExportOptions): Promise<Blob> {
       return await exportDiagramAsGif(container, diagram, options);
     },
+    resize() {
+      scaleScene();
+      applyViewportTransform();
+      syncControls();
+    },
+    resetView() {
+      resetViewportTransform();
+    },
     destroy() {
       diagram.pause();
       hostThemeObserver?.disconnect();
@@ -1959,6 +1969,11 @@ export function createDiagram(opts: DiagramOptions): Diagram {
         applyViewportTransform();
         syncControls();
       });
+      setTimeout(() => {
+        scaleScene();
+        applyViewportTransform();
+        syncControls();
+      }, 120);
     }
 
     async function toggleFullscreen(): Promise<void> {

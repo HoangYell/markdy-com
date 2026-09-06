@@ -715,6 +715,16 @@ export function ensureSceneStyles(doc: Document): void {
   padding: 16px 20px 12px !important;
   overflow: hidden !important;
 }
+.markdy-fullscreen-host .markdy-diagram-root,
+.markdy--pseudo-fullscreen .markdy-diagram-root {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
 .markdy-diagram-root:fullscreen .markdy-viewport,
 .markdy-diagram-root:-webkit-full-screen .markdy-viewport,
 .markdy-diagram-root:-moz-full-screen .markdy-viewport,
