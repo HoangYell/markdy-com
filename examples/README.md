@@ -26,6 +26,17 @@ Examples lead with scene content and keep optional `player:` configuration at th
   - [`18-layer-stack.markdy`](18-layer-stack.markdy) — OSI & abstraction layer stacked horizontal bands.
   - [`19-nested-containment.markdy`](19-nested-containment.markdy) — concentric defense-in-depth security perimeters.
   - [`20-player-configuration.markdy`](20-player-configuration.markdy) — script-owned playback, focused controls, interaction, and footer chrome.
+  - [`21-dynamic-port-multiplexing.markdy`](21-dynamic-port-multiplexing.markdy) - parallel fan-in connections and perimeter port allocation.
+  - [`22-code-provenance-anchors.markdy`](22-code-provenance-anchors.markdy) - verified links to Markdy's real parser, AST, compiler, and layout definitions.
+  - [`23-architectural-evolution-diff.markdy`](23-architectural-evolution-diff.markdy) - storyboard-driven migration from a monolith to event-driven services.
+  - [`24-blast-radius-impact-lens.markdy`](24-blast-radius-impact-lens.markdy) - root-fault highlighting and downstream transitive impact, including the analytics consumer.
+  - [`25-native-vector-symbols.markdy`](25-native-vector-symbols.markdy) - native technology symbols for cloud, storage, and messaging nodes.
+  - [`26-route-and-reach-share-cards.markdy`](26-route-and-reach-share-cards.markdy) - route inspection and cache/database reachability.
+  - [`27-zero-trust-mesh-blueprint.markdy`](27-zero-trust-mesh-blueprint.markdy) - identity, policy decisions, confidential workloads, and auditing.
+  - [`28-event-driven-cqrs-lakehouse.markdy`](28-event-driven-cqrs-lakehouse.markdy) - command events, stream processing, and analytical read models.
+  - [`29-agentic-react-tool-orchestrator.markdy`](29-agentic-react-tool-orchestrator.markdy) - agent context retrieval, tool invocation, and observations.
+  - [`30-active-active-failover-consensus.markdy`](30-active-active-failover-consensus.markdy) - active applications in two regions with a single Aurora writer, asynchronous replication, and managed promotion before recovered writes. The existing filename is retained for compatibility.
+  - [`31-width-first-responsive-autoscale.markdy`](31-width-first-responsive-autoscale.markdy) - a top-to-bottom mobile ingestion pipeline with adaptive canvas sizing.
 - `showcase/` — 17 premier 1-per-scene-type showcase diagrams featured on the homepage, plus 29 full archive blueprints in the gallery.
 - `astro-starter/` — a minimal Astro project embedding the `<Markdy />` component.
 
@@ -49,8 +60,14 @@ Compat-gate fixtures (baseline snapshot corpus) live alongside their snapshots i
 
 ## Verifying
 
+Example 22's source anchors are relative to the repository root. The semantic regression
+tests verify both file existence and the definition at each linked line; update the anchors
+when those definitions move. These tests also check response direction, downstream impact,
+single-writer failover sequencing, and the mobile node's built-in glyph selection.
+
 ```bash
 pnpm run verify:examples   # parse every file, assert no regressions
+pnpm --filter @markdy/core test -- tests/examples.test.ts # reviewed example semantics
 pnpm run gate              # compat-gate against baseline snapshots
 pnpm run ci                # full test + gate + verify pipeline
 ```

@@ -37,6 +37,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from "node:http";
 import { readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { spawn } from "node:child_process";
+import { fromMarkdown } from "mdast-util-from-markdown";
+import { visit } from "unist-util-visit";
 import { formatScene } from "./format.js";
 
 export interface CliIo {
@@ -781,40 +783,25 @@ export type ExtractedDiagram = {
 
 export function extractDiagramsFromMarkdown(content: string): ExtractedDiagram[] {
   const diagrams: ExtractedDiagram[] = [];
-  const lines = content.replace(/\r\n/g, "\n").split("\n");
+  const codeRanges: Array<{ start: number; end: number }> = [];
+  const tree = fromMarkdown(content);
 
-  // 1. Scan for fenced code blocks: ```markdy ... ``` or ```markdyscript ... ```
-  let inFence = false;
-  let fenceStartLine = 0;
-  let fenceBuffer: string[] = [];
+  visit(tree, (node) => {
+    if (node.type !== "code" && node.type !== "inlineCode") return;
 
-  for (let idx = 0; idx < lines.length; idx++) {
-    const line = lines[idx];
-    const lineNo = idx + 1;
-    const trimmed = line.trim();
-
-    if (!inFence) {
-      const match = trimmed.match(/^```+(markdy|markdyscript)\b/i);
-      if (match) {
-        inFence = true;
-        fenceStartLine = lineNo + 1;
-        fenceBuffer = [];
-        continue;
-      }
-    } else {
-      if (/^```+\s*$/.test(trimmed)) {
-        inFence = false;
-        diagrams.push({
-          code: fenceBuffer.join("\n"),
-          line: fenceStartLine,
-          kind: "fence",
-        });
-        fenceBuffer = [];
-        continue;
-      }
-      fenceBuffer.push(line);
+    const position = node.position;
+    if (position?.start.offset !== undefined && position.end.offset !== undefined) {
+      codeRanges.push({ start: position.start.offset, end: position.end.offset });
     }
-  }
+
+    if (node.type === "code" && /^(markdy|markdyscript)$/i.test(node.lang ?? "") && position) {
+      diagrams.push({
+        code: node.value.replace(/\r\n?/g, "\n"),
+        line: position.start.line + 1,
+        kind: "fence",
+      });
+    }
+  });
 
   // 2. Scan for JSX / MDX <Markdy ... /> or <MarkdyDiagram ... /> components
   const jsxRegex = /<(?:Markdy|MarkdyDiagram)\b([\s\S]*?)(?:\/>|<\/(?:Markdy|MarkdyDiagram)>)/g;
@@ -823,6 +810,9 @@ export function extractDiagramsFromMarkdown(content: string): ExtractedDiagram[]
   while ((jsxMatch = jsxRegex.exec(content)) !== null) {
     const tagContent = jsxMatch[1];
     const tagStartIndex = jsxMatch.index;
+    if (codeRanges.some((range) => tagStartIndex >= range.start && tagStartIndex < range.end)) {
+      continue;
+    }
     const lineBefore = content.slice(0, tagStartIndex).split("\n").length;
 
     // Look for code={`...`}

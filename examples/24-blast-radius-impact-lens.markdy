@@ -1,5 +1,5 @@
 // Showcase: Blast Radius & Impact Lens Analysis
-// Computes upstream dependency callers and downstream transitive blast radius.
+// Illustrates the root fault and its downstream transitive blast radius.
 scene "Blast Radius & Topology Impact Lens" theme=midnight
 
 client Ingest "Ingest Producer" icon=terminal
@@ -8,7 +8,7 @@ service Worker "Processing Engine" icon=golang
 service Transform "Data Transformer" icon=python stroke="#ef4444" accent="#ef4444" tech="Root Fault"
 cache HotBuffer "Redis Buffer" icon=redis stroke="#f97316" accent="#f97316" tech="Blast Radius"
 database CentralStore "Primary Warehouse" icon=postgres stroke="#f97316" accent="#f97316" tech="Blast Radius"
-service Analytics "Real-Time Dashboard" icon=grafana
+service Analytics "Real-Time Dashboard" icon=grafana stroke="#f97316" accent="#f97316" tech="Transitive Impact"
 
 beat pipeline_flow:
   Ingest -> Router "Push Telemetry" -> Worker "Task Queue"
@@ -19,4 +19,4 @@ beat pipeline_flow:
 
 beat simulate_impact "Cascading Blast Radius & Impact Lens":
   glow Transform color=#ef4444
-  glow HotBuffer color=#f97316 & glow CentralStore color=#f97316
+  glow HotBuffer CentralStore Analytics color=#f97316

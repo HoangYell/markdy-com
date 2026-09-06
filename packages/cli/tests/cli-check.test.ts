@@ -71,6 +71,119 @@ And another JSX component:
     expect(diagrams[2].code).toContain("service Auth");
   });
 
+  it("extracts tilde fences with metadata and preserves source lines", () => {
+    const markdown = [
+      "# Architecture",
+      "",
+      '~~~markdyscript title="Example"',
+      "scene theme=paper",
+      "service API",
+      "~~~",
+    ].join("\r\n");
+
+    expect(extractDiagramsFromMarkdown(markdown)).toEqual([
+      { code: "scene theme=paper\nservice API", line: 4, kind: "fence" },
+    ]);
+  });
+
+  it("ignores diagrams and JSX quoted inside documentation code blocks", () => {
+    const markdown = [
+      "````markdown",
+      "```markdy",
+      "this is only an example",
+      "```",
+      '<Markdy code={"not a live diagram"} />',
+      "````",
+      "",
+      "```markdy",
+      "scene",
+      "service API",
+      "```",
+    ].join("\n");
+
+    expect(extractDiagramsFromMarkdown(markdown)).toEqual([
+      { code: "scene\nservice API", line: 9, kind: "fence" },
+    ]);
+  });
+
+  it("extracts an unclosed fence through the end of the document", () => {
+    expect(extractDiagramsFromMarkdown("```markdy\nscene\nservice API")).toEqual([
+      { code: "scene\nservice API", line: 2, kind: "fence" },
+    ]);
+  });
+
+  it("requires closing fences to match the marker and minimum opening length", () => {
+    const markdown = [
+      "````markdy",
+      "scene",
+      "```",
+      "~~~~",
+      "service API",
+      "`````",
+    ].join("\n");
+
+    expect(extractDiagramsFromMarkdown(markdown)).toEqual([
+      { code: "scene\n```\n~~~~\nservice API", line: 2, kind: "fence" },
+    ]);
+  });
+
+  it.each([
+    ["blockquote", "> ~~~MARKDY\n> scene\n> service API\n> ~~~", 2],
+    ["list", "- Architecture\n\n  ~~~markdy\n  scene\n  service API\n  ~~~", 4],
+  ])("extracts diagrams in a %s with their original line numbers", (_container, markdown, line) => {
+    expect(extractDiagramsFromMarkdown(markdown)).toEqual([
+      { code: "scene\nservice API", line, kind: "fence" },
+    ]);
+  });
+
+  it("ignores inline and indented JSX examples but still extracts live MDX", () => {
+    const markdown = [
+      '`<Markdy code={"not a diagram"} />`',
+      "",
+      '    <MarkdyDiagram code={"not a diagram either"} />',
+      "",
+      '<Markdy code={`scene\nservice API`} />',
+    ].join("\n");
+
+    expect(extractDiagramsFromMarkdown(markdown)).toEqual([
+      { code: "scene\nservice API", line: 5, kind: "mdx-jsx" },
+    ]);
+  });
+
+  it("does not treat similarly named languages as Markdy", () => {
+    expect(extractDiagramsFromMarkdown("```markdy-example\nnot a diagram\n```")).toEqual([]);
+  });
+
+  it.each([false, true])("reports tilde-fenced syntax errors on the source line (json=%s)", async (json) => {
+    const dir = await tempDir();
+    const markdownFile = join(dir, "broken.md");
+    await writeFile(markdownFile, [
+      "# Architecture",
+      "",
+      "~~~markdy",
+      "scene theme=paper",
+      "service API",
+      'Client -> API "invalid cue outside beat"',
+      "~~~",
+    ].join("\n"), "utf8");
+
+    const io = new BufferIo();
+    const result = await runCli(["check", markdownFile, ...(json ? ["--json"] : [])], io);
+
+    expect(result.exitCode).toBe(1);
+    if (json) {
+      const report = JSON.parse(io.out.join("\n"));
+      expect(report.summary.passed).toBe(false);
+      expect(report.summary.diagramsVerified).toBe(1);
+      expect(report.results[0].errors).toEqual(expect.arrayContaining([
+        expect.objectContaining({ line: 6 }),
+      ]));
+      expect(io.err).toEqual([]);
+    } else {
+      expect(io.err.join("\n")).toContain(`FAIL ${markdownFile}:6 [CUE_OUTSIDE_BEAT]`);
+    }
+  });
+
   it("extracts and decodes base64 diagrams from built HTML", () => {
     const markdyCode = "scene theme=paper\nservice API\nbeat main:\n  show API";
     const b64 = Buffer.from(markdyCode, "utf8").toString("base64");

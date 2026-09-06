@@ -825,11 +825,11 @@ const playgroundStructuredData = [
                 <span>Smooth motion capture with Smart Inter-frame Diffing</span>
               </div>
             </div>
-            <div class="export-card-actions" style="display: flex; align-items: center; gap: 8px;">
+            <div class="export-card-actions export-card-actions--gif" style="display: flex; align-items: center; gap: 8px;">
               <select id="gif-quality-select" style="font-size: 11px; padding: 5px 8px; border-radius: 6px; background: rgba(255, 255, 255, 0.06); color: inherit; border: 1px solid rgba(255, 255, 255, 0.15); cursor: pointer; outline: none;" title="Select GIF Export Quality">
-                <option value="hd" selected style="background: #1e293b; color: #fff;">🌟 HD 2x (20fps)</option>
-                <option value="standard" style="background: #1e293b; color: #fff;">⚡ Standard 1.25x (14fps)</option>
-                <option value="compact" style="background: #1e293b; color: #fff;">🚀 Compact 1.0x (10fps)</option>
+                <option value="hd" selected style="background: #1e293b; color: #fff;">HD (up to 1600px)</option>
+                <option value="standard" style="background: #1e293b; color: #fff;">Standard (up to 1200px)</option>
+                <option value="compact" style="background: #1e293b; color: #fff;">Compact (up to 800px)</option>
               </select>
               <button id="copy-gif-btn" class="export-card-btn" type="button" title="Copy GIF Data URL or save locally">Copy GIF 📋</button>
               <button id="export-gif-btn" class="export-card-btn export-card-btn--primary" type="button" title="Download animated GIF sequence">Download .gif ↓</button>
@@ -1414,7 +1414,8 @@ const playgroundStructuredData = [
         interactiveViewport: false,
         clickToPlay: false,
         responsiveLayout: true,
-        fitMode: "width",
+        fitMode: "auto",
+        controls: { fit: true },
         targetWidthRatio: 0.98,
         shareUrl: `${window.location.origin}${window.location.pathname}`,
         onWarning(warning: Diagnostic) {
@@ -1667,27 +1668,36 @@ const playgroundStructuredData = [
     }
   }
 
+  function getGifExportConfig() {
+    const qualitySelect = document.getElementById("gif-quality-select") as HTMLSelectElement | null;
+    const quality = qualitySelect?.value || "hd";
+    return quality === "compact"
+      ? { fps: 10, pixelRatio: 1, maxFrames: 60, maxWidth: 800 }
+      : quality === "standard"
+      ? { fps: 14, pixelRatio: 1.25, maxFrames: 96, maxWidth: 1200 }
+      : { fps: 20, pixelRatio: 2, maxFrames: 120, maxWidth: 1600 };
+  }
+
+  function setGifExportBusy(busy: boolean) {
+    if (exportGifBtn) exportGifBtn.disabled = busy;
+    if (copyGifBtn) copyGifBtn.disabled = busy;
+    const qualitySelect = document.getElementById("gif-quality-select") as HTMLSelectElement | null;
+    if (qualitySelect) qualitySelect.disabled = busy;
+  }
+
   async function exportGif() {
     const target = stageCanvas || stage;
     if (!target || !diagram) {
       showToast("⚠️ No active diagram available to export.");
       return;
     }
-    const wasPlaying = diagram?.isPlaying?.();
-    const resumeAt = diagram?.currentTime?.() ?? 0;
-    const qualitySelect = document.getElementById("gif-quality-select") as HTMLSelectElement | null;
-    const quality = qualitySelect?.value || "hd";
-    const exportConfig = quality === "compact"
-      ? { fps: 10, pixelRatio: 1.0, diff: true }
-      : quality === "standard"
-      ? { fps: 14, pixelRatio: 1.25, diff: true }
-      : { fps: 20, pixelRatio: 2.0, diff: true };
+    if (exportGifBtn?.disabled || copyGifBtn?.disabled) return;
 
     try {
       showToast("🎬 Recording animated GIF frames (0%)...");
-      if (exportGifBtn) exportGifBtn.disabled = true;
+      setGifExportBusy(true);
       const gifBlob = await exportDiagramAsGif(target, diagram, {
-        ...exportConfig,
+        ...getGifExportConfig(),
         dither: false,
         onProgress: (progress, frame, total) => {
           const pct = Math.round(progress * 100);
@@ -1706,11 +1716,7 @@ const playgroundStructuredData = [
     } catch (err) {
       showToast("⚠️ GIF export failed: " + (err as Error).message);
     } finally {
-      if (exportGifBtn) exportGifBtn.disabled = false;
-      if (diagram) {
-        diagram.seek(resumeAt);
-        if (wasPlaying) diagram.play();
-      }
+      setGifExportBusy(false);
     }
   }
 
@@ -1720,21 +1726,13 @@ const playgroundStructuredData = [
       showToast("⚠️ No active diagram available to copy.");
       return;
     }
-    const wasPlaying = diagram?.isPlaying?.();
-    const resumeAt = diagram?.currentTime?.() ?? 0;
-    const qualitySelect = document.getElementById("gif-quality-select") as HTMLSelectElement | null;
-    const quality = qualitySelect?.value || "hd";
-    const exportConfig = quality === "compact"
-      ? { fps: 10, pixelRatio: 1.0, diff: true }
-      : quality === "standard"
-      ? { fps: 14, pixelRatio: 1.25, diff: true }
-      : { fps: 20, pixelRatio: 2.0, diff: true };
+    if (exportGifBtn?.disabled || copyGifBtn?.disabled) return;
 
     try {
       showToast("🎬 Recording animated GIF frames (0%)...");
-      if (copyGifBtn) copyGifBtn.disabled = true;
+      setGifExportBusy(true);
       const gifBlob = await exportDiagramAsGif(target, diagram, {
-        ...exportConfig,
+        ...getGifExportConfig(),
         dither: false,
         onProgress: (progress, frame, total) => {
           const pct = Math.round(progress * 100);
@@ -1767,11 +1765,7 @@ const playgroundStructuredData = [
     } catch (err) {
       showToast("⚠️ Failed to copy GIF: " + (err as Error).message);
     } finally {
-      if (copyGifBtn) copyGifBtn.disabled = false;
-      if (diagram) {
-        diagram.seek(resumeAt);
-        if (wasPlaying) diagram.play();
-      }
+      setGifExportBusy(false);
     }
   }
 
@@ -2394,7 +2388,7 @@ const playgroundStructuredData = [
     });
     if (mode === "canvas" || mode === "split") {
       requestAnimationFrame(() => {
-        diagram?.seek(diagram.currentTime());
+        diagram?.resize();
       });
     }
   }
@@ -3207,20 +3201,6 @@ Requirements:
     }
   });
 
-  let playgroundResizeTimer: any = null;
-  let lastPlaygroundWidth = typeof window !== "undefined" ? window.innerWidth : 0;
-  window.addEventListener("resize", () => {
-    if (typeof window === "undefined") return;
-    const currentWidth = window.innerWidth;
-    const crossedBreakpoint = (lastPlaygroundWidth < 768 && currentWidth >= 768) || (lastPlaygroundWidth >= 768 && currentWidth < 768) || (lastPlaygroundWidth < 1080 && currentWidth >= 1080) || (lastPlaygroundWidth >= 1080 && currentWidth < 1080);
-    lastPlaygroundWidth = currentWidth;
-    if (crossedBreakpoint) {
-      if (playgroundResizeTimer) clearTimeout(playgroundResizeTimer);
-      playgroundResizeTimer = setTimeout(() => {
-        render(getCode());
-      }, 150);
-    }
-  });
 </script>
 
 <style>
@@ -4898,6 +4878,7 @@ Requirements:
 
   .stage-canvas :global(.markdy-viewport) {
     width: 100% !important;
+    pointer-events: auto;
     flex: 1 1 auto;
     min-height: 0;
   }
@@ -6033,9 +6014,13 @@ Requirements:
   }
 
   /* ── Export & Share Modal ────────────────────────────────────────────── */
+  .export-modal {
+    width: min(640px, 92vw);
+  }
+
   .export-modal-box {
     max-width: 640px;
-    width: 92vw;
+    width: 100%;
   }
 
   .export-share-container {
@@ -6080,6 +6065,7 @@ Requirements:
 
   .export-share-input {
     flex: 1;
+    min-width: 0;
     height: 32px;
     padding: 0 0.65rem;
     border-radius: 6px;
@@ -6242,6 +6228,14 @@ Requirements:
     }
     .export-card-actions {
       width: 100%;
+    }
+    .export-card-actions--gif {
+      flex-wrap: wrap;
+    }
+    .export-card-actions--gif select {
+      flex-basis: 100%;
+      min-width: 0;
+      max-width: 100%;
     }
     .export-card-btn {
       flex: 1;

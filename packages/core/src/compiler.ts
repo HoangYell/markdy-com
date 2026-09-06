@@ -287,17 +287,33 @@ function assignRanks(
   const ranks = new Map<string, number>();
   for (const id of nodeIds) ranks.set(id, 0);
 
-  const forward = edges.filter((e) => e.kind !== "response" && !e.selfLoop);
-  for (let sweep = 0; sweep < nodeIds.length; sweep++) {
-    let changed = false;
-    for (const e of forward) {
-      const next = (ranks.get(e.from) ?? 0) + 1;
-      if (next > (ranks.get(e.to) ?? 0)) {
-        ranks.set(e.to, next);
-        changed = true;
-      }
+  const outgoing = new Map(nodeIds.map((id) => [id, [] as string[]]));
+  const indegree = new Map(nodeIds.map((id) => [id, 0]));
+  for (const edge of edges) {
+    if (edge.kind === "response" || edge.selfLoop || !outgoing.has(edge.from) || !outgoing.has(edge.to)) continue;
+    outgoing.get(edge.from)!.push(edge.to);
+    indegree.set(edge.to, indegree.get(edge.to)! + 1);
+  }
+
+  const queue = nodeIds.filter((id) => indegree.get(id) === 0);
+  const processed = new Set<string>();
+  let cursor = 0;
+  let cycleRoot = 0;
+  while (processed.size < nodeIds.length) {
+    if (cursor === queue.length) {
+      while (processed.has(nodeIds[cycleRoot])) cycleRoot++;
+      queue.push(nodeIds[cycleRoot]);
     }
-    if (!changed) break;
+    const id = queue[cursor++];
+    if (processed.has(id)) continue;
+    processed.add(id);
+    for (const target of outgoing.get(id)!) {
+      if (processed.has(target)) continue;
+      ranks.set(target, Math.max(ranks.get(target)!, ranks.get(id)! + 1));
+      const remaining = indegree.get(target)! - 1;
+      indegree.set(target, remaining);
+      if (remaining === 0) queue.push(target);
+    }
   }
 
   if (direction === "RL" || direction === "BT") {
@@ -318,7 +334,7 @@ function layoutRanked(
 ): PositionedNode[] {
   const nodeIds = Object.keys(ast.nodes);
   const dtype = diagramType(ast);
-  const direction = opts.forceVertical ? "TB" : ast.meta.direction;
+  const direction = opts.forceVertical ? (ast.meta.direction === "BT" ? "BT" : "TB") : ast.meta.direction;
   const ranks = assignRanks(nodeIds, edges, direction);
   const byRank = new Map<number, string[]>();
   for (const id of nodeIds) {
@@ -348,6 +364,7 @@ function layoutRanked(
 
   const rankOrder = new Map<string, number>();
   const sortedRanks = [...byRank.keys()].sort((a, b) => a - b);
+  if (direction === "RL" || direction === "BT") sortedRanks.reverse();
   for (const r of sortedRanks) {
     const ids = byRank.get(r)!;
     ids.sort((a, b) => {
@@ -371,6 +388,40 @@ function layoutRanked(
     ids.forEach((id, idx) => {
       rankOrder.set(id, idx);
     });
+  }
+
+  const neighbors = new Map(nodeIds.map((id) => [id, [] as string[]]));
+  for (const edge of edges) {
+    if (edge.kind === "response" || edge.selfLoop || !neighbors.has(edge.from) || !neighbors.has(edge.to)) continue;
+    neighbors.get(edge.from)!.push(edge.to);
+    neighbors.get(edge.to)!.push(edge.from);
+  }
+  for (let sweep = 0; sweep < 4; sweep++) {
+    let changed = false;
+    const order = sweep % 2 === 0 ? [...sortedRanks].reverse() : sortedRanks;
+    for (const rank of order) {
+      const ids = byRank.get(rank)!;
+      for (let index = 0; index < ids.length - 1; index++) {
+        const left = ids[index];
+        const right = ids[index + 1];
+        if (nodeGroupIndex.get(left) !== nodeGroupIndex.get(right)) continue;
+        let improvement = 0;
+        for (const leftNeighbor of neighbors.get(left)!) {
+          for (const rightNeighbor of neighbors.get(right)!) {
+            const neighborRank = ranks.get(leftNeighbor);
+            if (neighborRank === rank || neighborRank !== ranks.get(rightNeighbor)) continue;
+            improvement += Math.sign(rankOrder.get(leftNeighbor)! - rankOrder.get(rightNeighbor)!);
+          }
+        }
+        if (improvement <= 0) continue;
+        ids[index] = right;
+        ids[index + 1] = left;
+        rankOrder.set(right, index);
+        rankOrder.set(left, index + 1);
+        changed = true;
+      }
+    }
+    if (!changed) break;
   }
 
   const isVertical = direction === "TB" || direction === "BT";
@@ -522,6 +573,7 @@ function layoutRanked(
 function layoutTree(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
   const nodeIds = Object.keys(ast.nodes);
   if (nodeIds.length === 0) return [];
+  edges = cycleSafeEdges(nodeIds, edges);
 
   const nodeDims = new Map<string, { width: number; height: number }>();
   for (const id of nodeIds) {
@@ -724,20 +776,21 @@ function cycleSafeEdges(nodeIds: string[], edges: RoutedEdge[]): RoutedEdge[] {
 
   const visited = new Set<string>();
   const safe: RoutedEdge[] = [];
-  const visit = (id: string) => {
-    if (visited.has(id)) return;
-    visited.add(id);
-    for (const edge of outgoing.get(id) ?? []) {
-      if (visited.has(edge.to)) continue;
-      safe.push(edge);
-      visit(edge.to);
+  const roots = nodeIds.filter((id) => !incoming.has(id));
+  for (const root of [...roots, ...nodeIds]) {
+    if (visited.has(root)) continue;
+    const stack: Array<{ id: string; edge?: RoutedEdge }> = [{ id: root }];
+    while (stack.length > 0) {
+      const current = stack.pop()!;
+      if (visited.has(current.id)) continue;
+      visited.add(current.id);
+      if (current.edge) safe.push(current.edge);
+      const children = outgoing.get(current.id)!;
+      for (let index = children.length - 1; index >= 0; index--) {
+        stack.push({ id: children[index].to, edge: children[index] });
+      }
     }
-  };
-
-  for (const id of nodeIds) {
-    if (!incoming.has(id)) visit(id);
   }
-  for (const id of nodeIds) visit(id);
   return safe;
 }
 
@@ -2021,9 +2074,10 @@ export function computeAdaptiveDimensions(
     const children = new Map<string, string[]>();
     const hasParent = new Set<string>();
     for (const id of nodeIds) children.set(id, []);
-    const treeEdges = effectiveEdges.some((e) => e.structural)
+    const treeCandidates = effectiveEdges.some((e) => e.structural)
       ? effectiveEdges.filter((e) => e.structural)
       : effectiveEdges;
+    const treeEdges = cycleSafeEdges(nodeIds, treeCandidates);
     for (const e of treeEdges) {
       if (ast.nodes[e.from] && ast.nodes[e.to] && e.from !== e.to) {
         children.get(e.from)?.push(e.to);

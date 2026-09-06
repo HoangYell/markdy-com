@@ -1,4 +1,5 @@
 import type { DiagramType, EdgeKind, PositionedNode, RoutedEdge, ThemeTokens, TimedCue } from "@markdy/core";
+import { selectOptimalPorts } from "@markdy/core";
 import { placeFlowLabel, polylineLength, routeOrthogonal, routeTreeEdgePoints, selfLoopPath, toPathD, wrapFlowLabelText } from "./geometry/path.js";
 import { boxRect, inflateRect, type Point, type Rect } from "./geometry/rect.js";
 
@@ -513,16 +514,12 @@ export function nextEdgeLane(
   const keys = [`pair:${pair}`, `out:${fromId}`, `in:${toId}`];
 
   if (typeof from !== "string" && typeof to !== "string") {
-    const colFrom = Math.round(from.x / 80);
-    const colTo = Math.round(to.x / 80);
-    const corridorKey = colFrom !== colTo
-      ? `corridor-x:${Math.min(colFrom, colTo)}-${Math.max(colFrom, colTo)}`
-      : `corridor-y:${Math.round(from.y / 60)}-${Math.round(to.y / 60)}`;
-    keys.push(corridorKey);
+    const ports = selectOptimalPorts(from, to);
+    keys.push(`port:${fromId}:${ports.sourcePort}`, `port:${toId}:${ports.targetPort}`);
   }
 
   const lane = Math.max(...keys.map((key) => lanes.get(key) ?? 0));
-  for (const key of keys) lanes.set(key, (lanes.get(key) ?? 0) + 1);
+  for (const key of keys) lanes.set(key, lane + 1);
   return lane;
 }
 

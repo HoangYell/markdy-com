@@ -497,6 +497,23 @@ interface PortConfig {
   dir: "horizontal" | "vertical" | "mixed";
 }
 
+function portCoordinate(center: number, min: number, max: number, lane: number, bias = 0): number {
+  if (max <= min) return center;
+  const inset = (max - min) * 0.1;
+  const anchor = clamp(center + bias, min + inset, max - inset);
+  if (lane <= 0) return anchor;
+  let index = Math.ceil(lane / 2);
+  let fraction = 0;
+  let divisor = 2;
+  while (index > 0) {
+    fraction += (index % 2) / divisor;
+    index = Math.floor(index / 2);
+    divisor *= 2;
+  }
+  const boundary = lane % 2 === 1 ? min : max;
+  return anchor + (boundary - anchor) * fraction;
+}
+
 /**
  * Intelligently generates orthogonal routes between source and target rectangles
  * with obstacle avoidance, natural port selection, and minimal bends.
@@ -523,18 +540,9 @@ export function routeOrthogonal(
   // 1. VERTICAL FLOW CANDIDATES
   if (dy >= 20) {
     // 1A. Downward flow (Target is below source)
-    let sX = sourceCenter.x;
-    let tX = targetCenter.x;
-    if (dx > 16) {
-      sX = clamp(sourceCenter.x + (lane > 0 ? Math.abs(laneShift) : 6), sourceRect.x1 + 14, sourceRect.x2 - 14);
-      tX = clamp(targetCenter.x - (lane > 0 ? Math.abs(laneShift) : 6), targetRect.x1 + 14, targetRect.x2 - 14);
-    } else if (dx < -16) {
-      sX = clamp(sourceCenter.x - (lane > 0 ? Math.abs(laneShift) : 6), sourceRect.x1 + 14, sourceRect.x2 - 14);
-      tX = clamp(targetCenter.x + (lane > 0 ? Math.abs(laneShift) : 6), targetRect.x1 + 14, targetRect.x2 - 14);
-    } else {
-      sX = clamp(sourceCenter.x + laneShift, sourceRect.x1 + 14, sourceRect.x2 - 14);
-      tX = clamp(targetCenter.x + laneShift, targetRect.x1 + 14, targetRect.x2 - 14);
-    }
+    const bias = Math.abs(dx) > 16 ? Math.sign(dx) * 6 : -8;
+    const sX = portCoordinate(sourceCenter.x, sourceRect.x1 + 14, sourceRect.x2 - 14, lane, bias);
+    const tX = portCoordinate(targetCenter.x, targetRect.x1 + 14, targetRect.x2 - 14, lane, Math.abs(dx) > 16 ? -bias : bias);
     const sPort: Point = { x: sX, y: sourceRect.y2 };
     const tPort: Point = { x: tX, y: targetRect.y1 };
 
@@ -579,18 +587,9 @@ export function routeOrthogonal(
     ]);
   } else if (dy <= -20) {
     // 1B. Upward flow (Target is above source - return/loopback in vertical flow)
-    let sX = sourceCenter.x;
-    let tX = targetCenter.x;
-    if (dx > 16) {
-      sX = clamp(sourceCenter.x + (lane > 0 ? Math.abs(laneShift) : 6), sourceRect.x1 + 14, sourceRect.x2 - 14);
-      tX = clamp(targetCenter.x - (lane > 0 ? Math.abs(laneShift) : 6), targetRect.x1 + 14, targetRect.x2 - 14);
-    } else if (dx < -16) {
-      sX = clamp(sourceCenter.x - (lane > 0 ? Math.abs(laneShift) : 6), sourceRect.x1 + 14, sourceRect.x2 - 14);
-      tX = clamp(targetCenter.x + (lane > 0 ? Math.abs(laneShift) : 6), targetRect.x1 + 14, targetRect.x2 - 14);
-    } else {
-      sX = clamp(sourceCenter.x + laneShift, sourceRect.x1 + 14, sourceRect.x2 - 14);
-      tX = clamp(targetCenter.x + laneShift, targetRect.x1 + 14, targetRect.x2 - 14);
-    }
+    const bias = Math.abs(dx) > 16 ? Math.sign(dx) * 6 : -8;
+    const sX = portCoordinate(sourceCenter.x, sourceRect.x1 + 14, sourceRect.x2 - 14, lane, bias);
+    const tX = portCoordinate(targetCenter.x, targetRect.x1 + 14, targetRect.x2 - 14, lane, Math.abs(dx) > 16 ? -bias : bias);
     const sPort: Point = { x: sX, y: sourceRect.y1 };
     const tPort: Point = { x: tX, y: targetRect.y2 };
 
@@ -634,18 +633,9 @@ export function routeOrthogonal(
   // 2. HORIZONTAL FLOW CANDIDATES
   if (dx >= 20) {
     // 2A. Forward LR flow (Target is to the right of source)
-    let sY = sourceCenter.y;
-    let tY = targetCenter.y;
-
-    if (Math.abs(dy) > 16) {
-      const dirSign = Math.sign(dy);
-      sY = clamp(sourceCenter.y + dirSign * 12, sourceRect.y1 + 10, sourceRect.y2 - 10);
-      tY = clamp(targetCenter.y - dirSign * 12, targetRect.y1 + 10, targetRect.y2 - 10);
-    } else {
-      const fwdShift = lane > 0 ? (lane % 2 === 1 ? -10 : -18) : 0;
-      sY = clamp(sourceCenter.y + fwdShift, sourceRect.y1 + 10, sourceRect.y2 - 10);
-      tY = clamp(targetCenter.y + fwdShift, targetRect.y1 + 10, targetRect.y2 - 10);
-    }
+    const bias = Math.abs(dy) > 16 ? Math.sign(dy) * 12 : 0;
+    const sY = portCoordinate(sourceCenter.y, sourceRect.y1 + 10, sourceRect.y2 - 10, lane, bias);
+    const tY = portCoordinate(targetCenter.y, targetRect.y1 + 10, targetRect.y2 - 10, lane, -bias);
 
     const sPort: Point = { x: sourceRect.x2, y: sY };
     const tPort: Point = { x: targetRect.x1, y: tY };
@@ -709,17 +699,9 @@ export function routeOrthogonal(
       { x: tX, y: targetRect.y2 },
     ]);
 
-    let sY = sourceCenter.y;
-    let tY = targetCenter.y;
-    if (Math.abs(dy) > 16) {
-      const dirSign = Math.sign(dy);
-      sY = clamp(sourceCenter.y + dirSign * 12, sourceRect.y1 + 10, sourceRect.y2 - 10);
-      tY = clamp(targetCenter.y - dirSign * 12, targetRect.y1 + 10, targetRect.y2 - 10);
-    } else {
-      const retShift = lane > 0 ? (lane % 2 === 1 ? 10 : 18) : 10;
-      sY = clamp(sourceCenter.y + retShift, sourceRect.y1 + 10, sourceRect.y2 - 10);
-      tY = clamp(targetCenter.y + retShift, targetRect.y1 + 10, targetRect.y2 - 10);
-    }
+    const bias = Math.abs(dy) > 16 ? Math.sign(dy) * 12 : 0;
+    const sY = portCoordinate(sourceCenter.y, sourceRect.y1 + 10, sourceRect.y2 - 10, lane, bias);
+    const tY = portCoordinate(targetCenter.y, targetRect.y1 + 10, targetRect.y2 - 10, lane, -bias);
     const sPortL: Point = { x: sourceRect.x1, y: sY };
     const tPortR: Point = { x: targetRect.x2, y: tY };
     const midX = round1((sPortL.x + tPortR.x) / 2 + laneShift);
@@ -731,8 +713,17 @@ export function routeOrthogonal(
     ]);
   }
 
+  for (const candidate of candidates) {
+    const cleaned = cleanCollinearPoints(candidate.map((point) => clampPointToScene(point, bounds)));
+    if (cleaned.length === 2 &&
+      (cleaned[0].x === cleaned[1].x || cleaned[0].y === cleaned[1].y) &&
+      countPathIntersections(cleaned, allObstacles) === 0) return cleaned;
+  }
+
+  const blockedCorridors = candidates.map(cleanCollinearPoints);
   // 3. Obstacle-specific bypasses
   for (const obstacle of allObstacles) {
+    if (!blockedCorridors.some((path) => countPathIntersections(path, [obstacle]) > 0)) continue;
     const bypassYTop = Math.max(16, obstacle.y1 - 18 - Math.abs(laneShift));
     const bypassYBottom = Math.min(bounds.height - 16, obstacle.y2 + 18 + Math.abs(laneShift));
     const sourceRight = dx >= 0;
@@ -770,7 +761,7 @@ export function routeOrthogonal(
   let bestScore = Number.POSITIVE_INFINITY;
 
   for (const candidate of candidates) {
-    const cleaned = cleanCollinearPoints(candidate);
+    const cleaned = cleanCollinearPoints(candidate.map((point) => clampPointToScene(point, bounds)));
     const hits = countPathIntersections(cleaned, allObstacles);
     const bends = routeBends(cleaned);
     const length = routeLength(cleaned);

@@ -31,7 +31,8 @@ beat order_process "2. Order Lifecycle & Cache Sync":
 
 beat settlement "3. Settlement & Final Response":
   payment_svc -> orders_db "UPDATE status=PAID"
-  orders_svc <- edge_gw "201 Created"
+  edge_gw <- orders_svc "201 Created"
+  alb <- edge_gw "201 Created"
   Client <- alb "Order Confirmation"
 
 player:

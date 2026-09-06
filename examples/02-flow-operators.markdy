@@ -8,7 +8,7 @@ queue EventQueue
 
 beat flows:
   WebApp -> Api "request"          // -> solid request edge
-  Api <- WebApp "response"         // <- dashed response (drawn back toward API)
+  WebApp <- Api "response"         // <- dashed response (drawn back toward client)
   Api ~> EventQueue "event"        // ~> dotted event edge
   Api -- RecordsDb "dependency"    // -- thin dependency link
 

@@ -7,6 +7,29 @@ import {
 } from "../src/router.js";
 
 describe("Router & Dynamic Port Multiplexer", () => {
+  it.each([
+    ["right", { x: 100, y: 100 }, { x: 400, y: 100 }, { x: 250, y: 80, width: 60, height: 100 }],
+    ["left", { x: 400, y: 100 }, { x: 100, y: 100 }, { x: 250, y: 80, width: 60, height: 100 }],
+    ["down", { x: 100, y: 100 }, { x: 100, y: 400 }, { x: 80, y: 250, width: 140, height: 60 }],
+    ["up", { x: 100, y: 400 }, { x: 100, y: 100 }, { x: 80, y: 250, width: 140, height: 60 }],
+    ["self-loop", { x: 100, y: 100 }, { x: 100, y: 100 }, { x: 120, y: 50, width: 60, height: 40 }],
+  ])("avoids a blocking box for %s routes", (_direction, source, target, obstacle) => {
+    const from = { ...source, width: 100, height: 60 };
+    const to = { ...target, width: 100, height: 60 };
+    const route = routeOrthogonalEdge(from, to, { obstacles: [obstacle], cornerRadius: 0 });
+    const points = [route.startPoint, ...route.waypoints, route.endPoint];
+    for (let index = 1; index < points.length; index++) {
+      const start = points[index - 1];
+      const end = points[index];
+      expect(start.x === end.x || start.y === end.y).toBe(true);
+      const horizontalHit = start.y === end.y && start.y > obstacle.y && start.y < obstacle.y + obstacle.height &&
+        Math.max(start.x, end.x) > obstacle.x && Math.min(start.x, end.x) < obstacle.x + obstacle.width;
+      const verticalHit = start.x === end.x && start.x > obstacle.x && start.x < obstacle.x + obstacle.width &&
+        Math.max(start.y, end.y) > obstacle.y && Math.min(start.y, end.y) < obstacle.y + obstacle.height;
+      expect(horizontalHit || verticalHit).toBe(false);
+    }
+  });
+
   const boxA: Box = { x: 50, y: 50, width: 100, height: 60 };
   const boxB: Box = { x: 300, y: 50, width: 100, height: 60 };
   const boxOffset: Box = { x: 300, y: 150, width: 100, height: 60 };

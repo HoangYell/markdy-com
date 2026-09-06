@@ -7,6 +7,7 @@
  * in the package and it now has real coverage.
  */
 import { describe, it, expect } from "vitest";
+import { nextEdgeLane } from "../src/edges.js";
 import {
   boxRect,
   countPathIntersections,
@@ -183,6 +184,29 @@ describe("polyline measurement", () => {
 });
 
 describe("routeOrthogonal", () => {
+  it.each([
+    ["right", { x: 500, y: 300 }],
+    ["left", { x: 100, y: 300 }],
+    ["down", { x: 300, y: 500 }],
+    ["up", { x: 300, y: 100 }],
+    ["diagonal", { x: 650, y: 400 }],
+  ])("keeps twelve %s lanes distinct without clamping them together", (_direction, target) => {
+    const from = boxRect({ x: 300, y: 300, width: 100, height: 60 });
+    const to = boxRect({ ...target, width: 100, height: 60 });
+    const routes = Array.from({ length: 12 }, (_, lane) => routeOrthogonal(from, to, [], BOUNDS, lane));
+    expect(new Set(routes.map((route) => JSON.stringify(route))).size).toBe(12);
+    expect(new Set(routes.map((route) => JSON.stringify(route[0]))).size).toBe(12);
+    expect(new Set(routes.map((route) => JSON.stringify(route[route.length - 1]))).size).toBe(12);
+  });
+
+  it("advances all shared lane counters past the lane actually allocated", () => {
+    const lanes = new Map<string, number>();
+    for (let index = 0; index < 8; index++) nextEdgeLane(lanes, "Busy", "Hub");
+    const first = nextEdgeLane(lanes, "New", "Hub");
+    const second = nextEdgeLane(lanes, "New", "Other");
+    expect(second).toBeGreaterThan(first);
+  });
+
   it("takes a straight shot between axis-aligned neighbours", () => {
     const from = boxRect({ x: 0, y: 100, width: 100, height: 40 });
     const to = boxRect({ x: 300, y: 100, width: 100, height: 40 });

@@ -1,58 +1,60 @@
 <p align="center">
   <a href="https://markdy.com">
-    <img src="docs/images/mascot/markdy-com.webp" width="340" alt="Markdy" />
+    <img src="docs/images/mascot/markdy-com.webp" width="180" alt="Markdy" />
   </a>
 </p>
 
 <p align="center">
-  <strong>Diagram-as-code DSL for animated architecture &amp; system design explainers.</strong><br>
-  Prompt your AI agent → generate declarative MarkdyScript → render 60fps kinetic diagrams powered by the Web Animations API.
+  <strong>Turn architecture diagrams into step-by-step explanations of how your system works.</strong><br>
+  Markdy turns text into animated diagrams for system design, documentation, and walkthroughs.
 </p>
 
 <p align="center">
-  <a href="https://markdy.com/playground/"><b>⚡ Live Studio</b></a> &nbsp;•&nbsp;
-  <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><b>🔌 VS Code Extension</b></a> &nbsp;•&nbsp;
-  <a href="https://markdy.com/docs/"><b>📖 Documentation</b></a> &nbsp;•&nbsp;
-  <a href="https://markdy.com/examples/"><b>🌟 33 Blueprints</b></a> &nbsp;•&nbsp;
-  <a href="https://markdy.com/agent/"><b>🤖 AI &amp; Agent Guide</b></a>
+  <a href="https://markdy.com/playground/?example=url-shortener-architecture">
+    <img src="docs/images/markdy-cache-aside.gif" width="100%" alt="Animated cache-aside walkthrough: a Redis cache hit returns a redirect, then a cache miss queries PostgreSQL and refills Redis." />
+  </a>
+</p>
+
+<p align="center">
+  <b>Cache hit: return from Redis. Cache miss: query PostgreSQL and refill the cache.</b><br>
+  <a href="https://markdy.com/playground/?example=url-shortener-architecture"><b>Try this example →</b></a> &nbsp;•&nbsp;
+  <a href="examples/showcase/url-shortener-architecture.markdy">View the source</a><br>
+  <sub>Open in your browser. No installation or AI account required.</sub>
+</p>
+
+<p align="center">
+  <a href="https://markdy.com/docs/">Documentation</a> &nbsp;•&nbsp;
+  <a href="https://markdy.com/examples/">Examples</a> &nbsp;•&nbsp;
+  <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode">VS Code Extension</a> &nbsp;•&nbsp;
+  <a href="https://markdy.com/agent/">AI &amp; Agent Guide</a>
 </p>
 
 <p align="center">
   <a href="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml"><img src="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><img src="https://vsmarketplacebadges.dev/version-short/hoangyell.markdy-vscode.svg" alt="VS Code Extension" /></a>
-  <a href="https://open-vsx.org/extension/hoangyell/markdy-vscode"><img src="https://img.shields.io/open-vsx/v/hoangyell/markdy-vscode?color=purple&label=Open%20VSX" alt="Open VSX Extension" /></a>
   <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/npm/v/@markdy/core?color=blue&label=%40markdy%2Fcore" alt="npm version" /></a>
-  <a href="https://www.npmjs.com/package/@markdy/mcp-server"><img src="https://img.shields.io/npm/v/@markdy/mcp-server?color=purple&label=MCP%20Server" alt="MCP Server version" /></a>
-  <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/badge/core_size-~14_kB-brightgreen" alt="Core Bundle Size" /></a>
   <a href="https://github.com/HoangYell/markdy-com/blob/main/LICENSE"><img src="https://img.shields.io/github/license/HoangYell/markdy-com" alt="MIT License" /></a>
 </p>
 
-<p align="center">
-  <a href="https://markdy.com/playground/">
-    <img src="docs/images/markdy-split-editor.webp" width="100%" alt="Markdy Interactive Studio" />
-  </a>
-</p>
-
 ---
 
-## 💡 How It Works
+## ⚡ Why Markdy?
 
-> **Describe your system in plain English → your AI agent generates the Markdy script → your browser renders the animated diagram.**
+- **Explain behavior, not just topology.** Walk through requests, responses, and background events one step at a time.
+- **Keep the explanation beside the code.** Store diagrams as readable `.markdy` files you can review and version in Git.
+- **Start in the browser.** Try an example, edit it, and share it. Use an AI agent to help write the script when you need one.
 
-<p align="center">
-  <img src="docs/images/ai-paradigm-flow.webp" width="100%" alt="How to Use Markdy with AI Agents" />
-</p>
+## 🚀 Quick Start
 
----
+### 1. Try the Live Example
 
-## 🚀 Quick Start (60 Seconds)
+Open the **[cache-aside walkthrough](https://markdy.com/playground/?example=url-shortener-architecture)**. Play it or step through the timeline to follow the cache hit and miss paths.
 
-### 1. Prompt Your AI Agent
+### 2. Make It Yours
 
-You don't need to write MarkdyScript manually. Ask **Cursor**, **Claude Code**, **Google Antigravity**, **ChatGPT**, or any coding agent:
+Edit the example in the studio, or start with the smaller script below. Write MarkdyScript yourself, or ask your coding agent to generate it.
 
 <details>
-<summary><b>💬 Example Prompt (Copy &amp; Paste to your Agent)</b></summary>
+<summary><b>Optional: generate a diagram with your AI agent</b></summary>
 <br>
 
 > "Follow the canonical Markdy specification (https://markdy.com/AGENT.md) and generate a `.markdy` scene:  
@@ -63,7 +65,7 @@ You don't need to write MarkdyScript manually. Ask **Cursor**, **Claude Code**, 
 </details>
 
 <details>
-<summary><b>🤖 AI-Generated MarkdyScript (<code>system.markdy</code>)</b></summary>
+<summary><b>A small cache-aside scene (<code>system.markdy</code>)</b></summary>
 <br>
 
 ```markdy
@@ -94,12 +96,9 @@ beat cache_miss "2. Cache Miss & Async Warm":
 
 </details>
 
-### 2. Preview & Explore
+### 3. Preview Locally (Optional)
 
-Choose your preferred preview environment:
-
-- **Interactive Web Studio** — **[markdy.com/playground ↗](https://markdy.com/playground/)**:  
-  Instant browser playground with timeline scrubbing, GIF/SVG export, and shareable links.
+Prefer your own editor or terminal? Save the script as `system.markdy`:
 
 - **VS Code / Cursor Extension** — [`hoangyell.markdy-vscode`](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode):  
   Press **`Cmd+K V`** *(macOS)* or **`Ctrl+K V`** *(Windows/Linux)* for live side-by-side animated preview.
@@ -109,7 +108,7 @@ Choose your preferred preview environment:
   npx @markdy/cli render system.markdy --out diagram.html
   ```
 
-### 3. Embed in Web Apps & Docs
+## Embed in Web Apps & Docs
 
 Choose the package that fits your stack:
 
@@ -143,10 +142,10 @@ Choose the package that fits your stack:
 
 ---
 
-## ⚡ Why Markdy?
+## Technical Capabilities
 
 <details>
-<summary><b>Kinetic Motion Graphics vs. Static Architecture Diagrams</b></summary>
+<summary><b>Explore the technical capabilities</b></summary>
 <br>
 
 Static boxes and arrows fail to capture distributed systems in action. **Markdy turns text into choreographed 60fps motion graphics** directly in your browser.

@@ -55,8 +55,25 @@ markdy explain scene.markdy              # display AST structure and stats
 markdy new demo.markdy                   # scaffold fresh starter scene
 markdy docs                              # display docs and tutorial links
 markdy ai                                # generate prompt context for LLMs
+markdy check docs/                       # validate diagrams in Markdown, MDX, and .markdy files
+markdy check docs/ --json                # machine-readable validation report
+markdy check --dist dist/                # validate diagrams embedded in built HTML
 markdy check-all . --arch-rules          # batch lint entire workspace
 ```
+
+## Validate Documentation
+
+Run `markdy check docs/` to validate embedded diagrams alongside standalone `.markdy` files.
+Markdown fences accept the `markdy` and `markdyscript` language names, backticks or tildes,
+and optional metadata. Fences inside lists and blockquotes are supported. As in Markdown,
+an unclosed fence continues to the end of its container or document.
+
+Live MDX `<Markdy>` and `<MarkdyDiagram>` components with literal `code` values are also
+checked. Fences and components quoted inside other code blocks, plus inline code examples,
+are ignored. Diagnostics point to the original document's line numbers.
+
+Use `--strict` to treat warnings as failures, `--arch-rules` for architecture governance,
+or `--json` for structured CI output. Validation errors return a nonzero exit code.
 
 ## Notes
 

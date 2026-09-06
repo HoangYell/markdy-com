@@ -1211,8 +1211,8 @@ markdy check-all ./docs/diagrams</code></pre>
         interactiveViewport: false,
         clickToPlay: false,
         responsiveLayout: true,
-        fitMode: "width",
-        targetWidthRatio: 0.98,
+        fitMode: "contain",
+        targetWidthRatio: 0.96,
         onEnded: () => {
           if (diagram) {
             diagram.pause();

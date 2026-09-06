@@ -1,6 +1,6 @@
 scene "Width-First Responsive Edge-to-Edge Pipeline" theme=paper rankdir=TB
 
-client MobileClient "Edge Mobile App" icon=react
+mobile MobileClient "Edge Mobile App"
 gateway CloudflareEdge "Cloudflare Global Anycast WAF" icon=cloudflare
 service IngressRouter "Envoy Ingress Gateway" icon=envoy
 service AuthTokenService "OAuth2 Session Validator" icon=security

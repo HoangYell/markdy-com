@@ -748,34 +748,34 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
   ],
   "examples/22-code-provenance-anchors.markdy": [
     {
-      "icon": "gateway",
-      "id": "ApiGateway",
-      "kind": "api_gateway",
-      "role": "network",
-    },
-    {
-      "icon": "server",
-      "id": "AuthService",
-      "kind": "service",
+      "icon": "function",
+      "id": "EntryPoint",
+      "kind": "function",
       "role": "compute",
     },
     {
-      "icon": "server",
-      "id": "PaymentService",
-      "kind": "service",
+      "icon": "function",
+      "id": "Parser",
+      "kind": "function",
       "role": "compute",
     },
     {
-      "icon": "database",
-      "id": "UserDb",
-      "kind": "database",
-      "role": "data",
+      "icon": "function",
+      "id": "Compiler",
+      "kind": "function",
+      "role": "compute",
     },
     {
-      "icon": "database",
-      "id": "LedgerDb",
-      "kind": "database",
-      "role": "data",
+      "icon": "registry",
+      "id": "DiagramAST",
+      "kind": "artifact",
+      "role": "delivery",
+    },
+    {
+      "icon": "function",
+      "id": "LayoutEngine",
+      "kind": "function",
+      "role": "compute",
     },
   ],
   "examples/23-architectural-evolution-diff.markdy": [
@@ -1058,8 +1058,8 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
   ],
   "examples/30-active-active-failover-consensus.markdy": [
     {
-      "icon": "golang",
-      "id": "QuorumWitness",
+      "icon": "aws",
+      "id": "RecoveryControl",
       "kind": "service",
       "role": "compute",
     },
@@ -1096,9 +1096,9 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
   ],
   "examples/31-width-first-responsive-autoscale.markdy": [
     {
-      "icon": "user",
+      "icon": "mobile",
       "id": "MobileClient",
-      "kind": "client",
+      "kind": "mobile",
       "role": "client",
     },
     {
