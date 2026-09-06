@@ -60,8 +60,8 @@ const TOKEN_LIBRARIES = {
     { label: "Group Boundary", template: 'group cluster "Secure VPC": NodeA NodeB DB\n', desc: "Perimeter enclosure" },
   ],
   player: [
-    { label: "Full Motion Player", template: 'player:\n  playback:\n    autoplay true\n    loop true\n  controls:\n    play true\n    seek true\n    speed true\n  chrome:\n    badge true\n    progress boundary\n', desc: "Autoplay, loop, timeline seek, and boundary progress" },
-    { label: "Interactive Controls", template: 'player:\n  controls:\n    play true\n    seek true\n    fit true\n  interaction:\n    zoom true\n    pan true\n    click_to_play true\n', desc: "Zoom, pan, and click-to-play interaction" },
+    { label: "Full Motion Player", template: 'player:\n  playback:\n    autoplay true\n    loop true\n  controls:\n    play true\n    seek true\n    speed true\n    fullscreen true\n  chrome:\n    badge true\n    progress boundary\n', desc: "Autoplay, loop, timeline seek, speed, and fullscreen" },
+    { label: "Interactive Controls", template: 'player:\n  controls:\n    play true\n    seek true\n    fit true\n    fullscreen true\n  interaction:\n    zoom true\n    pan true\n    click_to_play true\n', desc: "Zoom, pan, fit, and fullscreen controls" },
     { label: "Timeline & Speeds", template: 'player:\n  controls:\n    play true\n    seek true\n    speeds "0.5 1 1.5 2"\n', desc: "Play/pause, scrub bar, and multi-speed controls" },
     { label: "Clean Presentation", template: 'player:\n  chrome:\n    badge true\n    progress none\n', desc: "Clean presentation without progress overlay" },
   ],
@@ -86,7 +86,7 @@ const PLAY_SNIPPETS = [
   },
   {
     label: "Player Controls & Progress",
-    code: `player:\n  playback:\n    loop true\n  controls:\n    play true\n    seek true\n    speed true\n  chrome:\n    badge true\n    progress boundary`,
+    code: `player:\n  playback:\n    loop true\n  controls:\n    play true\n    seek true\n    speed true\n    fullscreen true\n  chrome:\n    badge true\n    progress boundary`,
   },
   {
     label: "OSI Stack (type=layers)",
@@ -440,6 +440,12 @@ const playgroundStructuredData = [
 
       <!-- ── Right Column: Visual Canvas Studio ── -->
       <section id="stage-pane" class="preview-panel" aria-label="Animated visual canvas preview">
+        <!-- Floating Exit Button for Theatre / Fullscreen Mode -->
+        <button id="stage-theatre-exit-btn" class="stage-theatre-exit-btn" type="button" title="Exit Fullscreen Theatre (Esc)" aria-label="Exit Fullscreen Theatre">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <span>Exit Fullscreen</span>
+        </button>
+
         <!-- Canvas Header Bar with Full Playback & Studio Controls -->
         <div class="panel-head preview-panel-head">
           <div class="canvas-header-left">
@@ -495,8 +501,15 @@ const playgroundStructuredData = [
             <div class="canvas-divider" aria-hidden="true"></div>
 
             <!-- Fit View Button (hidden when viewport interaction is disabled) -->
-            <button id="canvas-fit-btn" class="canvas-ctrl-btn" type="button" title="Reset diagram viewport" aria-label="Reset Zoom and View" style="display:none;" aria-hidden="true">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+            <button id="canvas-fit-btn" class="canvas-ctrl-btn" type="button" title="Fit Diagram to Viewport" aria-label="Fit Diagram to Viewport" style="display:none;" aria-hidden="true">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 12h3m12 0h3M12 3v3m0 12v3"/></svg>
+            </button>
+
+            <!-- Fullscreen Stage Button -->
+            <button id="canvas-fullscreen-btn" class="canvas-ctrl-btn" type="button" title="Toggle Fullscreen Stage (F)" aria-label="Toggle Fullscreen Stage">
+              <svg class="icon-maximize" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+              <svg class="icon-minimize" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M4 14h6m0 0v6m0-6-7 7m17-11h-6m0 0V4m0 6 7-7m-7 17v-6m0 0h6m-6 0 7 7M3 7h6m0 0V1m0 6L2 1"/></svg>
+              <span id="canvas-fullscreen-label">Full</span>
             </button>
 
             <!-- Canvas Quick Export CTA -->
@@ -721,10 +734,10 @@ const playgroundStructuredData = [
               <div class="shortcut-row"><kbd>Ctrl + Space</kbd><span>Trigger Autocomplete</span></div>
               <div class="shortcut-row"><kbd>Cmd / Ctrl + S</kbd><span>Format &amp; Tidy MarkdyScript</span></div>
               <div class="shortcut-row"><kbd>Cmd / Ctrl + K</kbd> / <kbd>?</kbd><span>Open Shortcuts Cheatsheet</span></div>
-              <div class="shortcut-row"><kbd>F</kbd><span>Fit Diagram to Viewport</span></div>
+              <div class="shortcut-row"><kbd>F</kbd><span>Toggle Fullscreen Stage</span></div>
               <div class="shortcut-row"><kbd>R</kbd><span>Restart Animation from Beat 1</span></div>
               <div class="shortcut-row"><kbd>T</kbd><span>Cycle Diagram Color Theme</span></div>
-              <div class="shortcut-row"><kbd>Esc</kbd><span>Close Modals / Deselect Canvas</span></div>
+              <div class="shortcut-row"><kbd>Esc</kbd><span>Exit Fullscreen / Close Modals</span></div>
             </div>
           </div>
 
@@ -975,6 +988,8 @@ const playgroundStructuredData = [
   const canvasSpeedSelect = document.getElementById("canvas-speed-select") as HTMLSelectElement | null;
   const canvasThemeSelect = document.getElementById("canvas-theme-select") as HTMLSelectElement | null;
   const canvasFitBtn = document.getElementById("canvas-fit-btn") as HTMLButtonElement | null;
+  const canvasFullscreenBtn = document.getElementById("canvas-fullscreen-btn") as HTMLButtonElement | null;
+  const stageTheatreExitBtn = document.getElementById("stage-theatre-exit-btn") as HTMLButtonElement | null;
 
   const runBtn = document.getElementById("run-btn") as HTMLButtonElement;
   const resetBtn = document.getElementById("reset-btn") as HTMLButtonElement;
@@ -2906,32 +2921,99 @@ Requirements:
     render(code);
   });
 
-  liveDirectorBtn?.addEventListener("click", async () => {
+  function updateFullscreenUI(isActive: boolean): void {
     if (!stagePane) return;
-    try {
-      if (document.fullscreenElement) {
-        await document.exitFullscreen();
-        stagePane.classList.remove("director-theatre-active");
-      } else {
-        await stagePane.requestFullscreen();
-        stagePane.classList.add("director-theatre-active");
-        if (diagram) {
-          diagram.seek(0);
-          diagram.play();
+    stagePane.classList.toggle("director-theatre-active", isActive);
+
+    // Update canvas header button icon & label
+    if (canvasFullscreenBtn) {
+      const maxIcon = canvasFullscreenBtn.querySelector<SVGElement>(".icon-maximize");
+      const minIcon = canvasFullscreenBtn.querySelector<SVGElement>(".icon-minimize");
+      const label = canvasFullscreenBtn.querySelector<HTMLElement>("#canvas-fullscreen-label");
+      if (maxIcon) maxIcon.style.display = isActive ? "none" : "";
+      if (minIcon) minIcon.style.display = isActive ? "" : "none";
+      if (label) label.textContent = isActive ? "Exit" : "Full";
+      canvasFullscreenBtn.title = isActive ? "Exit Fullscreen (Esc)" : "Toggle Fullscreen Stage (F)";
+      canvasFullscreenBtn.setAttribute("aria-pressed", isActive ? "true" : "false");
+    }
+
+    // Update floating exit button
+    if (stageTheatreExitBtn) {
+      stageTheatreExitBtn.style.display = isActive ? "inline-flex" : "none";
+    }
+
+    // Trigger diagrams rescale across animation frames
+    requestAnimationFrame(() => {
+      window.dispatchEvent(new Event("resize"));
+      (diagram as any)?.resize?.();
+    });
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+      (diagram as any)?.resize?.();
+    }, 120);
+  }
+
+  async function toggleStageFullscreen(triggerPlay = false): Promise<void> {
+    if (!stagePane) return;
+    const isCurrentlyFull = Boolean(
+      document.fullscreenElement === stagePane ||
+      (document as any).webkitFullscreenElement === stagePane ||
+      stagePane.classList.contains("director-theatre-active")
+    );
+
+    if (isCurrentlyFull) {
+      try {
+        if (document.fullscreenElement) {
+          await document.exitFullscreen();
         }
+      } catch {
+        // ignore
       }
-    } catch {
-      stagePane.classList.toggle("director-theatre-active");
-      if (diagram) {
+      updateFullscreenUI(false);
+      showToast("⤡ Exited fullscreen");
+    } else {
+      let enteredNative = false;
+      try {
+        const req =
+          stagePane.requestFullscreen?.bind(stagePane) ||
+          (stagePane as any).webkitRequestFullscreen?.bind(stagePane) ||
+          (stagePane as any).mozRequestFullScreen?.bind(stagePane) ||
+          (stagePane as any).msRequestFullscreen?.bind(stagePane);
+        if (req) {
+          await req();
+          enteredNative = true;
+        }
+      } catch {
+        // Fallback to CSS pseudo-fullscreen theatre
+      }
+      updateFullscreenUI(true);
+      if (triggerPlay && diagram) {
         diagram.seek(0);
         diagram.play();
+        updateCanvasPlayState();
       }
+      showToast("⤢ Fullscreen mode (Press Esc to exit)");
     }
+  }
+
+  canvasFullscreenBtn?.addEventListener("click", () => {
+    toggleStageFullscreen(false);
+  });
+
+  liveDirectorBtn?.addEventListener("click", () => {
+    toggleStageFullscreen(true);
+  });
+
+  stageTheatreExitBtn?.addEventListener("click", () => {
+    toggleStageFullscreen(false);
   });
 
   document.addEventListener("fullscreenchange", () => {
-    if (!document.fullscreenElement && stagePane) {
-      stagePane.classList.remove("director-theatre-active");
+    const isNativeFull = Boolean(document.fullscreenElement === stagePane);
+    if (!isNativeFull && !document.fullscreenElement && stagePane?.classList.contains("director-theatre-active")) {
+      updateFullscreenUI(false);
+    } else if (isNativeFull) {
+      updateFullscreenUI(true);
     }
   });
 
@@ -3079,7 +3161,7 @@ Requirements:
       cheatsheetModal?.showModal();
     } else if (!isTyping && event.key.toLowerCase() === "f") {
       event.preventDefault();
-      canvasFitBtn?.click();
+      toggleStageFullscreen(false);
     } else if (!isTyping && event.key.toLowerCase() === "r") {
       event.preventDefault();
       if (diagram) {
@@ -3106,11 +3188,8 @@ Requirements:
       importModal?.close();
       cheatsheetModal?.close();
       exportModal?.close();
-      if (stagePane?.classList.contains("director-theatre-active")) {
-        if (document.fullscreenElement) {
-          document.exitFullscreen().catch(() => {});
-        }
-        stagePane.classList.remove("director-theatre-active");
+      if (stagePane?.classList.contains("director-theatre-active") || document.fullscreenElement) {
+        toggleStageFullscreen(false);
       }
     }
   });
@@ -3581,6 +3660,70 @@ Requirements:
     border-radius: 0;
     border: none;
     background: #090d16;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .preview-panel:fullscreen .stage,
+  .preview-panel.director-theatre-active .stage {
+    flex: 1 1 auto;
+    height: calc(100vh - 46px);
+    width: 100vw;
+    max-height: 100vh;
+  }
+
+  .preview-panel:fullscreen .stage-canvas,
+  .preview-panel.director-theatre-active .stage-canvas {
+    flex: 1 1 auto;
+    height: 100%;
+    width: 100%;
+  }
+
+  .preview-panel:fullscreen :global(.markdy-diagram-root),
+  .preview-panel.director-theatre-active :global(.markdy-diagram-root) {
+    height: 100% !important;
+    width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .preview-panel:fullscreen :global(.markdy-viewport),
+  .preview-panel.director-theatre-active :global(.markdy-viewport) {
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    width: 100% !important;
+  }
+
+  .stage-theatre-exit-btn {
+    display: none;
+    position: fixed;
+    top: 8px;
+    right: 12px;
+    z-index: 100002;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(15, 23, 42, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: #f8fafc;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+  }
+  .stage-theatre-exit-btn:hover {
+    background: rgba(30, 41, 59, 0.95);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-1px);
+  }
+  .preview-panel:fullscreen .stage-theatre-exit-btn,
+  .preview-panel.director-theatre-active .stage-theatre-exit-btn {
+    display: inline-flex;
   }
 
   .preview-panel.director-theatre-active .preview-panel-head {
