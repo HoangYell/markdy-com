@@ -59,6 +59,12 @@ const TOKEN_LIBRARIES = {
     { label: "Pulse Glow", template: 'beat highlight "Alert State":\n  pulse NodeA color=#38bdf8\n', desc: "Glowing pulse effect" },
     { label: "Group Boundary", template: 'group cluster "Secure VPC": NodeA NodeB DB\n', desc: "Perimeter enclosure" },
   ],
+  player: [
+    { label: "Full Motion Player", template: 'player:\n  playback:\n    autoplay true\n    loop true\n  controls:\n    play true\n    seek true\n    speed true\n  chrome:\n    badge true\n    progress boundary\n', desc: "Autoplay, loop, timeline seek, and boundary progress" },
+    { label: "Interactive Controls", template: 'player:\n  controls:\n    play true\n    seek true\n    fit true\n  interaction:\n    zoom true\n    pan true\n    click_to_play true\n', desc: "Zoom, pan, and click-to-play interaction" },
+    { label: "Timeline & Speeds", template: 'player:\n  controls:\n    play true\n    seek true\n    speeds "0.5 1 1.5 2"\n', desc: "Play/pause, scrub bar, and multi-speed controls" },
+    { label: "Clean Presentation", template: 'player:\n  chrome:\n    badge true\n    progress none\n', desc: "Clean presentation without progress overlay" },
+  ],
 };
 
 const PLAY_SNIPPETS = [
@@ -77,6 +83,10 @@ const PLAY_SNIPPETS = [
   {
     label: "Async Event & Glow",
     code: `beat event "Async job":\n  API ~> Queue "order.created"\n  glow Queue color=#38bdf8`,
+  },
+  {
+    label: "Player Controls & Progress",
+    code: `player:\n  playback:\n    loop true\n  controls:\n    play true\n    seek true\n    speed true\n  chrome:\n    badge true\n    progress boundary`,
   },
   {
     label: "OSI Stack (type=layers)",
@@ -266,6 +276,7 @@ const playgroundStructuredData = [
               <button class="palette-tab" type="button" data-shelf="layouts">Layouts</button>
               <button class="palette-tab" type="button" data-shelf="themes">Themes</button>
               <button class="palette-tab" type="button" data-shelf="beats">Beats</button>
+              <button class="palette-tab" type="button" data-shelf="player">Player</button>
             </div>
             <button id="palette-close-btn" class="palette-close-btn" type="button" title="Close Palette">✕</button>
           </div>
@@ -323,6 +334,18 @@ const playgroundStructuredData = [
                 <button class="token-chip token-chip--beat" type="button" data-insert={b.template} title={b.desc}>
                   <span>🎬</span>
                   <code>{b.label}</code>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <!-- Shelf 6: Player -->
+          <div id="shelf-player" class="shelf-panel">
+            <div class="token-chips-scroll">
+              {TOKEN_LIBRARIES.player.map((p) => (
+                <button class="token-chip token-chip--player" type="button" data-insert={p.template} title={`Add player configuration: ${p.desc}`}>
+                  <span>🎛️</span>
+                  <code>{p.label}</code>
                 </button>
               ))}
             </div>
@@ -425,6 +448,17 @@ const playgroundStructuredData = [
           </div>
 
           <div class="canvas-header-actions" aria-label="Canvas playback and studio controls">
+            <!-- Quick Motion Play / Pause & Restart -->
+            <button id="canvas-play-btn" class="canvas-ctrl-btn" type="button" title="Toggle Play / Pause (Space)" aria-label="Play or pause animation">
+              <span id="canvas-play-icon" aria-hidden="true">⏸</span>
+              <span id="canvas-play-label">Pause</span>
+            </button>
+            <button id="canvas-restart-btn" class="canvas-ctrl-btn" type="button" title="Restart animation from beginning" aria-label="Restart animation">
+              <span aria-hidden="true">↺</span>
+            </button>
+
+            <div class="canvas-divider" aria-hidden="true"></div>
+
             <!-- Playback Speed -->
             <div class="canvas-select-wrapper" title="Playback speed multiplier">
               <select id="canvas-speed-select" class="canvas-select" aria-label="Playback speed">
@@ -934,6 +968,10 @@ const playgroundStructuredData = [
   const copyShareUrlBtn = document.getElementById("copy-share-url-btn") as HTMLButtonElement | null;
 
   // Canvas Studio Controls
+  const canvasPlayBtn = document.getElementById("canvas-play-btn") as HTMLButtonElement | null;
+  const canvasPlayIcon = document.getElementById("canvas-play-icon") as HTMLSpanElement | null;
+  const canvasPlayLabel = document.getElementById("canvas-play-label") as HTMLSpanElement | null;
+  const canvasRestartBtn = document.getElementById("canvas-restart-btn") as HTMLButtonElement | null;
   const canvasSpeedSelect = document.getElementById("canvas-speed-select") as HTMLSelectElement | null;
   const canvasThemeSelect = document.getElementById("canvas-theme-select") as HTMLSelectElement | null;
   const canvasFitBtn = document.getElementById("canvas-fit-btn") as HTMLButtonElement | null;
@@ -1382,6 +1420,7 @@ const playgroundStructuredData = [
         const rate = parseFloat(canvasSpeedSelect.value) || 1;
         diagram.setPlaybackRate(rate);
       }
+      updateCanvasPlayState();
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       if (stageCanvas) stageCanvas.innerHTML = `<div class="parse-error">⚠️ ${message}</div>`;
@@ -2740,6 +2779,35 @@ Requirements:
 
 
   // ─── Canvas Studio Controls ────────────────────────────────────────
+  function updateCanvasPlayState(): void {
+    if (!canvasPlayBtn || !diagram) return;
+    const isPlaying = diagram.isPlaying();
+    if (canvasPlayIcon) canvasPlayIcon.textContent = isPlaying ? "⏸" : "▶";
+    if (canvasPlayLabel) canvasPlayLabel.textContent = isPlaying ? "Pause" : "Play";
+    canvasPlayBtn.setAttribute("aria-pressed", isPlaying ? "true" : "false");
+    canvasPlayBtn.title = isPlaying ? "Pause Animation (Space)" : "Play Animation (Space)";
+  }
+
+  canvasPlayBtn?.addEventListener("click", () => {
+    if (!diagram) return;
+    if (diagram.isPlaying()) {
+      diagram.pause();
+      showToast("⏸ Motion paused");
+    } else {
+      diagram.play();
+      showToast("▶ Motion playing");
+    }
+    updateCanvasPlayState();
+  });
+
+  canvasRestartBtn?.addEventListener("click", () => {
+    if (!diagram) return;
+    diagram.seek(0);
+    diagram.play();
+    updateCanvasPlayState();
+    showToast("↺ Restarted animation from beat 1");
+  });
+
   canvasSpeedSelect?.addEventListener("change", () => {
     if (!diagram || !canvasSpeedSelect) return;
     const rate = parseFloat(canvasSpeedSelect.value) || 1;
@@ -3017,6 +3085,7 @@ Requirements:
       if (diagram) {
         diagram.seek(0);
         diagram.play();
+        updateCanvasPlayState();
         showToast("↺ Restarted animation from beat 1");
       }
     } else if (!isTyping && event.key.toLowerCase() === "t") {
@@ -3031,6 +3100,7 @@ Requirements:
         diagram.play();
         showToast("▶ Motion playing");
       }
+      updateCanvasPlayState();
     } else if (event.key === "Escape") {
       deselectCanvas();
       importModal?.close();
@@ -4669,15 +4739,27 @@ Requirements:
     min-height: 0;
   }
 
-  .stage .markdy-footer {
+  :global(#stage .markdy-footer) {
     flex-shrink: 0;
     width: 100%;
-    background: transparent;
-    border-top: none;
+    background: color-mix(in srgb, var(--bg-secondary) 85%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border-subtle);
     padding: 0.35rem 0.85rem;
     z-index: 20;
     position: relative;
     pointer-events: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
+    transition: background 0.15s ease, border-color 0.15s ease;
+  }
+
+  :global(#stage .markdy-footer:empty) {
+    display: none !important;
   }
 
   /* Stage Drop Target Indicator */
@@ -5684,10 +5766,6 @@ Requirements:
 
   .canvas-header-actions::-webkit-scrollbar {
     display: none;
-  }
-
-  :global(#stage .markdy-footer) {
-    display: none !important;
   }
 
   .canvas-ctrl-btn {

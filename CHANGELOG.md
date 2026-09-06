@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.4.1] — 2026-09-05
 
 ### Fixed & Enhanced
+- **🎛️ Restored & Polished Player Footer in Playground Studio (`website`)**:
+  - Removed accidental CSS suppression rule (`display: none !important`) that hid `.markdy-footer` on the playground canvas stage.
+  - Upgraded `.markdy-footer` styling with high-contrast frosted glassmorphism (`backdrop-filter: blur(12px)`), theme-adaptive contrast, and clean boundary docking.
+  - Added dedicated **Player** tab to the Component & Token Palette shelf with 1-click canonical `player:` presets (Full Motion Player, Interactive Controls, Timeline & Speeds, Clean Presentation).
+  - Added quick Play/Pause and Restart toggle buttons in the Canvas Header toolbar with bidirectional icon state synchronization.
 - **🌲 Clean Indented Trunk Routing for Portrait Trees (`@markdy/renderer-dom`)**:
   - Introduced `routeTreeEdgePoints` geometry routing specifically tailored for hierarchical tree diagrams (`type=tree`).
   - In mobile portrait viewports (`direction: TB` indented outline), dynamic beat connector lines route straight down along the dedicated indentation trunk corridor (`from.x + 18`) and branch horizontally at 90° directly into the left edge of each child card, eradicating top-looping detours and node collisions.
