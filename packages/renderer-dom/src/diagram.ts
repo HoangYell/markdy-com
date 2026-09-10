@@ -111,6 +111,11 @@ export interface DiagramOptions {
    * Defaults to 28px for grouped diagrams and 22px for ungrouped diagrams.
    */
   contentPadding?: number;
+  /**
+   * Optional custom fullscreen toggle handler.
+   * When provided, the footer fullscreen control delegates toggling to this callback.
+   */
+  onFullscreen?: (isFull: boolean) => void;
 }
 
 export interface Diagram {
@@ -132,6 +137,7 @@ export interface Diagram {
   exportGif(options?: GifDiagramExportOptions): Promise<Blob>;
   resize(): void;
   resetView(): void;
+  syncFullscreen(isFull?: boolean): void;
   destroy(): void;
 }
 
@@ -432,6 +438,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     onTimeUpdate,
     onPlayStateChange,
     onEnded,
+    onFullscreen,
     responsiveLayout = "auto",
     fitMode = "auto",
     minReadableScale = 0.9,
@@ -1596,8 +1603,12 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     resetView() {
       resetViewportTransform();
     },
+    syncFullscreen(isFull?: boolean) {
+      syncFullscreenHandler?.(isFull);
+    },
     destroy() {
       diagram.pause();
+      syncFullscreenHandler = null;
       hostThemeObserver?.disconnect();
       hostThemeObserver = null;
       if (colorSchemeQuery && mediaQueryListener) {
@@ -2069,6 +2080,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   }
 
   let removeFullscreenListeners: (() => void) | null = null;
+  let syncFullscreenHandler: ((isFull?: boolean) => void) | null = null;
 
   function mountFullscreenControl(toolbar: HTMLElement): void {
     if (!fullscreenButton) return;
@@ -2094,15 +2106,17 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       );
     }
 
-    function syncFullscreenState(): void {
+    function syncFullscreenState(explicitFull?: boolean | Event): void {
       const isFull =
-        isPseudoFull ||
-        document.fullscreenElement === host ||
-        document.fullscreenElement === viewport ||
-        (document as any).webkitFullscreenElement === host ||
-        (document as any).webkitFullscreenElement === viewport ||
-        (document as any).mozFullScreenElement === host ||
-        (document as any).msFullscreenElement === host;
+        typeof explicitFull === "boolean"
+          ? explicitFull
+          : isPseudoFull ||
+            document.fullscreenElement === host ||
+            document.fullscreenElement === viewport ||
+            (document as any).webkitFullscreenElement === host ||
+            (document as any).webkitFullscreenElement === viewport ||
+            (document as any).mozFullScreenElement === host ||
+            (document as any).msFullscreenElement === host;
 
       button.setAttribute("aria-pressed", isFull ? "true" : "false");
       button.title = isFull ? "Exit fullscreen" : "Toggle fullscreen view";
@@ -2139,9 +2153,12 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       }, 120);
     }
 
+    syncFullscreenHandler = (isFull?: boolean) => syncFullscreenState(isFull);
+
     async function toggleFullscreen(): Promise<void> {
       try {
         const isCurrentlyFull =
+          button.getAttribute("aria-pressed") === "true" ||
           isPseudoFull ||
           document.fullscreenElement === host ||
           document.fullscreenElement === viewport ||
@@ -2149,6 +2166,11 @@ export function createDiagram(opts: DiagramOptions): Diagram {
           (document as any).webkitFullscreenElement === viewport ||
           (document as any).mozFullScreenElement === host ||
           (document as any).msFullscreenElement === host;
+
+        if (onFullscreen) {
+          onFullscreen(!isCurrentlyFull);
+          return;
+        }
 
         if (!isCurrentlyFull) {
           let enteredNative = false;
@@ -2240,6 +2262,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     window.addEventListener("keydown", handleEscKey);
 
     removeFullscreenListeners = () => {
+      syncFullscreenHandler = null;
       document.removeEventListener("fullscreenchange", syncFullscreenState);
       document.removeEventListener("webkitfullscreenchange", syncFullscreenState);
       document.removeEventListener("mozfullscreenchange", syncFullscreenState);
