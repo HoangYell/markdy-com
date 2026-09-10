@@ -4,13 +4,15 @@
   <a href="https://markdy.com/playground/"><img src="https://img.shields.io/badge/⚡_Live_Studio-markdy.com%2Fplayground-3b82f6?style=for-the-badge" alt="Live Studio" /></a>
   <a href="https://markdy.com/docs/"><img src="https://img.shields.io/badge/📖_Docs-Documentation-10b981?style=for-the-badge" alt="Documentation" /></a>
   <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><img src="https://img.shields.io/badge/🔌_VS_Code-Extension-8b5cf6?style=for-the-badge" alt="VS Code Extension" /></a>
+  <a href="https://github.com/sponsors/HoangYell"><img src="https://img.shields.io/badge/💖_Sponsor-Support_Markdy-ea4aaa?style=for-the-badge" alt="Sponsor Markdy" /></a>
 </p>
 
 The zero-dependency parser, dynamic port multiplexer, and AST routing engine for [MarkdyScript](https://markdy.com/docs/) — a diagram-native DSL for animated architecture diagrams that AI agents generate reliably.
 
 > 🚀 **Try it live**: Test MarkdyScript in the browser at **[markdy.com/playground](https://markdy.com/playground/)**  
 > 📚 **Documentation**: Complete syntax guide and examples at **[markdy.com/docs](https://markdy.com/docs/)**  
-> 🌟 **Architecture Blueprints**: 30+ canonical production diagrams at **[markdy.com/examples](https://markdy.com/examples/)**
+> 🌟 **Architecture Blueprints**: 30+ canonical production diagrams at **[markdy.com/examples](https://markdy.com/examples/)**  
+> 💼 **Enterprise & Commercial**: Free under MIT. To support development or request custom architecture blueprints, explore **[GitHub Sponsors](https://github.com/sponsors/HoangYell)**.
 
 ## Features
 

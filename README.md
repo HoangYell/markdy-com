@@ -26,14 +26,18 @@
   <a href="https://markdy.com/docs/">Documentation</a> &nbsp;•&nbsp;
   <a href="https://markdy.com/examples/">Examples</a> &nbsp;•&nbsp;
   <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode">VS Code Extension</a> &nbsp;•&nbsp;
-  <a href="https://markdy.com/agent/">AI &amp; Agent Guide</a>
+  <a href="https://markdy.com/agent/">AI &amp; Agent Guide</a> &nbsp;•&nbsp;
+  <a href="https://github.com/sponsors/HoangYell"><strong>Sponsor &amp; Pro Blueprints</strong></a>
 </p>
 
 <p align="center">
   <a href="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml"><img src="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
   <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/npm/v/@markdy/core?color=blue&label=%40markdy%2Fcore" alt="npm version" /></a>
+  <a href="https://github.com/sponsors/HoangYell"><img src="https://img.shields.io/badge/Sponsor-%E2%99%A5-ea4aaa" alt="Sponsor Markdy" /></a>
   <a href="https://github.com/HoangYell/markdy-com/blob/main/LICENSE"><img src="https://img.shields.io/github/license/HoangYell/markdy-com" alt="MIT License" /></a>
 </p>
+
+> 💼 **Sponsorship & Commercial Use**: Markdy is free and open source under the MIT license. If you use Markdy in commercial projects or want to support ongoing engineering, consider **[sponsoring on GitHub](https://github.com/sponsors/HoangYell)**.
 
 ---
 
