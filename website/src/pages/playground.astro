@@ -1418,10 +1418,16 @@ const playgroundStructuredData = [
         controls: { fit: true },
         targetWidthRatio: 0.98,
         shareUrl: `${window.location.origin}${window.location.pathname}`,
+        onFullscreen(isFull) {
+          toggleStageFullscreen(false);
+        },
         onWarning(warning: Diagnostic) {
           warnings.push(`line ${warning.line}: ${warning.message}`);
         },
       });
+      if (stagePane?.classList.contains("director-theatre-active") || document.fullscreenElement === stagePane) {
+        (diagram as any)?.syncFullscreen?.(true);
+      }
       announce("Preview updated successfully.");
       showDiagnostics(warnings);
       updateEntitiesAndSuggestions(code);
@@ -2936,6 +2942,18 @@ Requirements:
       stageTheatreExitBtn.style.display = isActive ? "inline-flex" : "none";
     }
 
+    // Harmonize footer player fullscreen button
+    (diagram as any)?.syncFullscreen?.(isActive);
+    const footerFullBtn = stagePane.querySelector<HTMLButtonElement>(".markdy-control-fullscreen");
+    if (footerFullBtn) {
+      footerFullBtn.setAttribute("aria-pressed", isActive ? "true" : "false");
+      footerFullBtn.title = isActive ? "Exit fullscreen" : "Toggle fullscreen view";
+      const svg = footerFullBtn.querySelector("svg")?.outerHTML;
+      if (svg) {
+        footerFullBtn.innerHTML = `${svg}${isActive ? "Exit" : "Full"}`;
+      }
+    }
+
     // Trigger diagrams rescale across animation frames
     requestAnimationFrame(() => {
       window.dispatchEvent(new Event("resize"));
@@ -3014,6 +3032,21 @@ Requirements:
   stageTheatreExitBtn?.addEventListener("click", () => {
     toggleStageFullscreen(false);
   });
+
+  // Intercept and harmonize footer player fullscreen clicks with stage theatre controller
+  stagePane?.addEventListener(
+    "click",
+    (event) => {
+      const target = event.target as HTMLElement | null;
+      const fullBtn = target?.closest(".markdy-control-fullscreen");
+      if (fullBtn) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        toggleStageFullscreen(false);
+      }
+    },
+    true
+  );
 
   document.addEventListener("fullscreenchange", () => {
     const isNativeFull = Boolean(document.fullscreenElement === stagePane);
