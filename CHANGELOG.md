@@ -5,6 +5,16 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.4] — 2026-09-13
+
+### Fixed & Enhanced
+- **🎯 Default Fit Active & Viewport Interaction Safeguards (`@markdy/core`, `@markdy/renderer-dom`, `@markdy/astro`)**:
+  - `fit` now defaults to `true` (active / selected) whenever undeclared or when fit control is enabled, ensuring diagrams start fully framed within container bounds with the camera layer pinned against unintended zoom clipping.
+  - Controls toolbar `Fit` button now mounts in selected state (`aria-pressed="true"`) by default.
+  - Added `defaultFit?: boolean` and `fit?: boolean` options to `DiagramOptions` and `<Markdy fit={...} />` Astro component for explicit opt-in/opt-out.
+  - Added flat `fit` setting support (`fit: true/false`, `fitView: true/false`) to `@markdy/core` parser directives map.
+  - Viewport interaction gestures (`zoom`, `pan`, `doubleClickToReset`) now default to `false` when undeclared, preventing diagrams in articles from capturing scroll events or trapping mobile touches while preserving `clickToPlay` for tap playback toggle.
+
 ## [1.4.3] — 2026-09-06
 
 ### Fixed & Enhanced
