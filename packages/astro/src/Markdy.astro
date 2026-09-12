@@ -54,6 +54,8 @@ export interface Props {
   interactiveViewport?: boolean;
   /** Host controls override: true supplies legacy defaults; false suppresses script controls. */
   controls?: boolean;
+  /** Initial fit-all-in-view state. Defaults to true when undeclared. */
+  fit?: boolean;
   class?: string;
   /**
    * Short human-readable title for the animation.
@@ -83,6 +85,7 @@ const {
   progressBarColor,
   playbackRate,
   controls,
+  fit,
   interactiveViewport,
   class: className,
   title = "Markdy animation",
@@ -119,6 +122,7 @@ const codeB64 =
   data-markdy-playback-rate={playbackRate !== undefined ? String(playbackRate) : undefined}
   data-markdy-interactive-viewport={interactiveViewport !== undefined ? String(interactiveViewport) : undefined}
   data-markdy-controls={controls !== undefined ? String(controls) : undefined}
+  data-markdy-fit={fit !== undefined ? String(fit) : undefined}
   role="img"
   aria-label={title}
   aria-busy="true"
@@ -327,6 +331,10 @@ const codeB64 =
       el.dataset.markdyControls !== undefined
         ? el.dataset.markdyControls === "true"
         : undefined;
+    const fit =
+      el.dataset.markdyFit !== undefined
+        ? el.dataset.markdyFit === "true"
+        : undefined;
     const interactiveViewport =
       el.dataset.markdyInteractiveViewport !== undefined
         ? el.dataset.markdyInteractiveViewport === "true"
@@ -352,6 +360,7 @@ const codeB64 =
       playbackRate,
       interactiveViewport,
       controls,
+      defaultFit: fit,
     });
 
     el.dataset.markdyInit = "done";

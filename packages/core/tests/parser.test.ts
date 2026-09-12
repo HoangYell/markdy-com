@@ -717,7 +717,7 @@ beat main:
       theme: false,
     });
 
-    // When explicitly set, it should be true.
+    // When explicitly set, it should be respected.
     const resolvedWithCode = resolvePlayer({ controls: { code: true } });
     expect(resolvedWithCode.controls.code).toBe(true);
 
@@ -726,6 +726,28 @@ beat main:
 
     const resolvedWithOneSpeed = resolvePlayer({ controls: { speed: true, speeds: [0.25] } });
     expect(resolvedWithOneSpeed.controls).toMatchObject({ enabled: false, speed: false, speeds: [0.25] });
+
+    // Fit control button is opt-in per controls group, or enabled via controls: true.
+    expect(resolvePlayer({ controls: { fit: true } }).controls.fit).toBe(true);
+    expect(resolvePlayer({}, { controls: true }).controls.fit).toBe(true);
+    expect(resolvePlayer({ controls: { play: true } }).controls.fit).toBe(false);
+    expect(resolvePlayer({}).controls.fit).toBe(false);
+
+    // Interaction viewport gestures default to false when undeclared.
+    expect(resolvePlayer().interaction).toMatchObject({
+      enabled: false,
+      zoom: false,
+      pan: false,
+      doubleClickToReset: false,
+      clickToPlay: true,
+      keyboard: false,
+    });
+    expect(resolvePlayer({ interaction: { zoom: true } }).interaction).toMatchObject({
+      enabled: true,
+      zoom: true,
+      pan: false,
+      doubleClickToReset: false,
+    });
   });
 
   it("warns on unknown or malformed player settings", () => {

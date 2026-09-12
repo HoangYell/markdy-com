@@ -184,6 +184,7 @@ beat flow:
         code: "scene\nlayout LR\nservice Start\nservice Middle\nservice End\nbeat flow:\n  Start -> Middle -> End",
         autoplay: false,
         controls: { fit: true },
+        defaultFit: false,
       });
       const viewport = container.querySelector<HTMLElement>(".markdy-viewport")!;
       const fit = container.querySelector<HTMLButtonElement>(".markdy-control-fit")!;
