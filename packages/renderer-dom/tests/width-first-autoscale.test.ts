@@ -658,6 +658,65 @@ beat main:
 
       diagram.destroy();
     });
+
+    it("switches multi-tier flow diagram with layout auto to portrait (TB) in unconstrained 672px article column", () => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+
+      Object.defineProperty(container, "clientWidth", { value: 672, configurable: true });
+      Object.defineProperty(container, "clientHeight", { value: 0, configurable: true });
+
+      const code = `
+scene "Multi-tier Architecture Flow" theme=paper layout=auto
+service Client "User Client"
+service API "API Gateway"
+service Workers "Worker Pool"
+service Storage "Object Storage"
+database DB "Primary Database"
+
+beat main:
+  Client -> API -> Workers -> Storage & Workers -> DB
+`;
+      const diagram = createDiagram({
+        container,
+        code,
+      });
+
+      const plan = (container as any).__markdyPlan;
+      expect(plan.meta.direction).toBe("TB");
+
+      // Scale should be crisp and readable (> 0.65)
+      const scaleStr = container.style.getPropertyValue("--markdy-scale");
+      const scale = parseFloat(scaleStr);
+      expect(scale).toBeGreaterThan(0.65);
+
+      diagram.destroy();
+    });
+
+    it("respects explicit layout LR even in a narrow 672px container without forcing portrait", () => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+
+      Object.defineProperty(container, "clientWidth", { value: 672, configurable: true });
+      Object.defineProperty(container, "clientHeight", { value: 0, configurable: true });
+
+      const code = `
+scene "Explicit Horizontal Flow" theme=paper layout=LR
+service A
+service B
+beat main:
+  A -> B
+`;
+      const diagram = createDiagram({
+        container,
+        code,
+      });
+
+      const plan = (container as any).__markdyPlan;
+      expect(plan.meta.direction).toBe("LR");
+
+      diagram.destroy();
+    });
   });
 });
 

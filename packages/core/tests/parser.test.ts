@@ -1137,4 +1137,47 @@ beat socket "Socket":
       });
     }
   });
+
+  it("parses layout auto, direction=auto, and rankdir=auto directives cleanly", () => {
+    const code1 = `
+scene "Auto Layout Top-level"
+layout auto
+service A
+service B
+`;
+    const ast1 = parse(code1);
+    expect(ast1.meta.direction).toBe("LR");
+    expect(ast1.meta.explicitDirection).toBe(false);
+    expect(ast1.meta.layoutMode).toBe("auto");
+
+    const code2 = `
+scene "Auto Layout Inline" layout=auto
+service A
+service B
+`;
+    const ast2 = parse(code2);
+    expect(ast2.meta.direction).toBe("LR");
+    expect(ast2.meta.explicitDirection).toBe(false);
+    expect(ast2.meta.layoutMode).toBe("auto");
+
+    const code3 = `
+scene "Auto Direction" direction=auto
+service A
+service B
+`;
+    const ast3 = parse(code3);
+    expect(ast3.meta.direction).toBe("LR");
+    expect(ast3.meta.explicitDirection).toBe(false);
+    expect(ast3.meta.layoutMode).toBe("auto");
+
+    const code4 = `
+scene "Auto Rankdir" rankdir=auto
+service A
+service B
+`;
+    const ast4 = parse(code4);
+    expect(ast4.meta.direction).toBe("LR");
+    expect(ast4.meta.explicitDirection).toBe(false);
+    expect(ast4.meta.layoutMode).toBe("auto");
+  });
 });

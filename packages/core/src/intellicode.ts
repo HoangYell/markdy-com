@@ -438,6 +438,7 @@ export function getIntelliCodeCompletions(docText: string, cursorLine: number, c
   // ── Context 4: After `layout ` or `direction=` ─────────────────────────────
   if (/(layout\s+|direction\s*=\s*)\w*$/i.test(ctx.linePrefix)) {
     items.push(
+      { label: "auto", insertText: "auto", kind: "layout", detail: "Responsive Auto (LR / TB)", documentation: "Automatically adapts layout orientation between horizontal (LR) and vertical (TB) based on container width.", boost: 11 },
       { label: "LR", insertText: "LR", kind: "layout", detail: "Left-to-Right", documentation: "Horizontal left-to-right system flow layout.", boost: 10 },
       { label: "TB", insertText: "TB", kind: "layout", detail: "Top-to-Bottom", documentation: "Vertical top-to-bottom hierarchy layout.", boost: 9 },
       { label: "RL", insertText: "RL", kind: "layout", detail: "Right-to-Left", documentation: "Right-to-left reverse topology layout.", boost: 5 },

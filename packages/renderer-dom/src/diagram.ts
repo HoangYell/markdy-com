@@ -455,16 +455,19 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     fit: explicitFitOption,
   } = opts;
 
+  const initialContainerHeight = container.clientHeight || 0;
+  const hasInitialHeightConstraint = initialContainerHeight > 0 && !container.style.aspectRatio;
+
   function detectContainerOrientation(previous?: "portrait" | "landscape"): "portrait" | "landscape" {
     const width = container.clientWidth || (typeof window === "undefined" ? 1024 : window.innerWidth);
-    const height = container.clientHeight || 0;
+    const height = hasInitialHeightConstraint ? initialContainerHeight : 0;
     const breakpoint = previous === "portrait" ? 672 : previous === "landscape" ? 608 : 640;
 
     // When the container has a constrained, measurable height (e.g. fixed/clamped preview pane, studio, card):
     // A container is portrait only if it is actually taller than it is wide (aspect ratio width / height < 1.0).
     // If the container is square or wider than tall (width >= height), forcing vertical "TB" stacking
     // causes severe vertical overflow and node clipping.
-    if (height > 0 && container.clientHeight > 0) {
+    if (height > 0) {
       const ratio = width / height;
       const ratioBreakpoint = previous === "portrait" ? 1.15 : previous === "landscape" ? 0.88 : 1.0;
       if (ratio >= ratioBreakpoint) {
@@ -484,8 +487,11 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   // Device orientation & screen adaptation:
   // Mobile / Portrait -> direction: TB / rankdir: TB (Top-to-Bottom data flow)
   // Desktop / Landscape -> direction: LR / rankdir: LR (Left-to-Right data flow)
-  const hasExplicitDirection = ast.meta.explicitDirection === true;
-  const shouldAdaptOrientation = responsiveLayout === true || (responsiveLayout === "auto" && !hasExplicitDirection);
+  const hasExplicitDirection = ast.meta.explicitDirection === true && ast.meta.layoutMode !== "auto";
+  const shouldAdaptOrientation =
+    ast.meta.layoutMode === "auto" ||
+    responsiveLayout === true ||
+    (responsiveLayout === "auto" && !hasExplicitDirection);
   const reverseDirection = ast.meta.direction === "RL" || ast.meta.direction === "BT";
   const directionForOrientation = (orientation: "portrait" | "landscape") =>
     orientation === "portrait" ? (reverseDirection ? "BT" : "TB") : (reverseDirection ? "RL" : "LR");
@@ -913,7 +919,17 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   function layoutForDirection(direction: "TB" | "LR" | "BT" | "RL") {
     const cached = layoutPlans.get(direction);
     if (cached?.plan.theme === plan.theme) return cached;
-    const candidate = compilePlan({ ...ast, meta: { ...ast.meta, direction } }, plan.theme);
+    const candidateAst = {
+      ...ast,
+      meta: {
+        ...ast.meta,
+        direction,
+        ...(ast.meta.layoutMode === "auto" || responsiveLayout === true
+          ? { explicitWidth: false, explicitHeight: false }
+          : {}),
+      },
+    };
+    const candidate = compilePlan(candidateAst, plan.theme);
     const entry = { plan: candidate, bounds: computeDiagramContentBounds(candidate, { padding: contentPadding }) };
     layoutPlans.set(direction, entry);
     return entry;
@@ -1042,25 +1058,52 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     const resolvedFit = fitViewActive ? "contain" : fitMode === "auto" ? (Math.abs(vHeight - naturalHeight) > 2 ? "contain" : "width") : fitMode;
     const targetRatio = Math.min(1.0, Math.max(0.90, targetWidthRatio ?? 0.96));
 
-    if (shouldAdaptOrientation && !fitViewActive) {
-      let currentOrientation = detectContainerOrientation(activeOrientation);
-      if (fitMode === "auto" && (!ast.meta.explicitWidth || !ast.meta.explicitHeight)
-        && ["architecture", "flowchart", "state", "tree", "medallion", "swimlane", "timeline", "gantt", "layers", "loop"].includes(plan.diagramType)) {
-        const isHeightConstrained = resolvedFit === "contain" || (vHeight > 0 && Math.abs(vHeight - naturalHeight) > 2);
-        const containerRatio = vWidth / Math.max(1, vHeight);
-        // Do not force vertical "portrait" stacking when the container is wider than it is tall (ratio >= 1.0)
-        // because multi-tier/flow diagrams require tall vertical space that would overflow the short container.
-        if (!(activeOrientation === "landscape" && containerRatio >= 1.0)) {
-          const score = (orientation: "portrait" | "landscape") => {
-            const { bounds } = layoutForDirection(directionForOrientation(orientation));
-            const widthScale = (vWidth * targetRatio) / bounds.width;
-            const heightScale = isHeightConstrained ? (Math.max(1, vHeight - 24) * targetRatio) / bounds.height : 1;
-            return Math.min(1, widthScale, heightScale);
-          };
-          const alternative = activeOrientation === "portrait" ? "landscape" : "portrait";
-          currentOrientation = score(alternative) > score(activeOrientation) * 1.2 ? alternative : activeOrientation;
+    const ADAPTABLE_DIAGRAM_TYPES = new Set([
+      "architecture",
+      "flowchart",
+      "state",
+      "tree",
+      "medallion",
+      "swimlane",
+      "timeline",
+      "gantt",
+      "layers",
+      "loop",
+      "nested",
+      "flywheel",
+      "pyramid",
+    ]);
+
+    if (shouldAdaptOrientation && ADAPTABLE_DIAGRAM_TYPES.has(plan.diagramType)) {
+      const detectedOrientation = detectContainerOrientation(activeOrientation);
+      const isHeightConstrained = hasInitialHeightConstraint || (vHeight > 0 && Math.abs(vHeight - naturalHeight) > 2);
+      const containerRatio = vWidth / Math.max(1, vHeight);
+
+      // When height is constrained and container is landscape-proportioned (e.g. desktop split pane / fixed widget),
+      // avoid portrait stacking which would overflow the fixed height.
+      // In normal unconstrained flow (e.g. blog post / article prose), height expands with aspect-ratio so evaluate true readability.
+      let currentOrientation = activeOrientation;
+      if (!isHeightConstrained || !(activeOrientation === "landscape" && containerRatio >= 1.0)) {
+        const score = (orientation: "portrait" | "landscape") => {
+          const { bounds } = layoutForDirection(directionForOrientation(orientation));
+          const widthScale = (vWidth * targetRatio) / bounds.width;
+          const heightScale = isHeightConstrained ? (Math.max(1, vHeight - 24) * targetRatio) / bounds.height : 1;
+          return Math.min(1, widthScale, heightScale);
+        };
+
+        if (activeOrientation === "landscape") {
+          if (detectedOrientation === "portrait" || score("portrait") > score("landscape") * 1.2) {
+            currentOrientation = "portrait";
+          }
+        } else {
+          if (detectedOrientation === "landscape" && score("landscape") >= Math.min(0.85, score("portrait"))) {
+            currentOrientation = "landscape";
+          } else if (score("landscape") > score("portrait") * 1.2) {
+            currentOrientation = "landscape";
+          }
         }
       }
+
       if (currentOrientation !== activeOrientation) {
         activeOrientation = currentOrientation;
         relayoutOrientation(directionForOrientation(activeOrientation));
