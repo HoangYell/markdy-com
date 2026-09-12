@@ -12,6 +12,7 @@ module.exports = {
       max_memory_restart: '300M',
       env: {
         NODE_ENV: 'development',
+        HARNESS_PORT: '4325',
       },
     },
   ],
