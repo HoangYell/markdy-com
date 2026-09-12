@@ -151,6 +151,16 @@ when capture fails. Browser font and cross-origin image restrictions still apply
 | `exportDiagramAsPng(container, opts?)` | `Function` | Export high-DPI rasterized PNG Blob |
 | `exportDiagramAsGif(container, timeline, opts?)` | `Function` | Export animated GIF89a recording |
 
+## Development & Visual Harness
+
+To inspect the renderer visually during local development:
+
+```sh
+pnpm --filter @markdy/renderer-dom run harness
+```
+
+The harness runs on **`http://127.0.0.1:4325`** (port 4325 is decoupled from Astro's default port 4321 to avoid collisions with documentation previews). It serves canonical test fixtures, live theme switching, and real-time interactive DOM rendering.
+
 ## Ecosystem & Documentation
 
 - ⚡ **[Interactive Studio / Playground](https://markdy.com/playground/)** — edit MarkdyScript with instant live preview in your browser
