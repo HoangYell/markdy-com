@@ -21,7 +21,7 @@ const REPO_ROOT = resolve(HERE, "..", "..", "..");
 const CORE_DIST = resolve(REPO_ROOT, "packages/core/dist");
 const RENDERER_DIST = resolve(REPO_ROOT, "packages/renderer-dom/dist");
 const EXAMPLE_DIRS = ["examples/showcase", "examples"];
-const PORT = Number(process.env.HARNESS_PORT ?? 4321);
+const PORT = Number(process.env.HARNESS_PORT ?? 4325);
 
 function contentType(path) {
   if (path.endsWith(".js")) return "text/javascript; charset=utf-8";
