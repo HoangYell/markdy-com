@@ -112,6 +112,13 @@ export interface DiagramOptions {
    */
   contentPadding?: number;
   /**
+   * Initial fit-all-in-view state. Defaults to true when undeclared.
+   * If false, starts in unconstrained mode.
+   */
+  defaultFit?: boolean;
+  /** Alias for defaultFit. */
+  fit?: boolean;
+  /**
    * Optional custom fullscreen toggle handler.
    * When provided, the footer fullscreen control delegates toggling to this callback.
    */
@@ -444,6 +451,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     minReadableScale = 0.9,
     targetWidthRatio = 0.96,
     contentPadding,
+    defaultFit,
+    fit: explicitFitOption,
   } = opts;
 
   function detectContainerOrientation(previous?: "portrait" | "landscape"): "portrait" | "landscape" {
@@ -1175,7 +1184,16 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   let controlsTimeEl: HTMLSpanElement | null = null;
   let controlsFitButton: HTMLButtonElement | null = null;
   let closeCodePanel: (() => void) | null = null;
-  let fitViewActive = false;
+  const explicitFit = defaultFit ?? explicitFitOption;
+  let fitViewActive =
+    explicitFit !== undefined
+      ? Boolean(explicitFit)
+      : plan.meta.player?.controls?.fit !== undefined
+        ? Boolean(plan.meta.player.controls.fit)
+        : opts.fitMode === "contain" || Boolean(fitViewButton);
+  if (fitViewActive) {
+    cameraLayer.style.setProperty("transform", "none", "important");
+  }
 
   const ICONS = {
     play: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
@@ -2066,7 +2084,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     if (!fitViewButton) return;
     controlsFitButton = makeControlButton("Fit", "Fit all items in view and ignore camera zoom", ICONS.fit);
     controlsFitButton.className = "markdy-control-fit";
-    controlsFitButton.setAttribute("aria-pressed", "false");
+    controlsFitButton.setAttribute("aria-pressed", fitViewActive ? "true" : "false");
     controlsFitButton.addEventListener("click", toggleFitView);
     toolbar.appendChild(controlsFitButton);
   }

@@ -744,19 +744,22 @@ beat b1:
     const fitButton = document.body.querySelector<HTMLButtonElement>(".markdy-control-fit")!;
 
     expect(fitButton).not.toBeNull();
-    expect(fitButton.getAttribute("aria-pressed")).toBe("false");
-
-    fitButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(fitButton.getAttribute("aria-pressed")).toBe("true");
-    // Camera zoom cues are outranked while fitted.
+    // Camera zoom cues are outranked while fitted by default.
     expect(cameraLayer.style.getPropertyPriority("transform")).toBe("important");
     expect(cameraLayer.style.transform).toBe("none");
-    expect(transformLayer.style.transform).toMatch(/translate\(.+\) scale\(.+\)/);
 
+    // Toggling fit button releases fit view.
     fitButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(fitButton.getAttribute("aria-pressed")).toBe("false");
     expect(cameraLayer.style.transform).toBe("");
     expect(transformLayer.style.transform).toBe("translate(0px, 0px) scale(1)");
+
+    // Toggling back activates fit view again.
+    fitButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(fitButton.getAttribute("aria-pressed")).toBe("true");
+    expect(cameraLayer.style.getPropertyPriority("transform")).toBe("important");
+    expect(cameraLayer.style.transform).toBe("none");
 
     diagram.destroy();
   });

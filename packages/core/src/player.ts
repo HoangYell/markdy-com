@@ -173,6 +173,7 @@ const FLAT: Record<string, Setting> = {
   next_beat: CONTROLS.next_beat,
   keyboard: INTERACTION.keyboard,
   shortcuts: INTERACTION.shortcuts,
+  fit: CONTROLS.fit,
   fitView: CONTROLS.fitView,
   fit_view: CONTROLS.fit_view,
   fitViewButton: CONTROLS.fitViewButton,
@@ -347,6 +348,7 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
 
   const controlsAllowed = overrides.controls !== false;
   const hostControlDefault = overrides.controls === true;
+  const hasControlsConfig = config.controls !== undefined || overrideControls !== undefined;
   const resolveControl = (value: boolean | undefined, fallback = hostControlDefault): boolean =>
     controlsAllowed && (value ?? fallback);
   const requestedControls = {
@@ -366,14 +368,16 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     theme: resolveControl(configuredControls.theme, hostControlDefault),
   };
 
-  // Legacy host coupling: `controls` as a host option also unlocks the viewport.
+  const hasExplicitInteraction = config.interaction !== undefined;
+  const fallbackGesture = overrides.interactiveViewport === true || overrides.controls === true;
   const interactionOn =
-    overrides.interactiveViewport !== false &&
-    (overrides.interactiveViewport === true || config.interaction !== undefined || overrides.controls === true);
+    overrides.interactiveViewport === true ||
+    overrides.controls === true ||
+    (overrides.interactiveViewport !== false && hasExplicitInteraction);
   const gestures = {
-    zoom: interactionOn && (interaction.zoom ?? true),
-    pan: interactionOn && (interaction.pan ?? true),
-    doubleClickToReset: interactionOn && (interaction.doubleClickToReset ?? true),
+    zoom: interactionOn && (interaction.zoom ?? fallbackGesture),
+    pan: interactionOn && (interaction.pan ?? fallbackGesture),
+    doubleClickToReset: interactionOn && (interaction.doubleClickToReset ?? fallbackGesture),
   };
   const interactionEnabled = gestures.zoom || gestures.pan || gestures.doubleClickToReset;
   const configuredSpeeds = configuredControls.speeds?.length ? configuredControls.speeds : [0.25, 1];
@@ -405,7 +409,7 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     interaction: {
       ...gestures,
       enabled: interactionEnabled,
-      clickToPlay: overrides.clickToPlay ?? (interactionOn && (interaction.clickToPlay ?? true)),
+      clickToPlay: overrides.clickToPlay ?? (interaction.clickToPlay ?? true),
       keyboard: interactionOn && (interaction.keyboard ?? false),
     },
     chrome: {
