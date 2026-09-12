@@ -12,7 +12,9 @@ export function formatScene(ast: DiagramAST): string {
   if (ast.meta.duration !== undefined) sceneParts.push(`duration=${ast.meta.duration}`);
   lines.push(sceneParts.join(" "));
 
-  if (ast.meta.direction !== "LR") {
+  if (ast.meta.layoutMode === "auto") {
+    lines.push("layout auto");
+  } else if (ast.meta.direction !== "LR") {
     lines.push(`layout ${ast.meta.direction}`);
   }
 

@@ -109,6 +109,8 @@ export type SceneMeta = {
   explicitTheme?: boolean;
   /** Whether layout direction was explicitly specified by the author in the script. */
   explicitDirection?: boolean;
+  /** Layout mode: explicit fixed direction or adaptive auto. */
+  layoutMode?: "auto" | "explicit";
   /** Opt-in diagram mode; defaults to architecture. */
   type?: DiagramType;
   /** Playback, controls, interaction, and chrome behavior. Source of truth. */

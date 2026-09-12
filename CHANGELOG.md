@@ -5,6 +5,17 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.5] — 2026-09-13
+
+### Fixed & Enhanced
+- **🧭 First-Class `layout auto` Directive & Smart Readability Scoring (`@markdy/core`, `@markdy/renderer-dom`)**:
+  - Added first-class DSL support for `layout auto`, `direction auto`, `rankdir auto`, and scene property `layout=auto` / `direction=auto` / `rankdir=auto`.
+  - Added `layoutMode?: "auto" | "explicit"` to `SceneMeta`, ensuring `layout auto` sets `explicitDirection: false` and cleanly signals responsive orientation adaptation.
+  - Added `auto` to `@markdy/core` IntelliCode autocomplete keyword completions.
+  - Refactored orientation adaptation in `@markdy/renderer-dom`: orientation re-evaluation now runs even when `fit` is active, and is no longer blocked by explicit container width/height hints.
+  - Implemented smart readability scoring in `scaleScene()`: evaluates candidate scale between horizontal (`LR`) and vertical (`TB`) layouts. Multi-tier diagrams in narrow content columns (such as blog article prose ~672px) automatically adapt to vertical layout to maintain high readability scale (80–95%) without microscopic shrinking.
+  - Preserved hysteresis between mobile (<608px) and desktop (>672px), respecting explicit direction (`layout TB` / `layout LR`) and constrained-height split panes (e.g. 580x430).
+
 ## [1.4.4] — 2026-09-13
 
 ### Fixed & Enhanced

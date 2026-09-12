@@ -980,11 +980,19 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
         meta.title = title;
         remainder = str.rest;
       }
-      const inlineLayout = remainder.match(/\b(?:layout|direction|rankdir)\s+(LR|RL|TB|BT)\b/i);
+      const inlineLayout = remainder.match(/\b(?:layout|direction|rankdir)\s+(LR|RL|TB|BT|auto)\b/i);
       if (inlineLayout) {
-        meta.direction = inlineLayout[1].toUpperCase() as LayoutDirection;
-        meta.explicitDirection = true;
-        remainder = remainder.replace(/\b(?:layout|direction|rankdir)\s+(LR|RL|TB|BT)\b/i, " ");
+        const val = inlineLayout[1].toUpperCase();
+        if (val === "AUTO") {
+          meta.direction = "LR";
+          meta.explicitDirection = false;
+          meta.layoutMode = "auto";
+        } else {
+          meta.direction = val as LayoutDirection;
+          meta.explicitDirection = true;
+          meta.layoutMode = "explicit";
+        }
+        remainder = remainder.replace(/\b(?:layout|direction|rankdir)\s+(LR|RL|TB|BT|auto)\b/i, " ");
       }
       const props = parseProps(remainder);
       for (const [k, v] of Object.entries(props)) {
@@ -1006,8 +1014,16 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
           meta.theme = val;
           meta.explicitTheme = val !== "auto";
         } else if (k === "direction" || k === "layout" || k === "rankdir") {
-          meta.direction = String(v).toUpperCase() as LayoutDirection;
-          meta.explicitDirection = true;
+          const val = String(v).toUpperCase();
+          if (val === "AUTO") {
+            meta.direction = "LR";
+            meta.explicitDirection = false;
+            meta.layoutMode = "auto";
+          } else {
+            meta.direction = val as LayoutDirection;
+            meta.explicitDirection = true;
+            meta.layoutMode = "explicit";
+          }
         } else if (PLAYER_FLAT_KEY_SET.has(k)) {
           const error = applyPlayerSetting((meta.player ??= {}), "player", k, String(v));
           if (error) diagnostics.push({ severity: "warning", message: error, line: lineNo });
@@ -1047,9 +1063,17 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
       continue;
     }
 
-    if (/^layout\s+(LR|RL|TB|BT)\b/i.test(line)) {
-      meta.direction = line.split(/\s+/)[1].toUpperCase() as LayoutDirection;
-      meta.explicitDirection = true;
+    if (/^layout\s+(LR|RL|TB|BT|auto)\b/i.test(line)) {
+      const val = line.split(/\s+/)[1].toUpperCase();
+      if (val === "AUTO") {
+        meta.direction = "LR";
+        meta.explicitDirection = false;
+        meta.layoutMode = "auto";
+      } else {
+        meta.direction = val as LayoutDirection;
+        meta.explicitDirection = true;
+        meta.layoutMode = "explicit";
+      }
       i++;
       continue;
     }
