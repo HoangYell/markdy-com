@@ -18,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **🏛️ Standardized Canonical Player Configuration Across All 66 Examples (`examples/`, `website/`)**:
   - Upgraded all 35 showcase blueprints and 31 core examples to the canonical `player:` block featuring always-fit zero-config, `interact true` (touch pan & zoom toggle), `speeds "0.25"`, `fullscreen true`, `gif true`, and `progress none`.
   - Synchronized Homepage Studio and Playground default snippet templates.
+- **🔒 Monorepo Workspace Protocol Normalization & Environment Hardening (`@markdy/core`, `@markdy/astro`, `@markdy/cli`, `@markdy/mcp-server`, `@markdy/vscode`)**:
+  - Normalized all internal `@markdy/*` package dependencies to `workspace:*`, ensuring deterministic `pnpm-lock.yaml` synchronization and eliminating CI `--frozen-lockfile` mismatches.
+  - Added `PlayerControlsInput` type and safe `globalThis` runtime detection for seamless cross-runtime compilation across Node, language server, and browser targets.
 
 ## [1.4.18] — 2026-09-13
 

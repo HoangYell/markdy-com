@@ -6,6 +6,7 @@
 import type {
   PlayerConfig,
   PlayerControlsConfig,
+  PlayerControlsInput,
   PlayerProgress,
   ResolvedPlayer,
 } from "./ast.js";
@@ -313,7 +314,7 @@ export type PlayerOverrides = {
   loop?: boolean;
   playbackRate?: number;
   copyright?: boolean;
-  controls?: boolean | (PlayerControlsConfig & { playback?: boolean });
+  controls?: boolean | (PlayerControlsInput & { playback?: boolean });
   interactiveViewport?: boolean;
   clickToPlay?: boolean;
   progress?: PlayerProgress;
@@ -325,10 +326,11 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
   const overrideControls = typeof overrides.controls === "object" && overrides.controls !== null ? overrides.controls : undefined;
 
   let globalControls: Partial<PlayerControlsConfig> | undefined;
-  if (typeof window !== "undefined") {
-    const win = window as any;
-    if (win.__MARKDY_DEFAULT_CONTROLS__ && typeof win.__MARKDY_DEFAULT_CONTROLS__ === "object") {
-      globalControls = win.__MARKDY_DEFAULT_CONTROLS__;
+  if (typeof globalThis !== "undefined") {
+    const glob = globalThis as any;
+    const controls = glob.window?.__MARKDY_DEFAULT_CONTROLS__ ?? glob.__MARKDY_DEFAULT_CONTROLS__;
+    if (controls && typeof controls === "object") {
+      globalControls = controls;
     }
   }
 

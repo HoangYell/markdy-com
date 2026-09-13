@@ -57,6 +57,12 @@ export type PlayerControlsConfig = {
   speeds?: number[];
 };
 
+export type PlayerControlsInput = PlayerControlsConfig & {
+  /** Alias for resetView */
+  focus?: boolean;
+  [key: string]: unknown;
+};
+
 /** What pointer and key input do. Declaring the group opts in. */
 export type PlayerInteractionConfig = {
   zoom?: boolean;
@@ -76,7 +82,7 @@ export type PlayerChromeConfig = {
 
 export type PlayerConfig = {
   playback?: PlayerPlaybackConfig;
-  controls?: PlayerControlsConfig;
+  controls?: PlayerControlsInput;
   interaction?: PlayerInteractionConfig;
   chrome?: PlayerChromeConfig;
 };
