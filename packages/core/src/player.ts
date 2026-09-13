@@ -315,8 +315,12 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
 
   const controlsAllowed = overrides.controls !== false;
   const hostControlDefault = overrides.controls === true;
-  const hasControlsConfig = config.controls !== undefined || overrideControls !== undefined;
-  const resolveControl = (value: boolean | undefined, fallback = hostControlDefault): boolean =>
+  const controlsExplicitlyDeclared = Boolean(
+    (config.controls && Object.keys(config.controls).length > 0) ||
+    (overrideControls && Object.keys(overrideControls).length > 0),
+  );
+  const unconfiguredFallback = controlsExplicitlyDeclared ? false : hostControlDefault;
+  const resolveControl = (value: boolean | undefined, fallback = unconfiguredFallback): boolean =>
     controlsAllowed && (value ?? fallback);
   const requestedControls = {
     seek: resolveControl(configuredControls.seek, false),
@@ -328,7 +332,7 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     gif: resolveControl(configuredControls.gif),
     share: resolveControl(configuredControls.share),
     code: resolveControl(configuredControls.code, false),
-    theme: resolveControl(configuredControls.theme, hostControlDefault),
+    theme: resolveControl(configuredControls.theme),
   };
 
   const hasExplicitInteraction = config.interaction !== undefined;

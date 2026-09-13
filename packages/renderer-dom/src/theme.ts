@@ -421,6 +421,8 @@ export function ensureSceneStyles(doc: Document): void {
   position: relative;
   pointer-events: auto;
   isolation: isolate;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .markdy-controls button:hover:not([aria-pressed="true"]) {
   position: relative;
@@ -570,10 +572,32 @@ export function ensureSceneStyles(doc: Document): void {
   color: #ffffff !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12) !important;
 }
+@keyframes markdy-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.markdy-icon-spin {
+  animation: markdy-spin 0.8s linear infinite;
+}
 .markdy-btn-flashed {
-  background: rgba(37, 99, 235, 0.15) !important;
-  color: #2563eb !important;
+  background: rgba(16, 185, 129, 0.12) !important;
+  color: #10b981 !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+}
+.markdy-btn-busy {
+  opacity: 0.85;
+  cursor: wait !important;
   border-color: #2563eb !important;
+  color: #2563eb !important;
+}
+.markdy-btn-failed {
+  background: rgba(239, 68, 68, 0.12) !important;
+  color: #ef4444 !important;
+  border-color: rgba(239, 68, 68, 0.4) !important;
 }
 /* ── Code panel overlay ───────────────────────────────────────────────── */
 .markdy-code-panel-overlay {

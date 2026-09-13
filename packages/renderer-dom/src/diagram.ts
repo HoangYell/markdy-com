@@ -1320,6 +1320,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     code: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
     theme: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>',
     check: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+    spinner: '<svg class="markdy-icon markdy-icon-spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>',
   };
 
   function applyViewportTransform(): void {
@@ -1910,23 +1911,113 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     });
   }
 
-  function flashControlLabel(button: HTMLButtonElement, message: string): void {
-    const originalHtml = button.dataset.originalHtml ?? button.innerHTML;
-    button.dataset.originalHtml = originalHtml;
-    const isSuccess = !message.toLowerCase().includes("fail");
-    button.innerHTML = isSuccess
-      ? `${ICONS.check}<span class="markdy-btn-label">${message}</span>`
-      : `<span class="markdy-btn-label">${message}</span>`;
-    button.classList.add("markdy-btn-flashed");
-    setTimeout(() => {
-      button.innerHTML = button.dataset.originalHtml ?? originalHtml;
-      delete button.dataset.originalHtml;
-      button.classList.remove("markdy-btn-flashed");
-    }, 1500);
+  interface FlashControlOptions {
+    icon?: string;
+    label?: string;
+    title?: string;
+    busy?: boolean;
+    stateClass?: "markdy-btn-flashed" | "markdy-btn-busy" | "markdy-btn-failed";
+    duration?: number;
   }
 
-  function downloadFile(filename: string, contents: string, type: string): void {
-    const blob = new Blob([contents], { type });
+  function flashControlState(button: HTMLButtonElement, options: FlashControlOptions): () => void {
+    const existingTimer = (button as unknown as { _flashTimer?: ReturnType<typeof setTimeout> })._flashTimer;
+    if (existingTimer) {
+      clearTimeout(existingTimer);
+      delete (button as unknown as { _flashTimer?: ReturnType<typeof setTimeout> })._flashTimer;
+    }
+
+    if (!button.dataset.origTitle) {
+      button.dataset.origTitle = button.title || "";
+    }
+    if (!button.dataset.origAria) {
+      button.dataset.origAria = button.getAttribute("aria-label") || "";
+    }
+
+    const iconContainer = button.querySelector<SVGElement>("svg.markdy-icon");
+    const labelContainer = button.querySelector<HTMLSpanElement>(".markdy-btn-label");
+
+    if (iconContainer && !button.dataset.origIcon) {
+      button.dataset.origIcon = iconContainer.outerHTML;
+    }
+    if (labelContainer && button.dataset.origLabel === undefined) {
+      button.dataset.origLabel = labelContainer.textContent || "";
+    }
+
+    if (options.icon && iconContainer) {
+      const temp = document.createElement("div");
+      temp.innerHTML = options.icon.trim();
+      const newIcon = temp.firstElementChild as SVGElement;
+      if (newIcon) {
+        iconContainer.replaceWith(newIcon);
+      }
+    }
+
+    if (options.label !== undefined && labelContainer) {
+      labelContainer.textContent = options.label;
+    }
+
+    if (options.title) {
+      button.title = options.title;
+      button.setAttribute("aria-label", options.title);
+    }
+
+    button.classList.remove("markdy-btn-flashed", "markdy-btn-busy", "markdy-btn-failed");
+    const activeClass = options.stateClass ?? (options.busy ? "markdy-btn-busy" : "markdy-btn-flashed");
+    button.classList.add(activeClass);
+
+    const reset = () => {
+      if ((button as unknown as { _flashTimer?: ReturnType<typeof setTimeout> })._flashTimer) {
+        clearTimeout((button as unknown as { _flashTimer?: ReturnType<typeof setTimeout> })._flashTimer);
+        delete (button as unknown as { _flashTimer?: ReturnType<typeof setTimeout> })._flashTimer;
+      }
+      button.classList.remove("markdy-btn-flashed", "markdy-btn-busy", "markdy-btn-failed");
+
+      if (button.dataset.origTitle !== undefined) {
+        button.title = button.dataset.origTitle;
+        delete button.dataset.origTitle;
+      }
+      if (button.dataset.origAria !== undefined) {
+        button.setAttribute("aria-label", button.dataset.origAria);
+        delete button.dataset.origAria;
+      }
+
+      const currentIcon = button.querySelector<SVGElement>("svg.markdy-icon");
+      if (currentIcon && button.dataset.origIcon) {
+        const temp = document.createElement("div");
+        temp.innerHTML = button.dataset.origIcon.trim();
+        const origIconEl = temp.firstElementChild as SVGElement;
+        if (origIconEl) currentIcon.replaceWith(origIconEl);
+        delete button.dataset.origIcon;
+      }
+
+      const currentLabel = button.querySelector<HTMLSpanElement>(".markdy-btn-label");
+      if (currentLabel && button.dataset.origLabel !== undefined) {
+        currentLabel.textContent = button.dataset.origLabel;
+        delete button.dataset.origLabel;
+      }
+    };
+
+    if (options.duration && options.duration > 0) {
+      (button as unknown as { _flashTimer?: ReturnType<typeof setTimeout> })._flashTimer = setTimeout(reset, options.duration);
+    }
+
+    return reset;
+  }
+
+  function flashControlLabel(button: HTMLButtonElement, message: string): void {
+    const isSuccess = !message.toLowerCase().includes("fail");
+    flashControlState(button, {
+      icon: isSuccess ? ICONS.check : undefined,
+      label: message,
+      title: message,
+      stateClass: isSuccess ? "markdy-btn-flashed" : "markdy-btn-failed",
+      duration: 1500,
+    });
+  }
+
+  function downloadFile(filename: string, contents: string | Blob, type: string): void {
+    const blob = contents instanceof Blob ? contents : new Blob([contents], { type });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -1952,10 +2043,20 @@ export function createDiagram(opts: DiagramOptions): Diagram {
         const svg = exportDiagramAsVectorSvg(container);
         const name = (plan.title || "markdy-diagram").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
         downloadFile(`${name || "markdy-diagram"}.svg`, svg, "image/svg+xml");
-        flashControlLabel(button, "Saved");
+        flashControlState(button, {
+          icon: ICONS.check,
+          label: "Saved",
+          title: "SVG exported successfully",
+          duration: 1500,
+        });
       } catch (error) {
         onWarning({ severity: "warning", message: `SVG export failed: ${String(error)}`, line: 0 });
-        flashControlLabel(button, "Failed");
+        flashControlState(button, {
+          label: "Failed",
+          title: "SVG export failed",
+          stateClass: "markdy-btn-failed",
+          duration: 2000,
+        });
       } finally {
         diagram.seek(resumeAt / 1000);
         if (wasPlaying) diagram.play();
@@ -1969,27 +2070,37 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     const button = makeControlButton("GIF", "Export diagram as animated GIF", ICONS.gif);
     button.className = "markdy-control-gif";
     let exporting = false;
+    let cancelBusy: (() => void) | null = null;
     button.addEventListener("click", async () => {
       if (exporting) return;
       exporting = true;
-      flashControlLabel(button, "Recording...");
       button.setAttribute("disabled", "true");
+      cancelBusy = flashControlState(button, {
+        icon: ICONS.spinner,
+        label: "Recording...",
+        title: "Recording animated GIF...",
+        busy: true,
+      });
       try {
         const blob = await diagram.exportGif();
         const name = (plan.title || "markdy-diagram").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `${name || "markdy-diagram"}.gif`;
-        link.style.display = "none";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        flashControlLabel(button, "Saved");
+        downloadFile(`${name || "markdy-diagram"}.gif`, blob, "image/gif");
+        cancelBusy?.();
+        flashControlState(button, {
+          icon: ICONS.check,
+          label: "Saved",
+          title: "GIF exported successfully",
+          duration: 1500,
+        });
       } catch (error) {
         onWarning({ severity: "warning", message: `GIF export failed: ${String(error)}`, line: 0 });
-        flashControlLabel(button, "Failed");
+        cancelBusy?.();
+        flashControlState(button, {
+          label: "Failed",
+          title: "GIF export failed",
+          stateClass: "markdy-btn-failed",
+          duration: 2000,
+        });
       } finally {
         exporting = false;
         button.removeAttribute("disabled");
@@ -2007,10 +2118,20 @@ export function createDiagram(opts: DiagramOptions): Diagram {
         const hash = await compressMarkdyToUrlHash(code);
         const base = shareUrl ?? MARKDY_PLAYGROUND_URL;
         await navigator.clipboard.writeText(`${base}#code=${hash}`);
-        flashControlLabel(button, "Copied");
+        flashControlState(button, {
+          icon: ICONS.check,
+          label: "Copied",
+          title: "Share link copied to clipboard",
+          duration: 1500,
+        });
       } catch (error) {
         onWarning({ severity: "warning", message: `Share link failed: ${String(error)}`, line: 0 });
-        flashControlLabel(button, "Failed");
+        flashControlState(button, {
+          label: "Failed",
+          title: "Failed to copy share link",
+          stateClass: "markdy-btn-failed",
+          duration: 2000,
+        });
       }
     });
     toolbar.appendChild(button);
@@ -2027,7 +2148,10 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       const isDark = darkThemes.includes(currentName);
       const targetThemes = isDark ? lightThemes : darkThemes;
       const nextTheme = targetThemes[Math.floor(Math.random() * targetThemes.length)];
-      flashControlLabel(button, nextTheme);
+      flashControlState(button, {
+        title: `Theme: ${nextTheme}`,
+        duration: 400,
+      });
       diagram.setTheme(nextTheme);
       container.dispatchEvent(
         new CustomEvent("markdy-theme-switch", {
@@ -2085,7 +2209,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
   function mountCodeControl(toolbar: HTMLElement): void {
     if (!codeButton) return;
-    const button = makeControlButton("Code", "View MarkdyScript source");
+    const button = makeControlButton("Code", "View MarkdyScript source", ICONS.code);
     button.className = "markdy-control-code";
     button.setAttribute("aria-haspopup", "dialog");
     button.setAttribute("aria-expanded", "false");
