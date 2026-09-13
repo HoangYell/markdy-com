@@ -7,9 +7,12 @@ export function ensureSceneStyles(doc: Document): void {
   const style = doc.createElement("style");
   style.id = SCENE_STYLE_ID;
   style.textContent = `
+.markdy-viewport,
 .markdy-scene-root {
   isolation: isolate;
 }
+.markdy-viewport::before,
+.markdy-viewport::after,
 .markdy-scene-root::before,
 .markdy-scene-root::after {
   content: "";
@@ -17,6 +20,7 @@ export function ensureSceneStyles(doc: Document): void {
   inset: 0;
   pointer-events: none;
 }
+.markdy-viewport::before,
 .markdy-scene-root::before {
   z-index: 0;
   background:
@@ -26,6 +30,7 @@ export function ensureSceneStyles(doc: Document): void {
   mask-image: radial-gradient(ellipse at 50% 48%, #000 65%, transparent 100%);
   opacity: 0.55;
 }
+.markdy-viewport::after,
 .markdy-scene-root::after {
   z-index: 1;
   background:
@@ -34,6 +39,14 @@ export function ensureSceneStyles(doc: Document): void {
   opacity: 0.68;
 }
 .markdy-scene-content { z-index: 2; }
+.markdy-viewport .markdy-scene-root {
+  background: transparent !important;
+}
+.markdy-viewport .markdy-scene-root::before,
+.markdy-viewport .markdy-scene-root::after {
+  display: none !important;
+}
+.markdy-viewport[data-markdy-theme="nebula"]::before,
 .markdy-scene-root[data-markdy-theme="nebula"]::before {
   background:
     radial-gradient(circle at 18% 18%, color-mix(in srgb, var(--md-soft) 20%, transparent), transparent 36%),
@@ -42,32 +55,38 @@ export function ensureSceneStyles(doc: Document): void {
   mask-image: radial-gradient(ellipse at 50% 50%, #000 70%, transparent 100%);
   opacity: 0.95;
 }
+.markdy-viewport[data-markdy-theme="nebula"]::after,
 .markdy-scene-root[data-markdy-theme="nebula"]::after {
   background:
     radial-gradient(ellipse at 50% 42%, color-mix(in srgb, var(--md-accent) 16%, transparent), transparent 56%),
     linear-gradient(180deg, transparent 0%, var(--md-vignette) 100%);
   opacity: 0.85;
 }
+.markdy-viewport[data-markdy-theme="terminal"]::before,
 .markdy-scene-root[data-markdy-theme="terminal"]::before {
   background:
     radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08) 1px, transparent 1px) 0 0 / 20px 20px;
   mask-image: none;
   opacity: 0.45;
 }
+.markdy-viewport[data-markdy-theme="terminal"]::after,
 .markdy-scene-root[data-markdy-theme="terminal"]::after {
   background:
     radial-gradient(ellipse at 50% 0%, rgba(255, 90, 54, 0.1), transparent 52%),
     linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.55) 100%);
   opacity: 0.75;
 }
+.markdy-viewport[data-markdy-theme="sketchy"]::before,
 .markdy-scene-root[data-markdy-theme="sketchy"]::before {
   background: none;
   opacity: 0;
 }
+.markdy-viewport[data-markdy-theme="sketchy"]::after,
 .markdy-scene-root[data-markdy-theme="sketchy"]::after {
   background: none;
   opacity: 0;
 }
+.markdy-viewport[data-markdy-theme="ink"]::before,
 .markdy-scene-root[data-markdy-theme="ink"]::before {
   background:
     radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--md-accent) 9%, transparent) 1px, transparent 1px) 0 0 / 20px 20px,
@@ -76,6 +95,7 @@ export function ensureSceneStyles(doc: Document): void {
   mask-image: radial-gradient(ellipse at 50% 50%, #000 75%, transparent 100%);
   opacity: 0.75;
 }
+.markdy-viewport[data-markdy-theme="ink"]::after,
 .markdy-scene-root[data-markdy-theme="ink"]::after {
   background:
     radial-gradient(ellipse at 50% -10%, color-mix(in srgb, var(--md-accent) 12%, transparent), transparent 50%),
@@ -83,12 +103,14 @@ export function ensureSceneStyles(doc: Document): void {
     linear-gradient(180deg, transparent 0%, rgba(219, 234, 254, 0.25) 80%, var(--md-vignette) 100%);
   opacity: 0.85;
 }
+.markdy-viewport[data-markdy-theme="doodle"]::before,
 .markdy-scene-root[data-markdy-theme="doodle"]::before {
   background:
     radial-gradient(circle at 50% 50%, rgba(24, 24, 27, 0.06) 1.5px, transparent 1.5px) 0 0 / 20px 20px;
   mask-image: none;
   opacity: 0.7;
 }
+.markdy-viewport[data-markdy-theme="doodle"]::after,
 .markdy-scene-root[data-markdy-theme="doodle"]::after {
   background:
     radial-gradient(ellipse at 85% 15%, rgba(244, 63, 94, 0.05), transparent 45%),

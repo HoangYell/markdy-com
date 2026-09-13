@@ -424,6 +424,23 @@ export function computeDiagramContentBounds(
   return { minX, minY, maxX, maxY, width, height };
 }
 
+export function computeSymmetricContentSpan(
+  plan: RenderPlan,
+  bounds: { minX: number; maxX: number; width: number },
+): {
+  symmetricContentW: number;
+  symmetricMinX: number;
+} {
+  const canvasCenterX = plan.meta.width / 2;
+  const leftSpan = Math.max(0, canvasCenterX - bounds.minX);
+  const rightSpan = Math.max(0, bounds.maxX - canvasCenterX);
+  const halfSpanX = Math.max(plan.meta.width / 2, leftSpan, rightSpan);
+  return {
+    symmetricContentW: halfSpanX * 2,
+    symmetricMinX: canvasCenterX - halfSpanX,
+  };
+}
+
 export function createDiagram(opts: DiagramOptions): Diagram {
   const {
     container,
@@ -605,7 +622,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   if (container.style.aspectRatio) container.style.aspectRatio = "unset";
 
   const initialBounds = computeDiagramContentBounds(plan, contentPadding !== undefined ? { padding: contentPadding } : undefined);
-  const contentRatio = `${initialBounds.width} / ${initialBounds.height}`;
+  const { symmetricContentW: initialSymmetricW } = computeSymmetricContentSpan(plan, initialBounds);
+  const contentRatio = `${initialSymmetricW} / ${initialBounds.height}`;
 
   const viewport = document.createElement("div");
   viewport.className = "markdy-viewport";
@@ -950,7 +968,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     Object.assign(ast.meta, newPlan.meta);
     scene.style.width = `${newPlan.meta.width}px`;
     scene.style.height = `${newPlan.meta.height}px`;
-    viewport.style.aspectRatio = `${newBounds.width} / ${newBounds.height}`;
+    const { symmetricContentW: newSymmetricW } = computeSymmetricContentSpan(newPlan, newBounds);
+    viewport.style.aspectRatio = `${newSymmetricW} / ${newBounds.height}`;
     Object.assign(plan, newPlan);
     contentBounds = newBounds;
 
@@ -1040,7 +1059,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     ];
 
     contentBounds = computeDiagramContentBounds(plan, { padding: contentPadding, routedEdges: edgeRuntimes.values() });
-    viewport.style.aspectRatio = `${contentBounds.width} / ${contentBounds.height}`;
+    const { symmetricContentW: relayoutSymmetricW } = computeSymmetricContentSpan(plan, contentBounds);
+    viewport.style.aspectRatio = `${relayoutSymmetricW} / ${contentBounds.height}`;
     applyCurrentTime();
     scaleScene();
   }
@@ -1132,17 +1152,18 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     const bounds = computeContentBounds();
     const contentW = bounds.width;
     const contentH = bounds.height;
+    const { symmetricContentW, symmetricMinX } = computeSymmetricContentSpan(plan, bounds);
 
     // Clean Edge-to-Edge Container Framing:
     // Dynamically calculate ViewBox / Camera Transform so diagram width fills ~96% of container width
     // with comfortable breathing room avoiding border clipping and scene boundary progress collisions.
-    const widthScale = (vWidth * targetRatio) / contentW;
+    const widthScale = (vWidth * targetRatio) / symmetricContentW;
 
     if (resolvedFit === "contain") {
       const heightScale = ((vHeight - 24) * targetRatio) / contentH;
       fitScale = Math.min(widthScale, heightScale);
     } else {
-      // Width-First Responsiveness: scale factor = containerWidth / contentWidth
+      // Width-First Responsiveness: scale factor = containerWidth / symmetricContentWidth
       fitScale = widthScale;
     }
 
@@ -1152,21 +1173,22 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       fitScale = Math.max(fitScale, minimum);
     }
 
-    // Proportional font & element scaling CSS variables
-    scene.style.setProperty("--markdy-scale", fitScale.toFixed(4));
-    viewport.style.setProperty("--markdy-scale", fitScale.toFixed(4));
-    container.style.setProperty("--markdy-scale", fitScale.toFixed(4));
+    const scaleStr = fitScale.toFixed(4);
+    const roundedScale = parseFloat(scaleStr);
+    scene.style.setProperty("--markdy-scale", scaleStr);
+    viewport.style.setProperty("--markdy-scale", scaleStr);
+    container.style.setProperty("--markdy-scale", scaleStr);
 
     if (titleEl && contentW > 0) {
       titleEl.style.maxWidth = `${Math.max(contentW - 112, 280)}px`;
     }
 
-    const scaledContentW = contentW * fitScale;
+    const scaledSymmetricW = symmetricContentW * fitScale;
     const scaledContentH = contentH * fitScale;
     const resetScroll = !scrollableViewport || lastScrollBounds !== bounds;
-    scrollableViewport = fitMode === "auto" && (scaledContentW > vWidth || scaledContentH > vHeight);
+    scrollableViewport = fitMode === "auto" && (scaledSymmetricW > vWidth || scaledContentH > vHeight);
     lastScrollBounds = bounds;
-    const frameWidth = scrollableViewport ? Math.max(vWidth, scaledContentW + 24) : vWidth;
+    const frameWidth = scrollableViewport ? Math.max(vWidth, scaledSymmetricW + 24) : vWidth;
     const frameHeight = scrollableViewport ? Math.max(vHeight, scaledContentH + 28) : vHeight;
     sceneFrame.style.width = scrollableViewport ? `${frameWidth}px` : "100%";
     sceneFrame.style.height = scrollableViewport ? `${frameHeight}px` : "100%";
@@ -1181,26 +1203,25 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       viewport.removeAttribute("aria-label");
     }
 
-    // Center content horizontally:
-    sceneOffsetX = (frameWidth - scaledContentW) / 2 - bounds.minX * fitScale;
+    // Symmetrically center content horizontally:
+    sceneOffsetX = (frameWidth - scaledSymmetricW) / 2 - symmetricMinX * fitScale;
 
     // Vertical positioning:
-    // When fitMode === "contain", center vertically.
-    // When fitMode === "width", anchor near top (14px - 24px top safe margin) so diagram is immediately visible,
-    // avoiding large dead voids at the top while keeping clean breathing room from the top border.
+    // When content fits within viewport, center vertically with balanced margins.
+    // When content exceeds viewport, maintain safe 16px top margin.
     if (resolvedFit === "contain") {
       sceneOffsetY = (frameHeight - scaledContentH) / 2 - bounds.minY * fitScale;
     } else {
       const topSafeMargin = scaledContentH <= vHeight
-        ? Math.max(14, Math.min(24, (vHeight - scaledContentH) / 2))
-        : 14;
+        ? Math.max(16, (vHeight - scaledContentH) / 2)
+        : 16;
       sceneOffsetY = topSafeMargin - bounds.minY * fitScale;
     }
 
     scene.style.left = `${sceneOffsetX}px`;
     scene.style.top = `${sceneOffsetY}px`;
     scene.style.transformOrigin = "0 0";
-    scene.style.transform = `scale(${fitScale})`;
+    scene.style.transform = `scale(${roundedScale})`;
     if (scrollableViewport || fitViewActive) {
       cameraLayer.style.setProperty("transform", "none", "important");
     } else if (cameraLayer.style.getPropertyPriority("transform") === "important") {

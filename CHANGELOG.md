@@ -5,6 +5,16 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.8] — 2026-09-13
+
+### Fixed & Enhanced
+- **🎯 Symmetric Visual Centering & Seamless Viewport Ambience (`@markdy/renderer-dom`)**:
+  - **Dead-Center Visual Axis**: Implemented `computeSymmetricContentSpan` to anchor the diagram's design center (`plan.meta.width / 2`) precisely at `containerWidth / 2`. Eliminates severe lopsided offsets (e.g. 72px asymmetry) previously caused by one-sided loopback edges or annotations extending bounding boxes asymmetrically.
+  - **Balanced Vertical Margins**: Centered vertical content within the viewport when `scaledContentH <= vHeight`, ensuring equal top and bottom breathing room without clamping to awkward offsets. Enforces safe 16px minimum top margin when content overflows.
+  - **Seamless Viewport Background & Ambience**: Moved ambient grid (`::before`) and spotlight/vignette gradients (`::after`) from `.markdy-scene-root` to `.markdy-viewport`. Eliminates diagonal offsets, clipped grids, and white blank seams at card boundaries, seamlessly integrating with the card frame and frosted glass footer.
+  - **Symmetric Viewport Aspect Ratio**: Derived `aspectRatio` on `.markdy-viewport` from symmetric content dimensions, preventing awkward vertical elongation and letterboxing.
+  - **Precision Scale Transform Alignment**: Synchronized `scene.style.transform = scale(roundedScale)` directly with `--markdy-scale` precision.
+
 ## [1.4.7] — 2026-09-13
 
 ### Changed & Enhanced
