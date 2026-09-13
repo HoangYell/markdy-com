@@ -2,10 +2,10 @@
 // Anchors Markdy's parser and compiler to their definitions in this repository.
 scene "Markdy Parser & Compiler: Verified Code Anchors" theme=midnight type=flowchart
 
-function EntryPoint "parseAndCompile" src="packages/core/src/parser.ts#L1271"
-function Parser "MarkdyScript Parser" src="packages/core/src/parser.ts#L858"
-artifact DiagramAST "Typed Diagram AST" src="packages/core/src/ast.ts#L213"
-function Compiler "Theme-Aware Compiler" src="packages/core/src/parser.ts#L1267"
+function EntryPoint "parseAndCompile" src="packages/core/src/parser.ts#L1340"
+function Parser "MarkdyScript Parser" src="packages/core/src/parser.ts#L895"
+artifact DiagramAST "Typed Diagram AST" src="packages/core/src/ast.ts#L220"
+function Compiler "Theme-Aware Compiler" src="packages/core/src/parser.ts#L1332"
 function LayoutEngine "Layout & Cue Scheduling" src="packages/core/src/compiler.ts#L2323"
 
 beat parse_source "1. Parse Source into a Typed AST":

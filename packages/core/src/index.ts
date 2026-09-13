@@ -3,6 +3,7 @@ export type {
   BeatRange,
   AnnotationDecl,
   Cue,
+  DefaultThemesConfig,
   DiagramAST,
   DiagramType,
   Diagnostic,

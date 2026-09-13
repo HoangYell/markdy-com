@@ -5,10 +5,28 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.17] — 2026-09-13
+
+### Added & Enhanced
+- **🎨 Configurable Default Themes for Light and Dark Modes (`@markdy/core`, `@markdy/renderer-dom`, `@markdy/astro`)**:
+  - **MarkdyScript DSL Specification**: Author diagrams with custom light and dark default themes using flexible syntax variations:
+    - `scene "Title" theme=auto theme.light=doodle theme.dark=nebula`
+    - `theme: light=doodle dark=nebula`
+    - `theme: doodle / nebula`
+    - `theme.light: doodle` and `theme.dark: nebula`
+    - `default_themes: light=doodle dark=nebula`
+  - **Dynamic Cascading Resolution**: Runtime theme detection cascades seamlessly across:
+    1. Script explicit default themes (`ast.meta.defaultThemes`).
+    2. Component / diagram options (`defaultThemes`, `defaultLightTheme`, `defaultDarkTheme`).
+    3. Container DOM attributes (`data-markdy-theme-light`, `data-markdy-theme-dark`).
+    4. Global host setting (`window.__MARKDY_DEFAULT_THEMES__` / `document.documentElement`).
+    5. Core library fallbacks (`paper` for light, `nebula` for dark).
+  - **Astro Integration**: `<Markdy />` island accepts `defaultThemes`, `defaultLightTheme`, and `defaultDarkTheme` props, stamping container dataset attributes for hydration and real-time host theme synchronization via `MutationObserver`.
+
 ## [1.4.16] — 2026-09-13
 
 ### Changed
-- TODO: summarize release changes.
+- Refined responsive diagram auto-scale bounds and framing logic.
 
 ## [1.4.15] — 2026-09-13
 

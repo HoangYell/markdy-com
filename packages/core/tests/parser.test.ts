@@ -1171,4 +1171,41 @@ service B
     expect(ast4.meta.explicitDirection).toBe(false);
     expect(ast4.meta.layoutMode).toBe("auto");
   });
+
+  it("parses default theme specifications across DSL syntaxes (scene props, directives, slash shorthand)", () => {
+    const code1 = `
+scene "Downstream Default" theme=auto theme.light=doodle theme.dark=nebula
+service A
+service B
+`;
+    const ast1 = parse(code1);
+    expect(ast1.meta.explicitTheme).toBe(false);
+    expect(ast1.meta.defaultThemes).toEqual({ light: "doodle", dark: "nebula" });
+
+    const code2 = `
+theme: light=doodle dark=nebula
+service A
+`;
+    const ast2 = parse(code2);
+    expect(ast2.meta.explicitTheme).toBe(false);
+    expect(ast2.meta.theme).toBe("auto");
+    expect(ast2.meta.defaultThemes).toEqual({ light: "doodle", dark: "nebula" });
+
+    const code3 = `
+theme: doodle / nebula
+service A
+`;
+    const ast3 = parse(code3);
+    expect(ast3.meta.explicitTheme).toBe(false);
+    expect(ast3.meta.theme).toBe("auto");
+    expect(ast3.meta.defaultThemes).toEqual({ light: "doodle", dark: "nebula" });
+
+    const code4 = `
+theme.light: doodle
+theme.dark: nebula
+service A
+`;
+    const ast4 = parse(code4);
+    expect(ast4.meta.defaultThemes).toEqual({ light: "doodle", dark: "nebula" });
+  });
 });
