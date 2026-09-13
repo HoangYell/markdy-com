@@ -713,16 +713,20 @@ beat main:
     expect(resolvedWithCode.controls.code).toBe(true);
 
     const resolvedWithUnavailableReset = resolvePlayer({ controls: { resetView: true } });
-    expect(resolvedWithUnavailableReset.controls).toMatchObject({ enabled: false, resetView: false });
+    expect(resolvedWithUnavailableReset.controls).toMatchObject({ enabled: true, resetView: false, fit: true });
 
     const resolvedWithOneSpeed = resolvePlayer({ controls: { speed: true, speeds: [0.25] } });
-    expect(resolvedWithOneSpeed.controls).toMatchObject({ enabled: false, speed: false, speeds: [0.25] });
+    expect(resolvedWithOneSpeed.controls).toMatchObject({ enabled: true, speed: false, speeds: [0.25], fit: true });
 
-    // Fit control button is opt-in per controls group, or enabled via controls: true.
+    // Fit control button is enabled as default, can be explicitly disabled or suppressed via controls: false.
     expect(resolvePlayer({ controls: { fit: true } }).controls.fit).toBe(true);
     expect(resolvePlayer({}, { controls: true }).controls.fit).toBe(true);
-    expect(resolvePlayer({ controls: { code: true } }).controls.fit).toBe(false);
+    expect(resolvePlayer({ controls: { code: true } }).controls.fit).toBe(true);
     expect(resolvePlayer({}).controls.fit).toBe(false);
+    expect(resolvePlayer({ controls: { fit: false } }).controls.fit).toBe(false);
+    expect(resolvePlayer({}, { controls: false }).controls.fit).toBe(false);
+    // Focus aliases map to resetView
+    expect(resolvePlayer({ controls: { focus: false } }).controls.resetView).toBe(false);
 
     // Interaction viewport gestures default to false when undeclared.
     expect(resolvePlayer().interaction).toMatchObject({

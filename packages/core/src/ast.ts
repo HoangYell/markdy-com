@@ -43,6 +43,7 @@ export type PlayerControlsConfig = {
   seek?: boolean;
   speed?: boolean;
   fit?: boolean;
+  interact?: boolean;
   resetView?: boolean;
   fullscreen?: boolean;
   svg?: boolean;
@@ -54,6 +55,12 @@ export type PlayerControlsConfig = {
   theme?: boolean;
   /** Speed multipliers offered by the speed buttons. */
   speeds?: number[];
+};
+
+export type PlayerControlsInput = PlayerControlsConfig & {
+  /** Alias for resetView */
+  focus?: boolean;
+  [key: string]: unknown;
 };
 
 /** What pointer and key input do. Declaring the group opts in. */
@@ -75,7 +82,7 @@ export type PlayerChromeConfig = {
 
 export type PlayerConfig = {
   playback?: PlayerPlaybackConfig;
-  controls?: PlayerControlsConfig;
+  controls?: PlayerControlsInput;
   interaction?: PlayerInteractionConfig;
   chrome?: PlayerChromeConfig;
 };

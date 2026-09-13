@@ -20,3 +20,23 @@ beat pipeline_flow:
 beat simulate_impact "Cascading Blast Radius & Impact Lens":
   glow Transform color=#ef4444
   glow HotBuffer CentralStore Analytics color=#f97316
+
+player:
+  playback:
+    loop true
+  controls:
+    speed true
+    speeds "0.25"
+    interact true
+    fullscreen true
+    gif true
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress none

@@ -30,3 +30,23 @@ beat recover_traffic "4. Resume Writes after Promotion & Reconnection":
   SecondaryCluster -> AuroraMasterWest "Write via reconnected global writer endpoint"
   SecondaryCluster <- AuroraMasterWest "Transaction committed"
   glow SecondaryCluster color=#16a34a
+
+player:
+  playback:
+    loop true
+  controls:
+    speed true
+    speeds "0.25"
+    interact true
+    fullscreen true
+    gif true
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress none

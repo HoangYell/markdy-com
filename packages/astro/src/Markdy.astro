@@ -56,9 +56,22 @@ export interface Props {
   controls?: boolean;
   /** Initial fit-all-in-view state. Defaults to true when undeclared. */
   fit?: boolean;
+  /** Initial interact state (pinch, zoom, and drag). Defaults to false when undeclared. */
+  interact?: boolean;
+  /** Show reset view (focus) button in toolbar. */
+  resetView?: boolean;
+  /** Show export SVG button in toolbar. */
+  svg?: boolean;
+  /** Show export GIF button in toolbar. */
+  gif?: boolean;
+  /** Show share button in toolbar. */
+  share?: boolean;
+  /** Show view code button in toolbar. */
+  codeControl?: boolean;
+  /** Show switch theme button in toolbar. */
+  theme?: boolean;
   /** Custom default light theme for auto mode (e.g. "doodle", "paper"). */
   defaultLightTheme?: string;
-  /** Custom default dark theme for auto mode (e.g. "nebula", "midnight"). */
   defaultDarkTheme?: string;
   /** Configurable default themes for auto mode: { light?: string; dark?: string }. */
   defaultThemes?: { light?: string; dark?: string };
@@ -80,7 +93,7 @@ const {
   code,
   width = 800,
   height = 400,
-  bg = "white",
+  bg,
   assets = {},
   autoplay,
   loop,
@@ -92,6 +105,13 @@ const {
   playbackRate,
   controls = true,
   fit,
+  interact,
+  resetView,
+  svg,
+  gif,
+  share,
+  codeControl,
+  theme,
   defaultLightTheme,
   defaultDarkTheme,
   defaultThemes,
@@ -137,10 +157,17 @@ const codeB64 =
   data-markdy-interactive-viewport={interactiveViewport !== undefined ? String(interactiveViewport) : undefined}
   data-markdy-controls={controls !== undefined ? String(controls) : undefined}
   data-markdy-fit={fit !== undefined ? String(fit) : undefined}
+  data-markdy-control-interact={interact !== undefined ? String(interact) : undefined}
+  data-markdy-control-reset-view={resetView !== undefined ? String(resetView) : undefined}
+  data-markdy-control-svg={svg !== undefined ? String(svg) : undefined}
+  data-markdy-control-gif={gif !== undefined ? String(gif) : undefined}
+  data-markdy-control-share={share !== undefined ? String(share) : undefined}
+  data-markdy-control-code={codeControl !== undefined ? String(codeControl) : undefined}
+  data-markdy-control-theme={theme !== undefined ? String(theme) : undefined}
   role="img"
   aria-label={title}
   aria-busy="true"
-  style={`max-width:${width}px;width:100%;aspect-ratio:${width}/${height};overflow:hidden;border-radius:12px;border:1px solid var(--md-card-border, rgba(148, 163, 184, 0.22));margin:2rem 0;box-sizing:border-box;background:${bg}`}
+  style={`max-width:${width}px;width:100%;aspect-ratio:${width}/${height};overflow:hidden;border-radius:12px;border:1px solid var(--md-card-border, rgba(148, 163, 184, 0.22));margin:2rem 0;box-sizing:border-box;background:var(--md-canvas, ${bg ?? "transparent"})`}
 >
   <!--
     SSR placeholder: keeps layout stable before the island hydrates.
@@ -151,7 +178,7 @@ const codeB64 =
     class="markdy-placeholder"
     type="button"
     aria-label={`Play ${title}`}
-    style={`width:100%;height:100%;background:${bg};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:none;padding:0;outline:none`}
+    style={`width:100%;height:100%;background:${bg ?? "var(--md-canvas, transparent)"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:none;padding:0;outline:none`}
   >
     <div
       style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:9999px;background:rgba(15,23,42,0.04);border:1px solid rgba(148,163,184,0.2);color:#64748b;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:11px;font-weight:500;letter-spacing:0.02em;pointer-events:none;box-shadow:0 1px 2px rgba(0,0,0,0.02)"
@@ -350,6 +377,26 @@ const codeB64 =
       el.dataset.markdyFit !== undefined
         ? el.dataset.markdyFit === "true"
         : undefined;
+    const interact =
+      el.dataset.markdyControlInteract !== undefined
+        ? el.dataset.markdyControlInteract === "true"
+        : undefined;
+
+    const controlOverrides: Record<string, boolean> = {};
+    if (el.dataset.markdyControlInteract !== undefined) controlOverrides.interact = el.dataset.markdyControlInteract === "true";
+    if (el.dataset.markdyControlResetView !== undefined) controlOverrides.resetView = el.dataset.markdyControlResetView === "true";
+    if (el.dataset.markdyControlSvg !== undefined) controlOverrides.svg = el.dataset.markdyControlSvg === "true";
+    if (el.dataset.markdyControlGif !== undefined) controlOverrides.gif = el.dataset.markdyControlGif === "true";
+    if (el.dataset.markdyControlShare !== undefined) controlOverrides.share = el.dataset.markdyControlShare === "true";
+    if (el.dataset.markdyControlCode !== undefined) controlOverrides.code = el.dataset.markdyControlCode === "true";
+    if (el.dataset.markdyControlTheme !== undefined) controlOverrides.theme = el.dataset.markdyControlTheme === "true";
+    const resolvedControls =
+      !controls
+        ? false
+        : Object.keys(controlOverrides).length > 0
+          ? controlOverrides
+          : true;
+
     const interactiveViewport =
       el.dataset.markdyInteractiveViewport !== undefined
         ? el.dataset.markdyInteractiveViewport === "true"
@@ -366,6 +413,7 @@ const codeB64 =
     // Clear the SSR placeholder and mount the canvas atomically after the
     // async import resolves, so there is no flash of empty content.
     el.innerHTML = "";
+    el.style.background = "";
 
     createDiagram({
       container: el,
@@ -382,8 +430,9 @@ const codeB64 =
       progressColor,
       playbackRate,
       interactiveViewport,
-      controls,
+      controls: resolvedControls,
       defaultFit: fit,
+      defaultInteract: interact,
     });
 
     el.dataset.markdyInit = "done";

@@ -352,10 +352,10 @@ export function ensureSceneStyles(doc: Document): void {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 .markdy-controls {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  flex: 1 1 auto;
+  justify-content: flex-start;
+  flex: 0 1 auto;
   width: auto;
   min-width: 0;
   gap: 6px;
@@ -380,7 +380,7 @@ export function ensureSceneStyles(doc: Document): void {
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
-  margin-left: auto;
+  margin-left: 0;
 }
 .markdy-control-divider {
   width: 1px;
@@ -463,22 +463,35 @@ export function ensureSceneStyles(doc: Document): void {
 .markdy-badge {
   display: inline-flex;
   align-items: center;
+  gap: 4px;
   text-align: right;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 10px;
-  font-weight: 500;
-  color: #94a3b8;
+  font-size: 11px;
+  line-height: 1;
+  color: #64748b;
   text-decoration: none;
-  padding: 0;
-  opacity: 0.6;
+  padding: 3px 6px;
+  border-radius: 5px;
+  opacity: 0.75;
   margin-left: auto;
   flex-shrink: 0;
-  transition: opacity 0.15s ease, color 0.15s ease;
+  transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease;
   white-space: nowrap;
 }
 .markdy-badge:hover {
   opacity: 1;
-  color: #475569;
+  color: #1e293b;
+  background-color: rgba(148, 163, 184, 0.12);
+}
+.markdy-badge-prefix {
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  opacity: 0.85;
+}
+.markdy-badge-brand {
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #334155;
 }
 @media (max-width: 640px) {
   .markdy-btn-label {
@@ -870,6 +883,7 @@ export function ensureSceneStyles(doc: Document): void {
 :root[data-theme="dark"] .markdy-diagram-root,
 .theme-dark .markdy-diagram-root,
 .dark .markdy-diagram-root {
+  background: var(--md-canvas, #090b1a);
   border-color: var(--md-card-border, rgba(255, 255, 255, 0.09));
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2);
 }
@@ -909,9 +923,36 @@ export function ensureSceneStyles(doc: Document): void {
 .markdy-footer a {
   transition: opacity 0.15s ease, color 0.15s ease;
 }
-.markdy-footer a:hover {
-  opacity: 1 !important;
-  color: #94a3b8 !important;
+[data-markdy-theme="midnight"] .markdy-badge,
+[data-markdy-theme="blueprint"] .markdy-badge,
+[data-markdy-theme="terminal"] .markdy-badge,
+[data-markdy-theme="graphite"] .markdy-badge,
+[data-markdy-theme="nebula"] .markdy-badge,
+:root[data-theme="dark"] .markdy-badge,
+.theme-dark .markdy-badge,
+.dark .markdy-badge {
+  color: #94a3b8;
+}
+[data-markdy-theme="midnight"] .markdy-badge:hover,
+[data-markdy-theme="blueprint"] .markdy-badge:hover,
+[data-markdy-theme="terminal"] .markdy-badge:hover,
+[data-markdy-theme="graphite"] .markdy-badge:hover,
+[data-markdy-theme="nebula"] .markdy-badge:hover,
+:root[data-theme="dark"] .markdy-badge:hover,
+.theme-dark .markdy-badge:hover,
+.dark .markdy-badge:hover {
+  color: #f1f5f9 !important;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+[data-markdy-theme="midnight"] .markdy-badge-brand,
+[data-markdy-theme="blueprint"] .markdy-badge-brand,
+[data-markdy-theme="terminal"] .markdy-badge-brand,
+[data-markdy-theme="graphite"] .markdy-badge-brand,
+[data-markdy-theme="nebula"] .markdy-badge-brand,
+:root[data-theme="dark"] .markdy-badge-brand,
+.theme-dark .markdy-badge-brand,
+.dark .markdy-badge-brand {
+  color: #f8fafc;
 }
 /* Fullscreen & Fallback Pseudo-Fullscreen Views */
 .markdy-fullscreen-host,

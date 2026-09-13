@@ -17,3 +17,23 @@ beat flow:
 
 beat highlight_stacks:
   glow Postgres color=#336791 & glow Redis color=#dc382d & glow Kafka color=#231f20
+
+player:
+  playback:
+    loop true
+  controls:
+    speed true
+    speeds "0.25"
+    interact true
+    fullscreen true
+    gif true
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress none

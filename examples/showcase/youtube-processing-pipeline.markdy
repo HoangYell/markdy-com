@@ -46,6 +46,11 @@ player:
   playback:
     loop true
   controls:
+    speed true
+    speeds "0.25"
+    interact true
+    fullscreen true
+    gif true
     theme true
   interaction:
     zoom true
@@ -55,5 +60,5 @@ player:
     keyboard false
   chrome:
     badge true
-    progress boundary
+    progress none
     color "#3b82f6"

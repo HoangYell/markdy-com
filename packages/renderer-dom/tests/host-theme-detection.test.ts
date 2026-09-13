@@ -176,18 +176,38 @@ describe("Host Theme Detection & Multi-Framework Embed Compatibility", () => {
       code: `scene "Dynamic Switch"\ntheme: light=doodle dark=nebula\nservice API "API Gateway"`,
     });
     const scene = container.querySelector(".markdy-scene-root") as HTMLElement;
+    const viewport = container.querySelector(".markdy-viewport") as HTMLElement;
     expect(scene.dataset.markdyTheme).toBe("doodle");
+    expect(viewport.dataset.markdyTheme).toBe("doodle");
 
     // Switch host to dark
     document.documentElement.setAttribute("data-theme", "dark");
     await new Promise((resolve) => setTimeout(resolve, 50));
     expect(scene.dataset.markdyTheme).toBe("nebula");
+    expect(viewport.dataset.markdyTheme).toBe("nebula");
 
     // Switch host back to light
     document.documentElement.setAttribute("data-theme", "light");
     await new Promise((resolve) => setTimeout(resolve, 50));
     expect(scene.dataset.markdyTheme).toBe("doodle");
-
+    expect(viewport.dataset.markdyTheme).toBe("doodle");
     diagram.destroy();
+  });
+
+  it("ignores Tailwind CSS variant classes like dark:prose-invert or dark:bg-slate-900 on ancestors", () => {
+    document.documentElement.className = "";
+    document.documentElement.removeAttribute("data-theme");
+    document.body.className = "";
+    document.body.removeAttribute("data-theme");
+
+    const proseWrapper = document.createElement("div");
+    proseWrapper.className = "prose prose-slate dark:prose-invert max-w-none dark:bg-slate-900";
+    document.body.appendChild(proseWrapper);
+    proseWrapper.appendChild(container);
+
+    const theme = detectHostTheme(container, { light: "doodle", dark: "nebula" });
+    expect(theme).toBe("doodle");
+
+    proseWrapper.remove();
   });
 });

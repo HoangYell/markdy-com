@@ -6,6 +6,7 @@
 import type {
   PlayerConfig,
   PlayerControlsConfig,
+  PlayerControlsInput,
   PlayerProgress,
   ResolvedPlayer,
 } from "./ast.js";
@@ -70,10 +71,19 @@ const CONTROLS: Record<string, Setting> = {
   fit_view: { group: "controls", key: "fit", type: "boolean" },
   fitViewButton: { group: "controls", key: "fit", type: "boolean" },
   fit_view_button: { group: "controls", key: "fit", type: "boolean" },
+  interact: { group: "controls", key: "interact", type: "boolean" },
+  interactive: { group: "controls", key: "interact", type: "boolean" },
+  interactButton: { group: "controls", key: "interact", type: "boolean" },
+  interact_button: { group: "controls", key: "interact", type: "boolean" },
   resetView: { group: "controls", key: "resetView", type: "boolean" },
   reset_view: { group: "controls", key: "resetView", type: "boolean" },
   resetViewButton: { group: "controls", key: "resetView", type: "boolean" },
   reset_view_button: { group: "controls", key: "resetView", type: "boolean" },
+  focus: { group: "controls", key: "resetView", type: "boolean" },
+  focusView: { group: "controls", key: "resetView", type: "boolean" },
+  focus_view: { group: "controls", key: "resetView", type: "boolean" },
+  focusButton: { group: "controls", key: "resetView", type: "boolean" },
+  focus_button: { group: "controls", key: "resetView", type: "boolean" },
   fullscreen: { group: "controls", key: "fullscreen", type: "boolean" },
   fullScreen: { group: "controls", key: "fullscreen", type: "boolean" },
   full_screen: { group: "controls", key: "fullscreen", type: "boolean" },
@@ -156,8 +166,16 @@ const FLAT: Record<string, Setting> = {
   fit_view: CONTROLS.fit_view,
   fitViewButton: CONTROLS.fitViewButton,
   fit_view_button: CONTROLS.fit_view_button,
+  interact: CONTROLS.interact,
+  interactButton: CONTROLS.interactButton,
+  interact_button: CONTROLS.interact_button,
   resetViewButton: CONTROLS.resetViewButton,
   reset_view_button: CONTROLS.reset_view_button,
+  focus: CONTROLS.focus,
+  focusView: CONTROLS.focusView,
+  focus_view: CONTROLS.focus_view,
+  focusButton: CONTROLS.focusButton,
+  focus_button: CONTROLS.focus_button,
   fullscreen: CONTROLS.fullscreen,
   fullScreen: CONTROLS.fullScreen,
   full_screen: CONTROLS.full_screen,
@@ -296,7 +314,7 @@ export type PlayerOverrides = {
   loop?: boolean;
   playbackRate?: number;
   copyright?: boolean;
-  controls?: boolean | (PlayerControlsConfig & { playback?: boolean });
+  controls?: boolean | (PlayerControlsInput & { playback?: boolean });
   interactiveViewport?: boolean;
   clickToPlay?: boolean;
   progress?: PlayerProgress;
@@ -306,7 +324,18 @@ export type PlayerOverrides = {
 export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverrides = {}): ResolvedPlayer {
   const playback = config.playback ?? {};
   const overrideControls = typeof overrides.controls === "object" && overrides.controls !== null ? overrides.controls : undefined;
+
+  let globalControls: Partial<PlayerControlsConfig> | undefined;
+  if (typeof globalThis !== "undefined") {
+    const glob = globalThis as any;
+    const controls = glob.window?.__MARKDY_DEFAULT_CONTROLS__ ?? glob.__MARKDY_DEFAULT_CONTROLS__;
+    if (controls && typeof controls === "object") {
+      globalControls = controls;
+    }
+  }
+
   const configuredControls: PlayerControlsConfig = {
+    ...(globalControls ?? {}),
     ...(config.controls ?? {}),
     ...(overrideControls ? overrideControls : {}),
   };
@@ -319,13 +348,16 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     (config.controls && Object.keys(config.controls).length > 0) ||
     (overrideControls && Object.keys(overrideControls).length > 0),
   );
+  const controlsActive = controlsAllowed && (hostControlDefault || controlsExplicitlyDeclared);
   const unconfiguredFallback = controlsExplicitlyDeclared ? false : hostControlDefault;
   const resolveControl = (value: boolean | undefined, fallback = unconfiguredFallback): boolean =>
     controlsAllowed && (value ?? fallback);
+  const interactExplicit = configuredControls.interact ?? configuredControls.fit;
   const requestedControls = {
     seek: resolveControl(configuredControls.seek, false),
     speed: resolveControl(configuredControls.speed),
-    fit: resolveControl(configuredControls.fit),
+    fit: controlsActive && configuredControls.fit !== false,
+    interact: resolveControl(interactExplicit),
     resetView: resolveControl(configuredControls.resetView),
     fullscreen: resolveControl(configuredControls.fullscreen),
     svg: resolveControl(configuredControls.svg),
@@ -357,6 +389,7 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     speed: requestedControls.speed && speeds.length > 1,
     resetView: requestedControls.resetView && interactionEnabled,
     fit: requestedControls.fit,
+    interact: requestedControls.interact,
   };
   const controlsEnabled = Object.values(controls).some(Boolean);
 

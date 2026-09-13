@@ -4,7 +4,7 @@ scene "Markdy Parser & Compiler: Verified Code Anchors" theme=midnight type=flow
 
 function EntryPoint "parseAndCompile" src="packages/core/src/parser.ts#L1340"
 function Parser "MarkdyScript Parser" src="packages/core/src/parser.ts#L895"
-artifact DiagramAST "Typed Diagram AST" src="packages/core/src/ast.ts#L220"
+artifact DiagramAST "Typed Diagram AST" src="packages/core/src/ast.ts#L227"
 function Compiler "Theme-Aware Compiler" src="packages/core/src/parser.ts#L1332"
 function LayoutEngine "Layout & Cue Scheduling" src="packages/core/src/compiler.ts#L2323"
 
@@ -21,3 +21,23 @@ beat compile_plan "2. Resolve Theme, Layout & Timing":
 
 beat code_anchor_glow "3. Inspect the Linked Definitions":
   glow Parser color=#22d3ee & glow Compiler LayoutEngine color=#f43f5e
+
+player:
+  playback:
+    loop true
+  controls:
+    speed true
+    speeds "0.25"
+    interact true
+    fullscreen true
+    gif true
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress none

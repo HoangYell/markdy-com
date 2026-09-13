@@ -20,3 +20,23 @@ beat lakehouse_pipeline "2. Medallion Ingestion & Dimensional Serving":
   AnalyticsBI -> SnowflakeGold "Query Executive KPI Dashboard"
   AnalyticsBI <- SnowflakeGold "Render Real-Time Metrics"
   glow KafkaTopic color=#fbbf24 & glow SnowflakeGold color=#38bdf8
+
+player:
+  playback:
+    loop true
+  controls:
+    speed true
+    speeds "0.25"
+    interact true
+    fullscreen true
+    gif true
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress none
