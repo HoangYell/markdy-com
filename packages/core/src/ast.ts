@@ -40,10 +40,6 @@ export type PlayerPlaybackConfig = {
 
 /** Which toolbar affordances are mounted. Declaring the group opts in. */
 export type PlayerControlsConfig = {
-  play?: boolean;
-  restart?: boolean;
-  prevBeat?: boolean;
-  nextBeat?: boolean;
   seek?: boolean;
   speed?: boolean;
   fit?: boolean;

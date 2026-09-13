@@ -351,23 +351,6 @@ export function ensureSceneStyles(doc: Document): void {
   z-index: 60;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
-.markdy-player-beat-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px 7px;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--md-control-text, #475569);
-  background: var(--md-segmented-bg, rgba(148, 163, 184, 0.12));
-  border: 1px solid var(--md-control-border, rgba(148, 163, 184, 0.18));
-  border-radius: 9999px;
-  white-space: nowrap;
-  max-width: 140px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  letter-spacing: -0.01em;
-  flex-shrink: 1;
-}
 .markdy-controls {
   display: flex;
   align-items: center;
@@ -391,12 +374,6 @@ export function ensureSceneStyles(doc: Document): void {
   position: relative;
   z-index: 5;
   pointer-events: auto;
-}
-.markdy-controls-playback {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  flex-shrink: 0;
 }
 .markdy-controls-tools {
   display: inline-flex;
@@ -481,19 +458,6 @@ export function ensureSceneStyles(doc: Document): void {
   flex-shrink: 0;
   vertical-align: middle;
 }
-.markdy-control-play {
-  background: #2563eb !important;
-  color: #ffffff !important;
-  border-color: #2563eb !important;
-  padding: 0 9px !important;
-  font-weight: 600 !important;
-  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.25) !important;
-}
-.markdy-control-play:hover {
-  filter: brightness(1.06);
-  transform: translateY(-0.5px);
-  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35) !important;
-}
 .markdy-badge {
   display: inline-flex;
   align-items: center;
@@ -516,9 +480,6 @@ export function ensureSceneStyles(doc: Document): void {
 }
 @media (max-width: 640px) {
   .markdy-btn-label {
-    display: none !important;
-  }
-  .markdy-player-beat-chip {
     display: none !important;
   }
   .markdy-controls button {
@@ -561,9 +522,6 @@ export function ensureSceneStyles(doc: Document): void {
 }
 @container markdy-root (max-width: 520px) {
   .markdy-btn-label {
-    display: none !important;
-  }
-  .markdy-player-beat-chip {
     display: none !important;
   }
   .markdy-controls button {
@@ -627,15 +585,6 @@ export function ensureSceneStyles(doc: Document): void {
   background: var(--accent, #2563eb) !important;
   color: #ffffff !important;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12) !important;
-}
-.markdy-control-time {
-  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--md-control-text, #94a3b8);
-  white-space: nowrap;
-  flex-shrink: 0;
-  letter-spacing: -0.02em;
 }
 .markdy-btn-flashed {
   background: rgba(37, 99, 235, 0.15) !important;
@@ -936,19 +885,6 @@ export function ensureSceneStyles(doc: Document): void {
 :root[data-theme="dark"] .markdy-player-scrubber-track,
 .theme-dark .markdy-player-scrubber-track,
 .dark .markdy-player-scrubber-track {
-  background: rgba(255, 255, 255, 0.14);
-}
-[data-markdy-theme="midnight"] .markdy-player-beat-chip,
-[data-markdy-theme="blueprint"] .markdy-player-beat-chip,
-[data-markdy-theme="terminal"] .markdy-player-beat-chip,
-[data-markdy-theme="graphite"] .markdy-player-beat-chip,
-[data-markdy-theme="nebula"] .markdy-player-beat-chip,
-:root[data-theme="dark"] .markdy-player-beat-chip,
-.theme-dark .markdy-player-beat-chip,
-.dark .markdy-player-beat-chip {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.12);
-  color: #cbd5e1;
 }
 [data-markdy-theme="midnight"] .markdy-controls button:not([aria-pressed="true"]),
 [data-markdy-theme="blueprint"] .markdy-controls button:not([aria-pressed="true"]),

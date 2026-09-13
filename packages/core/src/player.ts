@@ -32,10 +32,6 @@ type Setting = {
 
 /** Affordances toggled together by the legacy `controls` / `interactive` keys. */
 export const CONTROL_KEYS = [
-  "play",
-  "restart",
-  "prevBeat",
-  "nextBeat",
   "seek",
   "speed",
   "fit",
@@ -60,16 +56,6 @@ const PLAYBACK: Record<string, Setting> = {
 
 const CONTROLS: Record<string, Setting> = {
   controls: { group: "controls", key: "*", type: "group" },
-  play: { group: "controls", key: "play", type: "boolean" },
-  playButton: { group: "controls", key: "play", type: "boolean" },
-  play_button: { group: "controls", key: "play", type: "boolean" },
-  restart: { group: "controls", key: "restart", type: "boolean" },
-  restartButton: { group: "controls", key: "restart", type: "boolean" },
-  restart_button: { group: "controls", key: "restart", type: "boolean" },
-  prevBeat: { group: "controls", key: "prevBeat", type: "boolean" },
-  prev_beat: { group: "controls", key: "prevBeat", type: "boolean" },
-  nextBeat: { group: "controls", key: "nextBeat", type: "boolean" },
-  next_beat: { group: "controls", key: "nextBeat", type: "boolean" },
   speeds: { group: "controls", key: "speeds", type: "rates" },
   speedOptions: { group: "controls", key: "speeds", type: "rates" },
   speed_options: { group: "controls", key: "speeds", type: "rates" },
@@ -155,10 +141,6 @@ const FLAT: Record<string, Setting> = {
   ...PLAYBACK,
   ...CHROME,
   controls: CONTROLS.controls,
-  playButton: CONTROLS.playButton,
-  play_button: CONTROLS.play_button,
-  restartButton: CONTROLS.restartButton,
-  restart_button: CONTROLS.restart_button,
   seek: CONTROLS.seek,
   seekBar: CONTROLS.seekBar,
   seek_bar: CONTROLS.seek_bar,
@@ -167,10 +149,6 @@ const FLAT: Record<string, Setting> = {
   speeds: CONTROLS.speeds,
   speedOptions: CONTROLS.speedOptions,
   speed_options: CONTROLS.speed_options,
-  prevBeat: CONTROLS.prevBeat,
-  prev_beat: CONTROLS.prev_beat,
-  nextBeat: CONTROLS.nextBeat,
-  next_beat: CONTROLS.next_beat,
   keyboard: INTERACTION.keyboard,
   shortcuts: INTERACTION.shortcuts,
   fit: CONTROLS.fit,
@@ -330,18 +308,7 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
   const overrideControls = typeof overrides.controls === "object" && overrides.controls !== null ? overrides.controls : undefined;
   const configuredControls: PlayerControlsConfig = {
     ...(config.controls ?? {}),
-    ...(overrideControls
-      ? {
-          ...overrideControls,
-          ...(overrideControls.playback === true
-            ? {
-                play: overrideControls.play ?? true,
-                restart: overrideControls.restart ?? true,
-                seek: overrideControls.seek ?? true,
-              }
-            : {}),
-        }
-      : {}),
+    ...(overrideControls ? overrideControls : {}),
   };
   const interaction = config.interaction ?? {};
   const chrome = config.chrome ?? {};
@@ -352,11 +319,7 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
   const resolveControl = (value: boolean | undefined, fallback = hostControlDefault): boolean =>
     controlsAllowed && (value ?? fallback);
   const requestedControls = {
-    play: resolveControl(configuredControls.play),
-    restart: resolveControl(configuredControls.restart),
-    prevBeat: resolveControl(configuredControls.prevBeat, hostControlDefault),
-    nextBeat: resolveControl(configuredControls.nextBeat, hostControlDefault),
-    seek: resolveControl(configuredControls.seek),
+    seek: resolveControl(configuredControls.seek, false),
     speed: resolveControl(configuredControls.speed),
     fit: resolveControl(configuredControls.fit),
     resetView: resolveControl(configuredControls.resetView),

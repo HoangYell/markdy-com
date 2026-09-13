@@ -4,7 +4,7 @@ scene "Markdy Parser & Compiler: Verified Code Anchors" theme=midnight type=flow
 
 function EntryPoint "parseAndCompile" src="packages/core/src/parser.ts#L1271"
 function Parser "MarkdyScript Parser" src="packages/core/src/parser.ts#L858"
-artifact DiagramAST "Typed Diagram AST" src="packages/core/src/ast.ts#L217"
+artifact DiagramAST "Typed Diagram AST" src="packages/core/src/ast.ts#L213"
 function Compiler "Theme-Aware Compiler" src="packages/core/src/parser.ts#L1267"
 function LayoutEngine "Layout & Cue Scheduling" src="packages/core/src/compiler.ts#L2323"
 
