@@ -1639,9 +1639,11 @@ function layoutRadar(ast: DiagramAST): PositionedNode[] {
 
 function layoutNodes(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
   const dtype = diagramType(ast);
+  const isAutoNarrow = (ast.meta.layoutMode === "auto" || !ast.meta.explicitDirection) && ast.meta.explicitWidth && ast.meta.width < 640;
+  const isVertical = isAutoNarrow || ast.meta.direction === "TB" || ast.meta.direction === "BT";
   switch (dtype) {
     case "flowchart":
-      return layoutRanked(ast, edges, { forceVertical: ast.meta.direction === "TB" || ast.meta.direction === "BT" });
+      return layoutRanked(ast, edges, { forceVertical: isVertical });
     case "tree":
       return layoutTree(ast, edges.some((edge) => edge.structural) ? edges.filter((edge) => edge.structural) : edges);
     case "sequence":
@@ -1672,9 +1674,9 @@ function layoutNodes(ast: DiagramAST, edges: RoutedEdge[]): PositionedNode[] {
     case "nested":
       return layoutNested(ast);
     case "state":
-      return layoutRanked(ast, cycleSafeEdges(Object.keys(ast.nodes), edges), { forceVertical: ast.meta.direction === "TB" || ast.meta.direction === "BT" });
+      return layoutRanked(ast, cycleSafeEdges(Object.keys(ast.nodes), edges), { forceVertical: isVertical });
     default:
-      return layoutRanked(ast, edges, { forceVertical: ast.meta.direction === "TB" || ast.meta.direction === "BT" });
+      return layoutRanked(ast, edges, { forceVertical: isVertical });
   }
 }
 
@@ -2008,7 +2010,10 @@ export function computeAdaptiveDimensions(
   const nodeIds = Object.keys(ast.nodes);
   const nodeCount = nodeIds.length;
   const dtype = diagramType(ast);
-  const direction = ast.meta.direction ?? "LR";
+  let direction = ast.meta.direction ?? "LR";
+  if ((ast.meta.layoutMode === "auto" || !ast.meta.explicitDirection) && ast.meta.explicitWidth && ast.meta.width < 640) {
+    direction = ast.meta.direction === "RL" || ast.meta.direction === "BT" ? "BT" : "TB";
+  }
   const isVertical = direction === "TB" || direction === "BT";
   const groupCount = Object.keys(ast.groups).length;
 

@@ -389,6 +389,7 @@ const structuredData = [
         controls: false,
         interactiveViewport: false,
         clickToPlay: false,
+        defaultFit: true,
       });
     } catch (e) {
       console.warn("Failed to render diagram:", e);
@@ -821,8 +822,8 @@ const structuredData = [
   }
 
   .card-stage-mount :global(.markdy-viewport) {
-    height: 100% !important;
-    aspect-ratio: auto !important;
+    max-width: 100%;
+    max-height: 100%;
   }
 
   .stage-placeholder {
@@ -978,6 +979,10 @@ const structuredData = [
   @media (max-width: 768px) {
     .gallery-grid {
       grid-template-columns: 1fr;
+    }
+    .card-stage-wrap {
+      aspect-ratio: 4 / 3;
+      min-height: 280px;
     }
     .gallery-hero h1 {
       font-size: 1.85rem;

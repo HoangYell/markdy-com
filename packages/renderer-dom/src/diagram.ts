@@ -460,9 +460,19 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
   function detectContainerOrientation(previous?: "portrait" | "landscape"): "portrait" | "landscape" {
     const width = container.clientWidth || (typeof window === "undefined" ? 1024 : window.innerWidth);
-    const height = hasInitialHeightConstraint ? initialContainerHeight : 0;
+    const currentHeight = container.clientHeight || 0;
+    const height = hasInitialHeightConstraint ? (currentHeight > 0 ? currentHeight : initialContainerHeight) : 0;
     const breakpoint = previous === "portrait" ? 672 : previous === "landscape" ? 608 : 640;
 
+    // Genuine Mobile Phone Screen (< 450px):
+    // On a genuine mobile phone (iPhone 375-430px, Android 360-412px), horizontal multi-rank
+    // diagrams in LR crush into unreadable microscopic scale (< 0.20).
+    // Portrait (vertical flow) is always required on mobile phones.
+    if (width <= 440) {
+      return "portrait";
+    }
+
+    // On desktop / tablet (width >= breakpoint):
     // When the container has a constrained, measurable height (e.g. fixed/clamped preview pane, studio, card):
     // A container is portrait only if it is actually taller than it is wide (aspect ratio width / height < 1.0).
     // If the container is square or wider than tall (width >= height), forcing vertical "TB" stacking
@@ -476,7 +486,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       return "portrait";
     }
 
-    return width < breakpoint ? "portrait" : "landscape";
+    return "landscape";
   }
 
   const ast = parse(code);
@@ -924,7 +934,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       meta: {
         ...ast.meta,
         direction,
-        ...(ast.meta.layoutMode === "auto" || responsiveLayout === true
+        ...(shouldAdaptOrientation
           ? { explicitWidth: false, explicitHeight: false }
           : {}),
       },
@@ -1083,24 +1093,36 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       // avoid portrait stacking which would overflow the fixed height.
       // In normal unconstrained flow (e.g. blog post / article prose), height expands with aspect-ratio so evaluate true readability.
       let currentOrientation = activeOrientation;
-      if (!isHeightConstrained || !(activeOrientation === "landscape" && containerRatio >= 1.0)) {
-        const score = (orientation: "portrait" | "landscape") => {
-          const { bounds } = layoutForDirection(directionForOrientation(orientation));
-          const widthScale = (vWidth * targetRatio) / bounds.width;
-          const heightScale = isHeightConstrained ? (Math.max(1, vHeight - 24) * targetRatio) / bounds.height : 1;
-          return Math.min(1, widthScale, heightScale);
+      const score = (orientation: "portrait" | "landscape") => {
+        const { bounds } = layoutForDirection(directionForOrientation(orientation));
+        const widthScale = (vWidth * targetRatio) / bounds.width;
+        const heightScale = isHeightConstrained ? (Math.max(1, vHeight - 24) * targetRatio) / bounds.height : 1;
+        return {
+          fit: Math.min(1, widthScale, heightScale),
+          widthScale,
+          bounds,
         };
+      };
 
-        if (activeOrientation === "landscape") {
-          if (detectedOrientation === "portrait" || score("portrait") > score("landscape") * 1.2) {
-            currentOrientation = "portrait";
-          }
-        } else {
-          if (detectedOrientation === "landscape" && score("landscape") >= Math.min(0.85, score("portrait"))) {
-            currentOrientation = "landscape";
-          } else if (score("landscape") > score("portrait") * 1.2) {
-            currentOrientation = "landscape";
-          }
+      const scoreP = score("portrait");
+      const scoreL = score("landscape");
+
+      if (activeOrientation === "landscape") {
+        if (detectedOrientation === "portrait") {
+          currentOrientation = "portrait";
+        } else if (!isHeightConstrained && scoreP.widthScale >= 0.70 && scoreL.widthScale < 0.65) {
+          currentOrientation = "portrait";
+        } else if (scoreP.fit > scoreL.fit * 1.25) {
+          currentOrientation = "portrait";
+        }
+      } else {
+        if (
+          detectedOrientation === "landscape" &&
+          (scoreL.fit >= Math.min(0.85, scoreP.fit) || scoreL.widthScale >= 0.75)
+        ) {
+          currentOrientation = "landscape";
+        } else if (scoreL.fit > scoreP.fit * 1.25) {
+          currentOrientation = "landscape";
         }
       }
 
