@@ -66,7 +66,7 @@ Canonical scenes put `layout LR|RL|TB|BT` on its own line and optional `player:`
 | Group | Owns | Settings |
 |---|---|---|
 | `playback:` | when and how fast the timeline runs | `autoplay`, `loop`, `rate` |
-| `controls:` | which toolbar affordances are mounted | `play`, `restart`, `prev_beat`, `next_beat`, `seek`, `speed`, `speeds`, `fit`, `reset_view`, `fullscreen`, `svg`, `share`, `code` |
+| `controls:` | which toolbar affordances are mounted | `seek`, `speed`, `speeds`, `fit`, `reset_view`, `fullscreen`, `theme`, `svg`, `gif`, `share`, `code` |
 | `interaction:` | what pointer and key input do | `zoom`, `pan`, `click_to_play`, `double_click_to_reset`, `keyboard` |
 | `chrome:` | non-interactive decoration | `badge`, `progress` (`none\|bar\|boundary`), `color` |
 
@@ -76,7 +76,7 @@ The subtle "Powered by Markdy" link remains visible at the right edge of the foo
 
 `fit` mounts a toggle that frames every item in the scene and pins the camera, so `frame`/`focus` zoom cues stop moving the view while it is active. Toggling it off, pressing `reset_view`, or double-clicking restores normal camera motion. `fullscreen` toggles browser fullscreen presentation for the diagram container.
 
-`prev_beat` and `next_beat` step through beats and only appear when the scene has more than one. `rate` sets the initial playback multiplier; `speeds` sets the choices offered to viewers (`speeds "0.25 1 3"`). The speed selector is omitted unless `speed true` provides at least two distinct positive choices.
+`rate` sets the initial playback multiplier; `speeds` sets the choices offered to viewers (`speeds "0.25 1 3"`). The speed selector is omitted unless `speed true` provides at least two distinct positive choices.
 
 `keyboard` is the one affordance that stays **off** unless you ask for it, because it listens on the window and captures space and arrow keys: <kbd>←</kbd>/<kbd>→</kbd> step beats, <kbd>Space</kbd> toggles playback, and <kbd>Home</kbd> restarts.
 

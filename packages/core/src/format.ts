@@ -66,10 +66,6 @@ function formatPlayer(player: PlayerConfig | undefined): string[] {
       ["rate", player.playback?.rate],
     ]],
     ["controls", [
-      ["play", player.controls?.play],
-      ["restart", player.controls?.restart],
-      ["prev_beat", player.controls?.prevBeat],
-      ["next_beat", player.controls?.nextBeat],
       ["seek", player.controls?.seek],
       ["speed", player.controls?.speed],
       ["speeds", player.controls?.speeds?.join(" ")],

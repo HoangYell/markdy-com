@@ -5,6 +5,14 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.14] — 2026-09-13
+
+### Removed & Streamlined
+- **🚫 Eliminate Cluttered Playback Media Controls & Beat Chips (`@markdy/core`, `@markdy/renderer-dom`, `docs`)**:
+  - **Philosophy Alignment**: Re-anchored Markdy as a diagram-as-code architecture motion DSL, not a video player. Deprecated and permanently removed distracting DOM playback affordances (`play`/`pause`, `restart`/`reload`, `prev_beat`, `next_beat`, tabular time counters, and beat chip badges).
+  - **Ultra-Lean Canvas & View Utilities**: Dedicated the single-row footer toolbar exclusively to diagram navigation, zoom/pan framing, and export utilities (`fit`, `reset_view`, `fullscreen`, `theme`, `svg`, `gif`, `share`, `code`, and "Powered by Markdy" badge).
+  - **Preserved Programmatic & Keyboard Navigation**: Preserved underlying programmatic JavaScript APIs (`diagram.play()`, `diagram.pause()`, `diagram.seek()`, `diagram.nextBeat()`, `diagram.prevBeat()`) and keyboard shortcuts (<kbd>Space</kbd>, <kbd>←</kbd>/<kbd>→</kbd>, <kbd>Home</kbd>) for interactive applications and presentations without polluting default embedded card views.
+
 ## [1.4.13] — 2026-09-13
 
 ### Fixed & Enhanced

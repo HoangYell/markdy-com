@@ -579,10 +579,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   } = player.interaction;
   const {
     enabled: showControls,
-    play: playButton,
-    restart: restartButton,
-    prevBeat: prevBeatButton,
-    nextBeat: nextBeatButton,
     seek: seekBar,
     speed: speedControls,
     speeds: speedOptions,
@@ -647,11 +643,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   let controlsScrubberFill: HTMLElement | null = null;
   let controlsScrubberThumb: HTMLElement | null = null;
   let controlsScrubberTooltip: HTMLElement | null = null;
-  let controlsBeatChip: HTMLSpanElement | null = null;
-  let controlsPlayButton: HTMLButtonElement | null = null;
   let controlsRateButtons: HTMLButtonElement[] = [];
   let controlsSeekBar: HTMLInputElement | null = null;
-  let controlsTimeEl: HTMLSpanElement | null = null;
   let controlsFitButton: HTMLButtonElement | null = null;
   let closeCodePanel: (() => void) | null = null;
 
@@ -689,22 +682,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     if (controlsSeekBar) {
       controlsSeekBar.value = String(sceneMs / 1000);
       controlsSeekBar.style.setProperty("--seek-pct", `${clamped * 100}%`);
-    }
-    if (controlsTimeEl) {
-      const cur = (sceneMs / 1000).toFixed(1);
-      const tot = durationSeconds.toFixed(1);
-      controlsTimeEl.textContent = `${cur}s / ${tot}s`;
-    }
-    if (controlsBeatChip && plan.beats.length > 1) {
-      const currentSec = sceneMs / 1000;
-      const currentBeat =
-        plan.beats.find((b) => currentSec >= b.start && currentSec < b.end) ||
-        plan.beats[plan.beats.length - 1];
-      if (currentBeat) {
-        const beatIdx = plan.beats.indexOf(currentBeat) + 1;
-        controlsBeatChip.textContent = currentBeat.label ? `${beatIdx}. ${currentBeat.label}` : `Beat ${beatIdx}`;
-        controlsBeatChip.title = `Current beat: ${currentBeat.label || currentBeat.name}`;
-      }
     }
     if (!progressEl) return;
     if (progressMode === "bar") {
@@ -1461,13 +1438,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     if (controlsScrubberThumb) {
       controlsScrubberThumb.style.left = `${clamped * 100}%`;
     }
-    if (controlsPlayButton) {
-      const playing = isPlaying;
-      controlsPlayButton.innerHTML = `${playing ? ICONS.pause : ICONS.play}<span class="markdy-btn-label">${playing ? "Pause" : "Play"}</span>`;
-      const playLabel = playing ? "Pause diagram" : "Play diagram";
-      controlsPlayButton.setAttribute("aria-label", playLabel);
-      controlsPlayButton.title = playLabel;
-    }
     for (const button of controlsRateButtons) {
       const rate = Number(button.dataset.rate ?? "1");
       const active = Math.abs(rate - playbackRate) < 0.001;
@@ -1476,22 +1446,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     if (controlsSeekBar) {
       controlsSeekBar.value = String(sceneMs / 1000);
       controlsSeekBar.style.setProperty("--seek-pct", `${clamped * 100}%`);
-    }
-    if (controlsTimeEl) {
-      const cur = (sceneMs / 1000).toFixed(1);
-      const tot = durationSeconds.toFixed(1);
-      controlsTimeEl.textContent = `${cur}s / ${tot}s`;
-    }
-    if (controlsBeatChip && plan.beats.length > 1) {
-      const currentSec = sceneMs / 1000;
-      const currentBeat =
-        plan.beats.find((b) => currentSec >= b.start && currentSec < b.end) ||
-        plan.beats[plan.beats.length - 1];
-      if (currentBeat) {
-        const beatIdx = plan.beats.indexOf(currentBeat) + 1;
-        controlsBeatChip.textContent = currentBeat.label ? `${beatIdx}. ${currentBeat.label}` : `Beat ${beatIdx}`;
-        controlsBeatChip.title = `Current beat: ${currentBeat.label || currentBeat.name}`;
-      }
     }
     if (controlsFitButton) {
       controlsFitButton.setAttribute("aria-pressed", fitViewActive ? "true" : "false");
@@ -1864,36 +1818,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       button.innerHTML = `<span class="markdy-btn-label">${label}</span>`;
     }
     return button;
-  }
-
-  function mountPlayControl(toolbar: HTMLElement): void {
-    if (!playButton) return;
-    controlsPlayButton = makeControlButton("Play", "Play diagram", ICONS.play);
-    controlsPlayButton.className = "markdy-control-play";
-    controlsPlayButton.addEventListener("click", togglePlayback);
-    toolbar.appendChild(controlsPlayButton);
-  }
-
-  function mountBeatNavControls(toolbar: HTMLElement, position: "prev" | "next"): void {
-    const wanted = position === "prev" ? prevBeatButton : nextBeatButton;
-    if (!wanted || plan.beats.length < 2) return;
-    const label = position === "prev" ? "Prev" : "Next";
-    const icon = position === "prev" ? ICONS.prevBeat : ICONS.nextBeat;
-    const button = makeControlButton(label, `${label === "Prev" ? "Previous" : "Next"} beat`, icon);
-    button.className = `markdy-control-${position}-beat`;
-    button.addEventListener("click", () => (position === "prev" ? diagram.prevBeat() : diagram.nextBeat()));
-    toolbar.appendChild(button);
-  }
-
-  function mountRestartControl(toolbar: HTMLElement): void {
-    if (!restartButton) return;
-    const button = makeControlButton("Restart", "Restart diagram", ICONS.restart);
-    button.className = "markdy-control-restart";
-    button.addEventListener("click", () => {
-      diagram.seek(0);
-      diagram.play();
-    });
-    toolbar.appendChild(button);
   }
 
   function mountScrubber(footerEl: HTMLElement): void {
@@ -2612,30 +2536,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       mountScrubber(toolbar);
     }
 
-    // 1. Playback Group
-    const playbackGroup = document.createElement("div");
-    playbackGroup.className = "markdy-controls-group markdy-controls-playback";
-    mountPlayControl(playbackGroup);
-    mountBeatNavControls(playbackGroup, "prev");
-    mountBeatNavControls(playbackGroup, "next");
-    mountRestartControl(playbackGroup);
-
-    controlsTimeEl = document.createElement("span");
-    controlsTimeEl.className = "markdy-control-time";
-    controlsTimeEl.textContent = `${(sceneMs / 1000).toFixed(1)}s / ${durationSeconds.toFixed(1)}s`;
-    playbackGroup.appendChild(controlsTimeEl);
-
-    if (plan.beats.length > 1) {
-      controlsBeatChip = document.createElement("span");
-      controlsBeatChip.className = "markdy-player-beat-chip";
-      const firstBeat = plan.beats[0];
-      controlsBeatChip.textContent = firstBeat.label ? `1. ${firstBeat.label}` : "Beat 1";
-      playbackGroup.appendChild(controlsBeatChip);
-    }
-
-    if (playbackGroup.children.length > 0) toolbar.appendChild(playbackGroup);
-
-    // 2. Tools Group
+    // Tools Group
     const toolsGroup = document.createElement("div");
     toolsGroup.className = "markdy-controls-group markdy-controls-tools";
 

@@ -345,23 +345,26 @@ describe("createDiagram integration", () => {
     const viewport = container.firstElementChild as HTMLElement;
     const footer = document.body.querySelector<HTMLElement>(".markdy-footer");
     const toolbar = footer?.querySelector<HTMLElement>(".markdy-controls") ?? null;
-    const playButton = footer?.querySelector<HTMLButtonElement>(".markdy-control-play")!;
-    const restartButton = footer?.querySelector<HTMLButtonElement>(".markdy-control-restart")!;
+    const fitButton = footer?.querySelector<HTMLButtonElement>(".markdy-control-fit")!;
     const quarterSpeedButton = [...footer!.querySelectorAll<HTMLButtonElement>(".markdy-control-rate")].find((button) => button.dataset.rate === "0.25")!;
     const resetButton = footer?.querySelector<HTMLButtonElement>(".markdy-control-reset-view")!;
 
     expect(container.querySelector(".markdy-controls")).not.toBeNull();
     expect(footer).not.toBeNull();
     expect(toolbar).not.toBeNull();
+    expect(fitButton).not.toBeNull();
+    expect(resetButton).not.toBeNull();
     expect(footer?.style.justifyContent).toBe("space-between");
     expect(toolbar?.style.justifyContent).toBe("flex-start");
-    playButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    expect(diagram.isPlaying()).toBe(true);
-    expect(playButton.textContent).toBe("Pause");
+    expect(footer?.querySelector(".markdy-control-play")).toBeNull();
+    expect(footer?.querySelector(".markdy-control-restart")).toBeNull();
 
     quarterSpeedButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(diagram.playbackRate()).toBe(0.25);
     expect(quarterSpeedButton.getAttribute("aria-pressed")).toBe("true");
+
+    diagram.play();
+    expect(diagram.isPlaying()).toBe(true);
 
     viewport.dispatchEvent(pointerEvent("pointerdown", { clientX: 20, clientY: 20 }));
     viewport.dispatchEvent(pointerEvent("pointermove", { clientX: 40, clientY: 25 }));
@@ -373,7 +376,7 @@ describe("createDiagram integration", () => {
     expect(container.querySelector<HTMLElement>(".markdy-viewport-transform")?.style.transform).toBe("translate(0px, 0px) scale(1)");
 
     diagram.seek(1);
-    restartButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    diagram.seek(0);
     expect(diagram.currentTime()).toBe(0);
     expect(diagram.isPlaying()).toBe(true);
 
@@ -619,8 +622,6 @@ player:
     badge false
     progress bar
   controls:
-    play true
-    restart false
     seek true
     speed false
     reset_view false
@@ -639,7 +640,7 @@ beat b1:
     const viewport = container.firstElementChild as HTMLElement;
     const footer = document.body.querySelector<HTMLElement>(".markdy-footer");
     const seek = footer?.querySelector<HTMLInputElement>(".markdy-control-seek") ?? null;
-    expect(footer?.querySelector(".markdy-control-play")).not.toBeNull();
+    expect(footer?.querySelector(".markdy-control-play")).toBeNull();
     expect(footer?.querySelector(".markdy-control-restart")).toBeNull();
     expect(footer?.querySelector(".markdy-control-rate")).toBeNull();
     expect(footer?.querySelector(".markdy-control-reset-view")).toBeNull();
@@ -673,10 +674,6 @@ player:
   chrome:
     badge false
   controls:
-    play false
-    restart false
-    prev_beat false
-    next_beat false
     seek false
     speed false
     fit false
@@ -723,8 +720,6 @@ player:
   chrome:
     badge false
   controls:
-    play false
-    restart false
     seek false
     speed false
     fit true
@@ -764,7 +759,7 @@ beat b1:
     diagram.destroy();
   });
 
-  it("navigates beats from the toolbar, keyboard, and custom speed options", () => {
+  it("navigates beats programmatically, via keyboard, and custom speed options", () => {
     const container = document.createElement("div");
     document.body.appendChild(container);
     const diagram = createDiagram({
@@ -776,8 +771,6 @@ player:
   chrome:
     badge false
   controls:
-    prev_beat true
-    next_beat true
     seek false
     fit false
     speed true
@@ -796,8 +789,8 @@ beat two:
     });
 
     const footer = document.body.querySelector<HTMLElement>(".markdy-footer")!;
-    const nextButton = footer.querySelector<HTMLButtonElement>(".markdy-control-next-beat")!;
-    const prevButton = footer.querySelector<HTMLButtonElement>(".markdy-control-prev-beat")!;
+    expect(footer.querySelector(".markdy-control-next-beat")).toBeNull();
+    expect(footer.querySelector(".markdy-control-prev-beat")).toBeNull();
     const rates = [...footer.querySelectorAll<HTMLButtonElement>(".markdy-control-rate")].map((b) => b.dataset.rate);
 
     expect(rates).toEqual(["0.25", "1", "3"]);
@@ -805,10 +798,10 @@ beat two:
     const secondBeat = diagram.beats()[1];
     expect(secondBeat.start).toBeGreaterThan(0);
 
-    nextButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    diagram.nextBeat();
     expect(diagram.currentTime()).toBeCloseTo(secondBeat.start);
 
-    prevButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    diagram.prevBeat();
     expect(diagram.currentTime()).toBe(0);
 
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
@@ -878,8 +871,6 @@ player:
   chrome:
     badge false
   controls:
-    play false
-    restart false
     seek false
     speed false
     fit false
@@ -1067,7 +1058,7 @@ service API "<img data-test=unsafe>"
       autoplay: false,
       copyright: false,
       controls: {
-        playback: true,
+        seek: true,
         fit: true,
         resetView: true,
         fullscreen: true,
@@ -1110,11 +1101,9 @@ service API "<img data-test=unsafe>"
     fitBtn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(diagram.isPlaying()).toBe(false);
 
-    // Verify seek() synchronizes slider and time display while paused
+    // Verify seek() synchronizes slider while paused
     diagram.seek(1.5);
-    const timeEl = footer.querySelector<HTMLElement>(".markdy-control-time");
     const seekInput = footer.querySelector<HTMLInputElement>(".markdy-control-seek");
-    expect(timeEl?.textContent).toContain("1.5s");
     expect(seekInput?.value).toBe("1.5");
 
     // Verify Code button accessibility

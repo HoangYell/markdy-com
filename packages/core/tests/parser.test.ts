@@ -573,8 +573,6 @@ player:
     loop true
     rate 1.5
   controls:
-    play true
-    restart false
     seek true
     speed false
     fit true
@@ -597,7 +595,7 @@ beat main:
 
     expect(ast.meta.player).toEqual({
       playback: { autoplay: false, loop: true, rate: 1.5 },
-      controls: { play: true, restart: false, seek: true, speed: false, fit: true, resetView: true },
+      controls: { seek: true, speed: false, fit: true, resetView: true },
       interaction: { zoom: false, pan: true, clickToPlay: false, doubleClickToReset: true },
       chrome: { badge: false, progress: "bar", progressColor: "#10b981" },
     });
@@ -624,10 +622,6 @@ beat main:
     expect(ast.meta.player).toEqual({
       playback: { rate: 2, autoplay: false },
       controls: {
-        play: true,
-        restart: true,
-        prevBeat: true,
-        nextBeat: true,
         seek: true,
         speed: true,
         fit: true,
@@ -651,12 +645,11 @@ beat main:
     expect(ast.diagnostics).toEqual([]);
   });
 
-  it("parses beat navigation, custom speed options, and keyboard opt-in", () => {
+  it("parses custom speed options and keyboard opt-in", () => {
     const ast = parse(`
 player:
   controls:
-    prev_beat true
-    next_beat false
+    fit true
     speeds "0.25, 1, 3"
   interaction:
     keyboard true
@@ -667,7 +660,7 @@ beat main:
   show API
 `);
 
-    expect(ast.meta.player?.controls).toEqual({ prevBeat: true, nextBeat: false, speeds: [0.25, 1, 3] });
+    expect(ast.meta.player?.controls).toEqual({ fit: true, speeds: [0.25, 1, 3] });
     expect(ast.meta.player?.interaction).toEqual({ keyboard: true });
     expect(ast.diagnostics).toEqual([]);
   });
@@ -701,14 +694,12 @@ beat main:
     expect(astAlias.meta.player?.controls).toEqual({ code: true });
 
     // A controls group enables only the buttons it explicitly declares.
-    const resolved = resolvePlayer({ controls: { play: true } });
+    const resolved = resolvePlayer({ controls: { fit: true } });
     expect(resolved.controls).toMatchObject({
       enabled: true,
-      play: true,
-      restart: false,
       seek: false,
       speed: false,
-      fit: false,
+      fit: true,
       resetView: false,
       fullscreen: false,
       svg: false,
@@ -730,7 +721,7 @@ beat main:
     // Fit control button is opt-in per controls group, or enabled via controls: true.
     expect(resolvePlayer({ controls: { fit: true } }).controls.fit).toBe(true);
     expect(resolvePlayer({}, { controls: true }).controls.fit).toBe(true);
-    expect(resolvePlayer({ controls: { play: true } }).controls.fit).toBe(false);
+    expect(resolvePlayer({ controls: { code: true } }).controls.fit).toBe(false);
     expect(resolvePlayer({}).controls.fit).toBe(false);
 
     // Interaction viewport gestures default to false when undeclared.
@@ -754,7 +745,7 @@ beat main:
     const ast = parse(`
 player:
   controls:
-    play maybe
+    fit maybe
     teleport true
 
 scene "Bad player"
@@ -764,7 +755,7 @@ beat main:
 `);
 
     expect(ast.diagnostics.map((d) => d.message)).toEqual([
-      "player property 'play' expects true or false",
+      "player property 'fit' expects true or false",
       "unknown player property 'teleport'",
     ]);
   });
@@ -815,12 +806,12 @@ player:
 playback:
 loop true
 controls:
-play true
+fit true
 `);
 
     expect(ast.meta.player).toEqual({
       playback: { loop: true },
-      controls: { play: true },
+      controls: { fit: true },
     });
     expect(ast.diagnostics).toEqual([]);
   });
