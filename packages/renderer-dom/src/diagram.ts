@@ -200,12 +200,20 @@ function buildBeatCaptionAnimations(beats: BeatRange[], layer: HTMLElement): Ani
 function isDarkBgColor(colorStr: string): boolean | null {
   if (!colorStr || colorStr === "transparent" || colorStr === "rgba(0, 0, 0, 0)") return null;
   const match = colorStr.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
-  if (!match) return null;
-  const r = parseInt(match[1], 10);
-  const g = parseInt(match[2], 10);
-  const b = parseInt(match[3], 10);
-  const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  return luma < 128;
+  if (match) {
+    const r = parseInt(match[1], 10);
+    const g = parseInt(match[2], 10);
+    const b = parseInt(match[3], 10);
+    const luma = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    return luma < 128;
+  }
+  const oklMatch = colorStr.match(/ok(?:lch|lab)\(\s*([\d.]+)(%?)/i);
+  if (oklMatch) {
+    let l = parseFloat(oklMatch[1]);
+    if (oklMatch[2] === "%") l /= 100;
+    return l < 0.5;
+  }
+  return null;
 }
 
 function checkElementTheme(
@@ -341,7 +349,7 @@ export function detectHostTheme(
   }
 
   if (typeof window !== "undefined" && typeof window.getComputedStyle === "function") {
-    let bgEl: HTMLElement | null = container ?? document.body ?? null;
+    let bgEl: HTMLElement | null = (container ? container.parentElement : null) ?? document.body ?? null;
     while (bgEl) {
       try {
         const bg = window.getComputedStyle(bgEl).backgroundColor;
