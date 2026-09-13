@@ -736,6 +736,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     flexDirection: "column",
     boxSizing: "border-box",
     width: "100%",
+    background: plan.theme.canvas,
+    color: plan.theme.text,
   });
   if (container.style.aspectRatio) container.style.aspectRatio = "unset";
 
@@ -1689,12 +1691,15 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       const newTheme = typeof theme === "string" ? resolveTheme(theme) : theme;
       plan.theme = newTheme;
 
-      // 0. Container variables
+      // 0. Container variables & canvas background
       applyThemeVariables(container, newTheme);
+      container.style.background = newTheme.canvas;
+      container.style.color = newTheme.text;
 
       // 1. Viewport variables & canvas background
       applyThemeVariables(viewport, newTheme);
       viewport.style.background = newTheme.canvas;
+      viewport.style.color = newTheme.text;
 
       // 2. Scene background & variables
       applyThemeToScene(scene, newTheme);
@@ -1885,6 +1890,9 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     },
   };
 
+  let manualThemeOverride = false;
+  let lastHostTheme: string | null = null;
+
   if (!hasExplicitTheme && typeof document !== "undefined") {
     const syncWithHost = () => {
       const currentDefaults: DefaultThemesConfig = {
@@ -1892,6 +1900,19 @@ export function createDiagram(opts: DiagramOptions): Diagram {
         dark: ast.meta.defaultThemes?.dark ?? optionsDefaultDark,
       };
       const nextTheme = detectHostTheme(container, currentDefaults);
+
+      if (lastHostTheme === null) {
+        lastHostTheme = nextTheme;
+      } else if (lastHostTheme !== nextTheme) {
+        // Host has explicitly toggled light/dark mode -> reset manual override and follow host mode!
+        manualThemeOverride = false;
+        lastHostTheme = nextTheme;
+      }
+
+      if (manualThemeOverride) {
+        return;
+      }
+
       diagram.setTheme(nextTheme);
     };
 
@@ -1920,12 +1941,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     }
     if (container && container.parentElement && container !== document.body) {
       hostThemeObserver.observe(container.parentElement, {
-        attributes: true,
-        attributeFilter,
-      });
-    }
-    if (container) {
-      hostThemeObserver.observe(container, {
         attributes: true,
         attributeFilter,
       });
@@ -2277,24 +2292,37 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
   function mountThemeControl(toolbar: HTMLElement): void {
     if (!themeButton) return;
-    const button = makeControlButton("Theme", "Toggle dark/light theme palette", ICONS.theme);
+    const button = makeControlButton("Theme", "Toggle theme palette", ICONS.theme);
     button.className = "markdy-control-theme";
     button.addEventListener("click", () => {
-      const darkThemes = ["midnight", "blueprint", "graphite", "nebula", "terminal"];
-      const lightThemes = ["paper", "editorial", "sketchy", "ink", "doodle"];
+      // Cycle through all Markdy themes in a natural and clean order:
+      const ALL_THEMES = [
+        "doodle",
+        "paper",
+        "editorial",
+        "sketchy",
+        "ink",
+        "nebula",
+        "midnight",
+        "blueprint",
+        "graphite",
+        "terminal",
+      ];
       const currentName = plan.theme.name || "paper";
-      const isDark = darkThemes.includes(currentName);
-      const targetThemes = isDark ? lightThemes : darkThemes;
-      const nextTheme = targetThemes[Math.floor(Math.random() * targetThemes.length)];
+      const currentIndex = ALL_THEMES.indexOf(currentName);
+      const nextTheme = ALL_THEMES[(currentIndex + 1) % ALL_THEMES.length];
+
+      manualThemeOverride = true;
+
       flashControlState(button, {
         title: `Theme: ${nextTheme}`,
-        duration: 400,
+        duration: 900,
       });
       diagram.setTheme(nextTheme);
       container.dispatchEvent(
         new CustomEvent("markdy-theme-switch", {
           bubbles: true,
-          detail: { theme: nextTheme, isDark: !isDark },
+          detail: { theme: nextTheme },
         }),
       );
     });

@@ -870,6 +870,7 @@ export function ensureSceneStyles(doc: Document): void {
 :root[data-theme="dark"] .markdy-diagram-root,
 .theme-dark .markdy-diagram-root,
 .dark .markdy-diagram-root {
+  background: var(--md-canvas, #090b1a);
   border-color: var(--md-card-border, rgba(255, 255, 255, 0.09));
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2);
 }

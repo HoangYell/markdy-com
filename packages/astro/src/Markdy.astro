@@ -140,7 +140,7 @@ const codeB64 =
   role="img"
   aria-label={title}
   aria-busy="true"
-  style={`max-width:${width}px;width:100%;aspect-ratio:${width}/${height};overflow:hidden;border-radius:12px;border:1px solid var(--md-card-border, rgba(148, 163, 184, 0.22));margin:2rem 0;box-sizing:border-box;background:${bg}`}
+  style={`max-width:${width}px;width:100%;aspect-ratio:${width}/${height};overflow:hidden;border-radius:12px;border:1px solid var(--md-card-border, rgba(148, 163, 184, 0.22));margin:2rem 0;box-sizing:border-box;background:var(--md-canvas, ${bg})`}
 >
   <!--
     SSR placeholder: keeps layout stable before the island hydrates.
@@ -366,6 +366,7 @@ const codeB64 =
     // Clear the SSR placeholder and mount the canvas atomically after the
     // async import resolves, so there is no flash of empty content.
     el.innerHTML = "";
+    el.style.background = "";
 
     createDiagram({
       container: el,
