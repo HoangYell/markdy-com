@@ -61,8 +61,8 @@ const TOKEN_LIBRARIES = {
   ],
   player: [
     { label: "Full Motion Player", template: 'player:\n  playback:\n    autoplay true\n    loop true\n  controls:\n    play true\n    seek true\n    speed true\n    fullscreen true\n  chrome:\n    badge true\n    progress boundary\n', desc: "Autoplay, loop, timeline seek, speed, and fullscreen" },
-    { label: "Interactive Controls", template: 'player:\n  controls:\n    play true\n    seek true\n    fit true\n    fullscreen true\n  interaction:\n    zoom true\n    pan true\n    click_to_play true\n', desc: "Zoom, pan, fit, and fullscreen controls" },
-    { label: "Timeline & Speeds", template: 'player:\n  controls:\n    play true\n    seek true\n    speeds "0.5 1 1.5 2"\n', desc: "Play/pause, scrub bar, and multi-speed controls" },
+    { label: "Interactive Controls", template: 'player:\n  controls:\n    speed true\n    speeds "0.25"\n    interact true\n    fullscreen true\n    gif true\n    theme true\n  interaction:\n    zoom true\n    pan true\n    click_to_play true\n    double_click_to_reset true\n    keyboard false\n  chrome:\n    badge true\n    progress none\n', desc: "Touch interact, zoom, pan, speed, gif, and fullscreen controls" },
+    { label: "Timeline & Speeds", template: 'player:\n  controls:\n    play true\n    seek true\n    speeds "0.25 0.5 1 1.5 2"\n', desc: "Play/pause, scrub bar, and multi-speed controls" },
     { label: "Clean Presentation", template: 'player:\n  chrome:\n    badge true\n    progress none\n', desc: "Clean presentation without progress overlay" },
   ],
 };
@@ -86,7 +86,7 @@ const PLAY_SNIPPETS = [
   },
   {
     label: "Player Controls & Progress",
-    code: `player:\n  playback:\n    loop true\n  controls:\n    play true\n    seek true\n    speed true\n    fullscreen true\n  chrome:\n    badge true\n    progress boundary`,
+    code: `player:\n  playback:\n    loop true\n  controls:\n    speed true\n    speeds "0.25"\n    interact true\n    fullscreen true\n    gif true\n    theme true\n  interaction:\n    zoom true\n    pan true\n    click_to_play true\n    double_click_to_reset true\n    keyboard false\n  chrome:\n    badge true\n    progress none`,
   },
   {
     label: "OSI Stack (type=layers)",

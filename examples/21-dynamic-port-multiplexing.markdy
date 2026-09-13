@@ -19,3 +19,23 @@ beat fan_in:
 
 beat finish:
   glow Database color=#34d399 & glow Cache color=#38bdf8
+
+player:
+  playback:
+    loop true
+  controls:
+    speed true
+    speeds "0.25"
+    interact true
+    fullscreen true
+    gif true
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress none
