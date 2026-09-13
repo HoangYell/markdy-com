@@ -238,39 +238,150 @@ export function ensureSceneStyles(doc: Document): void {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 6px 12px 6px 10px;
+  padding: 8px 12px 7px 10px;
   color: var(--md-text, #64748b);
-  background: var(--md-footer-bg, rgba(248, 250, 252, 0.82));
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border-top: 1px solid var(--md-card-border, rgba(148, 163, 184, 0.14));
+  background: var(--md-footer-bg, rgba(248, 250, 252, 0.88));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid var(--md-card-border, rgba(148, 163, 184, 0.16));
   z-index: 100;
   pointer-events: auto;
   flex-shrink: 0;
   border-radius: 0 0 11px 11px;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+/* ── Real Embedded Footer Scrubber ── */
+.markdy-player-scrubber {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 12px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  margin: 0;
+}
+.markdy-player-scrubber-track {
+  position: relative;
+  width: 100%;
+  height: 3px;
+  background: var(--md-scrubber-bg, rgba(148, 163, 184, 0.25));
+  border-radius: 9999px;
+  transition: height 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: visible;
+}
+.markdy-player-scrubber:hover .markdy-player-scrubber-track,
+.markdy-player-scrubber:active .markdy-player-scrubber-track {
+  height: 5px;
+}
+.markdy-player-scrubber-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0%;
+  background: var(--accent, #2563eb);
+  border-radius: 9999px;
+  pointer-events: none;
+  transition: background 0.15s ease;
+}
+.markdy-player-scrubber-thumb {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--accent, #2563eb);
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease;
+  pointer-events: none;
+}
+.markdy-player-scrubber:hover .markdy-player-scrubber-thumb,
+.markdy-player-scrubber:active .markdy-player-scrubber-thumb {
+  transform: translate(-50%, -50%) scale(1);
+}
+.markdy-player-scrubber-tick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1.5px;
+  background: var(--md-scrubber-tick, rgba(255, 255, 255, 0.6));
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 2;
+}
+.markdy-player-scrubber .markdy-control-seek {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+  z-index: 10;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.markdy-player-scrubber-tooltip {
+  position: absolute;
+  bottom: 16px;
+  left: 0%;
+  transform: translateX(-50%);
+  padding: 2px 6px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  color: #ffffff;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+  white-space: nowrap;
+  z-index: 60;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+.markdy-player-beat-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--md-control-text, #475569);
+  background: var(--md-segmented-bg, rgba(148, 163, 184, 0.12));
+  border: 1px solid var(--md-control-border, rgba(148, 163, 184, 0.18));
+  border-radius: 9999px;
+  white-space: nowrap;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+  flex-shrink: 1;
 }
 .markdy-controls {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   flex: 1 1 auto;
   width: auto;
   min-width: 0;
   gap: 6px;
   max-width: 100%;
-  overflow-x: auto;
-  overflow-y: visible;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  -webkit-overflow-scrolling: touch;
-  padding: 2px 2px 2px;
+  padding: 0;
   margin: 0;
   position: relative;
   z-index: 10;
   pointer-events: auto;
-}
-.markdy-controls::-webkit-scrollbar {
-  display: none;
 }
 .markdy-controls-group {
   display: inline-flex;
@@ -284,25 +395,15 @@ export function ensureSceneStyles(doc: Document): void {
 .markdy-controls-playback {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   flex-shrink: 0;
-}
-.markdy-controls-timeline {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1 1 180px;
-  min-width: 110px;
-  max-width: 340px;
 }
 .markdy-controls-tools {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
-  position: relative;
-  z-index: 5;
-  pointer-events: auto;
+  margin-left: auto;
 }
 .markdy-control-divider {
   width: 1px;
@@ -417,6 +518,9 @@ export function ensureSceneStyles(doc: Document): void {
   .markdy-btn-label {
     display: none !important;
   }
+  .markdy-player-beat-chip {
+    display: none !important;
+  }
   .markdy-controls button {
     padding: 0 !important;
     width: 25px !important;
@@ -435,7 +539,7 @@ export function ensureSceneStyles(doc: Document): void {
     gap: 4px !important;
   }
   .markdy-footer {
-    padding: 5px 8px !important;
+    padding: 6px 10px 5px 8px !important;
   }
   .markdy-badge {
     font-size: 9px !important;
@@ -444,6 +548,9 @@ export function ensureSceneStyles(doc: Document): void {
 }
 @container markdy-root (max-width: 520px) {
   .markdy-btn-label {
+    display: none !important;
+  }
+  .markdy-player-beat-chip {
     display: none !important;
   }
   .markdy-controls button {
@@ -791,9 +898,31 @@ export function ensureSceneStyles(doc: Document): void {
 :root[data-theme="dark"] .markdy-footer,
 .theme-dark .markdy-footer,
 .dark .markdy-footer {
-  background: var(--md-footer-bg, rgba(15, 23, 42, 0.85));
+  background: var(--md-footer-bg, rgba(15, 23, 42, 0.88));
   border-top-color: var(--md-card-border, rgba(255, 255, 255, 0.08));
   color: #94a3b8;
+}
+[data-markdy-theme="midnight"] .markdy-player-scrubber-track,
+[data-markdy-theme="blueprint"] .markdy-player-scrubber-track,
+[data-markdy-theme="terminal"] .markdy-player-scrubber-track,
+[data-markdy-theme="graphite"] .markdy-player-scrubber-track,
+[data-markdy-theme="nebula"] .markdy-player-scrubber-track,
+:root[data-theme="dark"] .markdy-player-scrubber-track,
+.theme-dark .markdy-player-scrubber-track,
+.dark .markdy-player-scrubber-track {
+  background: rgba(255, 255, 255, 0.14);
+}
+[data-markdy-theme="midnight"] .markdy-player-beat-chip,
+[data-markdy-theme="blueprint"] .markdy-player-beat-chip,
+[data-markdy-theme="terminal"] .markdy-player-beat-chip,
+[data-markdy-theme="graphite"] .markdy-player-beat-chip,
+[data-markdy-theme="nebula"] .markdy-player-beat-chip,
+:root[data-theme="dark"] .markdy-player-beat-chip,
+.theme-dark .markdy-player-beat-chip,
+.dark .markdy-player-beat-chip {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
 }
 [data-markdy-theme="midnight"] .markdy-controls button:not([aria-pressed="true"]),
 [data-markdy-theme="blueprint"] .markdy-controls button:not([aria-pressed="true"]),
@@ -825,6 +954,16 @@ export function ensureSceneStyles(doc: Document): void {
 .markdy--pseudo-fullscreen {
   position: fixed !important;
   inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  aspect-ratio: auto !important;
+  transform: none !important;
   z-index: 999999 !important;
   width: 100vw !important;
   width: 100dvw !important;
@@ -840,8 +979,13 @@ export function ensureSceneStyles(doc: Document): void {
   flex-direction: column !important;
   justify-content: space-between !important;
   align-items: center !important;
-  padding: max(16px, env(safe-area-inset-top, 16px)) max(20px, env(safe-area-inset-right, 20px)) max(12px, env(safe-area-inset-bottom, 12px)) max(20px, env(safe-area-inset-left, 20px)) !important;
+  padding-top: max(8px, env(safe-area-inset-top, 0px)) !important;
+  padding-left: max(8px, env(safe-area-inset-left, 0px)) !important;
+  padding-right: max(8px, env(safe-area-inset-right, 0px)) !important;
+  padding-bottom: 0 !important;
   overflow: hidden !important;
+  touch-action: pan-x pan-y !important;
+  -webkit-overflow-scrolling: touch !important;
 }
 .markdy-fullscreen-host .markdy-diagram-root,
 .markdy--pseudo-fullscreen .markdy-diagram-root {
@@ -863,8 +1007,9 @@ export function ensureSceneStyles(doc: Document): void {
   width: 100% !important;
   height: 100% !important;
   max-width: 100% !important;
-  max-height: calc(100vh - 64px) !important;
-  max-height: calc(100dvh - 64px) !important;
+  max-height: calc(100vh - 54px) !important;
+  max-height: calc(100dvh - 54px) !important;
+  aspect-ratio: auto !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -879,7 +1024,8 @@ export function ensureSceneStyles(doc: Document): void {
   width: 100% !important;
   max-width: 1400px !important;
   margin: 0 auto !important;
-  padding: 8px 12px max(4px, env(safe-area-inset-bottom, 4px)) !important;
+  padding: 6px 12px max(12px, env(safe-area-inset-bottom, 12px)) !important;
+  box-sizing: border-box !important;
 }
 @media (hover: none) and (pointer: coarse) {
   .markdy-controls {

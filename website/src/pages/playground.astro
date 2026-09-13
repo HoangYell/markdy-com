@@ -453,65 +453,7 @@ const playgroundStructuredData = [
             <h2 class="panel-title-text">WAAPI Motion Canvas</h2>
           </div>
 
-          <div class="canvas-header-actions" aria-label="Canvas playback and studio controls">
-            <!-- Quick Motion Play / Pause & Restart -->
-            <button id="canvas-play-btn" class="canvas-ctrl-btn" type="button" title="Toggle Play / Pause (Space)" aria-label="Play or pause animation">
-              <span id="canvas-play-icon" aria-hidden="true">⏸</span>
-              <span id="canvas-play-label">Pause</span>
-            </button>
-            <button id="canvas-restart-btn" class="canvas-ctrl-btn" type="button" title="Restart animation from beginning" aria-label="Restart animation">
-              <span aria-hidden="true">↺</span>
-            </button>
-
-            <div class="canvas-divider" aria-hidden="true"></div>
-
-            <!-- Playback Speed -->
-            <div class="canvas-select-wrapper" title="Playback speed multiplier">
-              <select id="canvas-speed-select" class="canvas-select" aria-label="Playback speed">
-                <option value="0.5">0.5×</option>
-                <option value="1" selected>1.0×</option>
-                <option value="1.5">1.5×</option>
-                <option value="2">2.0×</option>
-              </select>
-            </div>
-
-            <div class="canvas-divider" aria-hidden="true"></div>
-
-            <!-- Live Theme Selector Dropdown -->
-            <div class="canvas-select-wrapper canvas-select-wrapper--theme" title="Diagram aesthetic theme">
-              <select id="canvas-theme-select" class="canvas-select canvas-select--theme" aria-label="Select diagram theme">
-                <option value="auto">theme=auto</option>
-                <optgroup label="Light Themes">
-                  <option value="paper">theme=paper</option>
-                  <option value="editorial">theme=editorial</option>
-                  <option value="sketchy">theme=sketchy</option>
-                  <option value="ink">theme=ink</option>
-                  <option value="doodle">theme=doodle</option>
-                </optgroup>
-                <optgroup label="Dark Themes">
-                  <option value="midnight">theme=midnight</option>
-                  <option value="terminal">theme=terminal</option>
-                  <option value="blueprint">theme=blueprint</option>
-                  <option value="graphite">theme=graphite</option>
-                  <option value="nebula">theme=nebula</option>
-                </optgroup>
-              </select>
-            </div>
-
-            <div class="canvas-divider" aria-hidden="true"></div>
-
-            <!-- Fit View Button (hidden when viewport interaction is disabled) -->
-            <button id="canvas-fit-btn" class="canvas-ctrl-btn" type="button" title="Fit Diagram to Viewport" aria-label="Fit Diagram to Viewport" style="display:none;" aria-hidden="true">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M3 12h3m12 0h3M12 3v3m0 12v3"/></svg>
-            </button>
-
-            <!-- Fullscreen Stage Button -->
-            <button id="canvas-fullscreen-btn" class="canvas-ctrl-btn" type="button" title="Toggle Fullscreen Stage (F)" aria-label="Toggle Fullscreen Stage">
-              <svg class="icon-maximize" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
-              <svg class="icon-minimize" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:none;"><path d="M4 14h6m0 0v6m0-6-7 7m17-11h-6m0 0V4m0 6 7-7m-7 17v-6m0 0h6m-6 0 7 7M3 7h6m0 0V1m0 6L2 1"/></svg>
-              <span id="canvas-fullscreen-label">Full</span>
-            </button>
-
+          <div class="canvas-header-actions" aria-label="Canvas studio actions">
             <!-- Canvas Quick Export CTA -->
             <button id="canvas-export-btn" class="canvas-ctrl-btn canvas-ctrl-btn--accent" type="button" title="Export SVG, PNG, or Share Link" aria-label="Export diagram">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -1415,7 +1357,7 @@ const playgroundStructuredData = [
         clickToPlay: false,
         responsiveLayout: true,
         fitMode: "auto",
-        controls: { fit: true },
+        controls: true,
         targetWidthRatio: 0.98,
         shareUrl: `${window.location.origin}${window.location.pathname}`,
         onFullscreen(isFull) {

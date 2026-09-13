@@ -642,6 +642,19 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   });
   container.appendChild(viewport);
 
+  let controlsScrubber: HTMLElement | null = null;
+  let controlsScrubberTrack: HTMLElement | null = null;
+  let controlsScrubberFill: HTMLElement | null = null;
+  let controlsScrubberThumb: HTMLElement | null = null;
+  let controlsScrubberTooltip: HTMLElement | null = null;
+  let controlsBeatChip: HTMLSpanElement | null = null;
+  let controlsPlayButton: HTMLButtonElement | null = null;
+  let controlsRateButtons: HTMLButtonElement[] = [];
+  let controlsSeekBar: HTMLInputElement | null = null;
+  let controlsTimeEl: HTMLSpanElement | null = null;
+  let controlsFitButton: HTMLButtonElement | null = null;
+  let closeCodePanel: (() => void) | null = null;
+
   let progressEl: HTMLElement | null = null;
   if (showProgress) {
     progressEl = document.createElement("div");
@@ -666,14 +679,41 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   }
 
   function updateProgressBar(pct: number): void {
+    const clamped = Math.max(0, Math.min(1, pct));
+    if (controlsScrubberFill) {
+      controlsScrubberFill.style.width = `${clamped * 100}%`;
+    }
+    if (controlsScrubberThumb) {
+      controlsScrubberThumb.style.left = `${clamped * 100}%`;
+    }
+    if (controlsSeekBar) {
+      controlsSeekBar.value = String(sceneMs / 1000);
+      controlsSeekBar.style.setProperty("--seek-pct", `${clamped * 100}%`);
+    }
+    if (controlsTimeEl) {
+      const cur = (sceneMs / 1000).toFixed(1);
+      const tot = durationSeconds.toFixed(1);
+      controlsTimeEl.textContent = `${cur}s / ${tot}s`;
+    }
+    if (controlsBeatChip && plan.beats.length > 1) {
+      const currentSec = sceneMs / 1000;
+      const currentBeat =
+        plan.beats.find((b) => currentSec >= b.start && currentSec < b.end) ||
+        plan.beats[plan.beats.length - 1];
+      if (currentBeat) {
+        const beatIdx = plan.beats.indexOf(currentBeat) + 1;
+        controlsBeatChip.textContent = currentBeat.label ? `${beatIdx}. ${currentBeat.label}` : `Beat ${beatIdx}`;
+        controlsBeatChip.title = `Current beat: ${currentBeat.label || currentBeat.name}`;
+      }
+    }
     if (!progressEl) return;
     if (progressMode === "bar") {
       progressEl.style.background = customColor ?? plan.theme.accent ?? "#2563eb";
       progressEl.style.transformOrigin = "left center";
-      progressEl.style.transform = `scaleX(${pct})`;
+      progressEl.style.transform = `scaleX(${clamped})`;
       return;
     }
-    const deg = pct * 360;
+    const deg = clamped * 360;
     const colorStops = customColor
       ? customColor.includes(",")
         ? customColor
@@ -1082,7 +1122,15 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     const initialMeasureBounds = computeContentBounds();
     const { symmetricContentW: initSymW } = computeSymmetricContentSpan(plan, initialMeasureBounds);
     const naturalHeight = (vWidth * initialMeasureBounds.height) / initSymW;
-    const isHeightConstrained = hasInitialHeightConstraint;
+    const isFullscreenActive =
+      container.classList.contains("markdy-fullscreen-host") ||
+      container.classList.contains("markdy--pseudo-fullscreen") ||
+      (typeof document !== "undefined" &&
+        (document.fullscreenElement === container ||
+          document.fullscreenElement === viewport ||
+          (document as any).webkitFullscreenElement === container ||
+          (document as any).webkitFullscreenElement === viewport));
+    const isHeightConstrained = hasInitialHeightConstraint || isFullscreenActive;
     const vHeight = isHeightConstrained ? (viewport.clientHeight || container.clientHeight || naturalHeight) : naturalHeight;
     const resolvedFit = fitViewActive ? "contain" : fitMode === "auto" ? (isHeightConstrained ? "contain" : "width") : fitMode;
     const defaultTargetRatio = vWidth <= 480 ? 0.95 : 0.90;
@@ -1265,12 +1313,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   let dragLastY = 0;
   let dragMoved = false;
   let suppressNextClick = false;
-  let controlsPlayButton: HTMLButtonElement | null = null;
-  let controlsRateButtons: HTMLButtonElement[] = [];
-  let controlsSeekBar: HTMLInputElement | null = null;
-  let controlsTimeEl: HTMLSpanElement | null = null;
-  let controlsFitButton: HTMLButtonElement | null = null;
-  let closeCodePanel: (() => void) | null = null;
   const explicitFit = defaultFit ?? explicitFitOption;
   let fitViewActive =
     explicitFit !== undefined
@@ -1291,6 +1333,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     fit: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>',
     resetView: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>',
     fullscreen: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>',
+    fullscreenExit: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>',
     svg: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
     gif: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="7" cy="7" r="1.5" fill="currentColor"/><circle cx="17" cy="7" r="1.5" fill="currentColor"/><circle cx="7" cy="17" r="1.5" fill="currentColor"/><circle cx="17" cy="17" r="1.5" fill="currentColor"/><path d="M10 10l5 2-5 2z" fill="currentColor"/></svg>',
     share: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
@@ -1407,6 +1450,14 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   }
 
   function syncControls(): void {
+    const pct = totalDurationMs > 0 ? sceneMs / totalDurationMs : 0;
+    const clamped = Math.max(0, Math.min(1, pct));
+    if (controlsScrubberFill) {
+      controlsScrubberFill.style.width = `${clamped * 100}%`;
+    }
+    if (controlsScrubberThumb) {
+      controlsScrubberThumb.style.left = `${clamped * 100}%`;
+    }
     if (controlsPlayButton) {
       const playing = isPlaying;
       controlsPlayButton.innerHTML = `${playing ? ICONS.pause : ICONS.play}<span class="markdy-btn-label">${playing ? "Pause" : "Play"}</span>`;
@@ -1421,13 +1472,23 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     }
     if (controlsSeekBar) {
       controlsSeekBar.value = String(sceneMs / 1000);
-      const pct = totalDurationMs > 0 ? (sceneMs / totalDurationMs) * 100 : 0;
-      controlsSeekBar.style.setProperty("--seek-pct", `${pct}%`);
+      controlsSeekBar.style.setProperty("--seek-pct", `${clamped * 100}%`);
     }
     if (controlsTimeEl) {
       const cur = (sceneMs / 1000).toFixed(1);
       const tot = durationSeconds.toFixed(1);
       controlsTimeEl.textContent = `${cur}s / ${tot}s`;
+    }
+    if (controlsBeatChip && plan.beats.length > 1) {
+      const currentSec = sceneMs / 1000;
+      const currentBeat =
+        plan.beats.find((b) => currentSec >= b.start && currentSec < b.end) ||
+        plan.beats[plan.beats.length - 1];
+      if (currentBeat) {
+        const beatIdx = plan.beats.indexOf(currentBeat) + 1;
+        controlsBeatChip.textContent = currentBeat.label ? `${beatIdx}. ${currentBeat.label}` : `Beat ${beatIdx}`;
+        controlsBeatChip.title = `Current beat: ${currentBeat.label || currentBeat.name}`;
+      }
     }
     if (controlsFitButton) {
       controlsFitButton.setAttribute("aria-pressed", fitViewActive ? "true" : "false");
@@ -1832,8 +1893,46 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     toolbar.appendChild(button);
   }
 
-  function mountSeekControl(toolbar: HTMLElement): void {
+  function mountScrubber(footerEl: HTMLElement): void {
     if (!seekBar) return;
+    controlsScrubber = document.createElement("div");
+    controlsScrubber.className = "markdy-player-scrubber";
+    controlsScrubber.setAttribute("role", "presentation");
+
+    controlsScrubberTrack = document.createElement("div");
+    controlsScrubberTrack.className = "markdy-player-scrubber-track";
+
+    // Beat chapter ticks if scene has multiple beats
+    if (plan.beats.length > 1 && totalDurationMs > 0) {
+      for (let i = 1; i < plan.beats.length; i++) {
+        const beat = plan.beats[i];
+        const tick = document.createElement("div");
+        tick.className = "markdy-player-scrubber-tick";
+        tick.style.left = `${(beat.start / durationSeconds) * 100}%`;
+        tick.title = beat.label || beat.name;
+        controlsScrubberTrack.appendChild(tick);
+      }
+    }
+
+    controlsScrubberFill = document.createElement("div");
+    controlsScrubberFill.className = "markdy-player-scrubber-fill";
+    if (customColor) {
+      controlsScrubberFill.style.background = customColor;
+    }
+    controlsScrubberTrack.appendChild(controlsScrubberFill);
+
+    controlsScrubberThumb = document.createElement("div");
+    controlsScrubberThumb.className = "markdy-player-scrubber-thumb";
+    if (customColor) {
+      controlsScrubberThumb.style.background = customColor;
+    }
+    controlsScrubberTrack.appendChild(controlsScrubberThumb);
+
+    controlsScrubberTooltip = document.createElement("div");
+    controlsScrubberTooltip.className = "markdy-player-scrubber-tooltip";
+    controlsScrubberTooltip.textContent = "0.0s";
+    controlsScrubber.appendChild(controlsScrubberTooltip);
+
     controlsSeekBar = document.createElement("input");
     controlsSeekBar.className = "markdy-control-seek";
     controlsSeekBar.type = "range";
@@ -1842,13 +1941,33 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     controlsSeekBar.step = "0.01";
     controlsSeekBar.value = String(sceneMs / 1000);
     controlsSeekBar.setAttribute("aria-label", "Seek diagram timeline");
-    controlsSeekBar.addEventListener("input", () => diagram.seek(Number(controlsSeekBar?.value ?? 0)));
-    toolbar.appendChild(controlsSeekBar);
 
-    controlsTimeEl = document.createElement("span");
-    controlsTimeEl.className = "markdy-control-time";
-    controlsTimeEl.textContent = `${(sceneMs / 1000).toFixed(1)}s / ${durationSeconds.toFixed(1)}s`;
-    toolbar.appendChild(controlsTimeEl);
+    controlsSeekBar.addEventListener("input", () => {
+      const val = Number(controlsSeekBar?.value ?? 0);
+      diagram.seek(val);
+    });
+
+    controlsScrubber.addEventListener("pointermove", (e) => {
+      if (!controlsScrubber || !controlsScrubberTooltip) return;
+      const rect = controlsScrubber.getBoundingClientRect();
+      if (rect.width <= 0) return;
+      const ratio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      const hoverSec = ratio * durationSeconds;
+      controlsScrubberTooltip.textContent = `${hoverSec.toFixed(1)}s`;
+      controlsScrubberTooltip.style.left = `${ratio * 100}%`;
+      controlsScrubberTooltip.style.opacity = "1";
+    });
+
+    controlsScrubber.addEventListener("pointerleave", () => {
+      if (controlsScrubberTooltip) {
+        controlsScrubberTooltip.style.opacity = "0";
+      }
+    });
+
+    controlsScrubber.appendChild(controlsScrubberTrack);
+    controlsScrubber.appendChild(controlsSeekBar);
+
+    footerEl.insertBefore(controlsScrubber, footerEl.firstChild);
   }
 
   function mountSpeedControls(toolbar: HTMLElement): void {
@@ -2194,15 +2313,21 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     const button = makeControlButton("Full", "Toggle fullscreen view", ICONS.fullscreen);
     button.className = "markdy-control-fullscreen";
     button.setAttribute("aria-pressed", "false");
+    button.style.touchAction = "manipulation";
 
     const host = container;
     let isPseudoFull = false;
     let originalBodyOverflow: string | null = null;
+    let originalHtmlOverflow: string | null = null;
 
     function isNativeFullscreenSupported(): boolean {
       if (typeof document === "undefined") return false;
-      // iOS WebKit on iPhone and iPod does not support Fullscreen API on standard DOM elements
-      if (typeof navigator !== "undefined" && /iPhone|iPod/i.test(navigator.userAgent)) {
+      // iOS WebKit on iPhone, iPad, and iPod does not support Fullscreen API on standard DOM elements
+      if (
+        typeof navigator !== "undefined" &&
+        (/iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+          (navigator.platform === "MacIntel" && (navigator.maxTouchPoints || 0) > 1))
+      ) {
         return false;
       }
       return Boolean(
@@ -2227,23 +2352,37 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
       button.setAttribute("aria-pressed", isFull ? "true" : "false");
       button.title = isFull ? "Exit fullscreen" : "Toggle fullscreen view";
-      button.innerHTML = isFull ? `${ICONS.fullscreen}<span class="markdy-btn-label">Exit</span>` : `${ICONS.fullscreen}<span class="markdy-btn-label">Full</span>`;
+      button.innerHTML = isFull
+        ? `${ICONS.fullscreenExit}<span class="markdy-btn-label">Exit</span>`
+        : `${ICONS.fullscreen}<span class="markdy-btn-label">Full</span>`;
 
       if (isFull) {
         host.classList.add("markdy-fullscreen-host");
         if (isPseudoFull) {
           host.classList.add("markdy--pseudo-fullscreen");
-          if (typeof document !== "undefined" && document.body && originalBodyOverflow === null) {
-            originalBodyOverflow = document.body.style.overflow;
-            document.body.style.overflow = "hidden";
+          if (typeof document !== "undefined") {
+            if (document.documentElement && originalHtmlOverflow === null) {
+              originalHtmlOverflow = document.documentElement.style.overflow;
+              document.documentElement.style.overflow = "hidden";
+            }
+            if (document.body && originalBodyOverflow === null) {
+              originalBodyOverflow = document.body.style.overflow;
+              document.body.style.overflow = "hidden";
+            }
           }
         }
       } else {
         host.classList.remove("markdy-fullscreen-host");
         host.classList.remove("markdy--pseudo-fullscreen");
-        if (typeof document !== "undefined" && document.body && originalBodyOverflow !== null) {
-          document.body.style.overflow = originalBodyOverflow;
-          originalBodyOverflow = null;
+        if (typeof document !== "undefined") {
+          if (document.documentElement && originalHtmlOverflow !== null) {
+            document.documentElement.style.overflow = originalHtmlOverflow;
+            originalHtmlOverflow = null;
+          }
+          if (document.body && originalBodyOverflow !== null) {
+            document.body.style.overflow = originalBodyOverflow;
+            originalBodyOverflow = null;
+          }
         }
       }
 
@@ -2375,9 +2514,15 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       document.removeEventListener("mozfullscreenchange", syncFullscreenState);
       document.removeEventListener("MSFullscreenChange", syncFullscreenState);
       window.removeEventListener("keydown", handleEscKey);
-      if (originalBodyOverflow !== null && typeof document !== "undefined" && document.body) {
-        document.body.style.overflow = originalBodyOverflow;
-        originalBodyOverflow = null;
+      if (typeof document !== "undefined") {
+        if (originalHtmlOverflow !== null && document.documentElement) {
+          document.documentElement.style.overflow = originalHtmlOverflow;
+          originalHtmlOverflow = null;
+        }
+        if (originalBodyOverflow !== null && document.body) {
+          document.body.style.overflow = originalBodyOverflow;
+          originalBodyOverflow = null;
+        }
       }
       if (isPseudoFull) {
         isPseudoFull = false;
@@ -2433,6 +2578,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       display: "flex",
       alignItems: "center",
       justifyContent: "flex-start",
+      width: "100%",
       maxWidth: "100%",
       border: "0",
       borderRadius: "0",
@@ -2459,6 +2605,10 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       toolbar.addEventListener(eventName, (event) => event.stopPropagation());
     }
 
+    if (seekBar) {
+      mountScrubber(toolbar);
+    }
+
     // 1. Playback Group
     const playbackGroup = document.createElement("div");
     playbackGroup.className = "markdy-controls-group markdy-controls-playback";
@@ -2466,17 +2616,23 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     mountBeatNavControls(playbackGroup, "prev");
     mountBeatNavControls(playbackGroup, "next");
     mountRestartControl(playbackGroup);
-    if (playbackGroup.children.length > 0) toolbar.appendChild(playbackGroup);
 
-    // 2. Timeline Group
-    if (seekBar) {
-      const timelineGroup = document.createElement("div");
-      timelineGroup.className = "markdy-controls-group markdy-controls-timeline";
-      mountSeekControl(timelineGroup);
-      toolbar.appendChild(timelineGroup);
+    controlsTimeEl = document.createElement("span");
+    controlsTimeEl.className = "markdy-control-time";
+    controlsTimeEl.textContent = `${(sceneMs / 1000).toFixed(1)}s / ${durationSeconds.toFixed(1)}s`;
+    playbackGroup.appendChild(controlsTimeEl);
+
+    if (plan.beats.length > 1) {
+      controlsBeatChip = document.createElement("span");
+      controlsBeatChip.className = "markdy-player-beat-chip";
+      const firstBeat = plan.beats[0];
+      controlsBeatChip.textContent = firstBeat.label ? `1. ${firstBeat.label}` : "Beat 1";
+      playbackGroup.appendChild(controlsBeatChip);
     }
 
-    // 3. Tools Group
+    if (playbackGroup.children.length > 0) toolbar.appendChild(playbackGroup);
+
+    // 2. Tools Group
     const toolsGroup = document.createElement("div");
     toolsGroup.className = "markdy-controls-group markdy-controls-tools";
 
