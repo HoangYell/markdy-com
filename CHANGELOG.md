@@ -5,6 +5,16 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.12] — 2026-09-13
+
+### Fixed & Enhanced
+- **🎬 Default Full Embedded Player in `<Markdy />` (`@markdy/astro`, `@markdy/core`)**:
+  - **Embedded Player by Default**: Enabled `controls: true` by default in `<Markdy />` Astro component props and client hydration. Every embedded diagram across blogs and documentation now out-of-the-box renders the interactive footer player (edge-to-edge timeline scrubber, play/pause, time counter, beat stepping, speed pills, and fullscreen toggle).
+  - **Beat Chapter Navigation**: Updated `prevBeat` and `nextBeat` control resolution in `@markdy/core` to respect `hostControlDefault`, enabling seamless beat stepper navigation on multi-beat scenes.
+- **📱 Bullet-Proof Pseudo-Fullscreen & iOS WebKit CSS Selector Invalidation Fix (`@markdy/renderer-dom`)**:
+  - **CSS Selector Invalidation Resolution**: Resolved a subtle CSS parser behavior where grouping vendor-prefixed selectors (`:-moz-full-screen`, `:-ms-fullscreen`) in the same comma-separated selector list caused WebKit (iOS Safari) and Blink (Chrome) to discard the entire `.markdy--pseudo-fullscreen` rule block according to CSS specs.
+  - **Dedicated Standard Rule Blocks**: Separated standard classes (`.markdy-fullscreen-host`, `.markdy--pseudo-fullscreen`, `:fullscreen`) into dedicated, vendor-independent rule blocks, guaranteeing that `position: fixed !important; inset: 0 !important; height: 100dvh !important; width: 100dvw !important;` and iOS safe area insets apply with 100% reliability on iPhone and iPad.
+
 ## [1.4.11] — 2026-09-13
 
 ### Changed & Enhanced

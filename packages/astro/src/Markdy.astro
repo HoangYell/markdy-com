@@ -52,7 +52,7 @@ export interface Props {
   playbackRate?: number;
   /** Host interaction override: true supplies default gestures; false suppresses script gestures. */
   interactiveViewport?: boolean;
-  /** Host controls override: true supplies legacy defaults; false suppresses script controls. */
+  /** Host controls override: true supplies legacy defaults; false suppresses script controls. Defaults to true. */
   controls?: boolean;
   /** Initial fit-all-in-view state. Defaults to true when undeclared. */
   fit?: boolean;
@@ -84,7 +84,7 @@ const {
   progressColor,
   progressBarColor,
   playbackRate,
-  controls,
+  controls = true,
   fit,
   interactiveViewport,
   class: className,
@@ -331,7 +331,7 @@ const codeB64 =
     const controls =
       el.dataset.markdyControls !== undefined
         ? el.dataset.markdyControls === "true"
-        : undefined;
+        : true;
     const fit =
       el.dataset.markdyFit !== undefined
         ? el.dataset.markdyFit === "true"

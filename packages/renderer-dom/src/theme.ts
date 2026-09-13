@@ -944,14 +944,47 @@ export function ensureSceneStyles(doc: Document): void {
   color: #94a3b8 !important;
 }
 /* Fullscreen & Fallback Pseudo-Fullscreen Views */
-.markdy-diagram-root:fullscreen,
-.markdy-diagram-root:-webkit-full-screen,
-.markdy-diagram-root:-moz-full-screen,
-.markdy-diagram-root:-ms-fullscreen,
-.markdy-viewport:fullscreen,
-.markdy-viewport:-webkit-full-screen,
 .markdy-fullscreen-host,
-.markdy--pseudo-fullscreen {
+.markdy--pseudo-fullscreen,
+.markdy-diagram-root:fullscreen,
+.markdy-viewport:fullscreen {
+  position: fixed !important;
+  inset: 0 !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  aspect-ratio: auto !important;
+  transform: none !important;
+  z-index: 999999 !important;
+  width: 100vw !important;
+  width: 100dvw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  max-width: 100vw !important;
+  max-width: 100dvw !important;
+  max-height: 100vh !important;
+  max-height: 100dvh !important;
+  background-color: var(--md-canvas, #0b101b) !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding-top: max(8px, env(safe-area-inset-top, 0px)) !important;
+  padding-left: max(8px, env(safe-area-inset-left, 0px)) !important;
+  padding-right: max(8px, env(safe-area-inset-right, 0px)) !important;
+  padding-bottom: 0 !important;
+  overflow: hidden !important;
+  touch-action: pan-x pan-y !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+.markdy-diagram-root:-webkit-full-screen,
+.markdy-viewport:-webkit-full-screen {
   position: fixed !important;
   inset: 0 !important;
   top: 0 !important;
@@ -997,12 +1030,9 @@ export function ensureSceneStyles(doc: Document): void {
   justify-content: space-between !important;
   align-items: center !important;
 }
-.markdy-diagram-root:fullscreen .markdy-viewport,
-.markdy-diagram-root:-webkit-full-screen .markdy-viewport,
-.markdy-diagram-root:-moz-full-screen .markdy-viewport,
-.markdy-diagram-root:-ms-fullscreen .markdy-viewport,
 .markdy-fullscreen-host .markdy-viewport,
-.markdy--pseudo-fullscreen .markdy-viewport {
+.markdy--pseudo-fullscreen .markdy-viewport,
+.markdy-diagram-root:fullscreen .markdy-viewport {
   flex: 1 1 auto !important;
   width: 100% !important;
   height: 100% !important;
@@ -1014,12 +1044,29 @@ export function ensureSceneStyles(doc: Document): void {
   align-items: center !important;
   justify-content: center !important;
 }
-.markdy-diagram-root:fullscreen .markdy-footer,
-.markdy-diagram-root:-webkit-full-screen .markdy-footer,
-.markdy-diagram-root:-moz-full-screen .markdy-footer,
-.markdy-diagram-root:-ms-fullscreen .markdy-footer,
+.markdy-diagram-root:-webkit-full-screen .markdy-viewport {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: calc(100vh - 54px) !important;
+  max-height: calc(100dvh - 54px) !important;
+  aspect-ratio: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
 .markdy-fullscreen-host .markdy-footer,
-.markdy--pseudo-fullscreen .markdy-footer {
+.markdy--pseudo-fullscreen .markdy-footer,
+.markdy-diagram-root:fullscreen .markdy-footer {
+  flex-shrink: 0 !important;
+  width: 100% !important;
+  max-width: 1400px !important;
+  margin: 0 auto !important;
+  padding: 6px 12px max(12px, env(safe-area-inset-bottom, 12px)) !important;
+  box-sizing: border-box !important;
+}
+.markdy-diagram-root:-webkit-full-screen .markdy-footer {
   flex-shrink: 0 !important;
   width: 100% !important;
   max-width: 1400px !important;
