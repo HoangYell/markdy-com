@@ -132,7 +132,7 @@ beat flow:
     expect(plan.meta.height % 16).toBe(0);
 
     for (const node of plan.nodes) {
-      expect(node.y).toBeGreaterThanOrEqual(84);
+      expect(node.y).toBeGreaterThanOrEqual(48);
       expect(node.y + node.height).toBeLessThanOrEqual(plan.meta.height - 48);
     }
   });

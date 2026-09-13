@@ -5,6 +5,16 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.9] — 2026-09-13
+
+### Fixed & Enhanced
+- **📐 Compact Framing, Zero-Void Bounding Box & Tight Responsive Margins (`@markdy/core`, `@markdy/renderer-dom`)**:
+  - **Eliminated Artificial Canvas Whitespace**: Removed the artificial `plan.meta.width / 2` floor in `computeSymmetricContentSpan`. The symmetric content span now snugly wraps the actual visual elements, preventing scenes with large canvas headers (e.g. `width=860`) from forcing massive 119px/64px side voids.
+  - **Balanced, Compact Container Margins**: Refined responsive `targetRatio` to `0.95` on mobile (tight 8–12px side clearance for maximum readability) and `0.90` on desktop (balanced, modern 30–36px breathing room, eliminating >180px of empty side void).
+  - **Accurate Natural Height & Unconstrained Flow**: Aligned `naturalHeight` in `scaleScene` with `symmetricContentW`, ensuring unconstrained flow containers (e.g. blog posts and doc pages) are correctly recognized as `resolvedFit = "width"` rather than falsely falling into letterboxed `"contain"` mode.
+  - **Eliminated Phantom Beat Caption Letterboxing**: In `computeDiagramContentBounds`, removed `maxY = Math.max(maxY, plan.meta.height - 18)` which previously forced diagram height to canvas bounds and added >140px of bottom void. Replaced with compact 36px pill clearance.
+  - **Zero Phantom Title Spacing in Core**: In vertical layout (`TB`), removed hardcoded `TITLE_BAND = 84` when no scene title is declared, reclaiming 84px of top void and centering nodes cleanly within their allocated canvas.
+
 ## [1.4.8] — 2026-09-13
 
 ### Fixed & Enhanced
