@@ -718,5 +718,80 @@ beat main:
       diagram.destroy();
     });
   });
+
+  describe("Symmetric Visual Centering & Ambient Framing", () => {
+    it("centers the diagram design spine dead-center even with an asymmetric loop edge on one side", () => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+
+      Object.defineProperty(container, "clientWidth", { value: 670, configurable: true });
+      Object.defineProperty(container, "clientHeight", { value: 0, configurable: true });
+
+      const code = `
+scene type=architecture direction=TB
+  group loop: idea exp vis write rev
+  service idea "1. Sinh ý tưởng"
+  service exp "2. Thực thi thử nghiệm"
+  service vis "3. Trực quan hoá"
+  service write "4. Viết bài báo"
+  service rev "5. Đánh giá tự động"
+  beat flow:
+    idea -> exp
+    exp -> vis
+    vis -> write
+    write -> rev
+    rev -> idea "Ảo tưởng 100% accurate"
+`;
+      const diagram = createDiagram({
+        container,
+        code,
+      });
+
+      const scene = container.querySelector<HTMLElement>(".markdy-scene-root")!;
+      const plan = (container as any).__markdyPlan;
+      const fitScale = parseFloat(scene.style.getPropertyValue("--markdy-scale"));
+      const sceneLeft = parseFloat(scene.style.left);
+
+      // The canvas center axis (plan.meta.width / 2) MUST be exactly at containerWidth / 2 (335px)
+      const canvasCenterX = plan.meta.width / 2;
+      const centerInContainer = sceneLeft + canvasCenterX * fitScale;
+      expect(Math.abs(centerInContainer - 670 / 2)).toBeLessThan(1.0);
+
+      diagram.destroy();
+    });
+
+    it("balances top and bottom margins when scaled content fits within the viewport height", () => {
+      const container = document.createElement("div");
+      document.body.appendChild(container);
+
+      Object.defineProperty(container, "clientWidth", { value: 600, configurable: true });
+      Object.defineProperty(container, "clientHeight", { value: 800, configurable: true });
+
+      const code = `
+scene type=architecture direction=TB
+  service A
+  service B
+  beat flow:
+    A -> B
+`;
+      const diagram = createDiagram({
+        container,
+        code,
+        fitMode: "auto",
+      });
+
+      const scene = container.querySelector<HTMLElement>(".markdy-scene-root")!;
+      const plan = (container as any).__markdyPlan;
+      const bounds = computeDiagramContentBounds(plan);
+      const fitScale = parseFloat(scene.style.getPropertyValue("--markdy-scale"));
+      const sceneTop = parseFloat(scene.style.top);
+
+      const topMargin = sceneTop + bounds.minY * fitScale;
+      const bottomMargin = 800 - (sceneTop + bounds.maxY * fitScale);
+      expect(Math.abs(topMargin - bottomMargin)).toBeLessThan(1.0);
+
+      diagram.destroy();
+    });
+  });
 });
 
