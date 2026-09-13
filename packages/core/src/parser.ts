@@ -866,6 +866,7 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
     explicitTheme: false,
     direction: "LR",
     explicitDirection: false,
+    layoutMode: "auto",
   };
   const styles: Record<string, StyleDecl> = {};
   const nodes: Record<string, NodeDecl> = {};

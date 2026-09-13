@@ -5,6 +5,17 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.6] — 2026-09-13
+
+### Fixed & Enhanced
+- **📱 Mobile-First Adaptive Portrait Flow & Bold Orientation Scoring (`@markdy/core`, `@markdy/renderer-dom`, `website`)**:
+  - **Undeclared `layoutMode` defaults to `"auto"`**: When diagrams do not explicitly declare `layout LR` or `direction TB`, `layoutMode` now automatically defaults to `"auto"` with `explicitDirection: false`, enabling full responsive adaptability across all unconstrained scenes.
+  - **Genuine Mobile Phone Screen Prioritization**: In `@markdy/renderer-dom`, viewports with width $\le 440\text{px}$ (all mobile phones) strictly prioritize portrait flow (`TB`), preventing multi-rank horizontal diagrams from crushing into unreadable microscopic scale (<0.20).
+  - **Unblocked Orientation Scoring in Constrained Cards**: Removed overly conservative locks in `scaleScene()` that prevented portrait switching in fixed/aspect-ratio cards where $W / H \ge 1.0$. If a diagram in landscape is unreadably crushed (width scale $< 0.65$) while portrait fits comfortably ($\ge 0.70$), it now cleanly adapts to portrait.
+  - **Dynamic Dimension Recalculation on Re-layout**: `layoutForDirection()` now clears explicit scene dimensions whenever orientation is being adapted, ensuring vertical layouts calculate appropriate height and width bounds instead of carrying over landscape presets.
+  - **Clean Hysteresis**: Added a $1.25\times$ fit margin between portrait and landscape switching to completely eliminate any potential layout oscillation loops.
+  - **Examples Gallery & Card Sizing**: Removed hardcoded `aspect-ratio: auto !important` overrides in the gallery, allowing diagrams to preserve their native aspect ratios. Enhanced mobile card frames with $4:3$ aspect ratio ($280\text{px}$ minimum height) for superior vertical diagram readability.
+
 ## [1.4.5] — 2026-09-13
 
 ### Fixed & Enhanced

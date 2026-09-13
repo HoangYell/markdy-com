@@ -65,6 +65,7 @@
     "explicitTheme": true,
     "fps": 60,
     "height": 720,
+    "layoutMode": "auto",
     "theme": "midnight",
     "width": 1280
   },
