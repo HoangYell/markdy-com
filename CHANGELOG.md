@@ -5,6 +5,20 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.11] — 2026-09-13
+
+### Changed & Enhanced
+- **🎬 Real Embedded Footer Player (`@markdy/renderer-dom`, `website`)**:
+  - **Edge-to-Edge Scrubber Track**: Mounted interactive progress scrubber across the top edge of the footer controls toolbar with smooth hover expansion (3px → 5px), circular thumb handle, hover timestamp tooltip, and beat chapter ticks.
+  - **Single-Row Controls Toolbar**: Cleanly grouped Play/Pause, Rewind/Restart, Prev/Next beat, Tabular timestamp readout (`0.0s / 12.0s`), Active Beat Chip badge, compact Segmented Speed controls, Fit view toggle, Reset view, Fullscreen toggle, and "Powered by Markdy" badge.
+  - **De-cluttered Playground Head**: Removed duplicate custom playback buttons in playground canvas header, natively delegating to Markdy's built-in embedded footer player.
+- **📱 Hardened iPhone & iOS WebKit Fullscreen Support (`@markdy/renderer-dom`)**:
+  - **Robust iOS Detection**: Detects all iOS devices (iPhone, iPad, iPod, and iPadOS on MacIntel with touch points) where native DOM element `requestFullscreen` is unsupported, smoothly activating pseudo-fullscreen without errors.
+  - **Zero-Margin Viewport Fit**: Overrides container margins, borders, border-radii, and `aspect-ratio` inline styles to `margin: 0 !important; border: none !important; border-radius: 0 !important; aspect-ratio: auto !important; height: 100dvh !important; width: 100dvw !important;`.
+  - **Safe Area Inset Respect**: Appropriately applies `env(safe-area-inset-top)` and `env(safe-area-inset-bottom)` to prevent content or controls from overlapping iPhone notches, Dynamic Island, or the home indicator bar.
+  - **Dual Scroll Lock**: Locks both `document.body` and `document.documentElement` overflow to `hidden` while active, properly restoring on exit or Escape.
+  - **Responsive Exit Icon**: Toggles between outward expand icon and Lucide-standard collapse/shrink icon (`fullscreenExit`) for clear visual feedback on mobile.
+
 ## [1.4.10] — 2026-09-13
 
 ### Fixed & Enhanced
