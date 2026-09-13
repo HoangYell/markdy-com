@@ -5,6 +5,13 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.18] — 2026-09-13
+
+### Fixed & Enhanced
+- **🌓 Host Background Lightness Detection & Modern CSS Color Functions (`@markdy/renderer-dom`)**:
+  - **Clean Host Element Boundary**: Updated host background luminance inspection to evaluate `container.parentElement` rather than the diagram container itself, preventing the diagram from misreading its own rendered canvas background during dynamic theme synchronization.
+  - **Modern Color Support**: Enhanced `isDarkBgColor` to natively support `oklch(...)` and `oklab(...)` color formats used by Tailwind CSS 4 and modern frontend frameworks.
+
 ## [1.4.17] — 2026-09-13
 
 ### Added & Enhanced
