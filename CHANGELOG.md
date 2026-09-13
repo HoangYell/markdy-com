@@ -5,6 +5,20 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] — 2026-09-13
+
+### Changed & Enhanced
+- **📐 Linear/Apple Clean Footer Symmetrical Layout (`@markdy/renderer-dom`)**:
+  - **Left-Aligned Controls Toolbar**: Switched `.markdy-controls` to `display: inline-flex; width: auto; justify-content: flex-start;` and removed legacy `margin-left: auto` from `.markdy-controls-tools`. All controls (`interact`, `speed`, `fullscreen`, `gif`, `theme`) now group tightly on the far left of the footer.
+  - **Opposing Symmetrical Badge Placement**: Preserved `margin-left: auto` on `.markdy-badge` inside the flexbox footer, ensuring all tool controls sit pinned on the far left, balanced symmetrically against the attribution badge on the far right.
+- **✨ Enhanced "Powered by Markdy" Typography & Whitespace Spacing (`@markdy/renderer-dom`)**:
+  - **Dedicated Brand Span & Whitespace Protection**: Wrapped the attribution in `<span class="markdy-badge-prefix">Powered by</span> <span class="markdy-badge-brand">Markdy</span>` with explicit `gap: 4px` in `.markdy-badge`, preventing flexbox anonymous text node whitespace collapse.
+  - **Refined Contrast Hierarchy**: Styled `"Powered by"` with muted opacity (`0.85`, `font-weight: 400`, `letter-spacing: 0.02em`) and `"Markdy"` with semi-bold contrast (`font-weight: 600`, `letter-spacing: 0.03em`) across both light and dark themes.
+  - **Touch-Friendly Padding**: Added subtle `padding: 3px 6px; border-radius: 5px;` with gentle hover highlight for a crisp, tactile feel.
+- **🏛️ Standardized Canonical Player Configuration Across All 66 Examples (`examples/`, `website/`)**:
+  - Upgraded all 35 showcase blueprints and 31 core examples to the canonical `player:` block featuring always-fit zero-config, `interact true` (touch pan & zoom toggle), `speeds "0.25"`, `fullscreen true`, `gif true`, and `progress none`.
+  - Synchronized Homepage Studio and Playground default snippet templates.
+
 ## [1.4.18] — 2026-09-13
 
 ### Fixed & Enhanced
