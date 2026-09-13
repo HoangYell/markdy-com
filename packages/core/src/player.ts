@@ -325,7 +325,7 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     resetView: resolveControl(configuredControls.resetView),
     fullscreen: resolveControl(configuredControls.fullscreen),
     svg: resolveControl(configuredControls.svg),
-    gif: resolveControl(configuredControls.gif, false),
+    gif: resolveControl(configuredControls.gif),
     share: resolveControl(configuredControls.share),
     code: resolveControl(configuredControls.code, false),
     theme: resolveControl(configuredControls.theme, hostControlDefault),

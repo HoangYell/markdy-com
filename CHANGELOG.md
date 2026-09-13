@@ -5,6 +5,14 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.15] — 2026-09-13
+
+### Fixed & Enhanced
+- **🎞️ First-Class Animated GIF Export & Restored "Powered by Markdy" Badge (`@markdy/core`, `@markdy/renderer-dom`, `docs`)**:
+  - **First-Class GIF Export**: Promoted `gif` export button to be enabled by default alongside `svg` whenever diagram controls are active (`gif: resolveControl(configuredControls.gif)`). Added direct one-click animated GIF export with frame capture and optimized LZW encoder.
+  - **Uncompromised "Powered by Markdy" Attribution**: Completely restored the full `"Powered by Markdy"` badge across all viewports and mobile container queries. Now that heavy playback controls and beat chips have been removed, the toolbar fits with generous breathing room on mobile ($\ge 360\text{px}$) with zero horizontal overflow.
+  - **Mobile Icon Controls**: Maintained compact 25px icon-only buttons for export tools (`svg`, `gif`, `theme`) on mobile screens without hiding essential diagram utilities.
+
 ## [1.4.14] — 2026-09-13
 
 ### Removed & Streamlined
