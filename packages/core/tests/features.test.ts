@@ -13,6 +13,7 @@ import {
   resolveOutputPreset,
   listOutputPresets,
   resolveTheme,
+  resolvePlayer,
 } from "../src/index.js";
 
 describe("@markdy/core: Architecture Governance Linter", () => {
@@ -258,5 +259,11 @@ describe("@markdy/core: Algorithmic Brand Theme Generator", () => {
     const ast = parse(code);
     expect(ast.meta.player?.controls?.gif).toBe(true);
     expect(ast.meta.player?.controls?.svg).toBe(false);
+  });
+
+  it("defaults gif control to true when controls are enabled", () => {
+    const player = resolvePlayer({ controls: {} }, { controls: true });
+    expect(player.controls.gif).toBe(true);
+    expect(player.controls.svg).toBe(true);
   });
 });

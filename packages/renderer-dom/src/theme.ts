@@ -489,10 +489,6 @@ export function ensureSceneStyles(doc: Document): void {
     min-width: 25px !important;
     justify-content: center !important;
   }
-  .markdy-controls-secondary,
-  .markdy-control-divider-secondary {
-    display: none !important;
-  }
   .markdy-speed-group {
     display: none !important;
   }
@@ -504,19 +500,13 @@ export function ensureSceneStyles(doc: Document): void {
   }
   .markdy-badge {
     font-size: 9px !important;
-    opacity: 0.55;
-  }
-  .markdy-badge-prefix {
-    display: none !important;
-  }
-}
-@media (max-width: 440px) {
-  .markdy-badge {
-    display: none !important;
+    opacity: 0.7;
   }
 }
 @media (max-width: 360px) {
-  .markdy-control-reset {
+  .markdy-control-reset-view,
+  .markdy-control-share,
+  .markdy-control-code {
     display: none !important;
   }
 }
@@ -531,27 +521,21 @@ export function ensureSceneStyles(doc: Document): void {
     min-width: 25px !important;
     justify-content: center !important;
   }
-  .markdy-controls-secondary,
-  .markdy-control-divider-secondary {
-    display: none !important;
-  }
   .markdy-speed-group {
     display: none !important;
   }
   .markdy-controls {
     gap: 4px !important;
   }
-  .markdy-badge-prefix {
-    display: none !important;
-  }
-}
-@container markdy-root (max-width: 440px) {
   .markdy-badge {
-    display: none !important;
+    font-size: 9px !important;
+    opacity: 0.7;
   }
 }
 @container markdy-root (max-width: 360px) {
-  .markdy-control-reset {
+  .markdy-control-reset-view,
+  .markdy-control-share,
+  .markdy-control-code {
     display: none !important;
   }
 }

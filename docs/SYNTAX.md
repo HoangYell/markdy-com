@@ -2,7 +2,7 @@
 
 > ### SPECIFICATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.4.14
+> - **Current Version**: v1.4.15
 > - **Specification Version**: 1.4.x
 > - **Last Updated**: 2026-09-13
 > - **Documentation Hub**: <https://markdy.com/docs/>
@@ -80,7 +80,7 @@ The subtle "Powered by Markdy" link remains visible at the right edge of the foo
 
 `keyboard` is the one affordance that stays **off** unless you ask for it, because it listens on the window and captures space and arrow keys: <kbd>←</kbd>/<kbd>→</kbd> step beats, <kbd>Space</kbd> toggles playback, and <kbd>Home</kbd> restarts.
 
-`svg` downloads the settled final frame as vector SVG. `share` copies a compressed share link; hosts can point it at their own editor with the renderer's `shareUrl` option, and it defaults to the Markdy playground. `code` opens a dialog displaying the raw MarkdyScript source code with syntax tinting and copy button.
+`svg` downloads the settled final frame as vector SVG. `gif` exports the animated scene as an optimized GIF recording. `share` copies a compressed share link; hosts can point it at their own editor with the renderer's `shareUrl` option, and it defaults to the Markdy playground. `code` opens a dialog displaying the raw MarkdyScript source code with syntax tinting and copy button.
 
 Settings accept camel case or snake case, and `key value`, `key: value`, or `key = value`. Omitted renderer, Astro, or MDX props preserve script configuration; host `false` gates controls or interaction, while host `true` supplies legacy defaults for unset leaves. Legacy top-level directives, flat `player:` keys, and inline scene properties such as `controls true`, `interactive true`, `speed 1.5`, and `scene autoplay=false` are normalized into the same groups.
 
