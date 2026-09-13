@@ -907,9 +907,14 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     badge.rel = "noopener noreferrer";
     const badgePrefix = document.createElement("span");
     badgePrefix.className = "markdy-badge-prefix";
-    badgePrefix.textContent = "Powered by ";
+    badgePrefix.textContent = "Powered by";
     badge.appendChild(badgePrefix);
-    badge.appendChild(document.createTextNode("Markdy"));
+    const space = document.createTextNode(" ");
+    badge.appendChild(space);
+    const badgeBrand = document.createElement("span");
+    badgeBrand.className = "markdy-badge-brand";
+    badgeBrand.textContent = "Markdy";
+    badge.appendChild(badgeBrand);
     ensureFooter().appendChild(badge);
     const badgeLink = badge;
     void compressMarkdyToUrlHash(code)
@@ -2953,10 +2958,10 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     toolbar.setAttribute("aria-label", "Diagram controls");
     Object.assign(toolbar.style, {
       position: "relative",
-      display: "flex",
+      display: "inline-flex",
       alignItems: "center",
       justifyContent: "flex-start",
-      width: "100%",
+      width: "auto",
       maxWidth: "100%",
       border: "0",
       borderRadius: "0",
