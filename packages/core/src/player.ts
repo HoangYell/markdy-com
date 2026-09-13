@@ -354,8 +354,8 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
   const requestedControls = {
     play: resolveControl(configuredControls.play),
     restart: resolveControl(configuredControls.restart),
-    prevBeat: resolveControl(configuredControls.prevBeat, false),
-    nextBeat: resolveControl(configuredControls.nextBeat, false),
+    prevBeat: resolveControl(configuredControls.prevBeat, hostControlDefault),
+    nextBeat: resolveControl(configuredControls.nextBeat, hostControlDefault),
     seek: resolveControl(configuredControls.seek),
     speed: resolveControl(configuredControls.speed),
     fit: resolveControl(configuredControls.fit),
