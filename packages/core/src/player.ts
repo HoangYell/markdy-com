@@ -355,7 +355,7 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     seek: resolveControl(configuredControls.seek, false),
     speed: resolveControl(configuredControls.speed),
     fit: controlsActive && configuredControls.fit !== false,
-    interact: controlsActive && interactExplicit !== false,
+    interact: resolveControl(interactExplicit),
     resetView: resolveControl(configuredControls.resetView),
     fullscreen: resolveControl(configuredControls.fullscreen),
     svg: resolveControl(configuredControls.svg),

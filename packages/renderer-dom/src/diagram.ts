@@ -1458,11 +1458,17 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     Boolean(plan.meta.player?.interaction?.pan) ||
     Boolean(plan.meta.player?.interaction?.zoom) ||
     Boolean((plan.meta.player?.interaction as any)?.enabled);
+  const hasInteractControl =
+    showControls &&
+    (interactButton ?? fitViewButton) !== false &&
+    (Boolean(interactButton) || Boolean(fitViewButton));
   const explicitInteract = defaultInteract ?? explicitInteractOption;
   let interactActive =
     explicitInteract !== undefined
       ? Boolean(explicitInteract)
-      : hasAuthorInteraction || Boolean(explicitInteractiveViewport);
+      : hasInteractControl
+        ? false
+        : hasAuthorInteraction || Boolean(explicitInteractiveViewport);
 
   const ICONS = {
     play: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
