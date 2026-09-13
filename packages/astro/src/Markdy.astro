@@ -91,7 +91,7 @@ const {
   code,
   width = 800,
   height = 400,
-  bg = "white",
+  bg,
   assets = {},
   autoplay,
   loop,
@@ -163,7 +163,7 @@ const codeB64 =
   role="img"
   aria-label={title}
   aria-busy="true"
-  style={`max-width:${width}px;width:100%;aspect-ratio:${width}/${height};overflow:hidden;border-radius:12px;border:1px solid var(--md-card-border, rgba(148, 163, 184, 0.22));margin:2rem 0;box-sizing:border-box;background:var(--md-canvas, ${bg})`}
+  style={`max-width:${width}px;width:100%;aspect-ratio:${width}/${height};overflow:hidden;border-radius:12px;border:1px solid var(--md-card-border, rgba(148, 163, 184, 0.22));margin:2rem 0;box-sizing:border-box;background:var(--md-canvas, ${bg ?? "transparent"})`}
 >
   <!--
     SSR placeholder: keeps layout stable before the island hydrates.
@@ -174,7 +174,7 @@ const codeB64 =
     class="markdy-placeholder"
     type="button"
     aria-label={`Play ${title}`}
-    style={`width:100%;height:100%;background:${bg};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:none;padding:0;outline:none`}
+    style={`width:100%;height:100%;background:${bg ?? "var(--md-canvas, transparent)"};display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;border:none;padding:0;outline:none`}
   >
     <div
       style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:9999px;background:rgba(15,23,42,0.04);border:1px solid rgba(148,163,184,0.2);color:#64748b;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:11px;font-weight:500;letter-spacing:0.02em;pointer-events:none;box-shadow:0 1px 2px rgba(0,0,0,0.02)"

@@ -1,6 +1,6 @@
 {
   "name": "@markdy/renderer-dom",
-  "version": "1.4.22",
+  "version": "1.4.23",
   "description": "Browser renderer for diagram-native animated MarkdyScript architecture diagrams, built on the Web Animations API.",
   "license": "MIT",
   "type": "module",
@@ -51,7 +51,7 @@
     "harness": "pnpm --filter @markdy/core run build && pnpm run build && node harness/serve.mjs"
   },
   "dependencies": {
-    "@markdy/core": "1.4.22",
+    "@markdy/core": "^1.4.23",
     "html2canvas": "^1.4.1"
   },
   "devDependencies": {

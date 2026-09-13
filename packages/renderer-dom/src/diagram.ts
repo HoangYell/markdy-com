@@ -650,14 +650,28 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     if (!ast.meta.explicitHeight) ast.meta.height = dims.height;
   }
 
-  // If the script did NOT explicitly specify a theme (or specified theme=auto), follow host theme!
-  const hasExplicitTheme = Boolean(ast.meta.explicitTheme === true && ast.meta.theme !== "auto");
   const optionsDefaultLight = defaultThemes?.light ?? defaultLightTheme;
   const optionsDefaultDark = defaultThemes?.dark ?? defaultDarkTheme;
   const explicitDefaults: DefaultThemesConfig = {
     light: ast.meta.defaultThemes?.light ?? optionsDefaultLight,
     dark: ast.meta.defaultThemes?.dark ?? optionsDefaultDark,
   };
+  const hasScriptDualThemes = Boolean(ast.meta.defaultThemes?.light || ast.meta.defaultThemes?.dark);
+  const hasOptionsDualThemes = Boolean(explicitDefaults.light || explicitDefaults.dark);
+  const win = typeof window !== "undefined" ? (window as any) : null;
+  const hasGlobalDualThemes = Boolean(
+    win &&
+    Boolean(win.__MARKDY_DEFAULT_THEMES__?.light || win.__MARKDY_DEFAULT_THEMES__?.dark)
+  );
+  // If dual themes (light/dark pairing) are configured (via script directive, component props,
+  // or window.__MARKDY_DEFAULT_THEMES__), the diagram must dynamically sync with host light/dark mode!
+  const hasExplicitTheme = Boolean(
+    ast.meta.explicitTheme === true &&
+    ast.meta.theme !== "auto" &&
+    !hasScriptDualThemes &&
+    !hasOptionsDualThemes &&
+    !hasGlobalDualThemes
+  );
   const initialTheme = hasExplicitTheme ? ast.meta.theme : detectHostTheme(container, explicitDefaults);
   const plan = compilePlan(ast, resolveTheme(initialTheme));
 
@@ -1695,6 +1709,10 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       applyThemeVariables(container, newTheme);
       container.style.background = newTheme.canvas;
       container.style.color = newTheme.text;
+      if (container.parentElement && container.parentElement.classList.contains("markdy-root")) {
+        container.parentElement.style.background = newTheme.canvas;
+        applyThemeVariables(container.parentElement, newTheme);
+      }
 
       // 1. Viewport variables & canvas background
       applyThemeVariables(viewport, newTheme);
