@@ -384,7 +384,7 @@ export function computeDiagramContentBounds(
 
   const hasBeatCaptions = plan.beats && plan.beats.some((b) => b.label && b.label.trim().length > 0);
   if (hasBeatCaptions) {
-    maxY = Math.max(maxY, plan.meta.height - 18);
+    maxY = Math.max(maxY, maxY + 36);
   }
 
   for (const ann of plan.annotations ?? []) {
@@ -398,7 +398,7 @@ export function computeDiagramContentBounds(
   }
 
   // Safe Breathing Room Padding:
-  // Strip out redundant margins/padding while keeping safe clearance for 32px drop shadows,
+  // Strip out redundant margins/padding while keeping safe clearance for drop shadows,
   // focus glows, group boundaries, and node badges so nothing is clipped by container borders.
   const defaultPad = (plan.groupBoundaries && plan.groupBoundaries.length > 0) ? 28 : 22;
   const pad = options?.padding ?? (options?.tight === false ? 36 : defaultPad);
@@ -434,7 +434,7 @@ export function computeSymmetricContentSpan(
   const canvasCenterX = plan.meta.width / 2;
   const leftSpan = Math.max(0, canvasCenterX - bounds.minX);
   const rightSpan = Math.max(0, bounds.maxX - canvasCenterX);
-  const halfSpanX = Math.max(plan.meta.width / 2, leftSpan, rightSpan);
+  const halfSpanX = Math.max(leftSpan, rightSpan, bounds.width / 2);
   return {
     symmetricContentW: halfSpanX * 2,
     symmetricMinX: canvasCenterX - halfSpanX,
@@ -1079,10 +1079,14 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     }
 
     const vWidth = viewport.clientWidth || container.clientWidth || plan.meta.width;
-    const naturalHeight = (vWidth * contentBounds.height) / contentBounds.width;
+    const initialMeasureBounds = computeContentBounds();
+    const { symmetricContentW: initSymW } = computeSymmetricContentSpan(plan, initialMeasureBounds);
+    const naturalHeight = (vWidth * initialMeasureBounds.height) / initSymW;
     const vHeight = viewport.clientHeight || container.clientHeight || naturalHeight;
-    const resolvedFit = fitViewActive ? "contain" : fitMode === "auto" ? (Math.abs(vHeight - naturalHeight) > 2 ? "contain" : "width") : fitMode;
-    const targetRatio = Math.min(1.0, Math.max(0.90, targetWidthRatio ?? 0.96));
+    const isHeightConstrained = hasInitialHeightConstraint || (vHeight > 0 && Math.abs(vHeight - naturalHeight) > 3);
+    const resolvedFit = fitViewActive ? "contain" : fitMode === "auto" ? (isHeightConstrained ? "contain" : "width") : fitMode;
+    const defaultTargetRatio = vWidth <= 480 ? 0.95 : 0.90;
+    const targetRatio = Math.min(1.0, Math.max(0.85, targetWidthRatio ?? defaultTargetRatio));
 
     const ADAPTABLE_DIAGRAM_TYPES = new Set([
       "architecture",
@@ -1102,7 +1106,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
     if (shouldAdaptOrientation && ADAPTABLE_DIAGRAM_TYPES.has(plan.diagramType)) {
       const detectedOrientation = detectContainerOrientation(activeOrientation);
-      const isHeightConstrained = hasInitialHeightConstraint || (vHeight > 0 && Math.abs(vHeight - naturalHeight) > 2);
       const containerRatio = vWidth / Math.max(1, vHeight);
 
       // When height is constrained and container is landscape-proportioned (e.g. desktop split pane / fixed widget),
@@ -1110,8 +1113,9 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       // In normal unconstrained flow (e.g. blog post / article prose), height expands with aspect-ratio so evaluate true readability.
       let currentOrientation = activeOrientation;
       const score = (orientation: "portrait" | "landscape") => {
-        const { bounds } = layoutForDirection(directionForOrientation(orientation));
-        const widthScale = (vWidth * targetRatio) / bounds.width;
+        const { plan: candPlan, bounds } = layoutForDirection(directionForOrientation(orientation));
+        const { symmetricContentW: candSymW } = computeSymmetricContentSpan(candPlan, bounds);
+        const widthScale = (vWidth * targetRatio) / candSymW;
         const heightScale = isHeightConstrained ? (Math.max(1, vHeight - 24) * targetRatio) / bounds.height : 1;
         return {
           fit: Math.min(1, widthScale, heightScale),
@@ -1169,7 +1173,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
     if (!Number.isFinite(fitScale) || fitScale <= 0) fitScale = 1;
     if (fitMode === "auto" && !fitViewActive) {
-      const minimum = Number.isFinite(minReadableScale) && minReadableScale >= 0 && minReadableScale <= 1 ? minReadableScale : 0.9;
+      const defaultMin = vWidth <= 480 ? 0.75 : 0.85;
+      const minimum = Number.isFinite(minReadableScale) && minReadableScale >= 0 && minReadableScale <= 1 ? minReadableScale : defaultMin;
       fitScale = Math.max(fitScale, minimum);
     }
 

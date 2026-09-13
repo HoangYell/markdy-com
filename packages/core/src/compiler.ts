@@ -475,11 +475,11 @@ function layoutRanked(
 
   if (isVertical) {
     // Vertical top-to-bottom flowchart/rank
-    const contentH = ast.meta.height - SAFE - TITLE_BAND - SAFE;
+    const contentH = Math.max(NODE_H, ast.meta.height - (hasTitle ? titleBand : SAFE) - bottomBand - SAFE);
     const maxNodeH = Math.max(...nodeIds.map((id) => nodeDims.get(id)?.height ?? NODE_H));
     const rowGap = Math.max(maxNodeH + 40, Math.min(200, contentH / Math.max(rankCount, 1)));
     const totalH = (rankCount - 1) * rowGap + maxNodeH;
-    const startY = TITLE_BAND + Math.max(0, (contentH - totalH) / 2);
+    const startY = (hasTitle ? titleBand : SAFE) + Math.max(0, (contentH - totalH) / 2);
 
     for (const [rank, ids] of [...byRank.entries()].sort((a, b) => a[0] - b[0])) {
       const rowCount = ids.length;
