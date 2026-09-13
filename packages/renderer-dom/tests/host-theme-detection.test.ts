@@ -176,17 +176,21 @@ describe("Host Theme Detection & Multi-Framework Embed Compatibility", () => {
       code: `scene "Dynamic Switch"\ntheme: light=doodle dark=nebula\nservice API "API Gateway"`,
     });
     const scene = container.querySelector(".markdy-scene-root") as HTMLElement;
+    const viewport = container.querySelector(".markdy-viewport") as HTMLElement;
     expect(scene.dataset.markdyTheme).toBe("doodle");
+    expect(viewport.dataset.markdyTheme).toBe("doodle");
 
     // Switch host to dark
     document.documentElement.setAttribute("data-theme", "dark");
     await new Promise((resolve) => setTimeout(resolve, 50));
     expect(scene.dataset.markdyTheme).toBe("nebula");
+    expect(viewport.dataset.markdyTheme).toBe("nebula");
 
     // Switch host back to light
     document.documentElement.setAttribute("data-theme", "light");
     await new Promise((resolve) => setTimeout(resolve, 50));
     expect(scene.dataset.markdyTheme).toBe("doodle");
+    expect(viewport.dataset.markdyTheme).toBe("doodle");
     diagram.destroy();
   });
 

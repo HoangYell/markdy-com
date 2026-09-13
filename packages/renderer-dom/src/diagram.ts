@@ -1692,10 +1692,14 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       // 0. Container variables
       applyThemeVariables(container, newTheme);
 
-      // 1. Scene background & variables
+      // 1. Viewport variables & canvas background
+      applyThemeVariables(viewport, newTheme);
+      viewport.style.background = newTheme.canvas;
+
+      // 2. Scene background & variables
       applyThemeToScene(scene, newTheme);
 
-      // 2. Footer variables
+      // 3. Footer variables
       if (footer) {
         applyThemeVariables(footer, newTheme);
       }
