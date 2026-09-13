@@ -2,7 +2,7 @@
   "name": "markdy-vscode",
   "displayName": "Markdy: Animated Architecture Diagrams",
   "description": "Open-source diagram-as-code editor tooling for animated architecture and system diagrams.",
-  "version": "1.4.21",
+  "version": "1.4.22",
   "private": true,
   "publisher": "hoangyell",
   "author": "Hoang Yell <hoangyell@gmail.com> (https://hoangyell.com)",
@@ -487,9 +487,9 @@
   },
   "dependencies": {
     "@markdy/compat": "^1.4.21",
-    "@markdy/core": "^1.4.21",
+    "@markdy/core": "1.4.22",
     "@markdy/language-server": "^1.4.21",
-    "@markdy/renderer-dom": "^1.4.21",
+    "@markdy/renderer-dom": "1.4.22",
     "vscode-languageclient": "^9.0.1",
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-textdocument": "^1.0.12"

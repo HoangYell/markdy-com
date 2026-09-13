@@ -1,6 +1,6 @@
 {
   "name": "@markdy/mdx",
-  "version": "1.4.21",
+  "version": "1.4.22",
   "description": "MDX plugin and lightweight React component for diagram-native animated Markdy diagrams.",
   "license": "MIT",
   "type": "module",
@@ -47,7 +47,7 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
-    "@markdy/renderer-dom": "^1.4.21",
+    "@markdy/renderer-dom": "1.4.22",
     "unist-util-visit": "^5.0.0"
   },
   "peerDependencies": {

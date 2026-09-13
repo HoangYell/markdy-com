@@ -443,7 +443,7 @@ describe("createDiagram integration", () => {
 
     themeBtn!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(switchedTheme).toBeTruthy();
-    expect(["paper", "editorial", "sketchy", "ink", "doodle"]).toContain(sceneRoot.dataset.markdyTheme);
+    expect(["paper", "editorial", "sketchy", "ink", "doodle", "nebula", "midnight", "blueprint", "graphite", "terminal"]).toContain(sceneRoot.dataset.markdyTheme);
 
     diagram.destroy();
     container.remove();
@@ -840,6 +840,7 @@ player:
   controls:
     speed true
     speeds "0.25"
+    fit false
   chrome:
     badge false
 

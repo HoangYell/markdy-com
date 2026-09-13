@@ -74,6 +74,11 @@ const CONTROLS: Record<string, Setting> = {
   reset_view: { group: "controls", key: "resetView", type: "boolean" },
   resetViewButton: { group: "controls", key: "resetView", type: "boolean" },
   reset_view_button: { group: "controls", key: "resetView", type: "boolean" },
+  focus: { group: "controls", key: "resetView", type: "boolean" },
+  focusView: { group: "controls", key: "resetView", type: "boolean" },
+  focus_view: { group: "controls", key: "resetView", type: "boolean" },
+  focusButton: { group: "controls", key: "resetView", type: "boolean" },
+  focus_button: { group: "controls", key: "resetView", type: "boolean" },
   fullscreen: { group: "controls", key: "fullscreen", type: "boolean" },
   fullScreen: { group: "controls", key: "fullscreen", type: "boolean" },
   full_screen: { group: "controls", key: "fullscreen", type: "boolean" },
@@ -158,6 +163,11 @@ const FLAT: Record<string, Setting> = {
   fit_view_button: CONTROLS.fit_view_button,
   resetViewButton: CONTROLS.resetViewButton,
   reset_view_button: CONTROLS.reset_view_button,
+  focus: CONTROLS.focus,
+  focusView: CONTROLS.focusView,
+  focus_view: CONTROLS.focus_view,
+  focusButton: CONTROLS.focusButton,
+  focus_button: CONTROLS.focus_button,
   fullscreen: CONTROLS.fullscreen,
   fullScreen: CONTROLS.fullScreen,
   full_screen: CONTROLS.full_screen,
@@ -306,7 +316,17 @@ export type PlayerOverrides = {
 export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverrides = {}): ResolvedPlayer {
   const playback = config.playback ?? {};
   const overrideControls = typeof overrides.controls === "object" && overrides.controls !== null ? overrides.controls : undefined;
+
+  let globalControls: Partial<PlayerControlsConfig> | undefined;
+  if (typeof window !== "undefined") {
+    const win = window as any;
+    if (win.__MARKDY_DEFAULT_CONTROLS__ && typeof win.__MARKDY_DEFAULT_CONTROLS__ === "object") {
+      globalControls = win.__MARKDY_DEFAULT_CONTROLS__;
+    }
+  }
+
   const configuredControls: PlayerControlsConfig = {
+    ...(globalControls ?? {}),
     ...(config.controls ?? {}),
     ...(overrideControls ? overrideControls : {}),
   };
@@ -319,13 +339,14 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     (config.controls && Object.keys(config.controls).length > 0) ||
     (overrideControls && Object.keys(overrideControls).length > 0),
   );
+  const controlsActive = controlsAllowed && (hostControlDefault || controlsExplicitlyDeclared);
   const unconfiguredFallback = controlsExplicitlyDeclared ? false : hostControlDefault;
   const resolveControl = (value: boolean | undefined, fallback = unconfiguredFallback): boolean =>
     controlsAllowed && (value ?? fallback);
   const requestedControls = {
     seek: resolveControl(configuredControls.seek, false),
     speed: resolveControl(configuredControls.speed),
-    fit: resolveControl(configuredControls.fit),
+    fit: controlsActive && configuredControls.fit !== false,
     resetView: resolveControl(configuredControls.resetView),
     fullscreen: resolveControl(configuredControls.fullscreen),
     svg: resolveControl(configuredControls.svg),

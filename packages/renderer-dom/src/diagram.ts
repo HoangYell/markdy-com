@@ -1423,7 +1423,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       ? Boolean(explicitFit)
       : plan.meta.player?.controls?.fit !== undefined
         ? Boolean(plan.meta.player.controls.fit)
-        : opts.fitMode === "contain" || Boolean(fitViewButton);
+        : opts.fitMode === "contain";
   if (fitViewActive) {
     cameraLayer.style.setProperty("transform", "none", "important");
   }

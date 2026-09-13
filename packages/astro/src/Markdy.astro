@@ -56,9 +56,20 @@ export interface Props {
   controls?: boolean;
   /** Initial fit-all-in-view state. Defaults to true when undeclared. */
   fit?: boolean;
+  /** Show reset view (focus) button in toolbar. */
+  resetView?: boolean;
+  /** Show export SVG button in toolbar. */
+  svg?: boolean;
+  /** Show export GIF button in toolbar. */
+  gif?: boolean;
+  /** Show share button in toolbar. */
+  share?: boolean;
+  /** Show view code button in toolbar. */
+  codeControl?: boolean;
+  /** Show switch theme button in toolbar. */
+  theme?: boolean;
   /** Custom default light theme for auto mode (e.g. "doodle", "paper"). */
   defaultLightTheme?: string;
-  /** Custom default dark theme for auto mode (e.g. "nebula", "midnight"). */
   defaultDarkTheme?: string;
   /** Configurable default themes for auto mode: { light?: string; dark?: string }. */
   defaultThemes?: { light?: string; dark?: string };
@@ -92,6 +103,12 @@ const {
   playbackRate,
   controls = true,
   fit,
+  resetView,
+  svg,
+  gif,
+  share,
+  codeControl,
+  theme,
   defaultLightTheme,
   defaultDarkTheme,
   defaultThemes,
@@ -137,6 +154,12 @@ const codeB64 =
   data-markdy-interactive-viewport={interactiveViewport !== undefined ? String(interactiveViewport) : undefined}
   data-markdy-controls={controls !== undefined ? String(controls) : undefined}
   data-markdy-fit={fit !== undefined ? String(fit) : undefined}
+  data-markdy-control-reset-view={resetView !== undefined ? String(resetView) : undefined}
+  data-markdy-control-svg={svg !== undefined ? String(svg) : undefined}
+  data-markdy-control-gif={gif !== undefined ? String(gif) : undefined}
+  data-markdy-control-share={share !== undefined ? String(share) : undefined}
+  data-markdy-control-code={codeControl !== undefined ? String(codeControl) : undefined}
+  data-markdy-control-theme={theme !== undefined ? String(theme) : undefined}
   role="img"
   aria-label={title}
   aria-busy="true"
@@ -350,6 +373,21 @@ const codeB64 =
       el.dataset.markdyFit !== undefined
         ? el.dataset.markdyFit === "true"
         : undefined;
+
+    const controlOverrides: Record<string, boolean> = {};
+    if (el.dataset.markdyControlResetView !== undefined) controlOverrides.resetView = el.dataset.markdyControlResetView === "true";
+    if (el.dataset.markdyControlSvg !== undefined) controlOverrides.svg = el.dataset.markdyControlSvg === "true";
+    if (el.dataset.markdyControlGif !== undefined) controlOverrides.gif = el.dataset.markdyControlGif === "true";
+    if (el.dataset.markdyControlShare !== undefined) controlOverrides.share = el.dataset.markdyControlShare === "true";
+    if (el.dataset.markdyControlCode !== undefined) controlOverrides.code = el.dataset.markdyControlCode === "true";
+    if (el.dataset.markdyControlTheme !== undefined) controlOverrides.theme = el.dataset.markdyControlTheme === "true";
+    const resolvedControls =
+      !controls
+        ? false
+        : Object.keys(controlOverrides).length > 0
+          ? controlOverrides
+          : true;
+
     const interactiveViewport =
       el.dataset.markdyInteractiveViewport !== undefined
         ? el.dataset.markdyInteractiveViewport === "true"
@@ -383,7 +421,7 @@ const codeB64 =
       progressColor,
       playbackRate,
       interactiveViewport,
-      controls,
+      controls: resolvedControls,
       defaultFit: fit,
     });
 
