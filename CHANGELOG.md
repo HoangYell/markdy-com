@@ -5,6 +5,13 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.10] — 2026-09-13
+
+### Fixed & Enhanced
+- **⚡ Orientation Adaptation Reflow Race Condition Fix (`@markdy/renderer-dom`)**:
+  - **Deterministic Unconstrained Flow**: Fixed a critical reflow race condition in `scaleScene()` where reading `viewport.clientHeight` immediately after updating `viewport.style.aspectRatio` read the stale unreflowed height from the previous orientation. This falsely triggered `isHeightConstrained = true` and collapsed portrait fit scores into an oscillation loop back to landscape.
+  - Aligned `isHeightConstrained` directly with `hasInitialHeightConstraint`, allowing unconstrained flow containers to transition smoothly to portrait (TB) and render with full natural height.
+
 ## [1.4.9] — 2026-09-13
 
 ### Fixed & Enhanced

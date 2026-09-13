@@ -1082,8 +1082,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     const initialMeasureBounds = computeContentBounds();
     const { symmetricContentW: initSymW } = computeSymmetricContentSpan(plan, initialMeasureBounds);
     const naturalHeight = (vWidth * initialMeasureBounds.height) / initSymW;
-    const vHeight = viewport.clientHeight || container.clientHeight || naturalHeight;
-    const isHeightConstrained = hasInitialHeightConstraint || (vHeight > 0 && Math.abs(vHeight - naturalHeight) > 3);
+    const isHeightConstrained = hasInitialHeightConstraint;
+    const vHeight = isHeightConstrained ? (viewport.clientHeight || container.clientHeight || naturalHeight) : naturalHeight;
     const resolvedFit = fitViewActive ? "contain" : fitMode === "auto" ? (isHeightConstrained ? "contain" : "width") : fitMode;
     const defaultTargetRatio = vWidth <= 480 ? 0.95 : 0.90;
     const targetRatio = Math.min(1.0, Math.max(0.85, targetWidthRatio ?? defaultTargetRatio));
