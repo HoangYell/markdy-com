@@ -586,8 +586,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
   const rawColor = player.chrome.progressColor;
   const customColor = rawColor && rawColor.trim() !== "rainbow" ? rawColor.trim() : null;
-  const DEFAULT_RAINBOW =
-    "hsl(0,90%,60%), hsl(45,90%,55%), hsl(90,80%,50%), hsl(180,80%,50%), hsl(270,80%,55%), hsl(330,90%,60%)";
+  const DEFAULT_RAINBOW = "#f53d3d 0deg, #f57c3d 60deg, #f5d43d 120deg, #3df57c 180deg, #3db2f5 240deg, #863df5 300deg, #f53d3d 360deg";
 
   const totalDurationMs = plan.duration * 1000;
   const durationSeconds = plan.duration;
@@ -604,7 +603,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     width: "100%",
   });
   if (container.style.aspectRatio) container.style.aspectRatio = "unset";
-  if (container.style.overflow === "hidden") container.style.overflow = "visible";
 
   const initialBounds = computeDiagramContentBounds(plan, contentPadding !== undefined ? { padding: contentPadding } : undefined);
   const contentRatio = `${initialBounds.width} / ${initialBounds.height}`;
@@ -691,8 +689,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       gap: "6px",
       width: "100%",
       boxSizing: "border-box",
-      padding: "6px 8px 4px",
-      background: "transparent",
       pointerEvents: "auto",
       flexShrink: "0",
     });
@@ -1387,7 +1383,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   function syncControls(): void {
     if (controlsPlayButton) {
       const playing = isPlaying;
-      controlsPlayButton.innerHTML = `${playing ? ICONS.pause : ICONS.play}${playing ? "Pause" : "Play"}`;
+      controlsPlayButton.innerHTML = `${playing ? ICONS.pause : ICONS.play}<span class="markdy-btn-label">${playing ? "Pause" : "Play"}</span>`;
       const playLabel = playing ? "Pause diagram" : "Play diagram";
       controlsPlayButton.setAttribute("aria-label", playLabel);
       controlsPlayButton.title = playLabel;
@@ -1773,9 +1769,9 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     button.setAttribute("aria-label", ariaLabel);
     button.title = ariaLabel;
     if (iconSvg) {
-      button.innerHTML = `${iconSvg}${label}`;
+      button.innerHTML = `${iconSvg}<span class="markdy-btn-label">${label}</span>`;
     } else {
-      button.textContent = label;
+      button.innerHTML = `<span class="markdy-btn-label">${label}</span>`;
     }
     return button;
   }
@@ -1846,7 +1842,9 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     const originalHtml = button.dataset.originalHtml ?? button.innerHTML;
     button.dataset.originalHtml = originalHtml;
     const isSuccess = !message.toLowerCase().includes("fail");
-    button.innerHTML = isSuccess ? `${ICONS.check}${message}` : message;
+    button.innerHTML = isSuccess
+      ? `${ICONS.check}<span class="markdy-btn-label">${message}</span>`
+      : `<span class="markdy-btn-label">${message}</span>`;
     button.classList.add("markdy-btn-flashed");
     setTimeout(() => {
       button.innerHTML = button.dataset.originalHtml ?? originalHtml;
@@ -2203,7 +2201,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
       button.setAttribute("aria-pressed", isFull ? "true" : "false");
       button.title = isFull ? "Exit fullscreen" : "Toggle fullscreen view";
-      button.innerHTML = isFull ? `${ICONS.fullscreen}Exit` : `${ICONS.fullscreen}Full`;
+      button.innerHTML = isFull ? `${ICONS.fullscreen}<span class="markdy-btn-label">Exit</span>` : `${ICONS.fullscreen}<span class="markdy-btn-label">Full</span>`;
 
       if (isFull) {
         host.classList.add("markdy-fullscreen-host");
@@ -2477,14 +2475,17 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     if (svgButton || gifButton || shareButton || codeButton || themeButton) {
       if (toolsGroup.children.length > 0) {
         const divider = document.createElement("div");
-        divider.className = "markdy-control-divider";
+        divider.className = "markdy-control-divider markdy-control-divider-secondary";
         toolsGroup.appendChild(divider);
       }
-      mountThemeControl(toolsGroup);
-      mountSvgControl(toolsGroup);
-      mountGifControl(toolsGroup);
-      mountShareControl(toolsGroup);
-      mountCodeControl(toolsGroup);
+      const secondaryGroup = document.createElement("div");
+      secondaryGroup.className = "markdy-controls-group markdy-controls-secondary";
+      mountThemeControl(secondaryGroup);
+      mountSvgControl(secondaryGroup);
+      mountGifControl(secondaryGroup);
+      mountShareControl(secondaryGroup);
+      mountCodeControl(secondaryGroup);
+      toolsGroup.appendChild(secondaryGroup);
     }
 
     if (toolsGroup.children.length > 0) toolbar.appendChild(toolsGroup);

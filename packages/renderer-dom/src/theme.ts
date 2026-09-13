@@ -190,6 +190,13 @@ export function ensureSceneStyles(doc: Document): void {
   flex-direction: column;
   box-sizing: border-box;
   width: 100%;
+  border: 1px solid var(--md-card-border, rgba(148, 163, 184, 0.22));
+  border-radius: 12px;
+  background: var(--md-canvas, #ffffff);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(15, 23, 42, 0.02);
+  overflow: hidden;
+  container-type: inline-size;
+  container-name: markdy-root;
 }
 .markdy-viewport {
   position: relative;
@@ -198,6 +205,7 @@ export function ensureSceneStyles(doc: Document): void {
   min-height: 0;
   overflow: hidden;
   box-sizing: border-box;
+  border-radius: 11px 11px 0 0;
 }
 .markdy-footer {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -208,15 +216,16 @@ export function ensureSceneStyles(doc: Document): void {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 8px 12px 6px;
-  color: var(--md-text, #f8fafc);
-  background: transparent;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-  border-top: none;
+  padding: 6px 12px 6px 10px;
+  color: var(--md-text, #64748b);
+  background: var(--md-footer-bg, rgba(248, 250, 252, 0.82));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-top: 1px solid var(--md-card-border, rgba(148, 163, 184, 0.14));
   z-index: 100;
   pointer-events: auto;
   flex-shrink: 0;
+  border-radius: 0 0 11px 11px;
 }
 .markdy-controls {
   display: flex;
@@ -225,14 +234,14 @@ export function ensureSceneStyles(doc: Document): void {
   flex: 1 1 auto;
   width: auto;
   min-width: 0;
-  gap: 8px;
+  gap: 6px;
   max-width: 100%;
   overflow-x: auto;
   overflow-y: visible;
   scrollbar-width: none;
   -ms-overflow-style: none;
   -webkit-overflow-scrolling: touch;
-  padding: 4px 4px 6px;
+  padding: 2px 2px 2px;
   margin: 0;
   position: relative;
   z-index: 10;
@@ -280,27 +289,34 @@ export function ensureSceneStyles(doc: Document): void {
   margin: 0 2px;
   flex-shrink: 0;
 }
+.markdy-btn-label {
+  display: inline;
+  margin-left: 3px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+}
 .markdy-controls button {
   appearance: none;
   -webkit-appearance: none;
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
-  border: 1px solid var(--md-control-border, rgba(148, 163, 184, 0.2));
-  border-radius: 7px;
-  background: var(--md-control-bg, rgba(255, 255, 255, 0.04));
-  color: var(--md-control-text, #94a3b8);
+  border: 1px solid rgba(203, 213, 225, 0.7);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #475569;
   cursor: pointer;
-  font: 600 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  height: 27px;
-  min-width: 27px;
-  padding: 0 6px;
+  font: 500 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  height: 25px;
+  min-width: 25px;
+  padding: 0 7px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 3px;
   white-space: nowrap;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
   transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   pointer-events: auto;
@@ -309,30 +325,30 @@ export function ensureSceneStyles(doc: Document): void {
 .markdy-controls button:hover:not([aria-pressed="true"]) {
   position: relative;
   z-index: 20;
-  background: var(--md-control-hover-bg, rgba(255, 255, 255, 0.1));
-  color: var(--md-control-hover-text, #f8fafc);
-  border-color: var(--md-control-hover-border, rgba(148, 163, 184, 0.35));
-  transform: translateY(-1px);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.14);
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #94a3b8;
+  transform: translateY(-0.5px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 .markdy-controls-tools button:hover:not([aria-pressed="true"]) {
   z-index: 25;
-  border-color: var(--md-control-hover-border, rgba(148, 163, 184, 0.45));
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16);
+  border-color: #64748b;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
 }
 .markdy-controls button[aria-pressed="true"] {
   position: relative;
   z-index: 20;
-  background: var(--accent, #10b981) !important;
+  background: #0f172a !important;
   color: #ffffff !important;
-  border-color: var(--accent, #10b981) !important;
-  box-shadow: 0 0 10px var(--accent-glow, rgba(16, 185, 129, 0.4)) !important;
+  border-color: #0f172a !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12) !important;
 }
 .markdy-controls button:focus-visible {
   position: relative;
   z-index: 30;
-  outline: 2px solid var(--accent, #10b981);
-  outline-offset: 2px;
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
 }
 .markdy-controls button:active {
   transform: translateY(0) scale(0.96);
@@ -343,29 +359,29 @@ export function ensureSceneStyles(doc: Document): void {
   vertical-align: middle;
 }
 .markdy-control-play {
-  background: var(--accent, #10b981) !important;
+  background: #2563eb !important;
   color: #ffffff !important;
-  border-color: var(--accent, #10b981) !important;
-  padding: 0 10px !important;
-  font-weight: 700 !important;
-  box-shadow: 0 2px 8px var(--accent-glow, rgba(16, 185, 129, 0.35)) !important;
+  border-color: #2563eb !important;
+  padding: 0 9px !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 2px rgba(37, 99, 235, 0.25) !important;
 }
 .markdy-control-play:hover {
-  filter: brightness(1.08);
-  box-shadow: 0 2px 12px var(--accent-glow, rgba(16, 185, 129, 0.55)) !important;
-  transform: translateY(-1px) scale(1.02);
+  filter: brightness(1.06);
+  transform: translateY(-0.5px);
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35) !important;
 }
 .markdy-badge {
   display: inline-flex;
   align-items: center;
   text-align: right;
-  font-family: system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 10px;
-  font-weight: 400;
-  color: var(--md-control-text, #94a3b8);
+  font-weight: 500;
+  color: #94a3b8;
   text-decoration: none;
   padding: 0;
-  opacity: 0.7;
+  opacity: 0.6;
   margin-left: auto;
   flex-shrink: 0;
   transition: opacity 0.15s ease, color 0.15s ease;
@@ -373,7 +389,58 @@ export function ensureSceneStyles(doc: Document): void {
 }
 .markdy-badge:hover {
   opacity: 1;
-  color: var(--md-text, #f8fafc);
+  color: #475569;
+}
+@media (max-width: 640px) {
+  .markdy-btn-label {
+    display: none !important;
+  }
+  .markdy-controls button {
+    padding: 0 !important;
+    width: 25px !important;
+    height: 25px !important;
+    min-width: 25px !important;
+    justify-content: center !important;
+  }
+  .markdy-controls-secondary,
+  .markdy-control-divider-secondary {
+    display: none !important;
+  }
+  .markdy-speed-group {
+    display: none !important;
+  }
+  .markdy-controls {
+    gap: 4px !important;
+  }
+  .markdy-footer {
+    padding: 5px 8px !important;
+  }
+  .markdy-badge {
+    font-size: 9px !important;
+    opacity: 0.55;
+  }
+}
+@container markdy-root (max-width: 520px) {
+  .markdy-btn-label {
+    display: none !important;
+  }
+  .markdy-controls button {
+    padding: 0 !important;
+    width: 25px !important;
+    height: 25px !important;
+    min-width: 25px !important;
+    justify-content: center !important;
+  }
+  .markdy-controls-secondary,
+  .markdy-control-divider-secondary {
+    display: none !important;
+  }
+  .markdy-speed-group {
+    display: none !important;
+  }
+  .markdy-controls {
+    gap: 4px !important;
+  }
 }
 .markdy-speed-group {
   display: inline-flex;
@@ -402,9 +469,9 @@ export function ensureSceneStyles(doc: Document): void {
   transform: none;
 }
 .markdy-speed-group .markdy-control-rate[aria-pressed="true"] {
-  background: var(--accent, #10b981) !important;
+  background: var(--accent, #2563eb) !important;
   color: #ffffff !important;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12) !important;
 }
 .markdy-control-time {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
@@ -416,9 +483,9 @@ export function ensureSceneStyles(doc: Document): void {
   letter-spacing: -0.02em;
 }
 .markdy-btn-flashed {
-  background: rgba(16, 185, 129, 0.2) !important;
-  color: #10b981 !important;
-  border-color: #10b981 !important;
+  background: rgba(37, 99, 235, 0.15) !important;
+  color: #2563eb !important;
+  border-color: #2563eb !important;
 }
 /* ── Code panel overlay ───────────────────────────────────────────────── */
 .markdy-code-panel-overlay {
@@ -512,16 +579,16 @@ export function ensureSceneStyles(doc: Document): void {
   white-space: nowrap;
 }
 .markdy-code-panel__playground {
-  background: var(--accent-light, rgba(16, 185, 129, 0.15));
-  color: var(--accent, #10b981);
-  border-color: var(--accent, #10b981);
-  font-weight: 700;
+  background: var(--accent-light, rgba(37, 99, 235, 0.1));
+  color: var(--accent, #2563eb);
+  border-color: var(--accent, #2563eb);
+  font-weight: 600;
 }
 .markdy-code-panel__playground:hover {
-  background: var(--accent, #10b981);
+  background: var(--accent, #2563eb);
   color: #ffffff;
-  border-color: var(--accent, #10b981);
-  transform: translateY(-1px);
+  border-color: var(--accent, #2563eb);
+  transform: translateY(-0.5px);
 }
 .markdy-code-panel__copy:hover,
 .markdy-code-panel__close:hover {
@@ -593,8 +660,8 @@ export function ensureSceneStyles(doc: Document): void {
   height: 4.5px;
   background: linear-gradient(
     to right,
-    var(--accent, #10b981) 0%,
-    var(--accent, #10b981) var(--seek-pct, 0%),
+    var(--accent, #2563eb) 0%,
+    var(--accent, #2563eb) var(--seek-pct, 0%),
     rgba(148, 163, 184, 0.35) var(--seek-pct, 0%),
     rgba(148, 163, 184, 0.35) 100%
   );
@@ -606,28 +673,28 @@ export function ensureSceneStyles(doc: Document): void {
   height: 13px;
   width: 13px;
   border-radius: 50%;
-  background: var(--accent, #10b981);
+  background: var(--accent, #2563eb);
   border: 2px solid #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   margin-top: -4.25px;
   cursor: grab;
   transition: transform 0.1s ease, box-shadow 0.15s ease;
 }
 .markdy-control-seek:hover::-webkit-slider-thumb {
-  transform: scale(1.2);
-  box-shadow: 0 0 8px var(--accent-glow, rgba(16, 185, 129, 0.6));
+  transform: scale(1.15);
+  box-shadow: 0 1px 4px rgba(37, 99, 235, 0.4);
 }
 .markdy-control-seek:active::-webkit-slider-thumb {
   cursor: grabbing;
-  transform: scale(1.2);
+  transform: scale(1.15);
 }
 .markdy-control-seek::-moz-range-track {
   width: 100%;
   height: 4.5px;
   background: linear-gradient(
     to right,
-    var(--accent, #10b981) 0%,
-    var(--accent, #10b981) var(--seek-pct, 0%),
+    var(--accent, #2563eb) 0%,
+    var(--accent, #2563eb) var(--seek-pct, 0%),
     rgba(148, 163, 184, 0.35) var(--seek-pct, 0%),
     rgba(148, 163, 184, 0.35) 100%
   );
@@ -637,9 +704,9 @@ export function ensureSceneStyles(doc: Document): void {
   height: 13px;
   width: 13px;
   border-radius: 50%;
-  background: var(--accent, #10b981);
+  background: var(--accent, #2563eb);
   border: 2px solid #ffffff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   cursor: grab;
   transition: transform 0.1s ease, box-shadow 0.15s ease;
 }
@@ -678,17 +745,52 @@ export function ensureSceneStyles(doc: Document): void {
 [data-markdy-theme="nebula"] .markdy-controls button[aria-pressed="true"],
 :root[data-theme="dark"] .markdy-controls button[aria-pressed="true"],
 .theme-dark .markdy-controls button[aria-pressed="true"] {
-  background: var(--accent, #3b82f6) !important;
-  color: #ffffff !important;
-  border-color: var(--accent, #3b82f6) !important;
-  box-shadow: 0 0 10px var(--accent-glow, rgba(59, 130, 246, 0.5)) !important;
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border-color: #f8fafc !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+[data-markdy-theme="midnight"].markdy-diagram-root,
+[data-markdy-theme="blueprint"].markdy-diagram-root,
+[data-markdy-theme="terminal"].markdy-diagram-root,
+[data-markdy-theme="graphite"].markdy-diagram-root,
+[data-markdy-theme="nebula"].markdy-diagram-root,
+:root[data-theme="dark"] .markdy-diagram-root,
+.theme-dark .markdy-diagram-root,
+.dark .markdy-diagram-root {
+  border-color: var(--md-card-border, rgba(255, 255, 255, 0.09));
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+[data-markdy-theme="midnight"] .markdy-footer,
+[data-markdy-theme="blueprint"] .markdy-footer,
+[data-markdy-theme="terminal"] .markdy-footer,
+[data-markdy-theme="graphite"] .markdy-footer,
+[data-markdy-theme="nebula"] .markdy-footer,
+:root[data-theme="dark"] .markdy-footer,
+.theme-dark .markdy-footer,
+.dark .markdy-footer {
+  background: var(--md-footer-bg, rgba(15, 23, 42, 0.85));
+  border-top-color: var(--md-card-border, rgba(255, 255, 255, 0.08));
+  color: #94a3b8;
+}
+[data-markdy-theme="midnight"] .markdy-controls button:not([aria-pressed="true"]),
+[data-markdy-theme="blueprint"] .markdy-controls button:not([aria-pressed="true"]),
+[data-markdy-theme="terminal"] .markdy-controls button:not([aria-pressed="true"]),
+[data-markdy-theme="graphite"] .markdy-controls button:not([aria-pressed="true"]),
+[data-markdy-theme="nebula"] .markdy-controls button:not([aria-pressed="true"]),
+:root[data-theme="dark"] .markdy-controls button:not([aria-pressed="true"]),
+.theme-dark .markdy-controls button:not([aria-pressed="true"]),
+.dark .markdy-controls button:not([aria-pressed="true"]) {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(71, 85, 105, 0.5);
+  color: #cbd5e1;
 }
 .markdy-footer a {
   transition: opacity 0.15s ease, color 0.15s ease;
 }
 .markdy-footer a:hover {
   opacity: 1 !important;
-  color: #64748b !important;
+  color: #94a3b8 !important;
 }
 /* Fullscreen & Fallback Pseudo-Fullscreen Views */
 .markdy-diagram-root:fullscreen,
