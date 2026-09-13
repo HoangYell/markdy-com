@@ -1,5 +1,5 @@
-export type { DiagramOptions, Diagram } from "./diagram.js";
-export { createDiagram, detectHostTheme, computeDiagramContentBounds } from "./diagram.js";
+export type { DiagramOptions, Diagram, DefaultThemesConfig } from "./diagram.js";
+export { createDiagram, detectHostTheme, resolveDefaultThemes, computeDiagramContentBounds } from "./diagram.js";
 export { ICON_REGISTRY, iconKeyForNode } from "./nodes.js";
 export type { IconSpec } from "./nodes.js";
 

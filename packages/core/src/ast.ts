@@ -89,6 +89,11 @@ export type ResolvedPlayer = {
   chrome: { badge: boolean; progress: PlayerProgress; progressColor?: string };
 };
 
+export type DefaultThemesConfig = {
+  light?: string;
+  dark?: string;
+};
+
 export type SceneMeta = {
   title?: string;
   width: number;
@@ -103,6 +108,8 @@ export type SceneMeta = {
   explicitHeight?: boolean;
   /** Whether theme was explicitly specified by the author in the script. */
   explicitTheme?: boolean;
+  /** Default theme names for light and dark modes when following host environment. */
+  defaultThemes?: DefaultThemesConfig;
   /** Whether layout direction was explicitly specified by the author in the script. */
   explicitDirection?: boolean;
   /** Layout mode: explicit fixed direction or adaptive auto. */

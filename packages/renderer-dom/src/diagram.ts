@@ -10,12 +10,14 @@ import {
   resolvePlayer,
   resolveTheme,
   type BeatRange,
+  type DefaultThemesConfig,
   type Diagnostic,
   type PlayerControlsConfig,
   type PlayerProgress,
   type RenderPlan,
   type ThemeTokens,
 } from "@markdy/core";
+export type { DefaultThemesConfig };
 import {
   buildCueAnimations,
   buildStructuralEdgeAnimations,
@@ -58,6 +60,15 @@ export interface DiagramOptions {
   autoplay?: boolean;
   loop?: boolean;
   copyright?: boolean;
+  /**
+   * Configurable default themes for light and dark modes when the script theme is auto or undeclared.
+   * e.g. { light: "doodle", dark: "nebula" }
+   */
+  defaultThemes?: DefaultThemesConfig;
+  /** Custom default light theme for auto mode (e.g. "doodle", "paper"). */
+  defaultLightTheme?: string;
+  /** Custom default dark theme for auto mode (e.g. "nebula", "midnight"). */
+  defaultDarkTheme?: string;
   /**
    * Maps node `image=`/`logo=` values to resolved URLs. Lets a host (Astro,
    * MDX) remap DSL asset references to CDN/data URLs. Values not present here
@@ -197,7 +208,11 @@ function isDarkBgColor(colorStr: string): boolean | null {
   return luma < 128;
 }
 
-function checkElementTheme(el: HTMLElement): "nebula" | "paper" | null {
+function checkElementTheme(
+  el: HTMLElement,
+  lightTheme = "paper",
+  darkTheme = "nebula",
+): string | null {
   const themeAttr =
     el.getAttribute("data-theme") ||
     el.dataset.theme ||
@@ -208,41 +223,120 @@ function checkElementTheme(el: HTMLElement): "nebula" | "paper" | null {
 
   if (themeAttr) {
     const lower = themeAttr.toLowerCase();
-    if (lower.includes("dark")) return "nebula";
-    if (lower.includes("light")) return "paper";
+    if (lower.includes("dark")) return darkTheme;
+    if (lower.includes("light")) return lightTheme;
   }
 
   const cls = el.className;
   if (typeof cls === "string" && cls.length > 0) {
-    if (/\b(dark|dark-mode|dark-theme|theme-dark|vscode-dark)\b/i.test(cls)) return "nebula";
-    if (/\b(light|light-mode|light-theme|theme-light|vscode-light)\b/i.test(cls)) return "paper";
+    if (/\b(dark|dark-mode|dark-theme|theme-dark|vscode-dark)\b/i.test(cls)) return darkTheme;
+    if (/\b(light|light-mode|light-theme|theme-light|vscode-light)\b/i.test(cls)) return lightTheme;
   }
 
   return null;
 }
 
 /**
+ * Resolves default light and dark themes from diagram options, container data attributes,
+ * document-level attributes, global window defaults, or fallback to "paper" and "nebula".
+ */
+export function resolveDefaultThemes(
+  container?: HTMLElement,
+  customDefaults?: DefaultThemesConfig,
+): { light: string; dark: string } {
+  let globalLight: string | undefined;
+  let globalDark: string | undefined;
+
+  if (typeof window !== "undefined") {
+    const win = window as any;
+    if (win.__MARKDY_DEFAULT_THEMES__) {
+      if (typeof win.__MARKDY_DEFAULT_THEMES__.light === "string") {
+        globalLight = win.__MARKDY_DEFAULT_THEMES__.light;
+      }
+      if (typeof win.__MARKDY_DEFAULT_THEMES__.dark === "string") {
+        globalDark = win.__MARKDY_DEFAULT_THEMES__.dark;
+      }
+    }
+    if (!globalLight && typeof win.__MARKDY_DEFAULT_LIGHT_THEME__ === "string") {
+      globalLight = win.__MARKDY_DEFAULT_LIGHT_THEME__;
+    }
+    if (!globalDark && typeof win.__MARKDY_DEFAULT_DARK_THEME__ === "string") {
+      globalDark = win.__MARKDY_DEFAULT_DARK_THEME__;
+    }
+  }
+
+  let docLight: string | undefined;
+  let docDark: string | undefined;
+  if (typeof document !== "undefined" && document.documentElement) {
+    docLight =
+      document.documentElement.getAttribute("data-markdy-theme-light") ||
+      document.documentElement.dataset?.markdyThemeLight ||
+      undefined;
+    docDark =
+      document.documentElement.getAttribute("data-markdy-theme-dark") ||
+      document.documentElement.dataset?.markdyThemeDark ||
+      undefined;
+  }
+
+  let containerLight: string | undefined;
+  let containerDark: string | undefined;
+  if (container) {
+    containerLight =
+      container.getAttribute("data-markdy-theme-light") ||
+      container.dataset?.markdyThemeLight ||
+      undefined;
+    containerDark =
+      container.getAttribute("data-markdy-theme-dark") ||
+      container.dataset?.markdyThemeDark ||
+      undefined;
+  }
+
+  const light =
+    customDefaults?.light ||
+    containerLight ||
+    docLight ||
+    globalLight ||
+    "paper";
+
+  const dark =
+    customDefaults?.dark ||
+    containerDark ||
+    docDark ||
+    globalDark ||
+    "nebula";
+
+  return { light, dark };
+}
+
+/**
  * Detects the host environment's theme mode (dark vs light).
  * Universal support for Tailwind, Next.js, Starlight, Docusaurus, Bootstrap 5.3,
  * GitHub Markdown, VS Code webviews, computed background lightness, and OS color schemes.
- * Default light mode is "paper", default dark mode is "nebula".
+ * Default light mode is "paper", default dark mode is "nebula" (or configurable via defaults / DOM / global window).
  */
-export function detectHostTheme(container?: HTMLElement): "nebula" | "paper" {
-  if (typeof document === "undefined") return "nebula";
+export function detectHostTheme(
+  container?: HTMLElement,
+  defaults?: DefaultThemesConfig,
+): string {
+  const resolvedDefaults = resolveDefaultThemes(container, defaults);
+  const lightTheme = resolvedDefaults.light;
+  const darkTheme = resolvedDefaults.dark;
+
+  if (typeof document === "undefined") return darkTheme;
 
   let current: HTMLElement | null = container ?? null;
   while (current) {
-    const check = checkElementTheme(current);
+    const check = checkElementTheme(current, lightTheme, darkTheme);
     if (check) return check;
     current = current.parentElement;
   }
 
   const docRoot = document.documentElement;
-  const rootCheck = checkElementTheme(docRoot);
+  const rootCheck = checkElementTheme(docRoot, lightTheme, darkTheme);
   if (rootCheck) return rootCheck;
 
   if (document.body) {
-    const bodyCheck = checkElementTheme(document.body);
+    const bodyCheck = checkElementTheme(document.body, lightTheme, darkTheme);
     if (bodyCheck) return bodyCheck;
   }
 
@@ -252,18 +346,18 @@ export function detectHostTheme(container?: HTMLElement): "nebula" | "paper" {
       try {
         const bg = window.getComputedStyle(bgEl).backgroundColor;
         const isDark = isDarkBgColor(bg);
-        if (isDark === true) return "nebula";
-        if (isDark === false) return "paper";
+        if (isDark === true) return darkTheme;
+        if (isDark === false) return lightTheme;
       } catch {}
       bgEl = bgEl.parentElement;
     }
   }
 
   if (typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches) {
-    return "nebula";
+    return darkTheme;
   }
 
-  return "paper";
+  return lightTheme;
 }
 
 const CANVAS_WIDE_ARCHETYPES = new Set([
@@ -470,6 +564,9 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     contentPadding,
     defaultFit,
     fit: explicitFitOption,
+    defaultThemes,
+    defaultLightTheme,
+    defaultDarkTheme,
   } = opts;
 
   const initialContainerHeight = container.clientHeight || 0;
@@ -536,7 +633,13 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
   // If the script did NOT explicitly specify a theme (or specified theme=auto), follow host theme!
   const hasExplicitTheme = Boolean(ast.meta.explicitTheme === true && ast.meta.theme !== "auto");
-  const initialTheme = hasExplicitTheme ? ast.meta.theme : detectHostTheme(container);
+  const optionsDefaultLight = defaultThemes?.light ?? defaultLightTheme;
+  const optionsDefaultDark = defaultThemes?.dark ?? defaultDarkTheme;
+  const explicitDefaults: DefaultThemesConfig = {
+    light: ast.meta.defaultThemes?.light ?? optionsDefaultLight,
+    dark: ast.meta.defaultThemes?.dark ?? optionsDefaultDark,
+  };
+  const initialTheme = hasExplicitTheme ? ast.meta.theme : detectHostTheme(container, explicitDefaults);
   const plan = compilePlan(ast, resolveTheme(initialTheme));
 
   let hostThemeObserver: MutationObserver | null = null;
@@ -1761,7 +1864,11 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
   if (!hasExplicitTheme && typeof document !== "undefined") {
     const syncWithHost = () => {
-      const nextTheme = detectHostTheme(container);
+      const currentDefaults: DefaultThemesConfig = {
+        light: ast.meta.defaultThemes?.light ?? optionsDefaultLight,
+        dark: ast.meta.defaultThemes?.dark ?? optionsDefaultDark,
+      };
+      const nextTheme = detectHostTheme(container, currentDefaults);
       diagram.setTheme(nextTheme);
     };
 
@@ -1771,6 +1878,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       "data-bs-theme",
       "data-color-mode",
       "data-color-scheme",
+      "data-markdy-theme-light",
+      "data-markdy-theme-dark",
       "class",
       "style",
     ];
@@ -1788,6 +1897,12 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     }
     if (container && container.parentElement && container !== document.body) {
       hostThemeObserver.observe(container.parentElement, {
+        attributes: true,
+        attributeFilter,
+      });
+    }
+    if (container) {
+      hostThemeObserver.observe(container, {
         attributes: true,
         attributeFilter,
       });

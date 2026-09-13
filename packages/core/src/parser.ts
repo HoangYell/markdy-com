@@ -62,6 +62,43 @@ export type ParseOptions = {
 
 const FLOW_OP_RE = /(->|<-|~>|--|\.\.>|<->)/;
 
+function parseThemeSpecification(raw: string): {
+  theme?: string;
+  explicitTheme?: boolean;
+  defaultThemes?: { light?: string; dark?: string };
+} {
+  const trimmed = raw.trim();
+  const lightMatch = trimmed.match(/(?:^|[\s,;])(?:light|light_theme|theme\.light)\s*[:=]\s*([a-zA-Z0-9_-]+)/i);
+  const darkMatch = trimmed.match(/(?:^|[\s,;])(?:dark|dark_theme|theme\.dark)\s*[:=]\s*([a-zA-Z0-9_-]+)/i);
+  if (lightMatch || darkMatch) {
+    return {
+      theme: "auto",
+      explicitTheme: false,
+      defaultThemes: {
+        ...(lightMatch ? { light: lightMatch[1].toLowerCase() } : {}),
+        ...(darkMatch ? { dark: darkMatch[1].toLowerCase() } : {}),
+      },
+    };
+  }
+
+  if (trimmed.includes("/")) {
+    const parts = trimmed.split("/").map((s) => s.trim().toLowerCase());
+    if (parts.length >= 2 && parts[0] && parts[1]) {
+      return {
+        theme: "auto",
+        explicitTheme: false,
+        defaultThemes: { light: parts[0], dark: parts[1] },
+      };
+    }
+  }
+
+  const lower = trimmed.toLowerCase();
+  return {
+    theme: lower,
+    explicitTheme: lower !== "auto",
+  };
+}
+
 function stripComment(line: string): string {
   let inString = false;
   let escaped = false;
@@ -1011,9 +1048,21 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
           meta.fps = Number(v);
         } else if (k === "duration") meta.duration = Number(v);
         else if (k === "theme") {
-          const val = String(v).toLowerCase();
-          meta.theme = val;
-          meta.explicitTheme = val !== "auto";
+          const parsed = parseThemeSpecification(String(v));
+          if (parsed.theme) meta.theme = parsed.theme;
+          if (parsed.explicitTheme !== undefined) meta.explicitTheme = parsed.explicitTheme;
+          if (parsed.defaultThemes) {
+            meta.defaultThemes = { ...meta.defaultThemes, ...parsed.defaultThemes };
+          }
+        } else if (k === "theme.light" || k === "theme_light" || k === "light_theme") {
+          meta.defaultThemes = { ...meta.defaultThemes, light: String(v).toLowerCase().trim() };
+        } else if (k === "theme.dark" || k === "theme_dark" || k === "dark_theme") {
+          meta.defaultThemes = { ...meta.defaultThemes, dark: String(v).toLowerCase().trim() };
+        } else if (k === "default_themes" || k === "default_theme") {
+          const parsed = parseThemeSpecification(String(v));
+          if (parsed.defaultThemes) {
+            meta.defaultThemes = { ...meta.defaultThemes, ...parsed.defaultThemes };
+          }
         } else if (k === "direction" || k === "layout" || k === "rankdir") {
           const val = String(v).toUpperCase();
           if (val === "AUTO") {
@@ -1045,12 +1094,28 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
       continue;
     }
 
-    if (/^theme\s*[:=]?\s*([a-zA-Z0-9_-]+)/i.test(line)) {
-      const match = line.match(/^theme\s*[:=]?\s*([a-zA-Z0-9_-]+)/i);
-      if (match) {
-        const val = match[1].toLowerCase();
-        meta.theme = val;
-        meta.explicitTheme = val !== "auto";
+    const themeDirectMatch = line.match(
+      /^(?:(theme(?:\.(?:light|dark)|_(?:light|dark))?|default_themes?)|(light_theme|dark_theme))\s*[:=]?\s*(.+)$/i,
+    );
+    if (themeDirectMatch) {
+      const propKey = (themeDirectMatch[1] || themeDirectMatch[2]).toLowerCase();
+      const rawVal = themeDirectMatch[3].trim();
+      if (propKey === "theme.light" || propKey === "theme_light" || propKey === "light_theme") {
+        meta.defaultThemes = { ...meta.defaultThemes, light: rawVal.toLowerCase() };
+      } else if (propKey === "theme.dark" || propKey === "theme_dark" || propKey === "dark_theme") {
+        meta.defaultThemes = { ...meta.defaultThemes, dark: rawVal.toLowerCase() };
+      } else if (propKey === "default_themes" || propKey === "default_theme") {
+        const parsed = parseThemeSpecification(rawVal);
+        if (parsed.defaultThemes) {
+          meta.defaultThemes = { ...meta.defaultThemes, ...parsed.defaultThemes };
+        }
+      } else {
+        const parsed = parseThemeSpecification(rawVal);
+        if (parsed.theme) meta.theme = parsed.theme;
+        if (parsed.explicitTheme !== undefined) meta.explicitTheme = parsed.explicitTheme;
+        if (parsed.defaultThemes) {
+          meta.defaultThemes = { ...meta.defaultThemes, ...parsed.defaultThemes };
+        }
       }
       i++;
       continue;
@@ -1265,7 +1330,11 @@ export function parse(source: string, opts: ParseOptions = {}): DiagramAST {
 }
 
 export function compile(ast: DiagramAST): RenderPlan {
-  return compilePlan(ast, resolveTheme(ast.meta.theme));
+  const initialTheme =
+    ast.meta.explicitTheme === false && ast.meta.defaultThemes?.light
+      ? ast.meta.defaultThemes.light
+      : ast.meta.theme;
+  return compilePlan(ast, resolveTheme(initialTheme));
 }
 
 export function parseAndCompile(source: string): ParseResult {

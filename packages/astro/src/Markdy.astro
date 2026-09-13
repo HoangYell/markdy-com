@@ -56,6 +56,12 @@ export interface Props {
   controls?: boolean;
   /** Initial fit-all-in-view state. Defaults to true when undeclared. */
   fit?: boolean;
+  /** Custom default light theme for auto mode (e.g. "doodle", "paper"). */
+  defaultLightTheme?: string;
+  /** Custom default dark theme for auto mode (e.g. "nebula", "midnight"). */
+  defaultDarkTheme?: string;
+  /** Configurable default themes for auto mode: { light?: string; dark?: string }. */
+  defaultThemes?: { light?: string; dark?: string };
   class?: string;
   /**
    * Short human-readable title for the animation.
@@ -86,11 +92,17 @@ const {
   playbackRate,
   controls = true,
   fit,
+  defaultLightTheme,
+  defaultDarkTheme,
+  defaultThemes,
   interactiveViewport,
   class: className,
   title = "Markdy animation",
   description,
 } = Astro.props;
+
+const resolvedDefaultLightTheme = defaultThemes?.light ?? defaultLightTheme;
+const resolvedDefaultDarkTheme = defaultThemes?.dark ?? defaultDarkTheme;
 
 const resolvedProgressColor =
   progressColor ??
@@ -116,6 +128,8 @@ const codeB64 =
   data-markdy-autoplay={autoplay !== undefined ? String(autoplay) : undefined}
   data-markdy-loop={loop !== undefined ? String(loop) : undefined}
   data-markdy-copyright={copyright !== undefined ? String(copyright) : undefined}
+  data-markdy-theme-light={resolvedDefaultLightTheme ?? undefined}
+  data-markdy-theme-dark={resolvedDefaultDarkTheme ?? undefined}
   data-markdy-progress-bar={progressBar !== undefined ? String(progressBar) : undefined}
   data-markdy-scene-boundary-progress={sceneBoundaryProgress !== undefined ? String(sceneBoundaryProgress) : undefined}
   data-markdy-progress-color={resolvedProgressColor ?? undefined}
@@ -340,6 +354,11 @@ const codeB64 =
       el.dataset.markdyInteractiveViewport !== undefined
         ? el.dataset.markdyInteractiveViewport === "true"
         : undefined;
+    const defaultLightTheme = el.dataset.markdyThemeLight || undefined;
+    const defaultDarkTheme = el.dataset.markdyThemeDark || undefined;
+    const defaultThemes = (defaultLightTheme || defaultDarkTheme)
+      ? { light: defaultLightTheme, dark: defaultDarkTheme }
+      : undefined;
 
     // Code-split: renderer-dom is NOT part of the initial page bundle.
     const { createDiagram } = await import("@markdy/renderer-dom");
@@ -355,6 +374,9 @@ const codeB64 =
       autoplay,
       loop,
       copyright,
+      defaultThemes,
+      defaultLightTheme,
+      defaultDarkTheme,
       progressBar,
       sceneBoundaryProgress,
       progressColor,

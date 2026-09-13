@@ -103,4 +103,68 @@ describe("Host Theme Detection & Multi-Framework Embed Compatibility", () => {
 
     diagram.destroy();
   });
+
+  it("detects configurable default themes via argument", () => {
+    document.documentElement.className = "light";
+    expect(detectHostTheme(container, { light: "doodle", dark: "midnight" })).toBe("doodle");
+
+    document.documentElement.className = "dark";
+    expect(detectHostTheme(container, { light: "doodle", dark: "midnight" })).toBe("midnight");
+  });
+
+  it("detects configurable default themes via container data attributes", () => {
+    container.setAttribute("data-markdy-theme-light", "doodle");
+    container.setAttribute("data-markdy-theme-dark", "dracula");
+
+    document.documentElement.className = "light";
+    expect(detectHostTheme(container)).toBe("doodle");
+
+    document.documentElement.className = "dark";
+    expect(detectHostTheme(container)).toBe("dracula");
+  });
+
+  it("detects configurable default themes via window.__MARKDY_DEFAULT_THEMES__", () => {
+    (window as any).__MARKDY_DEFAULT_THEMES__ = { light: "doodle", dark: "matrix" };
+    try {
+      document.documentElement.className = "light";
+      expect(detectHostTheme(container)).toBe("doodle");
+
+      document.documentElement.className = "dark";
+      expect(detectHostTheme(container)).toBe("matrix");
+    } finally {
+      delete (window as any).__MARKDY_DEFAULT_THEMES__;
+    }
+  });
+
+  it("creates a diagram with script defaultThemes (theme: light=doodle dark=nebula)", () => {
+    document.documentElement.className = "light";
+    const diagramLight = createDiagram({
+      container,
+      code: `scene "Embed Architecture"\ntheme: light=doodle dark=nebula\nlayout LR\nservice API "API Gateway"`,
+    });
+    const sceneLight = container.querySelector(".markdy-scene-root") as HTMLElement;
+    expect(sceneLight.dataset.markdyTheme).toBe("doodle");
+    diagramLight.destroy();
+
+    document.documentElement.className = "dark";
+    const diagramDark = createDiagram({
+      container,
+      code: `scene "Embed Architecture"\ntheme: light=doodle dark=nebula\nlayout LR\nservice API "API Gateway"`,
+    });
+    const sceneDark = container.querySelector(".markdy-scene-root") as HTMLElement;
+    expect(sceneDark.dataset.markdyTheme).toBe("nebula");
+    diagramDark.destroy();
+  });
+
+  it("creates a diagram with options.defaultThemes (default doodle for light, nebula for dark)", () => {
+    document.documentElement.className = "light";
+    const diagram = createDiagram({
+      container,
+      code: `scene "Embed Architecture"\nlayout LR\nservice API "API Gateway"`,
+      defaultThemes: { light: "doodle", dark: "nebula" },
+    });
+    const scene = container.querySelector(".markdy-scene-root") as HTMLElement;
+    expect(scene.dataset.markdyTheme).toBe("doodle");
+    diagram.destroy();
+  });
 });
