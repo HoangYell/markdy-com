@@ -5,6 +5,16 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.7] — 2026-09-13
+
+### Changed & Enhanced
+- **Modern Minimalist Card Frame & Clean-Room Embedding Standards (`@markdy/renderer-dom`, `@markdy/astro`)**:
+  - **Quiet Modern Card Aesthetics**: Added subtle 1px card border (`rgba(148, 163, 184, 0.22)` light, `rgba(255, 255, 255, 0.09)` dark), 12px border radius, and frosted-glass footer backdrop (`rgba(248, 250, 252, 0.85)` / `rgba(15, 23, 42, 0.85)`) adhering strictly to modern minimalist Linear/Apple design standards.
+  - **Zero Gaudy Neon Glows**: Eliminated radioactive `#10b981` green glows and shadows on active toggles (`[aria-pressed="true"]`) such as `Fit` view; replaced with sleek dark slate (`#0f172a` in light mode, `#f8fafc` in dark mode).
+  - **Astro Island Progress Defaults**: Set `progressBar` and `sceneBoundaryProgress` to default to `false` in `<Markdy />` Astro component embeds to eliminate unwanted boundary progress rings in static documentation and blog posts.
+  - **Mobile Responsive Controls Folding**: Under `@media (max-width: 640px)` and container queries (`<520px`), button text labels are automatically hidden to convert buttons into sleek 25x25px square icon pills. Secondary utility actions (`svg`, `share`, `code`, `theme`) and speed groups fold away on mobile, leaving essential playback and view controls on a single row with zero horizontal overflow or text truncation.
+  - **Polished SSR Skeleton Placeholder**: Upgraded SSR placeholder from raw text `▶ markdy` button to a clean, quiet skeleton card with a subtle vector Markdy badge, preventing unstyled layout jumps before hydration.
+
 ## [1.4.6] — 2026-09-13
 
 ### Fixed & Enhanced
