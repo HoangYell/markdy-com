@@ -56,6 +56,8 @@ export interface Props {
   controls?: boolean;
   /** Initial fit-all-in-view state. Defaults to true when undeclared. */
   fit?: boolean;
+  /** Initial interact state (pinch, zoom, and drag). Defaults to false when undeclared. */
+  interact?: boolean;
   /** Show reset view (focus) button in toolbar. */
   resetView?: boolean;
   /** Show export SVG button in toolbar. */
@@ -103,6 +105,7 @@ const {
   playbackRate,
   controls = true,
   fit,
+  interact,
   resetView,
   svg,
   gif,
@@ -154,6 +157,7 @@ const codeB64 =
   data-markdy-interactive-viewport={interactiveViewport !== undefined ? String(interactiveViewport) : undefined}
   data-markdy-controls={controls !== undefined ? String(controls) : undefined}
   data-markdy-fit={fit !== undefined ? String(fit) : undefined}
+  data-markdy-control-interact={interact !== undefined ? String(interact) : undefined}
   data-markdy-control-reset-view={resetView !== undefined ? String(resetView) : undefined}
   data-markdy-control-svg={svg !== undefined ? String(svg) : undefined}
   data-markdy-control-gif={gif !== undefined ? String(gif) : undefined}
@@ -373,8 +377,13 @@ const codeB64 =
       el.dataset.markdyFit !== undefined
         ? el.dataset.markdyFit === "true"
         : undefined;
+    const interact =
+      el.dataset.markdyControlInteract !== undefined
+        ? el.dataset.markdyControlInteract === "true"
+        : undefined;
 
     const controlOverrides: Record<string, boolean> = {};
+    if (el.dataset.markdyControlInteract !== undefined) controlOverrides.interact = el.dataset.markdyControlInteract === "true";
     if (el.dataset.markdyControlResetView !== undefined) controlOverrides.resetView = el.dataset.markdyControlResetView === "true";
     if (el.dataset.markdyControlSvg !== undefined) controlOverrides.svg = el.dataset.markdyControlSvg === "true";
     if (el.dataset.markdyControlGif !== undefined) controlOverrides.gif = el.dataset.markdyControlGif === "true";
@@ -423,6 +432,7 @@ const codeB64 =
       interactiveViewport,
       controls: resolvedControls,
       defaultFit: fit,
+      defaultInteract: interact,
     });
 
     el.dataset.markdyInit = "done";

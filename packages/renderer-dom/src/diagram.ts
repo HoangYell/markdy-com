@@ -130,6 +130,12 @@ export interface DiagramOptions {
   /** Alias for defaultFit. */
   fit?: boolean;
   /**
+   * Initial interact state (pinch, zoom, and drag). Defaults to false when undeclared.
+   */
+  defaultInteract?: boolean;
+  /** Alias for defaultInteract. */
+  interact?: boolean;
+  /**
    * Optional custom fullscreen toggle handler.
    * When provided, the footer fullscreen control delegates toggling to this callback.
    */
@@ -155,6 +161,10 @@ export interface Diagram {
   exportGif(options?: GifDiagramExportOptions): Promise<Blob>;
   resize(): void;
   resetView(): void;
+  toggleInteract(active?: boolean): void;
+  isInteractActive(): boolean;
+  toggleFitView(): void;
+  isFitActive(): boolean;
   syncFullscreen(isFull?: boolean): void;
   destroy(): void;
 }
@@ -583,6 +593,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     contentPadding,
     defaultFit,
     fit: explicitFitOption,
+    defaultInteract,
+    interact: explicitInteractOption,
     defaultThemes,
     defaultLightTheme,
     defaultDarkTheme,
@@ -719,6 +731,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     speed: speedControls,
     speeds: speedOptions,
     fit: fitViewButton,
+    interact: interactButton,
     resetView: resetViewButton,
     fullscreen: fullscreenButton,
     svg: svgButton,
@@ -783,6 +796,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   let controlsScrubberTooltip: HTMLElement | null = null;
   let controlsRateButtons: HTMLButtonElement[] = [];
   let controlsSeekBar: HTMLInputElement | null = null;
+  let controlsInteractButton: HTMLButtonElement | null = null;
   let controlsFitButton: HTMLButtonElement | null = null;
   let closeCodePanel: (() => void) | null = null;
 
@@ -1435,12 +1449,20 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   let fitViewActive =
     explicitFit !== undefined
       ? Boolean(explicitFit)
-      : plan.meta.player?.controls?.fit !== undefined
-        ? Boolean(plan.meta.player.controls.fit)
-        : opts.fitMode === "contain";
+      : opts.fitMode === "contain" || Boolean(showControls);
   if (fitViewActive) {
     cameraLayer.style.setProperty("transform", "none", "important");
   }
+
+  const hasAuthorInteraction =
+    Boolean(plan.meta.player?.interaction?.pan) ||
+    Boolean(plan.meta.player?.interaction?.zoom) ||
+    Boolean((plan.meta.player?.interaction as any)?.enabled);
+  const explicitInteract = defaultInteract ?? explicitInteractOption;
+  let interactActive =
+    explicitInteract !== undefined
+      ? Boolean(explicitInteract)
+      : hasAuthorInteraction || Boolean(explicitInteractiveViewport);
 
   const ICONS = {
     play: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
@@ -1448,6 +1470,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     restart: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>',
     prevBeat: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>',
     nextBeat: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>',
+    interact: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2"/><path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>',
     fit: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>',
     resetView: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>',
     fullscreen: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>',
@@ -1466,7 +1489,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   }
 
   function resetViewportTransform(): void {
-    releaseFitView();
     viewportScale = 1;
     viewportPanX = 0;
     viewportPanY = 0;
@@ -1488,6 +1510,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   function toggleFitView(): void {
     if (fitViewActive) {
       resetViewportTransform();
+      releaseFitView();
       syncControls();
       return;
     }
@@ -1505,7 +1528,31 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     syncControls();
   }
 
+  function toggleInteract(force?: boolean): void {
+    interactActive = force !== undefined ? force : !interactActive;
+    if (interactActive) {
+      viewport.style.cursor = "grab";
+      viewport.style.touchAction = "none";
+    } else {
+      resetViewportTransform();
+      if (defaultFit !== false) {
+        fitViewActive = true;
+        cameraLayer.style.setProperty("transform", "none", "important");
+        scaleScene();
+      }
+      viewport.style.cursor = clickToPlay ? "pointer" : "default";
+      viewport.style.touchAction = scrollableViewport ? "pan-x pan-y" : "auto";
+    }
+    syncControls();
+  }
+
+  const activePointers = new Map<number, { clientX: number; clientY: number }>();
+  let initialPinchDistance: number | null = null;
+  let initialPinchScale = 1;
+  let pinchScenePoint = { x: 0, y: 0 };
+
   function handleViewportWheel(event: WheelEvent): void {
+    if (!interactActive) return;
     if (scrollableViewport && !event.ctrlKey && !event.metaKey) return;
     event.preventDefault();
 
@@ -1524,45 +1571,110 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   }
 
   function handleViewportPointerDown(event: PointerEvent): void {
+    if (!interactActive) return;
     if (scrollableViewport) return;
     if (!allowPan) return;
-    if (event.button !== 0 || activePointerId !== null) return;
-    activePointerId = event.pointerId;
-    dragStartX = event.clientX;
-    dragStartY = event.clientY;
-    dragLastX = event.clientX;
-    dragLastY = event.clientY;
-    dragMoved = false;
-    viewport.setPointerCapture(event.pointerId);
-    viewport.style.cursor = "grabbing";
+    if (event.button !== 0) return;
+
+    activePointers.set(event.pointerId, { clientX: event.clientX, clientY: event.clientY });
+    try {
+      viewport.setPointerCapture(event.pointerId);
+    } catch {}
+
+    if (activePointers.size === 1) {
+      activePointerId = event.pointerId;
+      dragStartX = event.clientX;
+      dragStartY = event.clientY;
+      dragLastX = event.clientX;
+      dragLastY = event.clientY;
+      dragMoved = false;
+      viewport.style.cursor = "grabbing";
+    } else if (activePointers.size === 2) {
+      const pts = Array.from(activePointers.values());
+      const p1 = pts[0];
+      const p2 = pts[1];
+      initialPinchDistance = Math.hypot(p2.clientX - p1.clientX, p2.clientY - p1.clientY);
+      initialPinchScale = viewportScale;
+
+      const midX = (p1.clientX + p2.clientX) / 2;
+      const midY = (p1.clientY + p2.clientY) / 2;
+      const rect = viewport.getBoundingClientRect();
+      const pointerX = (midX - rect.left + viewport.scrollLeft - sceneOffsetX) / fitScale;
+      const pointerY = (midY - rect.top + viewport.scrollTop - sceneOffsetY) / fitScale;
+      pinchScenePoint = {
+        x: (pointerX - viewportPanX) / viewportScale,
+        y: (pointerY - viewportPanY) / viewportScale,
+      };
+      dragMoved = true;
+    }
   }
 
   function handleViewportPointerMove(event: PointerEvent): void {
-    if (event.pointerId !== activePointerId) return;
+    if (!interactActive) return;
+    if (!activePointers.has(event.pointerId)) return;
 
-    const deltaX = (event.clientX - dragLastX) / fitScale;
-    const deltaY = (event.clientY - dragLastY) / fitScale;
-    const totalX = event.clientX - dragStartX;
-    const totalY = event.clientY - dragStartY;
-    if (!dragMoved && Math.hypot(totalX, totalY) >= DRAG_CLICK_THRESHOLD_PX) dragMoved = true;
+    activePointers.set(event.pointerId, { clientX: event.clientX, clientY: event.clientY });
 
-    dragLastX = event.clientX;
-    dragLastY = event.clientY;
-    viewportPanX += deltaX;
-    viewportPanY += deltaY;
-    applyViewportTransform();
+    if (activePointers.size === 1 && event.pointerId === activePointerId) {
+      const deltaX = (event.clientX - dragLastX) / fitScale;
+      const deltaY = (event.clientY - dragLastY) / fitScale;
+      const totalX = event.clientX - dragStartX;
+      const totalY = event.clientY - dragStartY;
+      if (!dragMoved && Math.hypot(totalX, totalY) >= DRAG_CLICK_THRESHOLD_PX) dragMoved = true;
+
+      dragLastX = event.clientX;
+      dragLastY = event.clientY;
+      viewportPanX += deltaX;
+      viewportPanY += deltaY;
+      applyViewportTransform();
+    } else if (activePointers.size >= 2 && initialPinchDistance && initialPinchDistance > 0) {
+      const pts = Array.from(activePointers.values());
+      const p1 = pts[0];
+      const p2 = pts[1];
+      const currentDistance = Math.hypot(p2.clientX - p1.clientX, p2.clientY - p1.clientY);
+      const pinchRatio = currentDistance / initialPinchDistance;
+      const nextScale = Math.min(MAX_VIEWPORT_ZOOM, Math.max(MIN_VIEWPORT_ZOOM, initialPinchScale * pinchRatio));
+
+      const midX = (p1.clientX + p2.clientX) / 2;
+      const midY = (p1.clientY + p2.clientY) / 2;
+      const rect = viewport.getBoundingClientRect();
+      const pointerX = (midX - rect.left + viewport.scrollLeft - sceneOffsetX) / fitScale;
+      const pointerY = (midY - rect.top + viewport.scrollTop - sceneOffsetY) / fitScale;
+
+      viewportScale = nextScale;
+      viewportPanX = pointerX - pinchScenePoint.x * viewportScale;
+      viewportPanY = pointerY - pinchScenePoint.y * viewportScale;
+      applyViewportTransform();
+      dragMoved = true;
+    }
   }
 
   function handleViewportPointerEnd(event: PointerEvent): void {
-    if (event.pointerId !== activePointerId) return;
+    if (viewport.hasPointerCapture(event.pointerId)) {
+      try {
+        viewport.releasePointerCapture(event.pointerId);
+      } catch {}
+    }
+    activePointers.delete(event.pointerId);
+
     if (dragMoved) suppressNextClick = true;
-    if (viewport.hasPointerCapture(event.pointerId)) viewport.releasePointerCapture(event.pointerId);
-    activePointerId = null;
-    dragMoved = false;
-    viewport.style.cursor = interactiveViewport ? "grab" : "pointer";
+
+    if (activePointers.size === 1) {
+      const remaining = Array.from(activePointers.entries())[0];
+      activePointerId = remaining[0];
+      dragLastX = remaining[1].clientX;
+      dragLastY = remaining[1].clientY;
+      viewport.style.cursor = "grabbing";
+    } else if (activePointers.size === 0) {
+      activePointerId = null;
+      initialPinchDistance = null;
+      dragMoved = false;
+      viewport.style.cursor = interactActive ? "grab" : (clickToPlay ? "pointer" : "default");
+    }
   }
 
   function handleViewportDoubleClick(event: MouseEvent): void {
+    if (!interactActive) return;
     event.preventDefault();
     suppressNextClick = false;
     resetViewportTransform();
@@ -1586,8 +1698,9 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       controlsSeekBar.value = String(sceneMs / 1000);
       controlsSeekBar.style.setProperty("--seek-pct", `${clamped * 100}%`);
     }
-    if (controlsFitButton) {
-      controlsFitButton.setAttribute("aria-pressed", fitViewActive ? "true" : "false");
+    if (controlsInteractButton) {
+      const pressed = defaultFit === false ? fitViewActive : interactActive;
+      controlsInteractButton.setAttribute("aria-pressed", pressed ? "true" : "false");
     }
   }
 
@@ -1875,6 +1988,18 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     },
     resetView() {
       resetViewportTransform();
+    },
+    toggleInteract(active?: boolean) {
+      toggleInteract(active);
+    },
+    isInteractActive() {
+      return interactActive;
+    },
+    toggleFitView() {
+      toggleFitView();
+    },
+    isFitActive() {
+      return fitViewActive;
     },
     syncFullscreen(isFull?: boolean) {
       syncFullscreenHandler?.(isFull);
@@ -2523,13 +2648,25 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     toolbar.appendChild(button);
   }
 
+  function mountInteractControl(toolbar: HTMLElement): void {
+    const showButton = (interactButton ?? fitViewButton) !== false && (Boolean(interactButton) || Boolean(fitViewButton));
+    if (!showButton) return;
+    controlsInteractButton = makeControlButton("Interact", "Toggle interactive mode (pinch, zoom, and drag)", ICONS.interact);
+    controlsInteractButton.className = "markdy-control-interact markdy-control-fit";
+    controlsInteractButton.setAttribute("aria-pressed", (defaultFit === false ? fitViewActive : interactActive) ? "true" : "false");
+    controlsInteractButton.addEventListener("click", () => {
+      if (defaultFit === false) {
+        toggleFitView();
+      } else {
+        toggleInteract();
+      }
+    });
+    controlsFitButton = controlsInteractButton;
+    toolbar.appendChild(controlsInteractButton);
+  }
+
   function mountFitControl(toolbar: HTMLElement): void {
-    if (!fitViewButton) return;
-    controlsFitButton = makeControlButton("Fit", "Fit all items in view and ignore camera zoom", ICONS.fit);
-    controlsFitButton.className = "markdy-control-fit";
-    controlsFitButton.setAttribute("aria-pressed", fitViewActive ? "true" : "false");
-    controlsFitButton.addEventListener("click", toggleFitView);
-    toolbar.appendChild(controlsFitButton);
+    mountInteractControl(toolbar);
   }
 
   function mountResetViewControl(toolbar: HTMLElement): void {
@@ -2855,13 +2992,13 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       toolsGroup.appendChild(speedGroup);
     }
 
-    if (fitViewButton || resetViewButton || fullscreenButton) {
+    if (interactButton || fitViewButton || resetViewButton || fullscreenButton) {
       if (toolsGroup.children.length > 0) {
         const divider = document.createElement("div");
         divider.className = "markdy-control-divider";
         toolsGroup.appendChild(divider);
       }
-      mountFitControl(toolsGroup);
+      mountInteractControl(toolsGroup);
       mountResetViewControl(toolsGroup);
       mountFullscreenControl(toolsGroup);
     }
@@ -2888,18 +3025,16 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     syncControls();
   }
 
-  viewport.style.cursor = interactiveViewport ? "grab" : (clickToPlay ? "pointer" : "default");
-  if (interactiveViewport) {
-    viewport.style.touchAction = "pan-y";
-    if (allowZoom) viewport.addEventListener("wheel", handleViewportWheel, { passive: false });
-    if (allowPan) {
-      viewport.addEventListener("pointerdown", handleViewportPointerDown);
-      viewport.addEventListener("pointermove", handleViewportPointerMove);
-      viewport.addEventListener("pointerup", handleViewportPointerEnd);
-      viewport.addEventListener("pointercancel", handleViewportPointerEnd);
-    }
-    if (doubleClickToReset) viewport.addEventListener("dblclick", handleViewportDoubleClick);
+  viewport.style.cursor = interactActive ? "grab" : (clickToPlay ? "pointer" : "default");
+  viewport.style.touchAction = interactActive ? "none" : (scrollableViewport ? "pan-x pan-y" : "auto");
+  if (allowZoom) viewport.addEventListener("wheel", handleViewportWheel, { passive: false });
+  if (allowPan) {
+    viewport.addEventListener("pointerdown", handleViewportPointerDown);
+    viewport.addEventListener("pointermove", handleViewportPointerMove);
+    viewport.addEventListener("pointerup", handleViewportPointerEnd);
+    viewport.addEventListener("pointercancel", handleViewportPointerEnd);
   }
+  if (doubleClickToReset) viewport.addEventListener("dblclick", handleViewportDoubleClick);
   if (showControls) mountControls();
   if (clickToPlay) {
     viewport.addEventListener("click", () => {

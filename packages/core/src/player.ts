@@ -70,6 +70,10 @@ const CONTROLS: Record<string, Setting> = {
   fit_view: { group: "controls", key: "fit", type: "boolean" },
   fitViewButton: { group: "controls", key: "fit", type: "boolean" },
   fit_view_button: { group: "controls", key: "fit", type: "boolean" },
+  interact: { group: "controls", key: "interact", type: "boolean" },
+  interactive: { group: "controls", key: "interact", type: "boolean" },
+  interactButton: { group: "controls", key: "interact", type: "boolean" },
+  interact_button: { group: "controls", key: "interact", type: "boolean" },
   resetView: { group: "controls", key: "resetView", type: "boolean" },
   reset_view: { group: "controls", key: "resetView", type: "boolean" },
   resetViewButton: { group: "controls", key: "resetView", type: "boolean" },
@@ -161,6 +165,9 @@ const FLAT: Record<string, Setting> = {
   fit_view: CONTROLS.fit_view,
   fitViewButton: CONTROLS.fitViewButton,
   fit_view_button: CONTROLS.fit_view_button,
+  interact: CONTROLS.interact,
+  interactButton: CONTROLS.interactButton,
+  interact_button: CONTROLS.interact_button,
   resetViewButton: CONTROLS.resetViewButton,
   reset_view_button: CONTROLS.reset_view_button,
   focus: CONTROLS.focus,
@@ -343,10 +350,12 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
   const unconfiguredFallback = controlsExplicitlyDeclared ? false : hostControlDefault;
   const resolveControl = (value: boolean | undefined, fallback = unconfiguredFallback): boolean =>
     controlsAllowed && (value ?? fallback);
+  const interactExplicit = configuredControls.interact ?? configuredControls.fit;
   const requestedControls = {
     seek: resolveControl(configuredControls.seek, false),
     speed: resolveControl(configuredControls.speed),
     fit: controlsActive && configuredControls.fit !== false,
+    interact: controlsActive && interactExplicit !== false,
     resetView: resolveControl(configuredControls.resetView),
     fullscreen: resolveControl(configuredControls.fullscreen),
     svg: resolveControl(configuredControls.svg),
@@ -378,6 +387,7 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
     speed: requestedControls.speed && speeds.length > 1,
     resetView: requestedControls.resetView && interactionEnabled,
     fit: requestedControls.fit,
+    interact: requestedControls.interact,
   };
   const controlsEnabled = Object.values(controls).some(Boolean);
 

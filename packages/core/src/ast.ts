@@ -43,6 +43,7 @@ export type PlayerControlsConfig = {
   seek?: boolean;
   speed?: boolean;
   fit?: boolean;
+  interact?: boolean;
   resetView?: boolean;
   fullscreen?: boolean;
   svg?: boolean;

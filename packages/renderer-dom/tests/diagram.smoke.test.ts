@@ -366,6 +366,9 @@ describe("createDiagram integration", () => {
     diagram.play();
     expect(diagram.isPlaying()).toBe(true);
 
+    fitButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(fitButton.getAttribute("aria-pressed")).toBe("true");
+
     viewport.dispatchEvent(pointerEvent("pointerdown", { clientX: 20, clientY: 20 }));
     viewport.dispatchEvent(pointerEvent("pointermove", { clientX: 40, clientY: 25 }));
     viewport.dispatchEvent(pointerEvent("pointerup", { clientX: 40, clientY: 25 }));
@@ -736,23 +739,22 @@ beat b1:
 
     const cameraLayer = container.querySelector<HTMLElement>(".markdy-camera-layer")!;
     const transformLayer = container.querySelector<HTMLElement>(".markdy-viewport-transform")!;
-    const fitButton = document.body.querySelector<HTMLButtonElement>(".markdy-control-fit")!;
+    const interactButton = document.body.querySelector<HTMLButtonElement>(".markdy-control-interact")!;
 
-    expect(fitButton).not.toBeNull();
-    expect(fitButton.getAttribute("aria-pressed")).toBe("true");
+    expect(interactButton).not.toBeNull();
+    // Fit is on by default; interact button is inactive initially.
+    expect(interactButton.getAttribute("aria-pressed")).toBe("false");
     // Camera zoom cues are outranked while fitted by default.
     expect(cameraLayer.style.getPropertyPriority("transform")).toBe("important");
     expect(cameraLayer.style.transform).toBe("none");
 
-    // Toggling fit button releases fit view.
-    fitButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    expect(fitButton.getAttribute("aria-pressed")).toBe("false");
-    expect(cameraLayer.style.transform).toBe("");
-    expect(transformLayer.style.transform).toBe("translate(0px, 0px) scale(1)");
+    // Toggling interact button activates interactive mode (pinch, move, grab).
+    interactButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(interactButton.getAttribute("aria-pressed")).toBe("true");
 
-    // Toggling back activates fit view again.
-    fitButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    expect(fitButton.getAttribute("aria-pressed")).toBe("true");
+    // Toggling back deactivates interact mode and returns to clean fit view.
+    interactButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    expect(interactButton.getAttribute("aria-pressed")).toBe("false");
     expect(cameraLayer.style.getPropertyPriority("transform")).toBe("important");
     expect(cameraLayer.style.transform).toBe("none");
 
