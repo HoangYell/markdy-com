@@ -5,6 +5,14 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.13] — 2026-09-13
+
+### Fixed & Enhanced
+- **📱 Mobile Footer Controls Overflow & Responsive Badge Formatting (`@markdy/renderer-dom`)**:
+  - **Adaptive Badge Truncation**: Encapsulated the `"Powered by "` label in a `.markdy-badge-prefix` span element, dynamically dropping the prefix on tablet/mobile containers ($\le 520\text{px}$) to display a clean `"Markdy"` chip.
+  - **Zero Mobile Overflow Shield**: On narrow mobile viewports and containers ($\le 440\text{px}$), automatically hidden the `.markdy-badge` link to reserve 100% of the single-row footer toolbar for playback controls, beat steppers, and fullscreen toggles, eliminating horizontal text collision and clipping (`ered by Markdy`).
+  - **Compact Reset Control Boundary**: Hidden the secondary `.markdy-control-reset` button on ultra-narrow viewports ($\le 360\text{px}$) where Fit view and double-click to reset are already active, guaranteeing zero horizontal layout overflow across all mobile screens.
+
 ## [1.4.12] — 2026-09-13
 
 ### Fixed & Enhanced
