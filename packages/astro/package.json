@@ -1,6 +1,6 @@
 {
   "name": "@markdy/astro",
-  "version": "1.4.18",
+  "version": "1.4.19",
   "description": "Astro island component for diagram-native animated MarkdyScript architecture diagrams.",
   "license": "MIT",
   "type": "module",
@@ -38,7 +38,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@markdy/renderer-dom": "workspace:*"
+    "@markdy/renderer-dom": "^1.4.19"
   },
   "peerDependencies": {
     "astro": ">=4.0.0"

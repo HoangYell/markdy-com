@@ -235,10 +235,21 @@ function checkElementTheme(
     if (lower.includes("light")) return lightTheme;
   }
 
-  const cls = el.className;
-  if (typeof cls === "string" && cls.length > 0) {
-    if (/\b(dark|dark-mode|dark-theme|theme-dark|vscode-dark)\b/i.test(cls)) return darkTheme;
-    if (/\b(light|light-mode|light-theme|theme-light|vscode-light)\b/i.test(cls)) return lightTheme;
+  if (el.classList) {
+    const darkClasses = ["dark", "dark-mode", "dark-theme", "theme-dark", "vscode-dark"];
+    for (const c of darkClasses) {
+      if (el.classList.contains(c)) return darkTheme;
+    }
+    const lightClasses = ["light", "light-mode", "light-theme", "theme-light", "vscode-light"];
+    for (const c of lightClasses) {
+      if (el.classList.contains(c)) return lightTheme;
+    }
+  } else {
+    const cls = el.className;
+    if (typeof cls === "string" && cls.length > 0) {
+      if (/(?:^|\s)(dark|dark-mode|dark-theme|theme-dark|vscode-dark)(?:\s|$)/i.test(cls)) return darkTheme;
+      if (/(?:^|\s)(light|light-mode|light-theme|theme-light|vscode-light)(?:\s|$)/i.test(cls)) return lightTheme;
+    }
   }
 
   return null;

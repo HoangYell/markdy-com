@@ -187,7 +187,23 @@ describe("Host Theme Detection & Multi-Framework Embed Compatibility", () => {
     document.documentElement.setAttribute("data-theme", "light");
     await new Promise((resolve) => setTimeout(resolve, 50));
     expect(scene.dataset.markdyTheme).toBe("doodle");
-
     diagram.destroy();
+  });
+
+  it("ignores Tailwind CSS variant classes like dark:prose-invert or dark:bg-slate-900 on ancestors", () => {
+    document.documentElement.className = "";
+    document.documentElement.removeAttribute("data-theme");
+    document.body.className = "";
+    document.body.removeAttribute("data-theme");
+
+    const proseWrapper = document.createElement("div");
+    proseWrapper.className = "prose prose-slate dark:prose-invert max-w-none dark:bg-slate-900";
+    document.body.appendChild(proseWrapper);
+    proseWrapper.appendChild(container);
+
+    const theme = detectHostTheme(container, { light: "doodle", dark: "nebula" });
+    expect(theme).toBe("doodle");
+
+    proseWrapper.remove();
   });
 });
