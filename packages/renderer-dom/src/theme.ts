@@ -545,6 +545,19 @@ export function ensureSceneStyles(doc: Document): void {
     font-size: 9px !important;
     opacity: 0.55;
   }
+  .markdy-badge-prefix {
+    display: none !important;
+  }
+}
+@media (max-width: 440px) {
+  .markdy-badge {
+    display: none !important;
+  }
+}
+@media (max-width: 360px) {
+  .markdy-control-reset {
+    display: none !important;
+  }
 }
 @container markdy-root (max-width: 520px) {
   .markdy-btn-label {
@@ -569,6 +582,19 @@ export function ensureSceneStyles(doc: Document): void {
   }
   .markdy-controls {
     gap: 4px !important;
+  }
+  .markdy-badge-prefix {
+    display: none !important;
+  }
+}
+@container markdy-root (max-width: 440px) {
+  .markdy-badge {
+    display: none !important;
+  }
+}
+@container markdy-root (max-width: 360px) {
+  .markdy-control-reset {
+    display: none !important;
   }
 }
 .markdy-speed-group {

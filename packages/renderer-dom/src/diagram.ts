@@ -776,8 +776,11 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     badge.href = `${MARKDY_PLAYGROUND_URL}#code=${encodeCodeForPlaygroundHash(code)}`;
     badge.target = "_blank";
     badge.rel = "noopener noreferrer";
-    badge.title = "Open and edit in Markdy Playground";
-    badge.textContent = "Powered by Markdy";
+    const badgePrefix = document.createElement("span");
+    badgePrefix.className = "markdy-badge-prefix";
+    badgePrefix.textContent = "Powered by ";
+    badge.appendChild(badgePrefix);
+    badge.appendChild(document.createTextNode("Markdy"));
     ensureFooter().appendChild(badge);
     const badgeLink = badge;
     void compressMarkdyToUrlHash(code)
