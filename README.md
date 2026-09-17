@@ -33,11 +33,12 @@
 <p align="center">
   <a href="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml"><img src="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
   <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/npm/v/@markdy/core?color=blue&label=%40markdy%2Fcore" alt="npm version" /></a>
+  <a href="https://github.com/sponsors/HoangYell"><img src="https://img.shields.io/badge/Pro_Blueprints-Architecture_Kits-f59e0b" alt="Pro Architecture Blueprints" /></a>
   <a href="https://github.com/sponsors/HoangYell"><img src="https://img.shields.io/badge/Sponsor-%E2%99%A5-ea4aaa" alt="Sponsor Markdy" /></a>
   <a href="https://github.com/HoangYell/markdy-com/blob/main/LICENSE"><img src="https://img.shields.io/github/license/HoangYell/markdy-com" alt="MIT License" /></a>
 </p>
 
-> 💼 **Sponsorship & Commercial Use**: Markdy is free and open source under the MIT license. If you use Markdy in commercial projects or want to support ongoing engineering, consider **[sponsoring on GitHub](https://github.com/sponsors/HoangYell)**.
+> 💼 **Sponsorship & Commercial Use**: Markdy is free and open source under the MIT license. Access production architectural templates, custom diagram kits, and direct support via **[GitHub Sponsors & Pro Blueprints](https://github.com/sponsors/HoangYell)**.
 
 ---
 
