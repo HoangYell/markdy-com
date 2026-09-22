@@ -1,6 +1,16 @@
 # @markdy/mcp-server
 
+<p align="center">
+  <a href="https://markdy.com/playground/"><img src="https://img.shields.io/badge/⚡_Live_Studio-markdy.com%2Fplayground-3b82f6?style=for-the-badge" alt="Live Studio" /></a>
+  <a href="https://markdy.com/docs/"><img src="https://img.shields.io/badge/📖_Docs-Documentation-10b981?style=for-the-badge" alt="Documentation" /></a>
+  <a href="https://markdy.com/examples/"><img src="https://img.shields.io/badge/🌟_Blueprints-30+_Examples-f59e0b?style=for-the-badge" alt="Examples" /></a>
+  <a href="https://github.com/sponsors/HoangYell"><img src="https://img.shields.io/badge/📐_Pro_Blueprints-Architecture_Kits-f59e0b?style=for-the-badge" alt="Pro Architecture Blueprints" /></a>
+  <a href="https://github.com/sponsors/HoangYell"><img src="https://img.shields.io/badge/💖_Sponsor-Support_Markdy-ea4aaa?style=for-the-badge" alt="Sponsor Markdy" /></a>
+</p>
+
 > Official **Model Context Protocol (MCP)** server for Markdy — the animated diagram-as-code DSL.
+
+> 💼 **Enterprise & Commercial**: Free under MIT. Access production architectural templates, custom diagram kits, and direct support via **[GitHub Sponsors & Pro Blueprints](https://github.com/sponsors/HoangYell)**.
 
 Equip **Claude Desktop**, **Cursor**, **Google Antigravity**, **Windsurf**, and autonomous AI agents with tools to parse, validate, transpile, explain, and craft animated Markdy architecture diagrams.
 
