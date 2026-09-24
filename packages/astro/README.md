@@ -140,6 +140,14 @@ beat hit:
 - 🌟 **[Canonical Blueprints](https://markdy.com/examples/)** — production-grade distributed system and cloud architectures
 - 📦 **[GitHub Repository](https://github.com/HoangYell/markdy-com)** — source code, benchmarks, and issue tracker
 
+## 📐 Production Architecture Blueprints & Pro Support
+
+Ship production diagrams faster with proven starting points and expert help:
+
+- 🌟 **Canonical Blueprints Showcase**: Browse 30+ production-grade architectures for fintech, SaaS, AI, and cloud-native stacks at [markdy.com/examples](https://markdy.com/examples/) - copy any blueprint and adapt it to your stack in minutes.
+- 📦 **Pro Architecture Kits on GitHub Sponsors**: Unlock private production templates, enterprise layout kits, and prioritized support at [github.com/sponsors/HoangYell](https://github.com/sponsors/HoangYell) - built for teams shipping docs at scale.
+- ⚡ **Interactive Studio**: Prototype and share live diagrams instantly in your browser at [markdy.com/playground](https://markdy.com/playground/) - no install, no setup, just paste MarkdyScript and present.
+
 ## License
 
 [MIT](https://github.com/HoangYell/markdy-com/blob/main/LICENSE)
