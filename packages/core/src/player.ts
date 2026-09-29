@@ -353,12 +353,16 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
   const resolveControl = (value: boolean | undefined, fallback = unconfiguredFallback): boolean =>
     controlsAllowed && (value ?? fallback);
   const interactExplicit = configuredControls.interact ?? configuredControls.fit;
+  const fallbackResetView =
+    configuredControls.resetView !== undefined
+      ? configuredControls.resetView
+      : (configuredControls.fullscreen ?? unconfiguredFallback);
   const requestedControls = {
     seek: resolveControl(configuredControls.seek, false),
     speed: resolveControl(configuredControls.speed),
     fit: controlsActive && configuredControls.fit !== false,
     interact: resolveControl(interactExplicit),
-    resetView: resolveControl(configuredControls.resetView),
+    resetView: resolveControl(fallbackResetView),
     fullscreen: resolveControl(configuredControls.fullscreen),
     svg: resolveControl(configuredControls.svg),
     gif: resolveControl(configuredControls.gif),
@@ -368,15 +372,20 @@ export function resolvePlayer(config: PlayerConfig = {}, overrides: PlayerOverri
   };
 
   const hasExplicitInteraction = config.interaction !== undefined;
-  const fallbackGesture = overrides.interactiveViewport === true || overrides.controls === true;
+  const fallbackGesture =
+    overrides.interactiveViewport === true ||
+    overrides.controls === true ||
+    Boolean(requestedControls.fullscreen && controlsActive);
   const interactionOn =
     overrides.interactiveViewport === true ||
     overrides.controls === true ||
+    Boolean(requestedControls.fullscreen && controlsActive) ||
     (overrides.interactiveViewport !== false && hasExplicitInteraction);
+  const defaultGesture = hasExplicitInteraction ? false : fallbackGesture;
   const gestures = {
-    zoom: interactionOn && (interaction.zoom ?? fallbackGesture),
-    pan: interactionOn && (interaction.pan ?? fallbackGesture),
-    doubleClickToReset: interactionOn && (interaction.doubleClickToReset ?? fallbackGesture),
+    zoom: interactionOn && (interaction.zoom ?? defaultGesture),
+    pan: interactionOn && (interaction.pan ?? defaultGesture),
+    doubleClickToReset: interactionOn && (interaction.doubleClickToReset ?? defaultGesture),
   };
   const interactionEnabled = gestures.zoom || gestures.pan || gestures.doubleClickToReset;
   const configuredSpeeds = configuredControls.speeds?.length ? configuredControls.speeds : [0.25, 1];
