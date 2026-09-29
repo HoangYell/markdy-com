@@ -519,7 +519,6 @@ export function ensureSceneStyles(doc: Document): void {
   }
 }
 @media (max-width: 360px) {
-  .markdy-control-reset-view,
   .markdy-control-share,
   .markdy-control-code {
     display: none !important;
@@ -548,11 +547,13 @@ export function ensureSceneStyles(doc: Document): void {
   }
 }
 @container markdy-root (max-width: 360px) {
-  .markdy-control-reset-view,
   .markdy-control-share,
   .markdy-control-code {
     display: none !important;
   }
+}
+.markdy-fullscreen-host .markdy-control-reset-view {
+  display: inline-flex !important;
 }
 .markdy-speed-group {
   display: inline-flex;

@@ -5,6 +5,13 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.3] - 2026-09-29
+
+### Fixed
+- **🐛 Reset View Button Hidden in Fullscreen on Small Viewports (`@markdy/renderer-dom`)**:
+  - Removed `.markdy-control-reset-view` from both `@media (max-width: 360px)` and `@container markdy-root (max-width: 360px)` hide rules that were causing the Reset View button to remain invisible even in fullscreen mode on 375px-width containers (e.g., iPhone SE viewport at 385px logical pixels). The `@container` query matched the 375px container despite the viewport being 385px, overriding the JS `setProperty("display", "inline-flex", "important")` call.
+  - Added dedicated `.markdy-fullscreen-host .markdy-control-reset-view { display: inline-flex !important; }` rule ensuring the button is always visible when fullscreen is active, regardless of container or viewport width.
+
 ## [1.5.2] - 2026-09-29
 
 ### Changed & Enhanced
