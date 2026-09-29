@@ -2,9 +2,9 @@
 
 > ### SPECIFICATION METADATA
 > - **Status**: Active & Canonical
-> - **Current Version**: v1.5.0
+> - **Current Version**: v1.5.1
 > - **Specification Version**: 1.5.x
-> - **Last Updated**: 2026-09-13
+> - **Last Updated**: 2026-09-29
 > - **Documentation Hub**: <https://markdy.com/docs/>
 > - **AI Agent Guide**: <https://markdy.com/AGENT.md>
 
@@ -66,21 +66,21 @@ Canonical scenes put `layout LR|RL|TB|BT` on its own line and optional `player:`
 | Group | Owns | Settings |
 |---|---|---|
 | `playback:` | when and how fast the timeline runs | `autoplay`, `loop`, `rate` |
-| `controls:` | which toolbar affordances are mounted | `seek`, `speed`, `speeds`, `fit`, `reset_view`, `fullscreen`, `theme`, `svg`, `gif`, `share`, `code` |
+| `controls:` | which toolbar affordances are mounted | `seek`, `speed`, `speeds`, `reset_view`, `fullscreen`, `theme`, `svg`, `gif`, `share`, `code` |
 | `interaction:` | what pointer and key input do | `zoom`, `pan`, `click_to_play`, `double_click_to_reset`, `keyboard` |
 | `chrome:` | non-interactive decoration | `badge`, `progress` (`none\|bar\|boundary`), `color` |
 
-Toolbar controls are opt-in: only affordances explicitly set to `true` are mounted. When none are enabled, the toolbar is omitted; the footer remains only when the badge is enabled. `reset_view` additionally requires interaction, and `click_to_play` is independent of viewport gestures.
+Toolbar controls are opt-in: only affordances explicitly set to `true` are mounted. When none are enabled, the toolbar is omitted; the footer remains only when the badge is enabled. `reset_view` is automatically revealed in fullscreen mode to reset view transforms.
 
 The subtle "Powered by Markdy" link remains visible at the right edge of the footer by default. It links to the Markdy playground with the current source encoded in the URL; set `chrome.badge false` or the renderer's `copyright` option to `false` to hide it.
 
-`fit` mounts a toggle that frames every item in the scene and pins the camera, so `frame`/`focus` zoom cues stop moving the view while it is active. Toggling it off, pressing `reset_view`, or double-clicking restores normal camera motion. `fullscreen` toggles browser fullscreen presentation for the diagram container.
+`fullscreen` toggles fullscreen presentation for the diagram container. Entering fullscreen automatically activates interactive mode (zoom wheel, touch pinch, mouse drag and pan) and reveals the `reset_view` button. Exiting fullscreen restores the diagram to its clean, fitted inline state with zero gesture hijacking during normal page scrolling.
 
 `rate` sets the initial playback multiplier; `speeds` sets the choices offered to viewers (`speeds "0.25 1 3"`). The speed selector is omitted unless `speed true` provides at least two distinct positive choices.
 
 `keyboard` is the one affordance that stays **off** unless you ask for it, because it listens on the window and captures space and arrow keys: <kbd>←</kbd>/<kbd>→</kbd> step beats, <kbd>Space</kbd> toggles playback, and <kbd>Home</kbd> restarts.
 
-`svg` downloads the settled final frame as vector SVG. `gif` exports the animated scene as an optimized GIF recording. `share` copies a compressed share link; hosts can point it at their own editor with the renderer's `shareUrl` option, and it defaults to the Markdy playground. `code` opens a dialog displaying the raw MarkdyScript source code with syntax tinting and copy button.
+`svg` downloads the settled final frame as vector SVG using the download icon. `gif` exports the animated scene as an optimized GIF recording using the download icon. `share` copies a compressed share link; hosts can point it at their own editor with the renderer's `shareUrl` option, and it defaults to the Markdy playground. `code` opens a dialog displaying the raw MarkdyScript source code with syntax tinting and copy button.
 
 Settings accept camel case or snake case, and `key value`, `key: value`, or `key = value`. Omitted renderer, Astro, or MDX props preserve script configuration; host `false` gates controls or interaction, while host `true` supplies legacy defaults for unset leaves. Legacy top-level directives, flat `player:` keys, and inline scene properties such as `controls true`, `interactive true`, `speed 1.5`, and `scene autoplay=false` are normalized into the same groups.
 
@@ -118,10 +118,10 @@ The optional beat label is rendered as a short caption during that beat.
 When a host strips indentation (common with MDX/JSX template literals), the parser automatically recovers colon bodies and nested player groups (`playback:`, `controls:`, `interaction:`, `chrome:`) by inferring the block hierarchy until the next top-level statement. Standard 2-space indentation remains canonical for maximum readability.
 
 Flow operators:
-- `->` — Forward request/call (determines forward layout rank)
-- `<-` — Response/return value (excluded from ranking to prevent cycles)
-- `~>` — Asynchronous event or pub-sub message
-- `--` — Structural/dependency link
+- `->`: Forward request/call (determines forward layout rank)
+- `<-`: Response/return value (excluded from ranking to prevent cycles)
+- `~>`: Asynchronous event or pub-sub message
+- `--`: Structural/dependency link
 
 ### Patterns
 

@@ -5,6 +5,19 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2026-09-29
+
+### Changed & Enhanced
+- **🎯 Fullscreen-Unified Interaction & Toolbar Streamlining (`@markdy/renderer-dom`)**:
+  - **Removed Hand Button**: Deprecated and removed `.markdy-control-interact` from the player toolbar to eliminate toolbar slot clutter and touch hijacking on mobile devices (375px-390px).
+  - **Seamless Fullscreen Interaction**: Fullscreen mode now serves as the single unified gateway to interactive gestures. Entering fullscreen automatically activates pan, wheel zoom, touch pinch, and mouse drag. Exiting fullscreen automatically resets transforms and deactivates gesture listeners, keeping inline reading completely stable without gesture interception during page scrolling.
+  - **Conditional Reset View Button**: The Reset View button (`.markdy-control-reset-view`) is hidden in inline view and only revealed when in Fullscreen mode.
+- **📥 Intuitive Download Icon for GIF Export (`@markdy/renderer-dom`)**:
+  - Replaced the abstract filmstrip icon on the GIF export control with the standard vector download tray icon, making animated GIF export immediately recognizable alongside SVG export.
+- **📚 Ecosystem Documentation & Example Modernization (`examples/`, `website/`, `docs/`)**:
+  - Cleaned up obsolete `interact true` keys across all 80 example blueprints, showcase templates, and playground code snippets.
+  - Updated `docs/SYNTAX.md` to document the unified fullscreen interaction model and download export icons.
+
 ## [1.5.0] — 2026-09-13
 
 ### Changed & Enhanced
