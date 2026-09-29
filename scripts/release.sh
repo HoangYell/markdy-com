@@ -24,7 +24,7 @@ create_changelog_stub_if_missing() {
     return
   fi
 
-  echo "📝 CHANGELOG.md has no [$VERSION] entry — inserting a placeholder."
+  echo "📝 CHANGELOG.md has no [$VERSION] entry - inserting a placeholder."
   local today
   today="$(date +%Y-%m-%d)"
   local tmp
@@ -38,7 +38,7 @@ create_changelog_stub_if_missing() {
     echo "The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),"
     echo "and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html)."
     echo
-    echo "## [$VERSION] — $today"
+    echo "## [$VERSION] - $today"
     echo
     echo "### Changed"
     echo "- TODO: summarize release changes."

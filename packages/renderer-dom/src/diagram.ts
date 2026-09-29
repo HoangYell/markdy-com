@@ -1463,17 +1463,11 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     Boolean(plan.meta.player?.interaction?.pan) ||
     Boolean(plan.meta.player?.interaction?.zoom) ||
     Boolean((plan.meta.player?.interaction as any)?.enabled);
-  const hasInteractControl =
-    showControls &&
-    (interactButton ?? fitViewButton) !== false &&
-    (Boolean(interactButton) || Boolean(fitViewButton));
   const explicitInteract = defaultInteract ?? explicitInteractOption;
   let interactActive =
     explicitInteract !== undefined
       ? Boolean(explicitInteract)
-      : hasInteractControl
-        ? false
-        : hasAuthorInteraction || Boolean(explicitInteractiveViewport);
+      : hasAuthorInteraction || Boolean(explicitInteractiveViewport);
 
   const ICONS = {
     play: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>',
@@ -1487,7 +1481,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     fullscreen: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>',
     fullscreenExit: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"/></svg>',
     svg: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
-    gif: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="3"/><circle cx="7" cy="7" r="1.5" fill="currentColor"/><circle cx="17" cy="7" r="1.5" fill="currentColor"/><circle cx="7" cy="17" r="1.5" fill="currentColor"/><circle cx="17" cy="17" r="1.5" fill="currentColor"/><path d="M10 10l5 2-5 2z" fill="currentColor"/></svg>',
+    gif: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
     share: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>',
     code: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
     theme: '<svg class="markdy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v18"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/></svg>',
@@ -2659,32 +2653,24 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     toolbar.appendChild(button);
   }
 
-  function mountInteractControl(toolbar: HTMLElement): void {
-    const showButton = (interactButton ?? fitViewButton) !== false && (Boolean(interactButton) || Boolean(fitViewButton));
-    if (!showButton) return;
-    controlsInteractButton = makeControlButton("Interact", "Toggle interactive mode (pinch, zoom, and drag)", ICONS.interact);
-    controlsInteractButton.className = "markdy-control-interact markdy-control-fit";
-    controlsInteractButton.setAttribute("aria-pressed", (defaultFit === false ? fitViewActive : interactActive) ? "true" : "false");
-    controlsInteractButton.addEventListener("click", () => {
-      if (defaultFit === false) {
-        toggleFitView();
-      } else {
-        toggleInteract();
-      }
-    });
-    controlsFitButton = controlsInteractButton;
-    toolbar.appendChild(controlsInteractButton);
+  function mountInteractControl(_toolbar: HTMLElement): void {
+    // Deprecated: Hand button is removed from player toolbar.
+    // Interactive mode (pan, zoom, pinch, drag) is now automatically unified with Fullscreen.
   }
 
   function mountFitControl(toolbar: HTMLElement): void {
     mountInteractControl(toolbar);
   }
 
+  let controlsResetViewButton: HTMLButtonElement | null = null;
+
   function mountResetViewControl(toolbar: HTMLElement): void {
     if (!resetViewButton) return;
     const button = makeControlButton("Reset", "Reset diagram view", ICONS.resetView);
     button.className = "markdy-control-reset-view";
+    button.style.display = "none";
     button.addEventListener("click", resetViewportTransform);
+    controlsResetViewButton = button;
     toolbar.appendChild(button);
   }
 
@@ -2754,6 +2740,10 @@ export function createDiagram(opts: DiagramOptions): Diagram {
             }
           }
         }
+        toggleInteract(true);
+        if (controlsResetViewButton) {
+          controlsResetViewButton.style.display = "inline-flex";
+        }
       } else {
         host.classList.remove("markdy-fullscreen-host");
         host.classList.remove("markdy--pseudo-fullscreen");
@@ -2766,6 +2756,10 @@ export function createDiagram(opts: DiagramOptions): Diagram {
             document.body.style.overflow = originalBodyOverflow;
             originalBodyOverflow = null;
           }
+        }
+        toggleInteract(false);
+        if (controlsResetViewButton) {
+          controlsResetViewButton.style.display = "none";
         }
       }
 
@@ -3003,13 +2997,12 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       toolsGroup.appendChild(speedGroup);
     }
 
-    if (interactButton || fitViewButton || resetViewButton || fullscreenButton) {
+    if (resetViewButton || fullscreenButton) {
       if (toolsGroup.children.length > 0) {
         const divider = document.createElement("div");
         divider.className = "markdy-control-divider";
         toolsGroup.appendChild(divider);
       }
-      mountInteractControl(toolsGroup);
       mountResetViewControl(toolsGroup);
       mountFullscreenControl(toolsGroup);
     }

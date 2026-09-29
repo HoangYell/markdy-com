@@ -345,15 +345,15 @@ describe("createDiagram integration", () => {
     const viewport = container.firstElementChild as HTMLElement;
     const footer = document.body.querySelector<HTMLElement>(".markdy-footer");
     const toolbar = footer?.querySelector<HTMLElement>(".markdy-controls") ?? null;
-    const fitButton = footer?.querySelector<HTMLButtonElement>(".markdy-control-fit")!;
     const quarterSpeedButton = [...footer!.querySelectorAll<HTMLButtonElement>(".markdy-control-rate")].find((button) => button.dataset.rate === "0.25")!;
     const resetButton = footer?.querySelector<HTMLButtonElement>(".markdy-control-reset-view")!;
 
     expect(container.querySelector(".markdy-controls")).not.toBeNull();
     expect(footer).not.toBeNull();
     expect(toolbar).not.toBeNull();
-    expect(fitButton).not.toBeNull();
+    expect(footer?.querySelector(".markdy-control-interact")).toBeNull();
     expect(resetButton).not.toBeNull();
+    expect(resetButton.style.display).toBe("none");
     expect(footer?.style.justifyContent).toBe("space-between");
     expect(toolbar?.style.justifyContent).toBe("flex-start");
     expect(footer?.querySelector(".markdy-control-play")).toBeNull();
@@ -366,8 +366,10 @@ describe("createDiagram integration", () => {
     diagram.play();
     expect(diagram.isPlaying()).toBe(true);
 
-    fitButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    expect(fitButton.getAttribute("aria-pressed")).toBe("true");
+    // Fullscreen automatically activates interactive mode and displays reset button
+    diagram.syncFullscreen(true);
+    expect(diagram.isInteractActive()).toBe(true);
+    expect(resetButton.style.display).toBe("inline-flex");
 
     viewport.dispatchEvent(pointerEvent("pointerdown", { clientX: 20, clientY: 20 }));
     viewport.dispatchEvent(pointerEvent("pointermove", { clientX: 40, clientY: 25 }));
@@ -377,6 +379,11 @@ describe("createDiagram integration", () => {
     expect(container.querySelector<HTMLElement>(".markdy-viewport-transform")?.style.transform).toContain("translate(20px, 5px)");
     resetButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(container.querySelector<HTMLElement>(".markdy-viewport-transform")?.style.transform).toBe("translate(0px, 0px) scale(1)");
+
+    // Exiting fullscreen resets transform, deactivates interaction, and hides reset button
+    diagram.syncFullscreen(false);
+    expect(diagram.isInteractActive()).toBe(false);
+    expect(resetButton.style.display).toBe("none");
 
     diagram.seek(1);
     diagram.seek(0);
@@ -725,7 +732,7 @@ player:
   controls:
     seek false
     speed false
-    fit true
+    fullscreen true
     reset_view false
 
 scene theme=paper
@@ -739,22 +746,22 @@ beat b1:
 
     const cameraLayer = container.querySelector<HTMLElement>(".markdy-camera-layer")!;
     const transformLayer = container.querySelector<HTMLElement>(".markdy-viewport-transform")!;
-    const interactButton = document.body.querySelector<HTMLButtonElement>(".markdy-control-interact")!;
+    const interactButton = document.body.querySelector<HTMLButtonElement>(".markdy-control-interact");
 
-    expect(interactButton).not.toBeNull();
-    // Fit is on by default; interact button is inactive initially.
-    expect(interactButton.getAttribute("aria-pressed")).toBe("false");
+    // Hand button is removed from player toolbar
+    expect(interactButton).toBeNull();
+    expect(diagram.isInteractActive()).toBe(false);
     // Camera zoom cues are outranked while fitted by default.
     expect(cameraLayer.style.getPropertyPriority("transform")).toBe("important");
     expect(cameraLayer.style.transform).toBe("none");
 
-    // Toggling interact button activates interactive mode (pinch, move, grab).
-    interactButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    expect(interactButton.getAttribute("aria-pressed")).toBe("true");
+    // Entering fullscreen activates interactive mode (pinch, move, grab)
+    diagram.syncFullscreen(true);
+    expect(diagram.isInteractActive()).toBe(true);
 
-    // Toggling back deactivates interact mode and returns to clean fit view.
-    interactButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    expect(interactButton.getAttribute("aria-pressed")).toBe("false");
+    // Exiting fullscreen deactivates interact mode and returns to clean fit view
+    diagram.syncFullscreen(false);
+    expect(diagram.isInteractActive()).toBe(false);
     expect(cameraLayer.style.getPropertyPriority("transform")).toBe("important");
     expect(cameraLayer.style.transform).toBe("none");
 
@@ -1089,19 +1096,19 @@ service API "<img data-test=unsafe>"
     expect(footer.style.pointerEvents).toBe("auto");
 
     expect(toolsGroup).not.toBeNull();
-    const fitBtn = toolsGroup.querySelector<HTMLButtonElement>(".markdy-control-fit")!;
+    const fitBtn = toolsGroup.querySelector<HTMLButtonElement>(".markdy-control-fit");
     const themeBtn = toolsGroup.querySelector<HTMLButtonElement>(".markdy-control-theme")!;
     const svgBtn = toolsGroup.querySelector<HTMLButtonElement>(".markdy-control-svg")!;
     const codeBtn = toolsGroup.querySelector<HTMLButtonElement>(".markdy-control-code")!;
 
-    expect(fitBtn).not.toBeNull();
+    expect(fitBtn).toBeNull();
     expect(themeBtn).not.toBeNull();
     expect(svgBtn).not.toBeNull();
     expect(codeBtn).not.toBeNull();
 
     // Clicking tools button must not toggle diagram playback or trigger viewport drag
     expect(diagram.isPlaying()).toBe(false);
-    fitBtn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    themeBtn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(diagram.isPlaying()).toBe(false);
 
     // Verify seek() synchronizes slider while paused

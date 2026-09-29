@@ -187,7 +187,7 @@ beat flow:
         defaultFit: false,
       });
       const viewport = container.querySelector<HTMLElement>(".markdy-viewport")!;
-      const fit = container.querySelector<HTMLButtonElement>(".markdy-control-fit")!;
+      expect(container.querySelector(".markdy-control-fit")).toBeNull();
       diagram.seek(0.5);
       expect(viewport.style.overflow).toBe("auto");
       expect(viewport.scrollLeft).toBeGreaterThan(0);
@@ -200,14 +200,14 @@ beat flow:
       viewport.scrollLeft = 80;
       diagram.resize();
       expect(viewport.scrollLeft).toBe(80);
-      fit.click();
+      diagram.toggleFitView();
       expect(viewport.style.overflow).toBe("hidden");
-      expect(fit.getAttribute("aria-pressed")).toBe("true");
+      expect(diagram.isFitActive()).toBe(true);
       expect(diagram.currentTime()).toBe(0.5);
-      fit.click();
+      diagram.toggleFitView();
       expect(viewport.style.overflow).toBe("auto");
       expect(viewport.scrollLeft).toBeGreaterThan(0);
-      expect(fit.getAttribute("aria-pressed")).toBe("false");
+      expect(diagram.isFitActive()).toBe(false);
       diagram.destroy();
     });
 

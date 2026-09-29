@@ -26,7 +26,6 @@ player:
   controls:
     speed true
     speeds "0.25"
-    interact true
     fullscreen true
     gif true
     theme true
