@@ -2742,7 +2742,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
         }
         toggleInteract(true);
         if (controlsResetViewButton) {
-          controlsResetViewButton.style.display = "inline-flex";
+          controlsResetViewButton.style.setProperty("display", "inline-flex", "important");
         }
       } else {
         host.classList.remove("markdy-fullscreen-host");
@@ -2759,7 +2759,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
         }
         toggleInteract(false);
         if (controlsResetViewButton) {
-          controlsResetViewButton.style.display = "none";
+          controlsResetViewButton.style.setProperty("display", "none", "important");
         }
       }
 
