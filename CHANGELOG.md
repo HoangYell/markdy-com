@@ -5,6 +5,13 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.2] - 2026-09-29
+
+### Changed & Enhanced
+- **🎯 Fullscreen Interaction & View Reset Guarantees (`@markdy/core`, `@markdy/renderer-dom`)**:
+  - **Automatic Gesture Activation**: Interaction listeners (wheel zoom, pointer pan, touch pinch, double-click reset) are now automatically active whenever fullscreen mode is supported, allowing immediate fluid manipulation inside fullscreen without requiring explicit `interaction:` block declarations.
+  - **Fullscreen Reset View Availability**: The Reset View button (`.markdy-control-reset-view`) is automatically mounted whenever fullscreen is enabled (remaining hidden in inline view via `display: none` and cleanly revealed in fullscreen mode via `display: inline-flex`), allowing users to easily restore 100% center framing after zooming or panning.
+
 ## [1.5.1] - 2026-09-29
 
 ### Changed & Enhanced

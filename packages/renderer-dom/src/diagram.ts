@@ -2665,7 +2665,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   let controlsResetViewButton: HTMLButtonElement | null = null;
 
   function mountResetViewControl(toolbar: HTMLElement): void {
-    if (!resetViewButton) return;
+    if (!resetViewButton && !fullscreenButton) return;
     const button = makeControlButton("Reset", "Reset diagram view", ICONS.resetView);
     button.className = "markdy-control-reset-view";
     button.style.display = "none";
@@ -3031,14 +3031,14 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
   viewport.style.cursor = interactActive ? "grab" : (clickToPlay ? "pointer" : "default");
   viewport.style.touchAction = interactActive ? "none" : (scrollableViewport ? "pan-x pan-y" : "auto");
-  if (allowZoom) viewport.addEventListener("wheel", handleViewportWheel, { passive: false });
-  if (allowPan) {
+  if (allowZoom || fullscreenButton) viewport.addEventListener("wheel", handleViewportWheel, { passive: false });
+  if (allowPan || fullscreenButton) {
     viewport.addEventListener("pointerdown", handleViewportPointerDown);
     viewport.addEventListener("pointermove", handleViewportPointerMove);
     viewport.addEventListener("pointerup", handleViewportPointerEnd);
     viewport.addEventListener("pointercancel", handleViewportPointerEnd);
   }
-  if (doubleClickToReset) viewport.addEventListener("dblclick", handleViewportDoubleClick);
+  if (doubleClickToReset || fullscreenButton) viewport.addEventListener("dblclick", handleViewportDoubleClick);
   if (showControls) mountControls();
   if (clickToPlay) {
     viewport.addEventListener("click", () => {
