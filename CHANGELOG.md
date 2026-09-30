@@ -5,6 +5,16 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.6] - 2026-09-30
+
+### Changed & Enhanced
+- **🎨 Modern Minimalist Floating Embedding Architecture (`@markdy/renderer-dom`, `@markdy/astro`)**:
+  - **Eliminated Obstructive Bottom Strip**: Removed the heavy full-width footer bar (`.markdy-footer`) in favor of a transparent, zero-height overlay that lets diagram viewports fill 100% of the host card area with continuous 11px rounded borders.
+  - **Floating Micro-Pill Controls**: Transformed `.markdy-controls` into a sleek floating micro-pill at the bottom-left corner with glassmorphic backdrop blur (`blur(8px)`), subtle 1px border, and comfortable 24px x 24px buttons with 13px vector icons.
+  - **Quiet Watermark Attribution**: Styled `.markdy-badge` ("Powered by Markdy") as a floating discreet watermark at bottom-right corner (`opacity: 0.35`, hover `0.8`), linking canonically to `https://markdy.com/`.
+  - **Built-in Responsive Studio / Playground Button**: Mounted `.markdy-studio-link` at the top-right corner pointing to `https://markdy.com/playground/#code=<hash>`. Desktop displays smooth reveal on hover (`opacity: 0 -> hover: 0.75`), while touch/mobile screens maintain permanent touch-ready visibility (`opacity: 0.75`).
+  - **Zero-Custom-Code Integration**: Exposed `studioLink?: boolean` in `@markdy/astro` and `@markdy/renderer-dom` so downstream blogs and documentation sites require zero CSS overrides and zero wrapping containers.
+
 ## [1.5.5] - 2026-09-30
 
 ### Changed & Enhanced
