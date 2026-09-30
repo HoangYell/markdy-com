@@ -1,7 +1,7 @@
 {
   "name": "markdy-astro-starter",
   "type": "module",
-  "version": "1.5.6",
+  "version": "1.5.7",
   "private": true,
   "scripts": {
     "dev": "astro dev",
