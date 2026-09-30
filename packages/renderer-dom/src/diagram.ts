@@ -2056,6 +2056,8 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       if (progressEl?.parentNode === viewport) viewport.removeChild(progressEl);
       if (footer?.parentNode === container) container.removeChild(footer);
       if (studioLink?.parentNode === container) container.removeChild(studioLink);
+      if (fullscreenControlEl?.parentNode === container) container.removeChild(fullscreenControlEl);
+      fullscreenControlEl = null;
       if (viewport.parentNode === container) container.removeChild(viewport);
     },
   };
@@ -2698,8 +2700,9 @@ export function createDiagram(opts: DiagramOptions): Diagram {
 
   let removeFullscreenListeners: (() => void) | null = null;
   let syncFullscreenHandler: ((isFull?: boolean) => void) | null = null;
+  let fullscreenControlEl: HTMLElement | null = null;
 
-  function mountFullscreenControl(toolbar: HTMLElement): void {
+  function mountFullscreenControl(parent: HTMLElement = container): void {
     if (!fullscreenButton) return;
     const button = makeControlButton("Full", "Toggle fullscreen view", ICONS.fullscreen);
     button.className = "markdy-control-fullscreen";
@@ -2928,9 +2931,14 @@ export function createDiagram(opts: DiagramOptions): Diagram {
         host.classList.remove("markdy--pseudo-fullscreen");
         host.classList.remove("markdy-fullscreen-host");
       }
+      if (fullscreenControlEl?.parentNode) {
+        fullscreenControlEl.parentNode.removeChild(fullscreenControlEl);
+      }
+      fullscreenControlEl = null;
     };
 
-    toolbar.appendChild(button);
+    fullscreenControlEl = button;
+    parent.appendChild(button);
   }
 
   function handleKeyDown(event: KeyboardEvent): void {
@@ -3014,14 +3022,17 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       toolsGroup.appendChild(speedGroup);
     }
 
-    if (resetViewButton || fullscreenButton) {
+    if (resetViewButton) {
       if (toolsGroup.children.length > 0) {
         const divider = document.createElement("div");
         divider.className = "markdy-control-divider";
         toolsGroup.appendChild(divider);
       }
       mountResetViewControl(toolsGroup);
-      mountFullscreenControl(toolsGroup);
+    }
+
+    if (fullscreenButton) {
+      mountFullscreenControl(container);
     }
 
     if (svgButton || gifButton || shareButton || codeButton || themeButton) {
