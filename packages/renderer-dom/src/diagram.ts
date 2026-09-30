@@ -49,6 +49,7 @@ const VIEWPORT_ZOOM_STEP = 0.0015;
 const DRAG_CLICK_THRESHOLD_PX = 4;
 const BEAT_NAV_EPSILON_S = 0.05;
 const MARKDY_PLAYGROUND_URL = "https://markdy.com/playground/";
+const MARKDY_HOMEPAGE_URL = "https://markdy.com/";
 
 function encodeCodeForPlaygroundHash(code: string): string {
   return encodeURIComponent(btoa(encodeURIComponent(code)));
@@ -902,7 +903,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
   if (copyright) {
     badge = document.createElement("a");
     badge.className = "markdy-badge";
-    badge.href = `${MARKDY_PLAYGROUND_URL}#code=${encodeCodeForPlaygroundHash(code)}`;
+    badge.href = MARKDY_HOMEPAGE_URL;
     badge.target = "_blank";
     badge.rel = "noopener noreferrer";
     const badgePrefix = document.createElement("span");
@@ -916,12 +917,6 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     badgeBrand.textContent = "Markdy";
     badge.appendChild(badgeBrand);
     ensureFooter().appendChild(badge);
-    const badgeLink = badge;
-    void compressMarkdyToUrlHash(code)
-      .then((hash) => {
-        badgeLink.href = `${MARKDY_PLAYGROUND_URL}#code=${hash}`;
-      })
-      .catch(() => undefined);
   }
 
   ensureSceneStyles(document);

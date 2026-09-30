@@ -500,7 +500,7 @@ beat b1:
     expect(toolbar).not.toBeNull();
     expect(badge).not.toBeNull();
     expect(badge?.textContent).toBe("Powered by Markdy");
-    await vi.waitFor(() => expect(badge?.href).toMatch(/^https:\/\/markdy\.com\/playground\/#code=~m.+/));
+    expect(badge?.href).toBe("https://markdy.com/");
     expect(badge?.target).toBe("_blank");
     expect(footer?.style.flexWrap).toBe("nowrap");
     expect(footer?.firstElementChild).toBe(toolbar);
@@ -524,7 +524,7 @@ beat b1:
     expect(footer).not.toBeNull();
     expect(footer?.querySelector(".markdy-controls")).toBeNull();
     expect(badge?.textContent).toBe("Powered by Markdy");
-    await vi.waitFor(() => expect(badge?.href).toMatch(/^https:\/\/markdy\.com\/playground\/#code=~m.+/));
+    expect(badge?.href).toBe("https://markdy.com/");
 
     diagram.destroy();
   });
