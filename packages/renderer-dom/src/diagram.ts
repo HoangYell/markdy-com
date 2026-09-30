@@ -92,6 +92,11 @@ export interface DiagramOptions {
   clickToPlay?: boolean;
   /** Base URL for the Share control. Defaults to the Markdy playground. */
   shareUrl?: string;
+  /**
+   * Show floating Studio playground link button at top-right corner.
+   * Defaults to true when undefined. Set to false to disable.
+   */
+  studioLink?: boolean;
   /** Host controls override. `true` enables the legacy default set; `false` suppresses script controls; or pass a granular controls configuration object. */
   controls?: boolean | (PlayerControlsConfig & { playback?: boolean });
   onWarning?: (warning: Diagnostic) => void;
@@ -868,7 +873,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     footer.className = "markdy-footer";
     applyThemeVariables(footer, plan.theme);
     Object.assign(footer.style, {
-      position: "relative",
+      position: "static",
       zIndex: "100",
       display: "flex",
       alignItems: "center",
@@ -879,6 +884,13 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       boxSizing: "border-box",
       pointerEvents: "auto",
       flexShrink: "0",
+      height: "0",
+      minHeight: "0",
+      padding: "0",
+      margin: "0",
+      background: "transparent",
+      borderTop: "none",
+      overflow: "visible",
     });
     for (const eventName of [
       "click",
@@ -917,6 +929,20 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     badgeBrand.textContent = "Markdy";
     badge.appendChild(badgeBrand);
     ensureFooter().appendChild(badge);
+  }
+
+  let studioLink: HTMLAnchorElement | null = null;
+  const studioLinkEnabled = opts.studioLink !== false;
+  if (studioLinkEnabled) {
+    studioLink = document.createElement("a");
+    studioLink.className = "markdy-studio-link";
+    studioLink.href = `${shareUrl ?? MARKDY_PLAYGROUND_URL}#code=${encodeCodeForPlaygroundHash(code)}`;
+    studioLink.target = "_blank";
+    studioLink.rel = "noopener noreferrer";
+    studioLink.title = "Open in Markdy Studio";
+    studioLink.setAttribute("aria-label", "Open in Markdy Studio");
+    studioLink.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-4M14 4h6v6m0-6L10 14"/></svg>`;
+    container.appendChild(studioLink);
   }
 
   ensureSceneStyles(document);
@@ -2029,6 +2055,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       container.classList.remove("markdy--pseudo-fullscreen");
       if (progressEl?.parentNode === viewport) viewport.removeChild(progressEl);
       if (footer?.parentNode === container) container.removeChild(footer);
+      if (studioLink?.parentNode === container) container.removeChild(studioLink);
       if (viewport.parentNode === container) container.removeChild(viewport);
     },
   };
@@ -2946,20 +2973,15 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     toolbar.setAttribute("role", "toolbar");
     toolbar.setAttribute("aria-label", "Diagram controls");
     Object.assign(toolbar.style, {
-      position: "relative",
+      position: "absolute",
+      bottom: "8px",
+      left: "8px",
       display: "inline-flex",
       alignItems: "center",
       justifyContent: "flex-start",
-      width: "auto",
-      maxWidth: "100%",
-      border: "0",
-      borderRadius: "0",
-      background: "transparent",
-      boxShadow: "none",
-      backdropFilter: "none",
-      transform: "none",
+      gap: "3px",
+      zIndex: "50",
       pointerEvents: "auto",
-      zIndex: "10",
     });
     for (const eventName of [
       "click",

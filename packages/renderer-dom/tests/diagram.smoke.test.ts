@@ -1263,4 +1263,55 @@ beat step4 "4. Render Diagram":
     diagram.destroy();
     container.remove();
   });
+
+  it("mounts modern floating embedding UI with studioLink and micro-pill controls by default", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const diagram = createDiagram({
+      container,
+      code: SCENE,
+      autoplay: false,
+      copyright: true,
+      controls: true,
+    });
+
+    const studioLink = container.querySelector<HTMLAnchorElement>(".markdy-studio-link");
+    expect(studioLink).not.toBeNull();
+    expect(studioLink?.href).toContain("https://markdy.com/playground/#code=");
+    expect(studioLink?.title).toBe("Open in Markdy Studio");
+    expect(studioLink?.target).toBe("_blank");
+
+    const controls = container.querySelector<HTMLElement>(".markdy-controls");
+    expect(controls).not.toBeNull();
+    expect(controls?.style.position).toBe("absolute");
+    expect(controls?.style.bottom).toBe("8px");
+    expect(controls?.style.left).toBe("8px");
+
+    const badge = container.querySelector<HTMLAnchorElement>(".markdy-badge");
+    expect(badge).not.toBeNull();
+    expect(badge?.href).toBe("https://markdy.com/");
+
+    // Verify studioLink is cleaned up on destroy
+    diagram.destroy();
+    expect(container.querySelector(".markdy-studio-link")).toBeNull();
+    container.remove();
+  });
+
+  it("allows suppressing studioLink via studioLink: false option", () => {
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+
+    const diagram = createDiagram({
+      container,
+      code: SCENE,
+      autoplay: false,
+      studioLink: false,
+    });
+
+    expect(container.querySelector(".markdy-studio-link")).toBeNull();
+
+    diagram.destroy();
+    container.remove();
+  });
 });

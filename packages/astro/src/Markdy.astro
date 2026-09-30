@@ -70,6 +70,8 @@ export interface Props {
   codeControl?: boolean;
   /** Show switch theme button in toolbar. */
   theme?: boolean;
+  /** Show floating Studio playground link button at top-right corner. Defaults to true. */
+  studioLink?: boolean;
   /** Custom default light theme for auto mode (e.g. "doodle", "paper"). */
   defaultLightTheme?: string;
   defaultDarkTheme?: string;
@@ -112,6 +114,7 @@ const {
   share,
   codeControl,
   theme,
+  studioLink = true,
   defaultLightTheme,
   defaultDarkTheme,
   defaultThemes,
@@ -148,6 +151,7 @@ const codeB64 =
   data-markdy-autoplay={autoplay !== undefined ? String(autoplay) : undefined}
   data-markdy-loop={loop !== undefined ? String(loop) : undefined}
   data-markdy-copyright={copyright !== undefined ? String(copyright) : undefined}
+  data-markdy-studio-link={studioLink !== undefined ? String(studioLink) : undefined}
   data-markdy-theme-light={resolvedDefaultLightTheme ?? undefined}
   data-markdy-theme-dark={resolvedDefaultDarkTheme ?? undefined}
   data-markdy-progress-bar={progressBar !== undefined ? String(progressBar) : undefined}
@@ -348,6 +352,10 @@ const codeB64 =
       el.dataset.markdyCopyright !== undefined
         ? el.dataset.markdyCopyright === "true"
         : undefined;
+    const studioLink =
+      el.dataset.markdyStudioLink !== undefined
+        ? el.dataset.markdyStudioLink === "true"
+        : true;
     const progressBar =
       el.dataset.markdyProgressBar !== undefined
         ? el.dataset.markdyProgressBar !== "false"
@@ -422,6 +430,7 @@ const codeB64 =
       autoplay,
       loop,
       copyright,
+      studioLink,
       defaultThemes,
       defaultLightTheme,
       defaultDarkTheme,

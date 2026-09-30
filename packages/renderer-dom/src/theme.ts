@@ -227,28 +227,28 @@ export function ensureSceneStyles(doc: Document): void {
   min-height: 0;
   overflow: hidden;
   box-sizing: border-box;
-  border-radius: 11px 11px 0 0;
+  border-radius: 11px;
 }
 .markdy-footer {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  position: relative;
+  position: static;
   width: 100%;
   box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  padding: 8px 12px 7px 10px;
+  gap: 6px;
+  padding: 0;
+  height: 0;
+  min-height: 0;
+  line-height: 0;
+  background: transparent;
+  border-top: none;
+  overflow: visible;
   color: var(--md-text, #64748b);
-  background: var(--md-footer-bg, rgba(248, 250, 252, 0.88));
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-top: 1px solid var(--md-card-border, rgba(148, 163, 184, 0.16));
-  z-index: 100;
+  z-index: 40;
   pointer-events: auto;
   flex-shrink: 0;
-  border-radius: 0 0 11px 11px;
-  transition: background 0.2s ease, border-color 0.2s ease;
 }
 /* ── Real Embedded Footer Scrubber ── */
 .markdy-player-scrubber {
@@ -352,24 +352,32 @@ export function ensureSceneStyles(doc: Document): void {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 .markdy-controls {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
   flex: 0 1 auto;
   width: auto;
   min-width: 0;
-  gap: 6px;
+  gap: 3px;
   max-width: 100%;
-  padding: 0;
+  padding: 3px 4px;
   margin: 0;
-  position: relative;
-  z-index: 10;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(203, 213, 225, 0.6);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  z-index: 50;
   pointer-events: auto;
 }
 .markdy-controls-group {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   flex-shrink: 0;
   position: relative;
   z-index: 5;
@@ -378,7 +386,7 @@ export function ensureSceneStyles(doc: Document): void {
 .markdy-controls-tools {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   flex-shrink: 0;
   margin-left: 0;
 }
@@ -390,11 +398,7 @@ export function ensureSceneStyles(doc: Document): void {
   flex-shrink: 0;
 }
 .markdy-btn-label {
-  display: inline;
-  margin-left: 3px;
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1;
+  display: none;
 }
 .markdy-controls button {
   appearance: none;
@@ -402,49 +406,45 @@ export function ensureSceneStyles(doc: Document): void {
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
-  border: 1px solid rgba(203, 213, 225, 0.7);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.9);
-  color: #475569;
-  cursor: pointer;
-  font: 500 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  height: 25px;
-  min-width: 25px;
-  padding: 0 7px;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  white-space: nowrap;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  color: #64748b;
+  opacity: 0.75;
+  cursor: pointer;
+  transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease;
   position: relative;
   pointer-events: auto;
-  isolation: isolate;
-  overflow: hidden;
-  text-overflow: ellipsis;
+}
+.markdy-controls button svg,
+.markdy-controls button .markdy-icon {
+  width: 13px;
+  height: 13px;
 }
 .markdy-controls button:hover:not([aria-pressed="true"]) {
-  position: relative;
-  z-index: 20;
-  background: #ffffff;
+  background: rgba(148, 163, 184, 0.15);
   color: #0f172a;
-  border-color: #94a3b8;
-  transform: translateY(-0.5px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  opacity: 1;
+  transform: none;
+  box-shadow: none;
 }
 .markdy-controls-tools button:hover:not([aria-pressed="true"]) {
-  z-index: 25;
-  border-color: #64748b;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+  background: rgba(148, 163, 184, 0.15);
+  color: #0f172a;
+  opacity: 1;
 }
 .markdy-controls button[aria-pressed="true"] {
-  position: relative;
-  z-index: 20;
   background: #0f172a !important;
   color: #ffffff !important;
-  border-color: #0f172a !important;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12) !important;
+  opacity: 1 !important;
 }
 .markdy-controls button:focus-visible {
   position: relative;
@@ -453,7 +453,7 @@ export function ensureSceneStyles(doc: Document): void {
   outline-offset: 1px;
 }
 .markdy-controls button:active {
-  transform: translateY(0) scale(0.96);
+  transform: scale(0.96);
 }
 .markdy-icon {
   display: inline-block;
@@ -461,27 +461,77 @@ export function ensureSceneStyles(doc: Document): void {
   vertical-align: middle;
 }
 .markdy-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
   text-align: right;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 11px;
+  font-size: 9px;
   line-height: 1;
   color: #64748b;
   text-decoration: none;
-  padding: 3px 6px;
-  border-radius: 5px;
-  opacity: 0.75;
+  padding: 2px 4px;
+  letter-spacing: 0.01em;
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  opacity: 0.35;
   margin-left: auto;
   flex-shrink: 0;
+  z-index: 50;
   transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease;
   white-space: nowrap;
+  pointer-events: auto;
 }
 .markdy-badge:hover {
-  opacity: 1;
-  color: #1e293b;
-  background-color: rgba(148, 163, 184, 0.12);
+  opacity: 0.8;
+  color: #0f172a;
+  background-color: rgba(148, 163, 184, 0.1);
+}
+.markdy-studio-link {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(203, 213, 225, 0.6);
+  color: #64748b;
+  text-decoration: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+  pointer-events: auto;
+}
+@media (hover: hover) {
+  .markdy-studio-link {
+    opacity: 0;
+  }
+  .markdy-diagram-root:hover .markdy-studio-link {
+    opacity: 0.75;
+  }
+  .markdy-studio-link:hover {
+    opacity: 1 !important;
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.95);
+  }
+}
+@media (hover: none) {
+  .markdy-studio-link {
+    opacity: 0.75;
+  }
+  .markdy-studio-link:active {
+    opacity: 1;
+  }
 }
 .markdy-badge-prefix {
   font-weight: 400;
@@ -896,9 +946,21 @@ export function ensureSceneStyles(doc: Document): void {
 :root[data-theme="dark"] .markdy-footer,
 .theme-dark .markdy-footer,
 .dark .markdy-footer {
-  background: var(--md-footer-bg, rgba(15, 23, 42, 0.88));
-  border-top-color: var(--md-card-border, rgba(255, 255, 255, 0.08));
+  background: transparent;
+  border-top: none;
   color: #94a3b8;
+}
+[data-markdy-theme="midnight"] .markdy-controls,
+[data-markdy-theme="blueprint"] .markdy-controls,
+[data-markdy-theme="terminal"] .markdy-controls,
+[data-markdy-theme="graphite"] .markdy-controls,
+[data-markdy-theme="nebula"] .markdy-controls,
+:root[data-theme="dark"] .markdy-controls,
+.theme-dark .markdy-controls,
+.dark .markdy-controls {
+  background: rgba(15, 23, 42, 0.65);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 [data-markdy-theme="midnight"] .markdy-player-scrubber-track,
 [data-markdy-theme="blueprint"] .markdy-player-scrubber-track,
@@ -917,9 +979,34 @@ export function ensureSceneStyles(doc: Document): void {
 :root[data-theme="dark"] .markdy-controls button:not([aria-pressed="true"]),
 .theme-dark .markdy-controls button:not([aria-pressed="true"]),
 .dark .markdy-controls button:not([aria-pressed="true"]) {
-  background: rgba(30, 41, 59, 0.7);
-  border-color: rgba(71, 85, 105, 0.5);
-  color: #cbd5e1;
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  opacity: 0.75;
+}
+[data-markdy-theme="midnight"] .markdy-controls button:hover:not([aria-pressed="true"]),
+[data-markdy-theme="blueprint"] .markdy-controls button:hover:not([aria-pressed="true"]),
+[data-markdy-theme="terminal"] .markdy-controls button:hover:not([aria-pressed="true"]),
+[data-markdy-theme="graphite"] .markdy-controls button:hover:not([aria-pressed="true"]),
+[data-markdy-theme="nebula"] .markdy-controls button:hover:not([aria-pressed="true"]),
+:root[data-theme="dark"] .markdy-controls button:hover:not([aria-pressed="true"]),
+.theme-dark .markdy-controls button:hover:not([aria-pressed="true"]),
+.dark .markdy-controls button:hover:not([aria-pressed="true"]) {
+  background: rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+  opacity: 1;
+}
+[data-markdy-theme="midnight"] .markdy-controls button[aria-pressed="true"],
+[data-markdy-theme="blueprint"] .markdy-controls button[aria-pressed="true"],
+[data-markdy-theme="terminal"] .markdy-controls button[aria-pressed="true"],
+[data-markdy-theme="graphite"] .markdy-controls button[aria-pressed="true"],
+[data-markdy-theme="nebula"] .markdy-controls button[aria-pressed="true"],
+:root[data-theme="dark"] .markdy-controls button[aria-pressed="true"],
+.theme-dark .markdy-controls button[aria-pressed="true"],
+.dark .markdy-controls button[aria-pressed="true"] {
+  background: #3b82f6 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
 }
 .markdy-footer a {
   transition: opacity 0.15s ease, color 0.15s ease;
@@ -933,6 +1020,7 @@ export function ensureSceneStyles(doc: Document): void {
 .theme-dark .markdy-badge,
 .dark .markdy-badge {
   color: #94a3b8;
+  background: transparent;
 }
 [data-markdy-theme="midnight"] .markdy-badge:hover,
 [data-markdy-theme="blueprint"] .markdy-badge:hover,
@@ -944,6 +1032,33 @@ export function ensureSceneStyles(doc: Document): void {
 .dark .markdy-badge:hover {
   color: #f1f5f9 !important;
   background-color: rgba(255, 255, 255, 0.08);
+  opacity: 0.8 !important;
+}
+[data-markdy-theme="midnight"] .markdy-studio-link,
+[data-markdy-theme="blueprint"] .markdy-studio-link,
+[data-markdy-theme="terminal"] .markdy-studio-link,
+[data-markdy-theme="graphite"] .markdy-studio-link,
+[data-markdy-theme="nebula"] .markdy-studio-link,
+:root[data-theme="dark"] .markdy-studio-link,
+.theme-dark .markdy-studio-link,
+.dark .markdy-studio-link {
+  background: rgba(15, 23, 42, 0.65);
+  border-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  color: #94a3b8;
+}
+@media (hover: hover) {
+  [data-markdy-theme="midnight"] .markdy-studio-link:hover,
+  [data-markdy-theme="blueprint"] .markdy-studio-link:hover,
+  [data-markdy-theme="terminal"] .markdy-studio-link:hover,
+  [data-markdy-theme="graphite"] .markdy-studio-link:hover,
+  [data-markdy-theme="nebula"] .markdy-studio-link:hover,
+  :root[data-theme="dark"] .markdy-studio-link:hover,
+  .theme-dark .markdy-studio-link:hover,
+  .dark .markdy-studio-link:hover {
+    color: #f8fafc;
+    background: rgba(30, 41, 59, 0.9);
+  }
 }
 [data-markdy-theme="midnight"] .markdy-badge-brand,
 [data-markdy-theme="blueprint"] .markdy-badge-brand,
