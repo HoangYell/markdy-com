@@ -1738,7 +1738,7 @@ export async function buildStandaloneHtml(scene: LoadedScene): Promise<string> {
 
 function helpText(): string {
   return [
-    "markdy — MarkdyScript command-line tools",
+    "markdy: MarkdyScript command-line tools",
     "",
     "Usage:",
     "  markdy",
@@ -1760,6 +1760,10 @@ function helpText(): string {
     "  markdy docs [--open]",
     "  markdy ai [--open]",
     "  markdy check-all [dir] [--strict] [--arch-rules]",
+    "",
+    "Pro Architecture Blueprints & Enterprise Kits:",
+    "  Explore 30+ canonical production blueprints: https://markdy.com/examples/",
+    "  Sponsor Markdy & unlock Pro Architecture Kits: https://github.com/sponsors/HoangYell",
   ].join("\n");
 }
 
