@@ -361,11 +361,11 @@ export function ensureSceneStyles(doc: Document): void {
   flex: 0 1 auto;
   width: auto;
   min-width: 0;
-  gap: 3px;
+  gap: 2px;
   max-width: 100%;
-  padding: 3px 4px;
+  padding: 2px;
   margin: 0;
-  border-radius: 6px;
+  border-radius: 5px;
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -377,7 +377,7 @@ export function ensureSceneStyles(doc: Document): void {
 .markdy-controls-group {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
   flex-shrink: 0;
   position: relative;
   z-index: 5;
@@ -386,15 +386,15 @@ export function ensureSceneStyles(doc: Document): void {
 .markdy-controls-tools {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
   flex-shrink: 0;
   margin-left: 0;
 }
 .markdy-control-divider {
   width: 1px;
-  height: 14px;
+  height: 10px;
   background: var(--md-divider, rgba(148, 163, 184, 0.2));
-  margin: 0 2px;
+  margin: 0 1px;
   flex-shrink: 0;
 }
 .markdy-btn-label {
@@ -406,14 +406,14 @@ export function ensureSceneStyles(doc: Document): void {
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
-  width: 24px;
-  height: 24px;
-  min-width: 24px;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
   padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 3px;
   background: transparent;
   border: none;
   box-shadow: none;
@@ -426,8 +426,8 @@ export function ensureSceneStyles(doc: Document): void {
 }
 .markdy-controls button svg,
 .markdy-controls button .markdy-icon {
-  width: 13px;
-  height: 13px;
+  width: 11px;
+  height: 11px;
 }
 .markdy-controls button:hover:not([aria-pressed="true"]) {
   background: rgba(148, 163, 184, 0.15);
@@ -491,17 +491,18 @@ export function ensureSceneStyles(doc: Document): void {
   color: #0f172a;
   background-color: rgba(148, 163, 184, 0.1);
 }
+.markdy-control-fullscreen,
 .markdy-studio-link {
   position: absolute;
   top: 8px;
-  right: 8px;
   z-index: 50;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  border-radius: 5px;
   background: rgba(255, 255, 255, 0.75);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
@@ -511,14 +512,35 @@ export function ensureSceneStyles(doc: Document): void {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease;
   pointer-events: auto;
+  cursor: pointer;
+  padding: 0;
+}
+.markdy-control-fullscreen {
+  left: 8px;
+}
+.markdy-studio-link {
+  right: 8px;
+}
+.markdy-control-fullscreen svg,
+.markdy-studio-link svg {
+  width: 11px;
+  height: 11px;
+}
+.markdy-control-fullscreen[aria-pressed="true"] {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
 }
 @media (hover: hover) {
+  .markdy-control-fullscreen,
   .markdy-studio-link {
     opacity: 0;
   }
+  .markdy-diagram-root:hover .markdy-control-fullscreen,
   .markdy-diagram-root:hover .markdy-studio-link {
     opacity: 0.75;
   }
+  .markdy-control-fullscreen:hover,
   .markdy-studio-link:hover {
     opacity: 1 !important;
     color: #0f172a;
@@ -526,11 +548,14 @@ export function ensureSceneStyles(doc: Document): void {
   }
 }
 @media (hover: none) {
+  .markdy-control-fullscreen,
   .markdy-studio-link {
     opacity: 0.75;
   }
+  .markdy-control-fullscreen:active,
   .markdy-studio-link:active {
     opacity: 1;
+    transform: scale(0.96);
   }
 }
 .markdy-badge-prefix {
@@ -549,19 +574,20 @@ export function ensureSceneStyles(doc: Document): void {
   }
   .markdy-controls button {
     padding: 0 !important;
-    width: 25px !important;
-    height: 25px !important;
-    min-width: 25px !important;
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
     justify-content: center !important;
   }
   .markdy-speed-group {
     display: none !important;
   }
   .markdy-controls {
-    gap: 4px !important;
+    gap: 2px !important;
+    padding: 2px !important;
   }
   .markdy-footer {
-    padding: 6px 10px 5px 8px !important;
+    padding: 0 !important;
   }
   .markdy-badge {
     font-size: 9px !important;
@@ -580,16 +606,17 @@ export function ensureSceneStyles(doc: Document): void {
   }
   .markdy-controls button {
     padding: 0 !important;
-    width: 25px !important;
-    height: 25px !important;
-    min-width: 25px !important;
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
     justify-content: center !important;
   }
   .markdy-speed-group {
     display: none !important;
   }
   .markdy-controls {
-    gap: 4px !important;
+    gap: 2px !important;
+    padding: 2px !important;
   }
   .markdy-badge {
     font-size: 9px !important;
@@ -1034,6 +1061,14 @@ export function ensureSceneStyles(doc: Document): void {
   background-color: rgba(255, 255, 255, 0.08);
   opacity: 0.8 !important;
 }
+[data-markdy-theme="midnight"] .markdy-control-fullscreen,
+[data-markdy-theme="blueprint"] .markdy-control-fullscreen,
+[data-markdy-theme="terminal"] .markdy-control-fullscreen,
+[data-markdy-theme="graphite"] .markdy-control-fullscreen,
+[data-markdy-theme="nebula"] .markdy-control-fullscreen,
+:root[data-theme="dark"] .markdy-control-fullscreen,
+.theme-dark .markdy-control-fullscreen,
+.dark .markdy-control-fullscreen,
 [data-markdy-theme="midnight"] .markdy-studio-link,
 [data-markdy-theme="blueprint"] .markdy-studio-link,
 [data-markdy-theme="terminal"] .markdy-studio-link,
@@ -1048,6 +1083,14 @@ export function ensureSceneStyles(doc: Document): void {
   color: #94a3b8;
 }
 @media (hover: hover) {
+  [data-markdy-theme="midnight"] .markdy-control-fullscreen:hover,
+  [data-markdy-theme="blueprint"] .markdy-control-fullscreen:hover,
+  [data-markdy-theme="terminal"] .markdy-control-fullscreen:hover,
+  [data-markdy-theme="graphite"] .markdy-control-fullscreen:hover,
+  [data-markdy-theme="nebula"] .markdy-control-fullscreen:hover,
+  :root[data-theme="dark"] .markdy-control-fullscreen:hover,
+  .theme-dark .markdy-control-fullscreen:hover,
+  .dark .markdy-control-fullscreen:hover,
   [data-markdy-theme="midnight"] .markdy-studio-link:hover,
   [data-markdy-theme="blueprint"] .markdy-studio-link:hover,
   [data-markdy-theme="terminal"] .markdy-studio-link:hover,

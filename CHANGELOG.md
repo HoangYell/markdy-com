@@ -5,6 +5,19 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.7] - 2026-09-30
+
+### Changed & Enhanced
+- **🎯 4-Corner Minimalist Micro-Controls Architecture (`@markdy/renderer-dom`)**:
+  - **Sleek 20x20 Micro-Pill Controls**: Refined `.markdy-controls` buttons to a lean `20px x 20px` footprint with `2px` container padding, `2px` item gap, and `11px` vector icons. Yields an ultra-compact `26px` total height pill that lets diagrams breathe without visual clutter.
+  - **Top-Left Floating Fullscreen Action**: Relocated `.markdy-control-fullscreen` from the bottom-left controls bar directly to the top-left corner (`top: 8px; left: 8px`) as a dedicated floating glassmorphic button (`22px x 22px`).
+  - **Balanced 4-Corner Layout**: Establishes a natural framing geometry across viewports:
+    - Top-Left: Fullscreen toggle (`.markdy-control-fullscreen`)
+    - Top-Right: Studio playground launch (`.markdy-studio-link`)
+    - Bottom-Left: Micro playback & tools pill (`.markdy-controls`)
+    - Bottom-Right: Subtle attribution watermark (`.markdy-badge`)
+  - **Responsive Touch & Hover Polish**: Maintained desktop hover-reveal (`opacity: 0 -> hover: 0.75`) and permanent touch-ready mobile visibility (`opacity: 0.75`), with unified dark mode styling across all core palettes (`midnight`, `blueprint`, `terminal`, `graphite`, `nebula`).
+
 ## [1.5.6] - 2026-09-30
 
 ### Changed & Enhanced
