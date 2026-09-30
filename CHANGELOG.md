@@ -5,6 +5,14 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.5] - 2026-09-30
+
+### Changed & Enhanced
+- **🏷️ Canonical Homepage Branding for "Powered by Markdy" Attribution (`@markdy/renderer-dom`)**:
+  - Pointed the footer attribution badge (`.markdy-badge`) directly to the official homepage (`https://markdy.com/`) instead of generating a compressed playground hash URL.
+  - Preserved the dedicated **Code** modal action (`Open in Studio ↗`) for interactive playground inspection and code forking, providing clean separation between brand discovery and developer experimentation.
+  - Package registry synchronization and clean dist-tags publishing.
+
 ## [1.5.4] - 2026-09-30
 
 ### Changed & Enhanced
