@@ -4,7 +4,7 @@
   "name": "markdy-com",
   "compatibility_date": "2025-01-01",
   "assets": {
-    // Output folder from `pnpm build` — relative to this wrangler.jsonc
+    // Output folder from `pnpm build` (relative to this wrangler.jsonc)
     "directory": "./dist"
   }
 }

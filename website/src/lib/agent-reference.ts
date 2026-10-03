@@ -119,7 +119,7 @@ export function textHeaders(contentType: string, version: string) {
 export function buildLlmsTxt(reference: AgentReference) {
   return `# Markdy
 
-> Open-source diagram-native DSL for animated architecture and system diagrams — write semantic nodes, groups, beats, flows, and cues to get browser-native motion diagrams.
+> Open-source diagram-native DSL for animated architecture and system diagrams - write semantic nodes, groups, beats, flows, and cues to get browser-native motion diagrams.
 
 MarkdyScript is the language used by Markdy. It declares scenes, semantic architecture nodes, groups, beats, flow operators, and cues for animated technical diagrams.
 

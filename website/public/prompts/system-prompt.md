@@ -28,7 +28,7 @@ You write **diagram-native MarkdyScript** for animated software architecture dia
   - *Security*: `auth`, `vault`, `secret`, `identity`
 - **Flow Operators**:
   - `->` = Forward call / request (determines layout rank)
-  - `<-` = Return / response (excluded from rank — **prevents layout cycles!**)
+  - `<-` = Return / response (excluded from rank - **prevents layout cycles!**)
   - `~>` = Asynchronous event / pub-sub
   - `--` = Structural dependency
 - **Visual Cues**: `show $nodes`, `hide`, `frame <targets> [zoom=1.15]`, `glow <targets> [color=#hex]`, `focus`, `&` (parallel)

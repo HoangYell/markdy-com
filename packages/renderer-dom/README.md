@@ -16,19 +16,19 @@ Web Animations API renderer for [MarkdyScript](https://markdy.com/docs/) scenes.
 
 ## Features
 
-- **Browser-native** — Web Animations API + CSS transforms, no Canvas or GSAP (~24 KB minzipped)
-- **Blast Radius & Upstream Impact Lens** — compute and highlight transitive inward callers and outward impact chains dynamically
-- **Route Pathfinder** — discover and animate the shortest topological communication route between any two services
-- **Dynamic Port Multiplexing & Fillet Connectors** — renders balanced parallel connection lanes with smooth rounded corner paths
-- **17 Diagram Layout Topologies** — `architecture`, `flowchart`, `tree`, `sequence`, `state`, `layers`, `nested`, `swimlane`, `timeline`, `gantt`, `medallion`, `flywheel`, `constellation`, `quadrant`, `pyramid`, `radar`, `venn`
-- **Dynamic Theme Switching** — live runtime switching across 10 semantic themes (`paper`, `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `terminal`, `sketchy`, `ink`, `doodle`)
-- **Flow edges** — `->` request, `<-` response, `~>` event, `--` dependency, each with its own stroke, plus animated traveling pulse
-- **Beat-driven cues** — `show`, `hide`, `glow`, `focus`, and `frame` camera zooms, sequenced by named beats
-- **Media Exporters** — zero-dep animated GIF89a exporter with LZW compression and Figma-ready vector SVG export
-- **Seek-safe** — manual `currentTime` control enables reliable `seek()` in any direction
-- **Playback-rate controls** — set normalized timeline speed to slow down or speed up diagrams without rebuilding animations
-- **Interactive viewport** — wheel zoom, drag pan, and double-click reset with responsive auto-fit
-- **Single dependency** — only `@markdy/core`
+- **Browser-native**: Web Animations API + CSS transforms, no Canvas or GSAP (~24 KB minzipped)
+- **Blast Radius & Upstream Impact Lens**: compute and highlight transitive inward callers and outward impact chains dynamically
+- **Route Pathfinder**: discover and animate the shortest topological communication route between any two services
+- **Dynamic Port Multiplexing & Fillet Connectors**: renders balanced parallel connection lanes with smooth rounded corner paths
+- **17 Diagram Layout Topologies**: `architecture`, `flowchart`, `tree`, `sequence`, `state`, `layers`, `nested`, `swimlane`, `timeline`, `gantt`, `medallion`, `flywheel`, `constellation`, `quadrant`, `pyramid`, `radar`, `venn`
+- **Dynamic Theme Switching**: live runtime switching across 10 semantic themes (`paper`, `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `terminal`, `sketchy`, `ink`, `doodle`)
+- **Flow edges**: `->` request, `<-` response, `~>` event, `--` dependency, each with its own stroke, plus animated traveling pulse
+- **Beat-driven cues**: `show`, `hide`, `glow`, `focus`, and `frame` camera zooms, sequenced by named beats
+- **Media Exporters**: zero-dep animated GIF89a exporter with LZW compression and Figma-ready vector SVG export
+- **Seek-safe**: manual `currentTime` control enables reliable `seek()` in any direction
+- **Playback-rate controls**: set normalized timeline speed to slow down or speed up diagrams without rebuilding animations
+- **Interactive viewport**: wheel zoom, drag pan, and double-click reset with responsive auto-fit
+- **Single dependency**: only `@markdy/core`
 
 ## Installation
 
@@ -164,10 +164,10 @@ The harness runs on **`http://127.0.0.1:4325`** (port 4325 is decoupled from Ast
 
 ## Ecosystem & Documentation
 
-- ⚡ **[Interactive Studio / Playground](https://markdy.com/playground/)** — edit MarkdyScript with instant live preview in your browser
-- 📖 **[Syntax Guide & Reference](https://markdy.com/docs/)** — complete language specification and keywords
-- 🌟 **[Canonical Blueprints](https://markdy.com/examples/)** — production-grade distributed system and cloud architectures
-- 📦 **[GitHub Repository](https://github.com/HoangYell/markdy-com)** — source code, benchmarks, and issue tracker
+- ⚡ **[Interactive Studio / Playground](https://markdy.com/playground/)**: edit MarkdyScript with instant live preview in your browser
+- 📖 **[Syntax Guide & Reference](https://markdy.com/docs/)**: complete language specification and keywords
+- 🌟 **[Canonical Blueprints](https://markdy.com/examples/)**: production-grade distributed system and cloud architectures
+- 📦 **[GitHub Repository](https://github.com/HoangYell/markdy-com)**: source code, benchmarks, and issue tracker
 
 ## 📐 Production Architecture Blueprints & Pro Support
 

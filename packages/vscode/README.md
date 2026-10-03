@@ -118,17 +118,17 @@ beat async_job "2. Async Background Task":
 |---|---|---|
 | `Markdy: Live Preview` | `Cmd+K V` / `Ctrl+K V` | Opens live animated preview panel beside editor |
 | `Format Document` | `Shift+Alt+F` | AST-aware document formatting |
-| `Markdy: Export SVG` | — | Exports vector `.svg` diagram |
-| `Markdy: Export PNG` | — | Exports high-resolution `.png` image |
-| `Markdy: Copy SVG` | — | Copies raw vector SVG XML to clipboard |
-| `Markdy: Copy PNG` | — | Copies PNG Data URL to clipboard |
-| `Markdy: Insert Template...` | — | Scaffolds curated architecture models at cursor |
-| `Markdy: New From Template...` | — | Creates a new `.markdy` document from template |
-| `Markdy: AI Prompt Helper` | — | Compiles LLM prompt bundle with AST & rules |
-| `Markdy: Import Diagram...` | — | Transpiles Mermaid, Compose, K8s, Terraform, or Draw.io |
-| `Markdy: Open in Web Studio` | — | Opens diagram in browser at markdy.com/playground |
-| `Markdy: Copy Web Link` | — | Copies compressed playground link to clipboard |
-| `Markdy: Restart Server` | — | Restarts background language server worker |
+| `Markdy: Export SVG` | - | Exports vector `.svg` diagram |
+| `Markdy: Export PNG` | - | Exports high-resolution `.png` image |
+| `Markdy: Copy SVG` | - | Copies raw vector SVG XML to clipboard |
+| `Markdy: Copy PNG` | - | Copies PNG Data URL to clipboard |
+| `Markdy: Insert Template...` | - | Scaffolds curated architecture models at cursor |
+| `Markdy: New From Template...` | - | Creates a new `.markdy` document from template |
+| `Markdy: AI Prompt Helper` | - | Compiles LLM prompt bundle with AST & rules |
+| `Markdy: Import Diagram...` | - | Transpiles Mermaid, Compose, K8s, Terraform, or Draw.io |
+| `Markdy: Open in Web Studio` | - | Opens diagram in browser at markdy.com/playground |
+| `Markdy: Copy Web Link` | - | Copies compressed playground link to clipboard |
+| `Markdy: Restart Server` | - | Restarts background language server worker |
 
 ### Preview Panel Keyboard Shortcuts
 
@@ -173,7 +173,7 @@ Right-click ──▶ Markdy ▶ ──┬── Live Preview
 | `markdy.preview.autoplay` | `true` | Automatically play diagram animations when preview opens |
 | `markdy.preview.loop` | `true` | Continuously loop diagram animations |
 | `markdy.preview.progressBar` | `true` | Show interactive timeline scrubber and progress bar |
-| `markdy.trace.server` | `"off"` | `"off"`, `"messages"`, `"verbose"` — language server tracing |
+| `markdy.trace.server` | `"off"` | `"off"`, `"messages"`, `"verbose"`: language server tracing |
 
 ---
 

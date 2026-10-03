@@ -16,12 +16,12 @@
 
 ## Features
 
-- **SSR placeholder** — correctly-sized `<div>` prevents layout shift before hydration
-- **Viewport-triggered hydration** — `IntersectionObserver` with 100px root margin
-- **View Transition compatible** — re-observes elements on `astro:page-load`
-- **Semantic node cards** — inherits renderer SVG glyphs for technical node kinds
-- **Zero config** — pass your MarkdyScript code as a prop
-- **Indent-safe transport** — encodes MarkdyScript as base64 on the DOM so HTML attribute normalization cannot destroy colon-body indentation before hydration
+- **SSR placeholder**: correctly-sized `<div>` prevents layout shift before hydration
+- **Viewport-triggered hydration**: `IntersectionObserver` with 100px root margin
+- **View Transition compatible**: re-observes elements on `astro:page-load`
+- **Semantic node cards**: inherits renderer SVG glyphs for technical node kinds
+- **Zero config**: pass your MarkdyScript code as a prop
+- **Indent-safe transport**: encodes MarkdyScript as base64 on the DOM so HTML attribute normalization cannot destroy colon-body indentation before hydration
 
 ## Installation
 
@@ -120,7 +120,7 @@ beat hit:
 | `playbackRate` | `number` | script or `1` | Override the initial timeline multiplier |
 | `interactiveViewport` | `boolean` | script | `true` supplies default gestures; `false` suppresses script gestures |
 | `controls` | `boolean` | script | `true` supplies legacy toolbar defaults; `false` suppresses script controls |
-| `class` | `string` | — | CSS class for the outer wrapper |
+| `class` | `string` | - | CSS class for the outer wrapper |
 
 > **Self-Contained MarkdyScript:** Prefer grouped `player:` settings inside the `.markdy` code so `<Markdy code={code} />` preserves scene behavior. Pass props only when the host intentionally gates or supplies defaults.
 >
@@ -135,10 +135,10 @@ beat hit:
 
 ## Ecosystem & Documentation
 
-- ⚡ **[Interactive Studio / Playground](https://markdy.com/playground/)** — edit MarkdyScript with instant live preview in your browser
-- 📖 **[Syntax Guide & Reference](https://markdy.com/docs/)** — complete language specification and keywords
-- 🌟 **[Canonical Blueprints](https://markdy.com/examples/)** — production-grade distributed system and cloud architectures
-- 📦 **[GitHub Repository](https://github.com/HoangYell/markdy-com)** — source code, benchmarks, and issue tracker
+- ⚡ **[Interactive Studio / Playground](https://markdy.com/playground/)**: edit MarkdyScript with instant live preview in your browser
+- 📖 **[Syntax Guide & Reference](https://markdy.com/docs/)**: complete language specification and keywords
+- 🌟 **[Canonical Blueprints](https://markdy.com/examples/)**: production-grade distributed system and cloud architectures
+- 📦 **[GitHub Repository](https://github.com/HoangYell/markdy-com)**: source code, benchmarks, and issue tracker
 
 ## 📐 Production Architecture Blueprints & Pro Support
 
