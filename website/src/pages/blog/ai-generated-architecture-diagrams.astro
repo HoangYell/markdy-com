@@ -1,10 +1,10 @@
 ---
 /*
-  SEO BRIEF — satellite article for feature: "AI-agent friendly"
+  SEO BRIEF - satellite article for feature: "AI-agent friendly"
   Target keywords: ai generated architecture diagram, ai diagram generator, llm
     diagram, chatgpt architecture diagram, gemini architecture diagram, copilot diagram,
     text to diagram AI, diagram-native DSL
-  Search intent: commercial-investigation / how-to — developers who want an AI to
+  Search intent: commercial-investigation / how-to - developers who want an AI to
     generate maintainable architecture diagrams from a plain-English brief.
   Meta title: AI-Generated Architecture Diagrams: Let LLMs Write Diagrams | Markdy
   Meta description: Give Claude, ChatGPT, Gemini, or Copilot a plain-English brief and get
@@ -39,12 +39,12 @@ const structuredData = [
   keywords="ai generated architecture diagram, ai diagram generator, llm diagram, chatgpt architecture diagram, gemini architecture diagram, copilot diagram, text to diagram, AI diagramming, diagram-native DSL"
   canonicalURL={canonicalURL}
   headline="AI-Generated Architecture Diagrams: Let LLMs Write Your Diagrams as Code"
-  dek="Why diagram-native MarkdyScript beats generated JavaScript for AI diagramming — and how to prompt Claude, ChatGPT, Gemini, or Copilot to produce runnable Markdy scenes."
+  dek="Why diagram-native MarkdyScript beats generated JavaScript for AI diagramming - and how to prompt Claude, ChatGPT, Gemini, or Copilot to produce runnable Markdy scenes."
   structuredData={structuredData}
 >
   <p>
     Ask an LLM to "draw our architecture" and you usually get one of two disappointing results: an ASCII sketch, or a
-    wall of brittle Canvas/JavaScript that half-runs. The problem isn't the model — it's the target format.
+    wall of brittle Canvas/JavaScript that half-runs. The problem isn't the model - it's the target format.
     <strong>MarkdyScript</strong> is diagram-native: a small, line-based, strictly-validated DSL made of semantic nodes,
     groups, beats, flow operators, and cues. That gives AI agents a stable compile target that is easy to generate,
     validate, revise, and review in pull requests.
@@ -52,11 +52,11 @@ const structuredData = [
 
   <h2>Why diagram-native text is the right AI target</h2>
   <ul>
-    <li><strong>Small grammar.</strong> Nodes, groups, beats, cues, and four flow operators — a model can learn it from one canonical reference page.</li>
+    <li><strong>Small grammar.</strong> Nodes, groups, beats, cues, and four flow operators - a model can learn it from one canonical reference page.</li>
     <li><strong>Deterministic.</strong> The same text always renders the same diagram, so results are reproducible and diffable.</li>
-    <li><strong>Content-Adaptive Sizing.</strong> The model never needs to guess pixel coordinates, manual offsets, or canvas resolutions — Markdy automatically derives the optimal aspect ratio and dimensions from the generated items.</li>
+    <li><strong>Content-Adaptive Sizing.</strong> The model never needs to guess pixel coordinates, manual offsets, or canvas resolutions - Markdy automatically derives the optimal aspect ratio and dimensions from the generated items.</li>
     <li><strong>Line-numbered errors.</strong> When the model gets something wrong, the parser points at the exact line, so the agent can self-correct.</li>
-    <li><strong>No runtime to hallucinate.</strong> There's no imperative API surface to invent — just declarative diagram statements.</li>
+    <li><strong>No runtime to hallucinate.</strong> There's no imperative API surface to invent - just declarative diagram statements.</li>
   </ul>
 
   <img
@@ -104,12 +104,12 @@ beat finish:
 
   <p>
     Paste it straight into the <a href="/playground/">playground</a> to verify it. If it doesn't parse, hand the
-    line-numbered error back to the model and ask it to fix that line — the loop is fast and reliable.
+    line-numbered error back to the model and ask it to fix that line - the loop is fast and reliable.
   </p>
 
   <h2>Works with the tools you already use</h2>
   <p>
-    MarkdyScript is plain text, so it works with any assistant that accepts URL context — Claude, ChatGPT, Gemini,
+    MarkdyScript is plain text, so it works with any assistant that accepts URL context - Claude, ChatGPT, Gemini,
     GitHub Copilot, Cursor, Windsurf, Google Antigravity, and coding agents that read <a href="/llms.txt">llms.txt</a>.
     You can also plug in the official <strong>Model Context Protocol (MCP) server</strong> (<code>@markdy/mcp-server</code>)
     for instant syntax diagnostics, fuzzy typo healing (<code>diagnose_markdy_syntax</code> / <code>fix_markdy_code</code>),
@@ -121,6 +121,6 @@ beat finish:
     Trust, but verify. Run <code>markdy lint scene.markdy</code> in CI, auto-heal drafts with <code>markdy fmt --fix</code>,
     or explore predictive suggestions via <code>markdy suggest</code>. Rendering scenes in
     <a href="/blog/animated-diagrams-astro-mdx/">Astro or MDX</a> docs ensures broken diagrams fail your build instead of
-    shipping. Deterministic output means AI-generated diagrams stay reviewable — not magic you can't audit.
+    shipping. Deterministic output means AI-generated diagrams stay reviewable - not magic you can't audit.
   </p>
 </ArticleLayout>

@@ -8,7 +8,7 @@
   <a href="https://github.com/sponsors/HoangYell"><img src="https://img.shields.io/badge/💖_Sponsor-Support_Markdy-ea4aaa?style=for-the-badge" alt="Sponsor Markdy" /></a>
 </p>
 
-> Official **Model Context Protocol (MCP)** server for Markdy — the animated diagram-as-code DSL.
+> Official **Model Context Protocol (MCP)** server for Markdy: the animated diagram-as-code DSL.
 
 > 💼 **Enterprise & Commercial**: Free under MIT. Access production architectural templates, custom diagram kits, and direct support via **[GitHub Sponsors & Pro Blueprints](https://github.com/sponsors/HoangYell)**.
 

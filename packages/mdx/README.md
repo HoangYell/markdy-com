@@ -107,10 +107,10 @@ Fenced block metadata is passed as props to `MarkdyDiagram`. Snake-case aliases 
 
 ## Ecosystem & Documentation
 
-- ⚡ **[Interactive Studio / Playground](https://markdy.com/playground/)** — edit MarkdyScript with instant live preview in your browser
-- 📖 **[Syntax Guide & Reference](https://markdy.com/docs/)** — complete language specification and keywords
-- 🌟 **[Canonical Blueprints](https://markdy.com/examples/)** — production-grade distributed system and cloud architectures
-- 📦 **[GitHub Repository](https://github.com/HoangYell/markdy-com)** — source code, benchmarks, and issue tracker
+- ⚡ **[Interactive Studio / Playground](https://markdy.com/playground/)**: edit MarkdyScript with instant live preview in your browser
+- 📖 **[Syntax Guide & Reference](https://markdy.com/docs/)**: complete language specification and keywords
+- 🌟 **[Canonical Blueprints](https://markdy.com/examples/)**: production-grade distributed system and cloud architectures
+- 📦 **[GitHub Repository](https://github.com/HoangYell/markdy-com)**: source code, benchmarks, and issue tracker
 
 ## 📐 Production Architecture Blueprints & Pro Support
 

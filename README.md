@@ -105,10 +105,10 @@ beat cache_miss "2. Cache Miss & Async Warm":
 
 Prefer your own editor or terminal? Save the script as `system.markdy`:
 
-- **VS Code / Cursor Extension** — [`hoangyell.markdy-vscode`](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode):  
+- **VS Code / Cursor Extension**: [`hoangyell.markdy-vscode`](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode):  
   Press **`Cmd+K V`** *(macOS)* or **`Ctrl+K V`** *(Windows/Linux)* for live side-by-side animated preview.
 
-- **Terminal CLI** — [`@markdy/cli`](packages/cli/README.md):
+- **Terminal CLI**: [`@markdy/cli`](packages/cli/README.md):
   ```bash
   npx @markdy/cli render system.markdy --out diagram.html
   ```
@@ -117,7 +117,7 @@ Prefer your own editor or terminal? Save the script as `system.markdy`:
 
 Choose the package that fits your stack:
 
-- **Web Apps (Vanilla JS, React, Vue, Svelte)** — [`@markdy/renderer-dom`](packages/renderer-dom/README.md):
+- **Web Apps (Vanilla JS, React, Vue, Svelte)**: [`@markdy/renderer-dom`](packages/renderer-dom/README.md):
   ```bash
   npm install @markdy/renderer-dom
   ```
@@ -131,17 +131,17 @@ Choose the package that fits your stack:
   });
   ```
 
-- **Astro Sites & Blogs** — [`@markdy/astro`](packages/astro/README.md):
+- **Astro Sites & Blogs**: [`@markdy/astro`](packages/astro/README.md):
   ```bash
   npm install @markdy/astro
   ```
-  *(Zero-CLS SSR island: `<Markdy code={code} client:visible />` — see [Astro Guide ↓](#astro-integration))*
+  *(Zero-CLS SSR island: `<Markdy code={code} client:visible />` - see [Astro Guide ↓](#astro-integration))*
 
-- **Next.js / MDX Docs** — [`@markdy/mdx`](packages/mdx/README.md):
+- **Next.js / MDX Docs**: [`@markdy/mdx`](packages/mdx/README.md):
   ```bash
   npm install @markdy/mdx
   ```
-  *(Auto-renders fenced ```` ```markdy ```` blocks — see [MDX Guide ↓](#mdx-integration))*
+  *(Auto-renders fenced ```` ```markdy ```` blocks - see [MDX Guide ↓](#mdx-integration))*
 
 👉 **[DOM Renderer Guide ↗](packages/renderer-dom/README.md)** &nbsp;•&nbsp; **[Astro Guide ↗](packages/astro/README.md)** &nbsp;•&nbsp; **[MDX Guide ↗](packages/mdx/README.md)** &nbsp;•&nbsp; **[Core Compiler ↗](packages/core/README.md)**
 
@@ -161,7 +161,7 @@ Static boxes and arrows fail to capture distributed systems in action. **Markdy 
 - 🔄 **Architectural Evolution Matrix**: Compare architecture states across Git commits and automatically synthesize animated migration storyboards.
 - 🔬 **Blast Radius & Route Pathfinder**: Compute upstream dependency callers, downstream failure blast radius, and shortest message paths in real-time.
 - 💎 **Native Vector Symbol Registry**: Embedded, zero-dependency SVG vector glyphs for AWS, GCP, Kubernetes, Docker, Postgres, Redis, Kafka, and 20+ stacks.
-- ⚡ **Zero-Dep & Web-Native**: Powered by pure CSS/SVG transforms and the Web Animations API (WAAPI) — ~14 kB parser, no Canvas, no GSAP.
+- ⚡ **Zero-Dep & Web-Native**: Powered by pure CSS/SVG transforms and the Web Animations API (WAAPI): ~14 kB parser, no Canvas, no GSAP.
 - 🔄 **Universal Ingestion**: 1-click migration from Mermaid, Draw.io, Docker Compose, Kubernetes manifests, and Terraform states.
 - 🤖 **AI-Native & MCP**: Official Model Context Protocol (MCP) server for Claude, Cursor, Antigravity, and Cline with self-healing syntax diagnostics.
 - 🛡️ **Architecture Governance**: Built-in rules prevent deadlock cycles and cross-layer bypasses.

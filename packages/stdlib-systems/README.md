@@ -3,7 +3,7 @@
 The system-diagram vocabulary for MarkdyScript.
 
 As of MarkdyScript 0.8 the node vocabulary ships inside `@markdy/core`, so there
-is **no registration step** — every node kind below is available out of the box.
+is **no registration step** - every node kind below is available out of the box.
 This package re-exports that vocabulary and a `systemsPack` manifest for tooling
 that wants a single import listing every supported node type and flow action.
 
@@ -51,7 +51,7 @@ Flow operators (from `@markdy/core`):
 ```text
 @markdy/stdlib-systems re-exports the node vocabulary from @markdy/core
 
-The vocabulary is built into the core parser — this package is a convenience
+The vocabulary is built into the core parser - this package is a convenience
 re-export and manifest, not a runtime registration step.
 ```
 

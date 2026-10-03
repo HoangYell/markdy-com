@@ -3,12 +3,13 @@
 <p align="center">
   <a href="https://markdy.com/playground/"><img src="https://img.shields.io/badge/⚡_Live_Studio-markdy.com%2Fplayground-3b82f6?style=for-the-badge" alt="Live Studio" /></a>
   <a href="https://markdy.com/docs/"><img src="https://img.shields.io/badge/📖_Docs-Documentation-10b981?style=for-the-badge" alt="Documentation" /></a>
+  <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/npm/dm/%40markdy%2Fcore?style=for-the-badge&logo=npm&color=cb3837&label=npm%20downloads" alt="npm downloads" /></a>
   <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><img src="https://img.shields.io/badge/🔌_VS_Code-Extension-8b5cf6?style=for-the-badge" alt="VS Code Extension" /></a>
   <a href="https://github.com/sponsors/HoangYell"><img src="https://img.shields.io/badge/📐_Pro_Blueprints-Architecture_Kits-f59e0b?style=for-the-badge" alt="Pro Architecture Blueprints" /></a>
   <a href="https://github.com/sponsors/HoangYell"><img src="https://img.shields.io/badge/💖_Sponsor-Support_Markdy-ea4aaa?style=for-the-badge" alt="Sponsor Markdy" /></a>
 </p>
 
-The zero-dependency parser, dynamic port multiplexer, and AST routing engine for [MarkdyScript](https://markdy.com/docs/) — a diagram-native DSL for animated architecture diagrams that AI agents generate reliably.
+The zero-dependency parser, dynamic port multiplexer, and AST routing engine for [MarkdyScript](https://markdy.com/docs/): a diagram-native DSL for animated architecture diagrams that AI agents generate reliably.
 
 > 🚀 **Try it live**: Test MarkdyScript in the browser at **[markdy.com/playground](https://markdy.com/playground/)**  
 > 📚 **Documentation**: Complete syntax guide and examples at **[markdy.com/docs](https://markdy.com/docs/)**  
@@ -17,17 +18,17 @@ The zero-dependency parser, dynamic port multiplexer, and AST routing engine for
 
 ## Features
 
-- **Zero runtime dependencies** — pure TypeScript, no DOM or platform APIs (~14 KB minzipped)
-- **Single-pass parser** — line-by-line state machine with strict `ParseError` line-number diagnostics
-- **Dynamic Port Multiplexer & Smooth Router** — obstacle-aware orthogonal Manhattan routing with balanced multi-lane fan-in/fan-out and smooth fillet curves
-- **Code Provenance & Git In-Tree Grounding** — anchor architecture nodes directly to source files (`@src="path/file.ts#L10-L40"`) with automated path traversal security and bounds validation
-- **Architectural Evolution & Git-Diff Matrix** — deep structural and visual comparison of architecture states with auto-generated animated migration storyboards
-- **Native Vector Symbol Registry** — zero-dependency vector SVG icons for 20+ top cloud, database, runtime, and messaging technologies
-- **17 Specialized Layout Engines** — `architecture`, `flowchart`, `tree`, `sequence`, `state`, `layers`, `nested`, `swimlane`, `timeline`, `gantt`, `medallion`, `flywheel`, `constellation`, `quadrant`, `pyramid`, `radar`, `venn`
-- **10 Semantic Themes** — `paper`, `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `terminal`, `sketchy`, `ink`, `doodle`
-- **Content-Adaptive Canvas Sizing** — automatically calculates optimal aspect ratio and bounds based on diagram items and topology
-- **Well-Architected Governance & AST Diffing** — layer boundaries, deadlock cycle detection, gateway isolation, and semantic AST evolution
-- **Isomorphic** — runs in Node.js, Deno, Bun, edge runtimes, and the browser
+- **Zero runtime dependencies**: pure TypeScript, no DOM or platform APIs (~14 KB minzipped)
+- **Single-pass parser**: line-by-line state machine with strict `ParseError` line-number diagnostics
+- **Dynamic Port Multiplexer & Smooth Router**: obstacle-aware orthogonal Manhattan routing with balanced multi-lane fan-in/fan-out and smooth fillet curves
+- **Code Provenance & Git In-Tree Grounding**: anchor architecture nodes directly to source files (`@src="path/file.ts#L10-L40"`) with automated path traversal security and bounds validation
+- **Architectural Evolution & Git-Diff Matrix**: deep structural and visual comparison of architecture states with auto-generated animated migration storyboards
+- **Native Vector Symbol Registry**: zero-dependency vector SVG icons for 20+ top cloud, database, runtime, and messaging technologies
+- **17 Specialized Layout Engines**: `architecture`, `flowchart`, `tree`, `sequence`, `state`, `layers`, `nested`, `swimlane`, `timeline`, `gantt`, `medallion`, `flywheel`, `constellation`, `quadrant`, `pyramid`, `radar`, `venn`
+- **10 Semantic Themes**: `paper`, `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `terminal`, `sketchy`, `ink`, `doodle`
+- **Content-Adaptive Canvas Sizing**: automatically calculates optimal aspect ratio and bounds based on diagram items and topology
+- **Well-Architected Governance & AST Diffing**: layer boundaries, deadlock cycle detection, gateway isolation, and semantic AST evolution
+- **Isomorphic**: runs in Node.js, Deno, Bun, edge runtimes, and the browser
 
 ## Installation
 
@@ -102,12 +103,12 @@ try {
 
 ## Ecosystem & Documentation
 
-- ⚡ **[Interactive Studio / Playground](https://markdy.com/playground/)** — edit MarkdyScript with instant live preview in your browser
-- 📖 **[Syntax Guide & Reference](https://markdy.com/docs/)** — complete language specification and keywords
-- 🌟 **[Canonical Blueprints](https://markdy.com/examples/)** — production-grade distributed system and cloud architectures
-- 🤖 **[Agent Engineering Guide](https://markdy.com/agent/)** — instructions for LLMs (Claude, GPT, Gemini) to generate valid Markdy
-- 🔌 **[VS Code Marketplace Extension](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode)** — syntax highlighting and live preview in editor
-- 📦 **[GitHub Repository](https://github.com/HoangYell/markdy-com)** — source code, benchmarks, and issue tracker
+- ⚡ **[Interactive Studio / Playground](https://markdy.com/playground/)**: edit MarkdyScript with instant live preview in your browser
+- 📖 **[Syntax Guide & Reference](https://markdy.com/docs/)**: complete language specification and keywords
+- 🌟 **[Canonical Blueprints](https://markdy.com/examples/)**: production-grade distributed system and cloud architectures
+- 🤖 **[Agent Engineering Guide](https://markdy.com/agent/)**: instructions for LLMs (Claude, GPT, Gemini) to generate valid Markdy
+- 🔌 **[VS Code Marketplace Extension](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode)**: syntax highlighting and live preview in editor
+- 📦 **[GitHub Repository](https://github.com/HoangYell/markdy-com)**: source code, benchmarks, and issue tracker
 
 ## 📐 Production Architecture Blueprints & Pro Support
 

@@ -1,9 +1,9 @@
 ---
 /*
-  SEO BRIEF — use-case/how-to article: Animated sequence diagrams
+  SEO BRIEF - use-case/how-to article: Animated sequence diagrams
   Target keywords: animated sequence diagram, sequence diagram animation,
     sequence diagram as code, animated sequence diagram tool
-  Search intent: how-to — developers who want a sequence diagram that animates
+  Search intent: how-to - developers who want a sequence diagram that animates
     the request/response order rather than a static ladder.
   Meta title: How to Make Animated Sequence Diagrams as Code | Markdy
   Meta description: Build animated sequence diagrams as code. Use Markdy beats and
@@ -18,7 +18,7 @@ const structuredData = [
     "@id": `${canonicalURL}#article`,
     headline: "How to Make Animated Sequence Diagrams as Code",
     description:
-      "Build animated sequence diagrams as code with Markdy — reveal participants, then play request/response/event steps in order over a timeline.",
+      "Build animated sequence diagrams as code with Markdy - reveal participants, then play request/response/event steps in order over a timeline.",
     inLanguage: "en",
     url: canonicalURL,
     mainEntityOfPage: canonicalURL,
@@ -37,7 +37,7 @@ const structuredData = [
   keywords="animated sequence diagram, sequence diagram animation, sequence diagram as code, animated sequence diagram tool, request response diagram"
   canonicalURL={canonicalURL}
   headline="How to Make Animated Sequence Diagrams as Code"
-  dek="A sequence diagram is a story about order. Markdy lets you play that story — reveal the participants, then trace each request and response in time."
+  dek="A sequence diagram is a story about order. Markdy lets you play that story - reveal the participants, then trace each request and response in time."
   structuredData={structuredData}
 >
   <p>
@@ -51,7 +51,7 @@ const structuredData = [
   </p>
 
   <h2>1. Declare the participants</h2>
-  <p>Sequence "participants" are just nodes. Use whatever kind fits — <code>client</code>, <code>service</code>, <code>database</code>, <code>auth</code>:</p>
+  <p>Sequence "participants" are just nodes. Use whatever kind fits - <code>client</code>, <code>service</code>, <code>database</code>, <code>auth</code>:</p>
   <pre><code>scene theme=editorial type=sequence
 layout LR
 
@@ -74,7 +74,7 @@ participant DB "User DB"</code></pre>
   API &lt;- DB "user row"
   User &lt;- API "session cookie"</code></pre>
   <p>
-    That reads top-to-bottom like a classic sequence diagram, but it <em>plays</em> — the request travels, the
+    That reads top-to-bottom like a classic sequence diagram, but it <em>plays</em> - the request travels, the
     response returns, and a labeled pulse follows each edge.
   </p>
 
@@ -86,7 +86,7 @@ participant DB "User DB"</code></pre>
   <h2>Async steps and fan-out</h2>
   <p>
     Not every call is synchronous. Use <code>~&gt;</code> for an event/publish and <code>&amp;</code> to run two steps
-    together — handy for fan-out to a queue while you also write to a database:
+    together - handy for fan-out to a queue while you also write to a database:
   </p>
   <pre><code>beat write:
   API -&gt; DB "persist" &amp; API ~&gt; Events "user.created"</code></pre>
@@ -95,7 +95,7 @@ participant DB "User DB"</code></pre>
   <p>
     Because comprehension follows attention. In a talk, a launch post, or onboarding docs, revealing one step at a
     time keeps the reader with you. It's the same <a href="/blog/animated-diagrams-as-code/">diagram-as-code</a>
-    workflow — reviewable in PRs, and <a href="/blog/ai-generated-architecture-diagrams/">easy for an AI to draft</a>.
+    workflow - reviewable in PRs, and <a href="/blog/ai-generated-architecture-diagrams/">easy for an AI to draft</a>.
     Try the login example above in the <a href="/playground/">playground</a>, then read the
     <a href="/docs/">docs</a> for the full cue reference.
   </p>

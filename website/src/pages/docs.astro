@@ -54,7 +54,7 @@ const docStructuredData = [
     "@type": "WebPage",
     "@id": "https://markdy.com/docs/#webpage",
     url: "https://markdy.com/docs/",
-    name: "Markdy Documentation — MarkdyScript Reference & Developer Guide",
+    name: "Markdy Documentation - MarkdyScript Reference & Developer Guide",
     description: "Comprehensive developer guide for MarkdyScript: semantic node kinds, flow operators, timeline beats, universal ingestion, AI/MCP agent configuration, and architecture governance.",
     isPartOf: { "@id": "https://markdy.com/#website" },
     about: { "@id": "https://markdy.com/#software" },
@@ -71,7 +71,7 @@ const docStructuredData = [
 ---
 
 <Layout
-  title="Markdy Docs — MarkdyScript Reference & Complete Developer Guide"
+  title="Markdy Docs - MarkdyScript Reference & Complete Developer Guide"
   description="Master MarkdyScript for animated architecture diagrams as code: full grammar cheatsheet, node kinds, flow operators, timeline beats, universal ingestion, AI MCP configuration, and CI/CD governance."
   canonicalURL="https://markdy.com/docs/"
   keywords="Markdy documentation, MarkdyScript tutorial, diagram as code reference, animated architecture diagrams, mermaid alternative, system design diagrams, MCP server diagrams, AI diagram generator, architecture governance"
@@ -290,11 +290,11 @@ beat flow "Cache Lookup & Fallback":
       <!-- ─── 1b. Core Philosophy ───────────────────────────────────────── -->
       <section id="concepts" class="doc-section">
         <h2 class="section-heading">Core Philosophy</h2>
-        <p>Markdy is <strong>diagram-native</strong>: MarkdyScript isn't a config format bolted onto a chart library — it's a small DSL purpose-built for describing systems, and every part of the toolchain treats it as a first-class language:</p>
+        <p>Markdy is <strong>diagram-native</strong>: MarkdyScript isn't a config format bolted onto a chart library - it's a small DSL purpose-built for describing systems, and every part of the toolchain treats it as a first-class language:</p>
         <ul class="doc-list mt-4">
-          <li><strong>Diagrams as code.</strong> A scene is plain text, so it lives in your repo, reviews in a pull request, and diffs like any other source file — no binary design-tool exports to go stale.</li>
+          <li><strong>Diagrams as code.</strong> A scene is plain text, so it lives in your repo, reviews in a pull request, and diffs like any other source file - no binary design-tool exports to go stale.</li>
           <li><strong>Parsing is separate from rendering.</strong> <code>@markdy/core</code> compiles MarkdyScript into a render plan (positioned nodes, routed edges, timed cues); <code>@markdy/renderer-dom</code> turns that plan into DOM and SVG. Anything that can consume the render plan can become a renderer.</li>
-          <li><strong>Motion, not just layout.</strong> Diagrams are told through <code>beat</code>s — discrete timeline steps — driven by the browser's native Web Animations API, so playback is seekable and scrubbable instead of a single static export.</li>
+          <li><strong>Motion, not just layout.</strong> Diagrams are told through <code>beat</code>s - discrete timeline steps - driven by the browser's native Web Animations API, so playback is seekable and scrubbable instead of a single static export.</li>
           <li><strong>Semantic nodes over generic boxes.</strong> Declaring a node's kind (<code>service</code>, <code>database</code>, <code>queue</code>, ...) carries meaning the renderer uses for styling and iconography, instead of hand-picking shapes and colors per node.</li>
         </ul>
       </section>
