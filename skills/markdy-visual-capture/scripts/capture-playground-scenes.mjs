@@ -27,7 +27,7 @@ async function run() {
   });
 
   console.log('🌐 Navigating to Markdy playground...');
-  await page.goto('http://markdy.com/playground/', { waitUntil: 'networkidle2', timeout: 30000 });
+  await page.goto('https://markdy.com/playground/', { waitUntil: 'networkidle2', timeout: 30000 });
 
   // Get available example scene keys
   const exampleKeys = await page.evaluate(() => {
