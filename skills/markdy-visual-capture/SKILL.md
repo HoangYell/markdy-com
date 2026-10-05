@@ -6,7 +6,7 @@ description: >-
 
 # Markdy Visual Capture & Mascot Decoration Skill
 
-This skill teaches the agent how to capture crisp 2× Retina screenshots from the live Markdy studio / playground (`http://markdy.com/playground/` or local dev server) and decorate them into landscape (16:9 widescreen, 1600×900) documentation assets matching the `og-markdy.png` aesthetic.
+This skill teaches the agent how to capture crisp 2× Retina screenshots from the live Markdy studio / playground (`https://markdy.com/playground/` or local dev server) and decorate them into landscape (16:9 widescreen, 1600×900) documentation assets matching the `og-markdy.png` aesthetic.
 
 ---
 
@@ -32,7 +32,7 @@ This skill teaches the agent how to capture crisp 2× Retina screenshots from th
 
 ### Step 1: Capture Raw Playground Scenes
 
-To capture clean diagram scenes from `http://markdy.com/playground/`:
+To capture clean diagram scenes from `https://markdy.com/playground/`:
 
 ```bash
 node .agents/skills/markdy-visual-capture/scripts/capture-playground-scenes.mjs
