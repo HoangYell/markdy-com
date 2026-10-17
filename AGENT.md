@@ -274,7 +274,7 @@ beat <BeatId> ["Optional User-Facing Caption"]:
 | `frame` | `frame <Targets> [zoom=<num>] [dur=<ms>]` | `zoom`: Scale multiplier (e.g. `1.15`)<br/>`dur`: Camera pan duration (e.g. `600ms`) | Moves and scales the scene camera to focus on nodes or groups. `frame $nodes` resets view. |
 | `glow` | `glow <Targets> [color=<hex>] [strength=<num>]` | `color`: Hex color code (e.g. `#10b981`)<br/>`strength`: Glow intensity (e.g. `1.5`) | Highlights nodes with an energetic pulsing glow ring. |
 | `focus` | `focus <Targets> [zoom=<num>] [dur=<ms>]` | `zoom`: Scale factor (e.g. `1.1`) | Temporarily pulse-scales a node to draw visual attention. |
-| `&` | `<CueA> & <CueB>` | None | Parallel cue operator — runs two cues simultaneously. |
+| `&` | `<CueA> & <CueB>` | None | Parallel cue operator: runs two cues simultaneously. |
 
 #### Special Target Selectors
 
