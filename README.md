@@ -1,65 +1,58 @@
 <p align="center">
   <a href="https://markdy.com">
-    <img src="docs/images/mascot/markdy-com.webp" width="180" alt="Markdy" />
+    <img src="docs/images/mascot/markdy-com.webp" width="340" alt="Markdy" />
   </a>
 </p>
 
 <p align="center">
-  <strong>Turn architecture diagrams into step-by-step explanations of how your system works.</strong><br>
-  Markdy turns text into animated diagrams for system design, documentation, and walkthroughs.
+  <strong>Diagram-as-code DSL for animated architecture &amp; system design explainers.</strong><br>
+  Prompt your AI agent → generate declarative MarkdyScript → render 60fps kinetic diagrams powered by the Web Animations API.
 </p>
 
 <p align="center">
-  <a href="https://markdy.com/playground/?example=url-shortener-architecture">
-    <img src="docs/images/markdy-cache-aside.gif" width="100%" alt="Animated cache-aside walkthrough: a Redis cache hit returns a redirect, then a cache miss queries PostgreSQL and refills Redis." />
-  </a>
-</p>
-
-<p align="center">
-  <b>Cache hit: return from Redis. Cache miss: query PostgreSQL and refill the cache.</b><br>
-  <a href="https://markdy.com/playground/?example=url-shortener-architecture"><b>Try this example →</b></a> &nbsp;•&nbsp;
-  <a href="examples/showcase/url-shortener-architecture.markdy">View the source</a><br>
-  <sub>Open in your browser. No installation or AI account required.</sub>
-</p>
-
-<p align="center">
-  <a href="https://markdy.com/docs/">Documentation</a> &nbsp;•&nbsp;
-  <a href="https://markdy.com/examples/">Examples</a> &nbsp;•&nbsp;
-  <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode">VS Code Extension</a> &nbsp;•&nbsp;
-  <a href="https://markdy.com/agent/">AI &amp; Agent Guide</a> &nbsp;•&nbsp;
-  <a href="https://github.com/sponsors/HoangYell"><strong>Sponsor &amp; Pro Blueprints</strong></a>
+  <a href="https://markdy.com/playground/"><b>⚡ Live Studio</b></a> &nbsp;•&nbsp;
+  <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><b>🔌 VS Code Extension</b></a> &nbsp;•&nbsp;
+  <a href="https://markdy.com/docs/"><b>📖 Documentation</b></a> &nbsp;•&nbsp;
+  <a href="https://markdy.com/examples/"><b>🌟 33 Blueprints</b></a> &nbsp;•&nbsp;
+  <a href="https://markdy.com/agent/"><b>🤖 AI &amp; Agent Guide</b></a>
 </p>
 
 <p align="center">
   <a href="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml"><img src="https://github.com/HoangYell/markdy-com/actions/workflows/ci.yml/badge.svg" alt="CI Status" /></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><img src="https://vsmarketplacebadges.dev/version-short/hoangyell.markdy-vscode.svg" alt="VS Code Extension" /></a>
+  <a href="https://open-vsx.org/extension/hoangyell/markdy-vscode"><img src="https://img.shields.io/open-vsx/v/hoangyell/markdy-vscode?color=purple&label=Open%20VSX" alt="Open VSX Extension" /></a>
   <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/npm/v/@markdy/core?color=blue&label=%40markdy%2Fcore" alt="npm version" /></a>
-  <a href="https://github.com/sponsors/HoangYell"><img src="https://img.shields.io/badge/Pro_Blueprints-Architecture_Kits-f59e0b" alt="Pro Architecture Blueprints" /></a>
-  <a href="https://github.com/sponsors/HoangYell"><img src="https://img.shields.io/badge/Sponsor-%E2%99%A5-ea4aaa" alt="Sponsor Markdy" /></a>
+  <a href="https://www.npmjs.com/package/@markdy/mcp-server"><img src="https://img.shields.io/npm/v/@markdy/mcp-server?color=purple&label=MCP%20Server" alt="MCP Server version" /></a>
+  <a href="https://www.npmjs.com/package/@markdy/core"><img src="https://img.shields.io/badge/core_size-~14_kB-brightgreen" alt="Core Bundle Size" /></a>
   <a href="https://github.com/HoangYell/markdy-com/blob/main/LICENSE"><img src="https://img.shields.io/github/license/HoangYell/markdy-com" alt="MIT License" /></a>
 </p>
 
-> 💼 **Sponsorship & Commercial Use**: Markdy is free and open source under the MIT license. Access production architectural templates, custom diagram kits, and direct support via **[GitHub Sponsors & Pro Blueprints](https://github.com/sponsors/HoangYell)**.
+<p align="center">
+  <a href="https://markdy.com/playground/">
+    <img src="docs/images/markdy-split-editor.webp" width="100%" alt="Markdy Interactive Studio" />
+  </a>
+</p>
 
 ---
 
-## ⚡ Why Markdy?
+## 💡 How It Works
 
-- **Explain behavior, not just topology.** Walk through requests, responses, and background events one step at a time.
-- **Keep the explanation beside the code.** Store diagrams as readable `.markdy` files you can review and version in Git.
-- **Start in the browser.** Try an example, edit it, and share it. Use an AI agent to help write the script when you need one.
+> **Describe your system in plain English → your AI agent generates the Markdy script → your browser renders the animated diagram.**
 
-## 🚀 Quick Start
+<p align="center">
+  <img src="docs/images/ai-paradigm-flow.webp" width="100%" alt="How to Use Markdy with AI Agents" />
+</p>
 
-### 1. Try the Live Example
+---
 
-Open the **[cache-aside walkthrough](https://markdy.com/playground/?example=url-shortener-architecture)**. Play it or step through the timeline to follow the cache hit and miss paths.
+## 🚀 Quick Start (60 Seconds)
 
-### 2. Make It Yours
+### 1. Prompt Your AI Agent
 
-Edit the example in the studio, or start with the smaller script below. Write MarkdyScript yourself, or ask your coding agent to generate it.
+You don't need to write MarkdyScript manually. Ask **Cursor**, **Claude Code**, **Google Antigravity**, **ChatGPT**, or any coding agent:
 
 <details>
-<summary><b>Optional: generate a diagram with your AI agent</b></summary>
+<summary><b>💬 Example Prompt (Copy &amp; Paste to your Agent)</b></summary>
 <br>
 
 > "Follow the canonical Markdy specification (https://markdy.com/AGENT.md) and generate a `.markdy` scene:  
@@ -70,7 +63,7 @@ Edit the example in the studio, or start with the smaller script below. Write Ma
 </details>
 
 <details>
-<summary><b>A small cache-aside scene (<code>system.markdy</code>)</b></summary>
+<summary><b>🤖 AI-Generated MarkdyScript (<code>system.markdy</code>)</b></summary>
 <br>
 
 ```markdy
@@ -101,9 +94,12 @@ beat cache_miss "2. Cache Miss & Async Warm":
 
 </details>
 
-### 3. Preview Locally (Optional)
+### 2. Preview & Explore
 
-Prefer your own editor or terminal? Save the script as `system.markdy`:
+Choose your preferred preview environment:
+
+- **Interactive Web Studio**: **[markdy.com/playground ↗](https://markdy.com/playground/)**:  
+  Instant browser playground with timeline scrubbing, GIF/SVG export, and shareable links.
 
 - **VS Code / Cursor Extension**: [`hoangyell.markdy-vscode`](https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode):  
   Press **`Cmd+K V`** *(macOS)* or **`Ctrl+K V`** *(Windows/Linux)* for live side-by-side animated preview.
@@ -113,7 +109,7 @@ Prefer your own editor or terminal? Save the script as `system.markdy`:
   npx @markdy/cli render system.markdy --out diagram.html
   ```
 
-## Embed in Web Apps & Docs
+### 3. Embed in Web Apps & Docs
 
 Choose the package that fits your stack:
 
@@ -147,10 +143,10 @@ Choose the package that fits your stack:
 
 ---
 
-## Technical Capabilities
+## ⚡ Why Markdy?
 
 <details>
-<summary><b>Explore the technical capabilities</b></summary>
+<summary><b>Kinetic Motion Graphics vs. Static Architecture Diagrams</b></summary>
 <br>
 
 Static boxes and arrows fail to capture distributed systems in action. **Markdy turns text into choreographed 60fps motion graphics** directly in your browser.
@@ -158,11 +154,12 @@ Static boxes and arrows fail to capture distributed systems in action. **Markdy 
 - 🎬 **Kinetic Storytelling**: Choreograph requests (`->`), responses (`<-`), and events (`~>`) across sequential `beat` timelines with auto-zooms and glow cues.
 - 📐 **Dynamic Port Multiplexing**: Automatically balances parallel connections across node boundaries with zero line congestion or overlapping paths.
 - 🔗 **Code Provenance & Git Grounding**: Anchor high-level architecture nodes directly to verified source code (`@src="src/auth.ts#L10-L50"`) with automated in-tree Git verification.
-- 🔄 **Architectural Evolution Matrix**: Compare architecture states across Git commits and automatically synthesize animated migration storyboards.
+- 🔄 **Architectural Evolution Matrix**: Compare architecture states across Git commits and automatically synthesize animated migration storyboards (`markdy diff`).
+- 🏛️ **C4 Hierarchy & Architecture Drift**: Native Context, Container, Component, and Code level projections (`markdy c4`) with automatic drift detection (`markdy drift`).
 - 🔬 **Blast Radius & Route Pathfinder**: Compute upstream dependency callers, downstream failure blast radius, and shortest message paths in real-time.
-- 💎 **Native Vector Symbol Registry**: Embedded, zero-dependency SVG vector glyphs for AWS, GCP, Kubernetes, Docker, Postgres, Redis, Kafka, and 20+ stacks.
+- 💎 **Native Vector Symbol Registry**: Embedded, zero-dependency SVG vector glyphs for AWS, GCP, Kubernetes, Docker, Postgres, Redis, Kafka, Grafana, and 20+ stacks.
 - ⚡ **Zero-Dep & Web-Native**: Powered by pure CSS/SVG transforms and the Web Animations API (WAAPI): ~14 kB parser, no Canvas, no GSAP.
-- 🔄 **Universal Ingestion**: 1-click migration from Mermaid, Draw.io, Docker Compose, Kubernetes manifests, and Terraform states.
+- 🔄 **Universal Ingestion**: 1-click migration from Mermaid, D2, PlantUML, Draw.io, Docker Compose, Kubernetes manifests, and Terraform states.
 - 🤖 **AI-Native & MCP**: Official Model Context Protocol (MCP) server for Claude, Cursor, Antigravity, and Cline with self-healing syntax diagnostics.
 - 🛡️ **Architecture Governance**: Built-in rules prevent deadlock cycles and cross-layer bypasses.
 
@@ -171,6 +168,10 @@ Static boxes and arrows fail to capture distributed systems in action. **Markdy 
 ---
 
 ## 🌟 Advanced Engineering Superpowers
+
+<details>
+<summary><b>Architecture Intelligence Platform (Code Provenance, C4, Drift, Blast Radius)</b></summary>
+<br>
 
 Markdy goes beyond basic diagram drawing into a comprehensive **Architecture Intelligence Platform**:
 
@@ -191,18 +192,20 @@ beat workflow:
   OrderSvc ~> Redis "Cache Invalidation"
 ```
 
-| Superpower | Syntax / API | Developer Impact |
+| Superpower | Syntax / API / CLI | Developer Impact |
 | :--- | :--- | :--- |
 | **Dynamic Port Multiplexing** | Auto-calculated | Perfectly balanced multi-lane fan-in/fan-out with smooth fillet curves |
 | **Code Provenance Anchors** | `@src="path/file.ts#L10"` | Guaranteed synchronization between architecture diagrams and real Git code |
-| **Evolution Git-Diff** | `diffDiagramASTs(v1, v2)` | Automated visual diffing and animated migration timeline generation |
+| **Evolution Git-Diff** | `diffDiagramASTs(v1, v2)` / `markdy diff` | Automated visual diffing and animated migration timeline generation |
+| **Architecture Drift Detection** | `detectArchitectureDrift()` / `markdy drift` | Detect broken `@src` anchors and orphan microservices against Git history |
+| **C4 Hierarchy Modeling** | `analyzeC4Model()` / `markdy c4` | Native Context, Container, Component, and Code level views and transitions |
 | **Blast Radius Lens** | `calculateBlastRadius(node, ast)` | Real-time upstream impact and downstream failure cascade isolation |
-| **Contextual Share Cards (1200×630)** | `exportRouteShareCard()`, `exportReachShareCard()` | High-impact social & README cards with active route/blast-radius telemetry |
-| **9-Point Showcase Quality Gate** | `markdy verify <file> --quality showcase` | Deterministic SHA-256 integrity receipt & responsive viewport validation |
-| **Architecture Recipe Guidance** | `markdy guide "<query>"` | Instant AI scenario pattern matching for cache-aside, EDA, zero-trust, and lakehouse |
-| **Native Vector Symbols** | `icon=redis`, `icon=kafka` | Zero-CDN, lightweight vector badges embedded directly in the artifact |
+| **Contextual Share Cards (1200×630)** | `exportRouteShareCard()`, `exportReachShareCard()` | High-impact social and README cards with active route/blast-radius telemetry |
+| **9-Point Showcase Quality Gate** | `markdy verify <file> --quality showcase` | Deterministic SHA-256 integrity receipt and responsive viewport validation |
+| **Architecture Recipe Guidance** | `markdy guide "<query>"` / `markdy recipe` | Instant AI scenario pattern matching for cache-aside, EDA, zero-trust, and lakehouse |
+| **Native Vector Symbols** | `icon=redis`, `icon=kafka`, `icon=grafana` | Zero-CDN, lightweight vector badges embedded directly in the artifact |
 
-
+</details>
 
 ---
 
@@ -294,7 +297,7 @@ export default {
 <summary><b>⚡ Terminal CLI &amp; CI/CD (`@markdy/cli`, `@markdy/compat`)</b></summary>
 <br>
 
-Render standalone HTML diagrams or run architecture linting in CI/CD pipelines:
+Render standalone HTML diagrams, verify showcase quality, or run architecture linting in CI/CD pipelines:
 
 ```bash
 # Global install
@@ -305,6 +308,18 @@ markdy render system.markdy --out diagram.html
 
 # Lint Markdy architecture scenes in CI/CD
 markdy lint **/*.markdy
+
+# Verify showcase blueprint quality gate
+markdy verify system.markdy --quality showcase
+
+# Detect architecture drift against Git source code
+markdy drift system.markdy
+
+# Model C4 multi-level architectural hierarchy
+markdy c4 system.markdy --level container
+
+# Transpile external diagrams (Mermaid, D2, PlantUML, Compose, K8s, Terraform, Draw.io)
+markdy import flow.mmd --out flow.markdy
 ```
 
 👉 **[CLI Package Guide ↗](packages/cli/README.md)** &nbsp;•&nbsp; **[Universal Ingestion Guide ↗](packages/compat/README.md)**
@@ -323,7 +338,7 @@ markdy lint **/*.markdy
 ## 📊 Feature Comparison
 
 <details>
-<summary><b>Feature Matrix (vs Mermaid, PlantUML, Excalidraw, Draw.io)</b></summary>
+<summary><b>Feature Matrix (vs Mermaid, PlantUML, D2, Excalidraw, Draw.io)</b></summary>
 <br>
 
 | Capability | Mermaid / PlantUML | Excalidraw / Draw.io | Markdy |
@@ -332,8 +347,8 @@ markdy lint **/*.markdy
 | **Authoring Style** | Text DSL | Manual drag-and-drop | ✅ **Declarative text DSL + Live Editor Preview** |
 | **Return Flows & Cycles** | ⚠️ Rank distortion / tangling | Manual curve placement | ✅ **Cycle-safe returns (`<-`) & async event arcs (`~>`)** |
 | **AI Agent Reliability** | ⚠️ High hallucination | ❌ Coordinate hallucination | ✅ **Strict grammar AST + Self-healing MCP Server** |
-| **Architecture Linter** | ❌ None | ❌ None | ✅ **Built-in rules (e.g. anti-pattern detection)** |
-| **Universal Ingestion** | ❌ Manual rewrite | ❌ Manual export | ✅ **1-Click Transpiler for Mermaid, Compose, K8s, Terraform** |
+| **Architecture Governance** | ❌ None | ❌ None | ✅ **Built-in rules, drift detection (`markdy drift`), and C4 hierarchy** |
+| **Universal Ingestion** | ❌ Manual rewrite | ❌ Manual export | ✅ **1-Click Transpiler for Mermaid, D2, PlantUML, Compose, K8s, Terraform, Draw.io** |
 | **Core Footprint** | ~2 MB+ runtime | Heavy web app | ✅ **~14 kB core parser, zero dependencies** |
 
 </details>
@@ -350,11 +365,11 @@ Markdy is architected as a modular monorepo where each package fulfills a focuse
 
 | Package | Responsibility | Primary Exports |
 |---|---|---|
-| **[`@markdy/core`](packages/core)** | **Compiler Core & AST Engine** | `parse()`, `compile()`, `formatScene()`, `diagnoseMarkdyCode()`, `validateArchitecture()`. Zero dependencies (~14 kB). |
-| **[`@markdy/renderer-dom`](packages/renderer-dom)** | **Motion Graphics & Rendering** | `createDiagram()`, `exportDiagramAsVectorSvg()`, `exportDiagramAsPng()`, `exportDiagramAsGif()`. 60fps WAAPI timeline. |
+| **[`@markdy/core`](packages/core)** | **Compiler Core & AST Engine** | `parse()`, `compile()`, `formatScene()`, `diagnoseMarkdyCode()`, `validateArchitecture()`, `detectArchitectureDrift()`, `analyzeC4Model()`. Zero dependencies (~14 kB). |
+| **[`@markdy/renderer-dom`](packages/renderer-dom)** | **Motion Graphics & Rendering** | `createDiagram()`, `exportDiagramAsVectorSvg()`, `exportDiagramAsPng()`, `exportDiagramAsGif()`, `exportRouteShareCard()`. 60fps WAAPI timeline. |
 | **[`markdy-vscode`](packages/vscode)** | **IDE Extension (VS Code & Cursor)** | Side-by-side live animated preview, document formatter (`Shift+Alt+F`), QuickFix lightbulbs (`💡 Fix`), Universal Ingestion, CodeLens. |
-| **[`@markdy/compat`](packages/compat)** | **Universal Ingestion Suite** | Transpilers for Mermaid, Docker Compose, Kubernetes YAMLs, Terraform state, and Draw.io XML. |
-| **[`@markdy/cli`](packages/cli)** | **Terminal Tool & CI/CD** | `markdy lint`, `markdy render`, `markdy format`, `markdy import`, `markdy diff`. |
+| **[`@markdy/compat`](packages/compat)** | **Universal Ingestion Suite** | Transpilers for Mermaid, D2, PlantUML, Docker Compose, Kubernetes YAMLs, Terraform state, and Draw.io XML. |
+| **[`@markdy/cli`](packages/cli)** | **Terminal Tool & CI/CD** | `markdy lint`, `markdy render`, `markdy fmt`, `markdy import`, `markdy diff`, `markdy verify`, `markdy drift`, `markdy c4`, `markdy guide`. |
 | **[`@markdy/mcp-server`](packages/mcp-server)** | **AI Agent Integration (MCP)** | Model Context Protocol server exposing validation, auto-healing, and transpilation tools for Claude, Cursor, Antigravity, Cline, Windsurf. |
 | **[`@markdy/astro`](packages/astro)** & **[`@markdy/mdx`](packages/mdx)** | **Docs & Blog Integrations** | Zero-CLS, SSR-placeholder islands with viewport hydration for content sites. |
 | **[`@markdy/language-server`](packages/markdy-language-server)** | **Headless LSP Server** | Diagnostic publishing, hover docs, formatting, and completions for language clients. |
@@ -367,18 +382,18 @@ Markdy is architected as a modular monorepo where each package fulfills a focuse
 ## 🔍 Detailed Features & Advanced Usage
 
 <details>
-<summary><b>🎨 17 Specialized Layout Engines &amp; 10 Editorial Themes</b></summary>
+<summary><b>🎨 18 Specialized Layout Engines &amp; 10 Editorial Themes</b></summary>
 <br>
 
 Markdy provides topological layout algorithms tailored to specific system patterns:
 
 - **Distributed Systems**: `architecture`, `flowchart`, `tree`, `state`, `sequence`
 - **Security & Structure**: `layers`, `nested`, `swimlane`, `quadrant`, `pyramid`
-- **Data & Product Loops**: `medallion`, `timeline`, `gantt`, `flywheel`, `constellation`, `radar`, `venn`
+- **Data & Product Loops**: `medallion`, `timeline`, `gantt`, `flywheel`, `loop`, `constellation`, `radar`, `venn`
 
 **Themes**: `midnight` (dark modern), `paper` (light technical), `blueprint` (CAD cyan), `editorial` (serif publication), `graphite` (minimal dark), `nebula` (cosmic violet), `terminal` (CLI retro), `sketchy` (hand-drawn), `ink` (blue ballpoint & fountain pen ink), `doodle` (playful doodle).
 
-👉 *[Explore all 17+ interactive scenes in the Live Gallery ↗](https://markdy.com/examples/)*
+👉 *[Explore all 33+ interactive scenes in the Live Gallery ↗](https://markdy.com/examples/)*
 </details>
 
 <details>
@@ -389,6 +404,8 @@ Convert existing diagrams and infrastructure configs into animated MarkdyScript 
 
 ```bash
 markdy import flow.mmd            --out flow.markdy        # Mermaid.js Flowcharts & Sequences
+markdy import architecture.d2     --out arch.markdy        # D2 Architecture & Sequence Diagrams
+markdy import system.puml         --out system.markdy      # PlantUML Component & Sequence Specs
 markdy import docker-compose.yml  --out compose.markdy     # Docker Compose Services & Networks
 markdy import k8s-manifests/      --out cluster.markdy     # Kubernetes Ingress, Pods & Services
 markdy import terraform.tfstate   --out infra.markdy       # Terraform Provisioned State
@@ -401,7 +418,7 @@ markdy import architecture.drawio --out diagram.markdy     # Draw.io / diagrams.
 <summary><b>🤖 AI Coding Agents &amp; Model Context Protocol (MCP) Setup (Cursor, VS Code, Claude, Antigravity)</b></summary>
 <br>
 
-Equip your favorite AI Coding Agent with native Markdy tools (`validate_markdy_code`, `diagnose_markdy_syntax`, `fix_markdy_code`, `transpile_to_markdy`) and live specification resources (`markdy://spec/agent-reference`).
+Equip your favorite AI Coding Agent with native Markdy tools (`validate_markdy_code`, `diagnose_markdy_syntax`, `fix_markdy_code`, `transpile_to_markdy`, `explain_architecture`, `generate_markdy_prompt`, `get_architecture_catalog`, `get_markdy_intellicode`) and live specification resources (`markdy://spec/agent-reference`).
 
 ### ⚡ Quick MCP Server Setup & Installation
 
@@ -521,8 +538,13 @@ agy mcp add markdy -- npx -y @markdy/mcp-server
 - 🔍 `validate_markdy_code`: Check syntax, unresolved node references, and cycle rules.
 - 💡 `diagnose_markdy_syntax`: Detailed diagnostics with exact line numbers and remediation steps.
 - 🩹 `fix_markdy_code`: Self-healing code repair that fixes common syntax mistakes and formats AST.
-- 🔄 `transpile_to_markdy`: Convert Mermaid, Docker Compose, Kubernetes, Terraform, or Draw.io into valid MarkdyScript.
+- 🔄 `transpile_to_markdy`: Convert Mermaid, D2, PlantUML, Docker Compose, Kubernetes, Terraform, or Draw.io into valid MarkdyScript.
+- 🧭 `explain_architecture`: Structural topology summaries, component role counts, and governance health metrics.
+- 💬 `generate_markdy_prompt`: Optimal LLM system prompts and grammar constraints for AI coding agents.
+- 📦 `get_architecture_catalog`: Golden architecture templates with full runnable MarkdyScript code.
+- ⚡ `get_markdy_intellicode`: Zero-dependency predictive completion and proactive recommendations.
 - 📚 `markdy://spec/agent-reference`: Full AST grammar reference and token catalog.
+- 📐 `markdy://spec/grammar-rules`: Grammar conventions and cycle-safe routing rules.
 - 🏛️ `markdy://governance/rules`: Architecture rules (Well-Architected, cycle bounds, layer separation).
 - 📦 `markdy://templates/catalog`: 33 production-grade architecture blueprints.
 
@@ -533,6 +555,10 @@ agy mcp add markdy -- npx -y @markdy/mcp-server
 
 ## 🚦 Verification Gates & Quality Engineering
 
+<details>
+<summary><b>Automated Verification Gates &amp; CI/CD Quality Pipeline</b></summary>
+<br>
+
 Every pull request and build must pass the automated full-cycle verification pipeline:
 
 | Command | Verification Gate | Focus Area |
@@ -542,6 +568,8 @@ Every pull request and build must pass the automated full-cycle verification pip
 | `pnpm test:perf` | **Sub-Frame Performance Gate** | Chrome DevTools Protocol tracing (sub-40ms render, <25MB JS heap) |
 | `pnpm verify:examples` | **Canonical Showcase Gate** | 33 production blueprints compile with zero warnings |
 | `cleanroom-guard check` | **Anti-Leak & Clean-Room** | Pre-commit secret scanning and clean-room zero-footprint protection |
+
+</details>
 
 ---
 
