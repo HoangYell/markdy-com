@@ -1,0 +1,81 @@
+<aside class="pet-companion" data-pet aria-label="Meet Markdy">
+  <div class="pet-content">
+    <span class="pet-message" aria-live="polite">AI Prompt Guide — click Markdy for a tip.</span>
+    <button class="pet-motion" type="button">Pause animation</button>
+  </div>
+  <button class="pet-button" type="button" aria-label="Show another MarkdyScript tip">
+    <span class="pet-sprite" aria-hidden="true"></span>
+  </button>
+</aside>
+<style>
+  .pet-companion { display: flex; align-items: center; gap: .5rem; max-width: 270px; padding: .3rem .65rem .3rem .35rem; border: 1px solid var(--border); border-radius: 16px; background: var(--bg-secondary); box-shadow: var(--shadow-xs); }
+  .pet-button { flex: 0 0 52px; width: 52px; height: 56px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+  .pet-button:focus-visible, .pet-motion:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  .pet-sprite { display: block; width: 52px; height: 56px; background: url('/markdy-pet.webp') no-repeat; background-size: 416px 616px; }
+  .pet-content { display: grid; gap: .15rem; }
+  .pet-motion { justify-self: start; min-height: 44px; padding: .3rem; border: 0; color: var(--text-secondary); background: transparent; cursor: pointer; font: 600 11px system-ui, sans-serif; }
+  .pet-message { color: var(--accent); font: 600 12px/1.35 system-ui, sans-serif; }
+</style>
+<script>
+  const pet = document.querySelector<HTMLElement>('[data-pet]');
+  const sprite = pet?.querySelector<HTMLElement>('.pet-sprite');
+  const message = pet?.querySelector<HTMLElement>('.pet-message');
+  const play = pet?.querySelector<HTMLButtonElement>('.pet-button');
+  const motionButton = pet?.querySelector<HTMLButtonElement>('.pet-motion');
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const counts = [6, 8, 8, 4, 5, 8, 6, 6, 6];
+  const actions = [
+    { row: 3, text: 'Tip: Ask your agent to follow the MarkdyScript specification.' },
+    { row: 4, text: 'Tip: Use layout LR or TB to set the diagram direction.' },
+    { row: 7, text: 'Tip: Declare services, databases, and gateways as semantic nodes.' },
+    { row: 8, text: 'Tip: Name a beat to give an animation step a caption.' },
+    { row: 6, text: 'Tip: Use player playback settings to control looping and speed.' },
+    { row: 5, text: 'Tip: Check the syntax reference when a scene needs fixing.' },
+    { row: 2, text: 'Tip: Use arrows to show requests between nodes.' },
+    { row: 1, text: 'Tip: Add glow cues to highlight important nodes.' },
+  ];
+  let frame = 0, row = 0, ticks = 0, nextAction = 0, idleTicks = 0;
+  const paint = () => { if (sprite) sprite.style.backgroundPosition = `${-frame * 52}px ${-row * 56}px`; };
+  const act = (announce: boolean) => {
+    const action = actions[nextAction++ % actions.length];
+    row = action.row; frame = 0; ticks = 0; idleTicks = 0;
+    if (announce && message) message.textContent = action.text;
+    paint();
+  };
+  let paused = false;
+  try { paused = localStorage.getItem('markdy-pet-paused') === 'true'; } catch { /* Storage can be unavailable. */ }
+  const updateControl = () => {
+    if (!motionButton) return;
+    motionButton.textContent = paused ? 'Resume animation' : 'Pause animation';
+  };
+  updateControl();
+  let visible = false;
+  let timer: number | undefined;
+  const tick = () => {
+    if (row === 0 && ++idleTicks >= 80) { act(false); return; }
+    frame = (frame + 1) % counts[row];
+    if (row !== 0 && ++ticks >= counts[row] * 2) { row = 0; frame = 0; ticks = 0; }
+    paint();
+  };
+  const syncTimer = () => {
+    window.clearInterval(timer);
+    timer = undefined;
+    if (visible && !document.hidden && !reducedMotion.matches && !paused) timer = window.setInterval(tick, 150);
+  };
+  document.addEventListener('visibilitychange', syncTimer);
+  play?.addEventListener('click', () => {
+    if (reducedMotion.matches || paused) {
+      const action = actions[nextAction++ % actions.length];
+      row = action.row; frame = 0; paint();
+      if (message) message.textContent = action.text;
+    } else act(true);
+  });
+  motionButton?.addEventListener('click', () => {
+    paused = !paused;
+    try { localStorage.setItem('markdy-pet-paused', String(paused)); } catch { /* Keep the preference for this visit. */ }
+    updateControl();
+    syncTimer();
+  });
+  if (pet) new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; syncTimer(); }).observe(pet);
+  reducedMotion.addEventListener('change', () => { row = 0; frame = 0; ticks = 0; paint(); syncTimer(); });
+</script>
