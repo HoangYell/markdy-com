@@ -463,9 +463,15 @@ const homepageStructuredData = [
           <div class="prompt-header-right">
             <MarkdyPet />
             <a href="/AGENT.md" class="spec-link-pill" target="_blank" rel="noopener noreferrer" title="View canonical AI agent specification">
-              <span class="spec-icon">📄</span>
+              <svg class="spec-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
               <span class="spec-url">markdy.com/AGENT.md</span>
-              <span class="spec-arrow">↗</span>
+              <svg class="spec-arrow" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M7 17L17 7"/>
+                <path d="M7 7h10v10"/>
+              </svg>
             </a>
           </div>
         </div>
@@ -2252,25 +2258,41 @@ markdy check-all ./docs/diagrams</code></pre>
     background: var(--bg-secondary);
     border: 1px solid var(--border);
     padding: 0.45rem 0.85rem;
-    border-radius: 8px;
+    border-radius: 10px;
     font-size: 0.78rem;
     font-weight: 600;
     color: var(--accent);
-    transition: all 0.15s ease;
+    transition: all 0.2s ease;
     white-space: nowrap;
     text-decoration: none;
     box-shadow: var(--shadow-xs);
   }
 
   .spec-link-pill:hover {
-    border-color: var(--accent);
+    border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
     background: var(--accent-light);
     transform: translateY(-1px);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 15%, transparent);
   }
 
-  .spec-icon { font-size: 0.9rem; }
-  .spec-url { font-family: "JetBrains Mono", monospace; }
-  .spec-arrow { font-size: 0.85rem; }
+  .spec-icon {
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  .spec-url {
+    font-family: "JetBrains Mono", monospace;
+  }
+
+  .spec-arrow {
+    display: inline-block;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+
+  .spec-link-pill:hover .spec-arrow {
+    transform: translate(2px, -2px);
+  }
 
   /* AI Tools Shelf */
   .ai-tools-shelf {
@@ -3980,7 +4002,16 @@ markdy check-all ./docs/diagrams</code></pre>
     }
     .prompt-tutorial-header {
       flex-direction: column;
-      gap: 0.85rem;
+      gap: 1rem;
+    }
+    .prompt-header-right {
+      width: 100%;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.65rem;
+    }
+    .spec-link-pill {
+      justify-content: center;
     }
     .tutorial-steps-grid {
       grid-template-columns: 1fr;
