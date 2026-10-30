@@ -1,21 +1,20 @@
 <aside class="pet-companion" data-pet aria-label="Meet Markdy">
   <div class="pet-content">
-    <span class="pet-message" aria-live="polite">Hi, I’m Markdy! Click me to play.</span>
+    <span class="pet-message" aria-live="polite">AI Prompt Guide — click Markdy for a tip.</span>
     <button class="pet-motion" type="button">Pause animation</button>
   </div>
-  <button class="pet-button" type="button" aria-label="Play with Markdy">
+  <button class="pet-button" type="button" aria-label="Show another MarkdyScript tip">
     <span class="pet-sprite" aria-hidden="true"></span>
   </button>
 </aside>
 <style>
-  .pet-companion { display: flex; align-items: center; justify-content: center; gap: 1rem; margin: 1.5rem auto; padding: .75rem 1rem; max-width: 420px; border: 1px solid #94a3b855; border-radius: 14px; background: var(--surface, transparent); }
-  .pet-button { flex: 0 0 96px; width: 96px; height: 104px; padding: 0; border: 0; background: transparent; cursor: pointer; }
-  .pet-button:focus-visible { outline: 3px solid #04a995; outline-offset: 3px; border-radius: 12px; }
-  .pet-sprite { display: block; width: 96px; height: 104px; background-image: url('/markdy-pet.webp'); background-size: 768px 1144px; background-repeat: no-repeat; }
-  .pet-content { display: grid; gap: .5rem; }
-  .pet-motion { justify-self: start; min-height: 44px; padding: .4rem .7rem; border: 1px solid #94a3b888; border-radius: 8px; color: inherit; background: transparent; cursor: pointer; font: 600 12px system-ui, sans-serif; }
-  .pet-motion:focus-visible { outline: 3px solid #04a995; outline-offset: 3px; }
-  .pet-message { font: 600 14px/1.5 system-ui, sans-serif; color: inherit; }
+  .pet-companion { display: flex; align-items: center; gap: .5rem; max-width: 270px; padding: .3rem .65rem .3rem .35rem; border: 1px solid var(--border); border-radius: 16px; background: var(--bg-secondary); box-shadow: var(--shadow-xs); }
+  .pet-button { flex: 0 0 52px; width: 52px; height: 56px; padding: 0; border: 0; background: transparent; cursor: pointer; }
+  .pet-button:focus-visible, .pet-motion:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+  .pet-sprite { display: block; width: 52px; height: 56px; background: url('/markdy-pet.webp') no-repeat; background-size: 416px 616px; }
+  .pet-content { display: grid; gap: .15rem; }
+  .pet-motion { justify-self: start; min-height: 44px; padding: .3rem; border: 0; color: var(--text-secondary); background: transparent; cursor: pointer; font: 600 11px system-ui, sans-serif; }
+  .pet-message { color: var(--accent); font: 600 12px/1.35 system-ui, sans-serif; }
 </style>
 <script>
   const pet = document.querySelector<HTMLElement>('[data-pet]');
@@ -26,17 +25,17 @@
   const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const counts = [6, 8, 8, 4, 5, 8, 6, 6, 6];
   const actions = [
-    { row: 3, text: 'Hello, diagram friend!' },
-    { row: 4, text: 'Let’s make ideas move!' },
-    { row: 7, text: 'Working on a bright idea!' },
-    { row: 8, text: 'Looking good!' },
-    { row: 6, text: 'What shall we explore next?' },
-    { row: 5, text: 'Oops! Let’s try again.' },
-    { row: 2, text: 'Off on an adventure!' },
-    { row: 1, text: 'And back again!' },
+    { row: 3, text: 'Tip: Ask your agent to follow the MarkdyScript specification.' },
+    { row: 4, text: 'Tip: Use layout LR or TB to set the diagram direction.' },
+    { row: 7, text: 'Tip: Declare services, databases, and gateways as semantic nodes.' },
+    { row: 8, text: 'Tip: Name a beat to give an animation step a caption.' },
+    { row: 6, text: 'Tip: Use player playback settings to control looping and speed.' },
+    { row: 5, text: 'Tip: Check the syntax reference when a scene needs fixing.' },
+    { row: 2, text: 'Tip: Use arrows to show requests between nodes.' },
+    { row: 1, text: 'Tip: Add glow cues to highlight important nodes.' },
   ];
   let frame = 0, row = 0, ticks = 0, nextAction = 0, idleTicks = 0;
-  const paint = () => { if (sprite) sprite.style.backgroundPosition = `${-frame * 96}px ${-row * 104}px`; };
+  const paint = () => { if (sprite) sprite.style.backgroundPosition = `${-frame * 52}px ${-row * 56}px`; };
   const act = (announce: boolean) => {
     const action = actions[nextAction++ % actions.length];
     row = action.row; frame = 0; ticks = 0; idleTicks = 0;

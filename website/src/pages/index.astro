@@ -446,7 +446,6 @@ const homepageStructuredData = [
     </div>
 
     <!-- ─── AI Agent Prompt Tutorial Card ─────────────────────────────── -->
-    <MarkdyPet />
     <section id="prompt-tutorial" class="hero-prompt-tutorial" aria-label="AI Prompt Tutorial">
       <div class="prompt-tutorial-inner">
         <!-- Top Title & Specs Link -->
@@ -462,12 +461,7 @@ const homepageStructuredData = [
             </p>
           </div>
           <div class="prompt-header-right">
-            <div class="prompt-mascot-guide" title="Markdy Assistant">
-              <img src="/images/male-markdy-sm.webp" class="prompt-mascot-img" alt="Markdy Mascot" width="52" height="52" loading="lazy" decoding="async" fetchpriority="low" />
-              <div class="prompt-mascot-speech">
-                <span>AI Prompt Guide</span>
-              </div>
-            </div>
+            <MarkdyPet />
             <a href="/AGENT.md" class="spec-link-pill" target="_blank" rel="noopener noreferrer" title="View canonical AI agent specification">
               <span class="spec-icon">📄</span>
               <span class="spec-url">markdy.com/AGENT.md</span>
@@ -2248,42 +2242,6 @@ markdy check-all ./docs/diagrams</code></pre>
     display: flex;
     align-items: center;
     gap: 0.85rem;
-  }
-
-  .prompt-mascot-guide {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    padding: 0.3rem 0.65rem 0.3rem 0.35rem;
-    border-radius: 999px;
-    box-shadow: var(--shadow-xs);
-    transition: transform 0.2s ease;
-  }
-
-  .prompt-mascot-guide:hover {
-    transform: scale(1.04);
-  }
-
-  .prompt-mascot-img {
-    width: 42px;
-    height: 42px;
-    object-fit: contain;
-    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.12));
-    transition: transform 0.2s ease;
-  }
-
-  .prompt-mascot-guide:hover .prompt-mascot-img {
-    transform: rotate(6deg);
-  }
-
-  .prompt-mascot-speech {
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
   }
 
   .spec-link-pill {
