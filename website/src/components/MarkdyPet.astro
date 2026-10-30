@@ -1,0 +1,68 @@
+<div class="pet-companion" data-pet>
+  <span class="pet-message" aria-live="polite">Hi, I’m Markdy! Click me to play.</span>
+  <button class="pet-button" type="button" aria-label="Play with Markdy">
+    <span class="pet-sprite" aria-hidden="true"></span>
+  </button>
+  <button class="pet-close" type="button" aria-label="Hide Markdy companion">×</button>
+</div>
+<style>
+  .pet-companion { position: fixed; right: 1rem; bottom: 1rem; z-index: 30; display: flex; align-items: end; gap: .25rem; }
+  .pet-button { width: 96px; height: 104px; padding: 0; border: 0; background: transparent; cursor: pointer; filter: drop-shadow(0 6px 8px #0b373c40); }
+  .pet-button:focus-visible, .pet-close:focus-visible { outline: 3px solid #04a995; outline-offset: 3px; border-radius: 12px; }
+  .pet-sprite { display: block; width: 96px; height: 104px; background-image: url('/markdy-pet.png'); background-size: 768px 1144px; background-repeat: no-repeat; }
+  .pet-message { max-width: 150px; margin-bottom: 24px; padding: .6rem .8rem; color: #173c38; background: #effff8; border: 1px solid #a7e8d5; border-radius: 16px 16px 3px 16px; box-shadow: 0 4px 16px #102e2b1c; font: 600 12px/1.35 system-ui, sans-serif; }
+  .pet-close { position: absolute; top: 0; right: 0; border: 0; border-radius: 50%; width: 22px; height: 22px; color: #31564e; background: #effff8; cursor: pointer; }
+  @media (max-width: 600px) { .pet-message { display: none; } .pet-companion { right: .5rem; bottom: .5rem; } }
+</style>
+<script>
+  const pet = document.querySelector<HTMLElement>('[data-pet]');
+  const sprite = pet?.querySelector<HTMLElement>('.pet-sprite');
+  const message = pet?.querySelector<HTMLElement>('.pet-message');
+  const play = pet?.querySelector<HTMLButtonElement>('.pet-button');
+  const close = pet?.querySelector<HTMLButtonElement>('.pet-close');
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
+  const counts = [6, 8, 8, 4, 5, 8, 6, 6, 6];
+  const actions = [
+    { row: 3, text: 'Hello, diagram friend!' },
+    { row: 4, text: 'Let’s make ideas move!' },
+    { row: 7, text: 'Working on a bright idea!' },
+    { row: 8, text: 'Looking good!' },
+    { row: 6, text: 'What shall we explore next?' },
+    { row: 5, text: 'Oops! Let’s try again.' },
+    { row: 2, text: 'Off on an adventure!' },
+    { row: 1, text: 'And back again!' },
+  ];
+  let frame = 0, row = 0, ticks = 0, nextAction = 0, idleTicks = 0;
+  const paint = () => { if (sprite) sprite.style.backgroundPosition = `${-frame * 96}px ${-row * 104}px`; };
+  const act = (announce: boolean) => {
+    const action = actions[nextAction++ % actions.length];
+    row = action.row; frame = 0; ticks = 0; idleTicks = 0;
+    if (announce && message) message.textContent = action.text;
+    paint();
+  };
+  const timer = window.setInterval(() => {
+    if (document.hidden || reducedMotion.matches) return;
+    if (row === 0 && ++idleTicks >= 80) { act(false); return; }
+    frame = (frame + 1) % counts[row];
+    if (row !== 0 && ++ticks >= counts[row] * 2) { row = 0; frame = 0; ticks = 0; }
+    paint();
+  }, 150);
+  play?.addEventListener('click', () => {
+    if (reducedMotion.matches) {
+      const action = actions[nextAction++ % actions.length];
+      row = action.row; frame = 0; paint();
+      if (message) message.textContent = action.text;
+    } else act(true);
+  });
+  document.addEventListener('pointermove', (event) => {
+    if (!pet || !sprite || reducedMotion.matches || row !== 0) return;
+    const rect = sprite.getBoundingClientRect();
+    const dx = event.clientX - (rect.left + rect.width / 2);
+    const dy = event.clientY - (rect.top + rect.height / 2);
+    if (Math.hypot(dx, dy) < 30) return;
+    const direction = Math.round((Math.atan2(dx, -dy) * 180 / Math.PI + 360) / 22.5) % 16;
+    sprite.style.backgroundPosition = `${-(direction % 8) * 96}px ${-(9 + Math.floor(direction / 8)) * 104}px`;
+  }, { passive: true });
+  reducedMotion.addEventListener('change', () => { row = 0; frame = 0; ticks = 0; paint(); });
+  close?.addEventListener('click', () => { window.clearInterval(timer); pet?.remove(); });
+</script>
