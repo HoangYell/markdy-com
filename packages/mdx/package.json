@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@markdy/renderer-dom": "workspace:*",
-    "unist-util-visit": "^5.0.0"
+    "unist-util-visit": "^5.2.0"
   },
   "peerDependencies": {
     "react": ">=18.0.0",
