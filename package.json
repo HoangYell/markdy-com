@@ -61,7 +61,7 @@
     "@types/pngjs": "^6.0.5",
     "chrome-launcher": "^1.2.1",
     "lighthouse": "^13.4.0",
-    "pixelmatch": "^7.2.0",
+    "pixelmatch": "^8.0.0",
     "pngjs": "^7.0.0",
     "puppeteer-core": "^25.7.0",
     "tsx": "^4.23.1",
