@@ -52,7 +52,7 @@
     "@markdy/core": "workspace:*",
     "@markdy/renderer-dom": "workspace:*",
     "@markdy/stdlib-systems": "workspace:*",
-    "mdast-util-from-markdown": "^2.0.3",
+    "mdast-util-from-markdown": "^2.1.0",
     "unist-util-visit": "^5.0.0"
   },
   "devDependencies": {
