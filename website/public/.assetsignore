@@ -1,0 +1,6 @@
+wrangler.json
+wrangler.jsonc
+.dev.vars
+.vite
+.vite/*
+*.map
