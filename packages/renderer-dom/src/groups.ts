@@ -196,25 +196,25 @@ export function createGroupBoundaryEl(
   el.style.height = `${boundary.height}px`;
   el.style.setProperty("--md-group-border", theme.border ?? theme.rule ?? "#cbd5e1");
 
-  // Detect Cloud Vendor / Architecture container roles
+  // Detect Cloud Vendor / Architecture container roles with precise token matching
   const rawId = boundary.id.toLowerCase();
   const rawLabel = (boundary.label || "").toLowerCase();
   const rawKind = String(boundary.props?.kind || boundary.props?.vendor || "").toLowerCase();
 
   let vendor: string | null = null;
-  if (rawKind.includes("vpc") || rawId.includes("vpc") || rawLabel.includes("vpc")) {
+  if (rawKind === "aws-vpc" || rawKind === "vpc" || rawId.startsWith("aws_vpc") || (rawLabel.includes("aws") && rawLabel.includes("vpc"))) {
     vendor = "aws-vpc";
-  } else if (rawKind.includes("private") || rawId.includes("private") || rawLabel.includes("private")) {
+  } else if (rawKind === "aws-private" || rawKind === "private-subnet" || rawId.startsWith("aws_private") || (rawLabel.includes("aws") && rawLabel.includes("private")) || rawId === "private_subnet") {
     vendor = "aws-private";
-  } else if (rawKind.includes("public") || rawId.includes("public") || rawLabel.includes("public")) {
+  } else if (rawKind === "aws-public" || rawKind === "public-subnet" || rawId.startsWith("aws_public") || (rawLabel.includes("aws") && rawLabel.includes("public")) || rawId === "public_subnet") {
     vendor = "aws-public";
-  } else if (rawKind.includes("aws") || rawId.includes("aws") || rawLabel.includes("aws")) {
+  } else if (rawKind === "aws" || rawId.startsWith("aws_") || rawLabel.startsWith("aws ")) {
     vendor = "aws";
-  } else if (rawKind.includes("gcp") || rawId.includes("gcp") || rawLabel.includes("gcp") || rawLabel.includes("google cloud")) {
+  } else if (rawKind === "gcp" || rawId.startsWith("gcp_") || rawLabel.includes("google cloud") || rawLabel.startsWith("gcp ")) {
     vendor = "gcp";
-  } else if (rawKind.includes("azure") || rawId.includes("azure") || rawLabel.includes("azure")) {
+  } else if (rawKind === "azure" || rawId.startsWith("azure_") || rawLabel.startsWith("azure ")) {
     vendor = "azure";
-  } else if (rawKind.includes("tooling") || rawId.includes("tooling") || rawKind.includes("monorepo") || rawId.includes("monorepo") || rawLabel.includes("monorepo")) {
+  } else if (rawKind === "tooling" || rawKind === "monorepo" || rawId === "tooling" || rawId === "monorepo" || rawLabel.includes("monorepo")) {
     vendor = "tooling";
   }
 

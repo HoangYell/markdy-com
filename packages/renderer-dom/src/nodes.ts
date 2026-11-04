@@ -803,10 +803,14 @@ function resolveImageSrc(node: PositionedNode, assets?: Record<string, string>):
   return assets?.[raw] ?? raw;
 }
 
-function createNodeMediaEl(doc: Document, node: PositionedNode, assets?: Record<string, string>): HTMLElement {
+function createNodeMediaEl(doc: Document, node: PositionedNode, assets?: Record<string, string>, theme?: ThemeTokens): HTMLElement {
   const wrap = doc.createElement("div");
   wrap.className = "markdy-node__icon";
   wrap.setAttribute("aria-hidden", "true");
+
+  if (node.props?.tile === "dark") {
+    wrap.dataset.tile = "dark";
+  }
 
   const imgSrc = resolveImageSrc(node, assets);
   if (imgSrc) {
@@ -830,10 +834,6 @@ function createNodeMediaEl(doc: Document, node: PositionedNode, assets?: Record<
     return wrap;
   }
 
-  if (node.props?.tile === "dark") {
-    wrap.dataset.tile = "dark";
-  }
-
   const symbolKey = typeof node.props?.icon === "string" ? node.props.icon : typeof node.props?.symbol === "string" ? node.props.symbol : undefined;
   const vectorSymbol = symbolKey ? resolveVectorSymbol(symbolKey) : null;
   if (vectorSymbol) {
@@ -843,7 +843,15 @@ function createNodeMediaEl(doc: Document, node: PositionedNode, assets?: Record<
     svg.setAttribute("width", "26");
     svg.setAttribute("height", "26");
     if (vectorSymbol.brandColor) {
-      svg.style.color = vectorSymbol.brandColor;
+      const isDark = theme ? (theme.name.includes("dark") || theme.name === "midnight" || theme.name === "graphite" || theme.name === "nebula" || theme.name === "terminal") : false;
+      const hex = vectorSymbol.brandColor.toLowerCase();
+      if (isDark && (hex === "#000000" || hex === "#0f172a" || hex === "#18181b")) {
+        svg.style.color = "#ffffff";
+      } else if (!isDark && (hex === "#ffffff" || hex === "#f8fafc" || hex === "#fbf0df")) {
+        svg.style.color = "#000000";
+      } else {
+        svg.style.color = vectorSymbol.brandColor;
+      }
     }
     svg.innerHTML = vectorSymbol.svgPaths;
     wrap.appendChild(svg);
@@ -948,7 +956,7 @@ export function createNodeEl(node: PositionedNode, theme: ThemeTokens, assets?: 
 
   const body = document.createElement("div");
   body.className = "markdy-node__body";
-  body.append(createNodeMediaEl(document, node, assets));
+  body.append(createNodeMediaEl(document, node, assets, theme));
 
   const content = document.createElement("div");
   content.className = "markdy-node__content";

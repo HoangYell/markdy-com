@@ -331,7 +331,7 @@ async function renderCommand(parsed: ParsedArgs, io: CliIo, runtime: CliRuntime)
 
   if (outPath) {
     const resolvedOut = resolve(outPath);
-    if (resolvedOut.endsWith(".svg")) {
+    if (resolvedOut.toLowerCase().endsWith(".svg")) {
       const plan = compile(scene.ast);
       const svg = renderPureVectorSvg(plan);
       await writeFile(resolvedOut, svg, "utf8");
