@@ -49,6 +49,16 @@ Use this command to generate a local HTML preview:
 npx markdy render examples/showcase/url-shortener-architecture.markdy --out scene.html
 ```
 
+Or export a 100% standalone offline HTML file (no external CDN calls) or direct vector SVG:
+
+```bash
+# Standalone offline HTML for sandboxed iframes and air-gapped environments
+npx markdy render examples/32-cloud-architecture-cad.markdy --out scene.html --offline
+
+# Direct pure vector SVG export
+npx markdy render examples/32-cloud-architecture-cad.markdy --out diagram.svg
+```
+
 ## Commands
 
 ```bash

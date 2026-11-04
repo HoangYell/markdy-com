@@ -444,6 +444,10 @@ export function createEdgeRuntime(
     textEl.setAttribute("letter-spacing", "0.02em");
     textEl.setAttribute("font-family", "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace");
     textEl.setAttribute("fill", labelColor);
+    textEl.setAttribute("paint-order", "stroke fill");
+    textEl.setAttribute("stroke", theme.canvas ?? theme.surface ?? "#ffffff");
+    textEl.setAttribute("stroke-width", "3.5px");
+    textEl.setAttribute("stroke-linejoin", "round");
 
     if (lines.length === 1) {
       textEl.setAttribute("y", String(placement.y + 0.5));

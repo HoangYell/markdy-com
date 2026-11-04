@@ -117,6 +117,32 @@ export function ensureSceneStyles(doc: Document): void {
     radial-gradient(ellipse at 15% 85%, rgba(37, 99, 235, 0.05), transparent 45%);
   opacity: 0.6;
 }
+.markdy-viewport[data-markdy-theme="cad"]::before,
+.markdy-scene-root[data-markdy-theme="cad"]::before {
+  background:
+    linear-gradient(var(--md-rule, rgba(148, 163, 184, 0.28)) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, var(--md-rule, rgba(148, 163, 184, 0.28)) 1px, transparent 1px) 0 0 / 24px 24px;
+  mask-image: none;
+  opacity: 0.85;
+}
+.markdy-viewport[data-markdy-theme="cad"]::after,
+.markdy-scene-root[data-markdy-theme="cad"]::after {
+  background: none;
+  opacity: 0;
+}
+.markdy-viewport[data-markdy-theme="cad-dark"]::before,
+.markdy-scene-root[data-markdy-theme="cad-dark"]::before {
+  background:
+    linear-gradient(var(--md-rule, rgba(148, 163, 184, 0.16)) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, var(--md-rule, rgba(148, 163, 184, 0.16)) 1px, transparent 1px) 0 0 / 24px 24px;
+  mask-image: none;
+  opacity: 0.75;
+}
+.markdy-viewport[data-markdy-theme="cad-dark"]::after,
+.markdy-scene-root[data-markdy-theme="cad-dark"]::after {
+  background: none;
+  opacity: 0;
+}
 @keyframes markdy-star-twinkle {
   from { opacity: 0.24; transform: scale(0.85); }
   to { opacity: 0.9; transform: scale(1.15); }

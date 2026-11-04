@@ -1,0 +1,53 @@
+scene "Modern Cloud Architecture Stack" theme=cad layout=LR
+
+client User "Client Browser" icon=chrome
+gateway EdgeProxy "Cloudflare Edge" icon=cloudflare
+service NextClient "Next.js Frontend" icon=nextjs
+service HonoAPI "Hono Service" icon=hono
+service AuthService "Clerk Identity" icon=clerk
+service StripeBilling "Stripe Gateway" icon=stripe
+database NeonDB "Neon Serverless Postgres" icon=neon
+database RedisCache "Upstash Redis" icon=redis
+storage S3Assets "Amazon S3 Assets" icon=s3
+
+group public_subnet "AWS Public Subnet": NextClient HonoAPI
+group private_subnet "AWS Private Subnet": NeonDB RedisCache S3Assets
+
+beat request_ingress "1. Edge Ingress & Authentication":
+  User -> EdgeProxy "HTTPS /api"
+  EdgeProxy -> NextClient "Route SSR"
+  NextClient -> AuthService "Verify Session JWT"
+  NextClient <- AuthService "200 Authorized"
+
+beat internal_dispatch "2. Internal Compute & Caching":
+  NextClient -> HonoAPI "gRPC /orders"
+  HonoAPI -> RedisCache "Get Session / Hot Cache"
+  HonoAPI <- RedisCache "Cache Hit (2ms)"
+  glow HonoAPI color=#2563eb & glow RedisCache color=#0284c7
+
+beat persistence_settlement "3. Data Persistence & Payments":
+  HonoAPI -> StripeBilling "Authorize Charge"
+  HonoAPI <- StripeBilling "Payment Succeeded"
+  HonoAPI -> NeonDB "Commit ACID Transaction"
+  HonoAPI -> S3Assets "Put Invoice PDF"
+  EdgeProxy <- HonoAPI "201 Created"
+  User <- EdgeProxy "Order Confirmed"
+
+player:
+  playback:
+    loop true
+  controls:
+    speed true
+    speeds "0.25 1 2"
+    fullscreen true
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress none
+    color "#2563eb"

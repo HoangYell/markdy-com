@@ -23,9 +23,9 @@ The zero-dependency parser, dynamic port multiplexer, and AST routing engine for
 - **Dynamic Port Multiplexer & Smooth Router**: obstacle-aware orthogonal Manhattan routing with balanced multi-lane fan-in/fan-out and smooth fillet curves
 - **Code Provenance & Git In-Tree Grounding**: anchor architecture nodes directly to source files (`@src="path/file.ts#L10-L40"`) with automated path traversal security and bounds validation
 - **Architectural Evolution & Git-Diff Matrix**: deep structural and visual comparison of architecture states with auto-generated animated migration storyboards
-- **Native Vector Symbol Registry**: zero-dependency vector SVG icons for 20+ top cloud, database, runtime, and messaging technologies
+- **Native Vector Symbol Registry**: zero-dependency vector SVG icons for 35+ top cloud, web, database, runtime, and messaging technologies (`vercel`, `nextjs`, `hono`, `neon`, `clerk`, `stripe`, `supabase`, `turborepo`, `drizzle`, `bun`, `vitest`, `biome`, `inngest`, `tailwind`, `react`, `astro`)
 - **17 Specialized Layout Engines**: `architecture`, `flowchart`, `tree`, `sequence`, `state`, `layers`, `nested`, `swimlane`, `timeline`, `gantt`, `medallion`, `flywheel`, `constellation`, `quadrant`, `pyramid`, `radar`, `venn`
-- **10 Semantic Themes**: `paper`, `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `terminal`, `sketchy`, `ink`, `doodle`
+- **12 Semantic Themes**: `paper`, `editorial`, `cad`, `cad-dark`, `midnight`, `blueprint`, `graphite`, `nebula`, `terminal`, `sketchy`, `ink`, `doodle`
 - **Content-Adaptive Canvas Sizing**: automatically calculates optimal aspect ratio and bounds based on diagram items and topology
 - **Well-Architected Governance & AST Diffing**: layer boundaries, deadlock cycle detection, gateway isolation, and semantic AST evolution
 - **Isomorphic**: runs in Node.js, Deno, Bun, edge runtimes, and the browser

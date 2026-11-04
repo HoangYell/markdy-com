@@ -71,6 +71,113 @@ export function ensureGroupStyles(doc: Document): void {
   color: #1e3a8a;
   font-weight: 600;
 }
+
+/* Cloud Vendor & Architecture Bounding Containers */
+.markdy-group-boundary[data-vendor="aws"],
+.markdy-group-boundary[data-vendor="aws-vpc"] {
+  border: 1.5px solid #8c4fff !important;
+  border-radius: 8px !important;
+  background: rgba(140, 79, 255, 0.04) !important;
+}
+.markdy-group-boundary[data-vendor="aws"] .markdy-group-boundary__label,
+.markdy-group-boundary[data-vendor="aws-vpc"] .markdy-group-boundary__label {
+  border-color: #8c4fff !important;
+  color: #8c4fff !important;
+}
+
+.markdy-group-boundary[data-vendor="aws-private"] {
+  border: 1.5px dashed #00a4a6 !important;
+  border-radius: 6px !important;
+  background: rgba(0, 164, 166, 0.03) !important;
+}
+.markdy-group-boundary[data-vendor="aws-private"] .markdy-group-boundary__label {
+  border-color: #00a4a6 !important;
+  color: #00a4a6 !important;
+}
+
+.markdy-group-boundary[data-vendor="aws-public"] {
+  border: 1.5px dashed #7aa116 !important;
+  border-radius: 6px !important;
+  background: rgba(122, 161, 22, 0.03) !important;
+}
+.markdy-group-boundary[data-vendor="aws-public"] .markdy-group-boundary__label {
+  border-color: #7aa116 !important;
+  color: #7aa116 !important;
+}
+
+.markdy-group-boundary[data-vendor="gcp"] {
+  border: 1.5px solid #4285f4 !important;
+  border-radius: 8px !important;
+  background: rgba(66, 133, 244, 0.04) !important;
+}
+.markdy-group-boundary[data-vendor="gcp"] .markdy-group-boundary__label {
+  border-color: #4285f4 !important;
+  color: #4285f4 !important;
+}
+
+.markdy-group-boundary[data-vendor="azure"] {
+  border: 1.5px solid #0078d4 !important;
+  border-radius: 8px !important;
+  background: rgba(0, 120, 212, 0.04) !important;
+}
+.markdy-group-boundary[data-vendor="azure"] .markdy-group-boundary__label {
+  border-color: #0078d4 !important;
+  color: #0078d4 !important;
+}
+
+.markdy-group-boundary[data-vendor="tooling"] {
+  border: 1.5px solid #0284c7 !important;
+  border-radius: 8px !important;
+  background: rgba(2, 132, 199, 0.04) !important;
+}
+.markdy-group-boundary[data-vendor="tooling"] .markdy-group-boundary__label {
+  border-color: #0284c7 !important;
+  color: #0284c7 !important;
+}
+
+/* CAD Engineered Paper Theme Group Style */
+.markdy-scene-root[data-markdy-theme="cad"] .markdy-group-boundary {
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  background: rgba(241, 245, 249, 0.45);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.markdy-scene-root[data-markdy-theme="cad"] .markdy-group-boundary__label {
+  top: 8px;
+  left: 10px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  font-weight: 600;
+  font-size: 11px;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+.markdy-scene-root[data-markdy-theme="cad-dark"] .markdy-group-boundary {
+  border: 1.5px solid #475569;
+  border-radius: 8px;
+  background: rgba(30, 41, 59, 0.45);
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.markdy-scene-root[data-markdy-theme="cad-dark"] .markdy-group-boundary__label {
+  top: 8px;
+  left: 10px;
+  border: 1px solid #475569;
+  background: #1e293b;
+  color: #f1f5f9;
+  font-weight: 600;
+  font-size: 11px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
 `;
   doc.head.appendChild(style);
 }
@@ -88,6 +195,32 @@ export function createGroupBoundaryEl(
   el.style.width = `${boundary.width}px`;
   el.style.height = `${boundary.height}px`;
   el.style.setProperty("--md-group-border", theme.border ?? theme.rule ?? "#cbd5e1");
+
+  // Detect Cloud Vendor / Architecture container roles with precise token matching
+  const rawId = boundary.id.toLowerCase();
+  const rawLabel = (boundary.label || "").toLowerCase();
+  const rawKind = String(boundary.props?.kind || boundary.props?.vendor || "").toLowerCase();
+
+  let vendor: string | null = null;
+  if (rawKind === "aws-vpc" || rawKind === "vpc" || rawId.startsWith("aws_vpc") || (rawLabel.includes("aws") && rawLabel.includes("vpc"))) {
+    vendor = "aws-vpc";
+  } else if (rawKind === "aws-private" || rawKind === "private-subnet" || rawId.startsWith("aws_private") || (rawLabel.includes("aws") && rawLabel.includes("private")) || rawId === "private_subnet") {
+    vendor = "aws-private";
+  } else if (rawKind === "aws-public" || rawKind === "public-subnet" || rawId.startsWith("aws_public") || (rawLabel.includes("aws") && rawLabel.includes("public")) || rawId === "public_subnet") {
+    vendor = "aws-public";
+  } else if (rawKind === "aws" || rawId.startsWith("aws_") || rawLabel.startsWith("aws ")) {
+    vendor = "aws";
+  } else if (rawKind === "gcp" || rawId.startsWith("gcp_") || rawLabel.includes("google cloud") || rawLabel.startsWith("gcp ")) {
+    vendor = "gcp";
+  } else if (rawKind === "azure" || rawId.startsWith("azure_") || rawLabel.startsWith("azure ")) {
+    vendor = "azure";
+  } else if (rawKind === "tooling" || rawKind === "monorepo" || rawId === "tooling" || rawId === "monorepo" || rawLabel.includes("monorepo")) {
+    vendor = "tooling";
+  }
+
+  if (vendor) {
+    el.dataset.vendor = vendor;
+  }
 
   const displayLabel = boundary.label || boundary.id;
   if (displayLabel) {

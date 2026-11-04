@@ -1132,6 +1132,62 @@ exports[`renderer visual gate > matches the locked visual signature for every sc
       "role": "data",
     },
   ],
+  "examples/32-cloud-architecture-cad.markdy": [
+    {
+      "icon": "chrome",
+      "id": "User",
+      "kind": "client",
+      "role": "client",
+    },
+    {
+      "icon": "cloudflare",
+      "id": "EdgeProxy",
+      "kind": "api_gateway",
+      "role": "network",
+    },
+    {
+      "icon": "nextjs",
+      "id": "NextClient",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
+      "icon": "hono",
+      "id": "HonoAPI",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
+      "icon": "clerk",
+      "id": "AuthService",
+      "kind": "service",
+      "role": "compute",
+    },
+    {
+      "icon": "neon",
+      "id": "NeonDB",
+      "kind": "database",
+      "role": "data",
+    },
+    {
+      "icon": "redis",
+      "id": "RedisCache",
+      "kind": "database",
+      "role": "data",
+    },
+    {
+      "icon": "s3",
+      "id": "S3Assets",
+      "kind": "storage",
+      "role": "data",
+    },
+    {
+      "icon": "stripe",
+      "id": "StripeBilling",
+      "kind": "service",
+      "role": "compute",
+    },
+  ],
   "examples/showcase/blue-ink-distributed-consensus.markdy": [
     {
       "icon": "browser",
