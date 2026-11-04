@@ -636,11 +636,11 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
       <rect x="${labelX}" y="${labelY}" width="${textWidth + padX * 2}" height="${boxHeight}" rx="4" fill="${canvasBg}" stroke="${border}" stroke-width="1"/>
 `;
         if (lines.length === 1) {
-          svg += `      <text x="${placement.x}" y="${placement.y}" class="markdy-svg-mono" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="10.5" font-weight="500" fill="${labelColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(lines[0])}</text>\n`;
+          svg += `      <text x="${placement.x}" y="${placement.y}" class="markdy-svg-mono" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="10.5" font-weight="500" fill="${labelColor}" stroke="${canvasBg}" stroke-width="3.5" stroke-linejoin="round" paint-order="stroke fill" text-anchor="middle" dominant-baseline="central">${escapeXml(lines[0])}</text>\n`;
         } else {
           lines.forEach((lineText, idx) => {
             const lineY = placement.y - ((lines.length - 1) * lineHeight) / 2 + idx * lineHeight;
-            svg += `      <text x="${placement.x}" y="${lineY}" class="markdy-svg-mono" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="10.5" font-weight="500" fill="${labelColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(lineText)}</text>\n`;
+            svg += `      <text x="${placement.x}" y="${lineY}" class="markdy-svg-mono" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="10.5" font-weight="500" fill="${labelColor}" stroke="${canvasBg}" stroke-width="3.5" stroke-linejoin="round" paint-order="stroke fill" text-anchor="middle" dominant-baseline="central">${escapeXml(lineText)}</text>\n`;
           });
         }
       }

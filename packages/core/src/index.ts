@@ -117,6 +117,7 @@ export type {
 export {
   VECTOR_SYMBOLS,
   resolveVectorSymbol,
+  resolveBrandLogoUrl,
   renderSymbolSvg,
   listAvailableSymbols,
 } from "./symbols.js";

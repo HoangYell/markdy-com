@@ -5,6 +5,27 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.8] - 2026-11-04
+
+### Added & Enhanced
+- **🏛️ Cloud Architecture CAD Engine & Official Vector Brand Registry (`@markdy/core`, `@markdy/renderer-dom`, `@markdy/cli`)**:
+  - **New `cad` & `cad-dark` Themes**: Introduced an "Engineered Paper" aesthetic inspired by clean cloud architecture blueprints. Features a crisp graph-paper grid (`24px x 24px` linear gradients), cool paper palette, Geist display typography, and JetBrains Mono monospace technical labeling.
+  - **Cloud Infrastructure Bounding Containers**: Automatic vendor role detection for architecture groups:
+    - AWS Cloud VPC (`data-vendor="aws-vpc"`: solid `#8C4FFF` border with soft lavender tint)
+    - AWS Public Subnet (`data-vendor="aws-public"`: dashed `#7AA116` border with subtle lime tint)
+    - AWS Private Subnet (`data-vendor="aws-private"`: dashed `#00A4A6` border with clean teal tint)
+    - Google Cloud Platform (`data-vendor="gcp"`: solid `#4285F4` border with blue tint)
+    - Microsoft Azure (`data-vendor="azure"`: solid `#0078D4` border with azure tint)
+    - Monorepo & Tooling (`data-vendor="tooling"`: solid `#0284C7` border with sky tint)
+  - **Modern Dev & Cloud Stack Vector Symbols**: Registered 16 native zero-dependency vector symbols with official brand colors and normalization aliases in `@markdy/core`:
+    - `vercel`, `nextjs` (alias: `next`), `hono`, `neon`, `clerk`, `stripe`, `supabase`, `turborepo` (alias: `turbo`), `drizzle`, `bun`, `vitest`, `biome`, `inngest`, `tailwind` (aliases: `tailwindcss`, `tw`), `react`, and `astro`.
+  - **Dynamic SVGL CDN Fallback**: Implemented `resolveBrandLogoUrl(slug)` linking unbundled icons directly to `https://svgl.app/library/${slug}.svg` with non-blocking async decoding and graceful fallback to semantic glyphs on network failure.
+  - **Collision-Free Halo Text Strokes**: Edge labels across DOM interactive renderer and pure vector SVG exporter now utilize `paint-order: stroke fill; stroke: var(--md-canvas); stroke-width: 3.5px; stroke-linejoin: round;` to ensure labels remain perfectly readable without visual line obstruction.
+  - **100% Standalone Offline HTML & Direct SVG CLI Exporter (`@markdy/cli`)**:
+    - `markdy render <file.markdy> --out <file.svg>`: Directly compiles and outputs pure vector SVGs without running a dev server or headless browser.
+    - `markdy render <file.markdy> --out <file.html> --offline`: Generates self-contained, air-gapped HTML documents embedding the vector blueprint with zero external network or CDN dependencies.
+  - **Canonical Blueprint Example**: Added `examples/32-cloud-architecture-cad.markdy` demonstrating cloud groups, modern stack logos, and multi-beat interactive choreography.
+
 ## [1.5.7] - 2026-09-30
 
 ### Changed & Enhanced

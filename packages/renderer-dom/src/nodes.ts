@@ -1,4 +1,4 @@
-import { resolveVectorSymbol, type PositionedNode, type ThemeTokens } from "@markdy/core";
+import { resolveVectorSymbol, resolveBrandLogoUrl, type PositionedNode, type ThemeTokens } from "@markdy/core";
 
 const STYLE_ID = "markdy-diagram-node-styles";
 
@@ -100,6 +100,12 @@ export function ensureNodeStyles(doc: Document): void {
 }
 .markdy-node__icon[data-fit="cover"] img {
   object-fit: cover;
+}
+.markdy-node__icon[data-tile="dark"] {
+  background: #18181b !important;
+  border-radius: 6px !important;
+  padding: 3px !important;
+  box-sizing: border-box !important;
 }
 .markdy-node__content {
   flex: 1 1 auto;
@@ -824,6 +830,10 @@ function createNodeMediaEl(doc: Document, node: PositionedNode, assets?: Record<
     return wrap;
   }
 
+  if (node.props?.tile === "dark") {
+    wrap.dataset.tile = "dark";
+  }
+
   const symbolKey = typeof node.props?.icon === "string" ? node.props.icon : typeof node.props?.symbol === "string" ? node.props.symbol : undefined;
   const vectorSymbol = symbolKey ? resolveVectorSymbol(symbolKey) : null;
   if (vectorSymbol) {
@@ -837,6 +847,26 @@ function createNodeMediaEl(doc: Document, node: PositionedNode, assets?: Record<
     }
     svg.innerHTML = vectorSymbol.svgPaths;
     wrap.appendChild(svg);
+    return wrap;
+  }
+
+  if (symbolKey && !vectorSymbol && !symbolKey.includes(" ")) {
+    // Unbundled brand icon fallback: cascade to SVGL CDN with graceful error fallback
+    wrap.dataset.media = "image";
+    wrap.dataset.fit = "contain";
+    const img = doc.createElement("img");
+    img.src = resolveBrandLogoUrl(symbolKey);
+    img.alt = "";
+    img.decoding = "async";
+    img.loading = "lazy";
+    img.referrerPolicy = "no-referrer";
+    img.addEventListener("error", () => {
+      wrap.removeAttribute("data-media");
+      wrap.removeAttribute("data-fit");
+      wrap.textContent = "";
+      appendGlyph(doc, wrap, ICONS[iconKeyForNode(node)] ?? ICONS.service);
+    });
+    wrap.appendChild(img);
     return wrap;
   }
 

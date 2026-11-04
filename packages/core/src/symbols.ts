@@ -306,6 +306,120 @@ export const VECTOR_SYMBOLS: Record<string, VectorSymbol> = {
     svgPaths: `<path fill="currentColor" d="M12 2C12 7.52 7.52 12 2 12c5.48 0 9.95 4.48 10 10 .05-5.52 4.52-10 10-10-5.48 0-9.95-4.48-10-10z"/>`,
     brandColor: "#8E75FF",
   },
+
+  // Modern Web & Cloud Stack (CAD / Architecture)
+  vercel: {
+    name: "Vercel",
+    category: "cloud",
+    viewBox: "0 0 24 24",
+    svgPaths: `<path fill="currentColor" d="M12 1L24 22H0L12 1z"/>`,
+    brandColor: "#000000",
+  },
+  nextjs: {
+    name: "Next.js",
+    category: "runtime",
+    viewBox: "0 0 24 24",
+    svgPaths: `<path fill="currentColor" d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm3.844 14.532l-4.99-6.425v6.425H9.333V7.468h1.521l4.99 6.425V7.468h1.521v9.064h-1.521z"/>`,
+    brandColor: "#000000",
+  },
+  hono: {
+    name: "Hono",
+    category: "runtime",
+    viewBox: "0 0 24 24",
+    svgPaths: `<path fill="currentColor" d="M12 2c.5 3 2.5 5 4 7 1.5 2 2 4.5 1 7-1 2.5-3.5 4-6 4s-5.5-2-5.5-5.5c0-4 3.5-7.5 5.5-10.5.5-1 1-2 1-2z"/>`,
+    brandColor: "#E36002",
+  },
+  neon: {
+    name: "Neon Postgres",
+    category: "database",
+    viewBox: "0 0 24 24",
+    svgPaths: `<path fill="currentColor" d="M4 4h3.5l9 12V4H20v16h-3.5l-9-12v12H4V4z"/>`,
+    brandColor: "#00E599",
+  },
+  clerk: {
+    name: "Clerk",
+    category: "security",
+    viewBox: "0 0 24 24",
+    svgPaths: `<path fill="currentColor" d="M12 2a5 5 0 0 0-5 5v2H5a3 3 0 0 0-3 3v7a3 3 0 0 0 3 3h14a3 3 0 0 0 3-3v-7a3 3 0 0 0-3-3h-2V7a5 5 0 0 0-5-5zm-3 5a3 3 0 0 1 6 0v2H9V7zm3 7a2 2 0 1 1 0 4 2 2 0 0 1 0-4z"/>`,
+    brandColor: "#6C47FF",
+  },
+  stripe: {
+    name: "Stripe",
+    category: "client",
+    viewBox: "0 0 24 24",
+    svgPaths: `<path fill="currentColor" d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697.5 12.38.5 7.18.5 3.393 3.238 3.393 7.643c0 4.793 4.195 5.922 7.785 7.025 2.502.768 3.42 1.488 3.42 2.502 0 .992-.89 1.488-2.333 1.488-2.618 0-5.362-1.127-7.234-2.138L4.1 22.1c1.861.806 4.887 1.4 8.01 1.4 5.385 0 9.497-2.618 9.497-7.234 0-5.017-4.223-6.195-7.631-7.116z"/>`,
+    brandColor: "#635BFF",
+  },
+  supabase: {
+    name: "Supabase",
+    category: "database",
+    viewBox: "0 0 24 24",
+    svgPaths: `<path fill="currentColor" d="M21.362 9.354H12V.5a.5.5 0 0 0-.877-.333L2.638 12.646A.5.5 0 0 0 3 13.5h9.362v8.854a.5.5 0 0 0 .877.333l8.485-12.479a.5.5 0 0 0-.362-.854z"/>`,
+    brandColor: "#3ECF8E",
+  },
+  turborepo: {
+    name: "Turborepo",
+    category: "runtime",
+    viewBox: "0 0 24 24",
+    svgPaths: `<path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2zm0 16a6 6 0 1 1 6-6 6.006 6.006 0 0 1-6 6zm-1-9h2v4h-2zm0 5h2v2h-2z"/>`,
+    brandColor: "#0096FF",
+  },
+  drizzle: {
+    name: "Drizzle ORM",
+    category: "database",
+    viewBox: "0 0 24 24",
+    svgPaths: `<path fill="currentColor" d="M4 19h16v2H4zm2-6h12v2H6zm3-6h6v2H9zM12 1l3 3h-6l3-3z"/>`,
+    brandColor: "#C5F74F",
+  },
+  bun: {
+    name: "Bun",
+    category: "runtime",
+    viewBox: "0 0 24 24",
+    svgPaths: `<path fill="currentColor" d="M12 3c-5.5 0-9 3.5-9 8 0 4 3 7 7 7.5v2.5h4v-2.5c4-.5 7-3.5 7-7.5 0-4.5-3.5-8-9-8zm-2.5 8a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/>`,
+    brandColor: "#FBF0DF",
+  },
+  vitest: {
+    name: "Vitest",
+    category: "runtime",
+    viewBox: "0 0 24 24",
+    svgPaths: `<path fill="currentColor" d="M12 2L3 17h6l3-5 3 5h6L12 2zm0 7.5L14 14h-4l2-4.5z"/>`,
+    brandColor: "#FCC72B",
+  },
+  biome: {
+    name: "Biome",
+    category: "runtime",
+    viewBox: "0 0 24 24",
+    svgPaths: `<path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm-1 5h2v6h-2zm0 8h2v2h-2z"/>`,
+    brandColor: "#60A5FA",
+  },
+  inngest: {
+    name: "Inngest",
+    category: "messaging",
+    viewBox: "0 0 24 24",
+    svgPaths: `<path fill="currentColor" d="M12 2L2 9.5 12 17l10-7.5L12 2zm0 18l-8-6v3l8 6 8-6v-3l-8 6z"/>`,
+    brandColor: "#3B82F6",
+  },
+  tailwind: {
+    name: "Tailwind CSS",
+    category: "client",
+    viewBox: "0 0 24 24",
+    svgPaths: `<path fill="currentColor" d="M12.001 4.8c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624C13.666 10.618 15.027 12 18.001 12c3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C16.336 6.182 14.975 4.8 12.001 4.8zm-6 7.2c-3.2 0-5.2 1.6-6 4.8 1.2-1.6 2.6-2.2 4.2-1.8.913.228 1.565.89 2.288 1.624 1.177 1.194 2.538 2.576 5.512 2.576 3.2 0 5.2-1.6 6-4.8-1.2 1.6-2.6 2.2-4.2 1.8-.913-.228-1.565-.89-2.288-1.624C10.336 13.382 8.975 12 6.001 12z"/>`,
+    brandColor: "#06B6D4",
+  },
+  react: {
+    name: "React",
+    category: "client",
+    viewBox: "0 0 24 24",
+    svgPaths: `<ellipse cx="12" cy="12" rx="9" ry="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/><ellipse cx="12" cy="12" rx="9" ry="3.5" fill="none" stroke="currentColor" stroke-width="1.5" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9" ry="3.5" fill="none" stroke="currentColor" stroke-width="1.5" transform="rotate(120 12 12)"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/>`,
+    brandColor: "#61DAFB",
+  },
+  astro: {
+    name: "Astro",
+    category: "client",
+    viewBox: "0 0 24 24",
+    svgPaths: `<path fill="currentColor" d="M8.5 17.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm7 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM12 2C8 6 6 11 6 16c0 2.5 1 4.5 3 5 1-1.5 1.5-3 1.5-4h3c0 1 1 2.5 1.5 4 2-.5 3-2.5 3-5 0-5-2-10-6.5-14z"/>`,
+    brandColor: "#FF5D01",
+  },
 };
 
 /**
@@ -340,10 +454,25 @@ export function resolveVectorSymbol(nameOrAlias: string): VectorSymbol | null {
     lakehouse: "delta",
     llm: "gemini",
     ai: "gemini",
+    next: "nextjs",
+    turbo: "turborepo",
+    tailwindcss: "tailwind",
+    tw: "tailwind",
+    neonpostgres: "neon",
+    drizzleorm: "drizzle",
   };
 
   const target = aliases[key];
   return target ? VECTOR_SYMBOLS[target] || null : null;
+}
+
+/**
+ * Returns the canonical SVGL CDN URL for a given brand name or slug.
+ * Serves as an unbundled fallback when an icon is not directly embedded in the registry.
+ */
+export function resolveBrandLogoUrl(nameOrAlias: string): string {
+  const slug = nameOrAlias.trim().toLowerCase().replace(/[\s_.]+/g, "-");
+  return `https://svgl.app/library/${encodeURIComponent(slug)}.svg`;
 }
 
 /**

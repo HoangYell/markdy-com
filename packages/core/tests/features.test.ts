@@ -245,6 +245,16 @@ describe("@markdy/core: Algorithmic Brand Theme Generator", () => {
     const editorial = resolveTheme("editorial");
     expect(editorial.series).toBeDefined();
     expect(editorial.series!.length).toBe(5);
+
+    const cad = resolveTheme("cad");
+    expect(cad.series).toBeDefined();
+    expect(cad.name).toBe("cad");
+    expect(cad.canvas).toBe("#f8fafc");
+    expect(cad.accent).toBe("#2563eb");
+
+    const cadDark = resolveTheme("cad-dark");
+    expect(cadDark.name).toBe("cad-dark");
+    expect(cadDark.canvas).toBe("#0f172a");
   });
 
   it("resolves gif control in player configuration and AST options", () => {
