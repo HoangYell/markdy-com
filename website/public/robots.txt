@@ -10,6 +10,12 @@ Allow: /llms-full.txt
 Allow: /sitemap.xml
 Allow: /sitemap-index.xml
 
+# Microsoft Bing & Copilot Crawler
+User-agent: bingbot
+Allow: /
+Allow: /llms.txt
+Allow: /llms-full.txt
+
 # OpenAI SearchBot (surfaces markdy.com in ChatGPT search results)
 User-agent: OAI-SearchBot
 Allow: /
