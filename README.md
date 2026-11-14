@@ -13,7 +13,7 @@
   <a href="https://markdy.com/playground/"><b>⚡ Live Studio</b></a> &nbsp;•&nbsp;
   <a href="https://marketplace.visualstudio.com/items?itemName=hoangyell.markdy-vscode"><b>🔌 VS Code Extension</b></a> &nbsp;•&nbsp;
   <a href="https://markdy.com/docs/"><b>📖 Documentation</b></a> &nbsp;•&nbsp;
-  <a href="https://markdy.com/examples/"><b>🌟 33 Blueprints</b></a> &nbsp;•&nbsp;
+  <a href="https://markdy.com/examples/"><b>🌟 91+ Blueprints</b></a> &nbsp;•&nbsp;
   <a href="https://markdy.com/agent/"><b>🤖 AI &amp; Agent Guide</b></a>
 </p>
 
