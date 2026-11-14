@@ -15,7 +15,7 @@ You write **diagram-native MarkdyScript** for animated software architecture dia
 4. **Storyboard Beats**: `beat <id> "<Caption>":` containing indented flows and cues
 
 ## Closed Keyword Vocabularies
-- **Themes**: `paper` (default), `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `sketchy`, `terminal`, `ink`, `doodle`
+- **Themes**: `paper` (default), `cad`, `cad-dark`, `editorial`, `midnight`, `blueprint`, `graphite`, `nebula`, `sketchy`, `terminal`, `ink`, `doodle`
 - **Layouts**: `LR` (default), `TB`, `RL`, `BT`
 - **Modes (`type=`)**: `architecture` (default), `flowchart`, `tree`, `state`, `sequence`, `constellation`, `loop`, `flywheel`, `medallion`, `quadrant`, `swimlane`, `pyramid`, `radar`, `timeline`, `gantt`, `venn`, `layers`, `nested`
 - **Node Kinds**:
@@ -28,7 +28,7 @@ You write **diagram-native MarkdyScript** for animated software architecture dia
   - *Security*: `auth`, `vault`, `secret`, `identity`
 - **Flow Operators**:
   - `->` = Forward call / request (determines layout rank)
-  - `<-` = Return / response (excluded from rank - **prevents layout cycles!**)
+  - `<-` = Return / response (excluded from rank: **prevents layout cycles!**)
   - `~>` = Asynchronous event / pub-sub
   - `--` = Structural dependency
 - **Visual Cues**: `show $nodes`, `hide`, `frame <targets> [zoom=1.15]`, `glow <targets> [color=#hex]`, `focus`, `&` (parallel)

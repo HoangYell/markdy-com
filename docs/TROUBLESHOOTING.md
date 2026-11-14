@@ -4,7 +4,7 @@
 > - **Status**: Active & Canonical
 > - **Current Version**: v1.5.7
 > - **Specification Version**: 1.5.x
-> - **Last Updated**: 2026-09-30
+> - **Last Updated**: 2026-11-14
 > - **Documentation Hub**: <https://markdy.com/docs/>
 > - **AI Reference**: <https://markdy.com/AGENT.md>
 

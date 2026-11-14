@@ -46,7 +46,7 @@ export interface ExampleMeta {
   /** Short description for gallery cards and SEO. */
   description?: string;
   /** Semantic theme used by the scene. */
-  theme?: "midnight" | "paper" | "blueprint" | "graphite" | "editorial" | "nebula" | "terminal" | "sketchy" | "ink" | "doodle";
+  theme?: "midnight" | "paper" | "blueprint" | "graphite" | "editorial" | "nebula" | "terminal" | "sketchy" | "ink" | "doodle" | "cad" | "cad-dark";
   /** Path relative to the repo's `examples/` directory. */
   file: string;
   playback?: {
@@ -403,6 +403,16 @@ export const FULL_GALLERY_REGISTRY: ExampleMeta[] = [
     description: "Quorum replication, write-ahead logging, and state machine commits rendered in classic blue ink style.",
     theme: "ink",
     file: "showcase/blue-ink-distributed-consensus.markdy",
+  },
+  {
+    id: "cloud-architecture-cad",
+    title: "Modern Cloud Architecture Stack",
+    category: "cloud-infrastructure",
+    sceneType: "architecture",
+    pattern: "cloud-cad",
+    description: "Precision engineered-paper CAD architecture blueprint featuring AWS VPC public and private subnets, modern stack vector brand logos, and multi-beat interactive routing.",
+    theme: "cad",
+    file: "32-cloud-architecture-cad.markdy",
   },
 ];
 
