@@ -1,0 +1,77 @@
+scene "LLM Gateway: Failover & Rate Limiting" theme=cad layout=LR
+
+browser ProductApp "Product Application" icon=chrome
+gateway LLMGateway "LLM Gateway" icon=cloudflare
+security TenantAuth "Tenant Auth & API Keys" icon=vault
+service RateLimiter "Token Bucket Limiter" icon=python
+cache RateCounters "Distributed Rate Counters" icon=redis
+service ModelRouter "Model Router" icon=python
+service PrimaryModel "Primary LLM Provider" icon=gemini
+service FallbackModel "Fallback LLM Provider" icon=aws
+queue RetryQueue "Retry & Backoff Queue" icon=kafka
+cache SemanticCache "Semantic Response Cache" icon=redis
+monitor FinOps "Cost, Latency & Error Telemetry" icon=grafana
+
+group edge "Client & Gateway Edge": ProductApp LLMGateway TenantAuth
+group control "Quota & Routing Controls": RateLimiter RateCounters ModelRouter SemanticCache
+group providers "Provider Failover Tier": PrimaryModel FallbackModel RetryQueue
+group telemetry "Telemetry & FinOps": FinOps
+
+beat authenticate "1. Tenant Authentication & Scope Check":
+  ProductApp -> LLMGateway "POST /v1/chat/completions"
+  LLMGateway -> TenantAuth "Validate tenant key + scopes"
+  LLMGateway <- TenantAuth "Authenticated: tenant=acme"
+  glow TenantAuth color=#2563eb
+
+beat quota "2. Distributed Quota Reservation":
+  LLMGateway -> RateLimiter "Reserve 60k TPM budget"
+  RateLimiter -> RateCounters "INCR token bucket (atomic)"
+  LLMGateway <- RateLimiter "ALLOW: 42k tokens remain"
+  glow RateLimiter color=#f59e0b
+
+beat route "3. Semantic Cache Probe & Model Routing":
+  LLMGateway -> SemanticCache "Lookup prompt embedding"
+  LLMGateway <- SemanticCache "MISS: similarity 0.84"
+  LLMGateway -> ModelRouter "Route: reasoning + budget"
+  ModelRouter -> PrimaryModel "Invoke primary (8s p95)"
+  glow ModelRouter color=#7c3aed
+
+beat failover "4. Provider Throttling & Fallback":
+  ModelRouter <- PrimaryModel "429 provider throttled"
+  ModelRouter ~> RetryQueue "Schedule exponential backoff"
+  ModelRouter -> FallbackModel "Failover to secondary"
+  ModelRouter <- FallbackModel "Completion + token usage"
+  glow FallbackModel color=#22c55e
+
+beat stream "5. Streaming Response & Cost Telemetry":
+  LLMGateway <- ModelRouter "Stream tokens + usage"
+  LLMGateway -> SemanticCache "Store response (TTL 1h)"
+  ProductApp <- LLMGateway "SSE completion"
+  LLMGateway ~> FinOps "Emit cost + latency"
+  glow LLMGateway color=#ec4899
+
+beat recover "6. Quota Refund & Circuit Recovery":
+  RateLimiter -> RateCounters "Refund unused reservation"
+  FinOps -> ModelRouter "Downgrade tier on budget breach"
+  ModelRouter -> PrimaryModel "Close circuit after cooldown"
+  glow PrimaryModel color=#38bdf8 & glow RateCounters color=#ef4444
+
+player:
+  playback:
+    loop true
+  controls:
+    speed true
+    speeds "0.25 1 2"
+    fullscreen true
+    gif true
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress none
+    color "#7c3aed"

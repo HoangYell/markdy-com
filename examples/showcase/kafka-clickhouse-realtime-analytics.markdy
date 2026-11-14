@@ -1,0 +1,72 @@
+scene "Kafka to ClickHouse Realtime Analytics" theme=cad layout=LR
+
+service Producers "Product Event Producers" icon=nodejs
+gateway Collector "Event Collector Gateway" icon=cloudflare
+queue KafkaBus "Kafka Event Bus" icon=kafka
+queue DeadLetter "Dead Letter Topic" icon=kafka
+worker StreamProcessor "Flink Stream Processor" icon=spark
+database ClickHouse "ClickHouse OLAP Cluster" icon=snowflake
+cache ServingCache "Redis Serving Cache" icon=redis
+storage ColdArchive "S3 Cold Archive" icon=s3
+service QueryAPI "Query & Aggregation API" icon=nodejs
+client Dashboard "Realtime Ops Dashboard" icon=chrome
+monitor Alerting "Anomaly Alerting" icon=grafana
+
+group ingest "Ingestion & Backpressure Plane": Producers Collector KafkaBus DeadLetter
+group compute "Stream Compute & OLAP Plane": StreamProcessor ClickHouse ServingCache
+group serve "Serving & Observability Plane": Dashboard QueryAPI Alerting ColdArchive
+
+beat capture "1. Event Capture & Idempotent Production":
+  Producers -> Collector "Emit clickstream + order events"
+  Collector -> KafkaBus "Produce Avro events (idempotent)"
+  Collector -> DeadLetter "Route malformed payloads"
+  glow Collector color=#2563eb
+
+beat transform "2. Stateful Stream Transformation":
+  KafkaBus ~> StreamProcessor "Consume topic partitions"
+  StreamProcessor -> ServingCache "Update 1-minute windows"
+  StreamProcessor -> ColdArchive "Checkpoint raw segments"
+  glow StreamProcessor color=#7c3aed
+
+beat materialize "3. Columnar Materialization & Rollups":
+  StreamProcessor -> ClickHouse "Insert batched micro-batches"
+  ClickHouse -> ServingCache "Warm pre-aggregated materialized views"
+  glow ClickHouse color=#22c55e
+
+beat query "4. Low-Latency Dashboard Queries":
+  Dashboard -> QueryAPI "GET /metrics?window=5m"
+  QueryAPI -> ServingCache "Read pre-aggregated rollups"
+  QueryAPI -> ClickHouse "Fallback SQL aggregation"
+  Dashboard <- QueryAPI "Funnel + p95 latency"
+  glow QueryAPI color=#f59e0b
+
+beat alert "5. Anomaly Detection & Tiered Retention":
+  StreamProcessor ~> Alerting "Threshold breach: error rate"
+  Alerting -> Dashboard "Push incident banner"
+  KafkaBus -> ColdArchive "Tiered retention offload"
+  glow Alerting color=#ef4444
+
+beat finish "6. Exactly-Once Recovery & Replay":
+  KafkaBus -> StreamProcessor "Replay from committed checkpoint"
+  StreamProcessor -> DeadLetter "Quarantine poison records"
+  glow ServingCache color=#38bdf8 & glow ColdArchive color=#0ea5e9
+
+player:
+  playback:
+    loop true
+  controls:
+    speed true
+    speeds "0.25 1 2"
+    fullscreen true
+    gif true
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress none
+    color "#22c55e"

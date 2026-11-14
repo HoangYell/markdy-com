@@ -1,0 +1,76 @@
+scene "Agentic Code Execution Sandbox" theme=cad layout=LR
+
+client AgentClient "Agent / Developer Client" icon=chrome
+gateway ControlPlane "Sandbox Control Plane" icon=cloudflare
+service Orchestrator "Agent Orchestrator" icon=python
+security PolicyEngine "OPA Policy & Quota Engine" icon=opa
+service CodeModel "Code Synthesis Model" icon=gemini
+queue TaskQueue "Kafka Sandbox Task Queue" icon=kafka
+worker Scheduler "Sandbox Scheduler" icon=kubernetes
+service SandboxPool "Ephemeral Sandbox Pool" icon=docker
+cache DependencyCache "OCI Dependency Cache" icon=redis
+storage ArtifactStore "S3 Artifact & Log Store" icon=s3
+database ExecutionLedger "Postgres Execution Ledger" icon=postgres
+monitor AuditTrail "Signed Audit Trail" icon=grafana
+
+group control_plane "Control, Policy & Synthesis": AgentClient ControlPlane Orchestrator PolicyEngine CodeModel
+group execution_plane "Ephemeral Execution Plane": TaskQueue Scheduler SandboxPool DependencyCache
+group evidence_plane "Artifacts, Ledger & Audit": ArtifactStore ExecutionLedger AuditTrail
+
+beat admit "1. Task Admission & Policy Evaluation":
+  AgentClient -> ControlPlane "Submit repo patch task"
+  ControlPlane -> Orchestrator "Create isolated run + budget"
+  Orchestrator -> PolicyEngine "Admit image, CPU, egress, secrets"
+  Orchestrator <- PolicyEngine "ALLOW: rootless, no host mounts"
+  glow PolicyEngine color=#2563eb
+
+beat synthesize "2. Code Synthesis & Test Generation":
+  Orchestrator -> CodeModel "Generate patch + unit tests"
+  Orchestrator <- CodeModel "Structured diff + tool calls"
+  Orchestrator ~> TaskQueue "enqueue build-and-test job"
+  glow CodeModel color=#7c3aed
+
+beat provision "3. Ephemeral Sandbox Provisioning":
+  TaskQueue ~> Scheduler "Dispatch tenant-scoped task"
+  Scheduler -> SandboxPool "Launch rootless container"
+  SandboxPool -> DependencyCache "Pull pinned OCI layers"
+  Scheduler <- SandboxPool "Sandbox ready: no egress"
+  glow Scheduler color=#0ea5e9
+
+beat execute "4. Isolated Execution & Evidence Capture":
+  SandboxPool -> ArtifactStore "Upload patch, SBOM, coverage"
+  SandboxPool -> ExecutionLedger "Stream stdout/stderr + exit code"
+  SandboxPool ~> AuditTrail "Emit signed syscall trace"
+  glow SandboxPool color=#22c55e
+
+beat teardown "5. Teardown & Verdict Delivery":
+  Scheduler -> SandboxPool "Terminate + wipe overlay"
+  Orchestrator <- Scheduler "Run finished: exit 0"
+  ControlPlane <- Orchestrator "Verdict + signed artifacts"
+  AgentClient <- ControlPlane "PR-ready patch + evidence"
+  glow ExecutionLedger color=#f59e0b
+
+beat finish "6. Retention & Quota Reconciliation":
+  PolicyEngine -> ExecutionLedger "Record spend + quota usage"
+  AuditTrail -> ArtifactStore "Seal WORM retention policy"
+  glow AuditTrail color=#ef4444 & glow ArtifactStore color=#38bdf8
+
+player:
+  playback:
+    loop true
+  controls:
+    speed true
+    speeds "0.25 1 2"
+    fullscreen true
+    gif true
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress none
+    color "#7c3aed"
