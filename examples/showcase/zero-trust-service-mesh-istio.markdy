@@ -1,0 +1,78 @@
+scene "Zero-Trust Service Mesh on Istio" theme=cad layout=LR
+
+client CustomerApp "Customer Checkout App" icon=chrome
+user SRE "Platform SRE" icon=terminal
+gateway EdgeGateway "Istio Ingress Gateway" icon=cloudflare
+security IdentityProvider "SPIFFE Identity Provider" icon=keycloak
+service ControlPlane "Istiod Control Plane" icon=kubernetes
+security CertAuthority "Vault Root CA" icon=vault
+service AuthService "Auth & Token Service" icon=nodejs
+service OrderService "Order Service (mTLS)" icon=golang
+service PaymentService "Payment Service (mTLS)" icon=nodejs
+service InventoryService "Inventory Service (mTLS)" icon=python
+security OPA "OPA Authorization Policy" icon=opa
+monitor Telemetry "Envoy Telemetry & Kiali" icon=grafana
+
+group edge_identity "Edge & Identity Boundary": CustomerApp EdgeGateway IdentityProvider AuthService
+group mesh_control "Mesh Control & Trust Roots": SRE ControlPlane CertAuthority OPA
+group workloads "mTLS Workload Namespace": OrderService PaymentService InventoryService
+group observability "Telemetry & Audit": Telemetry
+
+beat bootstrap "1. Trust Bootstrap & Strict mTLS":
+  SRE -> ControlPlane "Apply PeerAuthentication STRICT"
+  ControlPlane -> IdentityProvider "Register workload identities"
+  ControlPlane -> CertAuthority "Distribute root CA bundle"
+  glow ControlPlane color=#2563eb
+
+beat ingress "2. North-South Ingress Verification":
+  CustomerApp -> EdgeGateway "HTTPS POST /checkout"
+  EdgeGateway -> IdentityProvider "Validate JWT + client certificate"
+  EdgeGateway <- IdentityProvider "Verified SPIFFE principal"
+  EdgeGateway -> AuthService "Exchange scoped access token"
+  glow EdgeGateway color=#0ea5e9
+
+beat eastwest "3. East-West mTLS Authorization":
+  AuthService -> OrderService "Create order (mTLS + JWT)"
+  OrderService -> OPA "Check AuthorizationPolicy"
+  OrderService <- OPA "ALLOW: role=buyer, tenant=acme"
+  OrderService -> PaymentService "Authorize charge (mTLS)"
+  PaymentService -> InventoryService "Reserve stock (mTLS)"
+  glow OPA color=#7c3aed
+
+beat complete "4. Transaction Completion & Response Path":
+  PaymentService <- InventoryService "Reservation confirmed"
+  OrderService <- PaymentService "Payment captured"
+  CustomerApp <- EdgeGateway "201 Checkout complete"
+  glow PaymentService color=#22c55e
+
+beat observe "5. Distributed Telemetry & Access Audit":
+  OrderService ~> Telemetry "Emit spans + access logs"
+  PaymentService ~> Telemetry "Emit mTLS metadata"
+  InventoryService ~> Telemetry "Emit policy decisions"
+  glow Telemetry color=#f59e0b
+
+beat harden "6. Continuous Hardening & Certificate Rotation":
+  SRE -> OPA "Revoke legacy service account"
+  OPA ~> InventoryService "Deny unauthenticated call"
+  ControlPlane -> OrderService "Rotate certificates every 24h"
+  glow IdentityProvider color=#ec4899 & glow CertAuthority color=#ef4444
+
+player:
+  playback:
+    loop true
+  controls:
+    speed true
+    speeds "0.25 1 2"
+    fullscreen true
+    gif true
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress none
+    color "#0ea5e9"

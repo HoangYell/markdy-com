@@ -1,0 +1,81 @@
+scene "Multimodal RAG & Vector Search Platform" theme=cad layout=LR
+
+client Analyst "Analyst Console" icon=chrome
+browser UploadPortal "Multimodal Upload Portal" icon=chrome
+gateway APIGateway "API Gateway" icon=cloudflare
+service IngestService "Ingestion & Parsing Service" icon=python
+storage ObjectStore "S3 Raw Asset Lake" icon=s3
+service EmbeddingModel "Multimodal Embedding Model" icon=python
+queue IndexQueue "Kafka Indexing Stream" icon=kafka
+worker IndexWorker "Vector Index Worker" icon=docker
+database VectorDB "Qdrant Vector Database" icon=redis
+database MetadataDB "Postgres Chunk Metadata" icon=postgres
+service Retriever "Hybrid Retrieval Service" icon=python
+cache SemanticCache "Semantic Answer Cache" icon=redis
+service Reranker "Cross-Encoder Reranker" icon=python
+service AnswerLLM "Grounded Answer LLM" icon=gemini
+
+group ingest_plane "Ingestion & Enrichment Plane": UploadPortal APIGateway IngestService ObjectStore EmbeddingModel IndexQueue IndexWorker
+group retrieve_plane "Retrieval & Generation Plane": Analyst APIGateway Retriever SemanticCache Reranker AnswerLLM
+group data_plane "Vector & Metadata Storage": VectorDB MetadataDB
+
+beat intake "1. Multimodal Intake & Durable Asset Capture":
+  Analyst -> UploadPortal "Drag PDFs, images, and audio"
+  UploadPortal -> APIGateway "POST /v1/ingest (multipart)"
+  APIGateway -> IngestService "Validate MIME + tenant quota"
+  IngestService -> ObjectStore "Persist immutable raw asset"
+  glow IngestService color=#2563eb & glow ObjectStore color=#0ea5e9
+
+beat enrich "2. Parse, Chunk & Multimodal Embedding":
+  IngestService ~> EmbeddingModel "OCR + layout-aware chunking"
+  EmbeddingModel -> MetadataDB "Write chunk provenance"
+  EmbeddingModel -> IndexQueue "publish embedding.batch"
+  glow EmbeddingModel color=#7c3aed
+
+beat index "3. Asynchronous Vector Index Build":
+  IndexQueue ~> IndexWorker "Dequeue tenant partition"
+  IndexWorker -> VectorDB "Upsert dense + sparse vectors"
+  IndexWorker -> MetadataDB "Commit index checkpoint"
+  IndexWorker -> ObjectStore "Store extracted figures and tables"
+  glow VectorDB color=#22c55e
+
+beat retrieve "4. Query Understanding & Hybrid Retrieval":
+  Analyst -> APIGateway "Ask: summarize Q3 vendor contracts"
+  APIGateway -> Retriever "Route /v1/query"
+  Retriever -> SemanticCache "Probe semantic cache"
+  Retriever -> VectorDB "ANN top-k + metadata filter"
+  Retriever -> MetadataDB "Hydrate page-level citations"
+  glow Retriever color=#f59e0b
+
+beat generate "5. Rerank, Grounded Generation & Cache Write":
+  Retriever -> Reranker "Cross-encode top 50 chunks"
+  Reranker -> AnswerLLM "Inject ranked evidence + citations"
+  AnswerLLM -> SemanticCache "Cache grounded response (TTL 1h)"
+  AnswerLLM -> MetadataDB "Log citation trace"
+  Analyst <- APIGateway "Answer with source spans"
+  glow AnswerLLM color=#ec4899
+
+beat finish "6. Retrieval Quality & Freshness Guardrails":
+  Retriever -> MetadataDB "Emit recall@k and nDCG metrics"
+  Retriever -> VectorDB "Schedule index compaction"
+  glow VectorDB color=#22c55e & glow MetadataDB color=#38bdf8
+
+player:
+  playback:
+    loop true
+  controls:
+    speed true
+    speeds "0.25 1 2"
+    fullscreen true
+    gif true
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress none
+    color "#2563eb"

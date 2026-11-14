@@ -1,0 +1,74 @@
+scene "Fintech Double-Entry Ledger Core" theme=cad layout=LR
+
+client TreasuryOps "Treasury Operations Console" icon=chrome
+cli OpsCLI "Treasury Ops CLI" icon=terminal
+gateway LedgerGateway "Ledger API Gateway" icon=cloudflare
+security HSMKeyring "HSM Key Custodian" icon=vault
+service PostingEngine "Double-Entry Posting Engine" icon=python
+database LedgerDB "Immutable Journal (Postgres)" icon=postgres
+database AccountDB "Chart of Accounts" icon=postgres
+service PaymentRail "Stripe Settlement Connector" icon=stripe
+queue BalanceStream "Balance Change Stream" icon=kafka
+worker Reconciler "Continuous Reconciler" icon=docker
+cache BalanceCache "Real-Time Balance Cache" icon=redis
+monitor AuditMonitor "Audit & Alerting" icon=grafana
+
+group control_plane "Control & Authorization Plane": TreasuryOps OpsCLI LedgerGateway HSMKeyring
+group posting_plane "Posting & Settlement Plane": PostingEngine LedgerDB AccountDB PaymentRail
+group settlement_plane "Balance Projection & Assurance": BalanceStream Reconciler BalanceCache AuditMonitor
+
+beat intent_capture "1. Journal Intent Capture & Signed Authorization":
+  OpsCLI -> LedgerGateway "Submit signed journal batch"
+  TreasuryOps -> LedgerGateway "Review and approve entry"
+  LedgerGateway -> HSMKeyring "Request hardware signature"
+  HSMKeyring -> AccountDB "Validate account status and limits"
+  glow LedgerGateway color=#2563eb & glow HSMKeyring color=#7c3aed
+
+beat atomic_posting "2. Atomic Double-Entry Posting":
+  LedgerGateway -> PostingEngine "POST /v1/journals (signed)"
+  PostingEngine -> AccountDB "Read chart of accounts"
+  PostingEngine -> LedgerDB "Insert balanced debit and credit lines"
+  PostingEngine -> PaymentRail "Authorize external settlement leg"
+  PostingEngine -> BalanceStream "Publish ledger.posted event"
+  glow PostingEngine color=#f59e0b
+
+beat balance_projection "3. Real-Time Balance Projection":
+  BalanceStream ~> Reconciler "Dequeue posting event"
+  Reconciler -> BalanceCache "Apply delta to account balance"
+  Reconciler -> LedgerDB "Verify running sum equals journal"
+  glow BalanceCache color=#22c55e
+
+beat reconciliation "4. Continuous Reconciliation & Break Detection":
+  Reconciler -> AccountDB "Compare posted vs expected balances"
+  Reconciler -> PaymentRail "Match settlement confirmations"
+  Reconciler -> AuditMonitor "Emit reconciliation break alert"
+  Reconciler -> LedgerDB "Stamp checkpoint and hash chain"
+  glow Reconciler color=#38bdf8
+
+beat period_close "5. Period Close & Immutable Audit Trail":
+  OpsCLI -> LedgerGateway "Request period close"
+  LedgerGateway -> PostingEngine "Freeze posting window"
+  PostingEngine -> LedgerDB "Seal journal with Merkle root"
+  LedgerGateway -> AuditMonitor "Publish close attestation"
+  TreasuryOps <- LedgerGateway "Deliver signed close report"
+  glow LedgerDB color=#ec4899 & glow AuditMonitor color=#22c55e
+
+player:
+  playback:
+    loop true
+  controls:
+    speed true
+    speeds "0.25 1 2"
+    fullscreen true
+    gif true
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress none
+    color "#2563eb"

@@ -1,0 +1,68 @@
+scene "Cloud FinOps with Karpenter Autoscaling" theme=cad layout=LR
+
+queue PendingPods "Pending Pod Queue" icon=kafka
+service WorkloadScheduler "Kubernetes Scheduler" icon=kubernetes
+service KarpenterController "Karpenter Provisioner Controller" icon=kubernetes
+service PricingEngine "Spot Pricing Advisor" icon=python
+cloud SpotPool "EC2 Spot Node Pool" icon=aws
+cloud OnDemandPool "EC2 On-Demand Node Pool" icon=aws
+worker BatchWorkload "Batch & ML Workload Pods" icon=docker
+monitor CostExplorer "FinOps Cost Explorer" icon=grafana
+storage BillingExport "S3 CUR Billing Export" icon=s3
+database CostDB "FinOps Cost & Usage DB" icon=postgres
+monitor BudgetAlert "Budget Guardrails & Alerts" icon=grafana
+
+group demand_plane "Workload Demand & Scheduling": PendingPods WorkloadScheduler BatchWorkload
+group provision_plane "Just-in-Time Node Provisioning": KarpenterController SpotPool OnDemandPool PricingEngine
+group finops_plane "Cost Telemetry & Budget Guardrails": CostExplorer BillingExport CostDB BudgetAlert
+
+beat detect_demand "1. Detect Unschedulable Workload Demand":
+  PendingPods ~> WorkloadScheduler "Pending pod queue depth rises"
+  WorkloadScheduler -> KarpenterController "Signal unschedulable pods"
+  glow WorkloadScheduler color=#2563eb
+
+beat jit_provision "2. Just-in-Time Node Provisioning":
+  KarpenterController -> PricingEngine "Request spot price forecast"
+  KarpenterController <- PricingEngine "Return cheapest instance family"
+  KarpenterController -> SpotPool "Provision capacity (spot first)"
+  KarpenterController -> OnDemandPool "Fallback on-demand buffer"
+  glow KarpenterController color=#7c3aed
+
+beat bind_workload "3. Bind Workload to New Capacity":
+  SpotPool -> BatchWorkload "Node joins cluster (spot capacity)"
+  OnDemandPool -> BatchWorkload "Node joins cluster (fallback)"
+  WorkloadScheduler -> BatchWorkload "Bind pending pods to node"
+  glow SpotPool color=#22c55e
+
+beat cost_telemetry "4. Cost Telemetry & Savings Attribution":
+  CostExplorer -> BillingExport "Ingest daily CUR export"
+  CostExplorer -> CostDB "Write cost allocation rows"
+  PricingEngine -> CostDB "Publish spot savings deltas"
+  BillingExport -> CostDB "Backfill billing line items"
+  glow CostExplorer color=#f59e0b
+
+beat budget_guardrails "5. Budget Guardrails & Policy Feedback":
+  BudgetAlert -> CostDB "Evaluate budget thresholds"
+  BudgetAlert -> KarpenterController "Tighten instance family policy"
+  BudgetAlert -> SpotPool "Cap spot vCPU ceiling"
+  glow BudgetAlert color=#ec4899 & glow CostDB color=#38bdf8
+
+player:
+  playback:
+    loop true
+  controls:
+    speed true
+    speeds "0.25 1 2"
+    fullscreen true
+    gif true
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress none
+    color "#2563eb"

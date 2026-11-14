@@ -13,7 +13,7 @@ The zero-dependency parser, dynamic port multiplexer, and AST routing engine for
 
 > 🚀 **Try it live**: Test MarkdyScript in the browser at **[markdy.com/playground](https://markdy.com/playground/)**  
 > 📚 **Documentation**: Complete syntax guide and examples at **[markdy.com/docs](https://markdy.com/docs/)**  
-> 🌟 **Architecture Blueprints**: 30+ canonical production diagrams at **[markdy.com/examples](https://markdy.com/examples/)**  
+> 🌟 **Architecture Blueprints**: 91+ canonical production diagrams & CAD templates at **[markdy.com/examples](https://markdy.com/examples/)**  
 > 💼 **Enterprise & Commercial**: Free under MIT. Access production architectural templates, custom diagram kits, and direct support via **[GitHub Sponsors & Pro Blueprints](https://github.com/sponsors/HoangYell)**.
 
 ## Features
