@@ -292,4 +292,35 @@ describe("@markdy/renderer-dom: Diagram Presentation Controller", () => {
 
     diagram.destroy();
   });
+
+  it("applies cloud vendor container attributes to architecture group boundaries", () => {
+    const container = document.createElement("div");
+    const code = `
+      scene "Cloud CAD" theme=cad
+      service WebApi "Next.js" icon=nextjs
+      service Worker "Hono API" icon=hono
+      database Db "Neon Postgres" icon=neon
+      group public_subnet "AWS Public Subnet": WebApi Worker
+      group private_subnet "AWS Private Subnet": Db
+      beat main:
+        WebApi -> Worker "query"
+    `;
+
+    const diagram = createDiagram({
+      container,
+      code,
+      autoplay: false,
+    });
+
+    const publicGroup = container.querySelector('.markdy-group-boundary[data-vendor="aws-public"]');
+    expect(publicGroup).not.toBeNull();
+
+    const privateGroup = container.querySelector('.markdy-group-boundary[data-vendor="aws-private"]');
+    expect(privateGroup).not.toBeNull();
+
+    const svg = diagram.exportSvg();
+    expect(svg).toContain('paint-order="stroke fill"');
+
+    diagram.destroy();
+  });
 });

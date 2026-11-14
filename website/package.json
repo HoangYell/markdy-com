@@ -6,7 +6,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy && node scripts/submit-indexnow.mjs",
+    "indexnow": "node scripts/submit-indexnow.mjs"
   },
   "devDependencies": {
     "lighthouse": "^13.4.0",

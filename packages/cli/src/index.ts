@@ -30,7 +30,9 @@ import {
   type MarkdyConfig,
   type QualityGateReport,
   type QualityProfile,
+  resolveTheme,
 } from "@markdy/core";
+import { renderPureVectorSvg } from "@markdy/renderer-dom";
 import { createRequire } from "node:module";
 import { basename, dirname, extname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -328,8 +330,17 @@ async function renderCommand(parsed: ParsedArgs, io: CliIo, runtime: CliRuntime)
   const outPath = getStringFlag(parsed, "out");
 
   if (outPath) {
-    const html = await buildStandaloneHtml(scene);
     const resolvedOut = resolve(outPath);
+    if (resolvedOut.toLowerCase().endsWith(".svg")) {
+      const plan = compile(scene.ast);
+      const svg = renderPureVectorSvg(plan);
+      await writeFile(resolvedOut, svg, "utf8");
+      io.stdout(`Wrote ${resolvedOut}`);
+      return { exitCode: 0 };
+    }
+
+    const isOffline = hasFlag(parsed, "offline") || hasFlag(parsed, "pure-svg") || hasFlag(parsed, "standalone-offline");
+    const html = await buildStandaloneHtml(scene, { offline: isOffline });
     await writeFile(resolvedOut, html, "utf8");
     io.stdout(`Wrote ${resolvedOut}`);
     return { exitCode: 0 };
@@ -1683,14 +1694,69 @@ function buildPlaygroundHtml(code: string, sourcePath?: string): string {
 </html>`;
 }
 
-export async function buildStandaloneHtml(scene: LoadedScene): Promise<string> {
+export async function buildStandaloneHtml(
+  scene: LoadedScene,
+  options?: { offline?: boolean },
+): Promise<string> {
+  const isOffline = Boolean(options?.offline);
   const version = await getPackageVersion();
+
+  if (isOffline) {
+    const plan = compile(scene.ast);
+    const svg = renderPureVectorSvg(plan);
+    const theme = plan.theme || resolveTheme(plan.meta?.theme || "paper");
+    const bg = theme.canvas || "#0d1117";
+    const text = theme.text || "#e6edf3";
+
+    return `<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${escapeHtml(basename(scene.filePath))} - Markdy</title>
+    <style>
+      :root { color-scheme: light dark; }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        padding: 32px 16px;
+        background: ${bg};
+        color: ${text};
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+      }
+      .markdy-offline-shell {
+        max-width: 100%;
+        overflow-x: auto;
+        display: flex;
+        justify-content: center;
+        border-radius: 12px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+      }
+      svg {
+        max-width: 100%;
+        height: auto;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="markdy-offline-shell">
+      ${svg}
+    </div>
+  </body>
+</html>`;
+  }
+
   return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${escapeHtml(basename(scene.filePath))} — Markdy</title>
+    <title>${escapeHtml(basename(scene.filePath))} - Markdy</title>
     <style>
       body {
         margin: 0;
@@ -1745,7 +1811,7 @@ function helpText(): string {
     "  markdy check [file-or-dir] [--dist <dir>] [--strict] [--arch-rules] [--json]",
     "  markdy lint <file-or-dir> [--strict] [--arch-rules]",
     "  markdy fmt <file-or-dir> [--write | --check]",
-    "  markdy render <file.markdy> [--out file.html] [--port 4242] [--no-open]",
+    "  markdy render <file.markdy> [--out file.html|file.svg] [--offline] [--port 4242] [--no-open]",
     "  markdy verify <file.markdy> [--quality standard|strict|showcase] [--json]",
     "  markdy guide [scenario-query] [--synthesize] [--json]",
     "  markdy recipe <recipe-id> [--json]",

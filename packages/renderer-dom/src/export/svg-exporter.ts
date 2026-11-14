@@ -302,6 +302,16 @@ function wrapNodeLabel(label: string, maxWidthPx: number, fontSize = 13.5): stri
   return lines;
 }
 
+function resolveContrastColor(brandColor: string | undefined, defaultColor: string, isDark: boolean): string {
+  if (brandColor) {
+    const hex = brandColor.toLowerCase();
+    if (isDark && (hex === "#000000" || hex === "#0f172a" || hex === "#18181b")) return "#ffffff";
+    if (!isDark && (hex === "#ffffff" || hex === "#f8fafc" || hex === "#fbf0df")) return "#000000";
+    return brandColor;
+  }
+  return defaultColor;
+}
+
 export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions = {}): string {
   const width = plan.meta.width;
   const height = plan.meta.height;
@@ -397,17 +407,91 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
   svg += `  <!-- Main Scene Content -->\n  <g class="markdy-camera-layer"${cameraTransformAttr}>\n`;
 
   // Group Boundaries
+  // Group Boundaries
   if (plan.groupBoundaries && plan.groupBoundaries.length > 0) {
     svg += `  <!-- Group Boundaries -->\n  <g class="markdy-groups-layer">\n`;
     for (const gb of plan.groupBoundaries) {
+      const rawId = gb.id.toLowerCase();
+      const rawLabel = (gb.label || "").toLowerCase();
+      const rawKind = String(gb.props?.kind || gb.props?.vendor || "").toLowerCase();
+
+      let groupStroke = border;
+      let groupFill = surfaceRaised;
+      let groupFillOpacity = isDark ? "0.28" : "0.45";
+      let groupDash = "5 5";
+      let groupRadius = 16;
+      let labelBorder = border;
+      let labelColor = textColor;
+      let labelCase = gb.label ? gb.label.toUpperCase() : "";
+
+      if (rawKind === "aws-vpc" || rawKind === "vpc" || rawId.startsWith("aws_vpc") || (rawLabel.includes("aws") && rawLabel.includes("vpc"))) {
+        groupStroke = "#8C4FFF";
+        groupDash = "none";
+        groupRadius = 8;
+        groupFill = "#8C4FFF";
+        groupFillOpacity = "0.04";
+        labelBorder = "#8C4FFF";
+        labelColor = "#8C4FFF";
+        labelCase = gb.label || "";
+      } else if (rawKind === "aws-private" || rawKind === "private-subnet" || rawId.startsWith("aws_private") || (rawLabel.includes("aws") && rawLabel.includes("private")) || rawId === "private_subnet") {
+        groupStroke = "#00A4A6";
+        groupDash = "5 5";
+        groupRadius = 6;
+        groupFill = "#00A4A6";
+        groupFillOpacity = "0.03";
+        labelBorder = "#00A4A6";
+        labelColor = "#00A4A6";
+        labelCase = gb.label || "";
+      } else if (rawKind === "aws-public" || rawKind === "public-subnet" || rawId.startsWith("aws_public") || (rawLabel.includes("aws") && rawLabel.includes("public")) || rawId === "public_subnet") {
+        groupStroke = "#7AA116";
+        groupDash = "5 5";
+        groupRadius = 6;
+        groupFill = "#7AA116";
+        groupFillOpacity = "0.03";
+        labelBorder = "#7AA116";
+        labelColor = "#7AA116";
+        labelCase = gb.label || "";
+      } else if (rawKind === "gcp" || rawId.startsWith("gcp_") || rawLabel.includes("google cloud") || rawLabel.startsWith("gcp ")) {
+        groupStroke = "#4285F4";
+        groupDash = "none";
+        groupRadius = 8;
+        groupFill = "#4285F4";
+        groupFillOpacity = "0.04";
+        labelBorder = "#4285F4";
+        labelColor = "#4285F4";
+        labelCase = gb.label || "";
+      } else if (rawKind === "azure" || rawId.startsWith("azure_") || rawLabel.startsWith("azure ")) {
+        groupStroke = "#0078D4";
+        groupDash = "none";
+        groupRadius = 8;
+        groupFill = "#0078D4";
+        groupFillOpacity = "0.04";
+        labelBorder = "#0078D4";
+        labelColor = "#0078D4";
+        labelCase = gb.label || "";
+      } else if (rawKind === "tooling" || rawKind === "monorepo" || rawId === "tooling" || rawId === "monorepo" || rawLabel.includes("monorepo")) {
+        groupStroke = "#0284C7";
+        groupDash = "none";
+        groupRadius = 8;
+        groupFill = "#0284C7";
+        groupFillOpacity = "0.04";
+        labelBorder = "#0284C7";
+        labelColor = "#0284C7";
+        labelCase = gb.label || "";
+      } else if (theme.name === "cad" || theme.name === "cad-dark") {
+        groupStroke = isDark ? "#475569" : "#cbd5e1";
+        groupDash = "none";
+        groupRadius = 8;
+        labelCase = gb.label || "";
+      }
+
       svg += `    <g id="group-${escapeXml(gb.id)}" transform="translate(${gb.x}, ${gb.y})">
-      <rect width="${gb.width}" height="${gb.height}" rx="16" fill="${surfaceRaised}" fill-opacity="${isDark ? '0.28' : '0.45'}" stroke="${border}" stroke-width="1.2" stroke-dasharray="5 5"/>
+      <rect width="${gb.width}" height="${gb.height}" rx="${groupRadius}" fill="${groupFill}" fill-opacity="${groupFillOpacity}" stroke="${groupStroke}" stroke-width="1.5"${groupDash !== "none" ? ` stroke-dasharray="${groupDash}"` : ""}/>
 `;
       if (gb.label) {
-        const labelText = gb.label.toUpperCase();
-        const labelW = Math.max(54, labelText.length * 6.8 + 20);
-        svg += `      <rect x="14" y="10" width="${labelW}" height="20" rx="6" fill="${surfaceRaised}" fill-opacity="0.95" stroke="${border}" stroke-width="1"/>
-      <text x="${14 + labelW / 2}" y="20" class="markdy-svg-mono" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, monospace" font-size="10" font-weight="700" letter-spacing="0.1em" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(labelText)}</text>
+        const labelW = Math.max(54, labelCase.length * 6.8 + 20);
+        svg += `      <rect x="14" y="10" width="${labelW}" height="20" rx="4" fill="${surfaceRaised}" fill-opacity="0.95" stroke="${labelBorder}" stroke-width="1"/>
+      <text x="${14 + labelW / 2}" y="20" class="markdy-svg-mono" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, monospace" font-size="10" font-weight="600" fill="${labelColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(labelCase)}</text>
 `;
       }
       svg += `    </g>\n`;
@@ -636,11 +720,11 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
       <rect x="${labelX}" y="${labelY}" width="${textWidth + padX * 2}" height="${boxHeight}" rx="4" fill="${canvasBg}" stroke="${border}" stroke-width="1"/>
 `;
         if (lines.length === 1) {
-          svg += `      <text x="${placement.x}" y="${placement.y}" class="markdy-svg-mono" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="10.5" font-weight="500" fill="${labelColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(lines[0])}</text>\n`;
+          svg += `      <text x="${placement.x}" y="${placement.y}" class="markdy-svg-mono" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="10.5" font-weight="500" fill="${labelColor}" stroke="${canvasBg}" stroke-width="3.5" stroke-linejoin="round" paint-order="stroke fill" text-anchor="middle" dominant-baseline="central">${escapeXml(lines[0])}</text>\n`;
         } else {
           lines.forEach((lineText, idx) => {
             const lineY = placement.y - ((lines.length - 1) * lineHeight) / 2 + idx * lineHeight;
-            svg += `      <text x="${placement.x}" y="${lineY}" class="markdy-svg-mono" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="10.5" font-weight="500" fill="${labelColor}" text-anchor="middle" dominant-baseline="central">${escapeXml(lineText)}</text>\n`;
+            svg += `      <text x="${placement.x}" y="${lineY}" class="markdy-svg-mono" font-family="ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace" font-size="10.5" font-weight="500" fill="${labelColor}" stroke="${canvasBg}" stroke-width="3.5" stroke-linejoin="round" paint-order="stroke fill" text-anchor="middle" dominant-baseline="central">${escapeXml(lineText)}</text>\n`;
           });
         }
       }
@@ -715,7 +799,7 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
       if (typeof rawImage === "string" && rawImage.length > 0) {
         svg += `      <image href="${escapeXml(rawImage)}" x="${iconX}" y="${iconY}" width="${diamondIconSize}" height="${diamondIconSize}" preserveAspectRatio="xMidYMid meet"/>\n`;
       } else if (vectorSymbol) {
-        const symColor = vectorSymbol.brandColor || roleColor;
+        const symColor = resolveContrastColor(vectorSymbol.brandColor, roleColor, isDark);
         svg += `      <g transform="translate(${iconX}, ${iconY}) scale(${diamondIconSize / 24})" fill="currentColor" color="${symColor}">
         ${vectorSymbol.svgPaths}
       </g>\n`;
@@ -763,7 +847,7 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
         svg += `      <!-- Centered Custom Image -->
       <image href="${escapeXml(rawImage)}" x="${iconX}" y="${iconY}" width="${circleIconSize}" height="${circleIconSize}" preserveAspectRatio="xMidYMid meet"/>\n`;
       } else if (circleVectorSymbol) {
-        const symColor = circleVectorSymbol.brandColor || roleColor;
+        const symColor = resolveContrastColor(circleVectorSymbol.brandColor, roleColor, isDark);
         svg += `      <!-- Centered Vector Symbol: ${escapeXml(circleVectorSymbol.name)} -->
       <g transform="translate(${iconX}, ${iconY}) scale(${circleIconSize / 24})" fill="currentColor" color="${symColor}">
         ${circleVectorSymbol.svgPaths}
@@ -803,7 +887,7 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
         svg += `      <!-- Node Custom Image -->
       <image href="${escapeXml(rawImage)}" x="${iconX}" y="${iconY}" width="${iconSize}" height="${iconSize}" preserveAspectRatio="xMidYMid meet"/>\n`;
       } else if (cardVectorSymbol) {
-        const symColor = cardVectorSymbol.brandColor || roleColor;
+        const symColor = resolveContrastColor(cardVectorSymbol.brandColor, roleColor, isDark);
         svg += `      <!-- Native Vector Symbol: ${escapeXml(cardVectorSymbol.name)} -->
       <g transform="translate(${iconX}, ${iconY}) scale(${iconSize / 24})" fill="currentColor" color="${symColor}">
         ${cardVectorSymbol.svgPaths}

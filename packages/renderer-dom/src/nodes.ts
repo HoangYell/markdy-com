@@ -1,4 +1,4 @@
-import { resolveVectorSymbol, type PositionedNode, type ThemeTokens } from "@markdy/core";
+import { resolveVectorSymbol, resolveBrandLogoUrl, type PositionedNode, type ThemeTokens } from "@markdy/core";
 
 const STYLE_ID = "markdy-diagram-node-styles";
 
@@ -100,6 +100,12 @@ export function ensureNodeStyles(doc: Document): void {
 }
 .markdy-node__icon[data-fit="cover"] img {
   object-fit: cover;
+}
+.markdy-node__icon[data-tile="dark"] {
+  background: #18181b !important;
+  border-radius: 6px !important;
+  padding: 3px !important;
+  box-sizing: border-box !important;
 }
 .markdy-node__content {
   flex: 1 1 auto;
@@ -797,10 +803,14 @@ function resolveImageSrc(node: PositionedNode, assets?: Record<string, string>):
   return assets?.[raw] ?? raw;
 }
 
-function createNodeMediaEl(doc: Document, node: PositionedNode, assets?: Record<string, string>): HTMLElement {
+function createNodeMediaEl(doc: Document, node: PositionedNode, assets?: Record<string, string>, theme?: ThemeTokens): HTMLElement {
   const wrap = doc.createElement("div");
   wrap.className = "markdy-node__icon";
   wrap.setAttribute("aria-hidden", "true");
+
+  if (node.props?.tile === "dark") {
+    wrap.dataset.tile = "dark";
+  }
 
   const imgSrc = resolveImageSrc(node, assets);
   if (imgSrc) {
@@ -833,10 +843,38 @@ function createNodeMediaEl(doc: Document, node: PositionedNode, assets?: Record<
     svg.setAttribute("width", "26");
     svg.setAttribute("height", "26");
     if (vectorSymbol.brandColor) {
-      svg.style.color = vectorSymbol.brandColor;
+      const isDark = theme ? (theme.name.includes("dark") || theme.name === "midnight" || theme.name === "graphite" || theme.name === "nebula" || theme.name === "terminal") : false;
+      const hex = vectorSymbol.brandColor.toLowerCase();
+      if (isDark && (hex === "#000000" || hex === "#0f172a" || hex === "#18181b")) {
+        svg.style.color = "#ffffff";
+      } else if (!isDark && (hex === "#ffffff" || hex === "#f8fafc" || hex === "#fbf0df")) {
+        svg.style.color = "#000000";
+      } else {
+        svg.style.color = vectorSymbol.brandColor;
+      }
     }
     svg.innerHTML = vectorSymbol.svgPaths;
     wrap.appendChild(svg);
+    return wrap;
+  }
+
+  if (symbolKey && !vectorSymbol && !symbolKey.includes(" ")) {
+    // Unbundled brand icon fallback: cascade to SVGL CDN with graceful error fallback
+    wrap.dataset.media = "image";
+    wrap.dataset.fit = "contain";
+    const img = doc.createElement("img");
+    img.src = resolveBrandLogoUrl(symbolKey);
+    img.alt = "";
+    img.decoding = "async";
+    img.loading = "lazy";
+    img.referrerPolicy = "no-referrer";
+    img.addEventListener("error", () => {
+      wrap.removeAttribute("data-media");
+      wrap.removeAttribute("data-fit");
+      wrap.textContent = "";
+      appendGlyph(doc, wrap, ICONS[iconKeyForNode(node)] ?? ICONS.service);
+    });
+    wrap.appendChild(img);
     return wrap;
   }
 
@@ -918,7 +956,7 @@ export function createNodeEl(node: PositionedNode, theme: ThemeTokens, assets?: 
 
   const body = document.createElement("div");
   body.className = "markdy-node__body";
-  body.append(createNodeMediaEl(document, node, assets));
+  body.append(createNodeMediaEl(document, node, assets, theme));
 
   const content = document.createElement("div");
   content.className = "markdy-node__content";

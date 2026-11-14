@@ -105,4 +105,38 @@ describe("markdy cli", () => {
     expect(formatted).toContain("beat main \"Inspect API\":");
     expect(formatted).toContain("frame API zoom=1.2 dur=0.5s");
   });
+
+  it("renders pure vector SVG directly via markdy render --out file.svg", async () => {
+    const dir = await tempDir();
+    const markdyFile = join(dir, "arch.markdy");
+    const svgFile = join(dir, "arch.svg");
+    const source = `scene theme=cad\nservice Web "Next.js" icon=nextjs\nservice API "Hono" icon=hono\nbeat main:\n  Web -> API "request"\n`;
+    await writeFile(markdyFile, source, "utf8");
+    const io = new BufferIo();
+
+    const result = await runCli(["render", markdyFile, "--out", svgFile], io, { openBrowser: async () => {} });
+    expect(result.exitCode).toBe(0);
+    const svgContent = await readFile(svgFile, "utf8");
+    expect(svgContent).toContain("<svg");
+    expect(svgContent).toContain("Next.js");
+    expect(svgContent).toContain("Hono");
+    expect(svgContent).toContain('paint-order="stroke fill"');
+  });
+
+  it("renders 100% standalone offline HTML without CDN links via --offline", async () => {
+    const dir = await tempDir();
+    const markdyFile = join(dir, "offline.markdy");
+    const htmlFile = join(dir, "offline.html");
+    const source = `scene theme=cad\nservice Web "Next.js" icon=nextjs\ndatabase DB "Neon" icon=neon\nbeat main:\n  Web -> DB "persist"\n`;
+    await writeFile(markdyFile, source, "utf8");
+    const io = new BufferIo();
+
+    const result = await runCli(["render", markdyFile, "--out", htmlFile, "--offline"], io, { openBrowser: async () => {} });
+    expect(result.exitCode).toBe(0);
+    const htmlContent = await readFile(htmlFile, "utf8");
+    expect(htmlContent).toContain("<!doctype html>");
+    expect(htmlContent).toContain("<svg");
+    expect(htmlContent).toContain("markdy-offline-shell");
+    expect(htmlContent).not.toContain("esm.sh");
+  });
 });
