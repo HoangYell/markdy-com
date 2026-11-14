@@ -324,7 +324,7 @@ beat flow "Cache Lookup & Fallback":
             <tbody>
               <tr>
                 <td><code>theme</code></td>
-                <td><code>paper</code>, <code>editorial</code>, <code>terminal</code>, <code>sketchy</code>, <code>blueprint</code>, <code>midnight</code>, <code>graphite</code>, <code>nebula</code></td>
+                <td><code>cad</code>, <code>cad-dark</code>, <code>paper</code>, <code>editorial</code>, <code>terminal</code>, <code>sketchy</code>, <code>blueprint</code>, <code>midnight</code>, <code>graphite</code>, <code>nebula</code>, <code>ink</code>, <code>doodle</code></td>
                 <td><code>paper</code></td>
                 <td>Visual presentation theme tailored for publication and documentation.</td>
               </tr>
@@ -393,6 +393,8 @@ beat flow "Cache Lookup & Fallback":
 group ingress "Public Ingress Tier": WebClient ApiGateway
 group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
         </div>
+
+        <p class="mt-4"><strong>Cloud Vendor Containers:</strong> Markdy recognizes cloud architecture groups automatically and renders official vendor boundaries: <code>AWS Cloud VPC</code> (solid lavender), <code>AWS Public Subnet</code> (dashed lime), <code>AWS Private Subnet</code> (dashed teal), <code>Google Cloud Platform</code> (solid blue), <code>Microsoft Azure</code> (solid azure), and <code>Monorepo</code> (solid sky).</p>
       </section>
 
       <!-- ─── 5. Flow Operators & Routing ──────────────────────────────── -->

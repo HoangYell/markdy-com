@@ -106,7 +106,12 @@ Choose your preferred preview environment:
 
 - **Terminal CLI**: [`@markdy/cli`](packages/cli/README.md):
   ```bash
+  # Interactive HTML preview
   npx @markdy/cli render system.markdy --out diagram.html
+
+  # Direct pure vector SVG & standalone offline HTML
+  npx @markdy/cli render system.markdy --out diagram.svg
+  npx @markdy/cli render system.markdy --out scene.html --offline
   ```
 
 ### 3. Embed in Web Apps & Docs
@@ -157,7 +162,7 @@ Static boxes and arrows fail to capture distributed systems in action. **Markdy 
 - 🔄 **Architectural Evolution Matrix**: Compare architecture states across Git commits and automatically synthesize animated migration storyboards (`markdy diff`).
 - 🏛️ **C4 Hierarchy & Architecture Drift**: Native Context, Container, Component, and Code level projections (`markdy c4`) with automatic drift detection (`markdy drift`).
 - 🔬 **Blast Radius & Route Pathfinder**: Compute upstream dependency callers, downstream failure blast radius, and shortest message paths in real-time.
-- 💎 **Native Vector Symbol Registry**: Embedded, zero-dependency SVG vector glyphs for AWS, GCP, Kubernetes, Docker, Postgres, Redis, Kafka, Grafana, and 20+ stacks.
+- 💎 **Native Vector Symbol Registry**: Embedded, zero-dependency SVG vector glyphs for AWS, GCP, Azure, Kubernetes, Docker, Postgres, Redis, Kafka, Grafana, Vercel, Next.js, Hono, Neon, Clerk, Stripe, Supabase, Tailwind, and 35+ stacks.
 - ⚡ **Zero-Dep & Web-Native**: Powered by pure CSS/SVG transforms and the Web Animations API (WAAPI): ~14 kB parser, no Canvas, no GSAP.
 - 🔄 **Universal Ingestion**: 1-click migration from Mermaid, D2, PlantUML, Draw.io, Docker Compose, Kubernetes manifests, and Terraform states.
 - 🤖 **AI-Native & MCP**: Official Model Context Protocol (MCP) server for Claude, Cursor, Antigravity, and Cline with self-healing syntax diagnostics.
@@ -382,7 +387,7 @@ Markdy is architected as a modular monorepo where each package fulfills a focuse
 ## 🔍 Detailed Features & Advanced Usage
 
 <details>
-<summary><b>🎨 18 Specialized Layout Engines &amp; 10 Editorial Themes</b></summary>
+<summary><b>🎨 18 Specialized Layout Engines &amp; 12 Editorial Themes</b></summary>
 <br>
 
 Markdy provides topological layout algorithms tailored to specific system patterns:
@@ -391,7 +396,7 @@ Markdy provides topological layout algorithms tailored to specific system patter
 - **Security & Structure**: `layers`, `nested`, `swimlane`, `quadrant`, `pyramid`
 - **Data & Product Loops**: `medallion`, `timeline`, `gantt`, `flywheel`, `loop`, `constellation`, `radar`, `venn`
 
-**Themes**: `midnight` (dark modern), `paper` (light technical), `blueprint` (CAD cyan), `editorial` (serif publication), `graphite` (minimal dark), `nebula` (cosmic violet), `terminal` (CLI retro), `sketchy` (hand-drawn), `ink` (blue ballpoint & fountain pen ink), `doodle` (playful doodle).
+**Themes**: `cad` (engineered-paper blueprint), `cad-dark` (dark slate architecture CAD), `midnight` (dark modern), `paper` (light technical), `blueprint` (CAD cyan), `editorial` (serif publication), `graphite` (minimal dark), `nebula` (cosmic violet), `terminal` (CLI retro), `sketchy` (hand-drawn), `ink` (blue ballpoint & fountain pen ink), `doodle` (playful doodle).
 
 👉 *[Explore all 33+ interactive scenes in the Live Gallery ↗](https://markdy.com/examples/)*
 </details>

@@ -81,6 +81,8 @@ type LayoutDirection = "LR" | "RL" | "TB" | "BT";
 type ThemeName =
   | "auto"        // Automatically inherits host site theme: paper in light mode, nebula in dark mode (RECOMMENDED)
   | "paper"       // Clean light documentation canvas (Default Light)
+  | "cad"         // Precision engineered-paper architecture CAD canvas with 24px grid
+  | "cad-dark"    // Dark slate CAD canvas with crisp hairline graph grid
   | "nebula"      // Deep-space cyberpunk canvas with glowing orbit halos (Default Dark)
   | "sketchy"     // Hand-drawn whiteboard theme with organic strokes
   | "ink"         // Monochromatic blue ink style inspired by ballpoint pens, fountain pens, cyanotypes & porcelain
@@ -216,6 +218,15 @@ beat focusStorage "Inspect Data Tier":
   frame storageTier zoom=1.2
   glow storageTier color=#3b82f6
 ```
+
+#### Cloud Infrastructure Containers
+Groups automatically adapt their visual boundaries to match major cloud vendor archetypes based on ID, label, or kind attribute:
+- **AWS Cloud VPC** (`"AWS Cloud VPC"` or `id="aws_vpc"`): Solid `#8C4FFF` border with soft lavender tint.
+- **AWS Public Subnet** (`"AWS Public Subnet"` or `id="public_subnet"`): Dashed `#7AA116` border with lime tint.
+- **AWS Private Subnet** (`"AWS Private Subnet"` or `id="private_subnet"`): Dashed `#00A4A6` border with teal tint.
+- **Google Cloud Platform** (`"Google Cloud Platform"` or `id="gcp"`): Solid `#4285F4` border with blue tint.
+- **Microsoft Azure** (`"Microsoft Azure"` or `id="azure"`): Solid `#0078D4` border with azure tint.
+- **Monorepo & Tooling** (`"Monorepo"` or `id="tooling"`): Solid `#0284C7` border with sky tint.
 
 ---
 
