@@ -42,6 +42,8 @@ const TOKEN_LIBRARIES = {
     { name: "type=gantt", label: "type=gantt", template: "type=gantt\n", desc: "Timeline & roadmap phases" },
   ],
   themes: [
+    { name: "cad", label: "theme=cad", template: "theme=cad\n", desc: "Engineered-paper CAD technical blueprint" },
+    { name: "cad-dark", label: "theme=cad-dark", template: "theme=cad-dark\n", desc: "Dark CAD blueprint with technical glow" },
     { name: "paper", label: "theme=paper", template: "theme=paper\n" },
     { name: "editorial", label: "theme=editorial", template: "theme=editorial\n" },
     { name: "terminal", label: "theme=terminal", template: "theme=terminal\n" },
@@ -52,6 +54,31 @@ const TOKEN_LIBRARIES = {
     { name: "midnight", label: "theme=midnight", template: "theme=midnight\n" },
     { name: "graphite", label: "theme=graphite", template: "theme=graphite\n" },
     { name: "nebula", label: "theme=nebula", template: "theme=nebula\n" },
+  ],
+  containers: [
+    { label: "AWS Cloud VPC", template: 'group aws_vpc "AWS Cloud VPC": PublicSubnet PrivateSubnet\n', desc: "AWS VPC cloud container (solid violet border)" },
+    { label: "AWS Public Subnet", template: 'group public_subnet "AWS Public Subnet": WebApp IngressGateway\n', desc: "AWS public subnet (dashed lime border)" },
+    { label: "AWS Private Subnet", template: 'group private_subnet "AWS Private Subnet": OrderService Database\n', desc: "AWS private subnet (dashed cyan border)" },
+    { label: "GCP VPC Network", template: 'group gcp_vpc "GCP VPC Network": WebService CloudSQL\n', desc: "Google Cloud VPC boundary (coral border)" },
+    { label: "Azure Virtual Network", template: 'group azure_vnet "Azure Virtual Network": FrontDoor AppService\n', desc: "Azure VNet container boundary (azure border)" },
+    { label: "Cloud Tooling Perimeter", template: 'group tooling "Cloud Infrastructure Tooling": Terraform Vault Runner\n', desc: "Cloud tooling perimeter (sky border)" },
+  ],
+  icons: [
+    { name: "cloudflare", label: "icon=cloudflare", template: "icon=cloudflare", desc: "Cloudflare Edge / WAF" },
+    { name: "aws", label: "icon=aws", template: "icon=aws", desc: "Amazon Web Services" },
+    { name: "gcp", label: "icon=gcp", template: "icon=gcp", desc: "Google Cloud Platform" },
+    { name: "azure", label: "icon=azure", template: "icon=azure", desc: "Microsoft Azure" },
+    { name: "docker", label: "icon=docker", template: "icon=docker", desc: "Docker Container" },
+    { name: "kubernetes", label: "icon=kubernetes", template: "icon=kubernetes", desc: "Kubernetes Orchestration" },
+    { name: "nextjs", label: "icon=nextjs", template: "icon=nextjs", desc: "Next.js Framework" },
+    { name: "hono", label: "icon=hono", template: "icon=hono", desc: "Hono Ultra-fast Web Framework" },
+    { name: "neon", label: "icon=neon", template: "icon=neon", desc: "Neon Serverless Postgres" },
+    { name: "redis", label: "icon=redis", template: "icon=redis", desc: "Redis In-Memory Cache" },
+    { name: "postgresql", label: "icon=postgresql", template: "icon=postgresql", desc: "PostgreSQL Database" },
+    { name: "stripe", label: "icon=stripe", template: "icon=stripe", desc: "Stripe Payment Gateway" },
+    { name: "clerk", label: "icon=clerk", template: "icon=clerk", desc: "Clerk User Identity" },
+    { name: "s3", label: "icon=s3", template: "icon=s3", desc: "Amazon S3 Object Storage" },
+    { name: "kafka", label: "icon=kafka", template: "icon=kafka", desc: "Apache Kafka Event Stream" },
   ],
   beats: [
     { label: "Reveal All Nodes", template: 'beat reveal "System Entrance":\n  show $nodes stagger=60ms\n', desc: "Choreographed entrance" },
@@ -246,9 +273,18 @@ const playgroundStructuredData = [
               <span>scene.markdy</span>
             </div>
             <select id="quick-example-select" class="studio-select" aria-label="Load Showcase Architecture Blueprint">
-              {EXAMPLES.map((ex, i) => (
-                <option value={i}>[{ex.sceneType.toUpperCase()}] {ex.title}</option>
-              ))}
+              <optgroup label="⚡ New Release (v1.5.8)">
+                {EXAMPLES.filter(ex => ex.id === "cloud-architecture-cad").map((ex) => {
+                  const realIndex = EXAMPLES.findIndex(e => e.id === ex.id);
+                  return <option value={realIndex}>⚡ [CAD BLUEPRINT] {ex.title}</option>;
+                })}
+              </optgroup>
+              <optgroup label="Architecture Blueprints">
+                {EXAMPLES.filter(ex => ex.id !== "cloud-architecture-cad").map((ex) => {
+                  const realIndex = EXAMPLES.findIndex(e => e.id === ex.id);
+                  return <option value={realIndex}>[{ex.sceneType.toUpperCase()}] {ex.title}</option>;
+                })}
+              </optgroup>
             </select>
           </div>
 
@@ -275,6 +311,8 @@ const playgroundStructuredData = [
               <button class="palette-tab" type="button" data-shelf="flows">Flows</button>
               <button class="palette-tab" type="button" data-shelf="layouts">Layouts</button>
               <button class="palette-tab" type="button" data-shelf="themes">Themes</button>
+              <button class="palette-tab" type="button" data-shelf="containers">Containers</button>
+              <button class="palette-tab" type="button" data-shelf="icons">Icons</button>
               <button class="palette-tab" type="button" data-shelf="beats">Beats</button>
               <button class="palette-tab" type="button" data-shelf="player">Player</button>
             </div>
@@ -327,7 +365,31 @@ const playgroundStructuredData = [
             </div>
           </div>
 
-          <!-- Shelf 5: Beats -->
+          <!-- Shelf 5: Cloud Containers -->
+          <div id="shelf-containers" class="shelf-panel">
+            <div class="token-chips-scroll">
+              {TOKEN_LIBRARIES.containers.map((c) => (
+                <button class="token-chip token-chip--preset" type="button" data-insert={c.template} title={c.desc}>
+                  <span>☁️</span>
+                  <code>{c.label}</code>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <!-- Shelf 6: Brand Icons -->
+          <div id="shelf-icons" class="shelf-panel">
+            <div class="token-chips-scroll">
+              {TOKEN_LIBRARIES.icons.map((ic) => (
+                <button class="token-chip token-chip--node" type="button" data-insert={ic.template} title={ic.desc}>
+                  <span>🎨</span>
+                  <code>{ic.label}</code>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <!-- Shelf 7: Beats -->
           <div id="shelf-beats" class="shelf-panel">
             <div class="token-chips-scroll">
               {TOKEN_LIBRARIES.beats.map((b) => (
@@ -339,7 +401,7 @@ const playgroundStructuredData = [
             </div>
           </div>
 
-          <!-- Shelf 6: Player -->
+          <!-- Shelf 8: Player -->
           <div id="shelf-player" class="shelf-panel">
             <div class="token-chips-scroll">
               {TOKEN_LIBRARIES.player.map((p) => (
@@ -580,7 +642,10 @@ const playgroundStructuredData = [
               data-code={ex.code.toLowerCase()}
             >
               <div class="example-btn-top">
-                <strong>{ex.title}</strong>
+                <div style="display:flex;align-items:center;gap:0.4rem;">
+                  {ex.id === "cloud-architecture-cad" && <span style="background:rgba(34,197,94,0.15);color:#22c55e;font-size:0.65rem;font-weight:700;padding:1px 5px;border-radius:4px;border:1px solid rgba(34,197,94,0.3);">NEW</span>}
+                  <strong>{ex.title}</strong>
+                </div>
                 <span class="example-cat-tag">{ex.pattern ?? ex.category}</span>
               </div>
               <p class="example-desc-preview">{ex.code.split('\n').filter(l => l.trim() && !l.startsWith('//') && !l.startsWith('layout')).slice(0, 2).join(' · ')}</p>
@@ -1785,40 +1850,10 @@ const playgroundStructuredData = [
   }
 
   // ─── Theme Switcher (Random Dark / Random Light Toggle) ───────────
-  const DARK_THEMES = ["midnight", "blueprint", "graphite", "nebula", "terminal"];
-  const LIGHT_THEMES = ["paper", "editorial", "sketchy", "ink", "doodle"];
+  const DARK_THEMES = ["midnight", "blueprint", "graphite", "nebula", "terminal", "cad-dark"];
+  const LIGHT_THEMES = ["paper", "editorial", "sketchy", "ink", "doodle", "cad"];
 
-  function toggleRandomThemeInPlayground(): void {
-    const current = getCode();
-    const match = current.match(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/);
-    const currentTheme = match ? match[1].toLowerCase() : "paper";
-    const isDark = DARK_THEMES.includes(currentTheme);
-    const targetThemes = isDark ? LIGHT_THEMES : DARK_THEMES;
-    const filtered = targetThemes.filter((t) => t !== currentTheme);
-    const nextTheme = filtered[Math.floor(Math.random() * filtered.length)] || targetThemes[0];
-
-    let newCode: string;
-    if (match) {
-      newCode = current.replace(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/, `theme=${nextTheme}`);
-    } else if (/^scene\b/m.test(current)) {
-      newCode = current.replace(/^scene\b(.*)$/m, `scene theme=${nextTheme}$1`);
-    } else {
-      newCode = `scene theme=${nextTheme}\n\n` + current;
-    }
-    if (playgroundThemeLabel) playgroundThemeLabel.textContent = nextTheme;
-    if (editor) {
-      editor.dispatch({
-        changes: { from: 0, to: editor.state.doc.length, insert: newCode },
-      });
-    }
-    render(newCode);
-  }
-
-  switchThemeBtn?.addEventListener("click", toggleRandomThemeInPlayground);
-
-  (stageCanvas || stage)?.addEventListener("markdy-theme-switch", ((e: CustomEvent) => {
-    const themeName = e.detail?.theme;
-    if (!themeName) return;
+  function applyThemeDirectiveToCode(themeName: string): void {
     const current = getCode();
     const match = current.match(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/);
     let newCode: string;
@@ -1836,6 +1871,25 @@ const playgroundStructuredData = [
       });
     }
     render(newCode);
+  }
+
+  function toggleRandomThemeInPlayground(): void {
+    const current = getCode();
+    const match = current.match(/\btheme\s*[:=]?\s*([a-zA-Z0-9_-]+)/);
+    const currentTheme = match ? match[1].toLowerCase() : "paper";
+    const isDark = DARK_THEMES.includes(currentTheme);
+    const targetThemes = isDark ? LIGHT_THEMES : DARK_THEMES;
+    const filtered = targetThemes.filter((t) => t !== currentTheme);
+    const nextTheme = filtered[Math.floor(Math.random() * filtered.length)] || targetThemes[0];
+    applyThemeDirectiveToCode(nextTheme);
+  }
+
+  switchThemeBtn?.addEventListener("click", toggleRandomThemeInPlayground);
+
+  (stageCanvas || stage)?.addEventListener("markdy-theme-switch", ((e: CustomEvent) => {
+    const themeName = e.detail?.theme;
+    if (!themeName) return;
+    applyThemeDirectiveToCode(themeName);
   }) as EventListener);
 
   function setActiveExample(index: number) {
@@ -2184,6 +2238,16 @@ const playgroundStructuredData = [
     });
 
     chip.addEventListener("click", () => {
+      if (chip.classList.contains("token-chip--theme")) {
+        const raw = chip.dataset.insert || chip.dataset.template || "";
+        const m = raw.match(/theme=([a-zA-Z0-9_-]+)/);
+        const themeName = m ? m[1] : raw.trim();
+        if (themeName) {
+          applyThemeDirectiveToCode(themeName);
+          showToast(`🎨 Theme applied: ${themeName}`);
+          return;
+        }
+      }
       const template = chip.dataset.insert || chip.dataset.template;
       if (template) insertCodeAtCursor(template);
     });
@@ -4026,6 +4090,14 @@ Requirements:
     display: flex;
     align-items: center;
     gap: 0.2rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-wrap: nowrap;
+    min-width: 0;
+  }
+
+  .palette-tabs-group::-webkit-scrollbar {
+    display: none;
   }
 
   .palette-tab {
