@@ -12,7 +12,7 @@
   "devDependencies": {
     "lighthouse": "^13.4.0",
     "typescript": "^5.7.3",
-    "wrangler": "^4.112.0"
+    "wrangler": "^4.160.0"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
