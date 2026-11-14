@@ -1,0 +1,67 @@
+scene "Postgres CDC with Transactional Outbox" theme=cad layout=LR
+
+service OrderAPI "Order Write API" icon=nodejs
+database AppDB "Postgres Primary (Orders)" icon=postgres
+database OutboxTable "Transactional Outbox Table" icon=postgres
+service DebeziumConnector "Debezium Logical Replication" icon=docker
+service SchemaRegistry "Avro Schema Registry" icon=kafka
+queue KafkaBus "Kafka Topic: order.events" icon=kafka
+worker ProjectionConsumer "Read Model Projection Worker" icon=python
+database ReadModelDB "Postgres Read Model" icon=postgres
+cache IdempotencyCache "Consumer Dedup Cache" icon=redis
+storage EventArchive "S3 Event Archive" icon=s3
+monitor LagMonitor "Replication Lag Monitor" icon=grafana
+
+group source_plane "Transactional Write & Outbox": OrderAPI AppDB OutboxTable
+group capture_plane "CDC Capture & Schema Contract": DebeziumConnector SchemaRegistry KafkaBus
+group consume_plane "Projection, Dedup & Archive": ProjectionConsumer ReadModelDB IdempotencyCache EventArchive LagMonitor
+
+beat transactional_write "1. Transactional Write with Outbox Row":
+  OrderAPI -> AppDB "BEGIN insert order aggregate"
+  OrderAPI -> OutboxTable "Insert order.created in same TX"
+  AppDB -> OutboxTable "COMMIT atomically"
+  glow AppDB color=#2563eb
+
+beat wal_capture "2. WAL Decode via Logical Replication":
+  DebeziumConnector -> AppDB "Stream pgoutput WAL slot"
+  DebeziumConnector -> SchemaRegistry "Register Avro schema v3"
+  DebeziumConnector -> KafkaBus "Emit change envelope"
+  glow DebeziumConnector color=#7c3aed
+
+beat durable_fanout "3. Durable Topic Fan-Out & Archive":
+  KafkaBus ~> ProjectionConsumer "Consume order.events"
+  KafkaBus ~> EventArchive "Tier raw events to S3"
+  LagMonitor -> KafkaBus "Track consumer group lag"
+  glow KafkaBus color=#f59e0b
+
+beat idempotent_projection "4. Idempotent Read Model Projection":
+  ProjectionConsumer -> IdempotencyCache "Check event_id dedup key"
+  ProjectionConsumer -> ReadModelDB "Upsert order projection"
+  ProjectionConsumer -> EventArchive "Archive processed envelope"
+  glow ReadModelDB color=#22c55e
+
+beat lag_guardrails "5. Replication Lag & Schema Guardrails":
+  LagMonitor -> DebeziumConnector "Scrape replication slot lag"
+  LagMonitor -> SchemaRegistry "Validate compatibility policy"
+  LagMonitor -> IdempotencyCache "Check dedup TTL saturation"
+  glow LagMonitor color=#38bdf8 & glow SchemaRegistry color=#ec4899
+
+player:
+  playback:
+    loop true
+  controls:
+    speed true
+    speeds "0.25 1 2"
+    fullscreen true
+    gif true
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress none
+    color "#2563eb"

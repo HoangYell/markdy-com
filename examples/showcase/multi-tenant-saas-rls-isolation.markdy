@@ -1,0 +1,72 @@
+scene "Multi-Tenant SaaS with Row-Level Security" theme=cad layout=LR
+
+client TenantAdmin "Tenant Admin Console" icon=chrome
+gateway EdgeAuth "Edge Auth & Tenant Router" icon=cloudflare
+security IdentityProvider "OIDC Identity Provider" icon=keycloak
+service TenantResolver "Tenant Context Resolver" icon=nodejs
+service AppService "Application API Service" icon=nodejs
+security PolicyEngine "ABAC Policy Engine" icon=opa
+database TenantDB "Postgres with RLS Policies" icon=postgres
+cache TenantCache "Tenant Metadata Cache" icon=redis
+queue ProvisionQueue "Provisioning Job Queue" icon=kafka
+worker Provisioner "Tenant Provisioning Worker" icon=docker
+storage TenantBlobs "Per-Tenant Object Store" icon=s3
+monitor IsolationProbe "RLS Isolation Probe" icon=grafana
+
+group ingress_plane "Identity & Tenant Ingress": TenantAdmin EdgeAuth IdentityProvider TenantResolver
+group app_plane "Tenant-Aware Application Plane": AppService TenantDB PolicyEngine TenantCache
+group lifecycle_plane "Provisioning & Isolation Assurance": ProvisionQueue Provisioner TenantBlobs IsolationProbe
+
+beat authenticate "1. Federated Authentication & Tenant Claim":
+  TenantAdmin -> EdgeAuth "HTTPS login for acme-corp"
+  EdgeAuth -> IdentityProvider "OIDC authorization code with PKCE"
+  EdgeAuth <- IdentityProvider "ID token with tenant_id claim"
+  glow EdgeAuth color=#2563eb
+
+beat resolve_context "2. Tenant Context Resolution":
+  EdgeAuth -> TenantResolver "Forward signed tenant token"
+  TenantResolver -> TenantCache "Lookup tenant shard and plan"
+  TenantResolver -> PolicyEngine "Evaluate route policy"
+  glow TenantResolver color=#7c3aed
+
+beat rls_access "3. Row-Level Security Scoped Data Access":
+  TenantResolver -> AppService "Inject tenant context header"
+  AppService -> PolicyEngine "Authorize tenant and role"
+  AppService -> TenantDB "SET app.tenant_id then run query"
+  AppService -> TenantBlobs "Resolve tenant-scoped file refs"
+  glow TenantDB color=#22c55e
+
+beat async_provisioning "4. Asynchronous Tenant Provisioning":
+  TenantAdmin -> EdgeAuth "Create new tenant workspace"
+  EdgeAuth -> ProvisionQueue "Enqueue tenant.provision job"
+  ProvisionQueue ~> Provisioner "Dequeue provisioning job"
+  Provisioner -> TenantDB "Create schema role and RLS policies"
+  Provisioner -> TenantBlobs "Create bucket prefix and KMS key"
+  glow Provisioner color=#f59e0b
+
+beat isolation_verify "5. Continuous Isolation Verification":
+  IsolationProbe -> TenantDB "Attempt cross-tenant SELECT probes"
+  IsolationProbe -> PolicyEngine "Assert deny-by-default policies"
+  IsolationProbe -> TenantCache "Check tenant cache key scoping"
+  EdgeAuth -> IsolationProbe "Stream auth audit events"
+  glow IsolationProbe color=#ec4899 & glow PolicyEngine color=#7c3aed
+
+player:
+  playback:
+    loop true
+  controls:
+    speed true
+    speeds "0.25 1 2"
+    fullscreen true
+    gif true
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress none
+    color "#2563eb"

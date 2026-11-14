@@ -1,0 +1,72 @@
+scene "WebRTC SFU Live Streaming at Scale" theme=cad layout=LR
+
+user Broadcaster "Broadcaster (WebRTC)" icon=chrome
+client Viewer "Viewer Browser (WHEP)" icon=chrome
+gateway SignalingGateway "WebSocket Signaling Gateway" icon=cloudflare
+service RoomOrchestrator "Room Orchestrator" icon=nodejs
+database SessionDB "Session & Room State" icon=postgres
+cache PresenceCache "Presence & ICE Cache" icon=redis
+service SFU "Selective Forwarding Unit" icon=docker
+service TURN "TURN/STUN Relay Service" icon=nginx
+queue TranscodeQueue "Recording & Transcode Queue" icon=kafka
+worker TranscodeWorker "Transcode & Packaging Worker" icon=docker
+storage VODStore "HLS/DASH VOD Store" icon=s3
+monitor QoEMonitor "QoE & Media Quality Monitor" icon=grafana
+
+group signaling_plane "Signaling & Session Control": Broadcaster Viewer SignalingGateway RoomOrchestrator SessionDB PresenceCache
+group media_plane "Media Forwarding & NAT Traversal": SFU TURN
+group delivery_plane "Recording, Packaging & QoE": TranscodeQueue TranscodeWorker VODStore QoEMonitor
+
+beat publish_admission "1. Broadcaster Signaling & Room Admission":
+  Broadcaster -> SignalingGateway "WSS /publish SDP offer"
+  SignalingGateway -> RoomOrchestrator "Create room and auth token"
+  RoomOrchestrator -> SessionDB "Persist publisher session"
+  RoomOrchestrator -> PresenceCache "Register publisher presence"
+  glow RoomOrchestrator color=#2563eb
+
+beat ice_negotiation "2. ICE Negotiation & Relay Allocation":
+  SignalingGateway -> SFU "Create peer connection"
+  SignalingGateway -> TURN "Allocate TURN relay credentials"
+  TURN -> SFU "Exchange relayed ICE candidate pair"
+  glow SFU color=#7c3aed & glow TURN color=#38bdf8
+
+beat media_forwarding "3. SFU Selective Media Forwarding":
+  Broadcaster ~> SFU "Publish Opus and VP9 tracks"
+  Viewer -> SignalingGateway "WHEP request for room"
+  SignalingGateway -> SFU "Subscribe viewer to tracks"
+  Viewer <- SFU "Selective forwarded RTP"
+  glow SFU color=#22c55e
+
+beat record_package "4. Recording, Transcode & VOD Packaging":
+  SFU -> TranscodeQueue "Tap composite recording"
+  TranscodeQueue ~> TranscodeWorker "Dequeue transcode job"
+  TranscodeWorker -> VODStore "Write HLS and DASH renditions"
+  TranscodeWorker -> SessionDB "Persist VOD asset metadata"
+  glow TranscodeWorker color=#f59e0b
+
+beat qoe_adaptation "5. Real-Time QoE Telemetry & Adaptation":
+  SFU -> QoEMonitor "Emit RTP loss and jitter stats"
+  Viewer -> QoEMonitor "Send client QoE beacons"
+  QoEMonitor -> RoomOrchestrator "Downgrade simulcast layer"
+  QoEMonitor -> PresenceCache "Mark degraded viewer"
+  glow QoEMonitor color=#ec4899
+
+player:
+  playback:
+    loop true
+  controls:
+    speed true
+    speeds "0.25 1 2"
+    fullscreen true
+    gif true
+    theme true
+  interaction:
+    zoom true
+    pan true
+    click_to_play true
+    double_click_to_reset true
+    keyboard false
+  chrome:
+    badge true
+    progress none
+    color "#2563eb"
