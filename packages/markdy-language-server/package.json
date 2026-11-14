@@ -53,7 +53,7 @@
     "@markdy/core": "workspace:*",
     "@markdy/stdlib-systems": "workspace:*",
     "vscode-languageserver": "^9.0.1",
-    "vscode-languageserver-textdocument": "^1.0.12"
+    "vscode-languageserver-textdocument": "^1.0.16"
   },
   "devDependencies": {
     "tsup": "^8.5.1",
