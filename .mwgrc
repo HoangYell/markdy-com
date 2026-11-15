@@ -1,0 +1,7 @@
+{
+  "$schema": "https://raw.githubusercontent.com/GoogleChrome/modern-web-guidance-src/main/schemas/config.json",
+  "target": "baseline-widely-available",
+  "allowOriginTrials": false,
+  "allowVolatileFeatures": false,
+  "outputFormat": "markdown"
+}

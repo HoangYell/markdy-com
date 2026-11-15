@@ -207,7 +207,7 @@ const playgroundStructuredData = [
             <span>Present</span>
           </button>
 
-          <button id="open-cheatsheet-btn" class="tool-btn" type="button" title="Keyboard Shortcuts & Syntax Reference" aria-label="Open shortcuts and syntax cheatsheet">
+          <button id="open-cheatsheet-btn" class="tool-btn" type="button" title="Keyboard Shortcuts & Syntax Reference" aria-label="Open shortcuts and syntax cheatsheet" commandfor="cheatsheet-modal" command="show-modal">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/><line x1="9" y1="16" x2="15" y2="16"/></svg>
             <span>Shortcuts</span>
           </button>
@@ -691,7 +691,7 @@ const playgroundStructuredData = [
     </section>
 
     <!-- ── Universal Ingestion Modal ── -->
-    <dialog id="import-modal" class="import-modal" aria-labelledby="import-modal-title">
+    <dialog id="import-modal" class="import-modal" aria-labelledby="import-modal-title" closedby="any">
       <div class="modal-box">
         <div class="modal-header">
           <div>
@@ -722,7 +722,7 @@ const playgroundStructuredData = [
     </dialog>
 
     <!-- ── Shortcuts & Cheatsheet Modal ── -->
-    <dialog id="cheatsheet-modal" class="import-modal" aria-labelledby="cheatsheet-title">
+    <dialog id="cheatsheet-modal" class="import-modal" aria-labelledby="cheatsheet-title" closedby="any">
       <div class="modal-box">
         <div class="modal-header">
           <div>
@@ -763,7 +763,7 @@ const playgroundStructuredData = [
     </dialog>
 
     <!-- ── Export & Share Modal ── -->
-    <dialog id="export-modal" class="import-modal export-modal" aria-labelledby="export-modal-title">
+    <dialog id="export-modal" class="import-modal export-modal" aria-labelledby="export-modal-title" closedby="any">
       <div class="modal-box export-modal-box">
         <div class="modal-header">
           <div>
@@ -2650,11 +2650,15 @@ Requirements:
   });
 
   // Cheatsheet modal & Gallery button
-  openCheatsheetBtn?.addEventListener("click", () => cheatsheetModal?.showModal());
+  if (!("commandForElement" in HTMLButtonElement.prototype)) {
+    openCheatsheetBtn?.addEventListener("click", () => cheatsheetModal?.showModal());
+  }
   closeCheatsheetBtn?.addEventListener("click", () => cheatsheetModal?.close());
-  cheatsheetModal?.addEventListener("click", (e) => {
-    if (e.target === cheatsheetModal) cheatsheetModal.close();
-  });
+  if (!("closedBy" in HTMLDialogElement.prototype)) {
+    cheatsheetModal?.addEventListener("click", (e) => {
+      if (e.target === cheatsheetModal) cheatsheetModal.close();
+    });
+  }
 
   openGalleryBtn?.addEventListener("click", () => {
     const section = document.getElementById("resource-strip");
@@ -2680,9 +2684,11 @@ Requirements:
   });
 
   closeModalBtn?.addEventListener("click", () => importModal?.close());
-  importModal?.addEventListener("click", (e) => {
-    if (e.target === importModal) importModal?.close();
-  });
+  if (!("closedBy" in HTMLDialogElement.prototype)) {
+    importModal?.addEventListener("click", (e) => {
+      if (e.target === importModal) importModal?.close();
+    });
+  }
 
   loadSampleBtn?.addEventListener("click", () => {
     if (importSource) importSource.value = SAMPLES[activeImportFormat] ?? "";
@@ -2861,9 +2867,11 @@ Requirements:
   openExportBtn?.addEventListener("click", openExportModalHandler);
   canvasExportBtn?.addEventListener("click", openExportModalHandler);
   closeExportBtn?.addEventListener("click", () => exportModal?.close());
-  exportModal?.addEventListener("click", (e) => {
-    if (e.target === exportModal) exportModal.close();
-  });
+  if (!("closedBy" in HTMLDialogElement.prototype)) {
+    exportModal?.addEventListener("click", (e) => {
+      if (e.target === exportModal) exportModal.close();
+    });
+  }
 
   exportSvgBtn?.addEventListener("click", () => {
     exportModal?.close();

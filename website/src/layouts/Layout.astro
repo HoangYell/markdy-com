@@ -108,6 +108,7 @@ const jsonLd = {
     <meta name="format-detection" content="telephone=no" />
     <meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
+    <meta name="color-scheme" content="light dark" />
     <title>{title}</title>
     <link rel="canonical" href={canonicalURL} />
     <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
@@ -157,6 +158,8 @@ const jsonLd = {
         var t = localStorage.getItem('markdy-theme');
         if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         document.documentElement.setAttribute('data-theme', t);
+        var csMeta = document.querySelector('meta[name="color-scheme"]');
+        if (csMeta) csMeta.setAttribute('content', t);
       })();
     </script>
     <style is:global>
