@@ -1068,6 +1068,9 @@ const playgroundStructuredData = [
 
   function applyTheme(theme: "light" | "dark") {
     document.documentElement.setAttribute("data-theme", theme);
+    document.documentElement.style.colorScheme = theme;
+    const csMeta = document.querySelector('meta[name="color-scheme"]');
+    if (csMeta) csMeta.setAttribute("content", theme);
     localStorage.setItem(STORAGE_KEY, theme);
     const sun = themeToggle?.querySelector(".icon-sun") as HTMLElement | null;
     const moon = themeToggle?.querySelector(".icon-moon") as HTMLElement | null;
