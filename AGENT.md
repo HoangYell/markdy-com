@@ -715,3 +715,16 @@ import { Markdy } from "@markdy/astro";
 ---
 <Markdy code={markdySourceCode} width={1280} height={720} autoplay />
 ```
+
+---
+
+## Modern Web Guidance Standard
+- **Native Platform Primitives**: Strictly enforce native browser standards across web playground, documentation, and components:
+  - `<dialog>` with `.showModal()` and `::backdrop` for configuration modals and export dialogs.
+  - Popover API (`popover="auto"` or `popover="hint"`) with `popovertarget` for node inspection tooltips, controls, and property inspectors.
+  - CSS Anchor Positioning (`anchor-name`, `position-anchor`) for interactive floating connection badges and docking toolbars.
+  - `@starting-style` and `transition-behavior: allow-discrete` for zero-JS discrete UI transitions.
+  - CSS Container Queries (`@container`) and Subgrid for multi-pane diagram canvases and timeline ribbons.
+- **Banned Anti-Patterns**: Never render `role="button"` or `tabindex="0"` on non-semantic `div` or `span` elements. Zero layout-thrashing `getBoundingClientRect()` loops in canvas zoom/pan loops.
+- **Guidance Retrieval**: Run `DISABLE_TELEMETRY=1 npx -y modern-web-guidance search "<query>"` before writing ad-hoc web UI components.
+- **Audit Tooling**: Run `DISABLE_TELEMETRY=1 npx -y modern-web-guidance legacy-scan` to audit components.

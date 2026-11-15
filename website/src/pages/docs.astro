@@ -893,6 +893,8 @@ client Browser -> service Api -> database DB
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
     const next = isDark ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", next);
+    const csMeta = document.querySelector('meta[name="color-scheme"]');
+    if (csMeta) csMeta.setAttribute("content", next);
     localStorage.setItem("markdy-theme", next);
     updateThemeIcons(next);
   });
