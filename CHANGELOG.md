@@ -5,6 +5,16 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.9] - 2026-11-24
+
+### Added & Changed
+- **Studio CAD Themes & Blueprint Gallery (`@markdy/website`)**: Added CAD themes, cloud containers, brand icons, blueprint preset to the playground palette (#282), and 10 production CAD architecture blueprints (#283).
+- **Modern Web Guidance Compliance (`@markdy/website`)**: Applied declarative `<dialog>` `closedby` dismiss, `color-scheme` sync in playground theme switching, and `.mwgrc` configuration (#284).
+- **`responsiveLayout` Prop in `@markdy/astro`**: Exposed `responsiveLayout?: boolean | "auto"` via `data-markdy-responsive-layout` and forwarded it to `createDiagram()`, allowing host embeds (like blogs with explicit `layout=LR` diagrams) to opt into automatic `LR -> TB` portrait stacking on narrow mobile viewports while preserving `"auto"` defaults.
+
+### Fixed
+- **Zero-Error Rocket Loader Rescue (`@markdy/astro`)**: Replaced the malformed `<img src="data:image/gif;base64,!" onerror="...">` Rocket Loader fallback with a valid 1x1 transparent GIF using `onload`, eliminating spurious `net::ERR_INVALID_URL` browser console/network errors on pages embedding `<Markdy />` while keeping the `data-cfasync="false"` script rescue intact.
+
 ## [1.5.8] - 2026-11-14
 
 ### Added & Enhanced

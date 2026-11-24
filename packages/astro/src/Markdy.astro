@@ -74,6 +74,8 @@ export interface Props {
   studioLink?: boolean;
   /** Custom default light theme for auto mode (e.g. "doodle", "paper"). */
   defaultLightTheme?: string;
+  /** Override mobile/portrait orientation adaptation ("auto" adapts scripts without explicit layout; true adapts explicit layout=LR/RL to TB/BT on narrow containers). */
+  responsiveLayout?: boolean | "auto";
   defaultDarkTheme?: string;
   /** Configurable default themes for auto mode: { light?: string; dark?: string }. */
   defaultThemes?: { light?: string; dark?: string };
@@ -124,6 +126,7 @@ const {
   description,
 } = Astro.props;
 
+const responsiveLayout = Astro.props.responsiveLayout;
 const resolvedDefaultLightTheme = defaultThemes?.light ?? defaultLightTheme;
 const resolvedDefaultDarkTheme = defaultThemes?.dark ?? defaultDarkTheme;
 
@@ -168,6 +171,7 @@ const codeB64 =
   data-markdy-control-share={share !== undefined ? String(share) : undefined}
   data-markdy-control-code={codeControl !== undefined ? String(codeControl) : undefined}
   data-markdy-control-theme={theme !== undefined ? String(theme) : undefined}
+  data-markdy-responsive-layout={responsiveLayout !== undefined ? String(responsiveLayout) : undefined}
   role="img"
   aria-label={title}
   aria-busy="true"
@@ -301,11 +305,13 @@ const codeB64 =
 </script>
 
 <img
-  src="data:image/gif;base64,!"
+  src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
   alt=""
   aria-hidden="true"
-  style="display:none"
-  onerror="if(!window.__markdyRescued){window.__markdyRescued=true;document.querySelectorAll('script[type$=&quot;-module&quot;][src]').forEach(function(s){var f=document.createElement('script');f.type='module';f.src=s.src;f.setAttribute('data-cfasync','false');document.head.appendChild(f);});}"
+  width="1"
+  height="1"
+  style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none"
+  onload="if(!window.__markdyRescued){window.__markdyRescued=true;document.querySelectorAll('script[type$=&quot;-module&quot;][src]').forEach(function(s){var f=document.createElement('script');f.type='module';f.src=s.src;f.setAttribute('data-cfasync','false');document.head.appendChild(f);});}"
 />
 
 <script>
@@ -410,6 +416,15 @@ const codeB64 =
         ? el.dataset.markdyInteractiveViewport === "true"
         : undefined;
     const defaultLightTheme = el.dataset.markdyThemeLight || undefined;
+    const rawResponsiveLayout = el.dataset.markdyResponsiveLayout;
+    const responsiveLayout =
+      rawResponsiveLayout === "true"
+        ? true
+        : rawResponsiveLayout === "false"
+          ? false
+          : rawResponsiveLayout === "auto"
+            ? "auto"
+            : undefined;
     const defaultDarkTheme = el.dataset.markdyThemeDark || undefined;
     const defaultThemes = (defaultLightTheme || defaultDarkTheme)
       ? { light: defaultLightTheme, dark: defaultDarkTheme }
@@ -424,6 +439,7 @@ const codeB64 =
     el.style.background = "";
 
     createDiagram({
+      responsiveLayout,
       container: el,
       code,
       assets,

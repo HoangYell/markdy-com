@@ -120,6 +120,7 @@ beat hit:
 | `playbackRate` | `number` | script or `1` | Override the initial timeline multiplier |
 | `interactiveViewport` | `boolean` | script | `true` supplies default gestures; `false` suppresses script gestures |
 | `controls` | `boolean` | script | `true` supplies legacy toolbar defaults; `false` suppresses script controls |
+| `responsiveLayout` | `boolean \| "auto"` | `"auto"` | `"auto"` preserves explicit `layout`; `true` adapts explicit `layout=LR/RL` to vertical `TB/BT` on narrow mobile containers; `false` keeps layout fixed |
 | `class` | `string` | - | CSS class for the outer wrapper |
 
 > **Self-Contained MarkdyScript:** Prefer grouped `player:` settings inside the `.markdy` code so `<Markdy code={code} />` preserves scene behavior. Pass props only when the host intentionally gates or supplies defaults.
