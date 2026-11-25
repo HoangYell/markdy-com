@@ -1,6 +1,16 @@
 # @markdy/stdlib-systems
 
+<p align="center">
+  <a href="https://markdy.com/playground/"><img src="https://img.shields.io/badge/⚡_Live_Studio-markdy.com%2Fplayground-3b82f6?style=for-the-badge" alt="Live Studio" /></a>
+  <a href="https://markdy.com/docs/"><img src="https://img.shields.io/badge/📖_Docs-Documentation-10b981?style=for-the-badge" alt="Documentation" /></a>
+  <a href="https://markdy.com/examples/"><img src="https://img.shields.io/badge/🌟_Blueprints-91+_Examples-f59e0b?style=for-the-badge" alt="Examples" /></a>
+  <a href="https://github.com/sponsors/HoangYell"><img src="https://img.shields.io/badge/📐_Pro_Blueprints-Architecture_Kits-f59e0b?style=for-the-badge" alt="Pro Architecture Blueprints" /></a>
+  <a href="https://github.com/sponsors/HoangYell"><img src="https://img.shields.io/badge/💖_Sponsor-Support_Markdy-ea4aaa?style=for-the-badge" alt="Sponsor Markdy" /></a>
+</p>
+
 The system-diagram vocabulary for MarkdyScript.
+
+> 💼 **Enterprise & Commercial**: Free under MIT. Access production architectural templates, custom diagram kits, and direct support via **[GitHub Sponsors & Pro Blueprints](https://github.com/sponsors/HoangYell)**.
 
 As of MarkdyScript 0.8 the node vocabulary ships inside `@markdy/core`, so there
 is **no registration step** - every node kind below is available out of the box.
