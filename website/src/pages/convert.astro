@@ -1,0 +1,2211 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+const FORMATS = [
+  { id: "auto", label: "Auto-Detect", hint: "Any", ext: "auto" },
+  { id: "mermaid", label: "Mermaid", hint: "Flow/Seq", ext: "diagram.mmd" },
+  { id: "d2", label: "D2", hint: ".d2", ext: "architecture.d2" },
+  { id: "plantuml", label: "PlantUML", hint: "C4", ext: "system.puml" },
+  { id: "dot", label: "Graphviz DOT", hint: ".dot", ext: "graph.dot" },
+  { id: "drawio", label: "Draw.io", hint: ".drawio", ext: "diagram.drawio" },
+  { id: "excalidraw", label: "Excalidraw", hint: ".json", ext: "board.excalidraw" },
+  { id: "compose", label: "Compose", hint: ".yml", ext: "docker-compose.yml" },
+  { id: "k8s", label: "Kubernetes", hint: "YAML", ext: "manifests.yaml" },
+  { id: "terraform", label: "Terraform", hint: ".tfstate", ext: "terraform.tfstate" },
+];
+
+const THEMES = [
+  { id: "paper", label: "Paper (Light)" },
+  { id: "midnight", label: "Midnight (Dark)" },
+  { id: "cad", label: "CAD Blueprint (Light)" },
+  { id: "cad-dark", label: "CAD Dark" },
+  { id: "blueprint", label: "Blueprint" },
+  { id: "editorial", label: "Editorial" },
+  { id: "terminal", label: "Terminal" },
+  { id: "sketchy", label: "Sketchy" },
+  { id: "ink", label: "Blue Ink" },
+  { id: "doodle", label: "Doodle" },
+  { id: "nebula", label: "Nebula" },
+  { id: "graphite", label: "Graphite" },
+];
+
+const FAQS = [
+  {
+    q: "How does converting Mermaid or D2 to Markdy work?",
+    a: "Everything runs locally in your browser using @markdy/compat zero-dependency parsers. Your diagram source never leaves your machine: nodes, labels, semantic roles (database, queue, gateway, browser), groups, and edges are transpiled into animated MarkdyScript and rendered with the Web Animations API.",
+  },
+  {
+    q: "Which Mermaid diagram types are supported?",
+    a: "Flowcharts and graphs (LR, TB, TD, RL, BT, subgraphs, double shapes, & fan-out chains), Sequence Diagrams (participants, actors, sync/async arrows, activation markers), and State Diagrams (stateDiagram-v2, [*] start/end endpoints, composite states).",
+  },
+  {
+    q: "Can I upload Draw.io, Excalidraw, Kubernetes, or Terraform files?",
+    a: "Yes. Drop or upload .mmd, .d2, .puml, .dot, .gv, .drawio, .xml, .excalidraw, docker-compose.yml, Kubernetes YAML, or .tfstate files directly into the source pane. Auto-Detect identifies the format by filename and syntax.",
+  },
+  {
+    q: "How do I convert diagrams from the CLI or an AI coding agent?",
+    a: "Run `npx @markdy/cli import diagram.mmd --out diagram.markdy` in your terminal, or connect `@markdy/mcp-server` in Cursor, Claude, or Antigravity and invoke the `transpile_to_markdy` tool.",
+  },
+];
+
+const canonicalURL = "https://markdy.com/convert/";
+
+const structuredData = [
+  {
+    "@type": "WebApplication",
+    "@id": "https://markdy.com/convert/#app",
+    name: "Markdy Universal Diagram Converter",
+    url: canonicalURL,
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "Web",
+    isAccessibleForFree: true,
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    description:
+      "Free browser-based converter that transforms Mermaid, D2, PlantUML, Graphviz DOT, Draw.io, Excalidraw, Docker Compose, Kubernetes YAML, and Terraform state into animated MarkdyScript diagrams.",
+    featureList: [
+      "Mermaid to Markdy converter (Flowchart, Sequence, State)",
+      "D2 to Markdy converter",
+      "PlantUML and C4-PlantUML to Markdy converter",
+      "Graphviz DOT to Markdy converter",
+      "Draw.io XML to Markdy converter",
+      "Excalidraw JSON to Markdy converter",
+      "Docker Compose, Kubernetes, and Terraform state to Markdy converter",
+    ],
+    isPartOf: { "@id": "https://markdy.com/#website" },
+    about: { "@id": "https://markdy.com/#software" },
+  },
+  {
+    "@type": "FAQPage",
+    "@id": "https://markdy.com/convert/#faq",
+    mainEntity: FAQS.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: f.a,
+      },
+    })),
+  },
+];
+---
+
+<Layout
+  title="Convert Mermaid, D2, PlantUML, Draw.io & Infra to Markdy | Markdy Converter"
+  description="Convert Mermaid flowcharts, sequences, and states, D2, PlantUML, Graphviz DOT, Draw.io, Excalidraw, Docker Compose, Kubernetes, and Terraform into animated MarkdyScript diagrams."
+  canonicalURL={canonicalURL}
+  keywords="mermaid to markdy, convert mermaid to markdy, d2 to markdy, plantuml to markdy, drawio to markdy, graphviz dot to markdy, excalidraw to markdy, diagram converter"
+  structuredData={structuredData}
+>
+  <!-- Navigation Header -->
+  <nav class="home-nav" aria-label="Main Navigation">
+    <div class="nav-pill">
+      <a href="/" class="nav-brand">
+        <img src="/icon.svg" class="nav-logo-svg" alt="Markdy Logo" width="22" height="22" loading="eager" decoding="async" />
+        <span class="nav-title">markdy</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/examples/">Gallery</a>
+        <a href="/convert/" class="active" aria-current="page">Convert</a>
+        <a href="/docs/">Docs</a>
+        <a href="/blog/">Articles</a>
+      </div>
+
+      <div class="nav-actions">
+        <a href="/playground/" class="btn-nav-studio">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>Studio</span>
+        </a>
+        <button id="theme-toggle" class="btn-nav-icon" type="button" aria-label="Toggle dark/light mode" title="Toggle Theme">
+          <svg class="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+          <svg class="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+        </button>
+        <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="btn-nav-icon" title="GitHub Repository" aria-label="GitHub Repository">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+        <button id="mobile-menu-btn" class="btn-nav-icon mobile-menu-btn" type="button" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobile-nav-drawer">
+          <svg class="icon-burger" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+          <svg class="icon-close" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="display:none"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="mobile-nav-drawer" class="mobile-nav-drawer" hidden>
+      <div class="mobile-drawer-inner">
+        <a href="/" class="mobile-nav-link">Home</a>
+        <a href="/examples/" class="mobile-nav-link">Gallery</a>
+        <a href="/convert/" class="mobile-nav-link mobile-nav-highlight">Convert Diagrams</a>
+        <a href="/docs/" class="mobile-nav-link">Docs</a>
+        <a href="/blog/" class="mobile-nav-link">Articles</a>
+        <a href="/playground/" class="mobile-nav-link">Interactive Studio</a>
+        <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="mobile-nav-link">GitHub Repository</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="convert-page">
+    <!-- Compact Airy Header -->
+    <header class="convert-hero">
+      <div class="hero-copy">
+        <h1>Convert Diagrams to Animated Markdy</h1>
+        <p>Paste Mermaid, D2, PlantUML, Graphviz, Draw.io, Excalidraw, or infra configs for instant MarkdyScript and live motion.</p>
+      </div>
+      <div class="hero-cli-pill" aria-label="CLI equivalent">
+        <span class="cli-prefix">$</span>
+        <code id="cli-command-code">markdy import diagram.mmd --out diagram.markdy</code>
+        <button id="copy-cli-btn" class="cli-copy-btn" type="button" title="Copy CLI command" aria-label="Copy CLI import command">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          <span>Copy</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Format Tabs Strip -->
+    <section class="converter-shell" aria-label="Diagram converter workbench">
+      <div class="format-strip-wrap">
+        <div id="format-tablist" class="format-tablist" role="tablist" aria-label="Source Diagram Format">
+          {FORMATS.map((fmt, idx) => (
+            <button
+              type="button"
+              role="tab"
+              id={`tab-${fmt.id}`}
+              class="format-pill"
+              data-format={fmt.id}
+              aria-selected={idx === 0 ? "true" : "false"}
+            >
+              <span class="format-pill-label">{fmt.label}</span>
+              <span class="format-pill-hint">{fmt.hint}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <!-- Studio Conversion Options & Telemetry Bar -->
+      <div class="options-bar">
+        <div class="options-left">
+          <span id="detected-badge" class="telemetry-pill telemetry-pill--accent">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+            <span id="detected-badge-text">Detected: Mermaid</span>
+          </span>
+          <span id="metrics-badge" class="telemetry-pill">0 nodes · 0 flows</span>
+          <button
+            id="warnings-toggle-btn"
+            type="button"
+            class="telemetry-pill telemetry-pill--warn"
+            popovertarget="warnings-popover"
+            hidden
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            <span id="warnings-count-text">0 notes</span>
+          </button>
+          <div id="warnings-popover" popover="auto" class="warnings-popover">
+            <div class="warnings-popover-head">Conversion Notes</div>
+            <ul id="warnings-list" class="warnings-list"></ul>
+          </div>
+        </div>
+
+        <div class="options-right">
+          <label class="option-control">
+            <span>Sample</span>
+            <select id="sample-select" aria-label="Choose sample diagram"></select>
+          </label>
+          <label class="option-control">
+            <span>Theme</span>
+            <select id="theme-select" aria-label="Output Markdy theme">
+              {THEMES.map((t) => (
+                <option value={t.id}>{t.label}</option>
+              ))}
+            </select>
+          </label>
+          <label class="option-control">
+            <span>Layout</span>
+            <select id="layout-select" aria-label="Layout direction">
+              <option value="auto">Auto</option>
+              <option value="LR">LR (Horizontal)</option>
+              <option value="TB">TB (Vertical)</option>
+              <option value="RL">RL</option>
+              <option value="BT">BT</option>
+            </select>
+          </label>
+          <label class="option-checkbox" title="Include interactive player controls block in generated MarkdyScript">
+            <input id="player-toggle" type="checkbox" checked />
+            <span>Player bar</span>
+          </label>
+          <button id="layout-mode-btn" type="button" class="wb-btn wb-layout-btn" title="Switch between 2-column studio view and 3-column split" aria-pressed="false">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 3v18"/></svg>
+            <span>3-Col</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile / Narrow Viewport Pane Switcher -->
+      <div class="mobile-pane-tabs" role="tablist" aria-label="Workbench view">
+        <button type="button" role="tab" class="mobile-pane-btn" data-pane="source" aria-selected="true">Source Input</button>
+        <button type="button" role="tab" class="mobile-pane-btn" data-pane="output" aria-selected="false">MarkdyScript</button>
+        <button type="button" role="tab" class="mobile-pane-btn" data-pane="preview" aria-selected="false">Live Preview</button>
+      </div>
+
+      <!-- Studio Workbench (Spacious 2-Column default with 3-Column toggle) -->
+      <div id="workbench-grid" class="workbench-grid" data-view="2col" data-mobile-pane="source">
+        <!-- Pane 1: Source Input -->
+        <section class="wb-pane wb-pane--source" aria-label="Source diagram input">
+          <div class="wb-pane-head">
+            <div class="wb-pane-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span id="source-filename-label">diagram.mmd</span>
+            </div>
+            <div class="wb-pane-actions">
+              <button id="paste-source-btn" class="wb-btn" type="button" title="Paste source from clipboard">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+                <span>Paste</span>
+              </button>
+              <label class="wb-btn wb-btn--upload" title="Upload diagram file (.mmd, .d2, .puml, .dot, .drawio, .excalidraw, .yml, .tfstate)">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>Upload</span>
+                <input
+                  id="file-upload-input"
+                  type="file"
+                  class="sr-only"
+                  accept=".mmd,.mermaid,.d2,.puml,.plantuml,.iuml,.dot,.gv,.drawio,.xml,.excalidraw,.yml,.yaml,.json,.tfstate,.txt"
+                />
+              </label>
+              <button id="clear-source-btn" class="wb-btn" type="button" title="Clear source editor" aria-label="Clear source">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div id="dropzone-wrap" class="source-dropzone">
+            <textarea
+              id="source-input"
+              class="source-textarea"
+              spellcheck="false"
+              aria-label="Paste Mermaid, D2, PlantUML, DOT, Draw.io, Excalidraw, Compose, Kubernetes, or Terraform source"
+              placeholder="Paste Mermaid, D2, PlantUML, Graphviz DOT, Draw.io XML, Excalidraw JSON, Docker Compose, Kubernetes YAML, or Terraform state here — or drag and drop a file..."
+            ></textarea>
+            <div id="drop-overlay" class="drop-overlay" hidden>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <strong>Drop diagram file to convert</strong>
+              <span>Supports .mmd, .d2, .puml, .dot, .drawio, .excalidraw, .yml, .tfstate</span>
+            </div>
+          </div>
+          <div id="convert-error-banner" class="convert-error" role="alert" hidden></div>
+        </section>
+
+        <!-- Pane 2: Converted MarkdyScript -->
+        <section class="wb-pane wb-pane--output" aria-label="Converted MarkdyScript output">
+          <div class="wb-pane-head">
+            <div class="wb-pane-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              <span>output.markdy</span>
+            </div>
+            <div class="wb-pane-actions">
+              <button id="copy-markdy-btn" class="wb-btn" type="button" title="Copy converted MarkdyScript">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                <span id="copy-markdy-label">Copy</span>
+              </button>
+              <button id="download-markdy-btn" class="wb-btn" type="button" title="Download .markdy file">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>.markdy</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="output-editor" class="output-editor" aria-label="Editable MarkdyScript output"></div>
+        </section>
+
+        <!-- Pane 3: Live Animated Motion Preview -->
+        <section class="wb-pane wb-pane--preview" aria-label="Live animated Markdy preview">
+          <div class="wb-pane-head">
+            <div class="wb-pane-title">
+              <span class="live-dot" aria-hidden="true"></span>
+              <span>Live Motion Preview</span>
+            </div>
+            <div class="wb-pane-actions">
+              <button id="replay-btn" class="wb-btn" type="button" title="Replay animation from beat 1">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+                <span>Replay</span>
+              </button>
+              <button id="export-svg-btn" class="wb-btn" type="button" title="Download pure vector SVG">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>SVG</span>
+              </button>
+              <button id="open-studio-btn" class="wb-btn wb-btn--primary" type="button" title="Open converted diagram in full interactive Studio">
+                <span>Open in Studio</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <div id="preview-stage" class="preview-stage"></div>
+        </section>
+      </div>
+    </section>
+
+    <!-- Direct Format Shortcuts & Syntax Mapping -->
+    <section class="mapping-section" aria-label="Supported converters and syntax translation guide">
+      <div class="mapping-grid">
+        <div class="mapping-card">
+          <h2>Supported Converters</h2>
+          <p class="mapping-desc">Jump directly to a converter preset or share a deep link with your team:</p>
+          <div class="direct-links-grid">
+            <a href="/convert/?from=mermaid" class="direct-link-pill" data-jump="mermaid">Mermaid to Markdy</a>
+            <a href="/convert/?from=d2" class="direct-link-pill" data-jump="d2">D2 to Markdy</a>
+            <a href="/convert/?from=plantuml" class="direct-link-pill" data-jump="plantuml">PlantUML &amp; C4 to Markdy</a>
+            <a href="/convert/?from=dot" class="direct-link-pill" data-jump="dot">Graphviz DOT to Markdy</a>
+            <a href="/convert/?from=drawio" class="direct-link-pill" data-jump="drawio">Draw.io XML to Markdy</a>
+            <a href="/convert/?from=excalidraw" class="direct-link-pill" data-jump="excalidraw">Excalidraw JSON to Markdy</a>
+            <a href="/convert/?from=compose" class="direct-link-pill" data-jump="compose">Docker Compose to Markdy</a>
+            <a href="/convert/?from=k8s" class="direct-link-pill" data-jump="k8s">Kubernetes YAML to Markdy</a>
+            <a href="/convert/?from=terraform" class="direct-link-pill" data-jump="terraform">Terraform State to Markdy</a>
+          </div>
+        </div>
+
+        <div class="mapping-card">
+          <h2>How Concepts Translate</h2>
+          <div class="mapping-table-wrap">
+            <table class="mapping-table">
+              <thead>
+                <tr>
+                  <th>Source Construct</th>
+                  <th>MarkdyScript Output</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><code>flowchart LR</code> / <code>rankdir=LR</code></td>
+                  <td><code>layout LR</code></td>
+                </tr>
+                <tr>
+                  <td><code>sequenceDiagram</code> / <code>stateDiagram-v2</code></td>
+                  <td><code>scene type=sequence</code> / <code>type=state</code></td>
+                </tr>
+                <tr>
+                  <td><code>DB[(Postgres)]</code> / <code>shape=cylinder</code></td>
+                  <td><code>database DB "Postgres"</code></td>
+                </tr>
+                <tr>
+                  <td><code>subgraph Core ... end</code> / <code>cluster_*</code></td>
+                  <td><code>group Core "Core": ...</code></td>
+                </tr>
+                <tr>
+                  <td><code>A -.-> B</code> / <code>style=dashed</code></td>
+                  <td><code>A ~&gt; B</code> (animated async event)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section (Native <details name="convert-faq"> exclusive accordion) -->
+    <section class="faq-section" aria-labelledby="faq-title">
+      <h2 id="faq-title">Frequently Asked Questions</h2>
+      <div class="faq-list">
+        {FAQS.map((item, i) => (
+          <details class="faq-item" name="convert-faq" open={i === 0}>
+            <summary class="faq-summary">
+              <span>{item.q}</span>
+              <svg class="faq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </summary>
+            <div class="faq-body">
+              <p>{item.a}</p>
+            </div>
+          </details>
+        ))}
+      </div>
+    </section>
+  </main>
+
+  <footer class="convert-footer">
+    <div class="footer-inner">
+      <span>© {new Date().getFullYear()} Markdy · MIT licensed</span>
+      <div class="footer-links">
+        <a href="/">Home</a>
+        <a href="/playground/">Studio</a>
+        <a href="/examples/">Gallery</a>
+        <a href="/docs/">Docs</a>
+        <a href="/AGENT.md">AGENT.md</a>
+      </div>
+    </div>
+  </footer>
+</Layout>
+
+<script>
+  import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from "@codemirror/view";
+  import { EditorState } from "@codemirror/state";
+  import { bracketMatching } from "@codemirror/language";
+  import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
+  import { markdyLanguage, markdyHighlightLight, markdyHighlightDark } from "../editor/markdy-language";
+  import { baseTheme, lightTheme, darkTheme } from "../editor/editor-theme";
+  import { compressMarkdyToUrlHash } from "@markdy/core";
+  import { transpileToMarkdy, detectDiagramFormat, type CompatFormat } from "@markdy/compat";
+  import { createDiagram, exportDiagramAsVectorSvg, type Diagram } from "@markdy/renderer-dom";
+
+  interface SampleSpec {
+    label: string;
+    code: string;
+  }
+
+  const SAMPLES: Record<CompatFormat, SampleSpec[]> = {
+    mermaid: [
+      {
+        label: "Flowchart: Checkout API + Cache",
+        code: `flowchart LR
+  Client([Web Client]) --> Gateway[API Gateway]
+  Gateway --> Auth{Verify JWT}
+  Auth -->|Valid| Orders[Orders Service]
+  Orders --> DB[(PostgreSQL 16)]
+  Orders -. async .-> Queue{{Kafka Events}}
+  Orders -.-> Cache[(Redis Cache)]`,
+      },
+      {
+        label: "Flowchart: Auth Decision + Retry Loop",
+        code: `flowchart TD
+  Start([User Opens App]) --> Auth{Authenticated?}
+  Auth -->|Yes| Profile[Load User Profile]
+  Auth -->|No| Login[Enter Credentials]
+  Profile --> Dashboard[Render Dashboard]
+  Profile --> Cache[(Session Cache)]
+  Login --> Valid{Credentials Valid?}
+  Valid -->|Valid| Profile
+  Valid -->|Invalid| Err[Show Auth Error]
+  Err -->|Retry| Login`,
+      },
+      {
+        label: "Sequence: OAuth2 PKCE Handshake",
+        code: `sequenceDiagram
+  autonumber
+  actor User as Mobile User
+  participant App as Client SPA
+  participant IdP as Auth Server
+  participant API as Resource API
+  User->>App: Tap Sign In
+  App->>+IdP: GET /authorize (PKCE)
+  IdP-->>-App: 302 Redirect (?code)
+  App->>IdP: POST /token
+  IdP-->>App: Access Token (JWT)
+  App->>API: GET /profile (Bearer)
+  API-->>App: 200 JSON Profile`,
+      },
+      {
+        label: "State Machine: Order Lifecycle",
+        code: `stateDiagram-v2
+  direction LR
+  [*] --> Pending
+  state "Payment Processing" as billing {
+    Pending --> Authorizing : submit
+    Authorizing --> Captured : approved
+  }
+  Captured --> Fulfilled : ship
+  Fulfilled --> [*] : delivered`,
+      },
+    ],
+    d2: [
+      {
+        label: "D2: Edge Gateway & Data Tier",
+        code: `title: "Edge Gateway Architecture"
+client: Browser Client
+gateway: Kong API Gateway
+
+core: {
+  auth: Auth Service
+  orders: Order Service
+  db: Postgres Primary
+  db.shape: cylinder
+  db.icon: postgresql
+}
+
+client -> gateway: HTTPS POST /orders
+gateway -> core.auth: Verify JWT
+gateway -> core.orders: Route Request
+core.orders -> core.db: INSERT order`,
+      },
+    ],
+    plantuml: [
+      {
+        label: "PlantUML: Component Microservices",
+        code: `@startuml
+title Payment Processing System
+
+actor User as client
+boundary "API Gateway" as gw
+database "Orders DB" as db
+
+package "Core Services" as core {
+  component "Payment Service" as pay
+  queue "Settlement Queue" as mq
+}
+
+client -> gw : POST /checkout
+gw -> pay : Process Charge
+pay -> db : Persist Ledger
+pay ..> mq : Publish PaymentSettled
+@enduml`,
+      },
+      {
+        label: "PlantUML: C4 Container Diagram",
+        code: `@startuml
+Person(customer, "Banking Customer", "Active mobile user")
+Container(spa, "Web Banking App", "TypeScript / React", "Account dashboard")
+Container(api, "Payments API", "Go / gRPC", "Handles transfers")
+ContainerDb(db, "Ledger Database", "PostgreSQL 16", "Immutable entries")
+
+Rel(customer, spa, "Uses", "HTTPS")
+Rel(spa, api, "Calls", "JSON/TLS")
+Rel(api, db, "Reads & Writes", "SQL/mTLS")
+@enduml`,
+      },
+    ],
+    dot: [
+      {
+        label: "Graphviz DOT: Event Ingestion",
+        code: `digraph EventPipeline {
+  rankdir=LR;
+  client [label="Mobile SDK", shape=ellipse];
+  ingest [label="Edge Ingest", shape=hexagon];
+  subgraph cluster_stream {
+    label="Streaming Core";
+    kafka [label="Kafka Cluster", shape=box];
+    worker [label="Stream Processor", shape=box];
+    clickhouse [label="ClickHouse DW", shape=cylinder];
+  }
+  client -> ingest [label="HTTPS Batch"];
+  ingest -> kafka [label="Produce", style=dashed];
+  kafka -> worker [label="Consume"];
+  worker -> clickhouse [label="Bulk Insert"];
+}`,
+      },
+    ],
+    drawio: [
+      {
+        label: "Draw.io XML: Edge to Database",
+        code: `<mxGraphModel>
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+    <mxCell id="client" value="Web Client" style="shape=actor;" vertex="1" parent="1"/>
+    <mxCell id="gw" value="Cloudflare Gateway" style="shape=hexagon;" vertex="1" parent="1"/>
+    <mxCell id="svc" value="Catalog Service" vertex="1" parent="1"/>
+    <mxCell id="db" value="PostgreSQL 16" style="shape=cylinder;" vertex="1" parent="1"/>
+    <mxCell id="e1" value="HTTPS" edge="1" source="client" target="gw" parent="1"/>
+    <mxCell id="e2" value="gRPC" edge="1" source="gw" target="svc" parent="1"/>
+    <mxCell id="e3" value="SELECT" edge="1" source="svc" target="db" parent="1"/>
+  </root>
+</mxGraphModel>`,
+      },
+    ],
+    excalidraw: [
+      {
+        label: "Excalidraw JSON: Whiteboard Sync",
+        code: JSON.stringify(
+          {
+            type: "excalidraw",
+            version: 2,
+            elements: [
+              { id: "f1", type: "frame", name: "Backend Cluster", x: 240, y: 40, width: 470, height: 210 },
+              { id: "n1", type: "ellipse", x: 40, y: 110, width: 130, height: 65 },
+              { id: "t1", type: "text", x: 55, y: 130, width: 100, height: 24, text: "Web Browser", containerId: "n1" },
+              { id: "n2", type: "diamond", x: 265, y: 100, width: 140, height: 85, frameId: "f1" },
+              { id: "t2", type: "text", x: 285, y: 130, width: 100, height: 24, text: "API Gateway", containerId: "n2" },
+              { id: "n3", type: "rectangle", x: 520, y: 105, width: 150, height: 75, frameId: "f1" },
+              { id: "t3", type: "text", x: 540, y: 130, width: 110, height: 24, text: "Postgres DB", containerId: "n3" },
+              { id: "a1", type: "arrow", x: 170, y: 142, width: 95, height: 0, startBinding: { elementId: "n1" }, endBinding: { elementId: "n2" } },
+              { id: "ta1", type: "text", x: 195, y: 120, width: 45, height: 20, text: "HTTPS", containerId: "a1" },
+              { id: "a2", type: "arrow", x: 405, y: 142, width: 115, height: 0, startBinding: { elementId: "n2" }, endBinding: { elementId: "n3" } },
+              { id: "ta2", type: "text", x: 440, y: 120, width: 45, height: 20, text: "SQL", containerId: "a2" },
+            ],
+          },
+          null,
+          2
+        ),
+      },
+    ],
+    compose: [
+      {
+        label: "Docker Compose: Web + API + Cache + DB",
+        code: `services:
+  web:
+    image: nginx:alpine
+    ports: ["80:80"]
+    depends_on: ["api"]
+  api:
+    image: node:20-alpine
+    ports: ["3000:3000"]
+    depends_on: ["db", "cache"]
+  db:
+    image: postgres:16-alpine
+  cache:
+    image: redis:7-alpine`,
+      },
+    ],
+    k8s: [
+      {
+        label: "Kubernetes: Ingress -> Service -> Workload",
+        code: `apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: edge-ingress
+  namespace: production
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders-svc
+  namespace: production
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-api
+  namespace: production`,
+      },
+    ],
+    terraform: [
+      {
+        label: "Terraform State: VPC ALB + RDS",
+        code: JSON.stringify(
+          {
+            version: 4,
+            resources: [
+              {
+                type: "aws_lb",
+                name: "public_alb",
+                instances: [{ attributes: { name: "prod-alb", vpc_id: "vpc_prod" } }],
+              },
+              {
+                type: "aws_rds_cluster",
+                name: "aurora_postgres",
+                instances: [{ attributes: { name: "prod-aurora", vpc_id: "vpc_prod" } }],
+              },
+              {
+                type: "aws_elasticache_cluster",
+                name: "redis_cache",
+                instances: [{ attributes: { name: "prod-redis", vpc_id: "vpc_prod" } }],
+              },
+            ],
+          },
+          null,
+          2
+        ),
+      },
+    ],
+  };
+
+  const FORMAT_META: Record<CompatFormat, { label: string; ext: string; cli: string }> = {
+    mermaid: { label: "Mermaid", ext: "diagram.mmd", cli: "markdy import diagram.mmd --out diagram.markdy" },
+    d2: { label: "D2", ext: "architecture.d2", cli: "markdy import architecture.d2 --from d2" },
+    plantuml: { label: "PlantUML", ext: "system.puml", cli: "markdy import system.puml --from plantuml" },
+    dot: { label: "Graphviz DOT", ext: "graph.dot", cli: "markdy import graph.dot --from dot" },
+    drawio: { label: "Draw.io XML", ext: "diagram.drawio", cli: "markdy import diagram.drawio --out diagram.markdy" },
+    excalidraw: { label: "Excalidraw JSON", ext: "board.excalidraw", cli: "markdy import board.excalidraw --from excalidraw" },
+    compose: { label: "Docker Compose", ext: "docker-compose.yml", cli: "markdy import docker-compose.yml" },
+    k8s: { label: "Kubernetes YAML", ext: "manifests.yaml", cli: "markdy import manifests.yaml" },
+    terraform: { label: "Terraform State", ext: "terraform.tfstate", cli: "markdy import terraform.tfstate" },
+  };
+
+  // DOM References
+  const formatPills = document.querySelectorAll<HTMLButtonElement>(".format-pill");
+  const sourceInput = document.getElementById("source-input") as HTMLTextAreaElement;
+  const dropzoneWrap = document.getElementById("dropzone-wrap") as HTMLDivElement;
+  const dropOverlay = document.getElementById("drop-overlay") as HTMLDivElement;
+  const fileUploadInput = document.getElementById("file-upload-input") as HTMLInputElement;
+  const pasteSourceBtn = document.getElementById("paste-source-btn") as HTMLButtonElement;
+  const clearSourceBtn = document.getElementById("clear-source-btn") as HTMLButtonElement;
+  const convertErrorBanner = document.getElementById("convert-error-banner") as HTMLDivElement;
+
+  const sampleSelect = document.getElementById("sample-select") as HTMLSelectElement;
+  const themeSelect = document.getElementById("theme-select") as HTMLSelectElement;
+  const layoutSelect = document.getElementById("layout-select") as HTMLSelectElement;
+  const playerToggle = document.getElementById("player-toggle") as HTMLInputElement;
+
+  const detectedBadgeText = document.getElementById("detected-badge-text") as HTMLSpanElement;
+  const metricsBadge = document.getElementById("metrics-badge") as HTMLSpanElement;
+  const warningsToggleBtn = document.getElementById("warnings-toggle-btn") as HTMLButtonElement;
+  const warningsCountText = document.getElementById("warnings-count-text") as HTMLSpanElement;
+  const warningsList = document.getElementById("warnings-list") as HTMLUListElement;
+  const sourceFilenameLabel = document.getElementById("source-filename-label") as HTMLSpanElement;
+  const cliCommandCode = document.getElementById("cli-command-code") as HTMLElement;
+  const copyCliBtn = document.getElementById("copy-cli-btn") as HTMLButtonElement;
+
+  const outputEditorHost = document.getElementById("output-editor") as HTMLDivElement;
+  const previewStage = document.getElementById("preview-stage") as HTMLDivElement;
+  const copyMarkdyBtn = document.getElementById("copy-markdy-btn") as HTMLButtonElement;
+  const copyMarkdyLabel = document.getElementById("copy-markdy-label") as HTMLSpanElement;
+  const downloadMarkdyBtn = document.getElementById("download-markdy-btn") as HTMLButtonElement;
+  const replayBtn = document.getElementById("replay-btn") as HTMLButtonElement;
+  const exportSvgBtn = document.getElementById("export-svg-btn") as HTMLButtonElement;
+  const openStudioBtn = document.getElementById("open-studio-btn") as HTMLButtonElement;
+
+  const workbenchGrid = document.getElementById("workbench-grid") as HTMLDivElement;
+  const layoutModeBtn = document.getElementById("layout-mode-btn") as HTMLButtonElement;
+  const mobilePaneBtns = document.querySelectorAll<HTMLButtonElement>(".mobile-pane-btn");
+
+  let selectedMode: CompatFormat | "auto" = "auto";
+  let lastDetectedFormat: CompatFormat = "mermaid";
+  let lastFilenameHint: string | undefined = undefined;
+  let editorView: EditorView | null = null;
+  let isProgrammaticEdit = false;
+  let diagram: Diagram | null = null;
+  let convertTimer: ReturnType<typeof setTimeout> | null = null;
+
+  function isDarkMode(): boolean {
+    return document.documentElement.getAttribute("data-theme") === "dark";
+  }
+
+  function getOutputCode(): string {
+    return editorView?.state.doc.toString() ?? "";
+  }
+
+  function setOutputCode(code: string) {
+    if (!editorView) {
+      createOutputEditor(code);
+      return;
+    }
+    isProgrammaticEdit = true;
+    editorView.dispatch({
+      changes: { from: 0, to: editorView.state.doc.length, insert: code },
+    });
+    isProgrammaticEdit = false;
+  }
+
+  function createOutputEditor(initialCode: string) {
+    if (!outputEditorHost) return;
+    if (editorView) {
+      editorView.destroy();
+      editorView = null;
+    }
+    const dark = isDarkMode();
+    editorView = new EditorView({
+      state: EditorState.create({
+        doc: initialCode,
+        extensions: [
+          lineNumbers(),
+          highlightActiveLine(),
+          highlightActiveLineGutter(),
+          history(),
+          bracketMatching(),
+          markdyLanguage,
+          dark ? markdyHighlightDark : markdyHighlightLight,
+          baseTheme,
+          dark ? darkTheme : lightTheme,
+          keymap.of([...defaultKeymap, ...historyKeymap]),
+          EditorView.lineWrapping,
+          EditorView.updateListener.of((update) => {
+            if (update.docChanged && !isProgrammaticEdit) {
+              renderLivePreview(getOutputCode());
+            }
+          }),
+        ],
+      }),
+      parent: outputEditorHost,
+    });
+  }
+
+  function renderLivePreview(markdyCode: string) {
+    if (!previewStage) return;
+    const trimmed = markdyCode.trim();
+    if (!trimmed) {
+      if (diagram) { diagram.destroy(); diagram = null; }
+      previewStage.innerHTML = `<div class="preview-empty"><p>Paste or upload a diagram on the left to preview live Markdy motion.</p></div>`;
+      return;
+    }
+    try {
+      if (diagram) {
+        diagram.destroy();
+        diagram = null;
+      }
+      previewStage.replaceChildren();
+      diagram = createDiagram({
+        container: previewStage,
+        code: trimmed,
+        autoplay: false,
+        interactiveViewport: true,
+        clickToPlay: true,
+        responsiveLayout: "auto",
+        fitMode: "auto",
+        targetWidthRatio: 0.94,
+      });
+      const totalDuration = diagram.duration?.() ?? 0;
+      if (totalDuration > 0) {
+        diagram.pause();
+        diagram.seek(totalDuration);
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      const errBox = document.createElement("div");
+      errBox.className = "preview-error";
+      errBox.textContent = `Preview error: ${msg}`;
+      previewStage.replaceChildren(errBox);
+    }
+  }
+
+  function populateSamplesFor(format: CompatFormat) {
+    if (!sampleSelect) return;
+    const list = SAMPLES[format] || SAMPLES.mermaid;
+    sampleSelect.innerHTML = "";
+    list.forEach((s, i) => {
+      const opt = document.createElement("option");
+      opt.value = String(i);
+      opt.textContent = s.label;
+      sampleSelect.appendChild(opt);
+    });
+    if (selectedMode === "auto") {
+      // Also expose cross-format quick samples in Auto mode
+      const allFormats: CompatFormat[] = ["mermaid", "d2", "plantuml", "dot", "drawio", "excalidraw", "compose", "k8s", "terraform"];
+      sampleSelect.innerHTML = "";
+      for (const f of allFormats) {
+        for (let i = 0; i < SAMPLES[f].length; i++) {
+          const opt = document.createElement("option");
+          opt.value = `${f}:${i}`;
+          opt.textContent = SAMPLES[f][i].label;
+          sampleSelect.appendChild(opt);
+        }
+      }
+    }
+  }
+
+  async function runConversion() {
+    const src = sourceInput?.value ?? "";
+    if (!src.trim()) {
+      if (convertErrorBanner) convertErrorBanner.hidden = true;
+      metricsBadge.textContent = "0 nodes · 0 flows";
+      warningsToggleBtn.hidden = true;
+      setOutputCode("");
+      renderLivePreview("");
+      return;
+    }
+
+    try {
+      const result = await transpileToMarkdy(src, {
+        format: selectedMode,
+        theme: themeSelect?.value || "paper",
+        layout: (layoutSelect?.value as any) || "auto",
+        includePlayer: playerToggle?.checked ?? true,
+        filenameHint: lastFilenameHint,
+      });
+
+      lastDetectedFormat = result.format;
+      const meta = FORMAT_META[result.format];
+
+      if (convertErrorBanner) convertErrorBanner.hidden = true;
+      detectedBadgeText.textContent =
+        selectedMode === "auto" ? `Detected: ${meta.label}` : `Format: ${meta.label}`;
+      sourceFilenameLabel.textContent = lastFilenameHint || meta.ext;
+      cliCommandCode.textContent = meta.cli;
+
+      const groupLabel = result.groupCount > 0 ? ` · ${result.groupCount} group${result.groupCount === 1 ? "" : "s"}` : "";
+      metricsBadge.textContent = `${result.nodeCount} node${result.nodeCount === 1 ? "" : "s"} · ${result.edgeCount} flow${result.edgeCount === 1 ? "" : "s"}${groupLabel}`;
+
+      if (result.warnings.length > 0) {
+        warningsToggleBtn.hidden = false;
+        warningsCountText.textContent = `${result.warnings.length} note${result.warnings.length === 1 ? "" : "s"}`;
+        warningsList.innerHTML = "";
+        for (const w of result.warnings) {
+          const li = document.createElement("li");
+          li.textContent = w;
+          warningsList.appendChild(li);
+        }
+      } else {
+        warningsToggleBtn.hidden = true;
+      }
+
+      setOutputCode(result.code);
+      renderLivePreview(result.code);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (convertErrorBanner) {
+        convertErrorBanner.hidden = false;
+        convertErrorBanner.textContent = `Conversion error: ${msg}`;
+      }
+    }
+  }
+
+  function scheduleConversion() {
+    if (convertTimer) clearTimeout(convertTimer);
+    convertTimer = setTimeout(() => {
+      void runConversion();
+    }, 110);
+  }
+
+  function selectFormatTab(format: CompatFormat | "auto", loadSample = true) {
+    selectedMode = format;
+    lastFilenameHint = undefined;
+
+    formatPills.forEach((pill) => {
+      const isSelected = pill.dataset.format === format;
+      pill.setAttribute("aria-selected", isSelected ? "true" : "false");
+    });
+
+    const effectiveFormat: CompatFormat = format === "auto" ? "mermaid" : format;
+    populateSamplesFor(effectiveFormat);
+
+    if (loadSample) {
+      const firstSample = SAMPLES[effectiveFormat][0];
+      if (sourceInput && firstSample) {
+        sourceInput.value = firstSample.code;
+      }
+    }
+    void runConversion();
+  }
+
+  // Tab Click & Arrow-Key Navigation
+  formatPills.forEach((pill, index) => {
+    pill.addEventListener("click", () => {
+      const fmt = (pill.dataset.format || "auto") as CompatFormat | "auto";
+      selectFormatTab(fmt, true);
+      pill.scrollIntoView({ block: "nearest", inline: "nearest" });
+    });
+
+    pill.addEventListener("keydown", (e) => {
+      const arr = Array.from(formatPills);
+      let nextIdx = -1;
+      if (e.key === "ArrowRight") nextIdx = (index + 1) % arr.length;
+      else if (e.key === "ArrowLeft") nextIdx = (index - 1 + arr.length) % arr.length;
+      if (nextIdx !== -1) {
+        e.preventDefault();
+        arr[nextIdx].focus();
+        const fmt = (arr[nextIdx].dataset.format || "auto") as CompatFormat | "auto";
+        selectFormatTab(fmt, true);
+      }
+    });
+  });
+
+  // Sample Dropdown Change
+  sampleSelect?.addEventListener("change", () => {
+    const val = sampleSelect.value;
+    if (val.includes(":")) {
+      const [fmt, idxStr] = val.split(":");
+      const sample = SAMPLES[fmt as CompatFormat]?.[Number(idxStr)];
+      if (sample && sourceInput) {
+        lastFilenameHint = undefined;
+        sourceInput.value = sample.code;
+        void runConversion();
+      }
+    } else {
+      const targetFmt: CompatFormat = selectedMode === "auto" ? lastDetectedFormat : selectedMode;
+      const sample = SAMPLES[targetFmt]?.[Number(val)];
+      if (sample && sourceInput) {
+        lastFilenameHint = undefined;
+        sourceInput.value = sample.code;
+        void runConversion();
+      }
+    }
+  });
+
+  // Theme / Layout / Player Overrides
+  themeSelect?.addEventListener("change", () => void runConversion());
+  layoutSelect?.addEventListener("change", () => void runConversion());
+  playerToggle?.addEventListener("change", () => void runConversion());
+
+  // Source Textarea Input
+  sourceInput?.addEventListener("input", () => {
+    if (selectedMode === "auto") lastFilenameHint = undefined;
+    scheduleConversion();
+  });
+
+  // Paste Button
+  pasteSourceBtn?.addEventListener("click", async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text && sourceInput) {
+        sourceInput.value = text;
+        lastFilenameHint = undefined;
+        await runConversion();
+        if (typeof (window as any).showToast === "function") {
+          (window as any).showToast("Pasted diagram source", "✓");
+        }
+      }
+    } catch {
+      sourceInput?.focus();
+      if (typeof (window as any).showToast === "function") {
+        (window as any).showToast("Press Cmd/Ctrl+V inside the source box to paste", "i");
+      }
+    }
+  });
+
+  // Clear Button
+  clearSourceBtn?.addEventListener("click", () => {
+    if (sourceInput) sourceInput.value = "";
+    lastFilenameHint = undefined;
+    void runConversion();
+    sourceInput?.focus();
+  });
+
+  // File Upload & Drag-and-Drop
+  async function handleIncomingFile(file: File) {
+    const text = await file.text();
+    if (!sourceInput) return;
+    lastFilenameHint = file.name;
+    sourceInput.value = text;
+    if (selectedMode !== "auto") {
+      selectedMode = "auto";
+      formatPills.forEach((p) => p.setAttribute("aria-selected", p.dataset.format === "auto" ? "true" : "false"));
+    }
+    const detected = detectDiagramFormat(text, file.name);
+    populateSamplesFor(detected);
+    await runConversion();
+    if (typeof (window as any).showToast === "function") {
+      (window as any).showToast(`Loaded ${file.name}`, "✓");
+    }
+  }
+
+  fileUploadInput?.addEventListener("change", () => {
+    const file = fileUploadInput.files?.[0];
+    if (file) void handleIncomingFile(file);
+    fileUploadInput.value = "";
+  });
+
+  dropzoneWrap?.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropOverlay.hidden = false;
+  });
+
+  dropzoneWrap?.addEventListener("dragleave", (e) => {
+    if (!dropzoneWrap.contains(e.relatedTarget as Node)) {
+      dropOverlay.hidden = true;
+    }
+  });
+
+  dropzoneWrap?.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropOverlay.hidden = true;
+    const file = e.dataTransfer?.files?.[0];
+    if (file) void handleIncomingFile(file);
+  });
+
+  // Copy Converted MarkdyScript
+  copyMarkdyBtn?.addEventListener("click", async () => {
+    const code = getOutputCode();
+    if (!code) return;
+    try {
+      await navigator.clipboard.writeText(code);
+      if (copyMarkdyLabel) copyMarkdyLabel.textContent = "Copied";
+      if (typeof (window as any).showToast === "function") {
+        (window as any).showToast("MarkdyScript copied to clipboard", "✓");
+      }
+      setTimeout(() => {
+        if (copyMarkdyLabel) copyMarkdyLabel.textContent = "Copy";
+      }, 1800);
+    } catch {
+      if (typeof (window as any).showToast === "function") {
+        (window as any).showToast("Unable to access clipboard", "!");
+      }
+    }
+  });
+
+  // Copy CLI Command
+  copyCliBtn?.addEventListener("click", async () => {
+    const cmd = cliCommandCode?.textContent?.trim() || "";
+    if (!cmd) return;
+    try {
+      await navigator.clipboard.writeText(cmd);
+      const span = copyCliBtn.querySelector("span");
+      if (span) span.textContent = "Copied";
+      setTimeout(() => {
+        if (span) span.textContent = "Copy";
+      }, 1800);
+    } catch {}
+  });
+
+  // Download .markdy
+  downloadMarkdyBtn?.addEventListener("click", () => {
+    const code = getOutputCode();
+    if (!code) return;
+    const blob = new Blob([code], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `converted-${lastDetectedFormat}.markdy`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  // Replay & Export SVG
+  replayBtn?.addEventListener("click", () => {
+    if (diagram) {
+      diagram.seek(0);
+      diagram.play();
+    }
+  });
+
+  exportSvgBtn?.addEventListener("click", () => {
+    const code = getOutputCode().trim();
+    if (!code) return;
+    const wasPlaying = diagram?.isPlaying?.();
+    const resumeAt = diagram?.currentTime?.() ?? 0;
+    try {
+      if (diagram) {
+        diagram.pause();
+        diagram.seek(diagram.duration());
+      }
+      const svg = exportDiagramAsVectorSvg(code);
+      const blob = new Blob([svg], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `converted-${lastDetectedFormat}.svg`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } finally {
+      if (diagram) {
+        diagram.seek(resumeAt);
+        if (wasPlaying) diagram.play();
+      }
+    }
+  });
+
+  // Open Directly in Full Interactive Studio
+  openStudioBtn?.addEventListener("click", async () => {
+    const code = getOutputCode().trim();
+    if (!code) return;
+    try {
+      const compressed = await compressMarkdyToUrlHash(code);
+      window.location.href = `/playground/#code=${compressed}`;
+    } catch {
+      window.location.href = `/playground/#code=${encodeURIComponent(code)}`;
+    }
+  });
+
+  // Layout View Toggle (2-Col Studio / 3-Col Split)
+  layoutModeBtn?.addEventListener("click", () => {
+    const current = workbenchGrid.getAttribute("data-view") || "2col";
+    const next = current === "2col" ? "3col" : "2col";
+    workbenchGrid.setAttribute("data-view", next);
+    const span = layoutModeBtn.querySelector("span");
+    if (span) span.textContent = next === "2col" ? "3-Col" : "2-Col";
+    layoutModeBtn.setAttribute("aria-pressed", next === "3col" ? "true" : "false");
+    renderLivePreview(getOutputCode());
+  });
+
+  // Mobile Pane Switcher
+  mobilePaneBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const pane = btn.dataset.pane || "source";
+      mobilePaneBtns.forEach((b) => b.setAttribute("aria-selected", b === btn ? "true" : "false"));
+      workbenchGrid.setAttribute("data-mobile-pane", pane);
+      if (pane === "preview") {
+        renderLivePreview(getOutputCode());
+      }
+    });
+  });
+
+  // Direct Links below workbench
+  document.querySelectorAll<HTMLAnchorElement>(".direct-link-pill[data-jump]").forEach((link) => {
+    link.addEventListener("click", (e) => {
+      e.preventDefault();
+      const fmt = link.dataset.jump as CompatFormat;
+      if (fmt) {
+        selectFormatTab(fmt, true);
+        window.history.replaceState(null, "", `/convert/?from=${fmt}`);
+        document.querySelector(".converter-shell")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    });
+  });
+
+  // Global Theme Toggle + Mobile Drawer
+  const themeBtn = document.getElementById("theme-toggle");
+  function updateThemeIcons(theme: string) {
+    const sun = themeBtn?.querySelector(".icon-sun") as HTMLElement | null;
+    const moon = themeBtn?.querySelector(".icon-moon") as HTMLElement | null;
+    if (!sun || !moon) return;
+    sun.style.display = theme === "dark" ? "none" : "block";
+    moon.style.display = theme === "dark" ? "block" : "none";
+  }
+
+  themeBtn?.addEventListener("click", () => {
+    const next = isDarkMode() ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    const csMeta = document.querySelector('meta[name="color-scheme"]');
+    if (csMeta) csMeta.setAttribute("content", next);
+    localStorage.setItem("markdy-theme", next);
+    updateThemeIcons(next);
+    createOutputEditor(getOutputCode());
+  });
+
+  const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+  const mobileDrawer = document.getElementById("mobile-nav-drawer");
+  const burgerIcon = mobileMenuBtn?.querySelector(".icon-burger") as HTMLElement | null;
+  const closeIcon = mobileMenuBtn?.querySelector(".icon-close") as HTMLElement | null;
+
+  function toggleMobileMenu(open?: boolean) {
+    if (!mobileDrawer || !mobileMenuBtn) return;
+    const shouldOpen = open !== undefined ? open : mobileDrawer.hidden;
+    mobileDrawer.hidden = !shouldOpen;
+    mobileMenuBtn.setAttribute("aria-expanded", String(shouldOpen));
+    if (burgerIcon && closeIcon) {
+      burgerIcon.style.display = shouldOpen ? "none" : "block";
+      closeIcon.style.display = shouldOpen ? "block" : "none";
+    }
+  }
+  mobileMenuBtn?.addEventListener("click", () => toggleMobileMenu());
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") toggleMobileMenu(false);
+  });
+
+  // Initialize Page State (including ?from= format preselection)
+  updateThemeIcons(document.documentElement.getAttribute("data-theme") || "light");
+
+  const params = new URLSearchParams(window.location.search);
+  const fromParam = (params.get("from") || "").toLowerCase();
+  const aliasMap: Record<string, CompatFormat | "auto"> = {
+    auto: "auto",
+    mermaid: "mermaid",
+    mmd: "mermaid",
+    d2: "d2",
+    plantuml: "plantuml",
+    puml: "plantuml",
+    c4: "plantuml",
+    dot: "dot",
+    graphviz: "dot",
+    drawio: "drawio",
+    excalidraw: "excalidraw",
+    compose: "compose",
+    docker: "compose",
+    "docker-compose": "compose",
+    k8s: "k8s",
+    kubernetes: "k8s",
+    terraform: "terraform",
+    tfstate: "terraform",
+  };
+
+  const initialFormat = aliasMap[fromParam] || "auto";
+  if (isDarkMode() && themeSelect) {
+    themeSelect.value = "midnight";
+  }
+  createOutputEditor("");
+
+  let handoffApplied = false;
+  try {
+    const rawHandoff = sessionStorage.getItem("markdy-convert-handoff");
+    if (rawHandoff) {
+      sessionStorage.removeItem("markdy-convert-handoff");
+      const handoff = JSON.parse(rawHandoff) as { format?: string; source?: string };
+      if (handoff?.source && handoff.source.trim().length > 0 && sourceInput) {
+        const mapped = (handoff.format && aliasMap[handoff.format.toLowerCase()]) || initialFormat;
+        selectFormatTab(mapped, false);
+        sourceInput.value = handoff.source;
+        void runConversion();
+        handoffApplied = true;
+      }
+    }
+  } catch {}
+
+  if (!handoffApplied) {
+    selectFormatTab(initialFormat, true);
+  }
+</script>
+
+<style>
+  :root {
+    --accent-contrast: #ffffff;
+    --cm-caret: #0f172a;
+    --cm-activeLine: rgba(4, 120, 87, 0.05);
+    --cm-selection: #d1fae5;
+    --cm-tooltipBg: #ffffff;
+    --cm-tooltipBorder: #e2e8f0;
+    --cm-tooltipShadow: rgba(0, 0, 0, 0.08);
+    --cm-tooltipSelected: #047857;
+    --cm-tooltipSelectedText: #ffffff;
+  }
+  :root[data-theme="dark"] {
+    --accent-contrast: #032218;
+    --cm-caret: #f8fafc;
+    --cm-activeLine: rgba(16, 185, 129, 0.06);
+    --cm-selection: rgba(16, 185, 129, 0.22);
+    --cm-tooltipBg: #1e293b;
+    --cm-tooltipBorder: rgba(255, 255, 255, 0.12);
+    --cm-tooltipShadow: rgba(0, 0, 0, 0.5);
+    --cm-tooltipSelected: #10b981;
+    --cm-tooltipSelectedText: #ffffff;
+  }
+
+  /* Navigation Pill (consistent with site design) */
+  .home-nav {
+    position: sticky;
+    top: max(0.75rem, var(--sat));
+    z-index: 100;
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 0 1.25rem;
+  }
+
+  .nav-pill {
+    background: color-mix(in srgb, var(--bg-elevated) 88%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 0.42rem 0.65rem 0.42rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    flex-shrink: 0;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .nav-links a {
+    font-size: 0.84rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: color 0.15s ease;
+    white-space: nowrap;
+  }
+
+  .nav-links a:hover,
+  .nav-links a.active {
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-shrink: 0;
+  }
+
+  .btn-nav-studio {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: var(--accent);
+    color: var(--accent-contrast);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 0.38rem 0.85rem;
+    border-radius: 999px;
+    white-space: nowrap;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+
+  .btn-nav-studio:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+  }
+
+  .btn-nav-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .btn-nav-icon:hover {
+    color: var(--text-primary);
+    border-color: var(--border-hover);
+  }
+
+  .mobile-menu-btn {
+    display: none;
+  }
+
+  .mobile-nav-drawer {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 1rem;
+    right: 1rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    padding: 0.65rem;
+    z-index: 1000;
+  }
+  .mobile-nav-drawer[hidden] { display: none !important; }
+  .mobile-drawer-inner { display: flex; flex-direction: column; gap: 0.25rem; }
+  .mobile-nav-link {
+    padding: 0.65rem 0.85rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .mobile-nav-link:hover { background: var(--bg-tertiary); color: var(--accent); }
+  .mobile-nav-highlight {
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  }
+
+  /* Page Layout */
+  .convert-page {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 1.5rem 1.25rem 3rem;
+  }
+
+  .convert-hero {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(1.5rem, 2.5vw, 2.15rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    color: var(--text-primary);
+    margin-bottom: 0.35rem;
+  }
+
+  .hero-copy p {
+    font-size: 0.94rem;
+    color: var(--text-secondary);
+    max-width: 68ch;
+  }
+
+  .hero-cli-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.42rem 0.5rem 0.42rem 0.8rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    max-width: 100%;
+    overflow: hidden;
+  }
+
+  .cli-prefix {
+    color: var(--accent);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+
+  .hero-cli-pill code {
+    background: transparent;
+    border: none;
+    padding: 0;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cli-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 0.74rem;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .cli-copy-btn:hover { border-color: var(--border-hover); }
+
+  /* Format Strip (Modern Tabs Pattern: single row horizontal scroll) */
+  .converter-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .format-strip-wrap {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .format-tablist {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 0.35rem;
+  }
+  .format-tablist::-webkit-scrollbar { display: none; }
+
+  .format-pill {
+    position: relative;
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.42rem 0.68rem;
+    border-radius: 999px;
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-secondary);
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.14s ease, color 0.14s ease;
+  }
+
+  .format-pill:hover {
+    color: var(--text-primary);
+    background: var(--bg-secondary);
+  }
+
+  .format-pill[aria-selected="true"] {
+    color: var(--accent);
+    background: var(--accent-light);
+    border-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+
+  .format-pill[aria-selected="true"]::after {
+    content: "";
+    position: absolute;
+    left: 16%;
+    right: 16%;
+    bottom: -0.35rem;
+    border-bottom: 2px solid var(--accent);
+  }
+
+  .format-pill-hint {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  /* Options & Telemetry Bar */
+  .options-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 0.55rem 0.85rem;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .options-left,
+  .options-right {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .telemetry-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+  }
+  .telemetry-pill[hidden] {
+    display: none !important;
+  }
+
+  .telemetry-pill--accent {
+    background: var(--accent-light);
+    border-color: color-mix(in srgb, var(--accent) 28%, transparent);
+    color: var(--accent);
+  }
+
+  .telemetry-pill--warn {
+    background: var(--warning-light);
+    border-color: color-mix(in srgb, var(--warning) 35%, transparent);
+    color: var(--warning);
+    cursor: pointer;
+  }
+
+  .warnings-popover {
+    margin: auto;
+    padding: 0.9rem 1.1rem;
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow-lg);
+    max-width: min(460px, 92vw);
+  }
+  .warnings-popover-head {
+    font-size: 0.82rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  .warnings-list {
+    padding-left: 1.1rem;
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .option-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .option-control select {
+    padding: 0.32rem 0.55rem;
+    border-radius: 8px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 0.78rem;
+    font-weight: 500;
+    cursor: pointer;
+    max-width: 100%;
+    min-width: 0;
+    text-overflow: ellipsis;
+  }
+
+  .option-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.38rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding-left: 0.25rem;
+  }
+
+  /* Mobile Pane Tabs */
+  .mobile-pane-tabs {
+    display: none;
+    gap: 0.4rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.25rem;
+  }
+
+  .mobile-pane-btn {
+    flex: 1;
+    padding: 0.5rem 0.6rem;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .mobile-pane-btn[aria-selected="true"] {
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    box-shadow: var(--shadow-xs);
+  }
+
+  /* Studio Workbench Grid */
+  .workbench-grid {
+    display: grid;
+    grid-template-columns: minmax(290px, 1fr) minmax(320px, 1.05fr) minmax(380px, 1.25fr);
+    gap: 0.85rem;
+    align-items: stretch;
+    min-height: 540px;
+  }
+
+  .workbench-grid[data-view="2col"] {
+    grid-template-columns: minmax(380px, 0.78fr) minmax(560px, 1.22fr);
+    grid-template-rows: 294px 312px;
+    grid-template-areas:
+      "source preview"
+      "output preview";
+    min-height: 618px;
+  }
+
+  .workbench-grid[data-view="2col"] .wb-pane--source {
+    grid-area: source;
+    height: auto;
+    min-height: 0;
+  }
+
+  .workbench-grid[data-view="2col"] .wb-pane--output {
+    grid-area: output;
+    height: auto;
+    min-height: 0;
+  }
+
+  .workbench-grid[data-view="2col"] .wb-pane--preview {
+    grid-area: preview;
+    height: auto;
+    min-height: 0;
+  }
+
+  .wb-pane {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    min-width: 0;
+    height: 560px;
+  }
+
+  .wb-pane-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border);
+    min-height: 46px;
+  }
+
+  .wb-pane-title {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .wb-pane-title span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .wb-pane-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-shrink: 0;
+  }
+
+  .wb-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.34rem 0.62rem;
+    border-radius: 8px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.14s ease, background-color 0.14s ease;
+  }
+
+  .wb-btn:hover {
+    border-color: var(--border-hover);
+    background: var(--bg-tertiary);
+  }
+
+  .wb-btn--primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-contrast);
+  }
+
+  .wb-btn--primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+    color: var(--accent-contrast);
+  }
+
+  .wb-btn--upload {
+    position: relative;
+  }
+
+  /* Source Textarea + Dropzone */
+  .source-dropzone {
+    position: relative;
+    flex: 1;
+    display: flex;
+    min-height: 0;
+  }
+
+  .source-textarea {
+    width: 100%;
+    height: 100%;
+    resize: none;
+    border: none;
+    outline: none;
+    padding: 0.9rem 1rem;
+    background: var(--code-bg);
+    color: var(--text-primary);
+    font-family: "JetBrains Mono", "SF Mono", monospace;
+    font-size: 0.8rem;
+    line-height: 1.6;
+  }
+
+  .drop-overlay {
+    position: absolute;
+    inset: 0.5rem;
+    border-radius: 10px;
+    border: 2px dashed var(--accent);
+    background: color-mix(in srgb, var(--bg-elevated) 92%, transparent);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    color: var(--accent);
+    text-align: center;
+    padding: 1rem;
+    pointer-events: none;
+  }
+  .drop-overlay[hidden] { display: none !important; }
+  .drop-overlay span { font-size: 0.78rem; color: var(--text-secondary); }
+
+  .convert-error {
+    padding: 0.55rem 0.85rem;
+    background: var(--danger-light);
+    border-top: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
+    color: var(--danger);
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  /* CodeMirror Output */
+  .output-editor {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    overflow: hidden;
+    background: var(--code-bg);
+  }
+  .output-editor :global(.cm-editor) {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Live Preview Stage */
+  .preview-stage {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 0.65rem;
+    background:
+      radial-gradient(var(--grid-dot) 1px, transparent 1px) 0 0 / 18px 18px,
+      var(--bg-primary);
+  }
+
+  .preview-stage :global(.markdy-viewport) {
+    width: 100% !important;
+    height: 100% !important;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+
+  .preview-empty,
+  .preview-error {
+    margin: auto;
+    padding: 1.25rem;
+    text-align: center;
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+  }
+  .preview-error {
+    color: var(--danger);
+    font-family: "JetBrains Mono", monospace;
+    background: var(--danger-light);
+    border-radius: 10px;
+  }
+
+  /* Mapping & Direct Links */
+  .mapping-section {
+    margin-top: 2.25rem;
+  }
+
+  .mapping-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 1rem;
+  }
+
+  .mapping-card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.25rem;
+  }
+
+  .mapping-card h2 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.35rem;
+  }
+
+  .mapping-desc {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.9rem;
+  }
+
+  .direct-links-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .direct-link-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.42rem 0.8rem;
+    border-radius: 999px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: border-color 0.14s ease, color 0.14s ease;
+  }
+  .direct-link-pill:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .mapping-table-wrap {
+    overflow-x: auto;
+    margin-top: 0.6rem;
+  }
+
+  .mapping-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+  }
+
+  .mapping-table th,
+  .mapping-table td {
+    text-align: left;
+    padding: 0.55rem 0.65rem;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .mapping-table th {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.74rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Native FAQ Accordion */
+  .faq-section {
+    margin-top: 2.25rem;
+  }
+
+  .faq-section h2 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 0.85rem;
+  }
+
+  .faq-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+    align-items: start;
+  }
+
+  .faq-item {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .faq-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    list-style: none;
+  }
+  .faq-summary::-webkit-details-marker { display: none; }
+
+  .faq-chevron {
+    flex-shrink: 0;
+    color: var(--text-muted);
+    transition: transform 0.18s ease;
+  }
+  .faq-item[open] .faq-chevron { transform: rotate(180deg); }
+
+  .faq-body {
+    padding: 0 1rem 0.95rem;
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+
+  /* Footer */
+  .convert-footer {
+    border-top: 1px solid var(--border);
+    padding: 1.25rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+  }
+  .footer-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .footer-links {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+    flex-wrap: wrap;
+  }
+  .footer-links a:hover { color: var(--accent); }
+
+  /* Tablet Responsive (768px - 1279px) */
+  @media (max-width: 1279px) {
+    .wb-layout-btn { display: none; }
+    .workbench-grid,
+    .workbench-grid[data-view="2col"] {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto;
+      grid-template-areas: none;
+      min-height: 0;
+    }
+    .workbench-grid[data-view="2col"] .wb-pane--source,
+    .workbench-grid[data-view="2col"] .wb-pane--output,
+    .workbench-grid[data-view="2col"] .wb-pane--preview {
+      grid-area: auto;
+    }
+    .wb-pane,
+    .workbench-grid[data-view="2col"] .wb-pane {
+      height: 440px;
+    }
+    .wb-pane--preview,
+    .workbench-grid[data-view="2col"] .wb-pane--preview {
+      grid-column: 1 / -1;
+      height: 480px;
+    }
+    .mapping-grid {
+      grid-template-columns: 1fr;
+    }
+    .faq-list {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Mobile Responsive (<= 899px) */
+  @media (max-width: 899px) {
+    .nav-links { display: none; }
+    .mobile-menu-btn { display: inline-flex; }
+
+    .mobile-pane-tabs {
+      display: flex;
+    }
+
+    .workbench-grid,
+    .workbench-grid[data-view="2col"] {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto;
+      grid-template-areas: none;
+      min-height: 430px;
+    }
+
+    .wb-pane,
+    .workbench-grid[data-view="2col"] .wb-pane {
+      display: none;
+      height: 440px;
+    }
+
+    .workbench-grid[data-mobile-pane="source"] .wb-pane--source,
+    .workbench-grid[data-mobile-pane="output"] .wb-pane--output,
+    .workbench-grid[data-mobile-pane="preview"] .wb-pane--preview {
+      display: flex;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .options-right {
+      width: 100%;
+    }
+    .option-control {
+      flex: 1 1 100%;
+    }
+    .option-control select {
+      flex: 1;
+      width: 0;
+      min-width: 0;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .home-nav { padding: 0 0.65rem; }
+    .convert-page { padding: 1rem 0.65rem 2.25rem; }
+    .btn-nav-studio { padding: 0.35rem 0.7rem; font-size: 0.75rem; }
+    .options-bar { padding: 0.55rem 0.65rem; }
+    .wb-pane-head { flex-wrap: wrap; }
+    .wb-pane--preview { height: 500px; }
+  }
+</style>

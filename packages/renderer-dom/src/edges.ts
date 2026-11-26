@@ -1,6 +1,16 @@
-import type { DiagramType, EdgeKind, PositionedNode, RoutedEdge, ThemeTokens, TimedCue } from "@markdy/core";
-import { selectOptimalPorts } from "@markdy/core";
-import { placeFlowLabel, polylineLength, routeOrthogonal, routeTreeEdgePoints, selfLoopPath, toPathD, wrapFlowLabelText } from "./geometry/path.js";
+import type { Box, DiagramType, EdgeKind, GroupBoundary, PositionedNode, RoutedEdge, ThemeTokens, TimedCue } from "@markdy/core";
+import { allocatePortLanes, selectOptimalPorts } from "@markdy/core";
+import {
+  groupHeaderObstaclesForEdge,
+  placeFlowLabel,
+  polylineLength,
+  routeOrthogonal,
+  routeTreeEdgePoints,
+  selfLoopPath,
+  toPathD,
+  wrapFlowLabelText,
+  type OrthogonalPortSlots,
+} from "./geometry/path.js";
 import { boxRect, inflateRect, type Point, type Rect } from "./geometry/rect.js";
 
 const EDGE_LAYER_ATTR = "data-markdy-edge-layer";
@@ -137,14 +147,61 @@ function routeEdgePoints(
   lane: number,
   diagramType: DiagramType = "architecture",
   isVerticalTree = false,
+  portSlots?: OrthogonalPortSlots,
+  groupBoundaries: GroupBoundary[] = [],
 ): Point[] {
   if (from.shape === "circle" && to.shape === "circle") return circleBoundaryRoute(from, to);
   if (diagramType === "tree") {
     const treeRoute = routeTreeEdgePoints(from, to, lane, isVerticalTree, bounds);
     if (treeRoute) return snapRouteEndpointsToShapes(treeRoute, from, to);
   }
-  const raw = routeOrthogonal(boxRect(from), boxRect(to), routeObstacles, bounds, lane);
+  const protectedHeaders = groupHeaderObstaclesForEdge(groupBoundaries, from.id, to.id);
+  const raw = routeOrthogonal(boxRect(from), boxRect(to), routeObstacles, bounds, lane, portSlots, protectedHeaders);
   return snapRouteEndpointsToShapes(raw, from, to);
+}
+
+/** Allocates geometrically ordered source/target port slots for all edges sharing a node face. */
+export function computePortSlotMap<T extends { from: string; to: string; id?: string }>(
+  edges: T[],
+  nodes: PositionedNode[],
+  diagramType: DiagramType | string = "architecture",
+): Map<T, OrthogonalPortSlots> {
+  if (diagramType === "sequence" || diagramType === "tree" || edges.length === 0) {
+    return new Map();
+  }
+  const boxes: Record<string, Box> = {};
+  const nodeById = new Map<string, PositionedNode>();
+  for (const n of nodes) {
+    boxes[n.id] = { x: n.x, y: n.y, width: n.width, height: n.height };
+    nodeById.set(n.id, n);
+  }
+  // Upward/backward multi-tier loopbacks route via outer side bypass corridors and should not displace forward spine ports
+  const primaryEdges = edges.filter((edge) => {
+    const s = nodeById.get(edge.from);
+    const t = nodeById.get(edge.to);
+    if (!s || !t || edge.from === edge.to) return false;
+    const isUpwardMultiTier = s.y - (t.y + t.height) > 40 && Math.abs(t.x - s.x) <= (s.width + t.width) * 1.1;
+    const isBackwardMultiTier = s.x - (t.x + t.width) > 40 && Math.abs(t.y - s.y) <= (s.height + t.height) * 1.1;
+    if (!isUpwardMultiTier && !isBackwardMultiTier) return true;
+    const hasBlocker = nodes.some((other) => {
+      if (other.id === s.id || other.id === t.id) return false;
+      if (isUpwardMultiTier) {
+        return other.y + other.height > t.y + t.height && other.y < s.y &&
+          other.x + other.width > Math.min(s.x, t.x) && other.x < Math.max(s.x + s.width, t.x + t.width);
+      }
+      return other.x + other.width > t.x + t.width && other.x < s.x &&
+        other.y + other.height > Math.min(s.y, t.y) && other.y < Math.max(s.y + s.height, t.y + t.height);
+    });
+    return !hasBlocker;
+  });
+
+  const map = allocatePortLanes(primaryEdges, boxes);
+  for (const edge of edges) {
+    if (edge.from !== edge.to && !map.has(edge)) {
+      map.set(edge, {});
+    }
+  }
+  return map;
 }
 
 export function ensureEdgeLayer(scene: HTMLElement): SVGSVGElement {
@@ -324,6 +381,8 @@ export function createEdgeRuntime(
   existingPaths: Point[][] = [],
   diagramType: DiagramType = "architecture",
   isVerticalTree = false,
+  portSlots?: OrthogonalPortSlots,
+  groupBoundaries: GroupBoundary[] = [],
 ): EdgeRuntime {
   ensureDefs(svg, theme, sceneId);
   const color = theme.edges[kind] ?? theme.edges.request ?? theme.accent;
@@ -331,7 +390,7 @@ export function createEdgeRuntime(
   const isSelfLoop = from.id === to.id;
   const points = isSelfLoop
     ? dedupePoints(selfLoopPath(from, bounds))
-    : dedupePoints(routeEdgePoints(from, to, routeObstacles, bounds, lane, diagramType, isVerticalTree));
+    : dedupePoints(routeEdgePoints(from, to, routeObstacles, bounds, lane, diagramType, isVerticalTree, portSlots, groupBoundaries));
   const d = toPathD(points, 14, existingPaths);
   const len = polylineLength(points);
 
@@ -706,6 +765,7 @@ export function buildCueAnimations(
   sceneId = createEdgeSceneId(),
   diagramType: DiagramType = "architecture",
   isVerticalTree?: boolean,
+  groupBoundaries: GroupBoundary[] = [],
 ): Animation[] {
   const isVertical = isVerticalTree ?? (bounds.height > bounds.width);
   const anims: Animation[] = [];
@@ -725,6 +785,7 @@ export function buildCueAnimations(
   const edgeLabels: Rect[] = [];
   const edgeLanes = new Map<string, number>();
   const placedPaths: Point[][] = [];
+  const portSlotsByEdge = computePortSlotMap(edges, nodes, diagramType);
 
   for (const edge of diagramType === "sequence" ? [] : edges) {
     if (edge.structural || edgeRuntimes.has(edge.id)) continue;
@@ -748,6 +809,8 @@ export function buildCueAnimations(
       placedPaths,
       diagramType,
       isVertical,
+      portSlotsByEdge.get(edge),
+      groupBoundaries,
     );
     placedPaths.push(runtime.points);
     if (runtime.labelRect) edgeLabels.push(runtime.labelRect);
@@ -888,14 +951,14 @@ export function buildCueAnimations(
       const routeObstacles = [...allNodeRects, ...placedLabels.map((l) => inflateRect(l, 4))];
       const lane = nextEdgeLane(laneByPair, from, to);
       const labelObstacles = [...allNodeRects, ...placedLabels];
-      const edgeId = cue.edgeId ?? edges.find((edge) =>
+      const matchedEdge = cue.edgeId ? edgeById.get(cue.edgeId) : edges.find((edge) =>
         !edge.structural &&
         edge.from === seg.from &&
         edge.to === seg.to &&
         edge.kind === seg.op &&
         edge.label === seg.label
-      )?.id;
-      let runtime = edgeId ? edgeRuntimes.get(edgeId) : undefined;
+      );
+      let runtime = matchedEdge ? edgeRuntimes.get(matchedEdge.id) : undefined;
       if (!runtime) {
         runtime = createEdgeRuntime(
           svg,
@@ -912,10 +975,12 @@ export function buildCueAnimations(
           placedPaths,
           diagramType,
           isVertical,
+          matchedEdge ? portSlotsByEdge.get(matchedEdge) : undefined,
+          groupBoundaries,
         );
         placedPaths.push(runtime.points);
         if (runtime.labelRect) placedLabels.push(runtime.labelRect);
-        if (edgeId) edgeRuntimes.set(edgeId, runtime);
+        if (matchedEdge) edgeRuntimes.set(matchedEdge.id, runtime);
       }
       anims.push(...animateEdgeReveal(runtime, startMs, durMs));
       // Auto-reveal nodes participating in this flow if not explicitly shown yet
@@ -980,6 +1045,7 @@ export function buildStructuralEdgeAnimations(
   diagramType: DiagramType = "architecture",
   cues: TimedCue[] = [],
   isVerticalTree?: boolean,
+  groupBoundaries: GroupBoundary[] = [],
 ): Animation[] {
   const isVertical = isVerticalTree ?? (bounds.height > bounds.width);
   const structural = edges.filter((e) =>
@@ -995,6 +1061,7 @@ export function buildStructuralEdgeAnimations(
   const placedLabels: Rect[] = [];
   const placedPaths: Point[][] = [];
   const laneByPair = new Map<string, number>();
+  const portSlotsByEdge = computePortSlotMap(edges, nodes, diagramType);
   const svg = ensureEdgeLayer(scene);
 
   const anims: Animation[] = [];
@@ -1045,6 +1112,8 @@ export function buildStructuralEdgeAnimations(
       placedPaths,
       diagramType,
       isVertical,
+      portSlotsByEdge.get(edge),
+      groupBoundaries,
     );
     placedPaths.push(runtime.points);
     if (runtime.labelRect) placedLabels.push(runtime.labelRect);

@@ -144,6 +144,7 @@ const docStructuredData = [
           <a href="#packages" class="mobile-doc-link">Package Directory</a>
         </div>
         <div class="mobile-drawer-group mobile-extra-links">
+          <a href="/convert/" class="mobile-doc-link">🔄 Diagram Converter</a>
           <a href="/playground/" class="mobile-doc-link mobile-highlight-link">⚡ Open Interactive Studio</a>
           <a href="/blog/" class="mobile-doc-link">✍️ Articles &amp; Guides</a>
           <a href="https://github.com/HoangYell/markdy-com" target="_blank" rel="noopener noreferrer" class="mobile-doc-link">🐙 GitHub Repository ↗</a>
@@ -465,7 +466,7 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
       <!-- ─── 7. Universal Ingestion ───────────────────────────────────── -->
       <section id="ingestion" class="doc-section">
         <h2 class="section-heading">Universal Ingestion &amp; 1-Click Migration</h2>
-        <p>Convert existing static architecture files directly into animated MarkdyScript using <code>@markdy/compat</code>:</p>
+        <p>Convert existing static architecture files directly into animated MarkdyScript using the <a href="/convert/" style="color:var(--accent);font-weight:600;">interactive browser converter</a> or <code>@markdy/compat</code>:</p>
 
         <img
           src="/images/markdy-universal-ingestion.webp"
@@ -480,18 +481,58 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
         <div class="ingestion-table-grid mt-4">
           <div class="ingest-card">
             <div class="card-head-row">
-              <h3>Mermaid.js (Flowcharts &amp; Sequences)</h3>
+              <h3>Mermaid.js (Flow, Sequence &amp; State)</h3>
               <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy command">Copy</button>
             </div>
-            <p>Converts graph TD/LR and sequence diagrams to MarkdyScript.</p>
+            <p>Converts flowcharts (decisions, subgraphs), sequence diagrams, and stateDiagram-v2 into MarkdyScript. <a href="/convert/?from=mermaid" style="color:var(--accent);font-weight:600;">Try live →</a></p>
             <pre><code>markdy import flow.mmd --out flow.markdy</code></pre>
+          </div>
+          <div class="ingest-card">
+            <div class="card-head-row">
+              <h3>D2 Diagrams</h3>
+              <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy command">Copy</button>
+            </div>
+            <p>Resolves nested containers, scoped refs, shapes, icons, and labels into grouped architecture scenes. <a href="/convert/?from=d2" style="color:var(--accent);font-weight:600;">Try live →</a></p>
+            <pre><code>markdy import architecture.d2 --from d2</code></pre>
+          </div>
+          <div class="ingest-card">
+            <div class="card-head-row">
+              <h3>PlantUML &amp; C4</h3>
+              <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy command">Copy</button>
+            </div>
+            <p>Parses UML components/packages and C4 Person, Container, ContainerDb, and Rel definitions. <a href="/convert/?from=plantuml" style="color:var(--accent);font-weight:600;">Try live →</a></p>
+            <pre><code>markdy import system.puml --from plantuml</code></pre>
+          </div>
+          <div class="ingest-card">
+            <div class="card-head-row">
+              <h3>Graphviz DOT</h3>
+              <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy command">Copy</button>
+            </div>
+            <p>Translates digraph rankdir, cluster subgraphs, node shapes, and edge labels into animated flows. <a href="/convert/?from=dot" style="color:var(--accent);font-weight:600;">Try live →</a></p>
+            <pre><code>markdy import graph.dot --from dot</code></pre>
+          </div>
+          <div class="ingest-card">
+            <div class="card-head-row">
+              <h3>Draw.io XML</h3>
+              <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy command">Copy</button>
+            </div>
+            <p>Extracts mxGraph vertices, semantic shapes, containers, and connectors into MarkdyScript. <a href="/convert/?from=drawio" style="color:var(--accent);font-weight:600;">Try live →</a></p>
+            <pre><code>markdy import diagram.drawio --out scene.markdy</code></pre>
+          </div>
+          <div class="ingest-card">
+            <div class="card-head-row">
+              <h3>Excalidraw JSON</h3>
+              <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy command">Copy</button>
+            </div>
+            <p>Converts frames, boxes, text labels, bound arrows, and dashed event connectors. <a href="/convert/?from=excalidraw" style="color:var(--accent);font-weight:600;">Try live →</a></p>
+            <pre><code>markdy import board.excalidraw --from excalidraw</code></pre>
           </div>
           <div class="ingest-card">
             <div class="card-head-row">
               <h3>Docker Compose</h3>
               <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy command">Copy</button>
             </div>
-            <p>Extracts services, network links, volumes, and ports into clustered scenes.</p>
+            <p>Extracts services, network links, volumes, and ports into clustered scenes. <a href="/convert/?from=compose" style="color:var(--accent);font-weight:600;">Try live →</a></p>
             <pre><code>markdy import docker-compose.yml</code></pre>
           </div>
           <div class="ingest-card">
@@ -499,7 +540,7 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
               <h3>Kubernetes YAML</h3>
               <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy command">Copy</button>
             </div>
-            <p>Maps Ingress, Service, Deployment, Pod, and PVC tiers into nested groups.</p>
+            <p>Maps Ingress, Service, Deployment, Pod, and PVC tiers into nested groups. <a href="/convert/?from=k8s" style="color:var(--accent);font-weight:600;">Try live →</a></p>
             <pre><code>markdy import k8s-manifest.yaml</code></pre>
           </div>
           <div class="ingest-card">
@@ -507,7 +548,7 @@ group storage "Data Persistence": RedisCluster PostgresDB`}</code></pre>
               <h3>Terraform State</h3>
               <button class="doc-copy-btn copy-cmd-btn copy-btn" type="button" title="Copy command">Copy</button>
             </div>
-            <p>Extracts cloud VPCs, subnets, databases, and gateways into layered architectures.</p>
+            <p>Extracts cloud VPCs, subnets, databases, and gateways into layered architectures. <a href="/convert/?from=terraform" style="color:var(--accent);font-weight:600;">Try live →</a></p>
             <pre><code>markdy import terraform.tfstate</code></pre>
           </div>
         </div>
@@ -651,7 +692,7 @@ client Browser -> service Api -> database DB
           </div>
           <div class="pkg-box">
             <strong>@markdy/compat</strong>
-            <span>Universal transpilers for Mermaid, Draw.io, Docker Compose, K8s, and Terraform.</span>
+            <span>Universal transpilers for Mermaid, D2, PlantUML/C4, Graphviz DOT, Draw.io, Excalidraw, Docker Compose, K8s, and Terraform.</span>
           </div>
           <div class="pkg-box">
             <strong>@markdy/cli</strong>
@@ -1646,6 +1687,7 @@ client Browser -> service Api -> database DB
     flex-direction: column;
     gap: 0.5rem;
     box-shadow: var(--shadow-xs);
+    min-width: 0;
   }
 
   .card-head-row {
@@ -1653,20 +1695,32 @@ client Browser -> service Api -> database DB
     align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
+    min-width: 0;
   }
 
+  .ingest-card h3,
   .ingest-card h4,
+  .framework-card h3,
   .framework-card h4,
   .pkg-box strong {
     font-size: 0.9rem;
     font-weight: 700;
     color: var(--text-primary);
+    margin: 0;
+    line-height: 1.3;
+    min-width: 0;
   }
 
   .ingest-card p,
   .pkg-box span {
     font-size: 0.8rem;
     color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  .ingest-card p a,
+  .framework-card p a {
+    white-space: nowrap;
   }
 
   .ingest-card pre,
@@ -1675,10 +1729,13 @@ client Browser -> service Api -> database DB
     border: 1px solid var(--code-border);
     padding: 0.65rem;
     border-radius: 6px;
-    font-size: 0.76rem;
-    margin-top: 0.25rem;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    font-size: 0.72rem;
+    line-height: 1.45;
+    margin-top: auto;
+    max-width: 100%;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    overflow-x: hidden;
   }
 
   /* ─── Footer ───────────────────────────────────────────────────────── */

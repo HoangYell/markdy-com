@@ -21,6 +21,7 @@ import {
   type TreeBus,
 } from "@markdy/core";
 import {
+  groupHeaderObstaclesForEdge,
   placeFlowLabel,
   polylineLength,
   routeOrthogonal,
@@ -31,7 +32,8 @@ import {
 } from "../geometry/path.js";
 import { boxRect, inflateRect, type Point, type Rect } from "../geometry/rect.js";
 import { ICON_REGISTRY, iconKeyForNode, type IconSpec } from "../nodes.js";
-import { nextEdgeLane } from "../edges.js";
+import { computePortSlotMap, nextEdgeLane } from "../edges.js";
+import type { OrthogonalPortSlots } from "../geometry/path.js";
 
 export interface SvgExportOptions {
   includeThemeStyles?: boolean;
@@ -237,13 +239,16 @@ function routeEdgePoints(
   lane: number,
   diagramType: string = "architecture",
   isVerticalTree = false,
+  portSlots?: OrthogonalPortSlots,
+  groupBoundaries: GroupBoundary[] = [],
 ): Point[] {
   if (from.shape === "circle" && to.shape === "circle") return circleBoundaryRoute(from, to);
   if (diagramType === "tree") {
     const treeRoute = routeTreeEdgePoints(from, to, lane, isVerticalTree, bounds);
     if (treeRoute) return snapRouteEndpointsToShapes(treeRoute, from, to);
   }
-  const raw = routeOrthogonal(boxRect(from), boxRect(to), routeObstacles, bounds, lane);
+  const protectedHeaders = groupHeaderObstaclesForEdge(groupBoundaries, from.id, to.id);
+  const raw = routeOrthogonal(boxRect(from), boxRect(to), routeObstacles, bounds, lane, portSlots, protectedHeaders);
   return snapRouteEndpointsToShapes(raw, from, to);
 }
 
@@ -653,6 +658,7 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
     const nodeMap = new Map(plan.nodes.map((n) => [n.id, n]));
     const laneByPair = new Map<string, number>();
     const isVerticalTree = Boolean(plan.treeBuses?.some((b) => b.vertical) || plan.meta?.direction === "TB" || plan.meta?.direction === "BT");
+    const portSlotsByEdge = computePortSlotMap(plan.edges, plan.nodes, plan.diagramType);
 
     plan.edges.forEach((edge, index) => {
       const from = nodeMap.get(edge.from);
@@ -669,7 +675,7 @@ export function renderPureVectorSvg(plan: RenderPlan, options: SvgExportOptions 
       const lane = nextEdgeLane(laneByPair, from, to);
       const points = isSelfLoop
         ? dedupePoints(selfLoopPath(from, bounds))
-        : dedupePoints(routeEdgePoints(from, to, routeObstacles, bounds, lane, plan.diagramType, isVerticalTree));
+        : dedupePoints(routeEdgePoints(from, to, routeObstacles, bounds, lane, plan.diagramType, isVerticalTree, portSlotsByEdge.get(edge), plan.groupBoundaries));
 
       const d = toPathD(points, 14, existingPaths);
       existingPaths.push(points);
@@ -1080,8 +1086,17 @@ export function exportLiveSceneAsPureVectorSvg(
       seqMsgEls.forEach((msgEl) => {
         const msgId = msgEl.getAttribute("data-message") || msgEl.getAttribute("data-message-id");
         if (msgId) {
-          const comp = window.getComputedStyle(msgEl);
-          const opacity = comp.display === "none" || comp.visibility === "hidden" ? 0 : parseFloat(comp.opacity || "1");
+          const groupComp = window.getComputedStyle(msgEl);
+          const lineEl = msgEl.querySelector("line");
+          const lineComp = lineEl ? window.getComputedStyle(lineEl) : groupComp;
+          const hidden =
+            groupComp.display === "none" ||
+            groupComp.visibility === "hidden" ||
+            lineComp.display === "none" ||
+            lineComp.visibility === "hidden";
+          const gOp = parseFloat(groupComp.opacity || "1");
+          const lOp = parseFloat(lineComp.opacity || "1");
+          const opacity = hidden ? 0 : (isNaN(gOp) ? 1 : gOp) * (isNaN(lOp) ? 1 : lOp);
           sequenceMessageStates.set(msgId, {
             opacity: isNaN(opacity) ? 1 : opacity,
           });

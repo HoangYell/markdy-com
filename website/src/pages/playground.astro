@@ -159,10 +159,11 @@ const playgroundStructuredData = [
 
         <div class="topbar-divider-v" aria-hidden="true"></div>
 
-        <!-- Global Navigation Links (Docs, Examples, Blog) -->
+        <!-- Global Navigation Links (Docs, Examples, Convert, Blog) -->
         <div class="topbar-nav-links">
           <a class="topbar-nav-link" href="/docs/" title="Documentation & Guides">Docs</a>
           <a class="topbar-nav-link" href="/examples/" title={`Architecture Examples (${EXAMPLES.length} Blueprints)`}>Examples <span class="nav-counter">{EXAMPLES.length}</span></a>
+          <a class="topbar-nav-link" href="/convert/" title="Convert Mermaid, D2, PlantUML, DOT, Draw.io & Excalidraw to Markdy">Convert</a>
           <a class="topbar-nav-link" href="/blog/" title="Blog & Tutorials">Blog</a>
         </div>
 
@@ -700,14 +701,18 @@ const playgroundStructuredData = [
           </div>
           <button id="close-modal-btn" class="modal-close" type="button" aria-label="Close modal">✕</button>
         </div>
-        <p class="modal-desc">Transpile Mermaid diagrams, Docker Compose services, Kubernetes manifests, Terraform state files, or Draw.io XML graphs into animated MarkdyScript scenes.</p>
+        <p class="modal-desc">Transpile Mermaid, D2, PlantUML, Graphviz DOT, Draw.io, Excalidraw, Docker Compose, Kubernetes, or Terraform into animated MarkdyScript. <a href="/convert/" style="color:var(--accent);font-weight:600;">Open full Converter Workbench ↗</a></p>
 
         <div class="format-tabs" role="tablist" aria-label="Import Format Tabs">
           <button class="format-tab active" type="button" data-format="mermaid" role="tab" aria-selected="true">Mermaid</button>
+          <button class="format-tab" type="button" data-format="d2" role="tab" aria-selected="false">D2</button>
+          <button class="format-tab" type="button" data-format="plantuml" role="tab" aria-selected="false">PlantUML</button>
+          <button class="format-tab" type="button" data-format="dot" role="tab" aria-selected="false">Graphviz DOT</button>
+          <button class="format-tab" type="button" data-format="drawio" role="tab" aria-selected="false">Draw.io</button>
+          <button class="format-tab" type="button" data-format="excalidraw" role="tab" aria-selected="false">Excalidraw</button>
           <button class="format-tab" type="button" data-format="compose" role="tab" aria-selected="false">Docker Compose</button>
           <button class="format-tab" type="button" data-format="k8s" role="tab" aria-selected="false">Kubernetes</button>
           <button class="format-tab" type="button" data-format="terraform" role="tab" aria-selected="false">Terraform</button>
-          <button class="format-tab" type="button" data-format="drawio" role="tab" aria-selected="false">Draw.io</button>
         </div>
 
         <textarea id="import-source" class="import-textarea" placeholder="Paste source code here..."></textarea>
@@ -903,6 +908,10 @@ const playgroundStructuredData = [
   } from "@markdy/core";
   import {
     transpileMermaidToMarkdy,
+    transpileD2ToMarkdy,
+    transpilePlantUmlToMarkdy,
+    transpileDotToMarkdy,
+    transpileExcalidrawToMarkdy,
     transpileDockerComposeToMarkdy,
     transpileKubernetesManifestsToMarkdy,
     transpileTerraformStateToMarkdy,
@@ -2674,6 +2683,19 @@ Requirements:
   // Ingestion sample templates
   const SAMPLES: Record<string, string> = {
     mermaid: `flowchart LR\n  Client[Web Client] --> Gateway[Kong API Gateway]\n  Gateway --> OrdersSvc[Orders Microservice]\n  OrdersSvc --> OrdersDB[(PostgreSQL 16)]\n  OrdersSvc --> Cache[(Redis Cluster)]`,
+    d2: `title: "Edge Gateway"\nclient: Browser Client\ngateway: API Gateway\ndb: Postgres Primary\ndb.shape: cylinder\nclient -> gateway: HTTPS\ngateway -> db: SQL Query`,
+    plantuml: `@startuml\ntitle Payment Flow\nactor User as client\nboundary Gateway as gw\ndatabase "Orders DB" as db\nclient -> gw : POST /pay\ngw -> db : Persist\n@enduml`,
+    dot: `digraph G {\n  rankdir=LR;\n  client [label="Web Client", shape=ellipse];\n  api [label="API Gateway", shape=hexagon];\n  db [label="Postgres", shape=cylinder];\n  client -> api [label="HTTPS"];\n  api -> db [label="SQL"];\n}`,
+    excalidraw: JSON.stringify({
+      type: "excalidraw",
+      elements: [
+        { id: "n1", type: "ellipse", x: 20, y: 80, width: 110, height: 60 },
+        { id: "t1", type: "text", x: 35, y: 98, width: 80, height: 22, text: "Client", containerId: "n1" },
+        { id: "n2", type: "rectangle", x: 220, y: 80, width: 120, height: 60 },
+        { id: "t2", type: "text", x: 245, y: 98, width: 80, height: 22, text: "Postgres DB", containerId: "n2" },
+        { id: "a1", type: "arrow", x: 130, y: 110, width: 90, height: 0, startBinding: { elementId: "n1" }, endBinding: { elementId: "n2" } },
+      ],
+    }, null, 2),
     compose: `services:\n  web:\n    image: nginx:alpine\n    ports: ["80:80"]\n    depends_on: ["api"]\n  api:\n    image: node:20\n    depends_on: ["db", "cache"]\n  db:\n    image: postgres:16\n  cache:\n    image: redis:7`,
     k8s: `apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: payment-service\n  namespace: fintech\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: payment-svc\n  namespace: fintech\n---\napiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: payment-ingress\n  namespace: fintech`,
     terraform: `{\n  "version": 4,\n  "resources": [\n    {\n      "type": "aws_lb",\n      "name": "public_alb",\n      "instances": [{ "attributes": { "name": "prod-alb", "vpc_id": "vpc_prod" } }]\n    },\n    {\n      "type": "aws_rds_cluster",\n      "name": "aurora_postgres",\n      "instances": [{ "attributes": { "name": "prod-db", "vpc_id": "vpc_prod" } }]\n    }\n  ]\n}`,
@@ -2729,6 +2751,14 @@ Requirements:
       if (activeImportFormat === "mermaid") {
         const res = transpileMermaidToMarkdy(src);
         markdyCode = typeof res === "string" ? res : res.code;
+      } else if (activeImportFormat === "d2") {
+        markdyCode = transpileD2ToMarkdy(src).markdyScript;
+      } else if (activeImportFormat === "plantuml") {
+        markdyCode = transpilePlantUmlToMarkdy(src).markdyScript;
+      } else if (activeImportFormat === "dot") {
+        markdyCode = transpileDotToMarkdy(src).code;
+      } else if (activeImportFormat === "excalidraw") {
+        markdyCode = transpileExcalidrawToMarkdy(src).code;
       } else if (activeImportFormat === "compose") {
         markdyCode = transpileDockerComposeToMarkdy(src);
       } else if (activeImportFormat === "k8s") {
@@ -5826,6 +5856,8 @@ Requirements:
   }
 
   .format-tab {
+    flex: none;
+    white-space: nowrap;
     padding: 0.35rem 0.7rem;
     border: 1px solid var(--border);
     border-radius: 6px;

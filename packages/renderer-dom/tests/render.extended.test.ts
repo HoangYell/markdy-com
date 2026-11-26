@@ -405,6 +405,15 @@ describe("diagram render plan", () => {
     expect(layer.querySelectorAll(".markdy-sequence-lifeline-cap")).toHaveLength(2);
     expect(layer.querySelectorAll(".markdy-sequence-message")).toHaveLength(1);
     expect(layer.querySelectorAll(".markdy-sequence-activation")).toHaveLength(1);
+    const msgGroup = layer.querySelector<SVGGElement>(".markdy-sequence-message")!;
+    expect(msgGroup.style.opacity).toBe("");
+    const msgLine = msgGroup.querySelector<SVGLineElement>("line")!;
+    expect(msgLine.style.opacity).toBe("0");
+    const msgPlate = msgGroup.querySelector<SVGRectElement>("rect")!;
+    expect(msgPlate.style.filter).toBe("");
+    const msgText = msgGroup.querySelector<SVGTextElement>("text")!;
+    expect(msgText.getAttribute("dominant-baseline")).toBe("central");
+    expect(msgText.getAttribute("paint-order")).toBe("stroke fill");
     expect(animations.length).toBe(3);
   });
 

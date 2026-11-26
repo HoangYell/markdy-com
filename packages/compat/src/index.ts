@@ -48,3 +48,25 @@ export {
 } from "./infra/plantuml-transpiler.js";
 export type { PlantUmlTranspileResult } from "./infra/plantuml-transpiler.js";
 
+export {
+  transpileDotToMarkdy,
+} from "./infra/dot-transpiler.js";
+export type { DotTranspileResult } from "./infra/dot-transpiler.js";
+
+export {
+  transpileExcalidrawToMarkdy,
+} from "./infra/excalidraw-transpiler.js";
+export type {
+  ExcalidrawElement,
+  ExcalidrawTranspileResult,
+} from "./infra/excalidraw-transpiler.js";
+
+export {
+  detectDiagramFormat,
+  transpileToMarkdy,
+} from "./universal.js";
+export type {
+  CompatFormat,
+  TranspileToMarkdyOptions,
+  UnifiedTranspileResult,
+} from "./universal.js";

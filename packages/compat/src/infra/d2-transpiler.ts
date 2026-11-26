@@ -18,12 +18,21 @@ export function transpileD2ToMarkdy(d2Source: string): D2TranspileResult {
   const nodes = new Map<string, { id: string; label: string; kind: string; icon?: string }>();
   const edges: { from: string; to: string; op: string; label?: string }[] = [];
   const containers = new Map<string, string[]>();
+  const scopedAlias = new Map<string, string>();
 
   let currentContainer: string | null = null;
   let sceneTitle = "Architecture Diagram";
 
   function sanitizeId(raw: string): string {
     return raw.trim().replace(/[^a-zA-Z0-9_]/g, "_");
+  }
+
+  function resolveRef(raw: string): string {
+    const trimmed = raw.trim();
+    if (scopedAlias.has(trimmed)) return scopedAlias.get(trimmed)!;
+    const sanitized = sanitizeId(trimmed);
+    if (scopedAlias.has(sanitized)) return scopedAlias.get(sanitized)!;
+    return sanitized;
   }
 
   function inferNodeKind(labelOrId: string, shape?: string): string {
@@ -76,9 +85,9 @@ export function transpileD2ToMarkdy(d2Source: string): D2TranspileResult {
     // Connection: A -> B: Label or A -- B: Label or A <-> B: Label or A ..> B: Label
     const connMatch = rawLine.match(/^([a-zA-Z0-9_.-]+)\s*(->|<-|<->|--|\.\.>|\.\.)\s*([a-zA-Z0-9_.-]+)(?:\s*:\s*(.*))?$/);
     if (connMatch) {
-      const fromId = sanitizeId(connMatch[1]);
+      const fromId = resolveRef(connMatch[1]);
       const rawOp = connMatch[2];
-      const toId = sanitizeId(connMatch[3]);
+      const toId = resolveRef(connMatch[3]);
       let label = connMatch[4]?.trim();
       if (label?.startsWith('"') && label.endsWith('"')) {
         label = label.slice(1, -1);
@@ -108,7 +117,7 @@ export function transpileD2ToMarkdy(d2Source: string): D2TranspileResult {
     // Shape/Icon property assignment: nodeId.shape: cylinder or nodeId.icon: postgres
     const propMatch = rawLine.match(/^([a-zA-Z0-9_.-]+)\.(shape|icon|style\.fill)\s*:\s*(.*)$/i);
     if (propMatch) {
-      const id = sanitizeId(propMatch[1]);
+      const id = resolveRef(propMatch[1]);
       const propKey = propMatch[2].toLowerCase();
       let propVal = propMatch[3].trim();
       if (propVal.startsWith('"') && propVal.endsWith('"')) {
@@ -156,6 +165,8 @@ export function transpileD2ToMarkdy(d2Source: string): D2TranspileResult {
 
       if (currentContainer) {
         containers.get(currentContainer)?.push(id);
+        scopedAlias.set(`${currentContainer}.${rawKey}`, id);
+        scopedAlias.set(`${currentContainer}_${id}`, id);
       }
       continue;
     }
@@ -168,6 +179,8 @@ export function transpileD2ToMarkdy(d2Source: string): D2TranspileResult {
       }
       if (currentContainer) {
         containers.get(currentContainer)?.push(id);
+        scopedAlias.set(`${currentContainer}.${rawLine}`, id);
+        scopedAlias.set(`${currentContainer}_${id}`, id);
       }
     }
   }
