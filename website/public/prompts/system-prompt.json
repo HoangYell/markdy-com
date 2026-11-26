@@ -1,6 +1,6 @@
 {
-  "version": "1.5.9",
-  "specVersion": "1.5.x",
+  "version": "1.6.0",
+  "specVersion": "1.6.x",
   "features": [
     {
       "id": "scene",
