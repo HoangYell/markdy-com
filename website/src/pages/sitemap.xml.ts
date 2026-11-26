@@ -6,6 +6,7 @@ const routes: Array<{ path: string; changefreq: string; priority: string }> = [
   { path: "agent/", changefreq: "daily", priority: "0.9" },
   { path: "docs/", changefreq: "weekly", priority: "0.9" },
   { path: "examples/", changefreq: "weekly", priority: "0.9" },
+  { path: "convert/", changefreq: "weekly", priority: "0.9" },
   { path: "playground/", changefreq: "weekly", priority: "0.8" },
   { path: "llms.txt", changefreq: "daily", priority: "0.8" },
   { path: "llms-full.txt", changefreq: "daily", priority: "0.8" },

@@ -125,10 +125,10 @@ export function computeNodeDimensions(
     const numLines = Math.max(words.length > 0 ? 1 : 0, measureLabelLines(rawLabel, words, charsPerLine));
     const labelH = numLines * 16;
     const techH = techLen > 0 ? 20 : 0;
-    const diamondContentH = 24 + labelH + techH;
+    const diamondContentH = 28 + labelH + techH;
 
-    const neededH = Math.max(effectiveBaseH, Math.ceil((diamondContentH / 0.58) / 8) * 8);
-    const neededW = Math.max(effectiveBaseW, Math.ceil(((targetTextW + 32) / 0.52) / 8) * 8);
+    const neededH = Math.max(effectiveBaseH, Math.ceil((diamondContentH / 0.52) / 8) * 8);
+    const neededW = Math.max(effectiveBaseW, Math.ceil(((targetTextW + 44) / 0.5) / 8) * 8);
     return {
       width: typeof decl.props?.width === "number" ? Math.max(decl.props.width, neededW) : neededW,
       height: typeof decl.props?.height === "number" ? Math.max(decl.props.height, neededH) : neededH,
@@ -214,10 +214,8 @@ function nodeShape(kind: string, dtype: DiagramType, props?: Record<string, unkn
   if (kind === "token_strip" || kind === "chips") return "pill";
   if (kind === "surface" || kind === "stat" || kind === "matrix" || kind === "track" || kind === "glyph_card") return "rounded";
   if (dtype === "constellation") return "rounded";
-  if (dtype === "flowchart") {
-    if (kind === "start" || kind === "end") return "pill";
-    if (kind === "decision" || kind === "condition") return "diamond";
-  }
+  if (kind === "start" || kind === "end") return "pill";
+  if (kind === "decision" || kind === "condition") return "diamond";
   if (dtype === "state" && kind === "state") return "rounded";
   if (kind === "user" || kind === "client") return "rounded";
   return "card";
@@ -298,11 +296,23 @@ function assignRanks(
   const queue = nodeIds.filter((id) => indegree.get(id) === 0);
   const processed = new Set<string>();
   let cursor = 0;
-  let cycleRoot = 0;
   while (processed.size < nodeIds.length) {
     if (cursor === queue.length) {
-      while (processed.has(nodeIds[cycleRoot])) cycleRoot++;
-      queue.push(nodeIds[cycleRoot]);
+      // Break cycles from the frontier node with highest partial rank / lowest remaining indegree
+      let bestId = "";
+      let bestRank = -1;
+      let bestIndegree = Number.POSITIVE_INFINITY;
+      for (const candidate of nodeIds) {
+        if (processed.has(candidate)) continue;
+        const r = ranks.get(candidate) ?? 0;
+        const deg = indegree.get(candidate) ?? 0;
+        if (r > bestRank || (r === bestRank && deg < bestIndegree)) {
+          bestId = candidate;
+          bestRank = r;
+          bestIndegree = deg;
+        }
+      }
+      if (bestId) queue.push(bestId);
     }
     const id = queue[cursor++];
     if (processed.has(id)) continue;
@@ -427,7 +437,7 @@ function layoutRanked(
   const isVertical = direction === "TB" || direction === "BT";
   const hasTitle = Boolean(ast.meta.title && ast.meta.title.trim().length > 0);
   const hasBeatCaptions = ast.beats.some((b) => b.label && b.label.trim().length > 0);
-  const titleBand = hasTitle ? TITLE_BAND : 0;
+  const titleBand = effectiveTitleBand(ast);
   const bottomBand = hasBeatCaptions ? 44 : 0;
   const contentW = ast.meta.width - SAFE * 2;
   const maxRank = Math.max(...byRank.keys(), 0);
@@ -473,15 +483,163 @@ function layoutRanked(
     return nodes;
   }
 
+function alignRankItems(
+  items: Array<{ id: string; size: number; parentCenter: number | null; defaultCenter: number; groupIdx: number }>,
+  minPos: number,
+  maxPos: number,
+  preferredStep: number,
+  minGap: number,
+): number[] {
+  const n = items.length;
+  if (n === 0) return [];
+  const anchors = items.map((item) => item.parentCenter ?? item.defaultCenter);
+
+  // Spread siblings sharing the same parent barycenter symmetrically around their shared anchor
+  const desiredCenters = new Array<number>(n);
+  let i = 0;
+  while (i < n) {
+    let j = i + 1;
+    while (j < n && items[j].parentCenter !== null && items[i].parentCenter !== null && Math.abs(anchors[j] - anchors[i]) < 1) {
+      j++;
+    }
+    const count = j - i;
+    if (count === 1) {
+      desiredCenters[i] = anchors[i];
+    } else {
+      const center = anchors[i];
+      for (let k = 0; k < count; k++) {
+        desiredCenters[i + k] = center + (k - (count - 1) / 2) * preferredStep;
+      }
+    }
+    i = j;
+  }
+
+  const pairGap = (idxA: number, idxB: number) => {
+    const gA = items[idxA].groupIdx;
+    const gB = items[idxB].groupIdx;
+    if (gA === gB) return minGap;
+    return gA >= 0 && gB >= 0 ? minGap + GROUP_PAD * 2 + 12 : minGap + GROUP_PAD + 8;
+  };
+
+  const starts = desiredCenters.map((c, idx) => Math.max(minPos, Math.min(maxPos - items[idx].size, c - items[idx].size / 2)));
+  for (let k = 1; k < n; k++) {
+    const minNext = starts[k - 1] + items[k - 1].size + pairGap(k - 1, k);
+    if (starts[k] < minNext) starts[k] = minNext;
+  }
+  const lastEnd = starts[n - 1] + items[n - 1].size;
+  if (lastEnd > maxPos) {
+    starts[n - 1] = Math.max(minPos, maxPos - items[n - 1].size);
+    for (let k = n - 2; k >= 0; k--) {
+      const maxPrev = starts[k + 1] - items[k].size - pairGap(k, k + 1);
+      if (starts[k] > maxPrev) starts[k] = maxPrev;
+    }
+  }
+  if (starts[0] < minPos) {
+    const totalSizes = items.reduce((sum, item) => sum + item.size, 0);
+    const availSpan = Math.max(totalSizes, maxPos - minPos);
+    const actualGap = n > 1 ? Math.max(4, (availSpan - totalSizes) / (n - 1)) : 0;
+    let cur = minPos;
+    for (let k = 0; k < n; k++) {
+      starts[k] = cur;
+      cur += items[k].size + actualGap;
+    }
+  }
+  return starts;
+}
+
+  const placedCenter = new Map<string, { x: number; y: number }>();
+
+  const separateGroupCollisions = (positioned: PositionedNode[]): void => {
+    const groupList = Object.values(ast.groups);
+    if (groupList.length < 2) return;
+    const byId = new Map(positioned.map((n) => [n.id, n]));
+    const boundsOf = (members: string[]) => {
+      const rects = members.map((id) => byId.get(id)).filter((n): n is PositionedNode => Boolean(n));
+      if (rects.length === 0) return null;
+      return {
+        x1: Math.min(...rects.map((n) => n.x)) - GROUP_PAD,
+        y1: Math.min(...rects.map((n) => n.y)) - GROUP_PAD - 12,
+        x2: Math.max(...rects.map((n) => n.x + n.width)) + GROUP_PAD,
+        y2: Math.max(...rects.map((n) => n.y + n.height)) + GROUP_PAD,
+        avgRank: rects.reduce((s, n) => s + (ranks.get(n.id) ?? 0), 0) / rects.length,
+        nodes: rects,
+      };
+    };
+
+    for (let pass = 0; pass < groupList.length; pass++) {
+      let moved = false;
+      for (let aIdx = 0; aIdx < groupList.length; aIdx++) {
+        for (let bIdx = aIdx + 1; bIdx < groupList.length; bIdx++) {
+          const bA = boundsOf(groupList[aIdx].members);
+          const bB = boundsOf(groupList[bIdx].members);
+          if (!bA || !bB) continue;
+          const overlapX = Math.min(bA.x2, bB.x2) - Math.max(bA.x1, bB.x1);
+          const overlapY = Math.min(bA.y2, bB.y2) - Math.max(bA.y1, bB.y1);
+          if (overlapX <= -12 || overlapY <= -12) continue;
+
+          if (isVertical) {
+            // Separate either horizontally (if sharing rank depth) or vertically (downstream lower group)
+            const [first, second] = bA.avgRank <= bB.avgRank ? [bA, bB] : [bB, bA];
+            if (Math.abs(first.avgRank - second.avgRank) < 0.75) {
+              const [leftG, rightG] = (first.x1 + first.x2) <= (second.x1 + second.x2) ? [first, second] : [second, first];
+              const shift = Math.ceil(leftG.x2 - rightG.x1 + 20);
+              if (shift > 0) {
+                for (const n of rightG.nodes) n.x = snapGrid(n.x + shift);
+                moved = true;
+              }
+            } else {
+              const shift = Math.ceil(first.y2 - second.y1 + 20);
+              if (shift > 0) {
+                const minMoveRank = Math.min(...second.nodes.map((n) => ranks.get(n.id) ?? 0));
+                for (const n of positioned) {
+                  if ((ranks.get(n.id) ?? 0) >= minMoveRank && !first.nodes.includes(n)) {
+                    n.y = snapGrid(n.y + shift);
+                  }
+                }
+                moved = true;
+              }
+            }
+          } else {
+            const [first, second] = bA.avgRank <= bB.avgRank ? [bA, bB] : [bB, bA];
+            if (Math.abs(first.avgRank - second.avgRank) < 0.75) {
+              const [topG, botG] = (first.y1 + first.y2) <= (second.y1 + second.y2) ? [first, second] : [second, first];
+              const shift = Math.ceil(topG.y2 - botG.y1 + 20);
+              if (shift > 0) {
+                for (const n of botG.nodes) n.y = snapGrid(n.y + shift);
+                moved = true;
+              }
+            } else {
+              const shift = Math.ceil(first.x2 - second.x1 + 20);
+              if (shift > 0) {
+                const minMoveRank = Math.min(...second.nodes.map((n) => ranks.get(n.id) ?? 0));
+                for (const n of positioned) {
+                  if ((ranks.get(n.id) ?? 0) >= minMoveRank && !first.nodes.includes(n)) {
+                    n.x = snapGrid(n.x + shift);
+                  }
+                }
+                moved = true;
+              }
+            }
+          }
+        }
+      }
+      if (!moved) break;
+    }
+  };
+
   if (isVertical) {
     // Vertical top-to-bottom flowchart/rank
-    const contentH = Math.max(NODE_H, ast.meta.height - (hasTitle ? titleBand : SAFE) - bottomBand - SAFE);
+    const firstRankIds = byRank.get(sortedRanks[0] ?? 0) ?? [];
+    const topGroupMargin = firstRankIds.some((id) => nodeGroupIndex.has(id)) ? GROUP_PAD + 14 : 0;
+    const baseTopY = (hasTitle ? titleBand : SAFE) + topGroupMargin;
+    const contentH = Math.max(NODE_H, ast.meta.height - baseTopY - bottomBand - SAFE);
     const maxNodeH = Math.max(...nodeIds.map((id) => nodeDims.get(id)?.height ?? NODE_H));
     const rowGap = Math.max(maxNodeH + 40, Math.min(200, contentH / Math.max(rankCount, 1)));
     const totalH = (rankCount - 1) * rowGap + maxNodeH;
-    const startY = (hasTitle ? titleBand : SAFE) + Math.max(0, (contentH - totalH) / 2);
+    const startY = baseTopY + Math.max(0, (contentH - totalH) / 2);
 
-    for (const [rank, ids] of [...byRank.entries()].sort((a, b) => a[0] - b[0])) {
+    for (const rank of sortedRanks) {
+      const ids = byRank.get(rank) ?? [];
       const rowCount = ids.length;
       const maxRowW = Math.max(...ids.map((id) => nodeDims.get(id)?.width ?? NODE_W));
       const colSpacing = Math.max(maxRowW + 36, Math.min(320, contentW / Math.max(rowCount, 1)));
@@ -489,19 +647,43 @@ function layoutRanked(
       const rankStartX = SAFE + Math.max(0, (contentW - rankW) / 2);
       const y = startY + rank * rowGap;
 
+      const xs = alignRankItems(
+        ids.map((id, idx) => {
+          const dims = nodeDims.get(id) ?? { width: NODE_W, height: NODE_H };
+          const parents = (incomingParents.get(id) ?? []).filter((p) => placedCenter.has(p));
+          const parentCenter =
+            parents.length > 0
+              ? parents.reduce((sum, p) => sum + placedCenter.get(p)!.x, 0) / parents.length
+              : null;
+          return {
+            id,
+            size: dims.width,
+            parentCenter,
+            defaultCenter: rankStartX + idx * colSpacing + dims.width / 2,
+            groupIdx: nodeGroupIndex.get(id) ?? -1,
+          };
+        }),
+        SAFE,
+        SAFE + contentW,
+        colSpacing,
+        36,
+      );
+
       ids.forEach((id, idx) => {
         const decl = ast.nodes[id];
         const role = nodeRole(decl.kind);
         const dims = nodeDims.get(id) ?? { width: NODE_W, height: NODE_H };
-        const x = rankStartX + idx * colSpacing;
+        const x = snapGrid(xs[idx]);
+        const sy = snapGrid(y);
         const focal = decl.props.focal === true || decl.props.accent === true;
+        placedCenter.set(id, { x: x + dims.width / 2, y: sy + dims.height / 2 });
         nodes.push({
           id,
           kind: decl.kind,
           role,
           label: decl.label,
-          x: snapGrid(x),
-          y: snapGrid(y),
+          x,
+          y: sy,
           width: dims.width,
           height: dims.height,
           style: resolveNodeStyle(decl, ast),
@@ -512,6 +694,7 @@ function layoutRanked(
         });
       });
     }
+    separateGroupCollisions(nodes);
     return nodes;
   }
 
@@ -523,38 +706,76 @@ function layoutRanked(
   }
 
   const totalRankWidths = [...rankWidths.values()].reduce((a, b) => a + b, 0);
-  const minColGap = 56;
+  const hasHorizLabels = edges.some((e) => !e.selfLoop && e.label && e.label.trim().length > 0);
+  const maxHorizLabelLen = hasHorizLabels
+    ? Math.max(...edges.filter((e) => !e.selfLoop && e.label).map((e) => e.label!.trim().length), 0)
+    : 0;
+  const minColGap = rankCount >= 3 && maxHorizLabelLen > 0
+    ? Math.max(88, Math.min(176, Math.ceil(maxHorizLabelLen * 6.8 + 54)))
+    : 56;
   const availableGapW = Math.max(0, contentW - totalRankWidths);
   const colGap = rankCount > 1 ? Math.max(minColGap, Math.min(160, availableGapW / (rankCount - 1))) : 0;
   const totalW = totalRankWidths + (rankCount - 1) * colGap;
   const startX = SAFE + Math.max(0, (contentW - totalW) / 2);
 
-  const availableH = Math.max(NODE_H, ast.meta.height - titleBand - bottomBand);
-
+  const anyGrouped = Object.keys(ast.groups).length > 0;
+  const topGroupMargin = hasTitle && anyGrouped ? GROUP_PAD + 10 : 0;
+  const topBandH = titleBand + topGroupMargin;
+  const availableH = Math.max(NODE_H, ast.meta.height - topBandH - bottomBand);
+  const rankXMap = new Map<number, number>();
   let currentRankX = startX;
   for (let rank = 0; rank < rankCount; rank++) {
+    rankXMap.set(rank, currentRankX);
+    currentRankX += (rankWidths.get(rank) ?? NODE_W) + colGap;
+  }
+
+  for (const rank of sortedRanks) {
     const ids = byRank.get(rank) ?? [];
-    const rankW = rankWidths.get(rank) ?? NODE_W;
+    const rankX = rankXMap.get(rank) ?? startX;
     const rowCount = ids.length;
     const maxH = Math.max(...ids.map((id) => nodeDims.get(id)?.height ?? NODE_H), NODE_H);
     const maxPossibleRowStep = rowCount > 1 ? (availableH - maxH) / (rowCount - 1) : 0;
     const rowSpacing = rowCount > 1 ? Math.min(180, Math.max(maxH + 28, maxPossibleRowStep)) : 0;
     const colH = (rowCount - 1) * rowSpacing + maxH;
-    const colStartY = titleBand + Math.max(0, (availableH - colH) / 2);
+    const colStartY = topBandH + Math.max(0, (availableH - colH) / 2);
+
+    const ys = alignRankItems(
+      ids.map((id, idx) => {
+        const dims = nodeDims.get(id) ?? { width: NODE_W, height: NODE_H };
+        const parents = (incomingParents.get(id) ?? []).filter((p) => placedCenter.has(p));
+        const parentCenter =
+          parents.length > 0
+            ? parents.reduce((sum, p) => sum + placedCenter.get(p)!.y, 0) / parents.length
+            : null;
+        return {
+          id,
+          size: dims.height,
+          parentCenter,
+          defaultCenter: colStartY + idx * rowSpacing + dims.height / 2,
+          groupIdx: nodeGroupIndex.get(id) ?? -1,
+        };
+      }),
+      topBandH,
+      topBandH + availableH,
+      rowSpacing > 0 ? rowSpacing : maxH + 28,
+      28,
+    );
 
     ids.forEach((id, idx) => {
       const decl = ast.nodes[id];
       const role = nodeRole(decl.kind);
       const dims = nodeDims.get(id) ?? { width: NODE_W, height: NODE_H };
-      const y = colStartY + idx * rowSpacing;
+      const sx = snapGrid(rankX);
+      const y = snapGrid(ys[idx]);
       const focal = decl.props.focal === true || decl.props.accent === true;
+      placedCenter.set(id, { x: sx + dims.width / 2, y: y + dims.height / 2 });
       nodes.push({
         id,
         kind: decl.kind,
         role,
         label: decl.label,
-        x: snapGrid(currentRankX),
-        y: snapGrid(y),
+        x: sx,
+        y,
         width: dims.width,
         height: dims.height,
         style: resolveNodeStyle(decl, ast),
@@ -564,9 +785,8 @@ function layoutRanked(
         focal,
       });
     });
-
-    currentRankX += rankW + colGap;
   }
+  separateGroupCollisions(nodes);
   return nodes;
 }
 
@@ -2287,26 +2507,34 @@ export function computeAdaptiveDimensions(
     }
     const rankCount = Math.max(...byRank.keys(), 0) + 1;
     const maxInRank = Math.max(...[...byRank.values()].map((v) => v.length), 1);
-    const groupPaddingBonus = groupCount > 0 ? GROUP_PAD * 2 : 0;
+    const groupPaddingBonus = groupCount > 0 ? GROUP_PAD * Math.max(2, groupCount) : 0;
     const maxRankW = maxNodeW;
     const maxRankH = maxNodeH;
+    const maxLabelLen = effectiveEdges.reduce(
+      (max, e) => (!e.selfLoop && e.label ? Math.max(max, e.label.trim().length) : max),
+      0,
+    );
 
     if (forceVertical) {
-      const colSpacing = 44;
-      const rowGap = 56;
+      const colSpacing = groupCount >= 2 ? 72 : 44;
+      const rowGap = maxLabelLen > 0 ? 68 : 56;
+      const topGroupClearance = hasTitle && groupCount > 0 ? GROUP_PAD + 14 : 0;
       const contentNeededW = maxInRank * maxRankW + Math.max(0, maxInRank - 1) * colSpacing + groupPaddingBonus;
       const requiredW = SAFE * 2 + contentNeededW;
       autoW = Math.max(480, Math.min(2400, Math.max(requiredW, titleW)));
 
-      const contentNeededH = rankCount * maxRankH + Math.max(0, rankCount - 1) * rowGap + groupPaddingBonus;
+      const contentNeededH = rankCount * maxRankH + Math.max(0, rankCount - 1) * rowGap + groupPaddingBonus + topGroupClearance;
       const requiredH = SAFE * 2 + titleBand + bottomBand + contentNeededH;
       autoH = Math.max(360, Math.min(3200, requiredH));
     } else {
-      const colGap = 56;
+      const colGap = rankCount >= 3 && maxLabelLen > 0
+        ? Math.max(88, Math.min(176, Math.ceil(maxLabelLen * 6.8 + 54)))
+        : 56;
       const rowGap = 44;
       const contentNeededW = rankCount * maxRankW + Math.max(0, rankCount - 1) * colGap + groupPaddingBonus;
       const requiredW = SAFE * 2 + contentNeededW;
-      const contentNeededH = maxInRank * maxRankH + Math.max(0, maxInRank - 1) * rowGap + groupPaddingBonus;
+      const topGroupClearance = hasTitle && groupCount > 0 ? GROUP_PAD + 10 : 0;
+      const contentNeededH = maxInRank * maxRankH + Math.max(0, maxInRank - 1) * rowGap + groupPaddingBonus + topGroupClearance;
       const requiredH = SAFE * 2 + titleBand + bottomBand + contentNeededH;
 
       autoW = Math.max(480, Math.min(2560, Math.max(requiredW, titleW)));
@@ -2329,6 +2557,16 @@ export function compilePlan(ast: DiagramAST, theme: ThemeTokens): RenderPlan {
   }
   const nodes = layoutNodes(ast, structuralEdges);
   const groupBoundaries = computeGroupBoundaries(ast, nodes);
+  if (nodes.length > 0) {
+    const maxNodeRight = Math.max(...nodes.map((n) => n.x + n.width), ...groupBoundaries.map((g) => g.x + g.width));
+    const maxNodeBottom = Math.max(...nodes.map((n) => n.y + n.height), ...groupBoundaries.map((g) => g.y + g.height));
+    if (!ast.meta.explicitWidth && maxNodeRight + SAFE > ast.meta.width) {
+      ast.meta.width = snapGrid(maxNodeRight + SAFE, 16);
+    }
+    if (!ast.meta.explicitHeight && maxNodeBottom + SAFE > ast.meta.height) {
+      ast.meta.height = snapGrid(maxNodeBottom + SAFE, 16);
+    }
+  }
   const treeEdges = structuralEdges.some((edge) => edge.structural)
     ? structuralEdges.filter((edge) => edge.structural)
     : structuralEdges;

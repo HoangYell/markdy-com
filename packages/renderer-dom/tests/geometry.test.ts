@@ -19,6 +19,7 @@ import type { Rect } from "../src/geometry/rect.js";
 import {
   cleanCollinearPoints,
   findSegmentHops,
+  groupHeaderObstaclesForEdge,
   labelPointForPath,
   placeFlowLabel,
   pointAtDistance,
@@ -355,5 +356,61 @@ describe("routeTreeEdgePoints", () => {
     const upper = { x: 100, y: 100, width: 200, height: 60 };
     expect(routeTreeEdgePoints(lower, upper, 0, true, boundsPortrait)).toBeNull();
     expect(routeTreeEdgePoints(lower, upper, 0, false, boundsLandscape)).toBeNull();
+  });
+
+  it("orders multi-branch port slots monotonically left-to-right so fan-out edges never cross", () => {
+    const parent = boxRect({ x: 400, y: 80, width: 180, height: 60 });
+    const leftChild = boxRect({ x: 180, y: 260, width: 180, height: 60 });
+    const rightChild = boxRect({ x: 620, y: 260, width: 180, height: 60 });
+
+    const leftRoute = routeOrthogonal(parent, leftChild, [parent, leftChild, rightChild], BOUNDS, 0, {
+      sourceLane: { index: 0, total: 2 },
+      targetLane: { index: 0, total: 1 },
+    });
+    const rightRoute = routeOrthogonal(parent, rightChild, [parent, leftChild, rightChild], BOUNDS, 1, {
+      sourceLane: { index: 1, total: 2 },
+      targetLane: { index: 0, total: 1 },
+    });
+
+    // Left child exits left of center; right child exits right of center -> zero X-crossing
+    expect(leftRoute[0].x).toBeLessThan(rightRoute[0].x);
+    expect(leftRoute[0].x).toBeLessThan(490);
+    expect(rightRoute[0].x).toBeGreaterThan(490);
+  });
+
+  it("keeps downward cross-group elbows above target group header pills instead of slicing horizontally through them", () => {
+    const gateway = boxRect({ x: 300, y: 120, width: 168, height: 60 });
+    const orderApi = boxRect({ x: 460, y: 316, width: 168, height: 60 });
+    const boundaries = [
+      {
+        id: "CoreMesh",
+        label: "BACKEND MICROSERVICES",
+        x: 440,
+        y: 280,
+        width: 208,
+        height: 160,
+        memberIds: ["OrderAPI"],
+      },
+    ];
+    const protectedHeaders = groupHeaderObstaclesForEdge(boundaries, "Gateway", "OrderAPI");
+    expect(protectedHeaders).toHaveLength(1);
+
+    const route = routeOrthogonal(
+      gateway,
+      orderApi,
+      [gateway, orderApi],
+      BOUNDS,
+      0,
+      { sourceLane: { index: 1, total: 2 }, targetLane: { index: 0, total: 1 } },
+      protectedHeaders,
+    );
+
+    // The horizontal turn segment must stay clearly above the group header pill (y1 = 282)
+    const horizSegments = [];
+    for (let i = 0; i < route.length - 1; i++) {
+      if (Math.abs(route[i].y - route[i + 1].y) < 1) horizSegments.push(route[i].y);
+    }
+    expect(horizSegments.length).toBeGreaterThan(0);
+    expect(horizSegments.every((y) => y < protectedHeaders[0].y1)).toBe(true);
   });
 });

@@ -1112,11 +1112,12 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       plan.diagramType,
       plan.cues,
       isVerticalTree,
+      plan.groupBoundaries,
     ),
     ...buildCueAnimations(plan.cues, nodeEls, plan.nodes, plan.theme, cameraLayer, titleEl, {
       width: plan.meta.width,
       height: plan.meta.height,
-    }, plan.edges, edgeRuntimes, edgeSceneId, plan.diagramType, isVerticalTree),
+    }, plan.edges, edgeRuntimes, edgeSceneId, plan.diagramType, isVerticalTree, plan.groupBoundaries),
     ...buildBeatCaptionAnimations(plan.beats, captionLayer),
   ];
   mountAnnotations(annotationLayer, plan.annotations, plan.nodes, plan.theme, {
@@ -1225,6 +1226,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
       plan.diagramType,
       plan.cues,
       Boolean(plan.treeBuses?.some((b) => b.vertical) || ast.meta.direction === "TB"),
+      plan.groupBoundaries,
     );
 
     allAnims = [
@@ -1252,6 +1254,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
         edgeSceneId,
         plan.diagramType,
         Boolean(plan.treeBuses?.some((b) => b.vertical) || ast.meta.direction === "TB"),
+        plan.groupBoundaries,
       ),
       ...buildBeatCaptionAnimations(plan.beats, captionLayer),
     ];

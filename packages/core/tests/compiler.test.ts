@@ -615,4 +615,64 @@ service Router
     expect(introCue).toBeDefined();
     expect(introCue?.targets).toEqual(["Ingest", "Router"]);
   });
+
+  it("aligns single-branch children beneath their parent branch and preserves cycle forward ranks", () => {
+    const source = `
+scene type=flowchart theme=paper
+layout TB
+service err "Show Error"
+start startNode "Start"
+decision Auth "Authenticated?"
+service LeftBranch "Dashboard"
+service RightBranch "Enter Credentials"
+decision Valid "Valid?"
+beat main:
+  show $nodes
+  err -> RightBranch "Retry"
+  startNode -> Auth
+  Auth -> LeftBranch "Yes"
+  Auth -> RightBranch "No"
+  RightBranch -> Valid
+  Valid -> err "Invalid"
+`;
+    const plan = compile(parse(source));
+    const node = (id: string) => plan.nodes.find((n) => n.id === id)!;
+    // Start -> Auth -> Left/Right -> Valid -> err must never invert cycle nodes backwards
+    expect(node("RightBranch").y).toBeGreaterThan(node("Auth").y);
+    expect(node("Valid").y).toBeGreaterThan(node("RightBranch").y);
+    expect(node("err").y).toBeGreaterThan(node("Valid").y);
+
+    // Valid and err hang off the right branch and should align under RightBranch rather than drifting left over center
+    const rightCx = node("RightBranch").x + node("RightBranch").width / 2;
+    const validCx = node("Valid").x + node("Valid").width / 2;
+    const leftCx = node("LeftBranch").x + node("LeftBranch").width / 2;
+    expect(Math.abs(validCx - rightCx)).toBeLessThan(Math.abs(validCx - leftCx));
+    expect(node("Auth").shape).toBe("diamond");
+  });
+
+  it("prevents overlapping group boxes and gives multi-line titles clearance above rank-0 groups", () => {
+    const source = `
+scene "Kubernetes Cluster Topology" theme=paper layout TB
+group prod "Namespace: Production": Ingress Svc
+group data "Stateful Storage Tier": Cache DB
+service Ingress "edge-ingress"
+service Svc "orders-svc"
+cache Cache "Redis"
+database DB "Postgres"
+beat main:
+  show $nodes
+  Ingress -> Svc
+  Svc -> Cache
+  Svc -> DB
+`;
+    const plan = compile(parse(source));
+    expect(plan.groupBoundaries).toHaveLength(2);
+    const [g1, g2] = plan.groupBoundaries;
+    // Multi-line title (~27 chars) must stay cleanly above group pill at y - 12
+    expect(g1.y - 12).toBeGreaterThan(100);
+    // Distinct groups must never overlap each other
+    const overlapX = Math.min(g1.x + g1.width, g2.x + g2.width) - Math.max(g1.x, g2.x);
+    const overlapY = Math.min(g1.y + g1.height, g2.y + g2.height) - Math.max(g1.y, g2.y);
+    expect(overlapX > 0 && overlapY > 0).toBe(false);
+  });
 });

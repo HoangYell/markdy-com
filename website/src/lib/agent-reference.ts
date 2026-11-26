@@ -142,6 +142,7 @@ Specification: ${reference.specVersion}
 - [Full LLM Context Bundle](${reference.fullContextUrl}): Complete text bundle generated from AGENT.md for tools that prefer one fetch.
 - [Human-Readable Agent Guide](${reference.humanUrl}): Crawlable HTML mirror of the canonical AI reference.
 - [Documentation](${new URL("/docs/", reference.humanUrl).toString()}): Human documentation hub for MarkdyScript tutorials, syntax, examples, and integrations.
+- [Diagram Converter](${new URL("/convert/", reference.humanUrl).toString()}): Browser converter for Mermaid, D2, PlantUML, Graphviz DOT, Draw.io, Excalidraw, Docker Compose, Kubernetes, and Terraform into MarkdyScript.
 - [Playground](${new URL("/playground/", reference.humanUrl).toString()}): Browser workspace for testing and validating MarkdyScript scenes.
 
 ## Optional

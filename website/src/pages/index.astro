@@ -2,6 +2,7 @@
 import MarkdyPet from "../components/MarkdyPet.astro";
 import Layout from "../layouts/Layout.astro";
 import { join } from "node:path";
+import { transpileToMarkdy, type CompatFormat } from "@markdy/compat";
 import { loadExamples, FULL_GALLERY_REGISTRY } from "../data/examples";
 
 const ROOT = join(process.cwd(), "..");
@@ -61,7 +62,7 @@ const PILLARS = [
   {
     icon: "🔄",
     title: "Universal Ingestion",
-    desc: "1-click transpilation from Mermaid flowcharts, Draw.io XML, Docker Compose, Kubernetes YAML, and Terraform state into animated scenes.",
+    desc: "1-click browser & CLI transpilation from Mermaid, D2, PlantUML/C4, Graphviz DOT, Draw.io, Excalidraw, Docker Compose, Kubernetes, and Terraform into animated scenes.",
     tag: "Compat",
     href: "#ingestion",
   },
@@ -205,32 +206,165 @@ const LAYOUT_SNIPPETS: Record<string, string> = {
   midnight: `scene theme=midnight\n\ngateway Cloudflare\nservice Firewall\nservice PrivateApi\n\nbeat filter:\n  show $nodes stagger=60ms\n  Cloudflare -> Firewall "TLS Traffic"\n  Firewall -> PrivateApi "Clean Packet"` + DEFAULT_PLAYER_YAML,
 };
 
-const INGESTION_SOURCES = [
+interface RawIngestionSpec {
+  id: string;
+  format: CompatFormat;
+  name: string;
+  ext: string;
+  title: string;
+  theme: string;
+  badge: string;
+  cmd: string;
+  rawInput: string;
+}
+
+const RAW_INGESTION_SPECS: RawIngestionSpec[] = [
   {
     id: "mermaid",
+    format: "mermaid",
     name: "Mermaid.js",
     ext: "flowchart.mmd",
-    rawLang: "mermaid",
-    badge: "Flowcharts & Sequences",
-    desc: "Transpile existing Mermaid graph and sequence charts directly into animated MarkdyScript scenes.",
-    cmd: "markdy import flow.mmd --out flow.markdy",
+    title: "Checkout Flow",
+    theme: "paper",
+    badge: "Flowcharts, Sequences & States",
+    cmd: "markdy import flowchart.mmd --out flow.markdy",
     rawInput: `flowchart LR
-  Client[Client Browser] --> Gateway[API Gateway]
-  Gateway --> Auth[Auth Service]
-  Auth --> DB[(PostgreSQL)]
-  Auth -.-> Cache[(Redis Session)]`,
-    snippet: `scene theme=paper type=flowchart\nlayout TB\n\nservice Client "Client Browser"\ngateway Gateway "API Gateway"\nservice Auth "Auth Microservice"\ncache Cache "Redis Session"\ndatabase DB "PostgreSQL"\n\nbeat flow:\n  show $nodes stagger=60ms\n  Client -> Gateway "POST /login"\n  Gateway -> Auth "Validate"\n  Auth -> DB "Query Credentials"\n  Auth -> Cache "Set Session"\n  Gateway <- Auth "JWT Token"` + DEFAULT_PLAYER_YAML,
+  Client([Web Browser]) --> Gateway[API Gateway]
+  Gateway --> Auth{Verify JWT}
+  Auth -->|Valid| Orders[Orders Service]
+  Orders --> DB[(PostgreSQL 16)]
+  Orders -. async .-> Queue{{Kafka Broker}}
+  Orders -.-> Cache[(Redis Cache)]`,
   },
   {
-    id: "docker",
+    id: "d2",
+    format: "d2",
+    name: "D2",
+    ext: "architecture.d2",
+    title: "Edge Gateway Mesh",
+    theme: "paper",
+    badge: "Declarative Diagrams",
+    cmd: "markdy import architecture.d2 --from d2",
+    rawInput: `client: Browser Client
+gateway: API Gateway
+
+core: {
+  auth: Auth Service
+  orders: Order Service
+  db: Postgres Primary
+  db.shape: cylinder
+}
+
+client -> gateway: HTTPS POST /orders
+gateway -> core.auth: Verify JWT
+gateway -> core.orders: Route Request
+core.orders -> core.db: INSERT order`,
+  },
+  {
+    id: "plantuml",
+    format: "plantuml",
+    name: "PlantUML & C4",
+    ext: "system.puml",
+    title: "Payments Architecture",
+    theme: "paper",
+    badge: "UML & C4 Containers",
+    cmd: "markdy import system.puml --from plantuml",
+    rawInput: `@startuml
+Person(user, "Mobile User", "Active customer")
+Container(gw, "API Gateway", "Go / Envoy", "TLS termination")
+Container(api, "Payment Service", "TypeScript", "Processes charges")
+ContainerDb(db, "Orders DB", "PostgreSQL 16", "Ledger storage")
+
+Rel(user, gw, "HTTPS Request")
+Rel(gw, api, "Forward Charge")
+Rel(api, db, "Persist Ledger")
+@enduml`,
+  },
+  {
+    id: "dot",
+    format: "dot",
+    name: "Graphviz DOT",
+    ext: "graph.dot",
+    title: "Event Ingestion",
+    theme: "paper",
+    badge: "Digraphs & Clusters",
+    cmd: "markdy import graph.dot --from dot",
+    rawInput: `digraph EventPipeline {
+  rankdir=LR;
+  client [label="Mobile SDK", shape=ellipse];
+  ingest [label="Edge Ingest"];
+  subgraph cluster_stream {
+    label="Streaming Core";
+    bus [label="Kafka Broker"];
+    worker [label="ClickHouse Sink"];
+  }
+  db [label="Analytics DB", shape=cylinder];
+  client -> ingest [label="HTTPS Batch"];
+  ingest -> bus [label="Publish"];
+  bus -> worker [label="Consume"];
+  worker -> db [label="Flush"];
+}`,
+  },
+  {
+    id: "drawio",
+    format: "drawio",
+    name: "Draw.io XML",
+    ext: "diagram.drawio",
+    title: "Edge Cache Topology",
+    theme: "blueprint",
+    badge: "diagrams.net XML",
+    cmd: "markdy import diagram.drawio --out scene.markdy",
+    rawInput: `<mxGraphModel>
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+    <mxCell id="edge" value="Cloudflare Edge" style="shape=hexagon;" vertex="1" parent="1"/>
+    <mxCell id="origin" value="App Server" vertex="1" parent="1"/>
+    <mxCell id="store" value="Postgres DB" style="shape=cylinder;" vertex="1" parent="1"/>
+    <mxCell id="e1" value="HTTPS" edge="1" source="edge" target="origin" parent="1"/>
+    <mxCell id="e2" value="Query" edge="1" source="origin" target="store" parent="1"/>
+  </root>
+</mxGraphModel>`,
+  },
+  {
+    id: "excalidraw",
+    format: "excalidraw",
+    name: "Excalidraw",
+    ext: "board.excalidraw",
+    title: "Whiteboard System",
+    theme: "sketchy",
+    badge: "JSON & Bound Arrows",
+    cmd: "markdy import board.excalidraw --from excalidraw",
+    rawInput: JSON.stringify(
+      {
+        type: "excalidraw",
+        version: 2,
+        elements: [
+          { id: "r1", type: "ellipse", x: 40, y: 100, width: 120, height: 60 },
+          { id: "t1", type: "text", x: 55, y: 118, width: 90, height: 24, text: "Web Client", containerId: "r1" },
+          { id: "r2", type: "diamond", x: 260, y: 95, width: 130, height: 70 },
+          { id: "t2", type: "text", x: 280, y: 118, width: 90, height: 24, text: "API Gateway", containerId: "r2" },
+          { id: "r3", type: "rectangle", x: 490, y: 100, width: 140, height: 60 },
+          { id: "t3", type: "text", x: 510, y: 118, width: 100, height: 24, text: "Postgres DB", containerId: "r3" },
+          { id: "a1", type: "arrow", x: 160, y: 130, width: 100, height: 0, startBinding: { elementId: "r1" }, endBinding: { elementId: "r2" } },
+          { id: "ta1", type: "text", x: 190, y: 110, width: 45, height: 20, text: "HTTPS", containerId: "a1" },
+          { id: "a2", type: "arrow", x: 390, y: 130, width: 100, height: 0, startBinding: { elementId: "r2" }, endBinding: { elementId: "r3" }, strokeStyle: "dashed" },
+        ],
+      },
+      null,
+      2
+    ),
+  },
+  {
+    id: "compose",
+    format: "compose",
     name: "Docker Compose",
     ext: "docker-compose.yml",
-    rawLang: "yaml",
+    title: "Service Mesh Stack",
+    theme: "terminal",
     badge: "Containers & Mesh",
-    desc: "Extract service definitions, ports, network links, and volumes into a live architecture diagram.",
     cmd: "markdy import docker-compose.yml",
-    rawInput: `version: '3.8'
-services:
+    rawInput: `services:
   web:
     image: nginx:alpine
     ports: ["80:80"]
@@ -242,74 +376,70 @@ services:
     image: redis:7-alpine
   db:
     image: postgres:16-alpine`,
-    snippet: `scene theme=terminal type=nested\nlayout TB\n\nservice Web "nginx:alpine"\nservice Api "node:20-alpine"\nservice Cache "redis:7-alpine"\ndatabase Db "postgres:16-alpine"\n\ngroup ingress: Web\ngroup app: Api Cache\ngroup data: Db\n\nbeat boot:\n  show ingress stagger=50ms & show app stagger=50ms & show data\n  Web -> Api "proxy_pass :3000"\n  Api -> Cache "connect :6379"\n  Api -> Db "connect :5432"` + DEFAULT_PLAYER_YAML,
   },
   {
     id: "k8s",
+    format: "k8s",
     name: "Kubernetes YAML",
     ext: "k8s-manifest.yaml",
-    rawLang: "yaml",
+    title: "Kubernetes Ingress",
+    theme: "midnight",
     badge: "Pods & Clusters",
-    desc: "Map Ingress, Service, Deployment, Pod, and PVC resources into clustered layout tiers.",
-    cmd: "markdy import cluster.yaml",
+    cmd: "markdy import k8s-manifest.yaml",
     rawInput: `apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: api-ingress
-spec:
-  rules:
-  - host: api.markdy.com
-    http:
-      paths:
-      - path: /
-        backend:
-          service:
-            name: order-service
-            port: { number: 80 }`,
-    snippet: `scene theme=midnight type=nested\nlayout TB\n\nservice Ingress "nginx-ingress"\nservice Svc "order-service:80"\nservice PodA "order-pod-1"\nservice PodB "order-pod-2"\n\ngroup ingress: Ingress\ngroup cluster: Svc PodA PodB\n\nbeat route:\n  show ingress & show cluster stagger=60ms\n  Ingress -> Svc "Host: api.markdy.com"\n  Svc -> PodA "round_robin"\n  Svc -> PodB "round_robin"` + DEFAULT_PLAYER_YAML,
-  },
-  {
-    id: "drawio",
-    name: "Draw.io XML",
-    ext: "diagram.drawio",
-    rawLang: "xml",
-    badge: "Vector Whiteboard",
-    desc: "Convert Draw.io and diagrams.net XML architectures into structured motion choreographies.",
-    cmd: "markdy import diagram.drawio --out scene.markdy",
-    rawInput: `<mxfile host="app.diagrams.net">
-  <diagram name="Edge Flow">
-    <mxGraphModel>
-      <root>
-        <mxCell id="0"/>
-        <mxCell id="1" parent="0"/>
-        <mxCell id="edge" value="Cloudflare Edge" vertex="1" parent="1"/>
-        <mxCell id="origin" value="App Server" vertex="1" parent="1"/>
-      </root>
-    </mxGraphModel>
-  </diagram>
-</mxfile>`,
-    snippet: `scene theme=blueprint\n\nservice CDN "Cloudflare Edge"\nservice Origin "App Server"\ndatabase Storage "S3 Object Store"\n\nbeat cache:\n  show $nodes stagger=50ms\n  CDN -> Origin "Cache Miss -> fetch"\n  Origin -> Storage "GET /assets"` + DEFAULT_PLAYER_YAML,
+  namespace: production
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+  namespace: production
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-worker
+  namespace: production`,
   },
   {
     id: "terraform",
+    format: "terraform",
     name: "Terraform State",
     ext: "terraform.tfstate",
-    rawLang: "json",
+    title: "AWS VPC Topology",
+    theme: "blueprint",
     badge: "Cloud Infrastructure",
-    desc: "Visualize provisioned AWS/GCP/Azure VPCs, subnets, databases, and gateways automatically.",
     cmd: "markdy import terraform.tfstate",
     rawInput: `{
-  "format_version": "1.0",
+  "version": 4,
   "resources": [
-    { "type": "aws_internet_gateway", "name": "igw" },
-    { "type": "aws_subnet", "name": "public_a" },
-    { "type": "aws_subnet", "name": "private_b" },
-    { "type": "aws_db_instance", "name": "postgres" }
+    { "type": "aws_lb", "name": "edge_alb", "instances": [{ "attributes": { "name": "edge-alb", "vpc_id": "vpc_prod" } }] },
+    { "type": "aws_ecs_service", "name": "api_cluster", "instances": [{ "attributes": { "name": "api-cluster", "vpc_id": "vpc_prod" } }] },
+    { "type": "aws_rds_cluster", "name": "postgres_primary", "instances": [{ "attributes": { "name": "orders-rds", "vpc_id": "vpc_prod" } }] }
   ]
 }`,
-    snippet: `scene theme=blueprint type=layers\nlayout TB\n\nservice IGW "Internet Gateway"\nservice PublicSubnet "Public Subnet (AZ-1a)"\nservice PrivateSubnet "Private Subnet (AZ-1b)"\nservice RDS "RDS Multi-AZ (AZ-1c)"\n\nbeat provision:\n  show $nodes stagger=70ms\n  IGW -> PublicSubnet "0.0.0.0/0"\n  PublicSubnet -> PrivateSubnet "NAT Route"\n  PrivateSubnet -> RDS "Port 5432"` + DEFAULT_PLAYER_YAML,
   },
 ];
+
+const INGESTION_SOURCES = await Promise.all(
+  RAW_INGESTION_SPECS.map(async (spec) => {
+    const res = await transpileToMarkdy(spec.rawInput, {
+      format: spec.format,
+      title: spec.title,
+      theme: spec.theme,
+      includePlayer: true,
+    });
+    return {
+      ...spec,
+      snippet: res.code.trim(),
+      nodeCount: res.nodeCount,
+      edgeCount: res.edgeCount,
+    };
+  })
+);
 
 const FAQS = [
   {
@@ -359,6 +489,7 @@ const homepageStructuredData = [
 
       <div class="nav-links">
         <a href="/examples/">Gallery</a>
+        <a href="/convert/">Convert</a>
         <a href="#prompt-tutorial">AI Prompt</a>
         <a href="#layouts">Layouts &amp; Themes</a>
         <a href="#ingestion">Ingestion</a>
@@ -388,6 +519,7 @@ const homepageStructuredData = [
     <div id="mobile-nav-drawer" class="mobile-nav-drawer" hidden>
       <div class="mobile-drawer-inner">
         <a href="/examples/" class="mobile-nav-link mobile-nav-highlight">🎨 Architecture Gallery (29 Blueprints)</a>
+        <a href="/convert/" class="mobile-nav-link">🔄 Convert Diagrams to Markdy</a>
         <a href="#prompt-tutorial" class="mobile-nav-link">🤖 AI Prompt Tutorial</a>
         <a href="#layouts" class="mobile-nav-link">🎨 17 Layouts &amp; Themes</a>
         <a href="#ingestion" class="mobile-nav-link">🔄 Universal Ingestion</a>
@@ -698,11 +830,24 @@ const homepageStructuredData = [
             <button id="ingestion-cmd-copy-btn" class="ingestion-copy-btn copy-btn" title="Copy CLI command">Copy</button>
           </div>
           <div class="ingestion-right-actions">
+            <span id="ingestion-metrics-badge" class="ingestion-metrics-pill">
+              {INGESTION_SOURCES[0].nodeCount} nodes · {INGESTION_SOURCES[0].edgeCount} flows
+            </span>
+            <a
+              id="ingestion-open-converter-link"
+              href={`/convert/?from=${INGESTION_SOURCES[0].id}`}
+              class="btn-prompt-action btn-prompt-copy"
+              title="Open interactive Mermaid, D2, PlantUML, DOT, Draw.io, Excalidraw & Infra converter"
+            >
+              <span>Open in Converter</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg>
+            </a>
             <button id="ingestion-run-studio-btn" class="btn-prompt-action btn-prompt-run" title="Load & run this transpiled scene in Live Studio">
-              <span>⚡ Run in Studio</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              <span>Run in Studio</span>
             </button>
-            <button id="ingestion-copy-code-btn" class="btn-prompt-action btn-prompt-copy" title="Copy MarkdyScript output">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+            <button id="ingestion-copy-code-btn" class="btn-prompt-action btn-prompt-run" title="Copy MarkdyScript output">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
               <span>Copy MarkdyScript</span>
             </button>
           </div>
@@ -710,17 +855,22 @@ const homepageStructuredData = [
 
         <!-- Before -> After Comparison Split Dock -->
         <div class="ingestion-compare-split">
-          <!-- Left Pane: Raw Static Input -->
+          <!-- Left Pane: Live Editable Source Input -->
           <div class="ingestion-code-pane pane-before">
             <div class="code-pane-header">
               <div class="pane-header-left">
-                <span class="pane-badge badge-raw">ORIGINAL STATIC INPUT</span>
+                <span class="pane-badge badge-raw">EDITABLE SOURCE</span>
                 <span id="ingestion-ext-label" class="file-ext-label">{INGESTION_SOURCES[0].ext}</span>
               </div>
-              <span class="pane-note">Static 2D Diagram / Manifest</span>
+              <span class="pane-note">Edit source to live-transpile</span>
             </div>
-            <div class="code-pane-body">
-              <pre><code id="ingestion-raw-code">{INGESTION_SOURCES[0].rawInput}</code></pre>
+            <div class="code-pane-body code-pane-body--editor">
+              <textarea
+                id="ingestion-raw-code"
+                class="ingestion-raw-textarea"
+                spellcheck="false"
+                aria-label="Editable diagram source input"
+              >{INGESTION_SOURCES[0].rawInput}</textarea>
             </div>
           </div>
 
@@ -729,7 +879,7 @@ const homepageStructuredData = [
             <div class="bridge-line"></div>
             <div class="bridge-pill">
               <img src="/images/3d-icon-sm.webp" alt="Markdy 3D Icon" class="bridge-icon-img" width="16" height="16" loading="lazy" decoding="async" fetchpriority="low" />
-              <span>1-Click Transpile</span>
+              <span>Live Transpile</span>
             </div>
             <div class="bridge-line"></div>
           </div>
@@ -741,7 +891,7 @@ const homepageStructuredData = [
                 <span class="pane-badge badge-markdy">ANIMATED MARKDYSCRIPT</span>
                 <span class="file-ext-label">output.markdy</span>
               </div>
-              <span class="pane-note">Native WAAPI Browser Motion</span>
+              <span class="pane-note">Real @markdy/compat output</span>
             </div>
             <div class="code-pane-body">
               <pre><code id="ingestion-markdy-code">{INGESTION_SOURCES[0].snippet}</code></pre>
@@ -801,34 +951,58 @@ const homepageStructuredData = [
               </thead>
               <tbody>
                 <tr>
-                  <td><strong>Mermaid Flowcharts</strong> (<code>.mmd</code>, <code>```mermaid</code>)</td>
+                  <td><strong>Mermaid Diagrams</strong> (<code>.mmd</code>, <code>```mermaid</code>)</td>
                   <td><span class="matrix-badge badge-stable">Stable</span></td>
-                  <td>Nodes, subgraphs, direction (LR/TB), flow labels, shapes</td>
-                  <td><a href="/blog/mermaid-alternative/">Migration Guide ↗</a></td>
+                  <td>Flowcharts (LR/TB/decisions/subgraphs), sequence lifelines, state machines</td>
+                  <td><a href="/convert/?from=mermaid">Live Converter ↗</a></td>
+                </tr>
+                <tr>
+                  <td><strong>D2 Language</strong> (<code>.d2</code>)</td>
+                  <td><span class="matrix-badge badge-stable">Stable</span></td>
+                  <td>Scoped containers (<code>core.auth</code>), shapes, icons, labels, flows</td>
+                  <td><a href="/convert/?from=d2">Live Converter ↗</a></td>
+                </tr>
+                <tr>
+                  <td><strong>PlantUML &amp; C4</strong> (<code>.puml</code>, <code>@startuml</code>)</td>
+                  <td><span class="matrix-badge badge-stable">Stable</span></td>
+                  <td>Components, packages, C4 <code>Person</code>/<code>Container</code>/<code>ContainerDb</code> &amp; relations</td>
+                  <td><a href="/convert/?from=plantuml">Live Converter ↗</a></td>
+                </tr>
+                <tr>
+                  <td><strong>Graphviz DOT</strong> (<code>.dot</code>, <code>.gv</code>)</td>
+                  <td><span class="matrix-badge badge-stable">Stable</span></td>
+                  <td><code>digraph</code> rankdir, clusters, shapes, edge styles &amp; labels</td>
+                  <td><a href="/convert/?from=dot">Live Converter ↗</a></td>
+                </tr>
+                <tr>
+                  <td><strong>Draw.io XML</strong> (<code>.drawio</code>, <code>.xml</code>)</td>
+                  <td><span class="matrix-badge badge-stable">Stable</span></td>
+                  <td>mxGraph vertex shapes, edge links, labels, grouped containers</td>
+                  <td><a href="/convert/?from=drawio">Live Converter ↗</a></td>
+                </tr>
+                <tr>
+                  <td><strong>Excalidraw Scenes</strong> (<code>.excalidraw</code>, <code>.json</code>)</td>
+                  <td><span class="matrix-badge badge-stable">Stable</span></td>
+                  <td>Frames, shapes, text containers, bound arrows, dashed events</td>
+                  <td><a href="/convert/?from=excalidraw">Live Converter ↗</a></td>
                 </tr>
                 <tr>
                   <td><strong>Docker Compose</strong> (<code>docker-compose.yml</code>)</td>
                   <td><span class="matrix-badge badge-stable">Stable</span></td>
-                  <td>Services, container ports, volume storage, networks</td>
-                  <td><a href="/playground/?example=url-shortener-architecture">Import in Studio ↗</a></td>
+                  <td>Services, container ports, volume storage, <code>depends_on</code> links</td>
+                  <td><a href="/convert/?from=compose">Live Converter ↗</a></td>
                 </tr>
                 <tr>
                   <td><strong>Kubernetes Manifests</strong> (<code>k8s.yaml</code>)</td>
                   <td><span class="matrix-badge badge-stable">Stable</span></td>
-                  <td>Deployments, Pods, Services, Ingress, PersistentVolumes</td>
-                  <td><a href="/blog/kubernetes-architecture-diagram/">K8s Guide ↗</a></td>
+                  <td>Deployments, Pods, Services, Ingress, PersistentVolumes, namespaces</td>
+                  <td><a href="/convert/?from=k8s">Live Converter ↗</a></td>
                 </tr>
                 <tr>
-                  <td><strong>Terraform State / HCL</strong> (<code>.tf</code>, <code>.tfstate</code>)</td>
+                  <td><strong>Terraform State</strong> (<code>terraform.tfstate</code>)</td>
                   <td><span class="matrix-badge badge-stable">Stable</span></td>
-                  <td>AWS / GCP / Azure resources, VPCs, subnets, DAG dependencies</td>
-                  <td><a href="/playground/">Import in Studio ↗</a></td>
-                </tr>
-                <tr>
-                  <td><strong>Draw.io XML</strong> (<code>.drawio</code>, <code>.xml</code>)</td>
-                  <td><span class="matrix-badge badge-beta">Beta</span></td>
-                  <td>mxGraph vertex geometry, labels, grouped containers</td>
-                  <td><a href="/playground/">Try Draw.io Import ↗</a></td>
+                  <td>AWS / GCP / Azure resources, VPC clusters, gateways, databases</td>
+                  <td><a href="/convert/?from=terraform">Live Converter ↗</a></td>
                 </tr>
               </tbody>
             </table>
@@ -1072,6 +1246,7 @@ markdy check-all ./docs/diagrams</code></pre>
         <nav class="f-col" aria-label="Product">
           <h3>Product</h3>
           <a href="/playground/">Studio</a>
+          <a href="/convert/">Diagram Converter</a>
           <a href="#features">Features</a>
           <a href="#layouts">Layout Engines</a>
           <a href="#ingestion">Ingestion</a>
@@ -1545,18 +1720,56 @@ markdy check-all ./docs/diagrams</code></pre>
     });
   });
 
-  // ─── Ingestion Comparison Dock Handlers ──────────────────────────────
+  // ─── Ingestion Comparison Dock Handlers (Live Browser Transpilation) ───
   const ingestionList: any[] = (window as any).__MARKDY_INGESTION || [];
   const ingestionTabs = document.querySelectorAll<HTMLButtonElement>(".ingestion-format-tab");
   const ingestionCmdText = document.getElementById("ingestion-cmd-text");
   const ingestionExtLabel = document.getElementById("ingestion-ext-label");
-  const ingestionRawCode = document.getElementById("ingestion-raw-code");
+  const ingestionRawCode = document.getElementById("ingestion-raw-code") as HTMLTextAreaElement | null;
   const ingestionMarkdyCode = document.getElementById("ingestion-markdy-code");
+  const ingestionMetricsBadge = document.getElementById("ingestion-metrics-badge");
+  const ingestionOpenConverterLink = document.getElementById("ingestion-open-converter-link") as HTMLAnchorElement | null;
   const ingestionCmdCopyBtn = document.getElementById("ingestion-cmd-copy-btn");
   const ingestionRunStudioBtn = document.getElementById("ingestion-run-studio-btn");
   const ingestionCopyCodeBtn = document.getElementById("ingestion-copy-code-btn");
 
   let activeIngestionIndex = 0;
+  let currentTranspiledSnippet = ingestionList[0]?.snippet || "";
+  let ingestionDebounce: ReturnType<typeof setTimeout> | null = null;
+
+  function syncConverterDeepLink(src: any) {
+    if (!ingestionOpenConverterLink || !src) return;
+    ingestionOpenConverterLink.href = `/convert/?from=${encodeURIComponent(src.format || src.id)}`;
+  }
+
+  async function transpileActiveIngestionInput() {
+    const src = ingestionList[activeIngestionIndex];
+    if (!src || !ingestionRawCode) return;
+    const raw = ingestionRawCode.value;
+    if (!raw.trim()) {
+      currentTranspiledSnippet = "";
+      if (ingestionMarkdyCode) ingestionMarkdyCode.textContent = "// Paste diagram source on the left to transpile...";
+      if (ingestionMetricsBadge) ingestionMetricsBadge.textContent = "0 nodes · 0 flows";
+      return;
+    }
+    try {
+      const { transpileToMarkdy } = await import("@markdy/compat");
+      const res = await transpileToMarkdy(raw, {
+        format: src.format,
+        title: src.title,
+        theme: src.theme,
+        includePlayer: true,
+      });
+      currentTranspiledSnippet = res.code.trim();
+      if (ingestionMarkdyCode) ingestionMarkdyCode.textContent = currentTranspiledSnippet;
+      if (ingestionMetricsBadge) {
+        ingestionMetricsBadge.textContent = `${res.nodeCount} node${res.nodeCount === 1 ? "" : "s"} · ${res.edgeCount} flow${res.edgeCount === 1 ? "" : "s"}`;
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (ingestionMarkdyCode) ingestionMarkdyCode.textContent = `// Transpile error: ${msg}`;
+    }
+  }
 
   ingestionTabs.forEach((tab, index) => {
     tab.addEventListener("click", () => {
@@ -1571,13 +1784,38 @@ markdy check-all ./docs/diagrams</code></pre>
       if (src) {
         if (ingestionCmdText) ingestionCmdText.textContent = src.cmd;
         if (ingestionExtLabel) ingestionExtLabel.textContent = src.ext;
-        if (ingestionRawCode) ingestionRawCode.textContent = src.rawInput;
-        if (ingestionMarkdyCode) ingestionMarkdyCode.textContent = src.snippet;
+        if (ingestionRawCode) ingestionRawCode.value = src.rawInput;
+        currentTranspiledSnippet = src.snippet;
+        if (ingestionMarkdyCode) ingestionMarkdyCode.textContent = currentTranspiledSnippet;
+        if (ingestionMetricsBadge) {
+          ingestionMetricsBadge.textContent = `${src.nodeCount} node${src.nodeCount === 1 ? "" : "s"} · ${src.edgeCount} flow${src.edgeCount === 1 ? "" : "s"}`;
+        }
+        syncConverterDeepLink(src);
         if (typeof (window as any).showToast === "function") {
-          (window as any).showToast(`Switched to ${src.name} transpiler`, "🔄");
+          (window as any).showToast(`Switched to ${src.name} transpiler`, "✓");
         }
       }
     });
+  });
+
+  ingestionRawCode?.addEventListener("input", () => {
+    if (ingestionDebounce) clearTimeout(ingestionDebounce);
+    ingestionDebounce = setTimeout(() => {
+      void transpileActiveIngestionInput();
+    }, 120);
+  });
+
+  ingestionOpenConverterLink?.addEventListener("click", () => {
+    const src = ingestionList[activeIngestionIndex];
+    const currentRaw = ingestionRawCode?.value ?? "";
+    if (src && currentRaw.trim()) {
+      try {
+        sessionStorage.setItem(
+          "markdy-convert-handoff",
+          JSON.stringify({ format: src.format || src.id, source: currentRaw })
+        );
+      } catch {}
+    }
   });
 
   ingestionCmdCopyBtn?.addEventListener("click", () => {
@@ -1587,7 +1825,7 @@ markdy check-all ./docs/diagrams</code></pre>
       ingestionCmdCopyBtn.textContent = "Copied!";
       ingestionCmdCopyBtn.classList.add("copied");
       if (typeof (window as any).showToast === "function") {
-        (window as any).showToast("Copied CLI import command", "💻");
+        (window as any).showToast("Copied CLI import command", "✓");
       }
       setTimeout(() => {
         ingestionCmdCopyBtn.textContent = orig;
@@ -1598,10 +1836,11 @@ markdy check-all ./docs/diagrams</code></pre>
 
   ingestionRunStudioBtn?.addEventListener("click", () => {
     const src = ingestionList[activeIngestionIndex];
-    if (src) {
+    const codeToRun = currentTranspiledSnippet || src?.snippet || "";
+    if (src && codeToRun) {
       userEditedCode = false;
       clearAutoShuffleTimer();
-      setEditorCode(src.snippet);
+      setEditorCode(codeToRun);
       const studio = document.getElementById("playground");
       if (studio) {
         studio.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1609,17 +1848,18 @@ markdy check-all ./docs/diagrams</code></pre>
         setTimeout(() => studio.classList.remove("studio-highlight-flash"), 1500);
       }
       if (typeof (window as any).showToast === "function") {
-        (window as any).showToast(`Loaded ${src.name} into Studio`, "⚡");
+        (window as any).showToast(`Loaded ${src.name} into Studio`, "✓");
       }
     }
   });
 
   ingestionCopyCodeBtn?.addEventListener("click", () => {
     const src = ingestionList[activeIngestionIndex];
-    if (src) {
-      navigator.clipboard.writeText(src.snippet).then(() => {
+    const codeToCopy = currentTranspiledSnippet || src?.snippet || "";
+    if (src && codeToCopy) {
+      navigator.clipboard.writeText(codeToCopy).then(() => {
         if (typeof (window as any).showToast === "function") {
-          (window as any).showToast(`Copied ${src.name} MarkdyScript`, "📋");
+          (window as any).showToast(`Copied ${src.name} MarkdyScript`, "✓");
         }
       });
     }
@@ -3195,23 +3435,17 @@ markdy check-all ./docs/diagrams</code></pre>
   }
 
   .ingestion-tabs-shelf {
-    display: flex;
-    gap: 0.55rem;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding-bottom: 2px;
-  }
-
-  .ingestion-tabs-shelf::-webkit-scrollbar {
-    display: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.5rem;
   }
 
   .ingestion-format-tab {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 0.5rem;
-    padding: 0.55rem 0.95rem;
+    padding: 0.55rem 0.9rem;
     border-radius: 10px;
     background: var(--bg-secondary);
     border: 1px solid var(--border);
@@ -3220,8 +3454,44 @@ markdy check-all ./docs/diagrams</code></pre>
     font-weight: 700;
     cursor: pointer;
     white-space: nowrap;
+    min-width: 0;
     transition: all 0.15s ease;
-    flex-shrink: 0;
+  }
+
+  .ingestion-tab-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media (max-width: 900px) {
+    .ingestion-tabs-shelf {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .ingestion-format-tab {
+      justify-content: center;
+      padding: 0.45rem 0.55rem;
+      font-size: 0.74rem;
+    }
+    .ingestion-tab-badge {
+      display: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .ingestion-tabs-shelf {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .ingestion-format-tab {
+      flex: 1 1 calc(50% - 0.4rem);
+      padding: 0.45rem 0.6rem;
+      font-size: 0.75rem;
+    }
+    .ingestion-tab-title {
+      overflow: visible;
+      text-overflow: clip;
+    }
   }
 
   .ingestion-format-tab:hover {
@@ -3291,6 +3561,19 @@ markdy check-all ./docs/diagrams</code></pre>
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .ingestion-metrics-pill {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.3rem 0.65rem;
+    border-radius: 999px;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-family: "JetBrains Mono", monospace;
+    white-space: nowrap;
   }
 
   .ingestion-compare-split {
@@ -3314,6 +3597,8 @@ markdy check-all ./docs/diagrams</code></pre>
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 0.4rem;
+    flex-wrap: wrap;
     padding: 0.65rem 1rem;
     background: var(--bg-secondary);
     border-bottom: 1px solid var(--border-subtle);
@@ -3358,8 +3643,28 @@ markdy check-all ./docs/diagrams</code></pre>
   .code-pane-body {
     padding: 1rem;
     flex: 1;
-    overflow-x: auto;
-    max-height: 280px;
+    overflow: auto;
+    height: 270px;
+  }
+
+  .code-pane-body--editor {
+    padding: 0;
+    display: flex;
+    overflow: hidden;
+  }
+
+  .ingestion-raw-textarea {
+    width: 100%;
+    height: 100%;
+    resize: none;
+    border: none;
+    outline: none;
+    padding: 1rem;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 0.78rem;
+    line-height: 1.6;
   }
 
   .code-pane-body pre {
@@ -3408,6 +3713,9 @@ markdy check-all ./docs/diagrams</code></pre>
   @media (max-width: 900px) {
     .ingestion-compare-split {
       grid-template-columns: 1fr;
+    }
+    .pane-note {
+      display: none;
     }
     .ingestion-transpile-bridge {
       flex-direction: row;

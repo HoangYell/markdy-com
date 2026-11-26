@@ -5,6 +5,21 @@ All notable changes to the `markdy` project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [1.6.0] - 2026-11-26
+
+### Added & Enhanced
+- **Dedicated Diagram Converter Workbench (`/convert/`, `@markdy/website`)**: Added a browser-based interactive converter page supporting Auto-Detect, Mermaid (Flowchart, Sequence, State), D2, PlantUML & C4, Graphviz DOT, Draw.io XML, Excalidraw JSON, Docker Compose, Kubernetes YAML, and Terraform State with spacious 2-column studio default (+ 3-column toggle), file drag-and-drop, CodeMirror output, live settled WAAPI preview, theme/layout overrides, SVG/`.markdy` export, and 1-click handoff to `/playground/`.
+- **Homepage & Docs Universal Ingestion Upgrade (`@markdy/website`)**: Upgraded Homepage `#ingestion` with a 9-format selector, editable live transpilation calling `@markdy/compat`, and converter handoff, plus expanded the 9-card `#ingestion` section on `/docs/` with responsive wrapping across mobile and desktop viewports.
+- **Universal Auto-Detect & Extended Transpilers (`@markdy/compat`, `@markdy/cli`)**: Added Graphviz DOT (`transpileDotToMarkdy`), Excalidraw JSON (`transpileExcalidrawToMarkdy`), Mermaid `stateDiagram`/`stateDiagram-v2` + subgraph membership ownership tracking + reply (`-->>`) and activation parsing improvements, D2 scoped container alias resolution, and unified `detectDiagramFormat` + `transpileToMarkdy` pipeline.
+- **Playground Import Modal & Site Navigation (`@markdy/website`)**: Wired D2, PlantUML, Graphviz DOT, and Excalidraw into `/playground/` import modal and added `/convert/` links across Homepage, Examples, Docs, Blog, `sitemap.xml`, and `llms.txt`.
+
+### Fixed
+- **Ordered Orthogonal Port Slotting & Loopback Corridor Preservation (`@markdy/renderer-dom`, `@markdy/core`)**: Slotted concurrent outgoing/incoming orthogonal ports monotonically left-to-right / top-to-bottom, snapped slight offsets cleanly into plumb connections, filtered multi-tier loopback bypass edges from displacing forward spine ports, and routed cross-group downward elbows cleanly above target group header pills instead of slicing horizontally across group badges.
+- **Universal `diamond`/`pill` Layout, Cycle-Safe Ranking & C4 Spacing (`@markdy/core`)**: Enabled universal diamond decision nodes and pill endpoints across themes, prevented cycle-breaking inversion in `assignRanks`, added parent-barycenter alignment with non-overlapping group separation, and widened horizontal gaps for labeled multi-tier flows.
+- **Reliable Sequence Label Rasterization Under Scaled WAAPI Scenes (`@markdy/renderer-dom`)**: Animated sequence lines, label plates, and text elements in lockstep via `syncAnimationGroup` without parent `<g>` compositing traps or CSS drop-shadow filters on SVG plates, preserving `animations.length` and vector SVG/frame opacity capture.
+
 ## [1.5.9] - 2026-11-24
 
 ### Added & Changed

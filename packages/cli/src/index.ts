@@ -543,6 +543,10 @@ async function importCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> 
     markdyCode = compat.transpileD2ToMarkdy(content).markdyScript;
   } else if (formatFlag === "plantuml" || formatFlag === "puml" || ext === ".puml" || ext === ".plantuml" || content.includes("@startuml")) {
     markdyCode = compat.transpilePlantUmlToMarkdy(content).markdyScript;
+  } else if (formatFlag === "dot" || formatFlag === "graphviz" || ext === ".dot" || ext === ".gv") {
+    markdyCode = compat.transpileDotToMarkdy(content, title).code;
+  } else if (formatFlag === "excalidraw" || ext === ".excalidraw") {
+    markdyCode = compat.transpileExcalidrawToMarkdy(content, title).code;
   } else if (formatFlag === "compose" || ((ext === ".yml" || ext === ".yaml") && (inputFile.includes("compose") || content.includes("services:")))) {
     markdyCode = compat.transpileDockerComposeToMarkdy(content, title);
   } else if (formatFlag === "k8s" || (content.includes("apiVersion:") && content.includes("kind:"))) {
@@ -552,7 +556,7 @@ async function importCommand(parsed: ParsedArgs, io: CliIo): Promise<RunResult> 
   } else if (formatFlag === "drawio" || ext === ".drawio" || (ext === ".xml" && content.includes("<mxCell"))) {
     markdyCode = (await compat.transpileDrawioToMarkdy(content, title)).code;
   } else {
-    markdyCode = compat.transpileMermaidToMarkdy(content, title).code;
+    markdyCode = (await compat.transpileToMarkdy(content, { title, filenameHint: inputFile })).code;
   }
 
   const outPath = getStringFlag(parsed, "out");

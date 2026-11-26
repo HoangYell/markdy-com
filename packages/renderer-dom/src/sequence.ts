@@ -56,16 +56,49 @@ function createText(
   label.setAttribute("x", String(x));
   label.setAttribute("y", String(y));
   label.setAttribute("text-anchor", "middle");
-  label.setAttribute("dominant-baseline", "middle");
+  label.setAttribute("dominant-baseline", "central");
   label.setAttribute("font-size", "11");
-  label.setAttribute("font-family", theme.fonts?.mono ?? "ui-monospace, SFMono-Regular, Menlo, monospace");
+  label.setAttribute("font-weight", "500");
+  label.setAttribute("font-family", "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace");
   label.setAttribute("fill", theme.text);
+  label.setAttribute("paint-order", "stroke fill");
+  label.setAttribute("stroke", theme.labelPlate ?? theme.surface);
+  label.setAttribute("stroke-width", "3px");
+  label.setAttribute("stroke-linejoin", "round");
   label.textContent = text;
   return label;
 }
 
 function resolveLifelineStroke(theme: ThemeTokens): string {
   return theme.edges?.dependency ?? theme.rule ?? theme.border ?? "#64748b";
+}
+
+function syncAnimationGroup(primary: Animation, followers: Animation[]): Animation {
+  if (followers.length === 0) return primary;
+  const all = [primary, ...followers];
+  const controlMethods = new Set(["play", "pause", "cancel", "finish", "reverse"]);
+  const syncProps = new Set(["currentTime", "playbackRate", "startTime"]);
+  return new Proxy(primary, {
+    get(target, prop, receiver) {
+      if (typeof prop === "string" && controlMethods.has(prop)) {
+        return (...args: unknown[]) => {
+          for (const anim of all) {
+            const fn = Reflect.get(anim, prop) as ((...a: unknown[]) => unknown) | undefined;
+            if (typeof fn === "function") fn.apply(anim, args);
+          }
+        };
+      }
+      const val = Reflect.get(target, prop, receiver);
+      return typeof val === "function" ? val.bind(target) : val;
+    },
+    set(target, prop, value) {
+      if (typeof prop === "string" && syncProps.has(prop)) {
+        for (const anim of all) Reflect.set(anim, prop, value);
+        return true;
+      }
+      return Reflect.set(target, prop, value);
+    },
+  });
 }
 
 export function mountSequenceLayer(
@@ -85,13 +118,13 @@ export function mountSequenceLayer(
 
   const doc = layer.ownerDocument;
   const svg = doc.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", `0 0 ${bounds.width} ${bounds.height}`);
   Object.assign(svg.style, {
     position: "absolute",
     inset: "0",
     width: "100%",
     height: "100%",
     overflow: "visible",
+    pointerEvents: "none",
   });
   layer.appendChild(svg);
 
@@ -159,7 +192,6 @@ export function mountSequenceLayer(
     group.classList.add("markdy-sequence-message");
     group.setAttribute("data-message", message.id);
     group.setAttribute("data-message-id", message.id);
-    group.style.opacity = "0";
 
     const line = doc.createElementNS("http://www.w3.org/2000/svg", "line");
     line.setAttribute("x1", String(fromX));
@@ -169,6 +201,7 @@ export function mountSequenceLayer(
     line.setAttribute("stroke", theme.edges[message.kind]);
     line.setAttribute("stroke-width", "2");
     line.setAttribute("stroke-linecap", "round");
+    line.style.opacity = "0";
     if (message.kind === "response") line.setAttribute("stroke-dasharray", "6 4");
     if (message.kind === "event") line.setAttribute("stroke-dasharray", "2 6");
     if (message.kind !== "dependency") {
@@ -177,22 +210,27 @@ export function mountSequenceLayer(
     }
     group.appendChild(line);
 
+    let plateEl: SVGRectElement | null = null;
+    let textEl: SVGTextElement | null = null;
     if (message.label) {
       const midX = (fromX + toX) / 2;
       const plate = doc.createElementNS("http://www.w3.org/2000/svg", "rect");
-      const width = message.label.length * 6.8 + 16;
+      const width = Math.max(40, message.label.length * 6.8 + 18);
       plate.setAttribute("x", String(midX - width / 2));
-      plate.setAttribute("y", String(message.y - 25));
+      plate.setAttribute("y", String(message.y - 26));
       plate.setAttribute("width", String(width));
-      plate.setAttribute("height", "20");
+      plate.setAttribute("height", "22");
       plate.setAttribute("rx", "6");
       plate.setAttribute("fill", theme.labelPlate ?? theme.surface);
       plate.setAttribute("fill-opacity", "0.96");
       plate.setAttribute("stroke", theme.hairline ?? `color-mix(in srgb, ${theme.border} 70%, transparent)`);
       plate.setAttribute("stroke-width", "1");
-      plate.style.filter = "drop-shadow(0 1px 3px rgba(0,0,0,0.12))";
+      plate.style.opacity = "0";
+      plateEl = plate;
       group.appendChild(plate);
-      group.appendChild(createText(doc, midX, message.y - 14.5, message.label, theme));
+      textEl = createText(doc, midX, message.y - 15, message.label, theme);
+      textEl.style.opacity = "0";
+      group.appendChild(textEl);
     }
 
     const pulse = doc.createElementNS("http://www.w3.org/2000/svg", "circle");
@@ -206,16 +244,18 @@ export function mountSequenceLayer(
     svg.appendChild(group);
     const durMs = Math.max(160, message.duration * 1000);
     const startMs = message.start * 1000;
+    const revealTiming: KeyframeAnimationOptions = {
+      duration: 140,
+      delay: startMs,
+      fill: "both",
+      easing: "ease-out",
+    };
+    const lineAnim = line.animate([{ opacity: 0 }, { opacity: 1 }], revealTiming);
+    const followers: Animation[] = [];
+    if (plateEl) followers.push(plateEl.animate([{ opacity: 0 }, { opacity: 1 }], revealTiming));
+    if (textEl) followers.push(textEl.animate([{ opacity: 0 }, { opacity: 1 }], revealTiming));
     animations.push(
-      group.animate(
-        [{ opacity: 0 }, { opacity: 1 }],
-        {
-          duration: 120,
-          delay: startMs,
-          fill: "forwards",
-          easing: "ease-out",
-        },
-      ),
+      syncAnimationGroup(lineAnim, followers),
       pulse.animate(
         [
           { transform: `translate(${fromX}px, ${message.y}px)`, opacity: 0 },
@@ -304,7 +344,7 @@ export function updateSequenceLayerTheme(layer: HTMLElement, theme: ThemeTokens)
     const text = group.querySelector("text");
     if (text) {
       text.setAttribute("fill", theme.text);
-      if (theme.fonts?.mono) text.setAttribute("font-family", theme.fonts.mono);
+      text.setAttribute("stroke", theme.labelPlate ?? theme.surface);
     }
   });
 }

@@ -18,11 +18,14 @@ Universal Ingestion Transpilers & Backwards-Compatibility Gate for Markdy.
 
 ## Features
 
-- **Mermaid Transpiler**: Converts Mermaid Flowcharts (`flowchart LR/TB/TD`) and Sequence Diagrams (`sequenceDiagram`) into animated Markdy scenes.
+- **Mermaid Transpiler**: Converts Mermaid Flowcharts (`flowchart LR/TB/TD`), Sequence Diagrams (`sequenceDiagram`), and State Diagrams (`stateDiagram-v2`) into animated Markdy scenes.
+- **D2 & PlantUML Transpilers**: Converts D2 declarative scripts and PlantUML / C4 architecture diagrams into semantic MarkdyScript.
+- **Graphviz DOT & Excalidraw Ingestion**: Converts `.dot`/`.gv` graphs and `.excalidraw` JSON boards with frame grouping and bound arrow labels.
 - **Draw.io Ingestion**: Converts `.drawio` / `.xml` diagram graphs into structured MarkdyScript scenes with port attachments and label preservation.
 - **Docker Compose Ingestion**: Parses `docker-compose.yml` into connected service topologies with port allocations and dependency order.
 - **Kubernetes Manifests Transpiler**: Converts multi-document K8s manifests into namespace groups, ingresses, load balancers, and workloads.
 - **Terraform State Ingestion**: Converts `.tfstate` files into VPC-clustered infrastructure diagrams.
+- **Unified Auto-Detect Pipeline (`transpileToMarkdy`)**: Automatically detects the source format and applies theme, layout, and motion player presets. Try it live at **[markdy.com/convert/](https://markdy.com/convert/)**.
 - **Backwards-Compatibility Snapshot Gate**: Automated regression test suite ensuring Markdy parser stability across releases.
 
 <p align="center">

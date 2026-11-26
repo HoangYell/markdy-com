@@ -3,7 +3,41 @@
  * edges. DOM-free pure 2D geometry functions.
  */
 import type { Point, Rect } from "./rect.js";
-import { countPathIntersections, inflateRect, rectCenter, rectsOverlap } from "./rect.js";
+import { countPathIntersections, inflateRect, rectCenter, rectsOverlap, segmentIntersectsRect } from "./rect.js";
+
+export interface GroupBoundaryBox {
+  label?: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  memberIds: string[];
+}
+
+/** Header badge rectangles of groups that an edge should avoid slicing horizontally across. */
+export function groupHeaderObstaclesForEdge(
+  boundaries: readonly GroupBoundaryBox[],
+  fromId: string,
+  toId: string,
+): Rect[] {
+  if (!boundaries || boundaries.length === 0) return [];
+  const zones: Rect[] = [];
+  for (const g of boundaries) {
+    const hasFrom = g.memberIds.includes(fromId);
+    const hasTo = g.memberIds.includes(toId);
+    if (hasFrom && hasTo) continue;
+    const labelText = (g.label || "").trim();
+    if (!labelText) continue;
+    const pillW = Math.min(Math.max(48, g.width - 16), Math.max(54, labelText.length * 7.6 + 24));
+    zones.push({
+      x1: g.x + 8,
+      y1: g.y + 2,
+      x2: g.x + 14 + pillW,
+      y2: g.y + 34,
+    });
+  }
+  return zones;
+}
 
 /** Rounds to one decimal so generated SVG path data stays compact. */
 export function round1(n: number): number {
@@ -497,6 +531,11 @@ interface PortConfig {
   dir: "horizontal" | "vertical" | "mixed";
 }
 
+export interface OrthogonalPortSlots {
+  sourceLane?: { index: number; total: number };
+  targetLane?: { index: number; total: number };
+}
+
 function portCoordinate(center: number, min: number, max: number, lane: number, bias = 0): number {
   if (max <= min) return center;
   const inset = (max - min) * 0.1;
@@ -514,6 +553,31 @@ function portCoordinate(center: number, min: number, max: number, lane: number, 
   return anchor + (boundary - anchor) * fraction;
 }
 
+function slotPortCoordinate(
+  center: number,
+  min: number,
+  max: number,
+  slot: { index: number; total: number },
+): number {
+  if (max <= min || slot.total <= 1) return round1(clamp(center, min, max));
+  const span = max - min;
+  const spread = Math.min(span * 0.82, Math.max(24, (slot.total - 1) * 28));
+  const half = spread / 2;
+  const t = slot.index / (slot.total - 1);
+  return round1(clamp(center - half + t * spread, min, max));
+}
+
+function slotTurnOffset(
+  slot: { index: number; total: number } | undefined,
+  fallbackShift: number,
+  forwardSign: 1 | -1,
+): number {
+  if (!slot) return fallbackShift;
+  if (slot.total <= 1) return 0;
+  const distFromCenter = Math.abs(slot.index - (slot.total - 1) / 2);
+  return forwardSign * round1(-distFromCenter * 10);
+}
+
 /**
  * Intelligently generates orthogonal routes between source and target rectangles
  * with obstacle avoidance, natural port selection, and minimal bends.
@@ -524,6 +588,8 @@ export function routeOrthogonal(
   obstacles: Rect[],
   bounds: { width: number; height: number },
   lane = 0,
+  portSlots?: OrthogonalPortSlots,
+  protectedHeaders: Rect[] = [],
 ): Point[] {
   const laneShift = laneOffset(lane);
   const sourceCenter = rectCenter(sourceRect);
@@ -541,21 +607,61 @@ export function routeOrthogonal(
   if (dy >= 20) {
     // 1A. Downward flow (Target is below source)
     const bias = Math.abs(dx) > 16 ? Math.sign(dx) * 6 : -8;
-    const sX = portCoordinate(sourceCenter.x, sourceRect.x1 + 14, sourceRect.x2 - 14, lane, bias);
-    const tX = portCoordinate(targetCenter.x, targetRect.x1 + 14, targetRect.x2 - 14, lane, Math.abs(dx) > 16 ? -bias : bias);
+    const sX = portSlots
+      ? (portSlots.sourceLane && portSlots.sourceLane.total > 1
+        ? slotPortCoordinate(sourceCenter.x, sourceRect.x1 + 14, sourceRect.x2 - 14, portSlots.sourceLane)
+        : round1(sourceCenter.x))
+      : portCoordinate(sourceCenter.x, sourceRect.x1 + 14, sourceRect.x2 - 14, lane, bias);
+    let tX = portSlots
+      ? (portSlots.targetLane && portSlots.targetLane.total > 1
+        ? slotPortCoordinate(targetCenter.x, targetRect.x1 + 14, targetRect.x2 - 14, portSlots.targetLane)
+        : round1(targetCenter.x))
+      : portCoordinate(targetCenter.x, targetRect.x1 + 14, targetRect.x2 - 14, lane, Math.abs(dx) > 16 ? -bias : bias);
+    if (
+      portSlots &&
+      (!portSlots.sourceLane || portSlots.sourceLane.total <= 1) &&
+      (!portSlots.targetLane || portSlots.targetLane.total <= 1) &&
+      Math.abs(sX - tX) <= 6 &&
+      sX >= targetRect.x1 + 12 &&
+      sX <= targetRect.x2 - 12
+    ) {
+      tX = sX;
+    }
     const sPort: Point = { x: sX, y: sourceRect.y2 };
     const tPort: Point = { x: tX, y: targetRect.y1 };
 
     if (Math.abs(sX - tX) < 1) {
       candidates.push([sPort, tPort]);
     } else {
-      const midY = round1((sPort.y + tPort.y) / 2 + laneShift);
+      const turnShift = slotTurnOffset(portSlots?.sourceLane, laneShift, 1);
+      const midY = round1(clamp((sPort.y + tPort.y) / 2 + turnShift, sPort.y + 8, tPort.y - 8));
       candidates.push([
         sPort,
         { x: sPort.x, y: midY },
         { x: tPort.x, y: midY },
         tPort,
       ]);
+
+      // When descending into a group from outside, add an elbow option cleanly above its header badge
+      if (protectedHeaders.length > 0) {
+        const spanMinX = Math.min(sPort.x, tPort.x) - 4;
+        const spanMaxX = Math.max(sPort.x, tPort.x) + 4;
+        const blocking = protectedHeaders.filter(
+          (h) => h.y1 > sPort.y + 10 && h.y1 < tPort.y && h.x2 >= spanMinX && h.x1 <= spanMaxX,
+        );
+        if (blocking.length > 0) {
+          const topBound = Math.min(...blocking.map((h) => h.y1));
+          const aboveY = round1(clamp(topBound - 10 + turnShift * 0.5, sPort.y + 8, tPort.y - 8));
+          if (Math.abs(aboveY - midY) >= 4) {
+            candidates.push([
+              sPort,
+              { x: sPort.x, y: aboveY },
+              { x: tPort.x, y: aboveY },
+              tPort,
+            ]);
+          }
+        }
+      }
     }
 
     // Left/Right corridor bypass around intermediary nodes
@@ -588,15 +694,24 @@ export function routeOrthogonal(
   } else if (dy <= -20) {
     // 1B. Upward flow (Target is above source - return/loopback in vertical flow)
     const bias = Math.abs(dx) > 16 ? Math.sign(dx) * 6 : -8;
-    const sX = portCoordinate(sourceCenter.x, sourceRect.x1 + 14, sourceRect.x2 - 14, lane, bias);
-    const tX = portCoordinate(targetCenter.x, targetRect.x1 + 14, targetRect.x2 - 14, lane, Math.abs(dx) > 16 ? -bias : bias);
+    const sX = portSlots
+      ? (portSlots.sourceLane && portSlots.sourceLane.total > 1
+        ? slotPortCoordinate(sourceCenter.x, sourceRect.x1 + 14, sourceRect.x2 - 14, portSlots.sourceLane)
+        : round1(sourceCenter.x))
+      : portCoordinate(sourceCenter.x, sourceRect.x1 + 14, sourceRect.x2 - 14, lane, bias);
+    const tX = portSlots
+      ? (portSlots.targetLane && portSlots.targetLane.total > 1
+        ? slotPortCoordinate(targetCenter.x, targetRect.x1 + 14, targetRect.x2 - 14, portSlots.targetLane)
+        : round1(targetCenter.x))
+      : portCoordinate(targetCenter.x, targetRect.x1 + 14, targetRect.x2 - 14, lane, Math.abs(dx) > 16 ? -bias : bias);
     const sPort: Point = { x: sX, y: sourceRect.y1 };
     const tPort: Point = { x: tX, y: targetRect.y2 };
 
     if (Math.abs(sX - tX) < 1) {
       candidates.push([sPort, tPort]);
     } else {
-      const midY = round1((sPort.y + tPort.y) / 2 + laneShift);
+      const turnShift = slotTurnOffset(portSlots?.sourceLane, laneShift, -1);
+      const midY = round1(clamp((sPort.y + tPort.y) / 2 + turnShift, tPort.y + 8, sPort.y - 8));
       candidates.push([
         sPort,
         { x: sPort.x, y: midY },
@@ -634,8 +749,26 @@ export function routeOrthogonal(
   if (dx >= 20) {
     // 2A. Forward LR flow (Target is to the right of source)
     const bias = Math.abs(dy) > 16 ? Math.sign(dy) * 12 : 0;
-    const sY = portCoordinate(sourceCenter.y, sourceRect.y1 + 10, sourceRect.y2 - 10, lane, bias);
-    const tY = portCoordinate(targetCenter.y, targetRect.y1 + 10, targetRect.y2 - 10, lane, -bias);
+    const sY = portSlots
+      ? (portSlots.sourceLane && portSlots.sourceLane.total > 1
+        ? slotPortCoordinate(sourceCenter.y, sourceRect.y1 + 10, sourceRect.y2 - 10, portSlots.sourceLane)
+        : round1(sourceCenter.y))
+      : portCoordinate(sourceCenter.y, sourceRect.y1 + 10, sourceRect.y2 - 10, lane, bias);
+    let tY = portSlots
+      ? (portSlots.targetLane && portSlots.targetLane.total > 1
+        ? slotPortCoordinate(targetCenter.y, targetRect.y1 + 10, targetRect.y2 - 10, portSlots.targetLane)
+        : round1(targetCenter.y))
+      : portCoordinate(targetCenter.y, targetRect.y1 + 10, targetRect.y2 - 10, lane, -bias);
+    if (
+      portSlots &&
+      (!portSlots.sourceLane || portSlots.sourceLane.total <= 1) &&
+      (!portSlots.targetLane || portSlots.targetLane.total <= 1) &&
+      Math.abs(sY - tY) <= 6 &&
+      sY >= targetRect.y1 + 10 &&
+      sY <= targetRect.y2 - 10
+    ) {
+      tY = sY;
+    }
 
     const sPort: Point = { x: sourceRect.x2, y: sY };
     const tPort: Point = { x: targetRect.x1, y: tY };
@@ -643,7 +776,8 @@ export function routeOrthogonal(
     if (Math.abs(sY - tY) < 1) {
       candidates.push([sPort, tPort]);
     } else {
-      const rawMidX = (sPort.x + tPort.x) / 2 + laneShift;
+      const turnShift = slotTurnOffset(portSlots?.sourceLane, laneShift, 1);
+      const rawMidX = (sPort.x + tPort.x) / 2 + turnShift;
       const midX = round1(clamp(rawMidX, sourceRect.x2 + 8, targetRect.x1 - 8));
       candidates.push([
         sPort,
@@ -700,11 +834,20 @@ export function routeOrthogonal(
     ]);
 
     const bias = Math.abs(dy) > 16 ? Math.sign(dy) * 12 : 0;
-    const sY = portCoordinate(sourceCenter.y, sourceRect.y1 + 10, sourceRect.y2 - 10, lane, bias);
-    const tY = portCoordinate(targetCenter.y, targetRect.y1 + 10, targetRect.y2 - 10, lane, -bias);
+    const sY = portSlots
+      ? (portSlots.sourceLane && portSlots.sourceLane.total > 1
+        ? slotPortCoordinate(sourceCenter.y, sourceRect.y1 + 10, sourceRect.y2 - 10, portSlots.sourceLane)
+        : round1(sourceCenter.y))
+      : portCoordinate(sourceCenter.y, sourceRect.y1 + 10, sourceRect.y2 - 10, lane, bias);
+    const tY = portSlots
+      ? (portSlots.targetLane && portSlots.targetLane.total > 1
+        ? slotPortCoordinate(targetCenter.y, targetRect.y1 + 10, targetRect.y2 - 10, portSlots.targetLane)
+        : round1(targetCenter.y))
+      : portCoordinate(targetCenter.y, targetRect.y1 + 10, targetRect.y2 - 10, lane, -bias);
     const sPortL: Point = { x: sourceRect.x1, y: sY };
     const tPortR: Point = { x: targetRect.x2, y: tY };
-    const midX = round1((sPortL.x + tPortR.x) / 2 + laneShift);
+    const turnShift = slotTurnOffset(portSlots?.sourceLane, laneShift, -1);
+    const midX = round1(clamp((sPortL.x + tPortR.x) / 2 + turnShift, tPortR.x + 8, sPortL.x - 8));
     candidates.push([
       sPortL,
       { x: midX, y: sY },
@@ -792,8 +935,21 @@ export function routeOrthogonal(
       }
     }
 
-    // Prefer 0 obstacle hits, natural port orientation, minimal bends, shortest Manhattan length
-    const score = hits * 1000000 + portPenalty + bends * 500 + length;
+    // Prefer 0 obstacle hits, keep horizontal segments off foreign group headers, natural port orientation, minimal bends, shortest Manhattan length
+    let headerPenalty = 0;
+    if (protectedHeaders.length > 0) {
+      for (let i = 0; i < cleaned.length - 1; i++) {
+        const a = cleaned[i];
+        const b = cleaned[i + 1];
+        if (Math.abs(a.y - b.y) >= 1) continue;
+        for (const hz of protectedHeaders) {
+          if (segmentIntersectsRect(a, b, hz)) {
+            headerPenalty += 16000;
+          }
+        }
+      }
+    }
+    const score = hits * 1000000 + headerPenalty + portPenalty + bends * 500 + length;
     if (score < bestScore) {
       bestScore = score;
       best = cleaned;
