@@ -1026,6 +1026,30 @@ edge chain: A -> B "hop 1" -> C "hop 2" -> D
     expect(ast.edges[6].to).toBe("D");
   });
 
+  it("parses trailing colon before quoted edge or beat flow labels without treating colon as node id", () => {
+    const ast = parse(`
+scene width=1100 height=620 layout=TB
+user Agent "AI Agent"
+service SDK "Client SDK"
+service Server "Control Server"
+service Worker "Worker"
+
+edge e1: Agent -> SDK: "Dispatch"
+beat flow:
+  SDK -> Server: "Execute" -> Worker: "Done"
+`);
+    expect(ast.diagnostics).toEqual([]);
+    expect(ast.edges).toHaveLength(1);
+    expect(ast.edges[0]).toMatchObject({ from: "Agent", to: "SDK", label: "Dispatch" });
+    expect(ast.beats[0].cues[0]).toMatchObject({
+      kind: "flow",
+      segments: [
+        { from: "SDK", to: "Server", label: "Execute" },
+        { from: "Server", to: "Worker", label: "Done" },
+      ],
+    });
+  });
+
   it("parses annotation declarations with positions, intents, and target bindings", () => {
     const code = `
 scene theme=editorial

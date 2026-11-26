@@ -282,6 +282,60 @@ export function ensureDefs(svg: SVGSVGElement, theme: ThemeTokens, id: string): 
   defs.appendChild(filter);
 }
 
+function styleEdgePlate(
+  plate: SVGRectElement,
+  shadow: SVGRectElement | undefined,
+  color: string,
+  theme: ThemeTokens,
+  isDark: boolean,
+): void {
+  // Never set CSS `filter` on SVG <rect>; Chromium mis-composites sibling <tspan> labels during WAAPI opacity fades.
+  plate.style.filter = "";
+  const px = parseFloat(plate.getAttribute("x") ?? "0");
+  const py = parseFloat(plate.getAttribute("y") ?? "0");
+  if (theme.name === "doodle") {
+    plate.setAttribute("rx", "7");
+    plate.setAttribute("ry", "7");
+    plate.setAttribute("fill", "#ffffff");
+    plate.setAttribute("fill-opacity", "1");
+    plate.setAttribute("stroke", "#18181b");
+    plate.setAttribute("stroke-width", "1.5");
+    if (shadow) {
+      shadow.style.display = "";
+      shadow.setAttribute("x", String(px + 2));
+      shadow.setAttribute("y", String(py + 2));
+      shadow.setAttribute("rx", "7");
+      shadow.setAttribute("ry", "7");
+      shadow.setAttribute("fill", "#18181b");
+      shadow.setAttribute("fill-opacity", "1");
+    }
+  } else if (theme.name === "ink") {
+    plate.setAttribute("rx", "4");
+    plate.setAttribute("ry", "4");
+    plate.setAttribute("fill", "#ffffff");
+    plate.setAttribute("fill-opacity", "0.98");
+    plate.setAttribute("stroke", "#1d4ed8");
+    plate.setAttribute("stroke-width", "1");
+    if (shadow) {
+      shadow.style.display = "";
+      shadow.setAttribute("x", String(px + 1.5));
+      shadow.setAttribute("y", String(py + 1.5));
+      shadow.setAttribute("rx", "4");
+      shadow.setAttribute("ry", "4");
+      shadow.setAttribute("fill", "rgba(29, 78, 216, 0.14)");
+      shadow.setAttribute("fill-opacity", "1");
+    }
+  } else {
+    plate.setAttribute("rx", "5");
+    plate.setAttribute("ry", "5");
+    plate.setAttribute("fill", theme.canvas ?? theme.surface ?? "#ffffff");
+    plate.setAttribute("fill-opacity", isDark ? "0.88" : "0.94");
+    plate.setAttribute("stroke", translucentColor(color, isDark ? "55" : "33"));
+    plate.setAttribute("stroke-width", "1");
+    if (shadow) shadow.style.display = "none";
+  }
+}
+
 export function updateEdgeLayerTheme(
   svg: SVGSVGElement,
   edgeRuntimeMap: EdgeRuntimeMap,
@@ -303,23 +357,7 @@ export function updateEdgeLayerTheme(
     runtime.dot.setAttribute("fill", color);
     runtime.dot.style.filter = `drop-shadow(0 0 6px ${color}) drop-shadow(0 0 12px ${color}88)`;
     if (runtime.labelPlate) {
-      if (theme.name === "doodle") {
-        runtime.labelPlate.setAttribute("fill", "#ffffff");
-        runtime.labelPlate.setAttribute("stroke", "#18181b");
-        runtime.labelPlate.setAttribute("stroke-width", "1.5");
-        runtime.labelPlate.setAttribute("rx", "7");
-        runtime.labelPlate.setAttribute("ry", "7");
-        runtime.labelPlate.style.filter = "drop-shadow(2px 2px 0 #18181b)";
-      } else {
-        runtime.labelPlate.setAttribute("fill", theme.canvas ?? theme.surface ?? "#ffffff");
-        runtime.labelPlate.setAttribute("stroke", translucentColor(color, "28"));
-        runtime.labelPlate.setAttribute("stroke-width", "1");
-        runtime.labelPlate.setAttribute("rx", "5");
-        runtime.labelPlate.setAttribute("ry", "5");
-        runtime.labelPlate.style.filter = isDark
-          ? `drop-shadow(0 4px 12px ${translucentColor(color, "18")})`
-          : "drop-shadow(0 2px 6px rgba(15, 23, 42, 0.08))";
-      }
+      styleEdgePlate(runtime.labelPlate, runtime.labelShadow, color, theme, isDark);
     }
     if (runtime.label) {
       runtime.label.setAttribute("fill", computeEdgeLabelColor(color, isDark));
@@ -330,8 +368,10 @@ export function updateEdgeLayerTheme(
 export interface EdgeRuntime {
   group: SVGGElement;
   path: SVGPathElement;
+  labelGroup?: SVGGElement;
   label?: SVGTextElement;
   labelPlate?: SVGRectElement;
+  labelShadow?: SVGRectElement;
   dot: SVGCircleElement;
   pathLen: number;
   points: Point[];
@@ -429,8 +469,10 @@ export function createEdgeRuntime(
 
   group.append(path, dot);
 
+  let labelGroup: SVGGElement | undefined;
   let labelEl: SVGTextElement | undefined;
   let labelRect: Rect | undefined;
+  let labelShadow: SVGRectElement | undefined;
   if (label) {
     const isDark = isDarkTheme(theme);
     const labelColor = computeEdgeLabelColor(color, isDark);
@@ -453,45 +495,26 @@ export function createEdgeRuntime(
     const placement = placeFlowLabel(points, textWidth, labelObstacles, bounds, boxHeight);
     labelRect = placement.rect;
     labelObstacles.push(inflateRect(labelRect, 4));
+    labelGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    labelGroup.setAttribute("class", "markdy-edge-label-group");
+    labelGroup.style.opacity = "0";
+
+    const shadow = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    labelShadow = shadow;
+    shadow.setAttribute("class", "markdy-edge-plate-shadow");
     const plate = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     const padX = 6;
     const halfW = textWidth / 2;
+    const plateW = textWidth + padX * 2;
     plate.setAttribute("class", "markdy-edge-plate");
     plate.setAttribute("x", String(placement.x - halfW - padX));
     plate.setAttribute("y", String(placement.y - boxHeight / 2));
-    plate.setAttribute("width", String(textWidth + padX * 2));
+    plate.setAttribute("width", String(plateW));
     plate.setAttribute("height", String(boxHeight));
-    if (theme.name === "doodle") {
-      plate.setAttribute("rx", "7");
-      plate.setAttribute("ry", "7");
-      plate.setAttribute("fill", "#ffffff");
-      plate.setAttribute("fill-opacity", "1");
-      plate.setAttribute("stroke", "#18181b");
-      plate.setAttribute("stroke-width", "1.5");
-      plate.style.opacity = "0";
-      plate.style.filter = "drop-shadow(2px 2px 0 #18181b)";
-    } else if (theme.name === "ink") {
-      plate.setAttribute("rx", "4");
-      plate.setAttribute("ry", "4");
-      plate.setAttribute("fill", "#ffffff");
-      plate.setAttribute("fill-opacity", "0.98");
-      plate.setAttribute("stroke", "#1d4ed8");
-      plate.setAttribute("stroke-width", "1");
-      plate.style.opacity = "0";
-      plate.style.filter = "drop-shadow(1.5px 1.5px 0 rgba(29, 78, 216, 0.14))";
-    } else {
-      plate.setAttribute("rx", "5");
-      plate.setAttribute("ry", "5");
-      plate.setAttribute("fill", theme.canvas ?? theme.surface ?? "#ffffff");
-      plate.setAttribute("fill-opacity", isDark ? "0.88" : "0.94");
-      plate.setAttribute("stroke", translucentColor(color, isDark ? "55" : "33"));
-      plate.setAttribute("stroke-width", "1");
-      plate.style.opacity = "0";
-      plate.style.filter = isDark
-        ? "drop-shadow(0 2px 8px rgba(0, 0, 0, 0.45))"
-        : "drop-shadow(0 1px 4px rgba(0, 0, 0, 0.12))";
-    }
-    group.appendChild(plate);
+    shadow.setAttribute("width", String(plateW));
+    shadow.setAttribute("height", String(boxHeight));
+    styleEdgePlate(plate, shadow, color, theme, isDark);
+    labelGroup.append(shadow, plate);
 
     const textEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
     labelEl = textEl;
@@ -524,8 +547,8 @@ export function createEdgeRuntime(
       });
     }
 
-    textEl.style.opacity = "0";
-    group.appendChild(textEl);
+    labelGroup.appendChild(textEl);
+    group.appendChild(labelGroup);
     (textEl as unknown as { __plate?: SVGRectElement }).__plate = plate;
   }
 
@@ -533,8 +556,10 @@ export function createEdgeRuntime(
   return {
     group,
     path,
+    labelGroup,
     label: labelEl,
     labelPlate: labelEl ? (labelEl as unknown as { __plate?: SVGRectElement }).__plate : undefined,
+    labelShadow,
     dot,
     pathLen: len,
     points,
@@ -547,8 +572,7 @@ export function createEdgeRuntime(
 
 function setEdgeVisible(runtime: EdgeRuntime, visible: boolean): void {
   runtime.group.style.opacity = visible ? "1" : "0";
-  if (runtime.label) runtime.label.style.opacity = visible ? "1" : "0";
-  if (runtime.labelPlate) runtime.labelPlate.style.opacity = visible ? "1" : "0";
+  if (runtime.labelGroup) runtime.labelGroup.style.opacity = visible ? "1" : "0";
   if (visible) {
     runtime.path.classList.add("markdy-edge-path--flowing");
   } else {
@@ -630,21 +654,14 @@ export function animateEdgeReveal(runtime: EdgeRuntime, startMs: number, durMs: 
     );
   }
 
-  if (label) {
+  const pillTarget = runtime.labelGroup ?? label;
+  if (pillTarget) {
     anims.push(
-      label.animate(
+      pillTarget.animate(
         [{ opacity: 0 }, { opacity: 1 }],
         { duration: 200, delay: startMs + 90, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
       ),
     );
-    if (runtime.labelPlate) {
-      anims.push(
-        runtime.labelPlate.animate(
-          [{ opacity: 0 }, { opacity: 1 }],
-          { duration: 200, delay: startMs + 90, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
-        ),
-      );
-    }
   }
 
   if (points.length >= 2) {
@@ -682,26 +699,14 @@ function animateEdgeEmphasis(
     ),
   );
 
-  if (runtime.label) {
-    anims.push(
-      runtime.label.animate(
-        [
-          { filter: "none", opacity: 1 },
-          { filter: `drop-shadow(0 0 4px ${translucentColor(glowColor, "88")}) brightness(1.25)`, opacity: 1 },
-          { filter: "none", opacity: 1 },
-        ],
-        { duration: durMs, delay: startMs, fill: "none", easing: "ease-in-out" },
-      ),
-    );
-  }
-
   if (runtime.labelPlate) {
+    const baseStroke = runtime.labelPlate.getAttribute("stroke") ?? translucentColor(runtime.color, "22");
     anims.push(
       runtime.labelPlate.animate(
         [
-          { stroke: translucentColor(runtime.color, "22") },
-          { stroke: translucentColor(glowColor, "88") },
-          { stroke: translucentColor(runtime.color, "22") },
+          { stroke: baseStroke },
+          { stroke: translucentColor(glowColor, "cc") },
+          { stroke: baseStroke },
         ],
         { duration: durMs, delay: startMs, fill: "none", easing: "ease-in-out" },
       ),

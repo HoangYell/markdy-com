@@ -1293,7 +1293,15 @@ export function createDiagram(opts: DiagramOptions): Diagram {
           (document as any).webkitFullscreenElement === viewport));
     const isHeightConstrained = hasInitialHeightConstraint || isFullscreenActive;
     const vHeight = isHeightConstrained ? (viewport.clientHeight || container.clientHeight || naturalHeight) : naturalHeight;
-    const resolvedFit = fitViewActive ? "contain" : fitMode === "auto" ? (isHeightConstrained ? "contain" : "width") : fitMode;
+    const resolvedFit = fitViewActive
+      ? isHeightConstrained || fitMode === "contain"
+        ? "contain"
+        : "width"
+      : fitMode === "auto"
+        ? isHeightConstrained
+          ? "contain"
+          : "width"
+        : fitMode;
     const defaultTargetRatio = vWidth <= 480 ? 0.95 : 0.90;
     const targetRatio = Math.min(1.0, Math.max(0.85, targetWidthRatio ?? defaultTargetRatio));
 
@@ -1372,7 +1380,7 @@ export function createDiagram(opts: DiagramOptions): Diagram {
     // with comfortable breathing room avoiding border clipping and scene boundary progress collisions.
     const widthScale = (vWidth * targetRatio) / symmetricContentW;
 
-    if (resolvedFit === "contain") {
+    if (resolvedFit === "contain" && (isHeightConstrained || fitMode === "contain")) {
       const heightScale = ((vHeight - 24) * targetRatio) / contentH;
       fitScale = Math.min(widthScale, heightScale);
     } else {

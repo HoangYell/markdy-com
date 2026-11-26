@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { parseAndCompile, THEMES } from "@markdy/core";
 import {
+  animateEdgeReveal,
   buildCueAnimations,
   buildStructuralEdgeAnimations,
   computeFrameTransform,
@@ -415,6 +416,45 @@ describe("diagram render plan", () => {
     expect(msgText.getAttribute("dominant-baseline")).toBe("central");
     expect(msgText.getAttribute("paint-order")).toBe("stroke fill");
     expect(animations.length).toBe(3);
+  });
+
+  it("renders multi-line doodle edge labels in a single opacity group without CSS filter on SVG rect", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const originalAnimate = (SVGElement.prototype as unknown as { animate?: unknown }).animate;
+    (SVGElement.prototype as unknown as { animate: () => Animation }).animate = () => ({ pause() {} }) as unknown as Animation;
+    let anims: Animation[] = [];
+    let runtime!: ReturnType<typeof createEdgeRuntime>;
+    try {
+      const nodes = [
+        { id: "A", kind: "service", role: "compute", label: "API", x: 100, y: 40, width: 160, height: 64, opacity: 1 },
+        { id: "B", kind: "database", role: "storage", label: "DB", x: 100, y: 260, width: 160, height: 64, opacity: 1 },
+      ];
+      runtime = createEdgeRuntime(
+        svg,
+        nodes[0],
+        nodes[1],
+        "request",
+        "Enqueue task + brief",
+        THEMES.doodle,
+        "test-doodle-pill",
+        [],
+        [],
+        { width: 600, height: 400 },
+        0,
+      );
+      anims = animateEdgeReveal(runtime, 0, 500);
+    } finally {
+      if (originalAnimate) {
+        (SVGElement.prototype as unknown as { animate: unknown }).animate = originalAnimate;
+      } else {
+        delete (SVGElement.prototype as unknown as { animate?: unknown }).animate;
+      }
+    }
+    expect(runtime.labelGroup?.style.opacity).toBe("0");
+    expect(runtime.labelPlate?.style.filter).toBe("");
+    expect(runtime.labelShadow?.getAttribute("fill")).toBe("#18181b");
+    expect(runtime.label?.style.opacity).toBe("");
+    expect(anims.length).toBeGreaterThanOrEqual(4);
   });
 
   it("renders deterministic nebula constellation decoration", () => {

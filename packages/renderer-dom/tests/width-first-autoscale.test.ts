@@ -240,6 +240,24 @@ beat flow:
       diagram.destroy();
     });
 
+    it("uses width-fit for natural-height embeds even when controls enable fit-view by default", () => {
+      const container = document.createElement("div");
+      Object.defineProperty(container, "clientWidth", { value: 672 });
+      document.body.appendChild(container);
+      const diagram = createDiagram({
+        container,
+        code: "scene width=1100 height=620\nlayout LR\nservice Start\nservice Middle\nservice End\nedge e1: Start -> Middle\nedge e2: Middle -> End",
+        autoplay: false,
+        controls: true,
+        minReadableScale: 0,
+      });
+      const viewport = container.querySelector<HTMLElement>(".markdy-viewport")!;
+      const scale = parseFloat(container.style.getPropertyValue("--markdy-scale"));
+      expect(viewport.dataset.fitMode).toBe("width");
+      expect(scale).toBeGreaterThan(0.45);
+      diagram.destroy();
+    });
+
     it("uses width-fit for natural-height embeds and allows disabling the readability floor", () => {
       const container = document.createElement("div");
       Object.defineProperty(container, "clientWidth", { value: 360 });

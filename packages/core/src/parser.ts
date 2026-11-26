@@ -361,8 +361,8 @@ function splitTargetLabel(token: string, lineNo: number): { node: string; label?
   if (quoteIdx < 0) return { node: token.trim() };
   const parsed = parseStringToken(token.slice(quoteIdx));
   if (!parsed) throw new ParseError("unterminated string in flow label", lineNo);
-  const before = token.slice(0, quoteIdx).trim();
-  const node = before || parsed.rest.trim();
+  const before = token.slice(0, quoteIdx).trim().replace(/:\s*$/, "");
+  const node = before || parsed.rest.trim().replace(/^\s*:\s*/, "");
   return { node, label: parsed.value };
 }
 
