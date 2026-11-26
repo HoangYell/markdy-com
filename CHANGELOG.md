@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.1] - 2026-11-26
+
+### Fixed
+- **Trailing Colon Support Before Quoted Flow/Edge Labels (`@markdy/core`)**: Stripped trailing `:` on target/source tokens before quoted edge and beat flow labels (`splitTargetLabel` in `parser.ts`) so idioms like `edge e1: Agent -> ClientSDK: "Dispatch"` resolve cleanly without `unknown node 'ClientSDK:'` warnings or dropped edges.
+- **Chromium Edge Pill WAAPI Layer Sync & SVG Shadow Rect (`@markdy/renderer-dom`)**: Removed inline CSS `drop-shadow(...)` filters from SVG `<rect class="markdy-edge-plate">` elements and grouped the plate, vector offset shadow (`markdy-edge-plate-shadow`), and `<text>` inside `.markdy-edge-label-group` animated atomically, eliminating multi-line `<tspan>` label displacement during scaled WAAPI opacity reveals.
+- **Unconstrained Natural-Height Containment Fit Scaling (`@markdy/renderer-dom`)**: Prevented `diagram.ts` from subtracting 24px from natural `aspect-ratio` height when `fitViewActive` is enabled on height-unconstrained article embeds (`!isHeightConstrained`), preserving crisp width-first readability instead of crushing wide embeds into shallow horizontal strips.
+
 ## [1.6.0] - 2026-11-26
 
 ### Added & Enhanced
