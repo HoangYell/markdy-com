@@ -379,8 +379,8 @@ export function placeFlowLabel(
   bounds: { width: number; height: number },
   boxHeight = LABEL_BOX_HEIGHT,
 ): LabelPlacement {
-  const halfW = textWidth / 2 + 5;
-  const halfH = boxHeight / 2 + 1;
+  const halfW = textWidth / 2 + 2;
+  const halfH = boxHeight / 2 + 2;
   const pad = 12;
 
   let bestPlacement: LabelPlacement | null = null;

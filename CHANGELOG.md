@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.2] - 2026-11-27
+
+### Fixed
+- **Chromium Multi-Line Edge Labels, WAAPI Fill Resolution & Plate Clearance (`@markdy/renderer-dom`)**: Replaced `<tspan>` multi-line edge labels with stacked `<text class="markdy-edge-label-line">` elements, resolved concrete hex colors for `computeEdgeLabelColor` instead of `color-mix(...)`, moved `paint-order: stroke fill` onto `<text>` elements, animated structural edge label leaves to `opacity: 1`, and accounted for plate horizontal padding + drop shadow clearance during `placeFlowLabel` collision checks so adjacent edge plates never overlap.
+
 ## [1.6.1] - 2026-11-26
 
 ### Fixed

@@ -1070,9 +1070,16 @@ export function exportLiveSceneAsPureVectorSvg(
           const edgeEl = sceneEl.querySelector(`[data-edge-id="${edgeId}"], [data-edge="${edgeId}"], #edge-${edgeId}`) as SVGElement | null;
           if (edgeEl) {
             const comp = window.getComputedStyle(edgeEl);
-            const opacity = comp.display === "none" || comp.visibility === "hidden" ? 0 : parseFloat(comp.opacity || "1");
             const pathEl = edgeEl.querySelector(".markdy-edge-path") as SVGPathElement | null;
             const pathComp = pathEl ? window.getComputedStyle(pathEl) : comp;
+            const hidden =
+              comp.display === "none" ||
+              comp.visibility === "hidden" ||
+              pathComp.display === "none" ||
+              pathComp.visibility === "hidden";
+            const gOp = parseFloat(comp.opacity || "1");
+            const pOp = parseFloat(pathComp.opacity || "1");
+            const opacity = hidden ? 0 : (isNaN(gOp) ? 1 : gOp) * (isNaN(pOp) ? 1 : pOp);
             edgeStates.set(edgeId, {
               opacity: isNaN(opacity) ? 1 : opacity,
               strokeDashoffset: pathComp.strokeDashoffset && pathComp.strokeDashoffset !== "0px" ? pathComp.strokeDashoffset : undefined,

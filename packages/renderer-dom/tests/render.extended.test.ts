@@ -327,7 +327,8 @@ describe("diagram render plan", () => {
       runtimes,
       "test-edge",
     )).toEqual([]);
-    expect(runtimes.get("edge_1")?.group.style.opacity).toBe("1");
+    expect(runtimes.get("edge_1")?.group.style.opacity).toBe("");
+    expect(runtimes.get("edge_1")?.path.style.opacity).toBe("1");
 
     const fakeAnimate = () => ({ pause() {} }) as unknown as Animation;
     (title as unknown as { animate: typeof fakeAnimate }).animate = fakeAnimate;
@@ -450,11 +451,93 @@ describe("diagram render plan", () => {
         delete (SVGElement.prototype as unknown as { animate?: unknown }).animate;
       }
     }
-    expect(runtime.labelGroup?.style.opacity).toBe("0");
+    expect(runtime.group.style.opacity).toBe("");
+    expect(runtime.labelGroup?.style.opacity).toBe("");
+    expect(runtime.labelPlate?.style.opacity).toBe("0");
     expect(runtime.labelPlate?.style.filter).toBe("");
+    expect(runtime.labelShadow?.style.opacity).toBe("0");
     expect(runtime.labelShadow?.getAttribute("fill")).toBe("#18181b");
     expect(runtime.label?.style.opacity).toBe("");
+    const lineEls = runtime.label?.querySelectorAll<SVGElement>("text.markdy-edge-label-line") ?? [];
+    expect(lineEls.length).toBeGreaterThanOrEqual(2);
+    expect(lineEls[0].style.opacity).toBe("0");
+    expect(lineEls[0].getAttribute("paint-order")).toBe("stroke fill");
+    expect(lineEls[0].getAttribute("fill")).toMatch(/^#[0-9a-f]{6}$/);
+    expect(runtime.label?.querySelectorAll("tspan").length).toBe(0);
     expect(anims.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("separates adjacent bidirectional edge label plates with padding and shadow clearance", () => {
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    const scene = document.createElement("div");
+    scene.appendChild(svg);
+    const titleEl = document.createElement("div");
+    const originalAnimate = (Element.prototype as unknown as { animate?: unknown }).animate;
+    (Element.prototype as unknown as { animate: () => Animation }).animate = () => ({ pause() {} }) as unknown as Animation;
+    try {
+      const compiled = parseAndCompile(`
+scene duration=20 layout=TB width=760 height=960
+theme: light=doodle dark=nebula
+
+repo Codebase "Repo Local (19 Ngôn Ngữ)"
+cli Indexer "gitnexus analyze (Pipeline 19 Pha)"
+database Graph "LadybugDB Graph (ex-KùzuDB)"
+gateway MCP "GitNexus MCP (19 Tools / --http)"
+service Agent "Cursor / Claude / Codex"
+
+beat ingest "1. Index":
+  show $nodes
+  Codebase -> Indexer "Tree-sitter + routes + PDG"
+  Indexer -> Graph "cụm Leiden + call graph"
+
+beat query "2. Query":
+  Agent -> MCP "impact + trace + shape_check"
+  MCP -> Graph "đọc tầng ảnh hưởng + staleness"
+
+beat apply "3. Apply":
+  MCP -> Agent "plan_token + detect_changes"
+`);
+      const nodeEls = new Map<string, HTMLElement>();
+      for (const n of compiled.plan.nodes) {
+        const el = document.createElement("div");
+        nodeEls.set(n.id, el);
+      }
+      const edgeRuntimes = new Map<string, ReturnType<typeof createEdgeRuntime>>();
+      buildCueAnimations(
+        compiled.plan.cues,
+        nodeEls,
+        compiled.plan.nodes,
+        THEMES.doodle,
+        scene,
+        titleEl,
+        { width: compiled.plan.meta.width, height: compiled.plan.meta.height },
+        compiled.plan.edges,
+        edgeRuntimes,
+        "test-gitnexus-plates",
+        compiled.plan.diagramType,
+      );
+      const plates = Array.from(scene.querySelectorAll<SVGRectElement>("rect.markdy-edge-plate")).map((el) => ({
+        x1: parseFloat(el.getAttribute("x") || "0"),
+        y1: parseFloat(el.getAttribute("y") || "0"),
+        x2: parseFloat(el.getAttribute("x") || "0") + parseFloat(el.getAttribute("width") || "0"),
+        y2: parseFloat(el.getAttribute("y") || "0") + parseFloat(el.getAttribute("height") || "0"),
+      }));
+      expect(plates.length).toBe(5);
+      for (let i = 0; i < plates.length; i++) {
+        for (let j = i + 1; j < plates.length; j++) {
+          const a = plates[i];
+          const b = plates[j];
+          const overlap = a.x1 < b.x2 && a.x2 > b.x1 && a.y1 < b.y2 && a.y2 > b.y1;
+          expect(overlap).toBe(false);
+        }
+      }
+    } finally {
+      if (originalAnimate) {
+        (Element.prototype as unknown as { animate: unknown }).animate = originalAnimate;
+      } else {
+        delete (Element.prototype as unknown as { animate?: unknown }).animate;
+      }
+    }
   });
 
   it("renders deterministic nebula constellation decoration", () => {
