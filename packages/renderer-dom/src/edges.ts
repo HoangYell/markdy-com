@@ -360,7 +360,14 @@ export function updateEdgeLayerTheme(
       styleEdgePlate(runtime.labelPlate, runtime.labelShadow, color, theme, isDark);
     }
     if (runtime.label) {
-      runtime.label.setAttribute("fill", computeEdgeLabelColor(color, isDark));
+      const nextFill = computeEdgeLabelColor(color, isDark);
+      const nextHalo = theme.canvas ?? theme.surface ?? "#ffffff";
+      runtime.label.setAttribute("fill", nextFill);
+      runtime.label.setAttribute("stroke", nextHalo);
+      runtime.label.querySelectorAll(".markdy-edge-label-line").forEach((lineEl) => {
+        lineEl.setAttribute("fill", nextFill);
+        lineEl.setAttribute("stroke", nextHalo);
+      });
     }
   }
 }
@@ -369,7 +376,7 @@ export interface EdgeRuntime {
   group: SVGGElement;
   path: SVGPathElement;
   labelGroup?: SVGGElement;
-  label?: SVGTextElement;
+  label?: SVGElement;
   labelPlate?: SVGRectElement;
   labelShadow?: SVGRectElement;
   dot: SVGCircleElement;
@@ -383,27 +390,55 @@ export interface EdgeRuntime {
 
 export type EdgeRuntimeMap = Map<string, EdgeRuntime>;
 
+function parseHexRgb(hex: string): [number, number, number] | null {
+  const clean = hex.trim().replace(/^#/, "");
+  if (/^[0-9a-f]{3}$/i.test(clean)) {
+    return [
+      parseInt(clean[0] + clean[0], 16),
+      parseInt(clean[1] + clean[1], 16),
+      parseInt(clean[2] + clean[2], 16),
+    ];
+  }
+  if (/^[0-9a-f]{6}$/i.test(clean) || /^[0-9a-f]{8}$/i.test(clean)) {
+    return [
+      parseInt(clean.slice(0, 2), 16),
+      parseInt(clean.slice(2, 4), 16),
+      parseInt(clean.slice(4, 6), 16),
+    ];
+  }
+  return null;
+}
+
+function mixHexColor(primaryHex: string, primaryRatio: number, targetRgb: [number, number, number]): string | null {
+  const src = parseHexRgb(primaryHex);
+  if (!src) return null;
+  const inv = 1 - primaryRatio;
+  const r = Math.round(src[0] * primaryRatio + targetRgb[0] * inv);
+  const g = Math.round(src[1] * primaryRatio + targetRgb[1] * inv);
+  const b = Math.round(src[2] * primaryRatio + targetRgb[2] * inv);
+  return `#${[r, g, b].map((c) => Math.max(0, Math.min(255, c)).toString(16).padStart(2, "0")).join("")}`;
+}
+
 function isDarkTheme(theme: ThemeTokens): boolean {
   if (theme.name === "paper" || theme.name === "editorial" || theme.name === "sketchy" || theme.name === "ink" || theme.name === "doodle") {
     return false;
   }
-  const canvas = (theme.canvas || theme.surface || "").trim();
-  if (canvas.startsWith("#")) {
-    const hex = canvas.slice(1);
-    const r = parseInt(hex.length === 3 ? hex[0] + hex[0] : hex.slice(0, 2), 16) || 0;
-    const g = parseInt(hex.length === 3 ? hex[1] + hex[1] : hex.slice(2, 4), 16) || 0;
-    const b = parseInt(hex.length === 3 ? hex[2] + hex[2] : hex.slice(4, 6), 16) || 0;
-    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-    return luminance < 0.5;
+  const rgb = parseHexRgb(theme.canvas || theme.surface || "");
+  if (rgb) {
+    return (0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2]) / 255 < 0.5;
   }
   return true;
 }
 
 function computeEdgeLabelColor(edgeColor: string, isDark: boolean): string {
-  if (isDark) {
-    return `color-mix(in srgb, ${edgeColor} 65%, #f8fafc)`;
-  }
-  return `color-mix(in srgb, ${edgeColor} 75%, #090d16)`;
+  // SVG presentation attribute `fill="color-mix(...)"` fails to paint inside Chromium WAAPI groups; resolve concrete hex.
+  const blended = isDark
+    ? mixHexColor(edgeColor, 0.65, [0xf8, 0xfa, 0xfc])
+    : mixHexColor(edgeColor, 0.75, [0x09, 0x0d, 0x16]);
+  if (blended) return blended;
+  return isDark
+    ? `color-mix(in srgb, ${edgeColor} 65%, #f8fafc)`
+    : `color-mix(in srgb, ${edgeColor} 75%, #090d16)`;
 }
 
 export function createEdgeRuntime(
@@ -441,7 +476,6 @@ export function createEdgeRuntime(
   group.setAttribute("id", `edge-${edgeId}`);
   group.setAttribute("data-edge-kind", kind);
   group.setAttribute("class", `markdy-edge markdy-edge--${kind}`);
-  group.style.opacity = "0";
 
   const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
   path.setAttribute("d", d);
@@ -452,6 +486,7 @@ export function createEdgeRuntime(
   path.setAttribute("stroke-linejoin", "round");
   path.setAttribute("stroke-linecap", "round");
   path.setAttribute("class", `markdy-edge-path markdy-edge-path--${kind}`);
+  path.style.opacity = "0";
   if (style.dash) path.setAttribute("stroke-dasharray", style.dash);
   if (style.marker !== "none") {
     path.setAttribute("marker-end", `url(#${sceneId}-arrow-${kind})`);
@@ -470,7 +505,7 @@ export function createEdgeRuntime(
   group.append(path, dot);
 
   let labelGroup: SVGGElement | undefined;
-  let labelEl: SVGTextElement | undefined;
+  let labelEl: SVGElement | undefined;
   let labelRect: Rect | undefined;
   let labelShadow: SVGRectElement | undefined;
   if (label) {
@@ -492,20 +527,21 @@ export function createEdgeRuntime(
     const lineHeight = 13;
     const boxHeight = lines.length === 1 ? 18 : lines.length * lineHeight + 6;
 
-    const placement = placeFlowLabel(points, textWidth, labelObstacles, bounds, boxHeight);
+    const padX = 6;
+    const halfW = textWidth / 2;
+    const plateW = textWidth + padX * 2;
+    const placement = placeFlowLabel(points, plateW, labelObstacles, bounds, boxHeight + 4);
     labelRect = placement.rect;
-    labelObstacles.push(inflateRect(labelRect, 4));
+    labelObstacles.push(inflateRect(labelRect, 8));
     labelGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
     labelGroup.setAttribute("class", "markdy-edge-label-group");
-    labelGroup.style.opacity = "0";
 
     const shadow = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     labelShadow = shadow;
     shadow.setAttribute("class", "markdy-edge-plate-shadow");
+    shadow.style.opacity = "0";
     const plate = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    const padX = 6;
-    const halfW = textWidth / 2;
-    const plateW = textWidth + padX * 2;
+    plate.style.opacity = "0";
     plate.setAttribute("class", "markdy-edge-plate");
     plate.setAttribute("x", String(placement.x - halfW - padX));
     plate.setAttribute("y", String(placement.y - boxHeight / 2));
@@ -516,40 +552,50 @@ export function createEdgeRuntime(
     styleEdgePlate(plate, shadow, color, theme, isDark);
     labelGroup.append(shadow, plate);
 
-    const textEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    labelEl = textEl;
-    textEl.setAttribute("class", "markdy-edge-label");
-    textEl.setAttribute("x", String(placement.x));
-    textEl.setAttribute("text-anchor", "middle");
-    textEl.setAttribute("font-size", "10.5");
-    textEl.setAttribute("font-weight", "500");
-    textEl.setAttribute("letter-spacing", "0.02em");
-    textEl.setAttribute("font-family", "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace");
-    textEl.setAttribute("fill", labelColor);
-    textEl.setAttribute("paint-order", "stroke fill");
-    textEl.setAttribute("stroke", theme.canvas ?? theme.surface ?? "#ffffff");
-    textEl.setAttribute("stroke-width", "3.5px");
-    textEl.setAttribute("stroke-linejoin", "round");
+    const applyLabelPresentation = (el: SVGElement, cls: string): void => {
+      el.setAttribute("class", cls);
+      el.setAttribute("text-anchor", "middle");
+      el.setAttribute("font-size", "10.5");
+      el.setAttribute("font-weight", "500");
+      el.setAttribute("letter-spacing", "0.02em");
+      el.setAttribute("font-family", "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace");
+      el.setAttribute("fill", labelColor);
+      // Set paint-order and halo stroke directly on each <text>; Chromium ignores paint-order on parent <g>.
+      el.setAttribute("paint-order", "stroke fill");
+      el.setAttribute("stroke", theme.canvas ?? theme.surface ?? "#ffffff");
+      el.setAttribute("stroke-width", "3.5px");
+      el.setAttribute("stroke-linejoin", "round");
+    };
 
     if (lines.length === 1) {
+      const textEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      applyLabelPresentation(textEl, "markdy-edge-label");
+      textEl.setAttribute("x", String(placement.x));
       textEl.setAttribute("y", String(placement.y + 0.5));
       textEl.setAttribute("dominant-baseline", "middle");
+      textEl.style.opacity = "0";
       textEl.textContent = lines[0];
+      labelEl = textEl;
     } else {
+      // Avoid <tspan> inside WAAPI/CSS-scaled SVG: Chromium leaves <tspan> unscaled at scene(1x).
+      const multiGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      applyLabelPresentation(multiGroup, "markdy-edge-label");
       const startY = placement.y - ((lines.length - 1) * lineHeight) / 2 + 3.5;
       lines.forEach((lineText, idx) => {
-        const tspan = document.createElementNS("http://www.w3.org/2000/svg", "tspan");
-        tspan.setAttribute("x", String(placement.x));
-        tspan.setAttribute("y", String(startY + idx * lineHeight));
-        tspan.setAttribute("text-anchor", "middle");
-        tspan.textContent = idx < lines.length - 1 ? `${lineText} ` : lineText;
-        textEl.appendChild(tspan);
+        const lineEl = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        applyLabelPresentation(lineEl, "markdy-edge-label-line");
+        lineEl.setAttribute("x", String(placement.x));
+        lineEl.setAttribute("y", String(startY + idx * lineHeight));
+        lineEl.style.opacity = "0";
+        lineEl.textContent = idx < lines.length - 1 ? `${lineText} ` : lineText;
+        multiGroup.appendChild(lineEl);
       });
+      labelEl = multiGroup;
     }
 
-    labelGroup.appendChild(textEl);
+    labelGroup.appendChild(labelEl);
     group.appendChild(labelGroup);
-    (textEl as unknown as { __plate?: SVGRectElement }).__plate = plate;
+    (labelEl as unknown as { __plate?: SVGRectElement }).__plate = plate;
   }
 
   svg.appendChild(group);
@@ -570,9 +616,53 @@ export function createEdgeRuntime(
   };
 }
 
+function groupHeaderLabelObstacles(groupBoundaries: GroupBoundary[]): Rect[] {
+  const rects: Rect[] = [];
+  for (const gb of groupBoundaries) {
+    if (!gb.label) continue;
+    const labelW = Math.max(54, gb.label.length * 6.8 + 20);
+    rects.push({
+      x1: gb.x + 10,
+      y1: gb.y + 6,
+      x2: gb.x + 14 + labelW + 4,
+      y2: gb.y + 32,
+    });
+  }
+  return rects;
+}
+
+function edgePillLeaves(runtime: EdgeRuntime): SVGElement[] {
+  const leaves: SVGElement[] = [];
+  if (runtime.labelShadow) leaves.push(runtime.labelShadow);
+  if (runtime.labelPlate) leaves.push(runtime.labelPlate);
+  if (runtime.label) {
+    if (runtime.label.tagName.toLowerCase() === "text") {
+      leaves.push(runtime.label);
+    } else {
+      leaves.push(...Array.from(runtime.label.querySelectorAll<SVGElement>("text")));
+    }
+  }
+  return leaves;
+}
+
+function edgeOpacityLeaves(runtime: EdgeRuntime): SVGElement[] {
+  return [runtime.path, ...edgePillLeaves(runtime)];
+}
+
+function animateElementsOpacity(
+  elements: SVGElement[],
+  keyframes: Keyframe[],
+  options: KeyframeAnimationOptions,
+): Animation[] {
+  return elements.map((el) => el.animate(keyframes, options));
+}
+
 function setEdgeVisible(runtime: EdgeRuntime, visible: boolean): void {
-  runtime.group.style.opacity = visible ? "1" : "0";
-  if (runtime.labelGroup) runtime.labelGroup.style.opacity = visible ? "1" : "0";
+  const opacity = visible ? "1" : "0";
+  runtime.group.style.opacity = "";
+  for (const leaf of edgeOpacityLeaves(runtime)) {
+    leaf.style.opacity = opacity;
+  }
   if (visible) {
     runtime.path.classList.add("markdy-edge-path--flowing");
   } else {
@@ -632,7 +722,7 @@ function dotTravelKeyframes(points: Point[]): Keyframe[] {
 
 export function animateEdgeReveal(runtime: EdgeRuntime, startMs: number, durMs: number): Animation[] {
   const anims: Animation[] = [];
-  const { path, dot, label, group, pathLen, points } = runtime;
+  const { path, dot, pathLen, points } = runtime;
   if (runtime.drawReveal) {
     path.style.strokeDasharray = String(pathLen);
     path.style.strokeDashoffset = String(pathLen);
@@ -640,7 +730,8 @@ export function animateEdgeReveal(runtime: EdgeRuntime, startMs: number, durMs: 
 
   const drawMs = Math.min(260, durMs * 0.65);
   anims.push(
-    group.animate(
+    ...animateElementsOpacity(
+      [path],
       [{ opacity: 0 }, { opacity: 1 }],
       { duration: 140, delay: startMs, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
     ),
@@ -654,10 +745,11 @@ export function animateEdgeReveal(runtime: EdgeRuntime, startMs: number, durMs: 
     );
   }
 
-  const pillTarget = runtime.labelGroup ?? label;
-  if (pillTarget) {
+  const pillLeaves = edgePillLeaves(runtime);
+  if (pillLeaves.length > 0) {
     anims.push(
-      pillTarget.animate(
+      ...animateElementsOpacity(
+        pillLeaves,
         [{ opacity: 0 }, { opacity: 1 }],
         { duration: 200, delay: startMs + 90, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
       ),
@@ -797,7 +889,7 @@ export function buildCueAnimations(
     const from = nodeById.get(edge.from);
     const to = nodeById.get(edge.to);
     if (!from || !to) continue;
-    const routeObstacles = [...allNodeRects, ...edgeLabels.map((l) => inflateRect(l, 4))];
+    const routeObstacles = [...allNodeRects, ...edgeLabels.map((l) => inflateRect(l, 6))];
     const lane = nextEdgeLane(edgeLanes, from, to);
     const runtime = createEdgeRuntime(
       svg,
@@ -808,7 +900,7 @@ export function buildCueAnimations(
       theme,
       sceneId,
       routeObstacles,
-      [...allNodeRects, ...edgeLabels],
+      [...allNodeRects, ...groupHeaderLabelObstacles(groupBoundaries), ...edgeLabels],
       bounds,
       lane,
       placedPaths,
@@ -818,7 +910,7 @@ export function buildCueAnimations(
       groupBoundaries,
     );
     placedPaths.push(runtime.points);
-    if (runtime.labelRect) edgeLabels.push(runtime.labelRect);
+    if (runtime.labelRect) edgeLabels.push(inflateRect(runtime.labelRect, 8));
     edgeRuntimes.set(edge.id, runtime);
   }
 
@@ -859,7 +951,7 @@ export function buildCueAnimations(
           return;
         }
         const runtime = edgeRuntimes.get(id);
-        if (runtime) anims.push(runtime.group.animate([{ opacity: 0 }, { opacity: 1 }], { duration: durMs, delay, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" }));
+        if (runtime) anims.push(...animateElementsOpacity(edgeOpacityLeaves(runtime), [{ opacity: 0 }, { opacity: 1 }], { duration: durMs, delay, fill: "forwards", easing: "cubic-bezier(0.16, 1, 0.3, 1)" }));
       });
       continue;
     }
@@ -872,7 +964,7 @@ export function buildCueAnimations(
           continue;
         }
         const runtime = edgeRuntimes.get(id);
-        if (runtime) anims.push(runtime.group.animate([{ opacity: 1 }, { opacity: 0 }], { duration: durMs, delay: startMs, fill: "forwards" }));
+        if (runtime) anims.push(...animateElementsOpacity(edgeOpacityLeaves(runtime), [{ opacity: 1 }, { opacity: 0 }], { duration: durMs, delay: startMs, fill: "forwards" }));
       }
       continue;
     }
@@ -955,7 +1047,7 @@ export function buildCueAnimations(
       if (!from || !to) continue;
       const routeObstacles = [...allNodeRects, ...placedLabels.map((l) => inflateRect(l, 4))];
       const lane = nextEdgeLane(laneByPair, from, to);
-      const labelObstacles = [...allNodeRects, ...placedLabels];
+      const labelObstacles = [...allNodeRects, ...groupHeaderLabelObstacles(groupBoundaries), ...placedLabels];
       const matchedEdge = cue.edgeId ? edgeById.get(cue.edgeId) : edges.find((edge) =>
         !edge.structural &&
         edge.from === seg.from &&
@@ -1065,6 +1157,7 @@ export function buildStructuralEdgeAnimations(
   const allNodeRects = [...rectById.values()];
   const placedLabels: Rect[] = [];
   const placedPaths: Point[][] = [];
+  const groupHeaderObstacles = groupHeaderLabelObstacles(groupBoundaries);
   const laneByPair = new Map<string, number>();
   const portSlotsByEdge = computePortSlotMap(edges, nodes, diagramType);
   const svg = ensureEdgeLayer(scene);
@@ -1101,7 +1194,7 @@ export function buildStructuralEdgeAnimations(
     if (!from || !to) continue;
     const routeObstacles = [...allNodeRects, ...placedLabels.map((l) => inflateRect(l, 4))];
     const lane = nextEdgeLane(laneByPair, edge.from, edge.to);
-    const labelObstacles = [...allNodeRects, ...placedLabels];
+    const labelObstacles = [...allNodeRects, ...groupHeaderObstacles, ...placedLabels];
     const runtime = createEdgeRuntime(
       svg,
       from,
@@ -1131,7 +1224,8 @@ export function buildStructuralEdgeAnimations(
 
     if (hasCues) {
       anims.push(
-        runtime.group.animate(
+        ...animateElementsOpacity(
+          edgeOpacityLeaves(runtime),
           [{ opacity: 0 }, { opacity: 1 }],
           { duration: 240, delay: revealDelay, fill: "both", easing: "cubic-bezier(0.16, 1, 0.3, 1)" },
         ),
